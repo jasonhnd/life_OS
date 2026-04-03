@@ -82,16 +82,18 @@
 
 ## Notion 数据沉淀
 
-流程结束后（需要 Notion MCP 可用）：
+数据库 schema、data source ID、字段名、存档操作详见 `references/notion-schema.md`。
 
-| 产出 | 目标数据库 |
-|------|-----------|
-| 奏折 | 🤔 决策（流程类型=三省六部） |
-| 行动项 | ✅ 任务（关联六部 Area） |
-| 御史台报告 | 📓 日志 |
-| 谏官报告 | 📓 日志 |
+流程结束后，Orchestrator 按 `notion-schema.md` 的存档操作章节执行：
+1. 创建决策页面（奏折全文 → 页面正文）
+2. 逐条创建任务（关联六部 Area）
+3. 创建御史台日志
+4. 创建谏官日志
 
-Notion 不可用时在奏折末尾标注"⚠️ Notion 未连接，本次产出未存档"。
+丞相在对话开始时查询历史决策（详见 `notion-schema.md` 丞相章节）。
+早朝官复盘时从 Notion 拉取数据（详见 `notion-schema.md` 早朝官章节）。
+
+Notion MCP 不可用时在输出末尾标注"⚠️ Notion 未连接，本次产出未存档"。
 
 ## 信息隔离
 
