@@ -194,13 +194,13 @@ Life OS 遵循 [Agent Skills 开放标准](https://agentskills.io/)，兼容 30+
 
 ---
 
-## Notion 集成
+## Notion 集成 — 第二大脑
 
-Life OS 把 Notion 当作朝廷的档案馆。AI 负责决策和执行，Notion 负责持久化存储。
+Life OS 把 Notion 当作朝廷的档案馆。AI 负责决策和执行，Notion 负责持久化存储。每次对话可以是新开的，但通过 Notion 保持连续性 —— 丞相开场就会去 Notion 翻历史档案，流程结束自动存档。
 
-### 连接方式
+### 第一步：连接 Notion
 
-**Claude.ai** — Settings → Connected Apps → Notion，授权 workspace。
+**Claude.ai** — Settings → Connected Apps → Notion，授权你的 workspace。
 
 **Claude Code** — 在 MCP 配置中添加：
 ```json
@@ -214,48 +214,127 @@ Life OS 把 Notion 当作朝廷的档案馆。AI 负责决策和执行，Notion 
 }
 ```
 
-### 数据沉淀
+### 第二步：建立第二大脑
 
-| 产出 | Notion 数据库 |
-|------|-------------|
-| 决策结论 + 奏折 | 🤔 决策（流程类型=三省六部） |
-| 行动项 | ✅ 任务（关联六部 Area） |
-| 复盘/监察报告 | 📓 日志 |
-| 调研分析 | 📚 资源库 |
-| 新目标 | 🎯 目标 |
+在 Notion 中创建一个顶层页面 **🧠 第二大脑**，然后在下面建立以下数据库：
+
+```
+🧠 第二大脑
+├── 🏛️ 六部            ← Database，6个固定条目（核心锚点）
+├── 🎯 项目            ← Database
+├── ✅ 任务            ← Database
+├── 🎯 目标            ← Database
+├── 🤔 决策            ← Database
+├── 📓 日志            ← Database
+└── （可选：📥 收件箱、👥 人脉、💰 财务、🏥 健康、📚 资源库、📌 书签）
+```
+
+#### 🏛️ 六部（必建，其他数据库的关联锚点）
+
+创建一个 Database，添加 6 个条目：
+
+| Name | Description | Status |
+|------|-------------|--------|
+| 👥 吏部 · 人 | 人际关系、团队、社交 | Active |
+| 💰 户部 · 钱 | 财务、投资、预算 | Active |
+| 📖 礼部 · 学习与表达 | 教育、品牌、创作 | Active |
+| ⚔️ 兵部 · 行动 | 项目、执行、调研 | Active |
+| ⚖️ 刑部 · 规则 | 风控、合规、自律 | Active |
+| 🏗️ 工部 · 基建与健康 | 健康、环境、数字基建 | Active |
+
+这是整个系统的骨架 —— 任务、目标、决策都会关联到六部。
+
+#### ✅ 任务
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| Title | Title | 任务名称 |
+| Status | Select | To Do / In Progress / Waiting / Done / Cancelled |
+| Priority | Select | P0 / P1 / P2 / P3 |
+| Due Date | Date | 截止日期 |
+| Energy | Select | High / Medium / Low |
+| Context | Select | Computer / Phone / Home / Office / Call / Errand |
+| Area | Relation → 六部 | 关联到哪个部门 |
+| Project | Relation → 项目 | 关联到哪个项目 |
+
+#### 🤔 决策
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| Title | Title | 旨意 |
+| 流程类型 | Select | 简单决策 / 三省六部 |
+| 启用部门 | Multi-select | 吏部 / 户部 / 礼部 / 兵部 / 刑部 / 工部 |
+| 综合评分 | Number | 1-10 |
+| 封驳次数 | Number | 门下省封驳了几次 |
+| Status | Select | Considering / Decided / Reversed |
+| Category | Select | Career / Finance / Product / Tech / Family / Life / Health |
+| Outcome | Select | Good / Neutral / Bad / TBD |
+| Date | Date | 决策日期 |
+| Area | Relation → 六部 | 主要相关部门 |
+| Actions | Relation → 任务 | 产出的行动项 |
+
+页面正文存奏折全文。建一个 **📜 朝政记录** 视图：过滤 `流程类型 = 三省六部`，按日期倒序。
+
+#### 📓 日志
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| Title | Title | 日志标题 |
+| Date | Date | 日期 |
+| Mood | Select | Great / Good / Neutral / Low / Bad |
+| Energy | Select | High / Medium / Low |
+| Highlight | Text | 亮点摘要 |
+| Tags | Multi-select | 自定义标签（御史台 / 谏官 / 早朝简报等） |
+
+页面正文存报告全文。
+
+#### 🎯 目标
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| Title | Title | 目标名称 |
+| Status | Select | Not Started / In Progress / Achieved / Missed / Revised |
+| Timeframe | Select | 2026-Q1 / Q2 / Q3 / Q4 / Annual / Long-term |
+| Progress | Number | 0-100 |
+| Key Results | Text | 关键结果 |
+| Area | Relation → 六部 | 关联部门 |
+| Projects | Relation → 项目 | 关联项目 |
+
+#### 🎯 项目
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| Name | Title | 项目名称 |
+| Status | Select | Planning / Active / On Hold / Done / Dropped |
+| Priority | Select | P0 / P1 / P2 / P3 |
+| Owner | Select | Me / Shared |
+| Deadline | Date | 截止日期 |
+| Area | Relation → 六部 | 关联部门 |
+
+### 数据流转
+
+三省六部流程结束后，产出自动存入对应数据库：
+
+| 产出 | 存入 | 说明 |
+|------|------|------|
+| 奏折 | 🤔 决策 | 流程类型=三省六部，奏折全文存页面正文 |
+| 行动项 | ✅ 任务 | 逐条创建，关联六部 Area 和决策 |
+| 御史台报告 | 📓 日志 | Tags=御史台 |
+| 谏官报告 | 📓 日志 | Tags=谏官 |
+| 早朝简报 | 📓 日志 | Tags=早朝简报 |
+| 新目标 | 🎯 目标 | 关联六部 Area |
 
 ### 跨会话连续性
 
 ```
-新对话 → 丞相听意图 → 查 Notion 历史 → 带上下文处理 → 产出存回 Notion
+新对话 → 丞相听意图 → 搜索 Notion 历史决策 → 带上下文处理 → 产出存回 Notion
 ```
 
-不依赖对话长度，不怕上下文丢失。
+不依赖对话长度，不怕上下文丢失。你说"上次分析搬家的事怎么样了"，丞相去决策库搜"搬家"，把上次奏折结论拉回来。
 
-<details>
-<summary>Notion 数据库完整结构</summary>
+### 不连接 Notion 也能用
 
-```
-🧠 第二大脑
-├── 📥 收件箱          ← 丞相的收件箱
-├── 🏛️ 六部            ← Areas（6个部门）
-├── 🎯 项目            ← 兵部为主的项目库
-├── ✅ 任务            ← 各部的执行任务
-├── 🎯 目标            ← 各部的目标
-├── 🤔 决策            ← 决策档案（含奏折）
-├── 📓 日志            ← 早朝简报 + 监察报告
-├── 👥 人脉            ← 吏部专属
-├── 💰 财务            ← 户部专属
-├── 🏥 健康            ← 工部专属
-├── 📚 资源库          ← 各部知识库
-├── 📌 书签            ← 情报收集
-├── 📋 会议
-└── 🗄️ 归档
-```
-
-**决策数据库扩展字段**：流程类型（Select）、启用部门（Multi-select）、综合评分（Number）、封驳次数（Number）、Actions（Relation → 任务）
-
-</details>
+Notion 是可选的数据层。不连接时，Life OS 所有决策和分析功能照常工作，只是不会自动存档。流程结束会标注"⚠️ Notion 未连接，本次产出未存档"。
 
 ---
 
