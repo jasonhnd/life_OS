@@ -1,2 +1,5 @@
 # Claude Code local installation (generated from pro/ source files)
 .claude/
+
+# Eval outputs (generated, not tracked)
+evals/outputs/
