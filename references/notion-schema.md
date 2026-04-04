@@ -2,6 +2,13 @@
 
 各 agent 读写 Notion 时参考本文件。使用 Notion MCP 工具操作。
 
+## 重要概念：六部 vs 领域
+
+- **六部**是 AI 朝廷的分析框架（吏/户/礼/兵/刑/工），固定不变
+- **领域**是用户生活的实际分区（职业发展/家庭/健康/财务...），由用户自定义
+- 两者是独立的。一个决策可能由户部分析财务维度，但对应的领域是"产品与创业"
+- Notion 中的 Area 字段关联的是 **🌊 领域**，不是六部
+
 ## Data Source ID 索引
 
 | 数据库 | Data Source ID |
@@ -10,23 +17,40 @@
 | ✅ 任务 | `collection://d831ca0d-d9e0-44db-a6d1-cf354446a5d1` |
 | 📓 日志 | `collection://98f3ae3b-9e14-4b35-b065-38b72207aff3` |
 | 🎯 目标 | `collection://2a3360f0-ae8b-4803-9bb0-ffbff1e5c0f7` |
-| 🏛️ 六部 | `collection://e7a34f51-278d-4051-96bf-b46a687c0bf3` |
+| 🌊 领域 | `collection://e7a34f51-278d-4051-96bf-b46a687c0bf3` |
 | 🎯 项目 | `collection://f56da00c-7b49-44fb-b011-149f23d62750` |
 
-## 六部 Area 页面 URL
+## 领域页面 URL
 
-创建任务/决策时关联到六部 Area 使用以下 URL：
+创建任务/决策时关联到领域使用以下 URL。领域由用户自定义，支持"上级领域"层级关系。
 
-| 部门 | Page URL |
-|------|----------|
-| 👥 吏部 · 人 | `3372254edbf881259dc1d405c262aef4` |
-| 💰 户部 · 钱 | `3372254edbf881e696e3ec5676814e32` |
-| 📖 礼部 · 学习与表达 | `3372254edbf8812ba45be59362a13dc5` |
-| ⚔️ 兵部 · 行动 | `3372254edbf8813a93a6c37ed6ea9f59` |
-| ⚖️ 刑部 · 规则 | `3372254edbf88155a799d1eaf8abd89d` |
-| 🏗️ 工部 · 基建与健康 | `3372254edbf881d5a074e78f0670cc75` |
+| 领域 | Page URL | 复盘周期 |
+|------|----------|---------|
+| 💼 职业发展 | `3362254edbf88166926ee1fee0f84bee` | Monthly |
+| NDFG | `3362254edbf88155834fec5e3de29b5d` | Weekly |
+| 🚀 产品与创业 | `3362254edbf881b98c16fbb6ed4241d6` | Weekly |
+| 💰 财务管理 | `3362254edbf881d79d22fbd31e9625ab` | Monthly |
+| 👨‍👩‍👧‍👦 家庭 | `3362254edbf881c2b356cff0e009c6ca` | Weekly |
+| 🤝 社交关系 | `3362254edbf881cba730ef1aaa78b389` | Monthly |
+| 🏥 健康 | `3362254edbf8818c9ee6e63b9c89765b` | Monthly |
+| 🏠 生活运营 | `3362254edbf8817eb8a8e53e672568a6` | Monthly |
+| 📖 学习 | `3362254edbf88162ac78cb235caa4876` | Weekly |
+| ✍️ 创作 | `3362254edbf8812db934c2ef306bee24` | Weekly |
+| 🧘 精神 | `3362254edbf8813f9e74c275b8d76c18` | Quarterly |
+
+注意：领域会随用户需求变化。agent 存档时应通过 notion-search 查询领域名称匹配，而非硬编码 page URL。
 
 ## 数据库字段（实际属性名）
+
+### 🌊 领域
+
+```
+Name         — 领域名称
+Description  — 描述
+Status       — "Active" | "Inactive"
+Review Cycle — "Weekly" | "Monthly" | "Quarterly"
+上级领域      — 自关联（支持层级）
+```
 
 ### 🤔 决策
 
@@ -41,7 +65,7 @@ Category     — "Career" | "Finance" | "Product" | "Tech" | "Family" | "Life" |
 Outcome      — "Good" | "Neutral" | "Bad" | "TBD"
 Date         — 日期（用 date:Date:start）
 Tags         — 多选标签
-Area         — 关联六部
+Area         — 关联领域（根据决策话题匹配最相关的领域）
 Actions      — 关联任务
 ```
 
@@ -56,7 +80,7 @@ Priority     — "P0" | "P1" | "P2" | "P3"
 Due Date     — 截止日期（用 date:Due Date:start）
 Context      — "Computer" | "Phone" | "Home" | "Office" | "Call" | "Errand"
 Energy       — "High" | "Medium" | "Low"
-Area         — 关联六部
+Area         — 关联领域
 Project      — 关联项目
 Recurring    — 是否循环（"__YES__" / "__NO__"）
 ```
@@ -83,7 +107,7 @@ Timeframe    — "2026-Q1" | "2026-Q2" | "2026-Q3" | "2026-Q4" | "2026 Annual" |
 Progress     — 数字 (0-100)
 Key Results  — 关键结果描述
 Review Notes — 复盘备注
-Area         — 关联六部
+Area         — 关联领域
 Projects     — 关联项目
 ```
 
@@ -97,7 +121,7 @@ Owner        — "Me" | "Shared"
 Deadline     — 截止日期（用 date:Deadline:start）
 Outcome      — 成果描述
 Tags         — 多选标签
-Area         — 关联六部
+Area         — 关联领域
 ```
 
 ## Orchestrator 存档操作
@@ -118,7 +142,7 @@ properties:
   Category: [根据旨意判断]
   Outcome: "TBD"
   date:Date:start: [当天日期]
-  Area: [主要相关的六部 page URL]
+  Area: [搜索领域库，匹配最相关的领域 page URL]
 content: 奏折全文
 ```
 
@@ -131,7 +155,7 @@ properties:
   Status: "To Do"
   Priority: [P0/P1/P2/P3]
   date:Due Date:start: [时限日期]
-  Area: [负责部门的 page URL]
+  Area: [搜索领域库，匹配最相关的领域 page URL]
 ```
 
 ### 3. 创建日志（御史台报告）
@@ -175,7 +199,9 @@ content: 谏官报告全文
    data_source_url=collection://2a3360f0-ae8b-4803-9bb0-ffbff1e5c0f7
 3. notion-search: 查询最近日志
    data_source_url=collection://98f3ae3b-9e14-4b35-b065-38b72207aff3
-4. 汇总为早朝简报
+4. notion-search: 查询领域库，按 Review Cycle 筛选本周期需要复盘的领域
+   data_source_url=collection://e7a34f51-278d-4051-96bf-b46a687c0bf3
+5. 按领域维度汇总为早朝简报
 ```
 
 Notion MCP 不可用时，在输出末尾标注"⚠️ Notion 未连接，本次产出未存档"。
