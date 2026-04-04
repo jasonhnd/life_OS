@@ -9,36 +9,37 @@
 - 两者是独立的。一个决策可能由户部分析财务维度，但对应的领域是"产品与创业"
 - Notion 中的 Area 字段关联的是 **🌊 领域**，不是六部
 
-## Data Source ID 索引
+## 数据库发现协议
 
-| 数据库 | Data Source ID |
-|--------|---------------|
-| 🤔 决策 | `collection://037e10d0-c176-4a45-9b4d-be5e1c4f4b8e` |
-| ✅ 任务 | `collection://d831ca0d-d9e0-44db-a6d1-cf354446a5d1` |
-| 📓 日志 | `collection://98f3ae3b-9e14-4b35-b065-38b72207aff3` |
-| 🎯 目标 | `collection://2a3360f0-ae8b-4803-9bb0-ffbff1e5c0f7` |
-| 🌊 领域 | `collection://e7a34f51-278d-4051-96bf-b46a687c0bf3` |
-| 🎯 项目 | `collection://f56da00c-7b49-44fb-b011-149f23d62750` |
+**所有 data source ID 和 page URL 必须在运行时动态获取，不得硬编码。**
 
-## 领域页面 URL
+### 初始化步骤（每次会话首次触发 Notion 操作时执行一次）
 
-创建任务/决策时关联到领域使用以下 URL。领域由用户自定义，支持"上级领域"层级关系。
+```
+1. notion-search: query="决策" → 获取 ���� 决策 的 data source ID
+2. notion-search: query="任务" → 获取 ✅ 任务 的 data source ID
+3. notion-search: query="日志" → 获取 📓 日志 的 data source ID
+4. notion-search: query="目标" → 获取 🎯 目标 的 data source ID
+5. notion-search: query="领域" → 获取 🌊 领域 的 data source ID
+6. notion-search: query="项目" → 获取 🎯 项目 的 data source ID
+7. 缓存所有 ID，供后续操作使用
+```
 
-| 领域 | Page URL | 复盘周期 |
-|------|----------|---------|
-| 💼 职业发展 | `3362254edbf88166926ee1fee0f84bee` | Monthly |
-| NDFG | `3362254edbf88155834fec5e3de29b5d` | Weekly |
-| 🚀 产品与创业 | `3362254edbf881b98c16fbb6ed4241d6` | Weekly |
-| 💰 财务管理 | `3362254edbf881d79d22fbd31e9625ab` | Monthly |
-| 👨‍👩‍👧‍👦 家庭 | `3362254edbf881c2b356cff0e009c6ca` | Weekly |
-| 🤝 社交关系 | `3362254edbf881cba730ef1aaa78b389` | Monthly |
-| 🏥 健康 | `3362254edbf8818c9ee6e63b9c89765b` | Monthly |
-| 🏠 生活运营 | `3362254edbf8817eb8a8e53e672568a6` | Monthly |
-| 📖 学习 | `3362254edbf88162ac78cb235caa4876` | Weekly |
-| ✍️ 创作 | `3362254edbf8812db934c2ef306bee24` | Weekly |
-| 🧘 精神 | `3362254edbf8813f9e74c275b8d76c18` | Quarterly |
+### 领域关联
 
-注意：领域会随用户需求变化。agent 存档时应通过 notion-search 查询领域名称匹配，而非硬编码 page URL。
+存档时需要关联领域（Area 字段），通过名称搜索匹配：
+
+```
+notion-search: query=[领域名称], data_source_url=[领域 data source ID]
+→ 获取对应领域的 page URL
+```
+
+### Notion 不可用时的降级
+
+如果 Notion MCP 不可用或初始化失败：
+- 跳过所有 Notion 读写操作
+- 在输出末尾标注"⚠️ Notion 未连接，本次产出未存档"
+- 系统其余功能正常运行
 
 ## 数据库字段（实际属性名）
 
@@ -65,7 +66,7 @@ Category     — "Career" | "Finance" | "Product" | "Tech" | "Family" | "Life" |
 Outcome      — "Good" | "Neutral" | "Bad" | "TBD"
 Date         — 日期（用 date:Date:start）
 Tags         — 多选标签
-Area         — 关联领域（根据决策话题匹配最相关的领域）
+Area         — 关联领域
 Actions      — 关联任务
 ```
 
@@ -126,12 +127,12 @@ Area         — 关联领域
 
 ## Orchestrator 存档操作
 
-流程结束后，Orchestrator 按以下顺序存档：
+流程结束后，Orchestrator 按以下顺序存档（使用初始化时缓存的 data source ID）：
 
 ### 1. 创建决策页面
 
 ```
-data_source_id: collection://037e10d0-c176-4a45-9b4d-be5e1c4f4b8e
+data_source_id: [决策库 ID]
 properties:
   Title: [旨意]
   流程类型: "三省六部"
@@ -142,26 +143,26 @@ properties:
   Category: [根据旨意判断]
   Outcome: "TBD"
   date:Date:start: [当天日期]
-  Area: [搜索领域库，匹配最相关的领域 page URL]
+  Area: [搜索领域库，匹配最相关的领域]
 content: 奏折全文
 ```
 
 ### 2. 创建任务（逐条）
 
 ```
-data_source_id: collection://d831ca0d-d9e0-44db-a6d1-cf354446a5d1
+data_source_id: [任务库 ID]
 properties:
   Title: [行动项名称]
   Status: "To Do"
   Priority: [P0/P1/P2/P3]
   date:Due Date:start: [时限日期]
-  Area: [搜索领域库，匹配最相关的领域 page URL]
+  Area: [搜索领域库，匹配最相关的领域]
 ```
 
 ### 3. 创建日志（御史台报告）
 
 ```
-data_source_id: collection://98f3ae3b-9e14-4b35-b065-38b72207aff3
+data_source_id: [日志库 ID]
 properties:
   Title: "🔱 御史台 · [旨意] · [日期]"
   date:Date:start: [当天日期]
@@ -172,7 +173,7 @@ content: 御史台报告全文
 ### 4. 创建日志（谏官报告）
 
 ```
-data_source_id: collection://98f3ae3b-9e14-4b35-b065-38b72207aff3
+data_source_id: [日志库 ID]
 properties:
   Title: "💬 谏官 · [旨意] · [日期]"
   date:Date:start: [当天日期]
@@ -185,7 +186,7 @@ content: 谏官报告全文
 对话开始时，根据用户话题搜索相关历史：
 
 ```
-1. notion-search: query=[用户话题关键词], data_source_url=collection://037e10d0-c176-4a45-9b4d-be5e1c4f4b8e
+1. notion-search: query=[用户话题关键词], data_source_url=[决策库 ID]
 2. 如果找到相关决策，用 notion-fetch 读取奏折内容
 3. 在上报时附上历史上下文
 ```
@@ -193,15 +194,9 @@ content: 谏官报告全文
 ## 早朝官：拉取复盘数据
 
 ```
-1. notion-search: 查询任务数据库，关键词=当前周期
-   data_source_url=collection://d831ca0d-d9e0-44db-a6d1-cf354446a5d1
-2. notion-search: 查询目标数据库
-   data_source_url=collection://2a3360f0-ae8b-4803-9bb0-ffbff1e5c0f7
-3. notion-search: 查询最近日志
-   data_source_url=collection://98f3ae3b-9e14-4b35-b065-38b72207aff3
-4. notion-search: 查询领域库，按 Review Cycle 筛选本周期需要复盘的领域
-   data_source_url=collection://e7a34f51-278d-4051-96bf-b46a687c0bf3
+1. notion-search: 查询任务数据库 data_source_url=[任务库 ID]
+2. notion-search: 查询目标数据库 data_source_url=[目标库 ID]
+3. notion-search: 查询最近日志 data_source_url=[日志库 ID]
+4. notion-search: 查询领域库 data_source_url=[领域库 ID]，按 Review Cycle 筛选本周期需要复盘的领域
 5. 按领域维度汇总为早朝简报
 ```
-
-Notion MCP 不可用时，在输出末尾标注"⚠️ Notion 未连接，本次产出未存档"。
