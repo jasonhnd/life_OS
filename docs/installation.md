@@ -176,4 +176,29 @@ A：去掉"10 个标准场景"和"Token 消耗估算"章节，保留核心的角
 A：可以。AI 模型支持多语言。系统指令是中文的，但你用任何语言提问都能正常工作。角色输出会跟随你的语言。
 
 **Q：如何更新到最新版本？**
-A：Claude Code 用户重新运行 `/install-skill https://github.com/jasonhnd/life_OS`。其他平台重新下载 `SKILL.md` 并替换。
+A：见下方"更新"章节。
+
+**Q：怎么知道有新版本？**
+A：Watch [GitHub 仓库](https://github.com/jasonhnd/life_OS) 获取更新通知，或查看 [CHANGELOG.md](../CHANGELOG.md)。
+
+---
+
+## 更新
+
+### 查看当前版本
+
+SKILL.md 的 frontmatter 中有 `version` 字段。最新版本见 [GitHub 仓库](https://github.com/jasonhnd/life_OS/blob/main/SKILL.md) 或 [CHANGELOG.md](../CHANGELOG.md)。
+
+### 各平台更新方法
+
+| 平台 | 更新方式 |
+|------|---------|
+| **Claude Code** | 重新运行 `/install-skill https://github.com/jasonhnd/life_OS`，自动覆盖旧版 |
+| **Claude.ai** | 进入 Project Settings → 删除旧的 SKILL.md → 重新上传新版 |
+| **Cursor / VS Code / Gemini CLI / Codex CLI** | 重新运行 `npx skills add jasonhnd/life_OS`，自动覆盖 |
+| **ChatGPT** | 编辑 Custom GPT → 用新版 SKILL.md 内容替换 Instructions |
+| **Gemini Web** | 编辑 Gem → 用新版 SKILL.md 内容替换 Instructions |
+
+### 更新日志
+
+每次更新的具体变动记录在 [CHANGELOG.md](../CHANGELOG.md)。
