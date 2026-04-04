@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.2.0] - 2026-04-04
+
+### Added
+- **丞相思维工具** — 第一性原理（追问到底层需求）、苏格拉底式提问（用问题帮用户想清楚）、奥卡姆剃刀（不把简单事搞复杂）
+- **丞相意图澄清流程** — 复杂需求先跟用户对话 2-3 轮（复述理解→追问本质→确认约束），再上报朝廷
+- **丞相新输出字段** — `🔍 意图澄清记录`，把对话中提炼的核心洞察传给中书省
+- **3 个新 Eval 场景** — 封驳回路（`fengbo-loop.md`）、政事堂辩论（`zhengshitang-debate.md`）、丞相分拣边界（`chengxiang-triage.md`）
+- **2 个新标准场景** — 场景 11 时间管理与精力优化、场景 12 家庭重大决策
+- **职能边界判定规则** — 三组重叠区的速判口诀 + 协办机制定义（`departments.md`）
+- **心理安全声明** — SKILL.md 行为准则第 10 条：不替代专业心理咨询、医疗或法律服务
+- **Notion 降级规则** — SKILL.md 行为准则第 9 条：MCP 不可用时标注未存档
+
+### Changed
+- **SKILL.md 同步** — 丞相上报格式增加"背景摘要"第 4 字段、御史台改为结构化输出、早朝简报改为按领域汇报（无 Notion 时按六部回退）、奏折格式增加详细表格、政事堂整理者统一为中书省
+- **Notion schema 动态发现** — `notion-schema.md` 移除所有硬编码 ID，改为运行时 notion-search 按名称查询
+- **.claude/CLAUDE.md 降为纯路由文件** — 只指向权威源（SKILL.md / pro/CLAUDE.md / references/），不再复制定义
+- **删除过时副本** — `.claude/skills/life-os/SKILL.md`（缺版本号、URL 错误）
+- **README 重写** — 用户版本（完整架构+PARA概念+Notion结构+Token估算）
+- **安装指南重写** — 每步手把手，所有 SKILL.md 引用都有可点击链接
+- **文档体系拆分** — README（主文档）+ `docs/installation.md`（安装）+ `docs/second-brain.md`（数据层）+ `docs/token-estimation.md`（Token详解）
+
 ## [1.1.0] - 2026-04-04
 
 ### Added
