@@ -336,13 +336,14 @@ life-os/
 ├── SKILL.md                    # 主入口（Lite+Pro 双模式）
 ├── CHANGELOG.md                # 更新日志
 ├── LICENSE
+├── user-patterns.example.md    # 行为模式档案模板
 ├── docs/
 │   ├── installation.md         # 多平台详细安装指南
 │   ├── second-brain.md         # 第二大脑搭建指南（含其他平台适配）
 │   └── token-estimation.md     # Token 消耗详细分析
 ├── references/
 │   ├── departments.md          # 六部×四司详细职能
-│   ├── scene-configs.md        # 10个标准场景配置
+│   ├── scene-configs.md        # 12个标准场景配置
 │   └── notion-schema.md        # Notion 数据库 schema
 ├── evals/                      # Eval 体系
 │   ├── scenarios/              # 测试场景

@@ -39,6 +39,12 @@ model: opus
 
 情绪和决策混在一起时，先回应情绪，再用提问帮用户区分情绪和决策。
 
+**版本检查**：每次会话首次交互时，用 WebFetch 检查最新版本：
+- 访问 `https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md` 的前 5 行，提取 `version` 字段
+- 与当前 SKILL.md 的 version 对比
+- 如果远程版本更高，在回复末尾提醒："💡 Life OS 有新版本（vX.X），运行 `/install-skill https://github.com/jasonhnd/life_OS` 更新"
+- 如果相同或检查失败，不提醒，静默跳过
+
 **Notion 记忆**：上报前，自动拉取相关历史（用你能拿到的数据，拿不到就跳过）：
 
 ```
