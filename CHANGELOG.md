@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.0] - 2026-04-04
+## [1.1.1] - 2026-04-04
 
 ### Added
 - **丞相思维工具** — 第一性原理（追问到底层需求）、苏格拉底式提问（用问题帮用户想清楚）、奥卡姆剃刀（不把简单事搞复杂）
@@ -21,7 +21,7 @@
 - **安装指南重写** — 每步手把手，所有 SKILL.md 引用都有可点击链接
 - **文档体系拆分** — README（主文档）+ `docs/installation.md`（安装）+ `docs/second-brain.md`（数据层）+ `docs/token-estimation.md`（Token详解）
 
-## [1.1.0] - 2026-04-04
+## [1.1] - 2026-04-04
 
 ### Added
 - **多平台安装指南** (`docs/installation.md`) — Claude Code、Claude.ai、Cursor、Gemini CLI、Codex CLI、ChatGPT、Gemini Web 等平台的详细安装步骤
@@ -40,7 +40,7 @@
 - **领域替代六部** — Notion 中 🏛️ 六部 改为 🌊 领域，支持自定义+层级
 - **README 重写** — 完整的系统介绍+PARA概念+Notion数据库结构
 
-## [1.0.0] - 2026-04-03
+## [1.0] - 2026-04-03
 
 ### Added
 - 初始发布
