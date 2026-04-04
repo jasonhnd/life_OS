@@ -364,7 +364,6 @@ life-os/
 │       ├── jianguan.md         # 💬 谏官
 │       ├── zaochao.md          # 🌅 早朝官
 │       └── hanlin.md           # 🎋 翰林院
-└── README.md
 ```
 
 ## 设计理念
