@@ -3,3 +3,4 @@
 
 # Eval outputs (generated, not tracked)
 evals/outputs/
+.DS_Store

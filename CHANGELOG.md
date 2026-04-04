@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.1] - 2026-04-04
+
+### Added
+- **丞相记忆层** — 上报前自动 3 次 Notion 查询（相关历史决策+活跃目标+最近谏官报告），上限 5 条压缩为背景摘要
+- **丞相版本检查** — 每次会话首次交互时 WebFetch 查 GitHub 最新版本号，有新版自动提醒用户更新
+- **早朝决策跟踪** — 复盘时检查 Outcome=TBD 且超过 30 天的决策，提醒用户回填结果，闭合反馈回路
+- **早朝度量仪表盘** — 7 个指标：DTR 决策频率 / ACR 行动完成率 / OFR 结果回填率（核心 3 个每次展示）+ DQT 质量趋势 / MRI 封驳率 / DCE 部门覆盖 / PIS 流程完整性（周度以上展示）
+- **六部可用资源引导** — 户部/兵部/刑部/工部/礼部/吏部各增加"可用资源"段落，引导 agent 主动使用本地文件（Read/Grep/Glob）、WebSearch、gh CLI
+- **user-patterns.example.md** — 行为模式档案模板，供 user-patterns.md 参考格式
+- **文件写入冲突规则** — 六部并行时同一文件不能被多个部门同时修改，涉及同文件的部门由尚书省安排串行
+
+### Changed
+- **Orchestrator → 丞相** — 全仓库将"Orchestrator"替换为"丞相"（pro/CLAUDE.md、notion-schema.md、token-estimation.md、eval rubric），丞相是总管一切的人
+- **GitHub Release v1.2** — 打了第一个正式 release tag
+
 ## [1.2] - 2026-04-04
 
 ### Added

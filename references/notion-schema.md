@@ -125,9 +125,9 @@ Tags         — 多选标签
 Area         — 关联领域
 ```
 
-## Orchestrator 存档操作
+## 丞相存档操作
 
-流程结束后，Orchestrator 按以下顺序存档（使用初始化时缓存的 data source ID）：
+流程结束后，丞相按以下顺序存档（使用初始化时缓存的 data source ID）：
 
 ### 1. 创建决策页面
 
