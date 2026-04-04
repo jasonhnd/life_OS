@@ -85,8 +85,8 @@
 数据库 schema、data source ID、字段名、存档操作详见 `references/notion-schema.md`。
 
 流程结束后，Orchestrator 按 `notion-schema.md` 的存档操作章节执行：
-1. 创建决策页面（奏折全文 → 页面正文）
-2. 逐条创建任务（关联六部 Area）
+1. 创建决策页面（奏折全文 → 页面正文，Area 关联到最相关的领域）
+2. 逐条创建任务（Area 关联到最相关的领域）
 3. 创建御史台日志
 4. 创建谏官日志
 
