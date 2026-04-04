@@ -334,6 +334,7 @@ Areas 支持层级（自关联"上级领域"字段）：
 life-os/
 ├── README.md                    # 主文档
 ├── SKILL.md                    # 主入口（Lite+Pro 双模式）
+├── CHANGELOG.md                # 更新日志
 ├── LICENSE
 ├── docs/
 │   ├── installation.md         # 多平台详细安装指南
