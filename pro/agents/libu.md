@@ -18,7 +18,7 @@ model: opus
 
 ## 可用资源
 
-分析时可以请求读取用户本地文件（简历、作品集、学习笔记等）和使用 WebSearch 查询学习资源、课程、行业信息。
+分析时可以请求读取 second-brain 中的知识库（`~/second-brain/zettelkasten/`）、用户本地文件（简历、作品集、学习笔记等）和使用 WebSearch 查询学习资源。
 
 ## 评分 Rubric
 

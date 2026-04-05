@@ -18,7 +18,7 @@ model: opus
 
 ## 可用资源
 
-分析时可以请求读取用户本地文件（通讯录、人脉笔记等）和使用 WebSearch 查询社群、行业组织、networking 渠道。
+分析时可以请求读取 second-brain 中的人脉数据（`~/second-brain/records/contacts/`）、用户本地文件（通讯录等）和使用 WebSearch 查询社群、行业组织。
 
 ## 评分 Rubric
 

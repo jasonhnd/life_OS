@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.3.0] - 2026-04-05
+
+### 🔴 Breaking Change — 数据层架构切换
+
+**GitHub second-brain 替代 Notion 成为数据主库。** Notion 从"主存储"降级为"工作内存"（手机端同步）。
+
+### Added
+- **GitHub second-brain 目录结构** — GTD + PARA + Zettelkasten 三套方法论融合
+- **Notion 内存三组件** — 📬 信箱（消息队列）+ 🧠 当前状态（全局快照）+ 📝 工作内存（活跃话题）
+- **同步机制** — git commit = Notion 更新，机械绑定
+- **/save 命令** — 在任何项目 repo 工作时保存想法到 second-brain
+- **`references/data-layer.md`** — 新的数据层架构文档（替代 notion-schema.md）
+
+### Changed
+- **数据存储**：所有三省六部产出从写入 Notion 改为写入 second-brain repo（奏折→decisions/、任务→tasks/、日志→journal/）
+- **早朝官三模式**：内务模式从 Notion 查询改为读 second-brain 本地文件；复盘模式从 Notion 统计改为文件统计；收尾模式从写 Notion 改为 git commit + 同步 Notion
+- **谏官数据拉取**：从 Notion 查询改为读 second-brain 本地文件
+- **六部可用资源**：从 Notion 引用改为 second-brain 路径引用
+- **编排协议**：步骤 0/10 适配新数据层，新增 /save 命令
+- **SKILL.md**：数据沉淀章节重写，降级规则适配
+- **README.md**：Notion 章节替换为第二大脑章节
+- **docs/second-brain.md**：从 Notion 搭建指南重写为完整架构文档
+- **`references/notion-schema.md` → `references/data-layer.md`**：重命名+重写
+
+### Removed
+- Notion 数据库 schema（不再需要 15 个数据库）
+- 硬编码的 Notion data source ID 和 page URL（已在 v1.2.1 移除，本版彻底清理）
+
 ## [1.2.2] - 2026-04-05
 
 ### Added
