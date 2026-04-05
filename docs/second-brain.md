@@ -1,206 +1,134 @@
-# 第二大脑 — 搭建指南
+# 第二大脑 — 架构与搭建
 
-Life OS 的 AI 朝廷负责决策和执行，但 AI 没有长期记忆。**第二大脑**是朝廷的档案馆 —— 让每次对话的产出持久化存储，让丞相在新对话中能查阅历史档案。
+## 核心架构
 
-本文是搭建指南。关于 Notion 集成的概念和数据流，见 [README → Notion 集成](../README.md#notion-集成数据层)。
+```
+GitHub second-brain（硬盘）= Source of truth，完整记录
+Notion（内存）= 轻量工作内存，手机端活跃话题
+CC（丞相/早朝官）= 唯一同时碰两边的角色
+```
+
+### 数据通道
+
+```
+手机：Claude.ai ↔ Notion MCP
+桌面：CC ↔ GitHub second-brain + Notion MCP
+```
+
+### 同步规则
+
+**git commit = Notion 更新，机械绑定。** 有文件变更就同步，纯聊天不触发。
 
 ---
 
-## PARA 与三省六部的关系
+## GitHub second-brain 目录
 
-**六部只存在于 AI 内部逻辑（SKILL.md），不存在于数据结构中。**
+三套方法论融合：**GTD 驱动行动，PARA 组织结构，Zettelkasten 让知识生长。**
 
-- 数据层 = PARA（你组织信息的方式）：Areas = 生活领域（职业/家庭/健康…）
-- SKILL.md = 三省六部（AI 处理事情的方式）
-- 两层通过决策数据库的"启用部门"字段关联（流程日志），不混在一起
+```
+second-brain/
+├── inbox/                    # GTD 入口：未处理的先到这里
+├── projects/{project}/       # PARA·P：有目标有截止的事
+│   ├── index.md             # 目标、状态、关联领域
+│   ├── tasks/               # next actions
+│   ├── decisions/           # 三省六部奏折
+│   ├── notes/               # 工作笔记
+│   └── research/            # 项目专属调研
+├── areas/{area}/             # PARA·A：持续维护的生活领域
+│   ├── index.md             # 方向、关联项目
+│   ├── goals.md             # 目标
+│   └── tasks/               # 不属于项目的领域任务
+├── zettelkasten/             # 知识生长
+│   ├── fleeting/            # 碎片想法
+│   ├── literature/          # 输入（读了什么）
+│   └── permanent/           # 输出（自己的洞察，互相链接）
+├── records/                  # 生活数据
+│   ├── journal/             # 日志、早朝简报、御史台/谏官报告
+│   ├── meetings/
+│   ├── contacts/
+│   ├── finance/
+│   └── health/
+├── gtd/                      # GTD 系统
+│   ├── waiting/             # 等别人
+│   ├── someday/             # 将来也许
+│   └── reviews/             # 复盘记录
+├── archive/                  # 项目结束搬到这里
+└── templates/
+```
 
-你在数据层看到的永远是生活领域，六部只出现在决策记录中。
+## 领域列表（areas/）
+
+```
+career/    product/    finance/    health/    family/
+social/    learning/   ops/        creation/  spirit/    ndfg/
+```
 
 ---
 
-## Notion 搭建
-
-### 连接 Notion MCP
-
-**Claude.ai** — Settings → Connected Apps → Notion，授权你的 workspace。
-
-**Claude Code** — 在 MCP 配置中添加：
-
-```json
-{
-  "mcpServers": {
-    "notion": {
-      "type": "url",
-      "url": "https://mcp.notion.com/mcp"
-    }
-  }
-}
-```
-
-### 数据库结构
-
-在 Notion 中创建一个顶层页面 **🧠 第二大脑**，按以下分组建立数据库：
+## GTD 流转
 
 ```
-🧠 第二大脑
-
-── 📥 收件箱 ──
-📥 收件箱
-
-── ⚡ 行动 ──
-✅ 任务
-🎯 项目
-📋 会议
-
-── 🧭 方向 ──
-🌊 领域（PARA Areas：职业发展、家庭、健康…）
-🎯 目标
-🤔 决策
-
-── 📦 记录 ──
-📓 日志
-👥 人脉
-💰 财务
-🏥 健康
-
-── 📚 知识 ──
-📚 资源库
-📌 书签
-
-── 🗄️ 冷藏 ──
-🗄️ 归档
+脑子里想到什么 → inbox/
+  ├── 有行动，属于项目 → projects/{p}/tasks/
+  ├── 有行动，属于领域 → areas/{a}/tasks/
+  ├── 等别人 → gtd/waiting/
+  ├── 以后再说 → gtd/someday/
+  ├── 是知识不是任务 → zettelkasten/
+  └── 没用 → 删掉
 ```
 
-### 核心数据库字段
-
-#### 🌊 领域（先建这个，其他数据库 Relation 到它）
-
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| Name | Title | 领域名称 |
-| Description | Text | 描述 |
-| Status | Select | Active / Inactive |
-| Review Cycle | Select | Weekly / Monthly / Quarterly |
-| 上级领域 | Relation → 自身 | 支持层级结构 |
-
-领域由你自定义，比如：
+## Zettelkasten 生长
 
 ```
-🌊 领域
-├── 💼 职业发展 (Monthly)
-│     └── 当前公司 (Weekly)
-├── 🚀 产品与创业 (Weekly)
-├── 💰 财务管理 (Monthly)
-├── 👨‍👩‍👧‍👦 家庭 (Weekly)
-├── 🤝 社交关系 (Monthly)
-├── 🏥 健康 (Monthly)
-├── 🏠 生活运营 (Monthly)
-├── 📖 学习 (Weekly)
-├── ✍️ 创作 (Weekly)
-└── 🧘 精神 (Quarterly)
+碎片想法 → zettelkasten/fleeting/
+读了篇文章 → zettelkasten/literature/
+  → 提炼出洞察 → zettelkasten/permanent/（链接已有笔记）
 ```
 
-#### ✅ 任务
+## 项目→知识桥梁
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| Title | Title | 任务名称 |
-| Status | Select | To Do / In Progress / Waiting / Done / Cancelled |
-| Priority | Select | P0 / P1 / P2 / P3 |
-| Due Date | Date | 截止日期 |
-| Energy | Select | High / Medium / Low |
-| Context | Select | Computer / Phone / Home / Office / Call / Errand |
-| Area | Relation → 领域 | 关联到哪个领域 |
-| Project | Relation → 项目 | 关联到哪个项目 |
-
-#### 🤔 决策
-
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| Title | Title | 旨意 |
-| 流程类型 | Select | 简单决策 / 三省六部 |
-| 启用部门 | Multi-select | 吏部 / 户部 / 礼部 / 兵部 / 刑部 / 工部 |
-| 综合评分 | Number | 1-10 |
-| 封驳次数 | Number | 门下省封驳次数 |
-| Status | Select | Considering / Decided / Reversed |
-| Category | Select | Career / Finance / Product / Tech / Family / Life / Health |
-| Outcome | Select | Good / Neutral / Bad / TBD |
-| Date | Date | 决策日期 |
-| Area | Relation → 领域 | 主要相关领域 |
-| Actions | Relation → 任务 | 产出的行动项 |
-
-建议新建视图 **📜 朝政记录**：过滤 `流程类型 = 三省六部`，按 Date 倒序。
-
-#### 📓 日志
-
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| Title | Title | 日志标题 |
-| Date | Date | 日期 |
-| Mood | Select | Great / Good / Neutral / Low / Bad |
-| Energy | Select | High / Medium / Low |
-| Highlight | Text | 亮点摘要 |
-| Tags | Multi-select | 御史台 / 谏官 / 早朝简报 / 手动记录 |
-
-#### 🎯 目标
-
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| Title | Title | 目标名称 |
-| Status | Select | Not Started / In Progress / Achieved / Missed / Revised |
-| Timeframe | Select | 2026-Q1 / Q2 / Q3 / Q4 / Annual / Long-term |
-| Progress | Number | 0-100 |
-| Key Results | Text | 关键结果 |
-| Area | Relation → 领域 | 关联领域 |
-| Projects | Relation → 项目 | 关联项目 |
-
-#### 🎯 项目
-
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| Name | Title | 项目名称 |
-| Status | Select | Planning / Active / On Hold / Done / Dropped |
-| Priority | Select | P0 / P1 / P2 / P3 |
-| Owner | Select | Me / Shared |
-| Deadline | Date | 截止日期 |
-| Area | Relation → 领域 | 关联领域 |
+项目归档时工作笔记跟着走，永续笔记留在 zettelkasten 继续生长。
 
 ---
 
-## 适配其他平台
+## Notion 内存（3 个组件）
 
-第二大脑不绑定 Notion。核心是 **领域数据库 + 任务/决策/日志/目标的关联**。任何支持以下能力的平台都可以用：
+### 📬 信箱（数据库）
 
-| 需要的能力 | 说明 |
-|-----------|------|
-| 结构化数据库 | 能建表、有字段类型 |
-| 关联/关系 | 数据库之间能互相引用 |
-| 富文本页面 | 奏折和报告需要存长文 |
-| API 或 MCP 访问 | AI 能读写数据 |
+手机和桌面互传消息的队列。字段：内容 / 来源（手机/桌面）/ 状态（待处理/已同步）/ 时间。
 
-### 可选平台
+### 🧠 当前状态（页面）
 
-| 平台 | MCP 支持 | 适合场景 |
-|------|---------|---------|
-| **Notion** | 官方 MCP | 最成熟，关系型数据库+富文本 |
-| **Obsidian** | 社区 MCP | 偏好本地 Markdown，隐私优先 |
-| **Google Sheets** | 官方 MCP | 简单表格，不需要富文本 |
-| **Airtable** | 社区 MCP | 强关系型数据库，弱富文本 |
-| **Linear** | 官方 MCP | 偏项目管理，任务追踪强 |
-| **本地文件** | 内置 | 用 Markdown 文件+目录结构 |
+全局快照，CC 每次 session 结束覆写。包含：正在推进的事、最近决策、开放问题、本周重点。
 
-### 适配要点
+### 📝 工作内存（话题页面）
 
-1. **领域是骨架** — 先建好领域分类作为关联锚点
-2. **决策库最重要** — 跨会话连续性的核心，必须能搜索+读取全文
-3. **任务库次之** — 早朝官复盘需要知道什么完成了、什么逾期了
-4. **日志可以最简** — 最低限度是一个带日期和标签的富文本列表
+每个活跃话题一个页面（约 5-10 个）。包含：背景、当前阶段、关键决策、技术思路、开放问题、下一步。不再活跃时归档到 GitHub，从 Notion 删掉。
+
+---
+
+## 多 Repo 工作方式
+
+- **项目代码**（EIP、life_OS 等）→ 各自独立 repo
+- **关于项目的思考**（决策、笔记、任务）→ second-brain repo
+
+同一个 CC 对话中连接两个目录。`/save` 命令：写文件 → cd ~/second-brain → git commit/push → 回到项目。
+
+---
+
+## 三省六部产出去向
+
+| 产出 | GitHub 路径 |
+|------|------------|
+| 决策奏折 | `projects/{p}/decisions/` |
+| 行动项 | `projects/{p}/tasks/` |
+| 复盘/御史台/谏官 | `records/journal/` |
+| 调研 | `zettelkasten/literature/` |
+| 通用洞察 | `zettelkasten/permanent/` |
+| 目标 | `areas/{a}/goals.md` |
 
 ---
 
 ## 不连接数据层
 
-Life OS 不连接数据层时，所有决策和分析功能照常工作，只是：
-- 没有跨会话记忆（每次对话从零开始）
-- 没有自动存档（产出在对话结束后消失）
-- 流程结束会标注"⚠️ 数据层未连接，本次产出未存档"
+不建 second-brain 时所有功能照常工作，只是没有持久化和跨会话记忆。

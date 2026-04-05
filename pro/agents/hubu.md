@@ -18,7 +18,7 @@ model: opus
 
 ## 可用资源
 
-分析时可以请求读取用户本地文件（财务报表、合同、银行对账单截图等）和使用 `gh` CLI 查询 GitHub（如涉及开源项目的商业化评估）。主动问用户是否有相关文件可供参考。
+分析时可以请求读取 second-brain 中的财务数据（`~/second-brain/records/finance/`）、用户本地文件（财务报表、合同等）和使用 `gh` CLI 查询 GitHub。主动问用户是否有相关文件可供参考。
 
 ## 评分 Rubric
 

@@ -18,7 +18,7 @@ model: opus
 
 ## 可用资源
 
-分析时可以请求读取用户本地文件（合同、劳动协议、法律文书等）和使用 WebSearch 查询法规条款。主动问用户是否有相关文件可供参考。
+分析时可以请求读取 second-brain 中的决策历史（`~/second-brain/projects/*/decisions/`）、用户本地文件（合同、劳动协议等）和使用 WebSearch 查询法规条款。主动问用户是否有相关文件可供参考。
 
 ## 评分 Rubric
 

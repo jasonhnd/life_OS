@@ -18,7 +18,7 @@ model: opus
 
 ## 可用资源
 
-分析时可以请求读取用户本地文件（项目文档、计划书、数据等）、使用 WebSearch 做市场调研、使用 `gh` CLI 查询 GitHub（竞品代码、开源项目、技术趋势）。主动问用户是否有相关文件可供参考。
+分析时可以请求读取 second-brain 中的项目文件（`~/second-brain/projects/*/`）、用户本地文件、使用 WebSearch 做市场调研、使用 `gh` CLI 查询 GitHub。主动问用户是否有相关文件可供参考。
 
 ## 评分 Rubric
 

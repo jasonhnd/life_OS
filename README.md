@@ -172,120 +172,45 @@ Life OS 支持多种 AI 平台。**[查看完整安装指南 →](docs/installat
 翰林院 → 苏格拉底式对话，帮你梳理深层想法
 ```
 
-## Notion 集成（数据层）
+## 第二大脑（数据层）
 
-Life OS 把 Notion 当作朝廷的档案馆。AI 负责决策和执行，Notion 负责持久化存储。每次对话可以是新开的，但通过 Notion 保持连续性。
-
-### 连接 Notion MCP
-
-Life OS 通过 [Notion MCP](https://www.notion.com/integrations) 读写 Notion 数据。
-
-**Claude.ai 用户**：在 Claude.ai 设置中启用 Notion 集成（Settings → Connected Apps → Notion），授权访问你的 workspace。启用后 Claude 自动获得读写能力。
-
-**Claude Code 用户**：在 `.claude/settings.json` 或 Claude Code 的 MCP 配置中添加：
-
-```json
-{
-  "mcpServers": {
-    "notion": {
-      "type": "url",
-      "url": "https://mcp.notion.com/mcp"
-    }
-  }
-}
-```
-
-首次使用时会引导你完成 OAuth 授权。
-
-### 数据沉淀规则
-
-每次三省六部流程结束后，产出按类型自动存入对应数据库：
-
-| 产出 | Notion 数据库 | 说明 |
-|------|-------------|------|
-| 决策结论 + 奏折全文 | 🤔 决策 | 流程类型标记为"三省六部"，奏折存页面正文 |
-| 行动项 | ✅ 任务 | Area 关联到生活领域 |
-| 复盘简报 | 📓 日志 | 早朝官产出 |
-| 御史台/谏官报告 | 📓 日志 | 标注来源 |
-| 调研分析 | 📚 资源库 | 各部情报司产出 |
-| 新目标 | 🎯 目标 | Area 关联到生活领域 |
-
-### PARA 与三省六部的关系
-
-**六部只存在于 AI 内部逻辑（SKILL.md），不存在于 Notion 数据结构中。**
-
-- Notion = PARA（用户组织信息的方式）：Areas = 生活领域（职业/家庭/健康…）
-- SKILL.md = 三省六部（AI 处理事情的方式）
-- 两层通过决策数据库的"启用部门"字段关联（流程日志），不混在一起
-
-用户在 Notion 里看到的永远是生活领域，六部只出现在决策记录中。
-
-### Notion 数据库结构
+Life OS 用 **GitHub second-brain** 作为数据主库（硬盘），**Notion** 作为轻量工作内存（手机端同步）。三套方法论融合：GTD 驱动行动，PARA 组织结构，Zettelkasten 让知识生长。
 
 ```
-🧠 第二大脑
-
-── 📥 收件箱 ──
-📥 收件箱
-
-── ⚡ 行动 ──
-✅ 任务
-🎯 项目
-📋 会议
-
-── 🧭 方向 ──
-🌊 领域（PARA Areas：职业发展、家庭、健康…）
-🎯 目标
-🤔 决策
-
-── 📦 记录 ──
-📓 日志
-👥 人脉
-💰 财务
-🏥 健康
-
-── 📚 知识 ──
-📚 资源库
-📌 书签
-
-── 🗄️ 冷藏 ──
-🗄️ 归档
+second-brain/
+├── inbox/              # GTD 入口
+├── projects/{project}/ # 有目标有截止的事（含 tasks/ decisions/ notes/）
+├── areas/{area}/       # 持续维护的生活领域（含 goals.md tasks/）
+├── zettelkasten/       # 知识生长（fleeting/ literature/ permanent/）
+├── records/            # 日志、会议、人脉、财务、健康
+├── gtd/                # waiting/ someday/ reviews/
+└── archive/            # 完结项目
 ```
 
-Areas 支持层级（自关联"上级领域"字段）：
-```
-🌊 领域
-├── 💼 职业发展        ← 顶级领域
-│     └── NDFG        ← 二级（当前公司）
-├── 🏥 健康            ← 顶级领域
-├── 👨‍👩‍👧‍👦 家庭            ← 顶级领域
-├── 💰 财务管理        ← 顶级领域
-└── ...
-```
+### 三省六部产出去向
 
-### 决策数据库（🤔 决策）扩展字段
+| 产出 | 写入 |
+|------|------|
+| 奏折 | `projects/{p}/decisions/` |
+| 行动项 | `projects/{p}/tasks/` |
+| 复盘/监察报告 | `records/journal/` |
+| 调研 | `zettelkasten/literature/` |
+| 目标 | `areas/{a}/goals.md` |
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| 流程类型 | Select | 简单决策 / 三省六部 |
-| 启用部门 | Multi-select | 吏/户/礼/兵/刑/工 |
-| 综合评分 | Number | X/10 |
-| 封驳次数 | Number | 门下省封驳了几次 |
-| Actions | Relation → 任务 | 关联产出的行动项 |
-
-决策数据库有专属视图 **📜 朝政记录**（过滤只显示三省六部流程的决策）。
-
-### 跨会话连续性
-
-每次新对话开始时，丞相根据用户话题，通过 Notion MCP 查询相关历史记录。比如你说"上次分析搬家的事怎么样了"，丞相去决策库搜"搬家"，把上次奏折结论拉回来。对话结束前，丞相把关键产出存回 Notion。
+### 同步机制
 
 ```
-新对话 → 丞相听意图 → 查 Notion 历史 → 带上下文处理 → 产出存回 Notion
+手机聊完 → Claude.ai 存入 Notion
+CC 开 session → 检查 Notion 有没有新东西 → 拉进 GitHub → 干活
+CC 写入 GitHub → 立刻同步 Notion 工作内存
+随时拿起手机 → 读到最新状态
 ```
 
-不依赖对话长度，不怕上下文丢失。
+**git commit = Notion 更新，机械绑定。**
 
-**[查看完整第二大脑搭建指南 →](docs/second-brain.md)**（含 Notion 逐步建库教程、数据库字段表、其他平台适配方案）
+六部是 AI 的分析框架（固定），领域是你生活的实际分区（自定义），两者独立。
+
+**[查看完整第二大脑架构 →](docs/second-brain.md)**（含目录结构、GTD/PARA/Zettelkasten 流转、Notion 内存设置）
 
 ## 10 个标准场景
 
@@ -344,7 +269,7 @@ life-os/
 ├── references/
 │   ├── departments.md          # 六部×四司详细职能
 │   ├── scene-configs.md        # 12个标准场景配置
-│   └── notion-schema.md        # Notion 数据库 schema
+│   └── data-layer.md           # 数据层架构（GitHub + Notion）
 ├── evals/                      # Eval 体系
 │   ├── scenarios/              # 测试场景
 │   └── rubrics/                # 评分标准
