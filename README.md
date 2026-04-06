@@ -172,6 +172,14 @@ Life OS 支持多种 AI 平台。**[查看完整安装指南 →](docs/installat
 翰林院 → 苏格拉底式对话，帮你梳理深层想法
 ```
 
+### 退朝
+
+```
+你：退朝
+早朝官 → push 到 GitHub + 同步 Notion（当前状态/工作内存/待办看板）
+丞相：退朝完毕，所有改动已落地。
+```
+
 ## 第二大脑（数据层）
 
 Life OS 用 **GitHub second-brain** 作为数据主库（硬盘），**Notion** 作为轻量工作内存（手机端同步）。三套方法论融合：GTD 驱动行动，PARA 组织结构，Zettelkasten 让知识生长。
