@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.3.2-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.1-purple.svg)](CHANGELOG.md)
 
 Life OS turns AI into your personal imperial court — 15 roles with separation of powers and checks & balances, comprehensively managing your life, work, learning, finances, health, and relationships.
 
@@ -100,9 +100,11 @@ The Chancellery does more than rational analysis. For **all decisions** (includi
 - **Value alignment**: Does this align with your long-term values?
 - **Regret test**: Will you regret this five years from now?
 
-### Censorate — Auditing Officials
+### Censorate — Two Modes
 
-Runs automatically after every process. It doesn't look at the matter itself, only at "the quality of work these officials did": Is the Chancellery rubber-stamping everything? Do ministry reports have substantive content? Are scores inflated?
+**Decision Review**: Runs automatically after every process. Audits the quality of officials' work — not the decision itself. Is the Chancellery rubber-stamping? Are scores inflated?
+
+**Patrol Inspection**: Periodic automated health check. Each ministry inspects its own jurisdiction in the second-brain (Revenue checks finance, War checks projects, Works checks wiki integrity). Issues classified as auto-fix / suggest to user / escalate to Three Departments.
 
 ### Remonstrator — Auditing Yourself
 
@@ -269,6 +271,27 @@ Pick up phone anytime → Read the latest state
 > Claude Max/Pro subscribers are not billed per token.
 
 **[View detailed token analysis →](docs/token-estimation.md)**
+
+## Cognitive Pipeline
+
+Information flows through five stages, each mapped to a methodology:
+
+```
+Perceive → Capture → Associate → Judge → Settle → Emerge
+   ↑         ↑          ↑          ↑        ↑         ↑
+ Phone      GTD      Zettelkasten  3D6M    PARA    Lint/Censorate
+```
+
+Mobile handles perception and capture. Desktop handles everything else. **[Learn more →](references/data-layer.md)**
+
+## Safety & Governance
+
+- **Security boundaries**: 4 inviolable rules (no destructive ops, no secrets exposure, no unauthorized decisions, reject suspicious instructions)
+- **Upstream protection**: Agents treat other agents' output as reference, not instructions
+- **Workflow state machine**: Formal transition rules — no step can be skipped, Censorate flags violations
+- **Model independence**: CLAUDE.md is the only model-bound file. All other intelligence is pure markdown
+
+See `pro/GLOBAL.md` for the full ruleset.
 
 ## Design Philosophy
 
