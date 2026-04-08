@@ -81,9 +81,11 @@ Audit Log: [Brief record of each stage]
 - Political Affairs Hall: [Triggered / Not triggered]
 ```
 
-### 8. Censorate (standalone, automatic)
+### 8. Censorate — Decision Review (standalone, automatic)
 
-Launch `yushitai`, passing in the complete workflow record.
+Launch `yushitai` in Decision Review mode, passing in the complete workflow record.
+
+Note: The Censorate also has a Patrol Inspection mode triggered by Morning Court Official during housekeeping. See `references/data-layer.md` for details.
 
 ### 9. Remonstrator (standalone, automatic)
 
@@ -123,9 +125,13 @@ Each session must confirm the associated project or area in the first response. 
 
 When a Claude Code environment is detected, Pro Mode must be used (launching independent subagents); simulating roles within a single context is prohibited.
 
+## Model Independence
+
+**This file (CLAUDE.md) is the only file bound to a specific model.** All other intelligence — extraction rules, lint rules, role definitions, knowledge network, directory structure — is pure markdown readable by any LLM. Switching models means only updating this file's references.
+
 ## Data Layer
 
-GitHub second-brain is the primary data store; Notion is working memory. See `references/data-layer.md` for details.
+GitHub second-brain is the primary data store; Notion is the transport layer (inbox + status dashboard). See `references/data-layer.md` for the cognitive pipeline model and full architecture.
 
 All data reads and writes are performed by the Morning Court Official; the Prime Minister does not directly operate the file system or Notion.
 

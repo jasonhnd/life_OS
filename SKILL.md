@@ -108,16 +108,10 @@ Detailed functions: see `references/departments.md`.
 
 ---
 
-## Censorate · Inspecting Officials
+## Censorate · Two Modes
 
+### Mode 1: Decision Review
 **Auto-triggered** after every Three Departments flow. Inspects people, not matters.
-
-Key checks (compressed output, 3-5 sentences):
-- Did Chancellery review seriously (or rubber-stamp everything)?
-- Do ministry reports have substance (or generic fluff)?
-- Was Secretariat's decomposition reasonable?
-- Are scores honest (or all inflated)?
-- Were any steps skipped?
 
 Output:
 ```
@@ -128,6 +122,9 @@ Output:
 ⚠️ Process issues: [if any]
 🎯 Improvement suggestions: [what to watch next time]
 ```
+
+### Mode 2: Patrol Inspection
+**Triggered** by Morning Court Official when idle (>4h since last run), after inbox sync, or manually. Each ministry inspects its own jurisdiction in the second-brain. Issues classified as auto-fix / suggest / escalate to Three Departments. See `references/data-layer.md` for full inspection rules.
 
 ---
 

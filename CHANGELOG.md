@@ -2,6 +2,24 @@
 
 ## [1.4.0] - 2026-04-08
 
+### Added — Cognitive Pipeline + Censorate Automation + Model Independence
+
+- **Cognitive pipeline model** — Five-stage information flow: Perceive→Capture→Associate→Judge→Settle→Emerge, each mapped to a methodology (GTD/Zettelkasten/3D6M/PARA/Lint)
+- **Censorate patrol inspection mode** — New second operating mode alongside decision review. Three trigger levels: startup (>4h idle), post-sync, deep (weekly/manual). Six ministries each inspect their jurisdiction.
+- **Issue three-tier classification** — Auto-fix (format/link issues), Suggest (send to inbox), Escalate (activate Three Departments decision mode for >¥1M contradictions or strategy conflicts)
+- **Knowledge extraction mechanism** — Four-step training: user decides → accumulate samples → LLM induces rules → periodic correction. Rules stored in `_meta/extraction-rules.md` (pure markdown, model-agnostic)
+- **Knowledge classification** — 7 types: entity, experience, relationship, decision, todo, inspiration, process
+- **Resident roles** — `_meta/roles/censor.md` (inspection), `historian.md` (daily log), `reviewer.md` (write-time quality check)
+- **Model independence declaration** — CLAUDE.md is the only model-bound file. All other intelligence is pure markdown readable by any LLM
+
+### Changed
+- **Censorate (yushitai.md)** — Rewritten with two modes: Decision Review (existing) + Patrol Inspection (new). Added Write tool for auto-fix capability
+- **Morning Court Official (zaochao.md)** — Housekeeping mode now reads lint-state.md and triggers lightweight inspection if >4h idle. Wrap-up mode updates lint-state.md
+- **Notion simplified to 3 components** — Removed 📋 Todo Board and 📝 Working Memory. Notion is now transport layer only: 📬 Inbox + 🧠 Status Dashboard + 🗄️ Archive
+- **data-layer.md** — Major rewrite: added cognitive pipeline, design principles, knowledge classification, extraction mechanism, patrol inspection details, model independence
+- **SKILL.md** — Censorate section expanded with two modes
+- **pro/CLAUDE.md** — Added model independence declaration, Censorate note for patrol mode
+
 ### 🔴 Breaking Change — Second Brain Directory Restructure
 
 Users need to create a new second-brain repo following the updated structure.
