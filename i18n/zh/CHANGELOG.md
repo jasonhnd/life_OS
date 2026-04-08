@@ -1,19 +1,69 @@
-# Changelog
+# 更新日志
+
+## [1.4.0] - 2026-04-08
+
+### 新增 — 认知管线 + 御史台自动化 + 模型无关
+
+- **认知管线模型** — 五阶段信息流：感知→捕获→关联→判断→沉淀→涌现，每阶段对应一种方法论（GTD/Zettelkasten/三省六部/PARA/巡检）
+- **御史台巡检模式** — 在决策审查之外新增的第二种运行模式。三级触发：启动（空闲 >4 小时）、同步后、深度（每周/手动）。六部各巡查自己的管辖范围。
+- **问题三级分类** — 自动修复（格式/链接问题）、建议（发送到 inbox）、上报（>¥1M 矛盾或策略冲突时激活三省决策模式）
+- **知识提取机制** — 四步训练法：用户决定→积累样本→LLM 归纳规则→定期纠偏。规则存储在 `_meta/extraction-rules.md`（纯 markdown，模型无关）
+- **知识分类** — 7 类：实体、经验、关系、决策、待办、灵感、流程
+- **常驻角色** — `_meta/roles/censor.md`（巡检）、`historian.md`（每日日志）、`reviewer.md`（写入时质量检查）
+- **模型无关声明** — CLAUDE.md 是唯一绑定模型的文件。所有其他智能都是纯 markdown，任何 LLM 可读取
+
+### 变更
+- **御史台（yushitai.md）** — 重写为两种模式：决策审查（已有）+ 巡检（新增）。新增 Write 工具用于自动修复
+- **早朝官（zaochao.md）** — 家务模式现在读取 lint-state.md 并在空闲 >4 小时时触发轻量巡检。收尾模式更新 lint-state.md
+- **Notion 精简为 3 个组件** — 移除 📋 待办看板和 📝 工作内存。Notion 现在仅作为传输层：📬 收件箱 + 🧠 状态仪表盘 + 🗄️ 归档
+- **data-layer.md** — 重大重写：新增认知管线、设计原则、知识分类、提取机制、巡检详情、模型无关
+- **SKILL.md** — 御史台章节扩展为两种模式
+- **pro/CLAUDE.md** — 新增模型无关声明、御史台巡检模式说明
+
+### 🔴 Breaking Change — 第二大脑目录结构调整
+
+用户需要按照更新后的结构创建新的 second-brain 仓库。
+
+### 新增
+- **`_meta/` 系统元数据层** — STATUS.md（全局快照）、MAP.md（知识地图）、journal/（系统日志）、decisions/（跨领域）、roles/（御史台/史官/审查者）、提取和巡检规则
+- **项目日志** — `projects/{name}/journal/` 用于项目专属日志
+- **领域笔记** — `areas/{name}/notes/` 用于领域专属笔记
+- **`wiki/`** — 跨领域知识网络（替代 zettelkasten/）
+
+### 变更
+- **`zettelkasten/`** → **`wiki/`** — 更简洁的命名，扁平/轻度嵌套的互链笔记 wiki
+- **`records/journal/`** → **`_meta/journal/`** — 系统日志（早朝、御史台、谏官）移至 _meta
+- **所有 agent 路径更新** — zaochao.md、jianguan.md、6 个部门 agent、pro/CLAUDE.md 适配新结构
+- **输出路由** — 御史台/谏官报告 → `_meta/journal/`；跨领域决策 → `_meta/decisions/`；状态 → `_meta/STATUS.md`
+- **README、SKILL.md、docs/second-brain.md、references/data-layer.md** — 全部更新以反映新结构
+
+### 移除
+- **`records/` 目录** — meetings/contacts/finance/health 归入 areas/
+- **`gtd/` 目录** — waiting/someday/reviews 简化移除
+- **`zettelkasten/` 三层结构** — fleeting/literature/permanent 替换为扁平 wiki/
+
+## [1.3.2] - 2026-04-08
+
+### 新增
+- **完整英文翻译** — 全部 34 个文件翻译为英文作为主版本
+- **i18n 目录** — zh/（中文）、ja/（日文）完整翻译；ko/（韩文）、es/（西班牙文）占位
+- **README 视觉重设计** — 居中头部、shields.io 徽章、视觉层次
+- **GitHub 仓库 About** — 描述、标签、主页更新
 
 ## [1.3.1] - 2026-04-05
 
-### Added
+### 新增
 - **会话级项目绑定** — 每次会话首次回话时确认关联的 project/area，后续所有读写限定在该项目范围内，不串数据。跨项目决策需明确标注"⚠️ 跨项目决策"
 - **丞相启奏新字段** — `📂 关联：projects/xxx`，明确每次决策属于哪个项目
-- **早朝官全局概览** — 内务模式列出所有项目名称和状态（只读 index.md 标题+status），供丞相了解全局
-- **退朝指令** — 用户说"退朝"时早朝官执行收尾：push 到 GitHub + 刷新 Notion 内存（当前状态/工作内存/待办看板/信箱）
+- **早朝官全局概览** — 家务模式列出所有项目名称和状态（只读 index.md 标题+status），供丞相了解全局
+- **退朝指令** — 用户说"退朝"时早朝官执行收尾：push 到 GitHub + 刷新 Notion 内存（当前状态/工作内存/待办看板/收件箱）
 - **Notion 📋 待办看板** — 第 4 个 Notion 组件，从 second-brain tasks/ 同步活跃任务，手机上可查看和勾选
 - **CC 环境强制 Pro 模式** — 检测到 Claude Code 时必须启动独立 subagent，禁止单 context 模拟。硬规则写入 SKILL.md 第 14 条和 pro/CLAUDE.md
 - **SKILL.md 行为准则 #14-#16** — CC 强制 Pro / 会话绑定项目 / 退朝
 
-### Changed
+### 变更
 - **丞相朝前准备格式** — 新增"📂 关联项目"和"项目状态"字段
-- **早朝官内务模式** — 限定在绑定项目范围查询深度数据，其他项目只读 index.md 标题
+- **早朝官家务模式** — 限定在绑定项目范围查询深度数据，其他项目只读 index.md 标题
 - **data-layer.md** — Notion 从 3 组件扩为 4 组件（新增待办看板）
 
 ## [1.3.0] - 2026-04-05
@@ -22,16 +72,16 @@
 
 **GitHub second-brain 替代 Notion 成为数据主库。** Notion 从"主存储"降级为"工作内存"（手机端同步）。
 
-### Added
+### 新增
 - **GitHub second-brain 目录结构** — GTD + PARA + Zettelkasten 三套方法论融合
-- **Notion 内存三组件** — 📬 信箱（消息队列）+ 🧠 当前状态（全局快照）+ 📝 工作内存（活跃话题）
+- **Notion 内存三组件** — 📬 收件箱（消息队列）+ 🧠 当前状态（全局快照）+ 📝 工作内存（活跃话题）
 - **同步机制** — git commit = Notion 更新，机械绑定
 - **/save 命令** — 在任何项目 repo 工作时保存想法到 second-brain
 - **`references/data-layer.md`** — 新的数据层架构文档（替代 notion-schema.md）
 
-### Changed
+### 变更
 - **数据存储**：所有三省六部产出从写入 Notion 改为写入 second-brain repo（奏折→decisions/、任务→tasks/、日志→journal/）
-- **早朝官三模式**：内务模式从 Notion 查询改为读 second-brain 本地文件；复盘模式从 Notion 统计改为文件统计；收尾模式从写 Notion 改为 git commit + 同步 Notion
+- **早朝官三模式**：家务模式从 Notion 查询改为读 second-brain 本地文件；审视模式从 Notion 统计改为文件统计；收尾模式从写 Notion 改为 git commit + 同步 Notion
 - **谏官数据拉取**：从 Notion 查询改为读 second-brain 本地文件
 - **六部可用资源**：从 Notion 引用改为 second-brain 路径引用
 - **编排协议**：步骤 0/10 适配新数据层，新增 /save 命令
@@ -40,19 +90,19 @@
 - **docs/second-brain.md**：从 Notion 搭建指南重写为完整架构文档
 - **`references/notion-schema.md` → `references/data-layer.md`**：重命名+重写
 
-### Removed
+### 移除
 - Notion 数据库 schema（不再需要 15 个数据库）
 - 硬编码的 Notion data source ID 和 page URL（已在 v1.2.1 移除，本版彻底清理）
 
 ## [1.2.2] - 2026-04-05
 
-### Added
+### 新增
 - **早朝官三模式运行**：
-  - **内务模式**（每次对话自动启动）：为丞相准备上下文——平台感知、版本检查、Notion 历史查询、user-patterns.md 读取
-  - **复盘模式**（用户说"早朝"触发）：原有的简报+仪表盘+决策跟踪
+  - **家务模式**（每次对话自动启动）：为丞相准备上下文——平台检测、版本检查、Notion 历史查询、user-patterns.md 读取
+  - **审视模式**（用户说"早朝"触发）：原有的简报+仪表盘+决策跟踪
   - **收尾模式**（流程结束后自动启动）：Notion 存档、user-patterns.md 更新
 - **丞相首次完整回话**：用户第一条消息进来后，丞相 + 早朝官并行启动。早朝官跑完后丞相给出包含"朝前准备"的完整第一次回话（平台/模型/版本/历史/行为档案）
-- **平台感知 + 模型选择**：早朝官识别当前平台和模型，丞相在首次回话中告知用户，如果不是最强模型则建议切换
+- **平台检测 + 模型选择**：早朝官识别当前平台和模型，丞相在首次回话中告知用户，如果不是最强模型则建议切换
 - **奏折运行报告**：每次奏折末尾附 📊 运行报告（总耗时/模型/Agent调用次数/封驳次数/政事堂是否触发）
 - **六部逐个汇报**：六部并行执行时，每收到一个部门报告立即展示给用户，不攒着等全部完成
 - **翰林院强制触发**：丞相检测到迷茫/方向/价值观/人生意义等信号时必须问用户是否启动翰林院
@@ -63,31 +113,31 @@
   - 第 13 条：朝前准备必须展示（丞相第一次回话必须包含早朝官结果）
 - **翰林院三个思维工具**：第一性原理、苏格拉底式提问、奥卡姆剃刀（从丞相迁移至翰林院，翰林院是深度思考的角色）
 
-### Changed
+### 变更
 - **SKILL.md 开头硬指令**："从第一条消息开始你就是丞相，不要自我介绍，不要解释系统"
-- **丞相职责瘦身**：版本检查、平台感知、Notion 读写、user-patterns 维护全部移交早朝官；三个思维工具移交翰林院；丞相只负责面向用户的分拣、澄清、展示
-- **丞相硬行为强化**：意图澄清、朝前准备展示、六部报告完整展示从"建议"升级为"硬规则"，写入 Anti-patterns
+- **丞相职责瘦身**：版本检查、平台检测、Notion 读写、user-patterns 维护全部移交早朝官；三个思维工具移交翰林院；丞相只负责面向用户的分拣、澄清、展示
+- **丞相硬行为强化**：意图澄清、朝前准备展示、六部报告完整展示从"建议"升级为"硬规则"，写入反模式
 - **编排协议重写**（pro/CLAUDE.md）：新增步骤 0（朝前准备）和步骤 10（收尾存档），信息隔离表增加早朝官行
 - **Notion 数据沉淀改由早朝官执行**，丞相不再直接操作 Notion
 
 ## [1.2.1] - 2026-04-04
 
-### Added
+### 新增
 - **丞相记忆层** — 上报前自动 3 次 Notion 查询（相关历史决策+活跃目标+最近谏官报告），上限 5 条压缩为背景摘要
 - **丞相版本检查** — 每次会话首次交互时 WebFetch 查 GitHub 最新版本号，有新版自动提醒用户更新
-- **早朝决策跟踪** — 复盘时检查 Outcome=TBD 且超过 30 天的决策，提醒用户回填结果，闭合反馈回路
-- **早朝度量仪表盘** — 7 个指标：DTR 决策频率 / ACR 行动完成率 / OFR 结果回填率（核心 3 个每次展示）+ DQT 质量趋势 / MRI 封驳率 / DCE 部门覆盖 / PIS 流程完整性（周度以上展示）
+- **早朝决策跟踪** — 审视时检查 Outcome=TBD 且超过 30 天的决策，提醒用户回填结果，闭合反馈回路
+- **早朝指标仪表盘** — 7 个指标：DTR 决策频率 / ACR 行动完成率 / OFR 结果回填率（核心 3 个每次展示）+ DQT 质量趋势 / MRI 封驳率 / DCE 部门覆盖 / PIS 流程完整性（周度以上展示）
 - **六部可用资源引导** — 户部/兵部/刑部/工部/礼部/吏部各增加"可用资源"段落，引导 agent 主动使用本地文件（Read/Grep/Glob）、WebSearch、gh CLI
 - **user-patterns.example.md** — 行为模式档案模板，供 user-patterns.md 参考格式
 - **文件写入冲突规则** — 六部并行时同一文件不能被多个部门同时修改，涉及同文件的部门由尚书省安排串行
 
-### Changed
+### 变更
 - **Orchestrator → 丞相** — 全仓库将"Orchestrator"替换为"丞相"（pro/CLAUDE.md、notion-schema.md、token-estimation.md、eval rubric），丞相是总管一切的人
 - **GitHub Release v1.2** — 打了第一个正式 release tag
 
 ## [1.2] - 2026-04-04
 
-### Added
+### 新增
 - **全 14 个 agent 加入"研究过程"展示** — 每个 agent 输出前先展示 🔎 我在查什么 / 💭 我在想什么 / 🎯 我的判断，让用户看到思考过程而非只有结论
 - **谏官 21 条观察能力**：
   - 认知偏差扫描（7种）：确认偏差、沉没成本、幸存者偏差、锚定效应、达克效应、从众效应、可得性偏差
@@ -97,16 +147,16 @@
   - 正向信号（1种）：反向进谏——做得好的变化也要说
 - **谏官数据拉取协议** — 进谏前自动拉取：最近 3 次谏官报告 + 最近 5 个决策 + 最近 5 个行动项完成状态 + user-patterns.md
 - **谏官数据自适应** — 有数据时深度分析（8-15句+量化指标），无数据时聚焦当前对话（3-8句），自动标注数据基础
-- **谏官模式更新输出** — 每次输出末尾产出"📝 模式更新建议"，由 orchestrator 追加写入 `user-patterns.md`
-- **user-patterns.md 长期记忆机制** — orchestrator 在谏官返回后代写行为模式档案，谏官保持 Read-only
+- **谏官模式更新输出** — 每次输出末尾产出"📝 模式更新建议"，由编排器追加写入 `user-patterns.md`
+- **user-patterns.md 长期记忆机制** — 编排器在谏官返回后代写行为模式档案，谏官保持 Read-only
 
-### Changed
-- **SKILL.md 谏官章节扩展** — 从 10 行扩到 ~20 行，覆盖观察视角和数据自适应，Lite 模式精简版
-- **pro/CLAUDE.md 谏官步骤更新** — 增加 orchestrator 代写 user-patterns.md 的流程
+### 变更
+- **SKILL.md 谏官章节扩展** — 从 ~10 行扩到 ~20 行，覆盖观察视角和数据自适应，Lite 模式精简版
+- **pro/CLAUDE.md 谏官步骤更新** — 增加编排器代写 user-patterns.md 的流程
 
 ## [1.1.1] - 2026-04-04
 
-### Added
+### 新增
 - **丞相三个思维工具**：
   - **第一性原理** — 不接受表面描述，追问到最底层的真实需求。用户说"我想辞职创业"，底层可能是"对现状不满"或"看到了机会"或"焦虑同龄人比我强"，三种底层需求对应完全不同的处理方式
   - **苏格拉底式提问** — 通过提问帮用户自己厘清想法，而不是急于给出判断。问开放式问题（"是什么让你这么想？"），不问封闭式问题（"你确定吗？"）
@@ -122,7 +172,7 @@
 - **心理安全声明** — SKILL.md 行为准则第 10 条：不替代专业心理咨询、医疗或法律服务
 - **Notion 降级规则** — SKILL.md 行为准则第 9 条：MCP 不可用时标注未存档
 
-### Changed
+### 变更
 - **SKILL.md 同步** — 丞相上报格式增加"背景摘要"第 4 字段、御史台改为结构化输出、早朝简报改为按领域汇报（无 Notion 时按六部回退）、奏折格式增加详细表格、政事堂整理者统一为中书省
 - **Notion schema 动态发现** — `notion-schema.md` 移除所有硬编码 ID，改为运行时 notion-search 按名称查询
 - **.claude/CLAUDE.md 降为纯路由文件** — 只指向权威源（SKILL.md / pro/CLAUDE.md / references/），不再复制定义
@@ -133,7 +183,7 @@
 
 ## [1.1] - 2026-04-04
 
-### Added
+### 新增
 - **多平台安装指南** (`docs/installation.md`) — Claude Code、Claude.ai、Cursor、Gemini CLI、Codex CLI、ChatGPT、Gemini Web 等平台的详细安装步骤
 - **第二大脑搭建指南** (`docs/second-brain.md`) — Notion 逐步建库教程、其他平台适配方案
 - **Token 消耗详解** (`docs/token-estimation.md`) — 8 种场景的消耗拆解、月度成本估算
@@ -141,18 +191,18 @@
 - **Notion 数据库 schema** (`references/notion-schema.md`) — 完整字段定义和存档操作指南
 - **PARA 与三省六部解耦** — 六部是 AI 分析框架（固定），领域是用户生活分区（自定义），两者独立
 - **评分 Rubric** — 六部各自有评分校准锚点，防止面子分
-- **Anti-patterns** — 每个 agent 明确"不要做什么"
+- **反模式** — 每个 agent 明确"不要做什么"
 - **版本号** — SKILL.md frontmatter 加入 version 字段
 
-### Changed
-- **Agent prompts 精简** — 保留骨架（rubric + anti-patterns + 输出格式），去掉脚手架（checklist/framework/examples），给模型更多发挥空间
-- **Orchestrator 增强** (`pro/CLAUDE.md`) — 封驳修正循环、信息隔离模板、Notion 存档步骤
+### 变更
+- **Agent prompts 精简** — 保留骨架（rubric + 反模式 + 输出格式），去掉脚手架（checklist/framework/examples），给模型更多发挥空间
+- **编排器增强** (`pro/CLAUDE.md`) — 封驳修正循环、信息隔离模板、Notion 存档步骤
 - **领域替代六部** — Notion 中 🏛️ 六部 改为 🌊 领域，支持自定义+层级
 - **README 重写** — 完整的系统介绍+PARA概念+Notion数据库结构
 
 ## [1.0] - 2026-04-03
 
-### Added
+### 新增
 - 初始发布
 - 15 个角色：丞相+三省+六部+御史台+谏官+政事堂+早朝官+翰林院
 - Lite 模式（单 context）+ Pro 模式（14 独立 subagent）
