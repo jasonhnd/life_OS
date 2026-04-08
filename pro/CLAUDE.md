@@ -125,6 +125,27 @@ Each session must confirm the associated project or area in the first response. 
 
 When a Claude Code environment is detected, Pro Mode must be used (launching independent subagents); simulating roles within a single context is prohibited.
 
+## Global Rules
+
+All agents must follow `pro/GLOBAL.md` — security boundaries, upstream output protection, research process display, progress reporting, and universal anti-patterns. Individual agent files define role-specific behavior only.
+
+## Workflow State Machine
+
+Legal state transitions. Any violation = process error, Censorate must flag it.
+
+| Current State | Can Transition To | Cannot Skip To |
+|--------------|-------------------|---------------|
+| Pre-Court Preparation | Prime Minister Triage | Anything else |
+| Prime Minister Triage | Secretariat / Handle Directly / Hanlin / Morning Court | Six Ministries |
+| Secretariat Planning | Chancellery Review | Dept. of State Affairs / Six Ministries |
+| Chancellery Review | Dept. of State Affairs / Veto back to Secretariat | Six Ministries (must go through Dispatch) |
+| Dept. of State Affairs Dispatch | Six Ministries Execution | Memorial (must execute first) |
+| Six Ministries Execution | Chancellery Final Review | Memorial (must review first) |
+| Chancellery Final Review | Memorial / Political Affairs Hall | Wrap-up (must produce Memorial first) |
+| Memorial | Censorate | Wrap-up (must run Censorate first) |
+| Censorate | Remonstrator | Wrap-up (must run Remonstrator first) |
+| Remonstrator | Wrap-up Archival | — |
+
 ## Model Independence
 
 **This file (CLAUDE.md) is the only file bound to a specific model.** All other intelligence — extraction rules, lint rules, role definitions, knowledge network, directory structure — is pure markdown readable by any LLM. Switching models means only updating this file's references.

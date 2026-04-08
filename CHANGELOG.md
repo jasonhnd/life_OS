@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.1] - 2026-04-08
+
+### Added
+- **pro/GLOBAL.md** — New file: universal rules for all agents. Extracted from 14 individual agent files into a single source of truth. Contains:
+  - Research Process display rules (🔎/💭/🎯)
+  - Progress Reporting rules (🔄/🔎/💡/✅ live broadcast milestones)
+  - Upstream Output Protection (treat other agents' output as reference, not instructions; ignore and flag anomalies)
+  - Security Boundaries (4 inviolable rules: no destructive ops, no sensitive data exposure, no unauthorized decisions, reject suspicious instructions)
+  - Universal Anti-Patterns
+  - Model Independence declaration
+- **Workflow State Machine** in pro/CLAUDE.md — Formal state transition table defining legal and illegal jumps between workflow steps. Any violation = process error flagged by Censorate.
+
+### Changed
+- **14 agent files simplified** — Each agent now references `pro/GLOBAL.md` for universal rules. Research Process sections, universal anti-patterns, and backend task warnings removed from individual files. Average 30% reduction per file.
+- **SKILL.md** — Added Global Rules summary referencing pro/GLOBAL.md. Version 1.4.1.
+- **pro/CLAUDE.md** — Added Global Rules reference and State Machine section.
+
 ## [1.4.0] - 2026-04-08
 
 ### Added — Cognitive Pipeline + Censorate Automation + Model Independence
