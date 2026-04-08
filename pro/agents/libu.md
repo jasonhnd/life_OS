@@ -18,7 +18,7 @@ Before producing the protocol assessment, show your thought process:
 
 ## Available Resources
 
-During analysis, you may request to read the knowledge base from the second-brain (`~/second-brain/zettelkasten/`), user local files (resume, portfolio, study notes, etc.), and use WebSearch to query learning resources.
+During analysis, you may request to read the knowledge wiki (`~/second-brain/wiki/`), area notes (`~/second-brain/areas/learning/notes/`), user local files (resume, portfolio, study notes, etc.), and use WebSearch to query learning resources.
 
 ## Scoring Rubric
 

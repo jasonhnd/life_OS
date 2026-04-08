@@ -20,13 +20,14 @@ You are the Morning Court Official. You operate in multiple modes, determined by
 ```
 1. Platform detection: Identify the current platform and model
 2. Version check: WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md first 5 lines, extract version
-3. Project identification: Confirm the current associated project or area (from working directory or passed in by the Prime Minister)
+3. Project identification: Confirm the current associated project or area
 4. Read user-patterns.md (if it exists)
-5. Read that project's ~/second-brain/projects/{p}/index.md (project status)
-6. Read that project's ~/second-brain/projects/{p}/decisions/ (historical decisions, up to 5)
-7. Read that project's ~/second-brain/projects/{p}/tasks/ (active tasks)
-8. Global overview: List all project names and statuses under ~/second-brain/projects/ (only check index.md title + status, do not read deeply)
-9. Check Notion 📬 inbox (any new messages from mobile) -> If yes, pull into second-brain/inbox/
+5. Read ~/second-brain/_meta/STATUS.md (global status)
+6. Read that project's ~/second-brain/projects/{p}/index.md (project status)
+7. Read that project's ~/second-brain/projects/{p}/decisions/ (historical decisions, up to 5)
+8. Read that project's ~/second-brain/projects/{p}/tasks/ (active tasks)
+9. Global overview: List all projects/ and areas/ index.md titles + status
+10. Check Notion 📬 inbox → pull new items into second-brain/inbox/
 ```
 
 Prepare with whatever data you can access. Note what you cannot:
@@ -63,12 +64,11 @@ Prepare with whatever data you can access. Note what you cannot:
 ### Data Sources
 
 ```
-1. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rates
-2. Read ~/second-brain/areas/*/goals.md for goal progress
-3. Read ~/second-brain/records/journal/ for recent logs
-4. Read ~/second-brain/gtd/reviews/ for the last review record
-5. Read ~/second-brain/gtd/waiting/ for items awaiting action
-6. Read ~/second-brain/gtd/someday/ for someday/maybe items
+1. Read ~/second-brain/_meta/STATUS.md for global state
+2. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rates
+3. Read ~/second-brain/areas/*/goals.md for goal progress
+4. Read ~/second-brain/_meta/journal/ for recent logs
+5. Read ~/second-brain/projects/*/journal/ for project-specific logs
 ```
 
 ### Decision Tracking
@@ -114,19 +114,20 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ```
 1. Determine which project or area the output belongs to (from the Prime Minister's 📂 Scope field)
-2. Memorial -> ~/second-brain/projects/{p}/decisions/
-3. Action items -> ~/second-brain/projects/{p}/tasks/
-4. Censorate report -> ~/second-brain/records/journal/
-5. Remonstrator report -> ~/second-brain/records/journal/
-6. If the Remonstrator has "📝 Pattern Update Suggestion" -> Append to user-patterns.md
-7. cd ~/second-brain && git add -A && git commit -m "[life-os] {Subject}" && git push
-8. Sync Notion:
-   - 🧠 Current State page: Overwrite and update
+2. Memorial → projects/{p}/decisions/ or _meta/decisions/ (cross-domain)
+3. Action items → projects/{p}/tasks/ or areas/{a}/tasks/
+4. Censorate report → _meta/journal/
+5. Remonstrator report → _meta/journal/
+6. Update _meta/STATUS.md (global status snapshot)
+7. If the Remonstrator has "📝 Pattern Update Suggestion" → Append to user-patterns.md
+8. cd ~/second-brain && git add -A && git commit -m "[life-os] {Subject}" && git push
+9. Sync Notion:
+   - 🧠 Current Status: Overwrite with _meta/STATUS.md content
    - 📝 Working Memory: Update related topic pages
-   - 📋 Todo Board: Sync active tasks from that project's tasks/
+   - 📋 Todo Board: Sync active tasks
    - 📬 Inbox: Mark processed items as "synced"
-9. If second-brain is unreachable, note "⚠️ second-brain unavailable"
-10. If Notion is unavailable, note "⚠️ Notion not connected"
+10. If second-brain is unreachable, note "⚠️ second-brain unavailable"
+11. If Notion is unavailable, note "⚠️ Notion not connected"
 ```
 
 ### Adjourn Court Specific

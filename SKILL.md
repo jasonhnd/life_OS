@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.3.2"
+version: "1.4.0"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -240,11 +240,14 @@ Output destinations (written to second-brain repo):
 
 | Output | GitHub Path |
 |--------|------------|
-| Decision memorial | `projects/{p}/decisions/` or `areas/{a}/decisions/` |
+| Decision memorial (project) | `projects/{p}/decisions/` |
+| Decision memorial (cross-domain) | `_meta/decisions/` |
 | Action items | `projects/{p}/tasks/` or `areas/{a}/tasks/` |
-| Reviews/Censorate/Remonstrator reports | `records/journal/` |
-| Research analysis | `zettelkasten/literature/` or `projects/{p}/research/` |
+| Morning court / Censorate / Remonstrator reports | `_meta/journal/` |
+| Research | `projects/{p}/research/` |
+| Cross-domain knowledge | `wiki/` |
 | Goals | `areas/{a}/goals.md` |
+| Global status | `_meta/STATUS.md` |
 
 Each git commit automatically syncs to Notion working memory. See `references/data-layer.md`.
 

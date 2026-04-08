@@ -18,7 +18,7 @@ Before producing the execution assessment, show your thought process:
 
 ## Available Resources
 
-During analysis, you may request to read project files from the second-brain (`~/second-brain/projects/*/`), user local files, use WebSearch for market research, and use the `gh` CLI to query GitHub. Proactively ask the user if they have relevant files for reference.
+During analysis, you may request to read project files from the second-brain (`~/second-brain/projects/*/`), project research (`~/second-brain/projects/*/research/`), cross-domain knowledge (`~/second-brain/wiki/`), user local files, use WebSearch for market research, and use the `gh` CLI to query GitHub. Proactively ask the user if they have relevant files for reference.
 
 ## Scoring Rubric
 

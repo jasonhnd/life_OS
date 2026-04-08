@@ -23,37 +23,41 @@ Desktop: CC ↔ GitHub second-brain + Notion MCP
 
 ## GitHub second-brain Directory
 
-Three methodologies fused: **GTD drives action, PARA organizes structure, Zettelkasten lets knowledge grow.**
-
 ```
 second-brain/
-├── inbox/                    # GTD entry: unprocessed items land here first
-├── projects/{project}/       # PARA·P: things with goals and deadlines
-│   ├── index.md             # Goals, status, related areas
-│   ├── tasks/               # next actions
-│   ├── decisions/           # Three Departments and Six Ministries memorials
-│   ├── notes/               # Working notes
-│   └── research/            # Project-specific research
-├── areas/{area}/             # PARA·A: ongoing life areas to maintain
-│   ├── index.md             # Direction, related projects
-│   ├── goals.md             # Goals
-│   └── tasks/               # Area tasks not belonging to a project
-├── zettelkasten/             # Knowledge growth
-│   ├── fleeting/            # Fleeting ideas
-│   ├── literature/          # Input (what you read)
-│   └── permanent/           # Output (your own insights, interlinked)
-├── records/                  # Life data
-│   ├── journal/             # Journals, morning court briefings, Censorate/Remonstrator reports
-│   ├── meetings/
-│   ├── contacts/
-│   ├── finance/
-│   └── health/
-├── gtd/                      # GTD system
-│   ├── waiting/             # Waiting on others
-│   ├── someday/             # Someday/maybe
-│   └── reviews/             # Review records
-├── archive/                  # Completed projects move here
-└── templates/
+│
+├── inbox/                    # 📥 Unprocessed (captures, materials, notes, raw research)
+│
+├── _meta/                    # 🔧 System metadata
+│   ├── STATUS.md             # Global status snapshot
+│   ├── MAP.md                # Knowledge map
+│   ├── decisions/            # Cross-domain major decisions
+│   ├── journal/              # Morning court briefings, Censorate/Remonstrator reports
+│   ├── extraction-rules.md
+│   ├── extraction-log.md
+│   ├── lint-rules.md
+│   ├── lint-state.md
+│   ├── lint-reports/
+│   └── roles/                # System role definitions
+│
+├── projects/{name}/          # 🎯 Things with endpoints
+│   ├── index.md              # Goals, status, related areas
+│   ├── tasks/                # Next actions
+│   ├── decisions/            # Project-specific memorials
+│   ├── research/             # Project-specific research
+│   └── journal/              # Project-specific logs
+│
+├── areas/{name}/             # 🌊 Ongoing life areas
+│   ├── index.md              # Direction, related projects
+│   ├── goals.md              # Goals
+│   ├── tasks/                # Area tasks
+│   └── notes/                # Area notes
+│
+├── wiki/                     # 📚 Cross-domain knowledge network
+│
+├── archive/                  # 🗄️ Completed project archives
+│
+└── templates/                # 📋 Templates
 ```
 
 ## Area List (areas/)
@@ -65,33 +69,50 @@ social/    learning/   ops/        creation/  spirit/
 
 ---
 
-## GTD Flow
+## Key Concepts
 
-```
-Something comes to mind → inbox/
-  ├── Actionable, belongs to a project → projects/{p}/tasks/
-  ├── Actionable, belongs to an area → areas/{a}/tasks/
-  ├── Waiting on someone → gtd/waiting/
-  ├── Later → gtd/someday/
-  ├── Knowledge, not a task → zettelkasten/
-  └── Useless → delete
-```
+### _meta/ — System Metadata
 
-## Zettelkasten Growth
+The brain about the brain. Contains:
+- **STATUS.md**: Global snapshot of what's happening across all projects and areas. Updated by Morning Court Official at session end.
+- **MAP.md**: Knowledge map linking concepts across wiki/.
+- **decisions/**: Cross-domain decisions that don't belong to any single project.
+- **journal/**: System-level logs — morning court briefings, Censorate and Remonstrator reports.
+- **roles/**: System role definitions for quality control (censor, historian, reviewer).
+- **lint-***: Quality check rules and reports for the second-brain itself.
+- **extraction-***: Rules and logs for extracting insights from raw materials.
 
-```
-Fleeting idea → zettelkasten/fleeting/
-Read an article → zettelkasten/literature/
-  → Distill an insight → zettelkasten/permanent/ (link to existing notes)
-```
+### projects/ — Things with Endpoints
 
-## Project → Knowledge Bridge
+Each project has its own self-contained world: tasks, decisions, research, and journal. When a project completes, the entire folder moves to archive/. Knowledge extracted into wiki/ stays and keeps growing.
 
-When a project is archived, working notes go with it; permanent notes stay in zettelkasten and keep growing.
+### areas/ — Ongoing Life Areas
+
+No endpoint, no deadline. Each area has goals, tasks, and notes. A project can reference an area; an area can spawn projects.
+
+### wiki/ — Cross-Domain Knowledge
+
+Replaces the previous zettelkasten structure. A flat or lightly nested wiki of interlinked notes. Not bound to any project — projects die, knowledge lives.
 
 ---
 
-## Notion Memory (3 Components)
+## Three Departments and Six Ministries Output Destinations
+
+| Output | GitHub Path |
+|--------|------------|
+| Decision memorials (project) | `projects/{p}/decisions/` |
+| Decision memorials (cross-domain) | `_meta/decisions/` |
+| Action items | `projects/{p}/tasks/` or `areas/{a}/tasks/` |
+| Morning court briefings | `_meta/journal/` |
+| Censorate/Remonstrator reports | `_meta/journal/` |
+| Research | `projects/{p}/research/` |
+| Cross-domain knowledge | `wiki/` |
+| Goals | `areas/{a}/goals.md` |
+| Global status | `_meta/STATUS.md` |
+
+---
+
+## Notion Memory (4 Components)
 
 ### 📬 Inbox (Database)
 
@@ -99,11 +120,15 @@ Message queue between mobile and desktop. Fields: Content / Source (Mobile/Deskt
 
 ### 🧠 Current Status (Page)
 
-Global snapshot, overwritten by CC at the end of each session. Contains: things in progress, recent decisions, open questions, this week's focus.
+Mirrors `_meta/STATUS.md`. Overwritten by CC at session end.
 
 ### 📝 Working Memory (Topic Pages)
 
-One page per active topic (about 5-10). Contains: background, current stage, key decisions, technical ideas, open questions, next steps. When no longer active, archived to GitHub and deleted from Notion.
+One page per active topic (about 5-10). When no longer active, archived to GitHub and deleted from Notion.
+
+### 📋 Todo Board (Database)
+
+Active tasks synced from projects/*/tasks/ and areas/*/tasks/. Viewable and checkable on mobile.
 
 ---
 
@@ -113,19 +138,6 @@ One page per active topic (about 5-10). Contains: background, current stage, key
 - **Thinking about projects** (decisions, notes, tasks) → second-brain repo
 
 The same CC conversation connects both directories. `/save` command: write files → cd ~/second-brain → git commit/push → return to project.
-
----
-
-## Three Departments and Six Ministries Output Destinations
-
-| Output | GitHub Path |
-|--------|------------|
-| Decision memorials | `projects/{p}/decisions/` |
-| Action items | `projects/{p}/tasks/` |
-| Reviews / Censorate / Remonstrator | `records/journal/` |
-| Research | `zettelkasten/literature/` |
-| General insights | `zettelkasten/permanent/` |
-| Goals | `areas/{a}/goals.md` |
 
 ---
 

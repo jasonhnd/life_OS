@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.4.0] - 2026-04-08
+
+### 🔴 Breaking Change — Second Brain Directory Restructure
+
+Users need to create a new second-brain repo following the updated structure.
+
+### Added
+- **`_meta/` system metadata layer** — STATUS.md (global snapshot), MAP.md (knowledge map), journal/ (system logs), decisions/ (cross-domain), roles/ (censor/historian/reviewer), extraction and lint rules
+- **Project journals** — `projects/{name}/journal/` for project-specific logs
+- **Area notes** — `areas/{name}/notes/` for area-specific notes
+- **`wiki/`** — Cross-domain knowledge network (replaces zettelkasten/)
+
+### Changed
+- **`zettelkasten/`** → **`wiki/`** — Simpler naming, flat/lightly nested wiki of interlinked notes
+- **`records/journal/`** → **`_meta/journal/`** — System logs (morning court, Censorate, Remonstrator) move to _meta
+- **All agent paths updated** — zaochao.md, jianguan.md, 6 ministry agents, pro/CLAUDE.md adapted to new structure
+- **Output routing** — Censorate/Remonstrator reports → `_meta/journal/`; cross-domain decisions → `_meta/decisions/`; status → `_meta/STATUS.md`
+- **README, SKILL.md, docs/second-brain.md, references/data-layer.md** — All updated to reflect new structure
+
+### Removed
+- **`records/`** directory — meetings/contacts/finance/health absorbed into areas/
+- **`gtd/`** directory — waiting/someday/reviews simplified away
+- **`zettelkasten/` 3-tier structure** — fleeting/literature/permanent replaced by flat wiki/
+
+## [1.3.2] - 2026-04-08
+
+### Added
+- **Full English translation** — All 34 files translated to English as primary version
+- **i18n directory** — zh/ (Chinese), ja/ (Japanese) full translations; ko/ (Korean), es/ (Spanish) placeholders
+- **Visual README redesign** — Centered header, shields.io badges, visual hierarchy
+- **GitHub repo About** — Description, topics, homepage updated
+
 ## [1.3.1] - 2026-04-05
 
 ### Added

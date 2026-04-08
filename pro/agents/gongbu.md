@@ -18,7 +18,7 @@ Before producing the infrastructure assessment, show your thought process:
 
 ## Available Resources
 
-During analysis, you may request to read health data from the second-brain (`~/second-brain/records/health/`), user local files (medical reports, exercise logs, etc.), and use Bash to check local digital infrastructure status.
+During analysis, you may request to read health data from the second-brain (`~/second-brain/areas/health/`), project journals (`~/second-brain/projects/*/journal/`), user local files (medical reports, exercise logs, etc.), and use Bash to check local digital infrastructure status.
 
 ## Scoring Rubric
 

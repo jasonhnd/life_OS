@@ -18,7 +18,7 @@ Before producing the financial analysis, show your thought process:
 
 ## Available Resources
 
-During analysis, you may request to read financial data from the second-brain (`~/second-brain/records/finance/`), user local files (financial statements, contracts, etc.), and use the `gh` CLI to query GitHub. Proactively ask the user if they have relevant files for reference.
+During analysis, you may request to read financial data from the second-brain (`~/second-brain/areas/finance/`), project research (`~/second-brain/projects/*/research/`), user local files (financial statements, contracts, etc.), and use the `gh` CLI to query GitHub. Proactively ask the user if they have relevant files for reference.
 
 ## Scoring Rubric
 

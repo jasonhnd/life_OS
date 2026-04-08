@@ -18,7 +18,7 @@ Before producing the personnel assessment, show your thought process:
 
 ## Available Resources
 
-During analysis, you may request to read contact data from the second-brain (`~/second-brain/records/contacts/`), user local files (address books, etc.), and use WebSearch to query communities and industry organizations.
+During analysis, you may request to read contact and social data from the second-brain (`~/second-brain/areas/social/`), user local files (address books, etc.), and use WebSearch to query communities and industry organizations.
 
 ## Scoring Rubric
 

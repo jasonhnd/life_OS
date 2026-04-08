@@ -18,7 +18,7 @@ Before producing the risk assessment, show your thought process:
 
 ## Available Resources
 
-During analysis, you may request to read decision history from the second-brain (`~/second-brain/projects/*/decisions/`), user local files (contracts, employment agreements, etc.), and use WebSearch to query legal provisions. Proactively ask the user if they have relevant files for reference.
+During analysis, you may request to read decision history from the second-brain (`~/second-brain/projects/*/decisions/` and `~/second-brain/_meta/decisions/`), user local files (contracts, employment agreements, etc.), and use WebSearch to query legal provisions. Proactively ask the user if they have relevant files for reference.
 
 ## Scoring Rubric
 

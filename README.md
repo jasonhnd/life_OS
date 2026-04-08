@@ -188,28 +188,31 @@ Prime Minister: Court adjourned, all changes have been committed.
 
 ## Second Brain (Data Layer)
 
-Life OS uses **GitHub second-brain** as the primary data store (hard drive) and **Notion** as lightweight working memory (mobile sync). Three methodologies are combined: GTD drives action, PARA organizes structure, and Zettelkasten lets knowledge grow.
+Life OS uses **GitHub second-brain** as the primary data store (hard drive) and **Notion** as lightweight working memory (mobile sync).
 
 ```
 second-brain/
-├── inbox/              # GTD entry point
-├── projects/{project}/ # Goal-driven with deadlines (contains tasks/ decisions/ notes/)
-├── areas/{area}/       # Ongoing life Areas (contains goals.md tasks/)
-├── zettelkasten/       # Knowledge growth (fleeting/ literature/ permanent/)
-├── records/            # Journals, meetings, contacts, finances, health
-├── gtd/                # waiting/ someday/ reviews/
-└── archive/            # Completed projects
+├── inbox/              # 📥 Unprocessed captures
+├── _meta/              # 🔧 System metadata (STATUS.md, journal/, decisions/, roles/)
+├── projects/{name}/    # 🎯 Things with endpoints (tasks/ decisions/ research/ journal/)
+├── areas/{name}/       # 🌊 Ongoing life areas (goals.md tasks/ notes/)
+├── wiki/               # 📚 Cross-domain knowledge network
+├── archive/            # 🗄️ Completed project archives
+└── templates/
 ```
 
 ### Where Output Goes
 
 | Output | Written To |
 |--------|-----------|
-| Memorial | `projects/{p}/decisions/` |
-| Action items | `projects/{p}/tasks/` |
-| Review/audit reports | `records/journal/` |
-| Research | `zettelkasten/literature/` |
+| Memorial (project) | `projects/{p}/decisions/` |
+| Memorial (cross-domain) | `_meta/decisions/` |
+| Action items | `projects/{p}/tasks/` or `areas/{a}/tasks/` |
+| Morning court / audit reports | `_meta/journal/` |
+| Research | `projects/{p}/research/` |
+| Knowledge | `wiki/` |
 | Goals | `areas/{a}/goals.md` |
+| Global status | `_meta/STATUS.md` |
 
 ### Sync Mechanism
 

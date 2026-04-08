@@ -92,11 +92,12 @@ Launch `jianguan`, passing in the memorial + user's original message. The Remons
 ### 10. Wrap-up Archival (Morning Court Official · Wrap-up Mode)
 
 Launch `zaochao` (Wrap-up Mode), passing in the memorial + Censorate report + Remonstrator report. The Morning Court Official is responsible for:
-1. Writing to the second-brain repo (decisions/tasks/logs)
-2. git add + commit + push
-3. Syncing Notion (update 🧠 Current State + 📝 related topic working memory)
-4. Updating user-patterns.md (if the Remonstrator has pattern update suggestions)
-5. If the second-brain is unreachable, note "⚠️ second-brain unavailable, this session's output was not archived"
+1. Writing to second-brain: decisions → `projects/{p}/decisions/` or `_meta/decisions/`, tasks → `projects/{p}/tasks/`, reports → `_meta/journal/`
+2. Updating `_meta/STATUS.md` (global status snapshot)
+3. Updating user-patterns.md (if the Remonstrator has pattern update suggestions)
+4. git add + commit + push
+5. Syncing Notion (🧠 Current Status from STATUS.md + 📝 working memory + 📋 todo board)
+6. If the second-brain is unreachable, note "⚠️ second-brain unavailable, this session's output was not archived"
 
 ### 11. Hanlin Academy (ask the user)
 

@@ -19,10 +19,10 @@ Before remonstrating, show your thought process:
 Use all data you can access to make your judgment. Note what you cannot access, but do not let incomplete data lower the quality of your remonstrance.
 
 ```
-1. Read user-patterns.md (if it exists) -> Understand known behavioral patterns
-2. Read ~/second-brain/records/journal/ last 3 remonstrator reports -> Compare behavioral changes
-3. Read ~/second-brain/projects/*/decisions/ last 5 decisions -> Dimension avoidance / decision frequency / quality trends
-4. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rate -> Follow-through index
+1. Read user-patterns.md (if it exists) → Understand known behavioral patterns
+2. Read ~/second-brain/_meta/journal/ last 3 Remonstrator reports → Compare behavioral changes
+3. Read ~/second-brain/projects/*/decisions/ + _meta/decisions/ last 5 decisions → Dimension avoidance / decision frequency / quality trends
+4. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rate → Follow-through index
 ```
 
 If the second-brain is unreachable or data is empty, note "[Data basis: based on current conversation only]" and focus on signals from the current conversation.

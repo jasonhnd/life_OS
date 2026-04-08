@@ -25,47 +25,46 @@ Whenever the second-brain repo has file changes, sync to Notion. Pure chat discu
 
 ## GitHub Directory Structure
 
-Three methodologies fused: **GTD drives action, PARA organizes structure, Zettelkasten lets knowledge grow.**
-
 ```
 second-brain/
 │
-├── inbox/                          # GTD entry: unprocessed items land here first
+├── inbox/                             # 📥 Unprocessed (mobile captures, materials, book notes, raw research)
 │
-├── projects/                       # PARA·P: things with goals and deadlines
-│   └── {project}/
-│       ├── index.md               # Goals, status, related areas
-│       ├── tasks/                 # next actions
-│       ├── decisions/             # Three Departments and Six Ministries memorials
-│       ├── notes/                 # Working notes
-│       └── research/              # Project-specific research
+├── _meta/                             # 🔧 System metadata
+│   ├── STATUS.md                      # Global status snapshot
+│   ├── MAP.md                         # Knowledge map
+│   ├── decisions/                     # Cross-domain major decisions
+│   ├── journal/                       # Morning court briefings, Censorate/Remonstrator reports
+│   ├── extraction-rules.md            # Extraction rules
+│   ├── extraction-log.md              # Extraction log
+│   ├── lint-rules.md                  # Quality check rules
+│   ├── lint-state.md                  # Quality check state
+│   ├── lint-reports/                  # Quality check reports
+│   └── roles/                         # System role definitions
+│       ├── censor.md                  # Censorate role
+│       ├── historian.md               # Historian role
+│       └── reviewer.md                # Reviewer role
 │
-├── areas/                          # PARA·A: ongoing life areas to maintain
-│   └── {area}/
-│       ├── index.md               # Direction, related projects, current status
-│       ├── goals.md               # Goals
-│       └── tasks/                 # Area tasks not belonging to any project
+├── projects/                          # 🎯 Things with endpoints
+│   └── {name}/
+│       ├── index.md                   # Goals, status, related areas
+│       ├── tasks/                     # Next actions
+│       ├── decisions/                 # Project-specific decisions/memorials
+│       ├── research/                  # Project-specific research
+│       └── journal/                   # Project-specific logs
 │
-├── zettelkasten/                   # Knowledge growth
-│   ├── fleeting/                  # Fleeting ideas
-│   ├── literature/                # What you read, what you learned
-│   └── permanent/                 # Your own insights, interlinked
+├── areas/                             # 🌊 Ongoing life areas
+│   └── {name}/
+│       ├── index.md                   # Direction, related projects, current status
+│       ├── goals.md                   # Goals
+│       ├── tasks/                     # Area tasks not belonging to any project
+│       └── notes/                     # Area notes
 │
-├── records/                        # Life data
-│   ├── journal/                   # Journals, morning court briefings, reviews, Censorate/Remonstrator reports
-│   ├── meetings/
-│   ├── contacts/
-│   ├── finance/
-│   └── health/
+├── wiki/                              # 📚 Cross-domain knowledge network
 │
-├── gtd/                            # GTD system
-│   ├── waiting/                   # Waiting on others
-│   ├── someday/                   # Someday/maybe
-│   └── reviews/                   # Weekly/monthly reviews
+├── archive/                           # 🗄️ Completed project archives
 │
-├── archive/                        # Completed projects move here
-│
-└── templates/
+└── templates/                         # 📋 Templates
 ```
 
 ## Area List (areas/)
@@ -91,12 +90,16 @@ areas/
 
 | Output | GitHub Path |
 |--------|------------|
-| Decision memorials | `projects/{p}/decisions/` or `areas/{a}/decisions/` |
-| Action items | `projects/{p}/tasks/` or `areas/{a}/tasks/` |
-| Reviews / Censorate / Remonstrator reports | `records/journal/` |
-| Research analysis | `projects/{p}/research/` or `zettelkasten/literature/` |
-| General insights | `zettelkasten/permanent/` |
+| Decision memorials (project-specific) | `projects/{p}/decisions/` |
+| Decision memorials (cross-domain) | `_meta/decisions/` |
+| Action items (project) | `projects/{p}/tasks/` |
+| Action items (area) | `areas/{a}/tasks/` |
+| Morning court briefings | `_meta/journal/` |
+| Censorate / Remonstrator reports | `_meta/journal/` |
+| Project research | `projects/{p}/research/` |
+| Cross-domain knowledge | `wiki/` |
 | Goals | `areas/{a}/goals.md` |
+| Global status snapshot | `_meta/STATUS.md` |
 
 ---
 
@@ -115,7 +118,7 @@ Message queue for passing information between mobile and desktop.
 
 ### 🧠 Current Status (Page)
 
-Global snapshot, overwritten by CC at the end of each session. Contains: things in progress, recent key decisions, open questions, this week's focus.
+Global snapshot, overwritten by CC at the end of each session. Mirrors `_meta/STATUS.md`. Contains: things in progress, recent key decisions, open questions, this week's focus.
 
 ### 📝 Working Memory (Topic Pages)
 
@@ -141,32 +144,36 @@ Active task list synced from second-brain's tasks/. Viewable and checkable on mo
 
 ```
 1. Read ~/second-brain/inbox/ (unprocessed items)
-2. Read ~/second-brain/projects/ and areas/ index.md files (current status)
-3. Search second-brain/projects/*/decisions/ for relevant historical decisions
-4. Read user-patterns.md
-5. Check Notion 📬 Inbox (new messages from mobile) → pull into second-brain/inbox/
-6. Platform awareness + version check
+2. Read ~/second-brain/_meta/STATUS.md (global status)
+3. Read ~/second-brain/projects/{bound}/index.md (bound project status)
+4. Read ~/second-brain/projects/{bound}/decisions/ (historical decisions)
+5. Read ~/second-brain/projects/{bound}/tasks/ (active tasks)
+6. Read user-patterns.md
+7. Global overview: list all projects/ and areas/ index.md titles + status
+8. Check Notion 📬 Inbox (new messages from mobile) → pull into second-brain/inbox/
+9. Platform awareness + version check
 ```
 
 ### Wrap-Up Mode (End of Process)
 
 ```
-1. Memorials → second-brain/projects/{p}/decisions/ or areas/{a}/decisions/
-2. Action items → second-brain/projects/{p}/tasks/ or areas/{a}/tasks/
-3. Censorate reports → second-brain/records/journal/
-4. Remonstrator reports → second-brain/records/journal/
-5. Update user-patterns.md
-6. git add + commit + push (to second-brain repo)
-7. Sync Notion: update 🧠 Current Status + 📝 relevant topic Working Memory
+1. Memorials → projects/{p}/decisions/ or _meta/decisions/ (cross-domain)
+2. Action items → projects/{p}/tasks/ or areas/{a}/tasks/
+3. Censorate reports → _meta/journal/
+4. Remonstrator reports → _meta/journal/
+5. Update _meta/STATUS.md (global status snapshot)
+6. Update user-patterns.md
+7. git add + commit + push (to second-brain repo)
+8. Sync Notion: update 🧠 Current Status + 📝 relevant topic Working Memory + 📋 Todo Board
 ```
 
 ### Review Mode
 
 ```
-1. Traverse second-brain/projects/*/tasks/ to compute completion rates
-2. Read second-brain/areas/*/goals.md for goal progress
-3. Read second-brain/records/journal/ recent journals
-4. Read second-brain/gtd/reviews/ last review record
+1. Traverse projects/*/tasks/ to compute completion rates
+2. Read areas/*/goals.md for goal progress
+3. Read _meta/journal/ recent journals
+4. Read _meta/STATUS.md for global state
 5. Metrics dashboard computed from files
 ```
 
@@ -178,9 +185,9 @@ The Prime Minister no longer queries data directly — the Morning Court Officia
 
 ```
 1. Read user-patterns.md
-2. Read second-brain/records/journal/ last 3 Remonstrator reports
-3. Read second-brain/projects/*/decisions/ last 5 decisions
-4. Traverse second-brain/projects/*/tasks/ to compute completion rates
+2. Read _meta/journal/ last 3 Remonstrator reports
+3. Read projects/*/decisions/ last 5 decisions
+4. Traverse projects/*/tasks/ to compute completion rates
 ```
 
 ## Degradation Rules
