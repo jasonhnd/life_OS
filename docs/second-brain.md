@@ -60,7 +60,7 @@ second-brain/
 
 ```
 career/    product/    finance/    health/    family/
-social/    learning/   ops/        creation/  spirit/    ndfg/
+social/    learning/   ops/        creation/  spirit/
 ```
 
 ---

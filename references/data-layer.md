@@ -82,7 +82,7 @@ areas/
 ├── ops/           # 生活运营
 ├── creation/      # 创作
 ├── spirit/        # 精神
-└── ndfg/          # NDFG
+└── work-project/  # 当前工作项目（示例）
 ```
 
 ---
