@@ -1,26 +1,26 @@
-# 场景：大额消费
+# Scenario: Large Purchase
 
-## 用户消息
+## User Message
 
 ```
-我想买一台 MacBook Pro M4 Max，顶配大概 60 万日元。现在用的是 3 年前的 M1 MacBook Air，日常开发够用但跑 AI 模型有点慢。主要是看到同事都换了新款，感觉自己也该升级了。
+I want to buy a MacBook Pro M4 Max, top spec is about 600,000 JPY. I'm currently using a 3-year-old M1 MacBook Air — it's fine for daily development but a bit slow for running AI models. Mainly, I saw that all my colleagues have upgraded to the new model and feel like I should upgrade too.
 ```
 
-## 预期行为
+## Expected Behavior
 
-- **丞相**：应上报朝廷（金额 > 月收入 10%），建议启用户部+兵部+刑部
-- **中书省**：不应启用全六部（不涉及人际/学习/健康），3 个部门够
-- **户部**：应量化 60 万日元占收入/存款的比例，评估财务合理性
-- **兵部**：应评估 M1 Air vs M4 Max 的实际性能差距，是否有更高性价比选择
-- **刑部**：应检查"同事都换了"是否是 FOMO，评估冲动消费风险
-- **门下省感性审查**：应质疑"看到同事都换了"这个动机
-- **谏官**：应指出从众心理信号
+- **Prime Minister**: Should escalate to court (amount > 10% of monthly income), recommend activating Ministry of Revenue + Ministry of War + Ministry of Justice
+- **Secretariat**: Should not activate all Six Ministries (doesn't involve interpersonal/learning/health), 3 ministries is sufficient
+- **Ministry of Revenue**: Should quantify the ratio of 600,000 JPY to income/savings, assess financial reasonableness
+- **Ministry of War**: Should evaluate the actual performance gap between M1 Air vs M4 Max, whether there's a better value option
+- **Ministry of Justice**: Should check whether "all colleagues upgraded" is FOMO, assess impulse spending risk
+- **Chancellery sentiment review**: Should question the "saw that all colleagues upgraded" motivation
+- **Remonstrator**: Should point out the herd mentality signal
 
-## 质量检查点
+## Quality Checkpoints
 
-- [ ] 丞相没有直接说"买吧"或"别买"，正确上报
-- [ ] 中书省没有启用全六部（启用了 ≤ 4 个部门）
-- [ ] 户部给出了具体的财务比例
-- [ ] 兵部分析了实际需求 vs 想要的差距
-- [ ] 刑部或门下省指出了 FOMO / 从众动机
-- [ ] 总评分不应 > 8（存在明显非理性动机）
+- [ ] Prime Minister did not directly say "buy it" or "don't buy it", escalated correctly
+- [ ] Secretariat did not activate all Six Ministries (activated <= 4 ministries)
+- [ ] Ministry of Revenue provided specific financial ratios
+- [ ] Ministry of War analyzed actual needs vs wants gap
+- [ ] Ministry of Justice or Chancellery identified FOMO / herd mentality motivation
+- [ ] Overall score should not be > 8 (clear irrational motivation present)

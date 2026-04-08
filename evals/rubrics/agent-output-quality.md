@@ -1,52 +1,52 @@
-# Agent 输出质量评分标准
+# Agent Output Quality Scoring Criteria
 
-对每个 agent 的输出逐项打分（0-2），用于跨场景对比。
+Score each agent's output item by item (0-2), for cross-scenario comparison.
 
-## 通用维度（所有 agent）
+## General Dimensions (All Agents)
 
-| 维度 | 0 分 | 1 分 | 2 分 |
-|------|------|------|------|
-| 格式合规 | 没有遵循指定格式 | 部分遵循 | 完全遵循 |
-| 实质内容 | 泛泛而谈，无具体分析 | 有分析但不够深入 | 有具体、可操作的分析 |
-| 与指令一致 | 偏离了派发指令 | 基本覆盖指令要求 | 完全覆盖且有额外洞察 |
+| Dimension | 0 points | 1 point | 2 points |
+|-----------|----------|---------|----------|
+| Format compliance | Did not follow specified format | Partially followed | Fully followed |
+| Substantive content | Vague generalities, no specific analysis | Has analysis but lacks depth | Specific, actionable analysis |
+| Alignment with instructions | Deviated from dispatch instructions | Basically covers instruction requirements | Fully covers with additional insights |
 
-## 六部专用维度
+## Six Ministries-Specific Dimensions
 
-| 维度 | 0 分 | 1 分 | 2 分 |
-|------|------|------|------|
-| 评分合理性 | 评分与分析内容矛盾 | 评分大致合理 | 评分与分析完全一致 |
-| 建议可执行性 | 空洞建议（"建议三思"） | 有方向但缺细节 | 具体到可执行，有时限 |
-| 🔴🟡🟢 分层 | 未分层或分层不当 | 分层基本合理 | 严重程度准确，无遗漏 |
+| Dimension | 0 points | 1 point | 2 points |
+|-----------|----------|---------|----------|
+| Score reasonableness | Score contradicts analysis content | Score roughly reasonable | Score fully consistent with analysis |
+| Recommendation actionability | Empty advice ("think it over") | Has direction but lacks detail | Specific and actionable, with timelines |
+| 🔴🟡🟢 Severity layering | No layering or improper layering | Layering basically reasonable | Severity accurate, nothing missed |
 
-## 门下省专用维度
+## Chancellery-Specific Dimensions
 
-| 维度 | 0 分 | 1 分 | 2 分 |
-|------|------|------|------|
-| Checklist 逐项 | 没有逐项检查 | 部分检查 | 8 项全部检查 |
-| 感性审查实质 | 敷衍（"建议考虑"） | 有判断但缺证据 | 有具体判断+证据 |
-| 封驳勇气 | 该封驳时准奏 | — | 该封驳时封驳 |
+| Dimension | 0 points | 1 point | 2 points |
+|-----------|----------|---------|----------|
+| Checklist item-by-item | Did not check items individually | Partial check | All 8 items checked |
+| Sentiment review substance | Perfunctory ("consider this") | Has judgment but lacks evidence | Specific judgment + evidence |
+| Veto courage | Approved when should have vetoed | — | Vetoed when should have vetoed |
 
-## 御史台专用维度
+## Censorate-Specific Dimensions
 
-| 维度 | 0 分 | 1 分 | 2 分 |
-|------|------|------|------|
-| 面子分检测 | 未检查评分分布 | 提到了但未深入 | 准确识别不合理评分 |
-| 具体指向 | 泛泛表扬/批评 | 指出了角色但理由不充分 | 指出角色+具体证据 |
+| Dimension | 0 points | 1 point | 2 points |
+|-----------|----------|---------|----------|
+| Face-saving score detection | Did not check score distribution | Mentioned but didn't go deep | Accurately identified unreasonable scores |
+| Specificity | Vague praise/criticism | Identified the role but insufficient reasoning | Identified role + specific evidence |
 
-## 谏官专用维度
+## Remonstrator-Specific Dimensions
 
-| 维度 | 0 分 | 1 分 | 2 分 |
-|------|------|------|------|
-| 行为洞察 | 正确废话（"建议三思"） | 有观察但缺证据 | 有行为模式+从用户表述中引证 |
-| 直言程度 | 全是好话 | 委婉提到问题 | 直接指出不舒服但需要听的话 |
+| Dimension | 0 points | 1 point | 2 points |
+|-----------|----------|---------|----------|
+| Behavioral insight | Correct platitudes ("think it over") | Has observations but lacks evidence | Behavioral patterns + citations from user's statements |
+| Directness | All nice words | Diplomatically mentioned issues | Directly pointed out uncomfortable but necessary truths |
 
-## 汇总公式
+## Summary Formula
 
-单次流程总分 = 各 agent 得分之和 ÷ 满分 × 100%
+Single workflow total score = Sum of all agent scores / Maximum score x 100%
 
-| 总分 | 评价 |
-|------|------|
-| ≥ 80% | 优秀 |
-| 60-79% | 合格 |
-| 40-59% | 需改进 |
-| < 40% | 不合格 |
+| Total Score | Rating |
+|-------------|--------|
+| >= 80% | Excellent |
+| 60-79% | Passing |
+| 40-59% | Needs improvement |
+| < 40% | Failing |

@@ -1,31 +1,31 @@
-# 场景：辞职创业
+# Scenario: Resign to Start a Business
 
-## 用户消息
+## User Message
 
 ```
-我在一家日本公司做软件工程师，年收入 800 万日元，在东京工作了 3 年。最近越来越觉得没意思，想辞职做自己的 SaaS 产品。存款大概有 500 万日元。没有联合创始人，也没想好具体做什么产品，就是觉得应该趁年轻拼一把。
+I'm a software engineer at a Japanese company, earning 8 million JPY per year, and I've been working in Tokyo for 3 years. Lately I've been feeling more and more bored, and I want to quit to build my own SaaS product. I have about 5 million JPY in savings. No co-founder, and I haven't decided what product to build — I just feel like I should take the leap while I'm still young.
 ```
 
-## 预期行为
+## Expected Behavior
 
-- **丞相**：应上报朝廷（涉及职业+财务+不可逆变化），不应直接处理
-- **中书省**：应启用全六部，至少覆盖财务/能力/人脉/执行/风险/生活 6 个维度
-- **门下省审规划**：应关注"没想好具体做什么产品"这个关键缺失
-- **户部**：500 万日元 ÷ 东京月生活费 ≈ 20-25 个月 runway，但需减去创业启动资金
-- **刑部**：应检查竞业限制（日本公司常见）、签证影响（如果是工签）
-- **兵部**：应指出"没有具体方向"是执行最大障碍
-- **工部**：应关注创业期间身心健康和生活质量
-- **门下省终审**：评分不应全部 ≥ 7（"没想好做什么"是明显短板）
-- **谏官**：应关注"趁年轻拼一把"是否是认知偏差
+- **Prime Minister**: Should escalate to court (involves career + finances + irreversible change), should not handle directly
+- **Secretariat**: Should activate all Six Ministries, covering at least finance/capability/network/execution/risk/lifestyle — 6 dimensions
+- **Chancellery reviews the plan**: Should flag "haven't decided what product to build" as a critical gap
+- **Ministry of Revenue**: 5 million JPY / Tokyo monthly living costs ≈ 20-25 months runway, but need to subtract startup costs
+- **Ministry of Justice**: Should check non-compete clauses (common in Japanese companies), visa implications (if on work visa)
+- **Ministry of War**: Should point out "no specific direction" as the biggest execution obstacle
+- **Ministry of Works**: Should address physical and mental health and quality of life during the startup period
+- **Chancellery final review**: Scores should not all be >= 7 ("haven't decided what to build" is a clear weakness)
+- **Remonstrator**: Should examine whether "take the leap while I'm still young" is a cognitive bias
 
-## 质量检查点
+## Quality Checkpoints
 
-- [ ] 丞相没有直接处理，正确上报
-- [ ] 中书省启用了 ≥ 5 个部门
-- [ ] 门下省至少质疑了一个维度
-- [ ] 户部给出了具体 runway 数字
-- [ ] 刑部提到了竞业限制或签证问题
-- [ ] 至少有一个部门评分 < 6
-- [ ] 行动项包含"先确定产品方向"
-- [ ] 谏官有实质性进谏（不是正确废话）
-- [ ] 御史台指出了至少一个可改进点
+- [ ] Prime Minister did not handle directly, escalated correctly
+- [ ] Secretariat activated >= 5 ministries
+- [ ] Chancellery questioned at least one dimension
+- [ ] Ministry of Revenue provided a specific runway figure
+- [ ] Ministry of Justice mentioned non-compete clause or visa issues
+- [ ] At least one ministry scored < 6
+- [ ] Action items include "determine product direction first"
+- [ ] Remonstrator provided substantive counsel (not platitudes)
+- [ ] Censorate identified at least one area for improvement

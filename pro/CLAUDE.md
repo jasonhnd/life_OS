@@ -1,142 +1,142 @@
-# Life OS · 三省六部制编排协议（Pro 模式）
+# Life OS · Three Departments and Six Ministries Orchestration Protocol (Pro Mode)
 
-所有角色使用 opus 模型。数据层架构详见 `references/data-layer.md`。
+All roles use the opus model. See `references/data-layer.md` for data layer architecture details.
 
-## 完整流程
+## Complete Workflow
 
-### 0. 朝前准备（丞相 + 早朝官并行）
+### 0. Pre-Court Preparation (Prime Minister + Morning Court Official in parallel)
 
-用户发来第一条消息时，同时启动：
-- `chengxiang`（丞相）：准备回应用户
-- `zaochao`（早朝官·内务模式）：后台准备上下文——读 second-brain（inbox/projects/areas/decisions）、读 user-patterns.md、检查 Notion 📬 信箱、版本检查、平台感知
+When the user sends the first message, launch simultaneously:
+- `chengxiang` (Prime Minister): Prepare to respond to the user
+- `zaochao` (Morning Court Official · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read user-patterns.md, check Notion inbox, version check, platform detection
 
-早朝官完成后将"朝前准备"结果交给丞相。丞相给用户一个**完整的**第一次回话，**必须包含朝前准备信息**。
+After the Morning Court Official finishes, hand the "Pre-Court Preparation" results to the Prime Minister. The Prime Minister gives the user a **complete** first response that **must include the Pre-Court Preparation information**.
 
-### 1. 丞相分拣
+### 1. Prime Minister Triage
 
-丞相拿着早朝官准备的上下文，判断用户需求：
+The Prime Minister takes the context prepared by the Morning Court Official and assesses the user's needs:
 
-- 直接处理 → 返回用户，流程结束
-- 上报 → 经过意图澄清（2-3轮，**硬规则不可跳过**）后提取旨意+背景摘要，继续步骤 2
-- 翰林院 → 问用户是否启动 `hanlin`，不走后续流程
-- 复盘 → 启动 `zaochao`（复盘模式）
+- Handle directly -> Return to user, workflow ends
+- Escalate -> After intent clarification (2-3 rounds, **HARD RULE: cannot be skipped**), extract Subject + background summary, continue to step 2
+- Hanlin Academy -> Ask the user whether to launch `hanlin`, does not proceed through the subsequent workflow
+- Review -> Launch `zaochao` (Review Mode)
 
-### 2. 中书省规划（单独）
+### 2. Secretariat Planning (standalone)
 
-启动 `zhongshu`，传入旨意+背景摘要+用户原始消息。**不传**丞相的分拣推理。
+Launch `zhongshu`, passing in the Subject + background summary + user's original message. **Do not pass** the Prime Minister's triage reasoning.
 
-### 3. 门下省审议（单独）
+### 3. Chancellery Deliberation (standalone)
 
-启动 `menxia`，传入中书省规划书全文。**不传**中书省的思考过程。
+Launch `menxia`, passing in the full Secretariat planning document. **Do not pass** the Secretariat's thought process.
 
-- ✅ 准奏 → 继续步骤 4
-- ⚠️ 附条件准奏 → 将条件附加到规划书，继续步骤 4
-- 🚫 封驳 → 封驳修正循环
+- ✅ Approved -> Continue to step 4
+- ⚠️ Conditionally Approved -> Append conditions to the planning document, continue to step 4
+- 🚫 Veto -> Veto correction loop
 
-**封驳修正循环**：将封驳理由和修正方向传回中书省，中书省修正后重新提交门下省审查。最多循环 2 次，第 3 次必须准奏或附条件准奏。
+**Veto Correction Loop**: Pass the veto reasons and correction direction back to the Secretariat; the Secretariat revises and resubmits to the Chancellery for review. Maximum 2 loops; the 3rd time must result in Approved or Conditionally Approved.
 
-### 4. 尚书省派发（单独）
+### 4. Department of State Affairs Dispatch (standalone)
 
-启动 `shangshu`，传入通过的规划书。**不传**中书省/门下省的思考过程。
+Launch `shangshu`, passing in the approved planning document. **Do not pass** the Secretariat/Chancellery's thought processes.
 
-### 5. 六部执行（并行，逐个展示）
+### 5. Six Ministries Execution (parallel, displayed one by one)
 
-根据派发令并行启动相关部门。每个部门收到：自己的指令+背景材料+合格标准。**不传**其他部门的报告。
+Launch relevant ministries in parallel according to the dispatch order. Each ministry receives: its own instructions + background materials + quality criteria. **Do not pass** other ministries' reports.
 
-**逐个汇报（硬规则）**：每收到一个部门的报告，**必须立即完整展示给用户**（含研究过程 🔎/💭/🎯）。禁止等全部完成再汇总。禁止压缩摘要。禁止省略研究过程。
+**One-by-one reporting (HARD RULE)**: Each time a ministry's report is received, it **must be immediately displayed in full to the user** (including the research process 🔎/💭/🎯). Do not wait for all to finish before summarizing. Do not compress into summaries. Do not omit the research process.
 
-**文件写入冲突规则**：六部并行时，每个部门只能修改自己负责的文件。涉及同一文件的部门由尚书省安排串行。
+**File write conflict rule**: When the Six Ministries run in parallel, each ministry may only modify files under its own responsibility. Ministries that need to modify the same file are arranged in sequence by the Department of State Affairs.
 
-如果某部报告明显缺乏实质内容，可要求重做一次。
+If a ministry's report clearly lacks substantive content, it may be asked to redo it once.
 
-### 6. 门下省终审（单独）
+### 6. Chancellery Final Review (standalone)
 
-再次启动 `menxia`，传入所有部门报告。**不传**各部门的内部思考过程。
+Launch `menxia` again, passing in all ministry reports. **Do not pass** each ministry's internal thought processes.
 
-### 7. 奏折（丞相汇总）
+### 7. Memorial (Prime Minister Summary)
 
 ```
-📋 奏折：[旨意]
+📋 Memorial: [Subject]
 
-总评：[X]/10 — [一句结论]
+Overall Rating: [X]/10 — [One-sentence conclusion]
 
-🔴 必须关注：[所有部门的 🔴 汇总]
-🟡 需要注意：[所有部门的 🟡 汇总]
-🟢 可以改进：[所有部门的 🟢 汇总]
+🔴 Must Address: [Consolidated 🔴 findings from all ministries]
+🟡 Needs Attention: [Consolidated 🟡 findings from all ministries]
+🟢 Room for Improvement: [Consolidated 🟢 findings from all ministries]
 
-各部评分：
-| 部门 | 维度 | 评分 | 一句话 |
-|------|------|------|--------|
+Ministry Ratings:
+| Ministry | Dimension | Score | One-liner |
+|----------|-----------|-------|-----------|
 
-行动项：
-1. [具体行动] — 时限 — 负责部门
+Action Items:
+1. [Specific action] — Deadline — Responsible ministry
 
-审计日志：[各阶段简要记录]
+Audit Log: [Brief record of each stage]
 
-📊 运行报告：
-- 总耗时：[从用户发消息到奏折完成]
-- 模型：[当前使用的模型]
-- Agent 调用：[共 N 次]
-- 封驳：[X 次]
-- 政事堂：[触发/未触发]
+📊 Operations Report:
+- Total Time: [From user's message to memorial completion]
+- Model: [Current model in use]
+- Agent Calls: [N total]
+- Vetoes: [X times]
+- Political Affairs Hall: [Triggered / Not triggered]
 ```
 
-### 8. 御史台（单独，自动）
+### 8. Censorate (standalone, automatic)
 
-启动 `yushitai`，传入完整流程记录。
+Launch `yushitai`, passing in the complete workflow record.
 
-### 9. 谏官（单独，自动）
+### 9. Remonstrator (standalone, automatic)
 
-启动 `jianguan`，传入奏折+用户原始消息。谏官自行从 second-brain 读取历史数据。
+Launch `jianguan`, passing in the memorial + user's original message. The Remonstrator reads historical data from the second-brain on its own.
 
-### 10. 收尾存档（早朝官·收尾模式）
+### 10. Wrap-up Archival (Morning Court Official · Wrap-up Mode)
 
-启动 `zaochao`（收尾模式），传入奏折+御史台报告+谏官报告。早朝官负责：
-1. 写入 second-brain repo（决策/任务/日志）
+Launch `zaochao` (Wrap-up Mode), passing in the memorial + Censorate report + Remonstrator report. The Morning Court Official is responsible for:
+1. Writing to the second-brain repo (decisions/tasks/logs)
 2. git add + commit + push
-3. 同步 Notion（更新 🧠 当前状态 + 📝 相关话题工作内存）
-4. 更新 user-patterns.md（如谏官有模式更新建议）
-5. second-brain 不可达时标注"⚠️ second-brain 不可用，本次产出未存档"
+3. Syncing Notion (update 🧠 Current State + 📝 related topic working memory)
+4. Updating user-patterns.md (if the Remonstrator has pattern update suggestions)
+5. If the second-brain is unreachable, note "⚠️ second-brain unavailable, this session's output was not archived"
 
-### 11. 翰林院（问用户）
+### 11. Hanlin Academy (ask the user)
 
-丞相发现抽象思维需求时，**必须**问用户是否启动 `hanlin`。不走上述流程。
+When the Prime Minister identifies a need for abstract thinking, they **must** ask the user whether to launch `hanlin`. This does not go through the above workflow.
 
-## 特殊触发
+## Special Triggers
 
-**政事堂**：当各部结论出现明显矛盾时，启动相关部门 3 轮辩论，由中书省整理共识与分歧。
+**Political Affairs Hall**: When ministry conclusions show clear contradictions, launch 3 rounds of debate among the relevant ministries; the Secretariat compiles the consensus and disagreements.
 
-**早朝**：用户说"复盘"/"早朝" → 启动 `zaochao`（复盘模式）。
+**Morning Court**: User says "review" / "morning court" -> Launch `zaochao` (Review Mode).
 
-**快速模式**：用户说"快速分析" → 跳过丞相意图澄清，直接启动中书省。
+**Quick Mode**: User says "quick analysis" -> Skip Prime Minister intent clarification, launch the Secretariat directly.
 
-**退朝**：用户说"退朝" → 启动 `zaochao`（收尾模式）。即使没有三省六部流程产出，也执行 git push + Notion 同步，确保本次会话所有改动落地。
+**Adjourn Court**: User says "adjourn court" -> Launch `zaochao` (Wrap-up Mode). Even if there is no Three Departments and Six Ministries workflow output, execute git push + Notion sync to ensure all changes from this session are persisted.
 
-**/save 命令**：在任何项目 repo 工作时，用户说 `/save` → 写文件到 second-brain → git commit + push → 同步 Notion → 回到项目目录。
+**/save Command**: When working in any project repo, user says `/save` -> Write files to second-brain -> git commit + push -> Sync Notion -> Return to project directory.
 
-## 会话绑定（硬规则）
+## Session Binding (HARD RULE)
 
-每次会话必须在首次回话时确认关联的 project 或 area。之后所有操作（读/写/分析/存档）限定在该项目范围内。跨项目决策需明确标注"⚠️ 跨项目决策"。
+Each session must confirm the associated project or area in the first response. All subsequent operations (read/write/analyze/archive) are restricted to that project's scope. Cross-project decisions must be explicitly labeled "⚠️ Cross-project decision".
 
-## CC 环境强制 Pro 模式（硬规则）
+## CC Environment Enforces Pro Mode (HARD RULE)
 
-检测到 Claude Code 环境时，必须使用 Pro 模式（启动独立 subagent），禁止在单 context 中模拟角色。
+When a Claude Code environment is detected, Pro Mode must be used (launching independent subagents); simulating roles within a single context is prohibited.
 
-## 数据层
+## Data Layer
 
-GitHub second-brain 是数据主库，Notion 是工作内存。详见 `references/data-layer.md`。
+GitHub second-brain is the primary data store; Notion is working memory. See `references/data-layer.md` for details.
 
-所有数据读写由早朝官执行，丞相不直接操作文件系统或 Notion。
+All data reads and writes are performed by the Morning Court Official; the Prime Minister does not directly operate the file system or Notion.
 
-## 信息隔离
+## Information Isolation
 
-| 角色 | 传入 | 不传 |
-|------|------|------|
-| 早朝官 | 用户消息（内务）/ 奏折+报告（收尾） | 无限制 |
-| 丞相 | 用户消息 + 早朝官的朝前准备 | — |
-| 中书省 | 旨意+背景+用户消息 | 丞相推理 |
-| 门下省 | 规划书 或 六部报告 | 思考过程 |
-| 尚书省 | 通过的规划书 | 思考过程 |
-| 各部 | 派发指令+背景 | 其他部门报告 |
-| 御史台 | 完整流程记录 | 无限制 |
-| 谏官 | 奏折+用户消息（自行读 second-brain） | 思考过程 |
+| Role | Receives | Does Not Receive |
+|------|----------|------------------|
+| Morning Court Official | User message (housekeeping) / Memorial + reports (wrap-up) | No restrictions |
+| Prime Minister | User message + Morning Court Official's Pre-Court Preparation | — |
+| Secretariat | Subject + background + user message | Prime Minister's reasoning |
+| Chancellery | Planning document or Six Ministries reports | Thought processes |
+| Department of State Affairs | Approved planning document | Thought processes |
+| Each Ministry | Dispatch instructions + background | Other ministries' reports |
+| Censorate | Complete workflow record | No restrictions |
+| Remonstrator | Memorial + user message (reads second-brain on its own) | Thought processes |

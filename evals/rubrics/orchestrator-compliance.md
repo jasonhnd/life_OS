@@ -1,38 +1,38 @@
-# 丞相流程合规性检查
+# Prime Minister Workflow Compliance Check
 
-对每次完整流程的编排质量进行审查（丞相作为总管负责全流程调度）。
+Audit the orchestration quality of each complete workflow (the Prime Minister is the chief steward responsible for full-process coordination).
 
-## 流程检查项
+## Workflow Checklist
 
-| # | 检查项 | Pass/Fail | 说明 |
-|---|--------|-----------|------|
-| 1 | 丞相正确分拣 | | 简单事直接处理，复杂事上报 |
-| 2 | 信息隔离执行 | | 中书省没收到丞相推理，门下省没收到思考过程 |
-| 3 | 门下省实质审查 | | 不是每次都准奏，Checklist 有具体内容 |
-| 4 | 封驳循环正确 | | 封驳后中书省收到了理由和修正方向 |
-| 5 | 六部并行执行 | | 无依赖的部门同时启动 |
-| 6 | 质量兜底生效 | | 不合格报告被要求重做 |
-| 7 | 政事堂触发检查 | | 评分差 ≥ 4 或结论相反时是否触发 |
-| 8 | 奏折格式完整 | | 包含总评+分部评分+行动项+审计日志 |
-| 9 | 御史台自动运行 | | 没有被跳过 |
-| 10 | 谏官自动运行 | | 没有被跳过 |
-| 11 | Notion 数据沉淀 | | 奏折/任务/日志存入对应数据库（如 Notion 可用） |
+| # | Check Item | Pass/Fail | Description |
+|---|-----------|-----------|-------------|
+| 1 | Prime Minister triages correctly | | Simple matters handled directly, complex matters escalated |
+| 2 | Information isolation enforced | | Secretariat didn't receive Prime Minister's reasoning, Chancellery didn't receive thinking process |
+| 3 | Chancellery conducts substantive review | | Doesn't approve every time, checklist has specific content |
+| 4 | Veto loop works correctly | | After veto, Secretariat received the reasons and correction direction |
+| 5 | Six Ministries execute in parallel | | Departments with no dependencies start simultaneously |
+| 6 | Quality safety net activated | | Substandard reports are sent back for revision |
+| 7 | Political Affairs Hall trigger check | | Whether triggered when score gap >= 4 or conclusions conflict |
+| 8 | Memorial format complete | | Includes overall assessment + ministry scores + action items + audit log |
+| 9 | Censorate runs automatically | | Not skipped |
+| 10 | Remonstrator runs automatically | | Not skipped |
+| 11 | Notion data persistence | | Memorial/tasks/logs stored in corresponding databases (if Notion available) |
 
-## 评分分布检查
+## Score Distribution Check
 
-| 检查项 | 异常信号 |
-|--------|---------|
-| 所有部门评分 ≥ 7 | ⚠️ 可能存在面子分 |
-| 所有部门评分 ≤ 4 | ⚠️ 可能过于严苛 |
-| 某部评分与分析内容矛盾 | ❌ 不合格 |
-| 标准差 < 1.0 | ⚠️ 评分区分度不够 |
+| Check Item | Anomaly Signal |
+|------------|---------------|
+| All ministry scores >= 7 | ⚠️ Possible face-saving scores |
+| All ministry scores <= 4 | ⚠️ Possibly overly harsh |
+| A ministry's score contradicts its analysis | ❌ Failing |
+| Standard deviation < 1.0 | ⚠️ Insufficient score differentiation |
 
-## 信息隔离验证
+## Information Isolation Verification
 
-逐步检查每个 agent 的输出，寻找不应出现的内容：
+Check each agent's output step by step, looking for content that should not appear:
 
-| Agent | 不应包含 | 检查方法 |
-|-------|---------|---------|
-| 中书省 | "丞相认为""丞相判断" | 搜索"丞相" |
-| 门下省 | "中书省考虑到""中书省的思路" | 搜索引用中书省推理 |
-| 各部 | 其他部门的结论或评分 | 搜索其他部门名称+评分 |
+| Agent | Should Not Contain | Check Method |
+|-------|-------------------|--------------|
+| Secretariat | "Prime Minister thinks" "Prime Minister judges" | Search for "Prime Minister" |
+| Chancellery | "Secretariat considered" "Secretariat's approach" | Search for references to Secretariat reasoning |
+| Each Ministry | Other ministries' conclusions or scores | Search for other ministry names + scores |

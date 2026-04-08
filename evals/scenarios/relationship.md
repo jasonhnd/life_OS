@@ -1,27 +1,27 @@
-# 场景：人际关系决策
+# Scenario: Interpersonal Relationship Decision
 
-## 用户消息
+## User Message
 
 ```
-我和合伙人关系越来越差。我们一起做了一个副项目快一年了，他最近经常不回消息，承诺的功能一直没交付，但每次当面说的时候他都说"最近忙，马上做"。项目本身有用户在用，月活大概 200 人。我在考虑要不要散伙，但又怕伤感情——我们是大学同学。
+My relationship with my co-founder is getting worse. We've been working on a side project together for almost a year now. Lately he often doesn't reply to messages, and the features he promised keep getting delayed, but every time I bring it up in person he just says "been busy lately, I'll get to it soon." The project itself has users — about 200 MAU. I'm considering whether to part ways, but I'm afraid of hurting our friendship — we were college classmates.
 ```
 
-## 预期行为
+## Expected Behavior
 
-- **丞相**：应上报朝廷（涉及人际+项目+不可逆变化），建议启用吏部+兵部+刑部+礼部
-- **中书省**：核心维度应包含关系评估、项目可行性、法律风险、沟通策略
-- **吏部**：应分析合伙关系健康度，评估"承诺不兑现"的模式
-- **兵部**：应评估项目本身的价值（200 月活），独自维护的可行性
-- **刑部**：应检查是否有书面协议、IP 归属、散伙的法律/财务后果
-- **礼部**：应提供沟通策略——怎么谈散伙不伤感情
-- **门下省感性审查**：应关注"大学同学"的情感因素和沉没成本
+- **Prime Minister**: Should escalate to court (involves interpersonal + project + irreversible change), recommend activating Ministry of Personnel + Ministry of War + Ministry of Justice + Ministry of Rites
+- **Secretariat**: Core dimensions should include relationship assessment, project viability, legal risks, communication strategy
+- **Ministry of Personnel**: Should analyze partnership health, evaluate the pattern of "promises not kept"
+- **Ministry of War**: Should assess the project's own value (200 MAU), feasibility of solo maintenance
+- **Ministry of Justice**: Should check whether there's a written agreement, IP ownership, legal/financial consequences of splitting
+- **Ministry of Rites**: Should provide communication strategy — how to discuss splitting without damaging the friendship
+- **Chancellery sentiment review**: Should address the emotional factor of "college classmates" and sunk cost
 
-## 质量检查点
+## Quality Checkpoints
 
-- [ ] 丞相没有直接给建议（如"直接谈谈"），正确上报
-- [ ] 吏部分析了关系模式而不是只说"建议沟通"
-- [ ] 刑部提到了书面协议/IP 归属问题
-- [ ] 礼部给出了具体的沟通策略（不是"建议开诚布公"）
-- [ ] 门下省感性审查提到了友情和沉没成本的影响
-- [ ] 行动项包含"先确认法律/协议状态"
-- [ ] 谏官关注了用户是否在回避正面冲突
+- [ ] Prime Minister did not give direct advice (like "just talk to him"), escalated correctly
+- [ ] Ministry of Personnel analyzed relationship patterns rather than just saying "recommend communicating"
+- [ ] Ministry of Justice mentioned written agreement/IP ownership issues
+- [ ] Ministry of Rites provided specific communication strategies (not just "recommend being open and honest")
+- [ ] Chancellery sentiment review mentioned friendship and sunk cost effects
+- [ ] Action items include "first confirm legal/agreement status"
+- [ ] Remonstrator addressed whether the user is avoiding direct confrontation

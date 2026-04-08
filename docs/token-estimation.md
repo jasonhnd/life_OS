@@ -1,246 +1,246 @@
-# Token 消耗详解
+# Token Consumption Breakdown
 
-Life OS 的 Token 消耗取决于三个变量：**模式**（Lite/Pro）、**场景复杂度**（启用多少部门）、**流程事件**（封驳/政事堂是否触发）。本文拆解每种情况的消耗。
+Life OS token consumption depends on three variables: **mode** (Lite/Pro), **scenario complexity** (how many ministries are activated), and **process events** (whether Veto/Political Affairs Hall are triggered). This document breaks down the consumption for each case.
 
-> Claude Max/Pro 订阅用户不按 token 计费，以下分析仅供 API 用户和关注成本的用户参考。
+> Claude Max/Pro subscribers are not billed per token. The analysis below is for API users and cost-conscious users only.
 
 ---
 
-## 基础概念
+## Basic Concepts
 
-### 每个角色的消耗构成
+### Token Composition per Role
 
-每次角色调用 = **输入 token**（系统指令 + 传入的上下文）+ **输出 token**（角色的产出）
+Each role invocation = **input tokens** (system instructions + incoming context) + **output tokens** (role's output)
 
-| 角色 | 系统指令 | 典型输入上下文 | 典型输出 | 单次调用合计 |
-|------|---------|--------------|---------|------------|
-| 丞相 | ~500 | 用户消息 ~200 | 启奏 ~150 / 直接处理 ~300 | ~700-1,000 |
-| 中书省 | ~400 | 旨意+背景+用户消息 ~500 | 规划书 ~800 | ~1,700 |
-| 门下省 | ~450 | 规划书/报告 ~800-2,000 | 审议结果 ~600 | ~1,850-3,050 |
-| 尚书省 | ~350 | 规划书 ~800 | 派发令 ~600 | ~1,750 |
-| 六部（单个） | ~350 | 指令+背景 ~500 | 评估报告 ~800 | ~1,650 |
-| 御史台 | ~350 | 完整流程记录 ~3,000 | 绩效评价 ~300 | ~3,650 |
-| 谏官 | ~300 | 奏折+用户消息 ~1,500 | 进谏 ~300 | ~2,100 |
-| 早朝官 | ~350 | Notion 数据 ~1,000 | 简报 ~600 | ~1,950 |
-| 翰林院 | ~250 | 用户消息 ~300 | 对话回复 ~500 | ~1,050 |
+| Role | System Instructions | Typical Input Context | Typical Output | Total per Call |
+|------|--------------------|-----------------------|----------------|---------------|
+| Prime Minister | ~500 | User message ~200 | Presenting ~150 / Direct handling ~300 | ~700-1,000 |
+| Secretariat | ~400 | Decree + background + user message ~500 | Plan ~800 | ~1,700 |
+| Chancellery | ~450 | Plan/report ~800-2,000 | Review result ~600 | ~1,850-3,050 |
+| Dept. of State Affairs | ~350 | Plan ~800 | Dispatch order ~600 | ~1,750 |
+| Six Ministries (each) | ~350 | Instructions + background ~500 | Assessment report ~800 | ~1,650 |
+| Censorate | ~350 | Complete process record ~3,000 | Performance evaluation ~300 | ~3,650 |
+| Remonstrator | ~300 | Memorial + user message ~1,500 | Admonition ~300 | ~2,100 |
+| Morning Court Official | ~350 | Notion data ~1,000 | Briefing ~600 | ~1,950 |
+| Hanlin Academy | ~250 | User message ~300 | Conversation reply ~500 | ~1,050 |
 
-> 以上为估算值，实际消耗因用户输入长度和模型输出详细程度而异。
+> The above are estimates. Actual consumption varies with user input length and model output detail.
 
-### Lite vs Pro 的成本差异
+### Cost Difference: Lite vs Pro
 
 | | Lite | Pro |
 |--|------|-----|
-| 调用方式 | 单 context，累积所有角色的输出 | 每个角色独立 API 调用 |
-| 输入重复 | 后序角色的输入 = 前序所有角色输出的累积（越来越大） | 每个角色只收到自己需要的输入（固定大小） |
-| 总消耗 | 较低（共享 context） | 较高（多次独立调用，但不累积） |
-| 典型比例 | 1x | 2-2.5x |
+| Invocation method | Single context, accumulates all role outputs | Each role as independent API call |
+| Input repetition | Later roles' input = accumulated output of all prior roles (grows larger) | Each role only receives its needed input (fixed size) |
+| Total consumption | Lower (shared context) | Higher (multiple independent calls, but no accumulation) |
+| Typical ratio | 1x | 2-2.5x |
 
 ---
 
-## 按使用场景拆解
+## Breakdown by Usage Scenario
 
-### 场景 A：丞相直接处理
+### Scenario A: Prime Minister Handles Directly
 
 ```
-用户 → 丞相 → 回复
+User → Prime Minister → Reply
 ```
 
-最轻量的使用方式。丞相判断为简单事，直接处理。
+The lightest usage pattern. Prime Minister determines it's simple and handles directly.
 
 | | Lite | Pro |
 |--|------|-----|
-| 调用次数 | 1（主 context） | 1（chengxiang agent） |
-| Token | ~700-1,000 | ~700-1,000 |
-| 费用 | ~$0.01-0.02 | ~$0.01-0.02 |
+| Call count | 1 (main context) | 1 (chengxiang agent) |
+| Tokens | ~700-1,000 | ~700-1,000 |
+| Cost | ~$0.01-0.02 | ~$0.01-0.02 |
 
-适用：闲聊、翻译、查询、记录、单步任务。
+Applicable: casual chat, translation, lookups, recording, single-step tasks.
 
 ---
 
-### 场景 B：精简流程（3 个部门）
+### Scenario B: Streamlined Process (3 Ministries)
 
 ```
-丞相 → 中书省 → 门下省 → 尚书省 → 3部门 → 门下省终审 → 奏折 → 御史台 → 谏官
+Prime Minister → Secretariat → Chancellery → Dept. of State Affairs → 3 Ministries → Chancellery final review → Memorial → Censorate → Remonstrator
 ```
 
-典型场景：大额消费（户部+兵部+刑部）
+Typical scenario: major purchase (Revenue + War + Justice)
 
-| 步骤 | Lite | Pro |
+| Step | Lite | Pro |
 |------|------|-----|
-| 丞相 | ~1,000 | ~1,000 |
-| 中书省 | ~1,700（累积） | ~1,700 |
-| 门下省审规划 | ~2,500（累积） | ~1,850 |
-| 尚书省 | ~3,000（累积） | ~1,750 |
-| 3 个部门 | ~5,000（累积） | ~4,950（3×1,650，并行） |
-| 门下省终审 | ~4,500（累积） | ~2,450 |
-| 丞相汇总奏折 | — | ~2,000 |
-| 御史台 | ~4,000（累积） | ~3,650 |
-| 谏官 | ~3,500（累积） | ~2,100 |
-| **合计** | **~10,000-12,000** | **~21,000-23,000** |
-| **费用** | **~$0.20-0.25** | **~$0.50-0.60** |
+| Prime Minister | ~1,000 | ~1,000 |
+| Secretariat | ~1,700 (accumulated) | ~1,700 |
+| Chancellery plan review | ~2,500 (accumulated) | ~1,850 |
+| Dept. of State Affairs | ~3,000 (accumulated) | ~1,750 |
+| 3 Ministries | ~5,000 (accumulated) | ~4,950 (3x1,650, parallel) |
+| Chancellery final review | ~4,500 (accumulated) | ~2,450 |
+| Prime Minister memorial summary | — | ~2,000 |
+| Censorate | ~4,000 (accumulated) | ~3,650 |
+| Remonstrator | ~3,500 (accumulated) | ~2,100 |
+| **Total** | **~10,000-12,000** | **~21,000-23,000** |
+| **Cost** | **~$0.20-0.25** | **~$0.50-0.60** |
 
 ---
 
-### 场景 C：标准流程（4 个部门）
+### Scenario C: Standard Process (4 Ministries)
 
 ```
-丞相 → 中书省 → 门下省 → 尚书省 → 4部门 → 门下省终审 → 奏折 → 御史台 → 谏官
+Prime Minister → Secretariat → Chancellery → Dept. of State Affairs → 4 Ministries → Chancellery final review → Memorial → Censorate → Remonstrator
 ```
 
-典型场景：投资决策（户部+兵部+刑部+吏部）、健康管理（工部+兵部+户部+刑部）
+Typical scenario: investment decision (Revenue + War + Justice + Personnel), health management (Works + War + Revenue + Justice)
 
 | | Lite | Pro |
 |--|------|-----|
-| 合计 | ~12,000-15,000 | ~25,000-28,000 |
-| 费用 | ~$0.25-0.35 | ~$0.60-0.75 |
+| Total | ~12,000-15,000 | ~25,000-28,000 |
+| Cost | ~$0.25-0.35 | ~$0.60-0.75 |
 
 ---
 
-### 场景 D：全流程（6 个部门）
+### Scenario D: Full Process (6 Ministries)
 
 ```
-丞相 → 中书省 → 门下省 → 尚书省 → 6部门 → 门下省终审 → 奏折 → 御史台 → 谏官
+Prime Minister → Secretariat → Chancellery → Dept. of State Affairs → 6 Ministries → Chancellery final review → Memorial → Censorate → Remonstrator
 ```
 
-典型场景：职业转型、搬家/移居、年度目标、创业决策
+Typical scenario: career transition, relocation, annual goals, startup decision
 
 | | Lite | Pro |
 |--|------|-----|
-| 合计 | ~15,000-18,000 | ~35,000-40,000 |
-| 费用 | ~$0.30-0.50 | ~$0.80-1.20 |
+| Total | ~15,000-18,000 | ~35,000-40,000 |
+| Cost | ~$0.30-0.50 | ~$0.80-1.20 |
 
 ---
 
-### 场景 E：全流程 + 封驳
+### Scenario E: Full Process + Veto
 
 ```
-丞相 → 中书省 → 门下省(封驳) → 中书省(修正) → 门下省(准奏) → 尚书省 → 6部门 → ...
+Prime Minister → Secretariat → Chancellery (Veto) → Secretariat (revision) → Chancellery (approved) → Dept. of State Affairs → 6 Ministries → ...
 ```
 
-封驳增加一次中书省+门下省的循环。
+A Veto adds one Secretariat + Chancellery cycle.
 
 | | Lite | Pro |
 |--|------|-----|
-| 封驳 1 次额外消耗 | +3,000-4,000 | +5,000-6,000 |
-| 合计（全六部+1次封驳） | ~18,000-22,000 | ~40,000-46,000 |
-| 费用 | ~$0.40-0.55 | ~$1.00-1.40 |
+| Extra consumption per Veto | +3,000-4,000 | +5,000-6,000 |
+| Total (all 6 + 1 Veto) | ~18,000-22,000 | ~40,000-46,000 |
+| Cost | ~$0.40-0.55 | ~$1.00-1.40 |
 
-封驳最多 2 次。如果 2 次封驳：
+Maximum 2 Vetoes. With 2 Vetoes:
 
 | | Lite | Pro |
 |--|------|-----|
-| 合计 | ~21,000-26,000 | ~45,000-52,000 |
-| 费用 | ~$0.50-0.65 | ~$1.20-1.60 |
+| Total | ~21,000-26,000 | ~45,000-52,000 |
+| Cost | ~$0.50-0.65 | ~$1.20-1.60 |
 
 ---
 
-### 场景 F：全流程 + 封驳 + 政事堂
+### Scenario F: Full Process + Veto + Political Affairs Hall
 
 ```
-... → 6部门 → 门下省终审(发现矛盾) → 政事堂(3轮辩论) → 奏折 → 御史台 → 谏官
+... → 6 Ministries → Chancellery final review (finds contradictions) → Political Affairs Hall (3 rounds of debate) → Memorial → Censorate → Remonstrator
 ```
 
-政事堂在各部结论矛盾时触发，相关部门进行 3 轮辩论。假设 3 个部门参与辩论。
+The Political Affairs Hall triggers when ministry conclusions contradict each other; relevant ministries conduct 3 rounds of debate. Assuming 3 ministries participate.
 
 | | Lite | Pro |
 |--|------|-----|
-| 政事堂额外消耗 | +3,000-5,000 | +8,000-10,000 |
-| 合计（全六部+封驳+政事堂） | ~24,000-31,000 | ~48,000-62,000 |
-| 费用 | ~$0.55-0.75 | ~$1.50-2.00 |
+| Political Affairs Hall extra consumption | +3,000-5,000 | +8,000-10,000 |
+| Total (all 6 + Veto + Political Affairs Hall) | ~24,000-31,000 | ~48,000-62,000 |
+| Cost | ~$0.55-0.75 | ~$1.50-2.00 |
 
-这是单次流程的理论最大消耗。
+This is the theoretical maximum consumption for a single process.
 
 ---
 
-### 场景 G：早朝复盘
+### Scenario G: Morning Court Review
 
 ```
-早朝官（独立流程，不走三省六部）
+Morning Court Official (independent process, does not go through Three Departments and Six Ministries)
 ```
 
 | | Lite | Pro |
 |--|------|-----|
-| 合计 | ~1,500-2,500 | ~1,500-2,500 |
-| 费用 | ~$0.03-0.05 | ~$0.03-0.05 |
+| Total | ~1,500-2,500 | ~1,500-2,500 |
+| Cost | ~$0.03-0.05 | ~$0.03-0.05 |
 
-早朝官是单次调用，Lite 和 Pro 成本相同。如果连接了 Notion，读取数据会增加输入 token。
+The Morning Court Official is a single call; Lite and Pro cost the same. If connected to Notion, reading data increases input tokens.
 
 ---
 
-### 场景 H：翰林院深度对话
+### Scenario H: Hanlin Academy Deep Conversation
 
 ```
-丞相(判断) → 翰林院(多轮对话)
+Prime Minister (judgment) → Hanlin Academy (multi-turn conversation)
 ```
 
-翰林院是多轮对话，每轮约 1,000-1,500 token。
+The Hanlin Academy is a multi-turn conversation, about 1,000-1,500 tokens per turn.
 
-| | 3 轮对话 | 5 轮对话 | 10 轮对话 |
+| | 3 turns | 5 turns | 10 turns |
 |--|---------|---------|----------|
-| 合计 | ~4,000-5,000 | ~7,000-9,000 | ~15,000-20,000 |
-| 费用 | ~$0.08-0.12 | ~$0.15-0.22 | ~$0.35-0.50 |
+| Total | ~4,000-5,000 | ~7,000-9,000 | ~15,000-20,000 |
+| Cost | ~$0.08-0.12 | ~$0.15-0.22 | ~$0.35-0.50 |
 
 ---
 
-## 总览表
+## Summary Table
 
-| 场景 | 部门数 | Lite Token | Lite 费用 | Pro Token | Pro 费用 |
-|------|-------|-----------|----------|----------|---------|
-| 丞相直接处理 | 0 | ~1k | ~$0.02 | ~1k | ~$0.02 |
-| 大额消费 | 3 | ~11k | ~$0.22 | ~22k | ~$0.55 |
-| 投资/健康/学习 | 4 | ~14k | ~$0.30 | ~27k | ~$0.68 |
-| 职业转型/搬家 | 6 | ~16k | ~$0.40 | ~38k | ~$1.00 |
-| 全六部 + 封驳 | 6+封 | ~20k | ~$0.48 | ~43k | ~$1.20 |
-| 全六部 + 封驳 + 政事堂 | 6+封+堂 | ~28k | ~$0.65 | ~55k | ~$1.75 |
-| 早朝复盘 | — | ~2k | ~$0.04 | ~2k | ~$0.04 |
-| 翰林院（5轮） | — | ~8k | ~$0.18 | ~8k | ~$0.18 |
-
----
-
-## 省 Token 策略
-
-| 策略 | 效果 | 说明 |
-|------|------|------|
-| **简单事不上朝** | 节省 90%+ | 丞相直接处理，~1k token 搞定 |
-| **快速模式** | 节省 ~1k | 跳过丞相分拣，直接中书省 |
-| **按需启用部门** | 节省 20-50% | 大额消费 3 部门 vs 全六部差 2 倍 |
-| **日常复盘用早朝官** | 节省 80%+ | 单次 ~2k，不走完整流程 |
-| **用 Lite 模式** | 节省 50-60% | 牺牲信息隔离换成本 |
-| **控制翰林院轮数** | 视情况 | 每多一轮对话 +1-2k |
-
-### 月度成本估算
-
-假设一个活跃用户的典型月度使用模式：
-
-| 使用类型 | 频次/月 | 单次 (Pro) | 月消耗 (Pro) |
-|---------|---------|-----------|-------------|
-| 丞相直接处理 | 30 次 | ~1k | ~30k |
-| 精简流程（3-4 部门） | 4 次 | ~25k | ~100k |
-| 全流程（6 部门） | 2 次 | ~40k | ~80k |
-| 早朝复盘 | 4 次 | ~2k | ~8k |
-| 翰林院 | 1 次 | ~8k | ~8k |
-| **月合计** | | | **~226k tokens** |
-| **月费用 (Pro)** | | | **~$5-7** |
-| **月费用 (Lite)** | | | **~$2-3** |
-
-> Claude Max 订阅 $100/月包含大量用量，上述场景完全在配额内。Pro 订阅 $20/月也能覆盖大部分日常使用。
+| Scenario | Ministries | Lite Tokens | Lite Cost | Pro Tokens | Pro Cost |
+|----------|-----------|-------------|----------|------------|---------|
+| Prime Minister handles directly | 0 | ~1k | ~$0.02 | ~1k | ~$0.02 |
+| Major purchase | 3 | ~11k | ~$0.22 | ~22k | ~$0.55 |
+| Investment/health/learning | 4 | ~14k | ~$0.30 | ~27k | ~$0.68 |
+| Career transition/relocation | 6 | ~16k | ~$0.40 | ~38k | ~$1.00 |
+| All 6 + Veto | 6+veto | ~20k | ~$0.48 | ~43k | ~$1.20 |
+| All 6 + Veto + Political Affairs Hall | 6+veto+hall | ~28k | ~$0.65 | ~55k | ~$1.75 |
+| Morning court review | — | ~2k | ~$0.04 | ~2k | ~$0.04 |
+| Hanlin Academy (5 turns) | — | ~8k | ~$0.18 | ~8k | ~$0.18 |
 
 ---
 
-## API 定价参考
+## Token-Saving Strategies
 
-以 Claude Sonnet 4.5 API 定价为例（2026 年 4 月）：
+| Strategy | Effect | Notes |
+|----------|--------|-------|
+| **Don't convene court for simple matters** | Save 90%+ | Prime Minister handles directly, ~1k tokens |
+| **Quick mode** | Save ~1k | Skip Prime Minister triage, go straight to Secretariat |
+| **Activate ministries as needed** | Save 20-50% | Major purchase with 3 ministries vs all 6 is a 2x difference |
+| **Use Morning Court Official for daily reviews** | Save 80%+ | Single call ~2k, no full process |
+| **Use Lite mode** | Save 50-60% | Trade information isolation for lower cost |
+| **Limit Hanlin Academy turns** | Varies | Each additional turn +1-2k |
 
-| | 价格 |
-|--|------|
+### Monthly Cost Estimate
+
+Assuming a typical active user's monthly usage pattern:
+
+| Usage Type | Frequency/Month | Per Session (Pro) | Monthly (Pro) |
+|------------|----------------|-------------------|---------------|
+| Prime Minister handles directly | 30 times | ~1k | ~30k |
+| Streamlined process (3-4 ministries) | 4 times | ~25k | ~100k |
+| Full process (6 ministries) | 2 times | ~40k | ~80k |
+| Morning court review | 4 times | ~2k | ~8k |
+| Hanlin Academy | 1 time | ~8k | ~8k |
+| **Monthly total** | | | **~226k tokens** |
+| **Monthly cost (Pro)** | | | **~$5-7** |
+| **Monthly cost (Lite)** | | | **~$2-3** |
+
+> Claude Max subscription at $100/month includes generous usage; the above scenarios are well within the quota. Pro subscription at $20/month also covers most daily use.
+
+---
+
+## API Pricing Reference
+
+Using Claude Sonnet 4.5 API pricing as an example (April 2026):
+
+| | Price |
+|--|-------|
 | Input | $3 / 1M tokens |
 | Output | $15 / 1M tokens |
 
-Pro 模式使用 Opus 4.5：
+Pro mode uses Opus 4.5:
 
-| | 价格 |
-|--|------|
+| | Price |
+|--|-------|
 | Input | $15 / 1M tokens |
 | Output | $75 / 1M tokens |
 
-> 实际费用取决于输入/输出比例。Life OS 的输出较多（六部报告+奏折），输出 token 占总成本的 60-70%。
+> Actual cost depends on the input/output ratio. Life OS has relatively more output (ministry reports + memorials), with output tokens accounting for 60-70% of total cost.

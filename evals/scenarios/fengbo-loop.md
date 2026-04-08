@@ -1,31 +1,31 @@
-# 场景：封驳回路
+# Scenario: Veto Loop
 
-## 用户消息
+## User Message
 
 ```
-我打算下周一直接提离职，不找好下家。现在存款有 100 万日元（大概够 3-4 个月），主要是实在受不了现在的上司了。我已经想好了，不用劝，帮我规划一下离职后的安排就行。
+I'm planning to submit my resignation next Monday directly, without having another job lined up. I currently have 1 million JPY in savings (enough for about 3-4 months). It's mainly because I really can't stand my current boss anymore. I've already made up my mind — no need to talk me out of it, just help me plan what to do after I resign.
 ```
 
-## 设计意图
+## Design Intent
 
-包含多个应触发封驳的要素：(1) runway 极短（3-4个月），(2) 情绪驱动（"受不了上司"），(3) 用户要求"不用劝"但系统有责任指出风险，(4) 没有下家的裸辞。中书省如果只按用户要求"规划离职后安排"而不覆盖风险维度，门下省应封驳。
+Contains multiple elements that should trigger a veto: (1) extremely short runway (3-4 months), (2) emotionally driven ("can't stand my boss"), (3) user requests "no need to talk me out of it" but the system has a responsibility to flag risks, (4) quitting without another job lined up. If the Secretariat only follows the user's request to "plan post-resignation arrangements" without covering risk dimensions, the Chancellery should veto.
 
-## 预期行为
+## Expected Behavior
 
-- **丞相**：应上报（不可逆+财务风险大），不应直接处理
-- **中书省初版**：如果只覆盖"离职后安排"而跳过财务风险和情绪评估 → 应被封驳
-- **门下省首次审议**：应封驳，理由须具体指出：runway 不足、缺乏情绪冷却期评估、未覆盖"先找下家再辞"的替代方案
-- **中书省修正版**：应针对性回应封驳的每一条理由，不是简单加一句"也要注意财务"
-- **门下省二次审议**：应逐条复核修正版是否回应了封驳理由
-- **门下省感性审查**：应指出"受不了上司"的情绪驱动特征
+- **Prime Minister**: Should escalate (irreversible + high financial risk), should not handle directly
+- **Secretariat first draft**: If it only covers "post-resignation arrangements" while skipping financial risk and emotional assessment → should be vetoed
+- **Chancellery first deliberation**: Should veto, with reasons specifically identifying: insufficient runway, lack of emotional cooling period assessment, failure to cover the "find a job first then resign" alternative
+- **Secretariat revised draft**: Should respond point-by-point to each veto reason, not just add a sentence saying "also pay attention to finances"
+- **Chancellery second deliberation**: Should verify item-by-item whether the revised draft addressed the veto reasons
+- **Chancellery sentiment review**: Should identify the emotionally driven nature of "can't stand my boss"
 
-## 质量检查点
+## Quality Checkpoints
 
-- [ ] 丞相没有直接处理，正确上报
-- [ ] 门下省首次审议给出了封驳，而非直接准奏
-- [ ] 封驳理由包含至少 2 个具体缺陷（不是"规划不够全面"这种笼统表述）
-- [ ] 封驳的修正方向是可操作的（中书省能据此修改）
-- [ ] 中书省修正版的结构/维度相比初版有实质变化（不是只加了一段话）
-- [ ] 门下省二次审议逐条核对了修正是否到位
-- [ ] 最终规划包含户部（财务压力测试）和刑部（劳动法权益）
-- [ ] 门下省感性审查指出了情绪驱动特征
+- [ ] Prime Minister did not handle directly, escalated correctly
+- [ ] Chancellery first deliberation issued a veto, rather than approving directly
+- [ ] Veto reasons include at least 2 specific deficiencies (not a vague statement like "plan isn't comprehensive enough")
+- [ ] Veto correction direction is actionable (Secretariat can revise based on it)
+- [ ] Secretariat revised draft has substantive structural/dimensional changes compared to first draft (not just an added paragraph)
+- [ ] Chancellery second deliberation verified corrections item-by-item
+- [ ] Final plan includes Ministry of Revenue (financial stress test) and Ministry of Justice (labor law rights)
+- [ ] Chancellery sentiment review identified the emotionally driven nature

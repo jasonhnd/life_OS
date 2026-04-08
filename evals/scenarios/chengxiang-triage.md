@@ -1,57 +1,57 @@
-# 场景：丞相分拣边界
+# Scenario: Prime Minister Triage Boundary
 
-## 用户消息（3 条独立测试）
+## User Messages (3 Independent Tests)
 
-### 消息 1：应直接处理
-
-```
-帮我把这段日语翻译成中文："来週の月曜日に会議がありますので、資料を準備しておいてください。"
-```
-
-### 消息 2：应上报朝廷
+### Message 1: Should Handle Directly
 
 ```
-我在考虑要不要把所有积蓄（大概 2000 万日元）all in 比特币。最近比特币又涨了，感觉再不买就来不及了。
+Help me translate this Japanese into Chinese: "来週の月曜日に会議がありますので、資料を準備しておいてください。"
 ```
 
-### 消息 3：灰色地带
+### Message 2: Should Escalate to Court
 
 ```
-最近睡眠质量特别差，每天凌晨 3 点醒，想知道有没有什么改善方法。
+I'm considering whether to go all in on Bitcoin with all my savings (about 20 million JPY). Bitcoin has been going up again lately and I feel like if I don't buy now it'll be too late.
 ```
 
-## 设计意图
+### Message 3: Gray Area
 
-消息 1 是纯工具性任务，无需多角度分析。消息 2 包含所有上报信号（大额、不可逆、明显 FOMO）。消息 3 是灰色地带：表面是健康咨询（可直接给建议），但如果失眠是焦虑/抑郁症状，可能需要更深入分析。
+```
+My sleep quality has been really bad lately — I keep waking up at 3 AM. I'm wondering if there are any ways to improve it.
+```
 
-## 预期行为
+## Design Intent
 
-### 消息 1
-- **丞相**：直接翻译，不上报，不追问
-- 输出应是翻译结果，不带"丞相 · 启奏"格式
+Message 1 is a purely utilitarian task that doesn't need multi-angle analysis. Message 2 contains all escalation signals (large amount, irreversible, obvious FOMO). Message 3 is a gray area: on the surface it's a health inquiry (can directly give advice), but if the insomnia is a symptom of anxiety/depression, it may need deeper analysis.
 
-### 消息 2
-- **丞相**：必须上报
-- 旨意应提炼为"全部积蓄投入比特币可行性"而非复述原话
-- 建议启用部门至少包含户部和刑部
-- 背景摘要应指出"再不买就来不及了"的 FOMO 信号
+## Expected Behavior
 
-### 消息 3
-- **丞相**：合理行为有两种，均可接受：
-  - (a) 直接给出睡眠改善建议 + 追问一句"最近是不是有什么事情在烦你"
-  - (b) 直接给出睡眠改善建议，不追问
-- **不可接受**：上报朝廷（单纯睡眠问题不需要六部分析）
-- **不可接受**：追问超过 1 次
+### Message 1
+- **Prime Minister**: Translate directly, no escalation, no follow-up questions
+- Output should be the translation result, without the "Prime Minister - Presenting to Court" format
 
-## 质量检查点
+### Message 2
+- **Prime Minister**: Must escalate
+- The decree should distill it to "feasibility of investing all savings in Bitcoin" rather than parroting the original message
+- Recommended ministries should include at least Ministry of Revenue and Ministry of Justice
+- Background summary should flag the FOMO signal in "if I don't buy now it'll be too late"
 
-- [ ] 消息 1：直接处理，无上报格式
-- [ ] 消息 1：翻译准确
-- [ ] 消息 2：上报，非直接处理
-- [ ] 消息 2：旨意是提炼过的，不是复述原文
-- [ ] 消息 2：背景摘要提到了 FOMO/情绪信号
-- [ ] 消息 2：建议启用部门包含户部
-- [ ] 消息 3：没有上报朝廷
-- [ ] 消息 3：给出了实质性睡眠建议
-- [ ] 消息 3：追问不超过 1 次
-- [ ] 三条消息的处理方式两两不同（证明分拣有区分度）
+### Message 3
+- **Prime Minister**: Two reasonable behaviors, both acceptable:
+  - (a) Directly give sleep improvement advice + ask one follow-up like "has anything been bothering you lately?"
+  - (b) Directly give sleep improvement advice, no follow-up
+- **Not acceptable**: Escalating to court (a simple sleep issue doesn't need Six Ministries analysis)
+- **Not acceptable**: More than 1 follow-up question
+
+## Quality Checkpoints
+
+- [ ] Message 1: Handled directly, no escalation format
+- [ ] Message 1: Translation is accurate
+- [ ] Message 2: Escalated, not handled directly
+- [ ] Message 2: Decree is distilled, not a verbatim restatement
+- [ ] Message 2: Background summary mentions FOMO/emotional signal
+- [ ] Message 2: Recommended ministries include Ministry of Revenue
+- [ ] Message 3: Did not escalate to court
+- [ ] Message 3: Provided substantive sleep advice
+- [ ] Message 3: No more than 1 follow-up question
+- [ ] All three messages handled differently from each other (proves triage has discrimination)

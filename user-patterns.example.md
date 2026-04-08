@@ -1,25 +1,25 @@
-# 用户行为模式档案
+# User Behavioral Pattern Profile
 
-本文件由谏官自动维护（通过 orchestrator 代写）。记录跨会话积累的用户行为模式，供谏官和丞相在后续决策中参考。
+This file is automatically maintained by the Remonstrator (ghost-written by the orchestrator). It records user behavioral patterns accumulated across sessions, for reference by the Remonstrator and Prime Minister in subsequent decisions.
 
-文件位置：`~/.claude/user-patterns.md`（本地，不上传 GitHub）
-
----
-
-## 格式说明
-
-每次谏官发现新模式或已有模式的变化时，orchestrator 会在下方追加一条记录：
-
-```
-### [日期] — [模式名称]
-来源：[哪次决策/奏折触发的]
-观察：[具体描述]
-证据：[从用户行为中引用]
-状态：[新发现 / 持续 / 改善 / 恶化]
-```
+File location: `~/.claude/user-patterns.md` (local, not uploaded to GitHub)
 
 ---
 
-## 行为记录
+## Format Guide
 
-（谏官会在此处追加记录）
+Each time the Remonstrator identifies a new pattern or a change in an existing pattern, the orchestrator appends a record below:
+
+```
+### [Date] — [Pattern Name]
+Source: [Which decision/memorial triggered this]
+Observation: [Specific description]
+Evidence: [Cited from user behavior]
+Status: [New discovery / Ongoing / Improving / Worsening]
+```
+
+---
+
+## Behavioral Records
+
+(The Remonstrator will append records here)

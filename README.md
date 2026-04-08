@@ -1,322 +1,324 @@
-# 🏛️ Life OS — 三省六部制个人内阁系统
+# 🏛️ Life OS — Three Departments and Six Ministries Personal Cabinet System
 
-> 用运行了 1400 年的治国架构，管理你的人生。
+🌍 [English](README.md) | [中文](i18n/zh/README.md) | [日本語](i18n/ja/README.md) | [한국어](i18n/ko/README.md) | [Español](i18n/es/README.md)
 
-Life OS 把 AI 变成你的私人朝廷 —— 一个丞相（大管家）+ 三省（规划/审议/执行）+ 六部（人/钱/学习/行动/规则/基建）+ 御史台（查官员）+ 谏官（查你自己）+ 翰林院（战略顾问），全方位管理你的生活、工作、学习、财务、健康和人际关系。
+> Manage your life with a governance framework that ran for 1,400 years.
 
-**这不是角色扮演。这是分权制衡。** 门下省有权否决（封驳）不合格的方案。御史台监察所有"官员"的工作质量。谏官直言不讳地指出你自己的行为盲区。
+Life OS turns AI into your personal court -- a Prime Minister (chief steward) + Three Departments (planning / review / execution) + Six Ministries (people / money / learning / action / rules / infrastructure) + Censorate (audits officials) + Remonstrator (audits you) + Hanlin Academy (strategic advisor), providing comprehensive management of your life, work, learning, finances, health, and relationships.
 
-## 为什么用唐朝的架构？
+**This is not role-playing. This is separation of powers with checks and balances.** The Chancellery has the power to Veto substandard proposals. The Censorate monitors the work quality of all "officials." The Remonstrator speaks bluntly about your own behavioral blind spots.
 
-大多数 AI 工具的模式是"一个人想完就交"。你问一个问题，AI 给你一个答案。没有审查，没有制衡，没有人说"等一下，这个方案有问题"。
+## Why Use a Tang Dynasty Framework?
 
-唐朝三省六部制解决的就是这个问题。它把决策分成三步：**想（中书省）→ 查（门下省）→ 做（尚书省+六部）**。没有任何一个环节能跳过审查直接执行。唐太宗说过：不受约束的权力必然产生错误。
+Most AI tools follow the pattern of "one person thinks it through and hands it over." You ask a question, the AI gives you an answer. No review, no checks, no one saying "hold on, there's a problem with this plan."
 
-这套系统能运行 1400 年的原因是：六部按**人类行为的基本类型**分工 —— 管人、管钱、管标准、管行动、管规则、管基建。不管社会怎么变，这六种行为类型不会变。所以无论你做的是软件开发、投资、内容创作还是日常生活，都可以自然分解到六部中。
+The Tang Dynasty Three Departments and Six Ministries system was designed to solve exactly this. It splits decision-making into three steps: **Draft (Secretariat) -> Review (Chancellery) -> Execute (Department of State Affairs + Six Ministries)**. No single step can bypass review and go straight to execution. Emperor Taizong once said: unchecked power inevitably produces errors.
 
-## 系统架构
+The reason this system ran for 1,400 years is that the Six Ministries are divided by **fundamental types of human activity** -- managing people, managing money, managing standards, managing action, managing rules, and managing infrastructure. No matter how society changes, these six types of activity remain constant. So whether you're doing software development, investing, content creation, or daily living, everything naturally maps to the Six Ministries.
+
+## System Architecture
 
 ```
-👑 你（皇上）
+👑 You (The Emperor)
   │
-  ├── 🏛️ 丞相（百官之首/大管家）
-  │     ├── 简单事 → 直接处理
-  │     └── 大事 → 启动三省六部
+  ├── 🏛️ Prime Minister (Chief of Officials / Chief Steward)
+  │     ├── Simple matters → Handle directly
+  │     └── Major matters → Activate Three Departments and Six Ministries
   │
-  ├── 📜 中书省 → 🔍 门下省 → 📨 尚书省 → 六部
-  │     规划       审查(可否决)    派发      执行
-  │   → 🔍 门下省终审 → 📋 奏折
-  │   → 🔱 御史台(查官员) → 💬 谏官(查你)
+  ├── 📜 Secretariat → 🔍 Chancellery → 📨 Dept. of State Affairs → Six Ministries
+  │     Planning      Review (can Veto)    Dispatch               Execute
+  │   → 🔍 Chancellery final review → 📋 Memorial
+  │   → 🔱 Censorate (audits officials) → 💬 Remonstrator (audits you)
   │
-  │   六部：👥吏(人) 💰户(钱) 📖礼(学习) ⚔️兵(行动) ⚖️刑(规则) 🏗️工(基建)
+  │   Six Ministries: 👥Personnel 💰Revenue 📖Rites ⚔️War ⚖️Justice 🏗️Works
   │
-  ├── 🏛️ 政事堂 — 跨部门辩论（3轮）
-  ├── 🌅 早朝官 — 定期复盘
-  └── 🎋 翰林院 — 私人战略对话
+  ├── 🏛️ Political Affairs Hall — Cross-ministry debate (3 rounds)
+  ├── 🌅 Morning Court Official — Periodic reviews
+  └── 🎋 Hanlin Academy — Private strategic dialogue
 ```
 
-## 15 个角色
+## 15 Roles
 
-| 角色 | 职能 | 触发方式 |
-|------|------|---------|
-| 🏛️ 丞相 | 百官之首，日常入口 | 所有消息 |
-| 📜 中书省 | 规划拆解 | 丞相上报 |
-| 🔍 门下省 | 审议+封驳+感性审查 | 规划后+执行后 |
-| 📨 尚书省 | 派发指令 | 准奏后 |
-| 👥 吏部 | 人：关系、团队、社交 | 按需 |
-| 💰 户部 | 钱：收入、投资、预算 | 按需 |
-| 📖 礼部 | 学习与表达：教育、品牌、创作 | 按需 |
-| ⚔️ 兵部 | 行动：项目、执行、调研 | 按需 |
-| ⚖️ 刑部 | 规则：风控、合规、复盘 | 按需 |
-| 🏗️ 工部 | 基建与健康：身体、环境、系统 | 按需 |
-| 🔱 御史台 | 监察官员工作质量 | 每次自动 |
-| 💬 谏官 | 监督你的行为模式 | 每次自动 |
-| 🏛️ 政事堂 | 跨部门辩论 | 结论矛盾时 |
-| 🌅 早朝官 | 定期复盘 | 说"复盘" |
-| 🎋 翰林院 | 战略对话 | 问你是否需要 |
+| Role | Function | Trigger |
+|------|----------|---------|
+| 🏛️ Prime Minister | Chief of officials, daily entry point | All messages |
+| 📜 Secretariat | Planning and decomposition | Escalated by Prime Minister |
+| 🔍 Chancellery | Review + Veto + emotional audit | After planning + after execution |
+| 📨 Dept. of State Affairs | Dispatch directives | After approval |
+| 👥 Ministry of Personnel | People: relationships, teams, networking | On demand |
+| 💰 Ministry of Revenue | Money: income, investments, budgets | On demand |
+| 📖 Ministry of Rites | Learning & expression: education, branding, creation | On demand |
+| ⚔️ Ministry of War | Action: projects, execution, research | On demand |
+| ⚖️ Ministry of Justice | Rules: risk control, compliance, reviews | On demand |
+| 🏗️ Ministry of Works | Infrastructure & health: body, environment, systems | On demand |
+| 🔱 Censorate | Monitors official work quality | Automatic each time |
+| 💬 Remonstrator | Monitors your behavioral patterns | Automatic each time |
+| 🏛️ Political Affairs Hall | Cross-ministry debate | When conclusions conflict |
+| 🌅 Morning Court Official | Periodic reviews | Say "review" |
+| 🎋 Hanlin Academy | Strategic dialogue | Asks if you need it |
 
-## 六部详解
+## Six Ministries in Detail
 
-六部不是按行业分的，而是按**行为类型**分的。任何事情都可以分解到这六种行为中：
+The Six Ministries are not divided by industry, but by **type of activity**. Anything can be decomposed into these six types:
 
-| 部门 | 唐朝原职 | Life OS 职责 | 四司 |
-|------|---------|-------------|------|
-| 👥 吏部 | 官员任免考核 | 人际关系、团队、合作伙伴 | 选贤·考功·封赏·调配 |
-| 💰 户部 | 财政税收户籍 | 收入、投资、预算、资产 | 收入·度支·资产·储备 |
-| 📖 礼部 | 科举外交祭祀 | 学习、品牌、创作、沟通 | 科举·典仪·文翰·外交 |
-| ⚔️ 兵部 | 军事武官兵籍 | 项目执行、调研、工具、精力 | 军令·装备·情报·后勤 |
-| ⚖️ 刑部 | 刑律断狱审计 | 风控、合规、复盘、自律 | 律法·审计·纠察·防御 |
-| 🏗️ 工部 | 工程水利交通 | 健康、居住、数字基建、routine | 体健·营建·数造·水利 |
+| Ministry | Original Tang Dynasty Role | Life OS Responsibility | Four Bureaus |
+|----------|--------------------------|----------------------|--------------|
+| 👥 Ministry of Personnel | Official appointments and evaluations | Relationships, teams, partners | Selection · Evaluation · Rewards · Deployment |
+| 💰 Ministry of Revenue | Taxation and census | Income, investments, budgets, assets | Revenue · Expenditure · Assets · Reserves |
+| 📖 Ministry of Rites | Imperial exams, diplomacy, ceremonies | Learning, branding, creation, communication | Exams · Ceremonies · Literature · Diplomacy |
+| ⚔️ Ministry of War | Military affairs and registries | Project execution, research, tools, energy | Command · Equipment · Intelligence · Logistics |
+| ⚖️ Ministry of Justice | Laws, trials, and audits | Risk control, compliance, reviews, discipline | Law · Audit · Investigation · Defense |
+| 🏗️ Ministry of Works | Engineering, waterways, transport | Health, living environment, digital infrastructure, routines | Health · Construction · Digital · Utilities |
 
-## 独特机制
+## Unique Mechanisms
 
-### 门下省封驳 + 感性审查
+### Chancellery Veto + Emotional Audit
 
-门下省不只做理性分析。对**所有决策**（包括工作决策），它都会额外审查：
+The Chancellery does more than rational analysis. For **all decisions** (including work decisions), it also reviews:
 
-- **情绪因素**：当前情绪是否影响了判断
-- **关系影响**：家人/重要关系人怎么看
-- **价值观一致性**：符合长期价值观吗
-- **后悔测试**：五年后回看会不会后悔
+- **Emotional factors**: Is your current mood affecting your judgment?
+- **Relationship impact**: How would family/important people view this?
+- **Value alignment**: Does this align with your long-term values?
+- **Regret test**: Will you regret this five years from now?
 
-比如选了一个学习成本很高的技术栈，门下省会指出"这意味着接下来三个月周末都在学习，家庭时间会受影响"。
+For example, if you choose a tech stack with a steep learning curve, the Chancellery will point out: "This means your weekends for the next three months will be spent studying, and family time will be affected."
 
-### 御史台 — 查官员
+### Censorate -- Auditing Officials
 
-每次流程结束后自动运行。不看事情本身，只看"这些官员干活的质量"：
-- 门下省是不是每次都准奏（走形式）
-- 六部报告有没有实质内容（还是都说"没问题"）
-- 评分是不是都给高分（面子分）
+Runs automatically after every process. It doesn't look at the matter itself, only at "the quality of work these officials did":
+- Is the Chancellery rubber-stamping everything (approving without scrutiny)?
+- Do ministry reports have substantive content (or just say "no issues")?
+- Are scores inflated (giving high marks to save face)?
 
-### 谏官 — 查你自己
+### Remonstrator -- Auditing Yourself
 
-每次流程结束后自动运行。直言不讳地指出你的行为盲区：
-- 最近决策是不是突然变激进了
-- 有没有在回避某些不愿面对的问题
-- 有没有说到没做到的承诺
+Runs automatically after every process. Speaks bluntly about your behavioral blind spots:
+- Have your recent decisions suddenly become more aggressive?
+- Are you avoiding certain issues you don't want to face?
+- Are there promises you've made but haven't kept?
 
-### 政事堂 — 朝堂议政
+### Political Affairs Hall -- Court Deliberation
 
-当各部结论矛盾时（户部说"钱不够"，兵部说"可以分阶段"），启动 3 轮辩论，让各部直接对话而不是各自出报告。
+When ministry conclusions conflict (Ministry of Revenue says "not enough money," Ministry of War says "we can phase it"), a 3-round debate is triggered where ministries engage in direct dialogue rather than issuing separate reports.
 
-### 翰林院 — 战略对话
+### Hanlin Academy -- Strategic Dialogue
 
-有些问题不需要走流程，比如"我最近很迷茫，不知道人生方向"。翰林院是你的私人战略顾问，不出奏折、不评分，就是陪你深度思考。
+Some questions don't need formal process, such as "I've been feeling lost lately and don't know my life direction." The Hanlin Academy is your private strategic advisor -- no Memorials, no scores, just deep thinking with you.
 
-## 安装
+## Installation
 
-Life OS 支持多种 AI 平台。**[查看完整安装指南 →](docs/installation.md)**
+Life OS supports multiple AI platforms. **[View the full installation guide ->](docs/installation.md)**
 
-**快速开始**：
+**Quick Start**:
 
-| 平台 | 安装方式 |
-|------|---------|
-| **Claude Code**（推荐） | `/install-skill https://github.com/jasonhnd/life_OS` |
-| **Claude.ai** | 上传 `SKILL.md` 到 Project Knowledge |
+| Platform | Installation |
+|----------|-------------|
+| **Claude Code** (recommended) | `/install-skill https://github.com/jasonhnd/life_OS` |
+| **Claude.ai** | Upload `SKILL.md` to Project Knowledge |
 | **Cursor / VS Code Copilot** | `npx skills add jasonhnd/life_OS` |
 | **Gemini CLI / Codex CLI** | `npx skills add jasonhnd/life_OS` |
-| **ChatGPT / Gemini Web** | 把 `SKILL.md` 内容粘贴到 Instructions |
+| **ChatGPT / Gemini Web** | Paste `SKILL.md` content into Instructions |
 
-> Claude Code 为 Pro 模式（14 独立 subagent，真正信息隔离），其他平台为 Lite 模式（单 context）。详见 [安装指南](docs/installation.md)。
+> Claude Code runs Pro mode (14 independent subagents with true information isolation); other platforms run Lite mode (single context). See the [installation guide](docs/installation.md) for details.
 
-## 使用方法
+## Usage
 
-### 日常对话
-
-```
-你：最近好累
-丞相：[倾听，判断是否需要转工部]
-
-你：帮我翻译一段日语
-丞相：[直接翻译]
-```
-
-### 复杂决策
+### Daily Conversation
 
 ```
-你：我在考虑要不要辞职创业
+You: I've been so tired lately
+Prime Minister: [Listens, determines whether to refer to Ministry of Works]
 
-丞相 → 上报朝廷
-中书省 → 拆解6个维度（财务/能力/人脉/执行/风险/生活）
-门下省 → 审查规划（"遗漏了家庭因素，封驳"）
-中书省 → 修正，补充家庭维度
-门下省 → 准奏
-尚书省 → 派发给各部
-六部 → 各自审查，出报告
-门下省 → 终审
-奏折 → 综合评分 6.8/10
-御史台 → "兵部报告缺少具体执行时间线"
-谏官 → "你最近连续三周都在看创业相关内容，注意确认偏差"
+You: Help me translate a passage of Japanese
+Prime Minister: [Translates directly]
 ```
 
-### 定期复盘
+### Complex Decisions
 
 ```
-你：早朝
-早朝官 → 汇总六部信息，出简报
+You: I'm considering whether to quit my job and start a business
+
+Prime Minister → Escalates to the court
+Secretariat → Decomposes into 6 dimensions (finances/skills/network/execution/risk/lifestyle)
+Chancellery → Reviews the plan ("Family factors omitted, Veto")
+Secretariat → Revises, adds family dimension
+Chancellery → Approved
+Dept. of State Affairs → Dispatches to ministries
+Six Ministries → Each reviews and produces a report
+Chancellery → Final review
+Memorial → Composite score 6.8/10
+Censorate → "Ministry of War report lacks a specific execution timeline"
+Remonstrator → "You've been consuming startup-related content for three consecutive weeks -- watch out for confirmation bias"
 ```
 
-### 朝堂议政
+### Periodic Reviews
 
 ```
-你：让各部讨论一下这个问题
-政事堂 → 3轮辩论 → 共识与分歧清单
+You: Morning court
+Morning Court Official → Aggregates ministry information, produces a briefing
 ```
 
-### 深度思考
+### Court Deliberation
 
 ```
-你：我最近在想人生的方向
-丞相：要不要启动翰林院深度对话？
-你：好
-翰林院 → 苏格拉底式对话，帮你梳理深层想法
+You: Have the ministries discuss this issue
+Political Affairs Hall → 3-round debate → List of consensus and disagreements
 ```
 
-### 退朝
+### Deep Thinking
 
 ```
-你：退朝
-早朝官 → push 到 GitHub + 同步 Notion（当前状态/工作内存/待办看板）
-丞相：退朝完毕，所有改动已落地。
+You: I've been thinking about my life direction lately
+Prime Minister: Would you like to start a Hanlin Academy deep dialogue?
+You: Yes
+Hanlin Academy → Socratic dialogue, helping you untangle deeper thoughts
 ```
 
-## 第二大脑（数据层）
+### Adjourn Court
 
-Life OS 用 **GitHub second-brain** 作为数据主库（硬盘），**Notion** 作为轻量工作内存（手机端同步）。三套方法论融合：GTD 驱动行动，PARA 组织结构，Zettelkasten 让知识生长。
+```
+You: Adjourn court
+Morning Court Official → Pushes to GitHub + syncs to Notion (current state / working memory / task board)
+Prime Minister: Court adjourned, all changes have been committed.
+```
+
+## Second Brain (Data Layer)
+
+Life OS uses **GitHub second-brain** as the primary data store (hard drive) and **Notion** as lightweight working memory (mobile sync). Three methodologies are combined: GTD drives action, PARA organizes structure, and Zettelkasten lets knowledge grow.
 
 ```
 second-brain/
-├── inbox/              # GTD 入口
-├── projects/{project}/ # 有目标有截止的事（含 tasks/ decisions/ notes/）
-├── areas/{area}/       # 持续维护的生活领域（含 goals.md tasks/）
-├── zettelkasten/       # 知识生长（fleeting/ literature/ permanent/）
-├── records/            # 日志、会议、人脉、财务、健康
+├── inbox/              # GTD entry point
+├── projects/{project}/ # Goal-driven with deadlines (contains tasks/ decisions/ notes/)
+├── areas/{area}/       # Ongoing life Areas to maintain (contains goals.md tasks/)
+├── zettelkasten/       # Knowledge growth (fleeting/ literature/ permanent/)
+├── records/            # Journals, meetings, contacts, finances, health
 ├── gtd/                # waiting/ someday/ reviews/
-└── archive/            # 完结项目
+└── archive/            # Completed projects
 ```
 
-### 三省六部产出去向
+### Where Three Departments and Six Ministries Output Goes
 
-| 产出 | 写入 |
-|------|------|
-| 奏折 | `projects/{p}/decisions/` |
-| 行动项 | `projects/{p}/tasks/` |
-| 复盘/监察报告 | `records/journal/` |
-| 调研 | `zettelkasten/literature/` |
-| 目标 | `areas/{a}/goals.md` |
+| Output | Written To |
+|--------|-----------|
+| Memorial | `projects/{p}/decisions/` |
+| Action items | `projects/{p}/tasks/` |
+| Review/audit reports | `records/journal/` |
+| Research | `zettelkasten/literature/` |
+| Goals | `areas/{a}/goals.md` |
 
-### 同步机制
+### Sync Mechanism
 
 ```
-手机聊完 → Claude.ai 存入 Notion
-CC 开 session → 检查 Notion 有没有新东西 → 拉进 GitHub → 干活
-CC 写入 GitHub → 立刻同步 Notion 工作内存
-随时拿起手机 → 读到最新状态
+Chat on phone → Claude.ai saves to Notion
+CC opens session → Checks Notion for new items → Pulls into GitHub → Works
+CC writes to GitHub → Immediately syncs to Notion working memory
+Pick up phone anytime → Read the latest state
 ```
 
-**git commit = Notion 更新，机械绑定。**
+**git commit = Notion update, mechanically bound.**
 
-六部是 AI 的分析框架（固定），领域是你生活的实际分区（自定义），两者独立。
+The Six Ministries are the AI's analytical framework (fixed); Areas are the actual zones of your life (customizable). The two are independent.
 
-**[查看完整第二大脑架构 →](docs/second-brain.md)**（含目录结构、GTD/PARA/Zettelkasten 流转、Notion 内存设置）
+**[View the full Second Brain architecture ->](docs/second-brain.md)** (includes directory structure, GTD/PARA/Zettelkasten flows, Notion memory setup)
 
-## 10 个标准场景
+## 10 Standard Scenarios
 
-1. **职业转型** — 全六部
-2. **投资决策** — 户部+兵部+刑部+吏部
-3. **搬家/移居** — 全六部
-4. **年度目标** — 全六部
-5. **创业决策** — 全六部
-6. **大额消费** — 户部+兵部+刑部
-7. **人际关系** — 吏部+工部+刑部+礼部
-8. **定期复盘** — 早朝官
-9. **健康管理** — 工部+兵部+户部+刑部
-10. **学习规划** — 礼部+兵部+户部+吏部
+1. **Career transition** -- All Six Ministries
+2. **Investment decisions** -- Revenue + War + Justice + Personnel
+3. **Moving / relocation** -- All Six Ministries
+4. **Annual goals** -- All Six Ministries
+5. **Startup decisions** -- All Six Ministries
+6. **Major purchases** -- Revenue + War + Justice
+7. **Relationships** -- Personnel + Works + Justice + Rites
+8. **Periodic reviews** -- Morning Court Official
+9. **Health management** -- Works + War + Revenue + Justice
+10. **Learning plans** -- Rites + War + Revenue + Personnel
 
 ## Lite vs Pro
 
-| | Lite（Claude.ai） | Pro（Claude Code） |
+| | Lite (Claude.ai) | Pro (Claude Code) |
 |--|-------------------|-------------------|
-| 角色隔离 | 同一 context | 独立进程 |
-| 门下省审查 | 能看到前面推理 | 真正独立 |
-| 六部执行 | 串行 | 并行 |
-| 安装 | 拖入 SKILL.md | `/install-skill` GitHub URL |
-| 模型 | 当前模型 | 所有角色 opus |
+| Role isolation | Same context | Independent processes |
+| Chancellery review | Can see prior reasoning | Truly independent |
+| Six Ministries execution | Sequential | Parallel |
+| Installation | Drag in SKILL.md | `/install-skill` GitHub URL |
+| Model | Current model | All roles on Opus |
 
-## Token 消耗
+## Token Usage
 
-不同场景的 Token 消耗差异很大 —— 丞相直接处理一个翻译只需 ~1k token，全六部+封驳+政事堂的完整流程需要 ~55k token。
+Token consumption varies significantly across scenarios -- the Prime Minister handling a translation directly costs ~1k tokens, while a full Six Ministries + Veto + Political Affairs Hall process costs ~55k tokens.
 
-| 场景 | Lite | Pro | Pro 费用 |
-|------|------|-----|---------|
-| 丞相直接处理 | ~1k | ~1k | ~$0.02 |
-| 精简流程（3 部门） | ~11k | ~22k | ~$0.55 |
-| 标准流程（4 部门） | ~14k | ~27k | ~$0.68 |
-| 全流程（6 部门） | ~16k | ~38k | ~$1.00 |
-| 全流程 + 封驳 + 政事堂 | ~28k | ~55k | ~$1.75 |
-| 早朝复盘 | ~2k | ~2k | ~$0.04 |
-| 翰林院（5轮） | ~8k | ~8k | ~$0.18 |
+| Scenario | Lite | Pro | Pro Cost |
+|----------|------|-----|----------|
+| Prime Minister handles directly | ~1k | ~1k | ~$0.02 |
+| Streamlined process (3 ministries) | ~11k | ~22k | ~$0.55 |
+| Standard process (4 ministries) | ~14k | ~27k | ~$0.68 |
+| Full process (6 ministries) | ~16k | ~38k | ~$1.00 |
+| Full process + Veto + Political Affairs Hall | ~28k | ~55k | ~$1.75 |
+| Morning court review | ~2k | ~2k | ~$0.04 |
+| Hanlin Academy (5 rounds) | ~8k | ~8k | ~$0.18 |
 
-> Claude Max/Pro 订阅用户不按 token 计费。
+> Claude Max/Pro subscribers are not billed per token.
 
-**[查看详细 Token 分析 →](docs/token-estimation.md)**（含每个角色的消耗拆解、月度成本估算、省 Token 策略）
+**[View detailed token analysis ->](docs/token-estimation.md)** (includes per-role consumption breakdown, monthly cost estimates, and token-saving strategies)
 
-## 文件结构
+## File Structure
 
 ```
 life-os/
-├── README.md                    # 主文档
-├── SKILL.md                    # 主入口（Lite+Pro 双模式）
-├── CHANGELOG.md                # 更新日志
+├── README.md                    # Main documentation
+├── SKILL.md                    # Main entry point (Lite + Pro dual mode)
+├── CHANGELOG.md                # Changelog
 ├── LICENSE
-├── user-patterns.example.md    # 行为模式档案模板
+├── user-patterns.example.md    # Behavioral pattern profile template
 ├── docs/
-│   ├── installation.md         # 多平台详细安装指南
-│   ├── second-brain.md         # 第二大脑搭建指南（含其他平台适配）
-│   └── token-estimation.md     # Token 消耗详细分析
+│   ├── installation.md         # Multi-platform detailed installation guide
+│   ├── second-brain.md         # Second Brain setup guide (with other platform adaptations)
+│   └── token-estimation.md     # Detailed token consumption analysis
 ├── references/
-│   ├── departments.md          # 六部×四司详细职能
-│   ├── scene-configs.md        # 12个标准场景配置
-│   └── data-layer.md           # 数据层架构（GitHub + Notion）
-├── evals/                      # Eval 体系
-│   ├── scenarios/              # 测试场景
-│   └── rubrics/                # 评分标准
+│   ├── departments.md          # Six Ministries x Four Bureaus detailed functions
+│   ├── scene-configs.md        # 12 standard scenario configurations
+│   └── data-layer.md           # Data layer architecture (GitHub + Notion)
+├── evals/                      # Eval framework
+│   ├── scenarios/              # Test scenarios
+│   └── rubrics/                # Scoring criteria
 ├── pro/
-│   ├── CLAUDE.md               # Claude Code 编排协议
-│   └── agents/                 # 14个 subagent
-│       ├── chengxiang.md       # 🏛️ 丞相
-│       ├── zhongshu.md         # 📜 中书省
-│       ├── menxia.md           # 🔍 门下省
-│       ├── shangshu.md         # 📨 尚书省
-│       ├── libu_hr.md          # 👥 吏部
-│       ├── hubu.md             # 💰 户部
-│       ├── libu.md             # 📖 礼部
-│       ├── bingbu.md           # ⚔️ 兵部
-│       ├── xingbu.md           # ⚖️ 刑部
-│       ├── gongbu.md           # 🏗️ 工部
-│       ├── yushitai.md         # 🔱 御史台
-│       ├── jianguan.md         # 💬 谏官
-│       ├── zaochao.md          # 🌅 早朝官
-│       └── hanlin.md           # 🎋 翰林院
+│   ├── CLAUDE.md               # Claude Code orchestration protocol
+│   └── agents/                 # 14 subagents
+│       ├── chengxiang.md       # 🏛️ Prime Minister
+│       ├── zhongshu.md         # 📜 Secretariat
+│       ├── menxia.md           # 🔍 Chancellery
+│       ├── shangshu.md         # 📨 Dept. of State Affairs
+│       ├── libu_hr.md          # 👥 Ministry of Personnel
+│       ├── hubu.md             # 💰 Ministry of Revenue
+│       ├── libu.md             # 📖 Ministry of Rites
+│       ├── bingbu.md           # ⚔️ Ministry of War
+│       ├── xingbu.md           # ⚖️ Ministry of Justice
+│       ├── gongbu.md           # 🏗️ Ministry of Works
+│       ├── yushitai.md         # 🔱 Censorate
+│       ├── jianguan.md         # 💬 Remonstrator
+│       ├── zaochao.md          # 🌅 Morning Court Official
+│       └── hanlin.md           # 🎋 Hanlin Academy
 ```
 
-## 设计理念
+## Design Philosophy
 
-唐朝三省六部制的核心不是"很多人"，而是**分权制衡**：
+The core of the Tang Dynasty Three Departments and Six Ministries system is not "having lots of people," but **separation of powers with checks and balances**:
 
-- 中书省只管想，不管做
-- 门下省只管查，不管想也不管做
-- 六部只管做，不越权评判其他部门
-- 御史台查官员，谏官查皇帝
-- 没有任何一个角色能跳过审查直接行动
+- The Secretariat only plans; it doesn't execute
+- The Chancellery only reviews; it neither plans nor executes
+- The Six Ministries only execute; they don't overstep to judge other ministries
+- The Censorate audits officials; the Remonstrator audits the Emperor
+- No single role can bypass review and act directly
 
-这个设计确保了：每个决策都经过拆解→审查→执行→再审查→监察，而不是"一个人想完就交"。
+This design ensures that every decision goes through decomposition -> review -> execution -> re-review -> audit, rather than "one person thinks it through and hands it over."
 
-唐太宗 1300 年前就想明白了 —— 不受约束的权力必然产生错误。Life OS 把这个智慧应用到你的个人决策中。
+Emperor Taizong figured this out 1,300 years ago -- unchecked power inevitably produces errors. Life OS applies this wisdom to your personal decision-making.
 
-## 灵感来源
+## Inspiration
 
-本项目的三省六部 AI 多 Agent 编排概念受 [Edict](https://github.com/cft0808/edict) 项目启发。Life OS 在此基础上将六部从软件开发场景扩展到个人生活全领域，新增了御史台、谏官、政事堂、翰林院等唐朝治国机构的完整映射。
+The Three Departments and Six Ministries AI multi-agent orchestration concept in this project was inspired by the [Edict](https://github.com/cft0808/edict) project. Life OS builds on this foundation by extending the Six Ministries from software development scenarios to all areas of personal life, adding complete mappings of Tang Dynasty governance institutions such as the Censorate, Remonstrator, Political Affairs Hall, and Hanlin Academy.
 
 ## License
 

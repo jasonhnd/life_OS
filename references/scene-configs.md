@@ -1,46 +1,46 @@
-# 标准场景推荐配置
+# Standard Scenario Recommended Configurations
 
-## 1. 职业转型（辞职/跳槽/创业）
-财务→户部 | 能力→礼部 | 人脉→吏部 | 执行→兵部 | 风险→刑部 | 生活影响→工部
-门下省重点：是逃避还是追求？家人怎么看？
+## 1. Career Transition (Resignation/Job Change/Entrepreneurship)
+Finances → Revenue | Skills → Rites | Network → Personnel | Execution → War | Risk → Justice | Life impact → Works
+Chancellery focus: Running away or pursuing something? How does family feel?
 
-## 2. 投资决策
-财务→户部 | 市场→兵部 | 风险→刑部 | 人员→吏部
-门下省重点：FOMO 还是理性？能承受归零吗？
+## 2. Investment Decision
+Finances → Revenue | Market → War | Risk → Justice | People → Personnel
+Chancellery focus: FOMO or rational? Can you survive a total loss?
 
-## 3. 搬家/移居
-财务→户部 | 人际→吏部 | 基建→工部 | 合规→刑部 | 文化→礼部
-门下省重点：充分了解目的地了吗？回头成本？
+## 3. Relocation/Moving
+Finances → Revenue | Relationships → Personnel | Infrastructure → Works | Compliance → Justice | Culture → Rites
+Chancellery focus: Do you really know the destination? Cost of turning back?
 
-## 4. 年度目标规划
-人际→吏部 | 财务→户部 | 学习→礼部 | 执行→兵部 | 改正→刑部 | 健康→工部
-门下省重点：目标太多？可衡量？跟价值观一致？
+## 4. Annual Goal Planning
+Relationships → Personnel | Finances → Revenue | Learning → Rites | Execution → War | Correction → Justice | Health → Works
+Chancellery focus: Too many goals? Measurable? Aligned with values?
 
-## 5. 产品/创业决策
-市场→兵部 | 财务→户部 | 团队→吏部 | 合规→刑部 | 基建→工部 | 品牌→礼部
-门下省重点：解决真实痛点？你是最合适的人？
+## 5. Product/Startup Decision
+Market → War | Finances → Revenue | Team → Personnel | Compliance → Justice | Infrastructure → Works | Brand → Rites
+Chancellery focus: Solving a real pain point? Are you the right person?
 
-## 6. 大额消费
-财务→户部 | 实用性→兵部 | 风险→刑部
-门下省重点：需要还是想要？一个月后还想买？
+## 6. Major Purchase
+Finances → Revenue | Practicality → War | Risk → Justice
+Chancellery focus: Need or want? Would you still want to buy it a month from now?
 
-## 7. 人际关系决策
-关系→吏部 | 情绪→工部(体健) | 风险→刑部 | 社交→礼部
-门下省重点：带偏见评价对方了吗？
+## 7. Relationship Decision
+Relationships → Personnel | Emotions → Works (Fitness) | Risk → Justice | Social → Rites
+Chancellery focus: Are you evaluating the other person with bias?
 
-## 8. 复盘
-交给早朝官。日/周/月/季/年。
+## 8. Review
+Hand to the Morning Court Official. Daily / weekly / monthly / quarterly / yearly.
 
-## 9. 健康管理
-身体→工部 | 时间→兵部 | 成本→户部 | 自律→刑部
+## 9. Health Management
+Body → Works | Time → War | Cost → Revenue | Discipline → Justice
 
-## 10. 学习规划
-内容→礼部 | 执行→兵部 | 成本→户部 | 人脉→吏部
+## 10. Learning Plan
+Content → Rites | Execution → War | Cost → Revenue | Network → Personnel
 
-## 11. 时间管理与精力优化
-精力→兵部(后勤) | 排布→兵部(军令) | 工具→兵部(装备) | 成本→户部 | 习惯→刑部 | 节律→工部
-门下省重点：真没时间还是在逃避？被砍的事真有人在乎？上次无愧疚休息是何时？
+## 11. Time Management and Energy Optimization
+Energy → War (Logistics) | Scheduling → War (Operations) | Tools → War (Equipment) | Cost → Revenue | Habits → Justice | Rhythm → Works
+Chancellery focus: Really no time, or avoiding something? Does anyone actually care about the things being cut? When was the last guilt-free rest?
 
-## 12. 家庭重大决策
-财务→户部(储备+度支) | 分工→吏部(调配) | 博弈→吏部(考功) | 执行→兵部 | 情报→兵部 | 法律→刑部 | 预案→刑部 | 身心→工部 | 居住→工部
-门下省重点：谁的声音没被听到？最坏情况撑得住吗？五年后因做了后悔还是因没做后悔？
+## 12. Major Family Decision
+Finances → Revenue (Reserves + Spending) | Division of labor → Personnel (Allocation) | Dynamics → Personnel (Evaluation) | Execution → War | Intelligence → War | Legal → Justice | Contingency → Justice | Physical/mental → Works | Housing → Works
+Chancellery focus: Whose voice hasn't been heard? Can you survive the worst case? Five years from now, will you regret doing it or regret not doing it?

@@ -1,86 +1,86 @@
-# 六部职能与四司详解
+# Six Ministries Functions and Four Divisions in Detail
 
-中书省规划时参考本文件。
+The Secretariat references this file when planning.
 
-## 👥 吏部 · 管人
-- **选贤司**：识人、评估合作伙伴/投资人/客户、建立 mentor 关系
-- **考功司**：关系健康度评估、社交 ROI、有毒关系识别
-- **封赏司**：关系经营、人情往来、送礼策略、重要日子提醒
-- **调配司**：团队组建、任务委派、家庭分工、外包/雇人决策
+## 👥 Ministry of Personnel · Managing People
+- **Talent Division**: Identifying people, evaluating partners/investors/clients, building mentor relationships
+- **Evaluation Division**: Relationship health assessment, social ROI, toxic relationship identification
+- **Relations Division**: Relationship cultivation, reciprocal favors, gift-giving strategy, important date reminders
+- **Allocation Division**: Team building, task delegation, family division of labor, outsourcing/hiring decisions
 
-## 💰 户部 · 管钱
-- **收入司**：收入结构、薪资谈判、副业、被动收入渠道
-- **度支司**：预算管理、月度开支、消费习惯、订阅清理
-- **资产司**：投资组合、加密资产、不动产、市场风险
-- **储备司**：应急资金(6-12月)、保险、税务筹划、退休规划
+## 💰 Ministry of Revenue · Managing Money
+- **Income Division**: Income structure, salary negotiation, side hustles, passive income channels
+- **Spending Division**: Budget management, monthly expenses, spending habits, subscription cleanup
+- **Assets Division**: Investment portfolio, crypto assets, real estate, market risk
+- **Reserves Division**: Emergency fund (6-12 months), insurance, tax planning, retirement planning
 
-## 📖 礼部 · 管秩序和面子
-- **科举司**：学习路线图、技能提升、认证考试、知识管理、阅读计划
-- **典仪司**：个人品牌、社交形象、穿着打扮、LinkedIn
-- **文翰司**：公众号/博客内容策划、写作风格、演讲准备
-- **外交司**：跨文化沟通(中日英)、商务礼仪、networking、面试表达
+## 📖 Ministry of Rites · Managing Order and Image
+- **Education Division**: Learning roadmap, skill development, certification exams, knowledge management, reading plans
+- **Image Division**: Personal brand, social image, appearance and style, LinkedIn
+- **Writing Division**: Blog/newsletter content planning, writing style, speech preparation
+- **Diplomacy Division**: Cross-cultural communication (Chinese-Japanese-English), business etiquette, networking, interview articulation
 
-## ⚔️ 兵部 · 管行动
-- **军令司**：项目规划、任务分解、优先级、deadline、进度追踪
-- **装备司**：工具选型、硬件配置、软件工作流、开发环境
-- **情报司**：行业调研、竞品分析、市场情报、技术趋势
-- **后勤司**：精力管理、工作流程优化、会议效率、拖延症应对
+## ⚔️ Ministry of War · Managing Action
+- **Operations Division**: Project planning, task decomposition, prioritization, deadlines, progress tracking
+- **Equipment Division**: Tool selection, hardware setup, software workflow, development environment
+- **Intelligence Division**: Industry research, competitive analysis, market intelligence, tech trends
+- **Logistics Division**: Energy management, workflow optimization, meeting efficiency, procrastination management
 
-## ⚖️ 刑部 · 管规则
-- **律法司**：法律风险、合同审查、知识产权、税务合规、竞业限制
-- **审计司**：决策复盘、时间审计、投入产出回顾、失败分析
-- **纠察司**：坏习惯识别/纠正、承诺追踪、目标执行率、自我欺骗检测
-- **防御司**：信息安全、隐私保护、诈骗识别、心理防线(PUA/操控)
+## ⚖️ Ministry of Justice · Managing Rules
+- **Law Division**: Legal risk, contract review, intellectual property, tax compliance, non-compete restrictions
+- **Audit Division**: Decision reviews, time audits, input-output retrospectives, failure analysis
+- **Discipline Division**: Bad habit identification/correction, commitment tracking, goal execution rate, self-deception detection
+- **Defense Division**: Information security, privacy protection, scam identification, psychological defense (manipulation/gaslighting)
 
-## 🏗️ 工部 · 管建造（含健康）
-- **体健司**：运动计划、饮食营养、睡眠质量、体检、心理健康
-- **营建司**：居住空间优化、搬家、装修、工作空间布置
-- **数造司**：Notion/知识库、服务器域名、开发环境、数据备份、自动化
-- **水利司**：日常 routine、晨间/睡前流程、家务效率、生活节奏
+## 🏗️ Ministry of Works · Managing Construction (Including Health)
+- **Fitness Division**: Exercise plans, diet and nutrition, sleep quality, health checkups, mental health
+- **Housing Division**: Living space optimization, moving, renovation, workspace layout
+- **Digital Division**: Notion/knowledge base, servers and domains, development environment, data backup, automation
+- **Routines Division**: Daily routines, morning/bedtime procedures, household efficiency, life rhythm
 
 ---
 
-## 职能边界判定规则
+## Jurisdiction Boundary Rules
 
-以下规则用于重叠领域的归属判定。原则：**按问题的根因分拣，而非按表面症状。**
+The following rules determine ownership in overlapping areas. Principle: **Sort by root cause, not by surface symptoms.**
 
-### "我最近很累" — 兵部后勤司 vs 工部体健司 vs 工部水利司
+### "I've been really tired lately" — War/Logistics vs Works/Fitness vs Works/Routines
 
-| 场景 | 归属 | 理由 |
-|------|------|------|
-| "连续加班三周，感觉身体被掏空" | 工部体健司（主管）+ 兵部后勤司（协办） | 根因是身体透支，兵部协办后续排程优化 |
-| "每天忙到很晚但回顾发现没做成什么事" | 兵部后勤司 | 根因是精力分配与工作流程低效 |
-| "早上起不来，晚上又睡不着，整个节奏全乱了" | 工部水利司（主管）+ 工部体健司（协办） | 根因是 routine 崩塌 |
-| "焦虑导致失眠，白天没精神" | 工部体健司 | 根因是心理健康 |
+| Scenario | Owner | Rationale |
+|----------|-------|-----------|
+| "Three straight weeks of overtime, feel completely drained" | Works/Fitness (lead) + War/Logistics (assist) | Root cause is physical exhaustion; War assists with schedule optimization |
+| "Busy till late every day but nothing substantial done in review" | War/Logistics | Root cause is energy allocation and workflow inefficiency |
+| "Can't get up in the morning, can't sleep at night, whole rhythm is off" | Works/Routines (lead) + Works/Fitness (assist) | Root cause is routine collapse |
+| "Anxiety causing insomnia, no energy during the day" | Works/Fitness | Root cause is mental health |
 
-**速判口诀：身体病了归体健，节奏乱了归水利，做事低效归后勤。**
+**Quick judgment rule: Body illness → Fitness, rhythm broken → Routines, work inefficiency → Logistics.**
 
-### "我总是拖延" — 兵部后勤司 vs 刑部纠察司 vs 工部体健司
+### "I keep procrastinating" — War/Logistics vs Justice/Discipline vs Works/Fitness
 
-| 场景 | 归属 | 理由 |
-|------|------|------|
-| "这个任务太大了不知道从哪开始" | 兵部后勤司 | 根因是任务未分解、缺乏启动策略 |
-| "明明知道该做，就是打开手机刷了两小时" | 刑部纠察司（主管）+ 兵部后勤司（协办） | 根因是坏习惯，后勤司协办环境设计 |
-| "每次开会前才临时准备，已经第五次了" | 刑部纠察司 | 根因是重复违背承诺 |
-| "下午精力低谷时总是拖延重要任务" | 兵部后勤司 | 根因是精力管理与排期不匹配 |
-| "一想到要做那件事就焦虑，所以一直拖" | 工部体健司 | 根因是心理障碍（恐惧/焦虑） |
+| Scenario | Owner | Rationale |
+|----------|-------|-----------|
+| "This task is too big, don't know where to start" | War/Logistics | Root cause is task not decomposed, lacking startup strategy |
+| "Know I should do it, but picked up my phone and scrolled for two hours" | Justice/Discipline (lead) + War/Logistics (assist) | Root cause is bad habit; Logistics assists with environment design |
+| "Cramming before every meeting, fifth time now" | Justice/Discipline | Root cause is repeatedly breaking commitments |
+| "Always procrastinate important tasks during afternoon energy dip" | War/Logistics | Root cause is energy management misaligned with scheduling |
+| "Anxious just thinking about that task, so I keep putting it off" | Works/Fitness | Root cause is psychological barrier (fear/anxiety) |
 
-**速判口诀：不会做归后勤（方法问题），不愿做归纠察（习惯问题），不敢做归体健（心理问题）。**
+**Quick judgment rule: Don't know how → Logistics (method problem), don't want to → Discipline (habit problem), don't dare to → Fitness (psychological problem).**
 
-### "我该怎么送礼" — 吏部封��司 vs 礼部外交司
+### "How should I handle gift-giving" — Personnel/Relations vs Rites/Diplomacy
 
-| 场景 | 归属 | 理由 |
-|------|------|------|
-| "女朋友生日快到了，送什么能加分" | 吏部封赏司 | 核心是关系经营 |
-| "日本客户来访，伴手礼有什么讲究" | 礼部外交司（主管）+ 吏部封赏司（协办） | 核心是跨文化商务礼仪 |
-| "想感谢帮过我的前领导，该怎么表示" | 吏部封赏司 | 核心是人情往来 |
-| "第一次参加合作方的年会，需要带礼物吗" | 礼部外交司 | 核心是场合礼仪规范 |
+| Scenario | Owner | Rationale |
+|----------|-------|-----------|
+| "Girlfriend's birthday is coming up, what gift would score points" | Personnel/Relations | Core is relationship cultivation |
+| "Japanese client visiting, any protocol for welcome gifts" | Rites/Diplomacy (lead) + Personnel/Relations (assist) | Core is cross-cultural business etiquette |
+| "Want to thank a former boss who helped me, how to show appreciation" | Personnel/Relations | Core is reciprocal favors |
+| "First time attending a partner's annual event, should I bring a gift" | Rites/Diplomacy | Core is occasion etiquette norms |
 
-**速判口诀：对人走心归吏部（关系策略），对场合得体归礼部（礼仪规范）。**
+**Quick judgment rule: Heartfelt for a person → Personnel (relationship strategy), appropriate for an occasion → Rites (etiquette norms).**
 
-### 协办机制
+### Assist Mechanism
 
-当某场景标注"协办"时：
-- **主管部门**负责出具方案、承担决策责任
-- **协办部门**提供专业意见，嵌入主管报告的专门小节
-- 若主管与协办意见冲突，升级至政事堂裁决
+When a scenario is marked "assist":
+- **Lead ministry** is responsible for producing the proposal and bearing decision responsibility
+- **Assisting ministry** provides specialized input, embedded in a dedicated section of the lead report
+- If the lead and assisting ministries disagree, escalate to the Political Affairs Hall for resolution

@@ -1,62 +1,62 @@
-# 第二大脑 — 架构与搭建
+# Second Brain — Architecture and Setup
 
-## 核心架构
-
-```
-GitHub second-brain（硬盘）= Source of truth，完整记录
-Notion（内存）= 轻量工作内存，手机端活跃话题
-CC（丞相/早朝官）= 唯一同时碰两边的角色
-```
-
-### 数据通道
+## Core Architecture
 
 ```
-手机：Claude.ai ↔ Notion MCP
-桌面：CC ↔ GitHub second-brain + Notion MCP
+GitHub second-brain (disk) = Source of truth, complete records
+Notion (memory) = Lightweight working memory, active topics on mobile
+CC (Prime Minister / Morning Court Official) = The only role that touches both sides
 ```
 
-### 同步规则
+### Data Channels
 
-**git commit = Notion 更新，机械绑定。** 有文件变更就同步，纯聊天不触发。
+```
+Mobile: Claude.ai ↔ Notion MCP
+Desktop: CC ↔ GitHub second-brain + Notion MCP
+```
+
+### Sync Rules
+
+**git commit = Notion update, mechanically bound.** File changes trigger sync; pure chat does not.
 
 ---
 
-## GitHub second-brain 目录
+## GitHub second-brain Directory
 
-三套方法论融合：**GTD 驱动行动，PARA 组织结构，Zettelkasten 让知识生长。**
+Three methodologies fused: **GTD drives action, PARA organizes structure, Zettelkasten lets knowledge grow.**
 
 ```
 second-brain/
-├── inbox/                    # GTD 入口：未处理的先到这里
-├── projects/{project}/       # PARA·P：有目标有截止的事
-│   ├── index.md             # 目标、状态、关联领域
+├── inbox/                    # GTD entry: unprocessed items land here first
+├── projects/{project}/       # PARA·P: things with goals and deadlines
+│   ├── index.md             # Goals, status, related areas
 │   ├── tasks/               # next actions
-│   ├── decisions/           # 三省六部奏折
-│   ├── notes/               # 工作笔记
-│   └── research/            # 项目专属调研
-├── areas/{area}/             # PARA·A：持续维护的生活领域
-│   ├── index.md             # 方向、关联项目
-│   ├── goals.md             # 目标
-│   └── tasks/               # 不属于项目的领域任务
-├── zettelkasten/             # 知识生长
-│   ├── fleeting/            # 碎片想法
-│   ├── literature/          # 输入（读了什么）
-│   └── permanent/           # 输出（自己的洞察，互相链接）
-├── records/                  # 生活数据
-│   ├── journal/             # 日志、早朝简报、御史台/谏官报告
+│   ├── decisions/           # Three Departments and Six Ministries memorials
+│   ├── notes/               # Working notes
+│   └── research/            # Project-specific research
+├── areas/{area}/             # PARA·A: ongoing life areas to maintain
+│   ├── index.md             # Direction, related projects
+│   ├── goals.md             # Goals
+│   └── tasks/               # Area tasks not belonging to a project
+├── zettelkasten/             # Knowledge growth
+│   ├── fleeting/            # Fleeting ideas
+│   ├── literature/          # Input (what you read)
+│   └── permanent/           # Output (your own insights, interlinked)
+├── records/                  # Life data
+│   ├── journal/             # Journals, morning court briefings, Censorate/Remonstrator reports
 │   ├── meetings/
 │   ├── contacts/
 │   ├── finance/
 │   └── health/
-├── gtd/                      # GTD 系统
-│   ├── waiting/             # 等别人
-│   ├── someday/             # 将来也许
-│   └── reviews/             # 复盘记录
-├── archive/                  # 项目结束搬到这里
+├── gtd/                      # GTD system
+│   ├── waiting/             # Waiting on others
+│   ├── someday/             # Someday/maybe
+│   └── reviews/             # Review records
+├── archive/                  # Completed projects move here
 └── templates/
 ```
 
-## 领域列表（areas/）
+## Area List (areas/)
 
 ```
 career/    product/    finance/    health/    family/
@@ -65,70 +65,70 @@ social/    learning/   ops/        creation/  spirit/
 
 ---
 
-## GTD 流转
+## GTD Flow
 
 ```
-脑子里想到什么 → inbox/
-  ├── 有行动，属于项目 → projects/{p}/tasks/
-  ├── 有行动，属于领域 → areas/{a}/tasks/
-  ├── 等别人 → gtd/waiting/
-  ├── 以后再说 → gtd/someday/
-  ├── 是知识不是任务 → zettelkasten/
-  └── 没用 → 删掉
+Something comes to mind → inbox/
+  ├── Actionable, belongs to a project → projects/{p}/tasks/
+  ├── Actionable, belongs to an area → areas/{a}/tasks/
+  ├── Waiting on someone → gtd/waiting/
+  ├── Later → gtd/someday/
+  ├── Knowledge, not a task → zettelkasten/
+  └── Useless → delete
 ```
 
-## Zettelkasten 生长
+## Zettelkasten Growth
 
 ```
-碎片想法 → zettelkasten/fleeting/
-读了篇文章 → zettelkasten/literature/
-  → 提炼出洞察 → zettelkasten/permanent/（链接已有笔记）
+Fleeting idea → zettelkasten/fleeting/
+Read an article → zettelkasten/literature/
+  → Distill an insight → zettelkasten/permanent/ (link to existing notes)
 ```
 
-## 项目→知识桥梁
+## Project → Knowledge Bridge
 
-项目归档时工作笔记跟着走，永续笔记留在 zettelkasten 继续生长。
+When a project is archived, working notes go with it; permanent notes stay in zettelkasten and keep growing.
 
 ---
 
-## Notion 内存（3 个组件）
+## Notion Memory (3 Components)
 
-### 📬 信箱（数据库）
+### 📬 Inbox (Database)
 
-手机和桌面互传消息的队列。字段：内容 / 来源（手机/桌面）/ 状态（待处理/已同步）/ 时间。
+Message queue between mobile and desktop. Fields: Content / Source (Mobile/Desktop) / Status (Pending/Synced) / Time.
 
-### 🧠 当前状态（页面）
+### 🧠 Current Status (Page)
 
-全局快照，CC 每次 session 结束覆写。包含：正在推进的事、最近决策、开放问题、本周重点。
+Global snapshot, overwritten by CC at the end of each session. Contains: things in progress, recent decisions, open questions, this week's focus.
 
-### 📝 工作内存（话题页面）
+### 📝 Working Memory (Topic Pages)
 
-每个活跃话题一个页面（约 5-10 个）。包含：背景、当前阶段、关键决策、技术思路、开放问题、下一步。不再活跃时归档到 GitHub，从 Notion 删掉。
-
----
-
-## 多 Repo 工作方式
-
-- **项目代码**（EIP、life_OS 等）→ 各自独立 repo
-- **关于项目的思考**（决策、笔记、任务）→ second-brain repo
-
-同一个 CC 对话中连接两个目录。`/save` 命令：写文件 → cd ~/second-brain → git commit/push → 回到项目。
+One page per active topic (about 5-10). Contains: background, current stage, key decisions, technical ideas, open questions, next steps. When no longer active, archived to GitHub and deleted from Notion.
 
 ---
 
-## 三省六部产出去向
+## Multi-Repo Workflow
 
-| 产出 | GitHub 路径 |
-|------|------------|
-| 决策奏折 | `projects/{p}/decisions/` |
-| 行动项 | `projects/{p}/tasks/` |
-| 复盘/御史台/谏官 | `records/journal/` |
-| 调研 | `zettelkasten/literature/` |
-| 通用洞察 | `zettelkasten/permanent/` |
-| 目标 | `areas/{a}/goals.md` |
+- **Project code** (EIP, life_OS, etc.) → each in its own repo
+- **Thinking about projects** (decisions, notes, tasks) → second-brain repo
+
+The same CC conversation connects both directories. `/save` command: write files → cd ~/second-brain → git commit/push → return to project.
 
 ---
 
-## 不连接数据层
+## Three Departments and Six Ministries Output Destinations
 
-不建 second-brain 时所有功能照常工作，只是没有持久化和跨会话记忆。
+| Output | GitHub Path |
+|--------|------------|
+| Decision memorials | `projects/{p}/decisions/` |
+| Action items | `projects/{p}/tasks/` |
+| Reviews / Censorate / Remonstrator | `records/journal/` |
+| Research | `zettelkasten/literature/` |
+| General insights | `zettelkasten/permanent/` |
+| Goals | `areas/{a}/goals.md` |
+
+---
+
+## Without a Data Layer
+
+If you don't set up the second-brain, all features work as normal — you just won't have persistence or cross-session memory.
