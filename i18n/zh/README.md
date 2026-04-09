@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.1-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.2-purple.svg)](CHANGELOG.md)
 
 Life OS 把 AI 变成你的私人朝廷 —— 15 个角色分权制衡，全方位管理你的生活、工作、学习、财务、健康和人际关系。
 
@@ -190,7 +190,7 @@ Life OS 支持多种 AI 平台。**[查看完整安装指南 →](docs/installat
 
 ## 第二大脑（数据层）
 
-Life OS 用 **GitHub second-brain** 作为数据主库（硬盘），**Notion** 作为轻量工作内存（手机端同步）。
+Life OS 支持 **GitHub**、**Google Drive** 和 **Notion** 作为存储后端——选择一个或组合多个实现跨设备同步。多后端模式：写入所有已选后端，从主后端读取。每次会话启动时同步。
 
 ```
 second-brain/

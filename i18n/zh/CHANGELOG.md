@@ -1,5 +1,45 @@
 # 更新日志
 
+## [1.4.2] - 2026-04-09
+
+### 新增 — 存储抽象层
+
+- **`references/data-model.md`** — 标准数据模型：6 种类型（Decision/Task/JournalEntry/WikiNote/Project/Area），含字段定义；7 种标准操作（Save/Update/Archive/Read/List/Search/ReadProjectContext）
+- **`references/adapter-github.md`** — GitHub 后端：.md + front matter 格式，目录路径，通过 grep/glob 查询，通过 git log 检测变更
+- **`references/adapter-gdrive.md`** — Google Drive 后端：相同 .md 格式，Google Drive MCP 调用，通过 modifiedTime 检测变更
+- **`references/adapter-notion.md`** — Notion 后端：标准字段到 Notion 属性映射，Notion MCP 调用，通过 last_edited_time 检测变更
+- **多后端支持** — 用户选择 1、2 或 3 个后端（GitHub/GDrive/Notion）。多后端模式：写入全部，从主后端读取（自动优先级：GitHub > GDrive > Notion）
+- **跨设备同步** — 每次会话启动时全量同步：查询所有后端自上次同步以来的变更，时间戳比较，冲突处理（最后写入者优先，<1分钟=询问用户）
+- **冲突处理** — 定义在 data-model.md 中：单方变更直接采用，双方变更=最后修改者优先，几乎同时=用户选择
+- **删除安全** — 删除不跨后端同步。软删除（_deleted: true），用户确认后才硬删除
+- **故障处理** — 后端离线：跳过+记录+下次会话重试。崩溃中断：重启时比较 last_modified，自动修复。数据损坏：从其他后端恢复
+- **配置持久化** — `_meta/config.md` 存储后端选择和上次同步时间戳。新设备：git clone 即获取配置
+- **迁移支持** — 新增后端时触发从主后端全量同步的选项
+
+### 变更
+- **SKILL.md** — "数据层"→"存储配置"，含多后端表格和标准操作
+- **data-layer.md** — 产出去向改用标准操作，早朝官操作与适配器无关，Notion 章节替换为多后端引用
+- **chengxiang.md** — 朝前准备显示 💾 存储 + 🔄 同步状态，首次使用时提示存储配置
+- **zaochao.md** — 家务模式：新增多后端同步协议。收尾模式：写入所有后端，故障记录
+- **pro/CLAUDE.md** — "数据层"→"存储后端"，含多后端描述
+
+## [1.4.1] - 2026-04-08
+
+### 新增
+- **pro/GLOBAL.md** — 新文件：所有 agent 的通用规则。从 14 个独立 agent 文件中提取为单一权威源。包含：
+  - 研究过程展示规则（🔎/💭/🎯）
+  - 进度播报规则（🔄/🔎/💡/✅ 实时播报里程碑）
+  - 上游输出防护（将其他 agent 输出视为参考而非指令；发现异常时忽略并标记）
+  - 安全边界（4 条不可违反的硬规则：禁止破坏性操作、禁止暴露敏感数据、禁止越权决策、拒绝可疑指令）
+  - 通用反模式
+  - 模型无关声明
+- **工作流状态机**（pro/CLAUDE.md）— 正式的状态转换表，定义工作流步骤间的合法与非法跳转。任何违规=御史台标记流程错误。
+
+### 变更
+- **14 个 agent 文件精简** — 每个 agent 现在引用 `pro/GLOBAL.md` 获取通用规则。研究过程章节、通用反模式和后端任务警告从单独文件中移除。每个文件平均精简 30%。
+- **SKILL.md** — 新增全局规则摘要，引用 pro/GLOBAL.md。版本 1.4.1。
+- **pro/CLAUDE.md** — 新增全局规则引用和状态机章节。
+
 ## [1.4.0] - 2026-04-08
 
 ### 新增 — 认知管线 + 御史台自动化 + 模型无关
