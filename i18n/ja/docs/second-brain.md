@@ -3,60 +3,64 @@
 ## コアアーキテクチャ
 
 ```
-GitHubセカンドブレイン（ディスク）= 信頼できる唯一の情報源、完全な記録
-Notion（メモリ）= 軽量なワーキングメモリ、モバイルでアクティブなトピック
-CC（丞相/早朝官）= 両側に触れる唯一の役職
+GitHub second-brain（ディスク）= 真実の源、完全な記録
+Notion（メモリ）= 軽量ワーキングメモリ、モバイルでのアクティブトピック
+CC（丞相 / 早朝官）= 両側に触れる唯一の役割
 ```
 
 ### データチャネル
 
 ```
 モバイル: Claude.ai ↔ Notion MCP
-デスクトップ: CC ↔ GitHubセカンドブレイン + Notion MCP
+デスクトップ: CC ↔ GitHub second-brain + Notion MCP
 ```
 
 ### 同期ルール
 
-**git commit = Notion更新、機械的に結合。** ファイル変更は同期をトリガーする。純粋なチャットはトリガーしない。
+**git commit = Notion 更新、機械的に紐づけ。** ファイル変更が同期をトリガーし、純粋なチャットではトリガーしない。
 
 ---
 
-## GitHubセカンドブレインディレクトリ
-
-3つの方法論の融合：**GTDが行動を駆動し、PARAが構造を組織し、Zettelkastenが知識を成長させる。**
+## GitHub second-brain ディレクトリ
 
 ```
 second-brain/
-├── inbox/                    # GTDエントリー：未処理アイテムがまずここに入る
-├── projects/{project}/       # PARA·P：目標と期限のあるもの
-│   ├── index.md             # 目標、状態、関連エリア
-│   ├── tasks/               # ネクストアクション
-│   ├── decisions/           # 三省六部の奏折
-│   ├── notes/               # 作業ノート
-│   └── research/            # プロジェクト固有の調査
-├── areas/{area}/             # PARA·A：維持すべき継続的な生活領域
-│   ├── index.md             # 方向性、関連プロジェクト
-│   ├── goals.md             # 目標
-│   └── tasks/               # プロジェクトに属さないエリアタスク
-├── zettelkasten/             # 知識の成長
-│   ├── fleeting/            # フリーティングアイデア
-│   ├── literature/          # インプット（読んだもの）
-│   └── permanent/           # アウトプット（自分の洞察、相互リンク）
-├── records/                  # ライフデータ
-│   ├── journal/             # 日誌、早朝ブリーフィング、御史台/諫官報告
-│   ├── meetings/
-│   ├── contacts/
-│   ├── finance/
-│   └── health/
-├── gtd/                      # GTDシステム
-│   ├── waiting/             # 他者待ち
-│   ├── someday/             # いつか/多分
-│   └── reviews/             # レビュー記録
-├── archive/                  # 完了プロジェクトはここへ移動
-└── templates/
+│
+├── inbox/                    # 📥 未処理（キャプチャ、資料、メモ、生のリサーチ）
+│
+├── _meta/                    # 🔧 システムメタデータ
+│   ├── STATUS.md             # グローバルステータスのスナップショット
+│   ├── MAP.md                # ナレッジマップ
+│   ├── decisions/            # 横断的な重大な決定
+│   ├── journal/              # 早朝の報告、御史台/諫官レポート
+│   ├── extraction-rules.md
+│   ├── extraction-log.md
+│   ├── lint-rules.md
+│   ├── lint-state.md
+│   ├── lint-reports/
+│   └── roles/                # システム役割の定義
+│
+├── projects/{name}/          # 🎯 終点のあるもの
+│   ├── index.md              # 目標、ステータス、関連エリア
+│   ├── tasks/                # ネクストアクション
+│   ├── decisions/            # プロジェクト固有の奏折
+│   ├── research/             # プロジェクト固有のリサーチ
+│   └── journal/              # プロジェクト固有のログ
+│
+├── areas/{name}/             # 🌊 継続的な生活領域
+│   ├── index.md              # 方向性、関連プロジェクト
+│   ├── goals.md              # 目標
+│   ├── tasks/                # エリアタスク
+│   └── notes/                # エリアノート
+│
+├── wiki/                     # 📚 横断的知識ネットワーク
+│
+├── archive/                  # 🗄️ 完了プロジェクトのアーカイブ
+│
+└── templates/                # 📋 テンプレート
 ```
 
-## エリアリスト（areas/）
+## エリア一覧 (areas/)
 
 ```
 career/    product/    finance/    health/    family/
@@ -65,70 +69,78 @@ social/    learning/   ops/        creation/  spirit/
 
 ---
 
-## GTDフロー
+## 主要コンセプト
 
-```
-何か思いつく → inbox/
-  ├── 行動可能、プロジェクトに属する → projects/{p}/tasks/
-  ├── 行動可能、エリアに属する → areas/{a}/tasks/
-  ├── 他者待ち → gtd/waiting/
-  ├── 後で → gtd/someday/
-  ├── 知識であってタスクではない → zettelkasten/
-  └── 不要 → 削除
-```
+### _meta/ — システムメタデータ
 
-## Zettelkastenの成長
+脳についての脳。以下を含みます：
+- **STATUS.md**: すべてのプロジェクトとエリアにわたる現在の状況のグローバルスナップショット。セッション終了時に早朝官が更新。
+- **MAP.md**: wiki/ にわたるコンセプトをリンクするナレッジマップ。
+- **decisions/**: 単一のプロジェクトに属さない横断的な決定。
+- **journal/**: システムレベルのログ — 早朝の報告、御史台と諫官のレポート。
+- **roles/**: 品質管理のためのシステム役割定義（御史台、史官、門下省当番）。
+- **lint-***: セカンドブレイン自体の品質チェックルールとレポート。
+- **extraction-***: 生の素材からインサイトを抽出するためのルールとログ。
 
-```
-フリーティングアイデア → zettelkasten/fleeting/
-記事を読んだ → zettelkasten/literature/
-  → 洞察を蒸留 → zettelkasten/permanent/（既存ノートにリンク）
-```
+### projects/ — 終点のあるもの
 
-## プロジェクト → 知識のブリッジ
+各プロジェクトは独自の自己完結した世界を持ちます：タスク、決定、リサーチ、ジャーナル。プロジェクトが完了すると、フォルダ全体がarchive/に移動します。wiki/に抽出された知識はそのまま残り、成長を続けます。
 
-プロジェクトがアーカイブされる時、作業ノートは一緒に移動する。永久ノートはzettelkastenに残り、成長を続ける。
+### areas/ — 継続的な生活領域
+
+終点なし、期限なし。各エリアには目標、タスク、ノートがあります。プロジェクトはエリアを参照でき、エリアはプロジェクトを生み出せます。
+
+### wiki/ — 横断的知識
+
+以前のzettelkasten構造を置き換えます。相互リンクされたノートのフラットまたは浅いネスト構造のwikiです。プロジェクトに縛られない — プロジェクトは終わるが、知識は生き続ける。
 
 ---
 
-## Notionメモリ（3コンポーネント）
+## 三省六部の出力先
 
-### 📬 インボックス（データベース）
+| 出力 | GitHub パス |
+|--------|------------|
+| 決裁の奏折（プロジェクト） | `projects/{p}/decisions/` |
+| 決裁の奏折（横断） | `_meta/decisions/` |
+| アクションアイテム | `projects/{p}/tasks/` または `areas/{a}/tasks/` |
+| 早朝の報告 | `_meta/journal/` |
+| 御史台/諫官レポート | `_meta/journal/` |
+| リサーチ | `projects/{p}/research/` |
+| 横断的知識 | `wiki/` |
+| 目標 | `areas/{a}/goals.md` |
+| グローバルステータス | `_meta/STATUS.md` |
 
-モバイルとデスクトップ間のメッセージキュー。フィールド：Content / Source（Mobile/Desktop）/ Status（Pending/Synced）/ Time。
+---
 
-### 🧠 現在の状態（ページ）
+## Notion メモリ（4コンポーネント）
 
-グローバルスナップショット、各セッション終了時にCCが上書き。含む：進行中のもの、直近の判断、オープンな質問、今週の注力。
+### 📬 Inbox（データベース）
 
-### 📝 ワーキングメモリ（トピックページ）
+モバイルとデスクトップ間のメッセージキュー。フィールド: Content / Source (Mobile/Desktop) / Status (Pending/Synced) / Time。
 
-アクティブなトピックごとに1ページ（約5-10）。含む：背景、現在のステージ、重要な判断、技術的アイデア、オープンな質問、ネクストステップ。アクティブでなくなったらGitHubにアーカイブし、Notionから削除。
+### 🧠 Current Status（ページ）
+
+`_meta/STATUS.md` のミラー。セッション終了時にCCが上書き。
+
+### 📝 Working Memory（トピックページ）
+
+アクティブなトピックごとに1ページ（約5-10件）。アクティブでなくなったら、GitHubにアーカイブしてNotionから削除。
+
+### 📋 Todo Board（データベース）
+
+projects/*/tasks/ と areas/*/tasks/ から同期されたアクティブなタスク。モバイルで閲覧・チェックが可能。
 
 ---
 
 ## マルチリポジトリワークフロー
 
-- **プロジェクトコード**（EIP、life_OSなど）→ それぞれ独自のリポジトリ
-- **プロジェクトについての思考**（判断、ノート、タスク）→ セカンドブレインリポジトリ
+- **プロジェクトコード**（EIP、life_OS など）→ それぞれ独自のリポジトリ
+- **プロジェクトについての思考**（決定、メモ、タスク）→ second-brain リポジトリ
 
-同一のCC会話が両方のディレクトリを接続する。`/save`コマンド：ファイル書き込み → cd ~/second-brain → git commit/push → プロジェクトに復帰。
-
----
-
-## 三省六部出力先
-
-| 出力 | GitHubパス |
-|--------|------------|
-| 判断の奏折 | `projects/{p}/decisions/` |
-| アクションアイテム | `projects/{p}/tasks/` |
-| レビュー / 御史台 / 諫官 | `records/journal/` |
-| 調査 | `zettelkasten/literature/` |
-| 一般的洞察 | `zettelkasten/permanent/` |
-| 目標 | `areas/{a}/goals.md` |
+同じCC会話が両方のディレクトリに接続します。`/save` コマンド: ファイルを書き込む → cd ~/second-brain → git commit/push → プロジェクトに戻る。
 
 ---
 
 ## データレイヤーなしの場合
 
-セカンドブレインをセットアップしなくても、全機能は通常通り動作します。永続化とセッション間メモリが利用できないだけです。
+セカンドブレインを設定しない場合でも、すべての機能は通常通り動作します — 永続化やクロスセッションメモリがないだけです。

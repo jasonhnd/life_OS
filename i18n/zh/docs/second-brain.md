@@ -1,62 +1,66 @@
-# 第二大脑 — 架构与搭建
+# 第二大脑 — 架构与设置
 
 ## 核心架构
 
 ```
-GitHub second-brain（硬盘）= Source of truth，完整记录
-Notion（内存）= 轻量工作内存，手机端活跃话题
-CC（丞相/早朝官）= 唯一同时碰两边的角色
+GitHub second-brain（磁盘）= 事实来源，完整记录
+Notion（内存）= 轻量工作记忆，移动端活跃话题
+CC（丞相/早朝官）= 唯一同时接触两侧的角色
 ```
 
 ### 数据通道
 
 ```
-手机：Claude.ai ↔ Notion MCP
-桌面：CC ↔ GitHub second-brain + Notion MCP
+移动端：Claude.ai ↔ Notion MCP
+桌面端：CC ↔ GitHub second-brain + Notion MCP
 ```
 
 ### 同步规则
 
-**git commit = Notion 更新，机械绑定。** 有文件变更就同步，纯聊天不触发。
+**git commit = Notion 更新，机械绑定。** 文件变更触发同步；纯聊天不触发。
 
 ---
 
 ## GitHub second-brain 目录
 
-三套方法论融合：**GTD 驱动行动，PARA 组织结构，Zettelkasten 让知识生长。**
-
 ```
 second-brain/
-├── inbox/                    # GTD 入口：未处理的先到这里
-├── projects/{project}/       # PARA·P：有目标有截止的事
-│   ├── index.md             # 目标、状态、关联领域
-│   ├── tasks/               # next actions
-│   ├── decisions/           # 三省六部奏折
-│   ├── notes/               # 工作笔记
-│   └── research/            # 项目专属调研
-├── areas/{area}/             # PARA·A：持续维护的生活领域
-│   ├── index.md             # 方向、关联项目
-│   ├── goals.md             # 目标
-│   └── tasks/               # 不属于项目的领域任务
-├── zettelkasten/             # 知识生长
-│   ├── fleeting/            # 碎片想法
-│   ├── literature/          # 输入（读了什么）
-│   └── permanent/           # 输出（自己的洞察，互相链接）
-├── records/                  # 生活数据
-│   ├── journal/             # 日志、早朝简报、御史台/谏官报告
-│   ├── meetings/
-│   ├── contacts/
-│   ├── finance/
-│   └── health/
-├── gtd/                      # GTD 系统
-│   ├── waiting/             # 等别人
-│   ├── someday/             # 将来也许
-│   └── reviews/             # 复盘记录
-├── archive/                  # 项目结束搬到这里
-└── templates/
+│
+├── inbox/                    # 📥 未处理（捕获、素材、笔记、原始研究）
+│
+├── _meta/                    # 🔧 系统元数据
+│   ├── STATUS.md             # 全局状态快照
+│   ├── MAP.md                # 知识地图
+│   ├── decisions/            # 跨领域重大决策
+│   ├── journal/              # 早朝简报、御史台/谏官报告
+│   ├── extraction-rules.md
+│   ├── extraction-log.md
+│   ├── lint-rules.md
+│   ├── lint-state.md
+│   ├── lint-reports/
+│   └── roles/                # 系统角色定义
+│
+├── projects/{name}/          # 🎯 有终点的事
+│   ├── index.md              # 目标、状态、关联领域
+│   ├── tasks/                # 下一步行动
+│   ├── decisions/            # 项目级奏折
+│   ├── research/             # 项目级研究
+│   └── journal/              # 项目级日志
+│
+├── areas/{name}/             # 🌊 持续的生活领域
+│   ├── index.md              # 方向、关联项目
+│   ├── goals.md              # 目标
+│   ├── tasks/                # 领域任务
+│   └── notes/                # 领域笔记
+│
+├── wiki/                     # 📚 跨领域知识网络
+│
+├── archive/                  # 🗄️ 已完成项目归档
+│
+└── templates/                # 📋 模板
 ```
 
-## 领域列表（areas/）
+## 领域列表 (areas/)
 
 ```
 career/    product/    finance/    health/    family/
@@ -65,70 +69,78 @@ social/    learning/   ops/        creation/  spirit/
 
 ---
 
-## GTD 流转
+## 关键概念
 
-```
-脑子里想到什么 → inbox/
-  ├── 有行动，属于项目 → projects/{p}/tasks/
-  ├── 有行动，属于领域 → areas/{a}/tasks/
-  ├── 等别人 → gtd/waiting/
-  ├── 以后再说 → gtd/someday/
-  ├── 是知识不是任务 → zettelkasten/
-  └── 没用 → 删掉
-```
+### _meta/ — 系统元数据
 
-## Zettelkasten 生长
+关于大脑的大脑。包含：
+- **STATUS.md**：跨所有项目和领域的全局快照。由早朝官在会话结束时更新。
+- **MAP.md**：跨 wiki/ 的知识地图，连接概念。
+- **decisions/**：不属于任何单一项目的跨领域决策。
+- **journal/**：系统级日志——早朝简报、御史台和谏官报告。
+- **roles/**：质量控制的系统角色定义（御史、史官、审查者）。
+- **lint-***：第二大脑自身的质量检查规则和报告。
+- **extraction-***：从原始素材中提取洞察的规则和日志。
 
-```
-碎片想法 → zettelkasten/fleeting/
-读了篇文章 → zettelkasten/literature/
-  → 提炼出洞察 → zettelkasten/permanent/（链接已有笔记）
-```
+### projects/ — 有终点的事
 
-## 项目→知识桥梁
+每个项目有自己的自包含世界：任务、决策、研究和日志。项目完成后，整个文件夹移至 archive/。提取到 wiki/ 的知识留下并持续增长。
 
-项目归档时工作笔记跟着走，永续笔记留在 zettelkasten 继续生长。
+### areas/ — 持续的生活领域
+
+没有终点，没有截止日期。每个领域有目标、任务和笔记。项目可以引用领域；领域可以生成项目。
+
+### wiki/ — 跨领域知识
+
+取代之前的 zettelkasten 结构。一个扁平或浅层嵌套的互链笔记 wiki。不绑定任何项目——项目会结束，知识永存。
 
 ---
 
-## Notion 内存（3 个组件）
+## 三省六部输出目标
 
-### 📬 信箱（数据库）
+| 输出 | GitHub 路径 |
+|--------|------------|
+| 决策奏折（项目级） | `projects/{p}/decisions/` |
+| 决策奏折（跨领域） | `_meta/decisions/` |
+| 行动项 | `projects/{p}/tasks/` 或 `areas/{a}/tasks/` |
+| 早朝简报 | `_meta/journal/` |
+| 御史台/谏官报告 | `_meta/journal/` |
+| 研究 | `projects/{p}/research/` |
+| 跨领域知识 | `wiki/` |
+| 目标 | `areas/{a}/goals.md` |
+| 全局状态 | `_meta/STATUS.md` |
 
-手机和桌面互传消息的队列。字段：内容 / 来源（手机/桌面）/ 状态（待处理/已同步）/ 时间。
+---
+
+## Notion 记忆（4 个组件）
+
+### 📬 Inbox（数据库）
+
+移动端和桌面端之间的消息队列。字段：Content / Source (Mobile/Desktop) / Status (Pending/Synced) / Time。
 
 ### 🧠 当前状态（页面）
 
-全局快照，CC 每次 session 结束覆写。包含：正在推进的事、最近决策、开放问题、本周重点。
+镜像 `_meta/STATUS.md`。由 CC 在会话结束时覆盖。
 
-### 📝 工作内存（话题页面）
+### 📝 工作记忆（主题页面）
 
-每个活跃话题一个页面（约 5-10 个）。包含：背景、当前阶段、关键决策、技术思路、开放问题、下一步。不再活跃时归档到 GitHub，从 Notion 删掉。
+每个活跃话题一页（约 5-10 个）。不再活跃时，归档到 GitHub 并从 Notion 删除。
 
----
+### 📋 待办看板（数据库）
 
-## 多 Repo 工作方式
-
-- **项目代码**（EIP、life_OS 等）→ 各自独立 repo
-- **关于项目的思考**（决策、笔记、任务）→ second-brain repo
-
-同一个 CC 对话中连接两个目录。`/save` 命令：写文件 → cd ~/second-brain → git commit/push → 回到项目。
+从 projects/*/tasks/ 和 areas/*/tasks/ 同步的活跃任务。移动端可查看和勾选。
 
 ---
 
-## 三省六部产出去向
+## 多仓库工作流
 
-| 产出 | GitHub 路径 |
-|------|------------|
-| 决策奏折 | `projects/{p}/decisions/` |
-| 行动项 | `projects/{p}/tasks/` |
-| 复盘/御史台/谏官 | `records/journal/` |
-| 调研 | `zettelkasten/literature/` |
-| 通用洞察 | `zettelkasten/permanent/` |
-| 目标 | `areas/{a}/goals.md` |
+- **项目代码**（EIP、life_OS 等）→ 各自独立仓库
+- **关于项目的思考**（决策、笔记、任务）→ second-brain 仓库
+
+同一个 CC 对话连接两个目录。`/save` 命令：写入文件 → cd ~/second-brain → git commit/push → 返回项目目录。
 
 ---
 
-## 不连接数据层
+## 没有数据层时
 
-不建 second-brain 时所有功能照常工作，只是没有持久化和跨会话记忆。
+如果你没有设置第二大脑，所有功能正常工作——只是没有持久化和跨会话记忆。
