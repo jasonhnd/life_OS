@@ -27,12 +27,15 @@ When the user sends the first message, the Morning Court Official (Housekeeping 
 
 📋 Pre-Court Preparation:
 - 📂 Session Scope: [projects/xxx or areas/xxx]
+- 💾 Storage: [GitHub(primary) + Notion(sync) / unconfigured]
+- 🔄 Sync: [N changes pulled from sync backends / no sync needed / single backend]
 - Platform: [platform name] | Current Model: [model name]
 - Version: v[current] [latest / ⬆️ newer version available]
 - Project Status: [summary of that project's index.md]
-- History: [relevant decision summaries for that project / no history / second-brain unavailable]
+- History: [relevant decision summaries for that project / no history / backend unavailable]
 - Behavior Profile: [loaded / not established]
 
+[If storage is unconfigured, ask: "Where do you want to store your data? GitHub / Google Drive / Notion — you can pick multiple."]
 [If the platform model is not the strongest available, ask the user if they want to switch]
 ```
 

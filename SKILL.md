@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.1"
+version: "1.4.2"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -229,24 +229,29 @@ Install directly in Claude Code:
 
 ---
 
-## Data Layer
+## Storage Configuration
 
-GitHub second-brain is the primary data store (disk), Notion is working memory (mobile sync).
+Life OS supports multiple storage backends:
 
-Output destinations (written to second-brain repo):
+| Backend | Best For | Format |
+|---------|----------|--------|
+| GitHub | Technical users, Claude Code | .md + front matter |
+| Google Drive | General users, zero setup | .md + front matter |
+| Notion | Notion users | Notion databases |
 
-| Output | GitHub Path |
-|--------|------------|
-| Decision memorial (project) | `projects/{p}/decisions/` |
-| Decision memorial (cross-domain) | `_meta/decisions/` |
-| Action items | `projects/{p}/tasks/` or `areas/{a}/tasks/` |
-| Morning court / Censorate / Remonstrator reports | `_meta/journal/` |
-| Research | `projects/{p}/research/` |
-| Cross-domain knowledge | `wiki/` |
-| Goals | `areas/{a}/goals.md` |
-| Global status | `_meta/STATUS.md` |
+Choose 1, 2, or all 3. Multi-backend: writes to all selected, reads from primary (auto-selected: GitHub > GDrive > Notion). First-time users: Prime Minister asks which backend(s) to use.
 
-Each git commit automatically syncs to Notion working memory. See `references/data-layer.md`.
+Output destinations use standard operations (per current storage backend):
+
+| Output | Standard Operation |
+|--------|-------------------|
+| Decision memorial | Save Decision |
+| Action items | Save Task |
+| Morning court / audit reports | Save JournalEntry |
+| Research / knowledge | Save WikiNote |
+| Goals | Update Area |
+
+Data types and operations: `references/data-model.md`. Backend-specific adapters: `references/adapter-github.md`, `references/adapter-gdrive.md`, `references/adapter-notion.md`. Architecture overview: `references/data-layer.md`.
 
 ---
 

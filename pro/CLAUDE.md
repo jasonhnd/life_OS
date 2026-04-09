@@ -150,11 +150,15 @@ Legal state transitions. Any violation = process error, Censorate must flag it.
 
 **This file (CLAUDE.md) is the only file bound to a specific model.** All other intelligence — extraction rules, lint rules, role definitions, knowledge network, directory structure — is pure markdown readable by any LLM. Switching models means only updating this file's references.
 
-## Data Layer
+## Storage Backends
 
-GitHub second-brain is the primary data store; Notion is the transport layer (inbox + status dashboard). See `references/data-layer.md` for the cognitive pipeline model and full architecture.
+Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or all 3). Users choose during first session; config stored in `_meta/config.md`. Multi-backend: writes to all selected, reads from primary (auto: GitHub > GDrive > Notion). Cross-device sync on every session start.
 
-All data reads and writes are performed by the Morning Court Official; the Prime Minister does not directly operate the file system or Notion.
+- Standard data model and operations: `references/data-model.md`
+- Backend-specific adapters: `references/adapter-github.md`, `references/adapter-gdrive.md`, `references/adapter-notion.md`
+- Architecture and cognitive pipeline: `references/data-layer.md`
+
+All data reads and writes are performed by the Morning Court Official; the Prime Minister does not directly operate storage backends.
 
 ## Information Isolation
 

@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.4.2] - 2026-04-09
+
+### Added — Storage Abstraction Layer
+
+- **`references/data-model.md`** — Standard data model: 6 types (Decision/Task/JournalEntry/WikiNote/Project/Area) with field definitions, 7 standard operations (Save/Update/Archive/Read/List/Search/ReadProjectContext)
+- **`references/adapter-github.md`** — GitHub backend: .md + front matter format, directory paths, query via grep/glob, change detection via git log
+- **`references/adapter-gdrive.md`** — Google Drive backend: same .md format, Google Drive MCP calls, change detection via modifiedTime
+- **`references/adapter-notion.md`** — Notion backend: standard field to Notion property mapping, Notion MCP calls, change detection via last_edited_time
+- **Multi-backend support** — Users choose 1, 2, or 3 backends (GitHub/GDrive/Notion). Multi-backend: writes to all, reads from primary (auto: GitHub > GDrive > Notion)
+- **Cross-device sync** — Full sync on every session start: query all backends for changes since last sync, timestamp comparison, conflict resolution (last write wins, <1min = ask user)
+- **Conflict resolution** — Defined in data-model.md: single change adopted, dual change = last_modified wins, near-simultaneous = user chooses
+- **Deletion safety** — Deletion does not sync across backends. Soft delete (_deleted: true), user confirms before hard delete
+- **Failure handling** — Backend offline: skip + log + retry next session. Mid-crash: compare last_modified on restart, auto-repair. Data corruption: restore from other backends
+- **Config persistence** — `_meta/config.md` stores backend selection + last sync timestamp. New device: git clone gets config
+- **Migration support** — Adding a new backend triggers full sync offer from primary
+
+### Changed
+- **SKILL.md** — "Data Layer" → "Storage Configuration" with multi-backend table and standard operations
+- **data-layer.md** — Output destinations now use standard operations, Morning Court Official operations are adapter-agnostic, Notion section replaced with multi-backend references
+- **chengxiang.md** — Pre-Court Preparation shows 💾 Storage + 🔄 Sync status, first-time storage config prompt
+- **zaochao.md** — Housekeeping mode: multi-backend sync protocol added. Wrap-up mode: write to all backends, failure logging
+- **pro/CLAUDE.md** — "Data Layer" → "Storage Backends" with multi-backend description
+
 ## [1.4.1] - 2026-04-08
 
 ### Added

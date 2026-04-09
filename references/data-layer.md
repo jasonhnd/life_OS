@@ -176,101 +176,93 @@ When idle, each ministry inspects its own jurisdiction. Defined in `_meta/roles/
 
 ## Three Departments Output Destinations
 
-| Output | GitHub Path |
-|--------|------------|
-| Decision memorials (project-specific) | `projects/{p}/decisions/` |
-| Decision memorials (cross-domain) | `_meta/decisions/` |
-| Action items (project) | `projects/{p}/tasks/` |
-| Action items (area) | `areas/{a}/tasks/` |
-| Morning court briefings | `_meta/journal/` |
-| Censorate / Remonstrator reports | `_meta/journal/` |
-| Inspection reports | `_meta/lint-reports/` |
-| Project research | `projects/{p}/research/` |
-| Cross-domain knowledge | `wiki/` |
-| Goals | `areas/{a}/goals.md` |
-| Global status snapshot | `_meta/STATUS.md` |
+All outputs use standard operations from `references/data-model.md`. The adapter for the user's chosen backend translates these into platform-specific calls.
+
+| Output | Standard Operation |
+|--------|-------------------|
+| Decision memorial | Save Decision |
+| Action items | Save Task |
+| Morning court / Censorate / Remonstrator reports | Save JournalEntry |
+| Inspection reports | Save JournalEntry (type: inspection) |
+| Research / knowledge | Save WikiNote |
+| Goals | Update Area (goals field) |
+| Global status | Update via adapter-specific STATUS mechanism |
 
 ---
 
-## Notion (Transport Layer, 3 Components)
+## Storage Backends
 
-Notion is the transport layer only, not the storage layer.
+Life OS supports three storage backends. Users choose 1, 2, or all 3.
 
-### 📬 Inbox (Database)
+| Backend | Best For | Adapter | Format |
+|---------|----------|---------|--------|
+| GitHub | Technical users, Claude Code | `references/adapter-github.md` | .md + front matter |
+| Google Drive | General users, zero setup | `references/adapter-gdrive.md` | .md + front matter |
+| Notion | Notion users | `references/adapter-notion.md` | Notion databases |
 
-Message queue for passing information between mobile and desktop.
+Standard data types and operations: `references/data-model.md`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| Content | Title | A sentence or key points |
-| Source | Select | Mobile / Desktop |
-| Status | Select | Pending / Synced |
-| Time | Created time | Automatic |
-
-### 🧠 Status Dashboard (Page)
-
-Mirror of `_meta/STATUS.md`. Overwritten by CC at the end of each session.
-
-### 🗄️ Archive
-
-Read-only archive access from mobile.
+Multi-backend rules (sync, conflict, deletion, failure handling): `references/data-model.md`
 
 ---
 
 ## Morning Court Official Data Operations
 
+All operations use standard interfaces. Adapt calls per the user's configured backend(s).
+
 ### Housekeeping Mode (Start of Conversation)
 
 ```
-1. Read ~/second-brain/inbox/ (unprocessed items)
-2. Read ~/second-brain/_meta/STATUS.md (global status)
-3. Read ~/second-brain/_meta/lint-state.md (check if inspection needed: >4h since last run)
-4. Read ~/second-brain/projects/{bound}/index.md (bound project status)
-5. Read ~/second-brain/projects/{bound}/decisions/ (historical decisions)
-6. Read ~/second-brain/projects/{bound}/tasks/ (active tasks)
+1. Read _meta/config.md → get backend list and last sync timestamp
+2. Multi-backend sync (if multiple backends configured):
+   - Query each sync backend for changes since last_sync_time
+   - Compare, resolve conflicts (see data-model.md)
+   - Apply changes to primary backend
+   - Push to sync backends
+3. Read inbox (unprocessed items) — via primary backend
+4. Read _meta/STATUS.md (global status)
+5. Read _meta/lint-state.md (check if inspection needed: >4h since last run)
+6. ReadProjectContext(bound project) — tasks, decisions, journal
 7. Read user-patterns.md
-8. Global overview: list all projects/ and areas/ index.md titles + status
-9. Check Notion 📬 Inbox (new messages from mobile) → pull into second-brain/inbox/
-10. If lint-state.md shows >4h since last run → trigger lightweight Censorate inspection
-11. Platform awareness + version check
+8. Global overview: List Project + List Area (titles + status only)
+9. If lint-state.md shows >4h → trigger lightweight Censorate inspection
+10. Platform awareness + version check
 ```
 
 ### Wrap-Up Mode (End of Process)
 
 ```
-1. Memorials → projects/{p}/decisions/ or _meta/decisions/ (cross-domain)
-2. Action items → projects/{p}/tasks/ or areas/{a}/tasks/
-3. Censorate reports → _meta/journal/
-4. Remonstrator reports → _meta/journal/
-5. Update _meta/STATUS.md (global status snapshot)
-6. Update _meta/lint-state.md (last inspection time)
-7. Update user-patterns.md
-8. git add + commit + push (to second-brain repo)
-9. Sync Notion: update 🧠 Status Dashboard
+1. Save Decision / Save Task / Save JournalEntry → via primary backend
+2. Update _meta/STATUS.md
+3. Update _meta/lint-state.md
+4. Update user-patterns.md
+5. Commit (if GitHub backend: git add + commit + push)
+6. Sync to all sync backends (write outputs + STATUS)
+7. Any backend failure → log to _meta/sync-log.md, don't block
+8. Update last_sync_time in _meta/config.md
 ```
 
 ### Review Mode
 
 ```
 1. Read _meta/STATUS.md for global state
-2. Traverse projects/*/tasks/ to compute completion rates
-3. Read areas/*/goals.md for goal progress
-4. Read _meta/journal/ recent journals
-5. Read _meta/lint-reports/ recent inspection reports
-6. Metrics dashboard computed from files
+2. List Task (all projects) → compute completion rates
+3. List Area → read goals
+4. List JournalEntry (recent) → journals and inspection reports
+5. Metrics dashboard computed from results
 ```
 
 ## Remonstrator Data Retrieval
 
 ```
 1. Read user-patterns.md
-2. Read _meta/journal/ last 3 Remonstrator reports
-3. Read projects/*/decisions/ + _meta/decisions/ last 5 decisions
-4. Traverse projects/*/tasks/ to compute completion rates
+2. List JournalEntry (type: remonstrator, limit: 3) → last 3 reports
+3. List Decision (limit: 5) → recent decisions
+4. List Task → compute completion rates
 ```
 
 ## Degradation Rules
 
-- second-brain repo unreachable → annotate "⚠️ second-brain unavailable"
-- Notion unavailable → only affects mobile sync, does not affect core functionality
-- Both unavailable → operates normally, output displayed in conversation but not persisted
+- Primary backend unreachable → annotate "⚠️ primary backend unavailable"
+- Sync backend unreachable → annotate ⚠️, log, retry next session
+- All backends unavailable → operates normally, output displayed in conversation but not persisted
