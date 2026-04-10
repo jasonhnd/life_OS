@@ -9,25 +9,26 @@ Life OS can be used on various AI platforms. Choose your platform and follow the
 
 ## Table of Contents
 
-- [Claude Code (Recommended, Pro Mode)](#claude-code-recommended-pro-mode)
+- [Claude Code (Pro Mode)](#claude-code-pro-mode)
+- [Gemini CLI / Antigravity (Pro Mode)](#gemini-cli--antigravity-pro-mode)
+- [OpenAI Codex CLI (Pro Mode)](#openai-codex-cli-pro-mode)
 - [Claude.ai Web / Desktop (Lite Mode)](#claudeai-web--desktop-lite-mode)
 - [Cursor](#cursor)
 - [VS Code + GitHub Copilot](#vs-code--github-copilot)
-- [Gemini CLI](#gemini-cli)
-- [OpenAI Codex CLI](#openai-codex-cli)
 - [ChatGPT](#chatgpt)
 - [Gemini Web](#gemini-web)
 - [Other Platforms](#other-platforms)
 - [Pro vs Lite Mode Comparison](#pro-vs-lite-mode-comparison)
 - [Installation Verification](#installation-verification)
+- [Troubleshooting](#troubleshooting)
 - [Updates](#updates)
 - [FAQ](#faq)
 
 ---
 
-## Claude Code (Recommended, Pro Mode)
+## Claude Code (Pro Mode)
 
-This is the full form of Life OS: 14 independent AI roles with true information isolation and parallel execution.
+This is the full form of Life OS on Claude: 14 independent AI roles with true information isolation and parallel execution.
 
 ### Prerequisites
 
@@ -66,6 +67,57 @@ If you see a response in this format, installation was successful:
 - Six Ministries can work in parallel (no queuing)
 - The Chancellery cannot see how the Secretariat thinks during review — truly independent review
 - All roles use the strongest opus model
+
+---
+
+## Gemini CLI / Antigravity (Pro Mode)
+
+Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemini-cli) and [Google Antigravity](https://idx.google.com/) with 14 independent subagents powered by Gemini 2.5 Pro.
+
+### Installation Steps
+
+1. Open Terminal (Gemini CLI) or the built-in terminal in Antigravity
+2. Enter the following command:
+
+```bash
+npx skills add jasonhnd/life_OS
+```
+
+3. Done! The system auto-detects Gemini and loads `pro/GEMINI.md` for orchestration
+
+### Antigravity-Specific Notes
+
+- Antigravity loads skills from `.agents/skills/` (workspace scope) or `~/.gemini/antigravity/skills/` (global scope)
+- **Important**: Add `.claude/worktrees/` to your project's `.gitignore` to prevent context overflow from Claude Code worktree artifacts. This is the most common cause of Gemini failing to respond in projects that also use Claude Code.
+
+### What's Different from Claude Pro Mode
+
+- Automatically uses Gemini's strongest available model (no hardcoded version)
+- Tool names are mapped automatically (see `pro/GEMINI.md` for the mapping table)
+- Same workflow, same information isolation, same 14 roles
+
+---
+
+## OpenAI Codex CLI (Pro Mode)
+
+Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with 14 independent subagents powered by o3.
+
+### Installation Steps
+
+1. Open Terminal
+2. Enter the following command:
+
+```bash
+npx skills add jasonhnd/life_OS
+```
+
+3. Done! The system auto-detects Codex and loads `pro/AGENTS.md` for orchestration
+
+### What's Different from Claude Pro Mode
+
+- Automatically uses Codex's strongest available model (no hardcoded version)
+- Follows the [AGENTS.md open standard](https://agents.md/)
+- Same workflow, same information isolation, same 14 roles
 
 ---
 
@@ -138,38 +190,6 @@ npx skills add jasonhnd/life_OS
 5. Done! Available in Copilot Chat
 
 ---
-
-## Gemini CLI
-
-[Gemini CLI](https://github.com/google-gemini/gemini-cli) is Google's command-line AI tool that supports the Agent Skills standard.
-
-### Installation Steps
-
-1. Open Terminal
-2. Enter the following command and press Enter:
-
-```bash
-npx skills add jasonhnd/life_OS
-```
-
-3. Done! Available in Gemini CLI conversations
-
----
-
-## OpenAI Codex CLI
-
-[Codex CLI](https://github.com/openai/codex) is OpenAI's command-line AI tool that supports the Agent Skills standard.
-
-### Installation Steps
-
-1. Open Terminal
-2. Enter the following command and press Enter:
-
-```bash
-npx skills add jasonhnd/life_OS
-```
-
-3. Done! Available in Codex CLI conversations
 
 ---
 
@@ -247,14 +267,14 @@ Most AI platforms support some form of custom instructions.
 
 ## Pro vs Lite Mode Comparison
 
-| | Lite | Pro (Claude Code) |
-|--|------|-------------------|
+| | Lite | Pro |
+|--|------|-----|
 | Role isolation | All roles in the same conversation, sharing context | Each role runs independently, invisible to others |
 | Chancellery review | Can see the Secretariat's reasoning (weakened independence) | Cannot see it, truly independent judgment |
 | Six Ministries execution | One after another, sequential | Simultaneous, parallel |
-| Model | Platform's current model | All roles use opus |
+| Model | Platform's current model | Each platform's strongest available model (auto-select) |
 | Installation | Upload/paste SKILL.md | One command |
-| Supported platforms | 30+ | Claude Code exclusive |
+| Supported platforms | 30+ (any AI) | Claude Code, Gemini CLI/Antigravity, Codex CLI |
 
 **Lite mode is still valuable**: Even in a single conversation, the Six Ministries analyzing from different angles, the Chancellery doing emotional review, and the Remonstrator monitoring your behavioral patterns — these mechanisms still deliver more comprehensive analysis than asking AI directly.
 
@@ -270,6 +290,32 @@ Regardless of platform, test with these messages after installation:
 | "Help me translate a paragraph of Japanese" | Prime Minister handles directly (no process initiated) |
 | "Morning court" | Morning Court Official delivers briefing |
 | "I've been feeling lost lately" | Prime Minister asks whether to activate the Hanlin Academy |
+
+---
+
+## Troubleshooting
+
+**Gemini / Antigravity stops responding in a specific project folder**
+
+This is usually caused by large files in `.claude/worktrees/` (leftover from Claude Code sessions). These worktree copies flood Gemini's context window.
+
+Fix:
+1. Delete the worktree folder: `rm -rf .claude/worktrees/`
+2. Add `.claude/worktrees/` to your `.gitignore`
+3. Restart Antigravity / Gemini CLI
+
+**Pro Mode not activating on Gemini/Codex**
+
+Ensure you installed via `npx skills add jasonhnd/life_OS` and the skill files are in the correct location:
+- Gemini CLI: `~/.gemini/skills/` or project-level `.agents/skills/`
+- Codex CLI: `~/.codex/skills/`
+- Claude Code: `~/.claude/skills/`
+
+**Context window overflow**
+
+If your project has very large files, AI platforms may silently fail. Solutions:
+- Use `.gitignore` to exclude build artifacts, `node_modules/`, and large binary files
+- For Antigravity, use the `.agignore` file (if supported) to exclude irrelevant directories
 
 ---
 
@@ -302,7 +348,10 @@ The `version` field at the top of SKILL.md shows the current version number. See
 A: Start with [Claude.ai](https://claude.ai/) (web version, free signup) and install via Project Knowledge. Simplest setup, complete experience.
 
 **Q: Can the Six Ministries run in parallel in Lite mode?**
-A: No. Parallel execution is exclusive to Pro mode (Claude Code). In Lite mode, all roles execute sequentially in one conversation.
+A: No. Parallel execution is exclusive to Pro mode (Claude Code, Gemini CLI/Antigravity, Codex CLI). In Lite mode, all roles execute sequentially in one conversation.
+
+**Q: I use both Claude Code and Antigravity. Will they conflict?**
+A: No. They use different orchestration files (`CLAUDE.md` vs `GEMINI.md`) and different agent model mappings. The same `pro/agents/*.md` files are shared. Just make sure `.claude/worktrees/` is in your `.gitignore` to prevent Antigravity from choking on Claude's temporary files.
 
 **Q: Can I use it without connecting Notion?**
 A: Yes. Notion is an optional data layer. Without it, all features work normally — you just won't have cross-session memory.

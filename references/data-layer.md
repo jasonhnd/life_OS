@@ -213,9 +213,12 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 ### Housekeeping Mode (Start of Conversation)
 
 ```
-1. Read _meta/config.md → get backend list and last sync timestamp
-2. Multi-backend sync (if multiple backends configured):
-   - Query each sync backend for changes since last_sync_time
+0. Check _meta/.lock → if exists and <2h old, warn user about concurrent session
+1. Write _meta/.lock with {platform, timestamp, session_id}
+2. Read _meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
+3. Probe each configured backend for MCP availability (mark unavailable as SKIPPED)
+4. Multi-backend sync (if multiple backends configured and available):
+   - Query each AVAILABLE sync backend for changes since this platform's last_sync_time
    - Compare, resolve conflicts (see data-model.md)
    - Apply changes to primary backend
    - Push to sync backends
@@ -236,10 +239,11 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 2. Update _meta/STATUS.md
 3. Update _meta/lint-state.md
 4. Update user-patterns.md
-5. Commit (if GitHub backend: git add + commit + push)
-6. Sync to all sync backends (write outputs + STATUS)
+5. Commit (if GitHub backend: stage only explicitly written files, commit + push. NEVER git add -A)
+6. Sync to all AVAILABLE sync backends (write outputs + STATUS)
 7. Any backend failure → log to _meta/sync-log.md, don't block
-8. Update last_sync_time in _meta/config.md
+8. Update this platform's last_sync_time in _meta/config.md
+9. Delete _meta/.lock (release session lock)
 ```
 
 ### Review Mode

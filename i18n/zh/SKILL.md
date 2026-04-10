@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.2a"
+version: "1.3.0"
 description: "三省六部制个人内阁系统。为用户提供全方位的个人事务管理，覆盖人际关系、财务、学习、执行、风险管控、健康与基建。当用户面临复杂的个人决策（职业转型、投资、创业、搬家、人生规划）、需要多角度分析、需要定期复盘、或需要系统化管理生活的某个领域时使用此 skill。触发关键词：分析、规划、多角度、审视、早朝、朝堂议政。即使用户没有提到关键词，只要任务涉及多维度思考或重大决策，也应建议使用此 skill。不用于简单问答、翻译、单步任务。"
 ---
 
@@ -251,13 +251,23 @@ Pro 模式：所有角色使用 opus 模型。
 
 ## Pro 模式
 
-在 Claude Code 中直接安装：
+Pro 模式启动 14 个独立 subagent，实现真正的信息隔离和并行执行。支持三个平台：
 
-```
-/install-skill https://github.com/jasonhnd/life_OS
-```
+| 平台 | 安装命令 | 编排文件 |
+|------|---------|---------|
+| **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` | `pro/CLAUDE.md` |
+| **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` | `pro/GEMINI.md` |
+| **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` | `pro/AGENTS.md` |
 
-安装后 14 个 subagent 自动就绪。独立进程、独立 context、可并行。详见 `pro/CLAUDE.md`。
+**平台自动检测**：系统自动选择正确的编排文件：
+
+- 检测到 Claude Code → 读取 `pro/CLAUDE.md`
+- 检测到 Gemini CLI / Antigravity → 读取 `pro/GEMINI.md`
+- 检测到 Codex CLI → 读取 `pro/AGENTS.md`
+
+各平台自动使用其最强可用模型。无硬编码模型名 — 未来模型升级无需任何改动。
+
+三个平台共享相同的 agent 定义（`pro/agents/*.md`）和全局规则（`pro/GLOBAL.md`），仅编排文件和模型/工具映射不同。
 
 ---
 
@@ -306,6 +316,6 @@ Life OS 支持多种存储后端：
 11. **六部报告必须逐个完整展示** — 每个部门完成后立刻把完整报告（含研究过程 🔎/💭/🎯）展示给用户。禁止等全部完成再汇总。禁止压缩摘要。禁止省略研究过程。硬规则。
 12. **意图澄清不可跳过** — 复杂需求上报前，丞相必须与用户对话 2-3 轮（复述理解→追问本质→确认约束），不能听完就直接上报。硬规则。
 13. **朝前准备必须展示** — 丞相第一次回话必须包含早朝官的朝前准备结果（平台/模型/版本/历史/行为档案），不能省略。硬规则。
-14. **CC 环境强制 Pro 模式** — 检测到 Claude Code 环境时，必须使用 Pro 模式（启动独立 subagent），禁止在单 context 中模拟角色。硬规则。
+14. **Pro 环境强制 Pro 模式** — 检测到 Claude Code、Gemini CLI/Antigravity 或 Codex CLI 环境时，必须使用 Pro 模式（启动独立 subagent），禁止在单 context 中模拟角色。硬规则。
 15. **会话绑定项目** — 每次会话必须确认关联的 project 或 area，后续所有读写限定在该项目范围内。不读不写其他项目数据（跨项目决策除外）。硬规则。
 16. **上朝/退朝** — "上朝"触发全量同步拉取 + 准备 + 简报。"退朝"触发全量同步推送 + 存档。所有触发词见上方触发词表（英文、中文、日文）。硬规则。

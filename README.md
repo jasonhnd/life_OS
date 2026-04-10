@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.2a-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-purple.svg)](CHANGELOG.md)
 
 Life OS turns AI into your personal imperial court — 15 roles with separation of powers and checks & balances, comprehensively managing your life, work, learning, finances, health, and relationships.
 
@@ -124,15 +124,16 @@ Life OS supports multiple AI platforms. **[View the full installation guide →]
 
 **Quick Start**:
 
-| Platform | Installation |
-|----------|-------------|
-| **Claude Code** (recommended) | `/install-skill https://github.com/jasonhnd/life_OS` |
-| **Claude.ai** | Upload `SKILL.md` to Project Knowledge |
-| **Cursor / VS Code Copilot** | `npx skills add jasonhnd/life_OS` |
-| **Gemini CLI / Codex CLI** | `npx skills add jasonhnd/life_OS` |
-| **ChatGPT / Gemini Web** | Paste `SKILL.md` content into Instructions |
+| Platform | Mode | Installation |
+|----------|------|-------------|
+| **Claude Code** | Pro | `/install-skill https://github.com/jasonhnd/life_OS` |
+| **Gemini CLI / Antigravity** | Pro | `npx skills add jasonhnd/life_OS` |
+| **OpenAI Codex CLI** | Pro | `npx skills add jasonhnd/life_OS` |
+| **Claude.ai** | Lite | Upload `SKILL.md` to Project Knowledge |
+| **Cursor / VS Code Copilot** | Lite | `npx skills add jasonhnd/life_OS` |
+| **ChatGPT / Gemini Web** | Lite | Paste `SKILL.md` content into Instructions |
 
-> Claude Code runs Pro mode (14 independent subagents with true information isolation); other platforms run Lite mode (single context). See the [installation guide](docs/installation.md) for details.
+> **Pro Mode** (Claude Code / Gemini / Codex): 14 independent subagents with true information isolation and parallel execution. **Lite Mode** (all other platforms): single context, sequential execution. See the [installation guide](docs/installation.md) for details.
 
 ## Usage
 

@@ -144,9 +144,16 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 ### Session Start (Morning Court Official Housekeeping)
 
 ```
-1. Read _meta/config.md → get backend list and last sync timestamp
-2. For each sync backend:
-   - Query "items modified since [last_sync_time]"
+0. Read _meta/config.md → get backend list and last sync timestamp
+1. Probe each configured backend for availability:
+   - GitHub: check if git repo is accessible (git status)
+   - GDrive: check if Google Drive MCP is connected (attempt list)
+   - Notion: check if Notion MCP is connected (attempt search)
+   Mark unavailable backends as SKIPPED for this session.
+   If primary is unavailable, temporarily promote the next available backend.
+   Log: "💾 Backends: GitHub ✅ | GDrive ❌ (MCP not connected) | Notion ✅"
+2. For each AVAILABLE sync backend:
+   - Query "items modified since [this platform's last_sync_time]"
    - GitHub: git log --since
    - GDrive: modifiedTime > last_sync_time
    - Notion: last_edited_time > last_sync_time
@@ -157,7 +164,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 4. Apply winning changes to primary backend
 5. Push primary state to all sync backends
 6. Update _meta/sync-log.md with sync results
-7. Update last_sync_time in _meta/config.md
+7. Update this platform's last_sync_time in _meta/config.md (do not touch other platforms' timestamps)
 ```
 
 ### Session End (Morning Court Official Wrap-up)
@@ -216,8 +223,14 @@ storage:
       role: primary
     - type: notion
       role: sync
-  last_sync: "2026-04-08T15:30:00Z"
+  sync_log:
+    - platform: claude-code
+      last_sync: "2026-04-10T15:30:00Z"
+    - platform: gemini-cli
+      last_sync: "2026-04-10T14:00:00Z"
 ```
+
+**Per-platform sync timestamps**: Each platform records its own `last_sync` time. When Gemini CLI starts a session, it reads **its own** `last_sync` and queries for changes since that time — not since Claude Code's last sync. This prevents missed changes when the user alternates between platforms.
 
 No second-brain → config stored in session context, Prime Minister asks each new session.
 
@@ -225,6 +238,7 @@ No second-brain → config stored in session context, Prime Minister asks each n
 
 ## Constraints
 
-- Only one CC session should operate the second-brain at a time
+- **Only one agent session should operate the second-brain at a time** — regardless of platform (Claude Code, Gemini CLI, Codex, Antigravity). If two sessions write to the same git repo simultaneously, merge conflicts will occur. The Morning Court Official must check for a lock before writing.
+- **Session lock mechanism**: On session start, write `_meta/.lock` with `{platform, timestamp, session_id}`. On session end, delete it. If a lock exists and is <2 hours old, warn user: "⚠️ Another session ([platform]) may still be active. Proceed anyway?" If >2 hours old, treat as stale and overwrite.
 - Mobile devices write through Notion inbox or GDrive inbox, not directly to structured data (unless using Method B full sync)
 - All adapters must support the 7 standard operations

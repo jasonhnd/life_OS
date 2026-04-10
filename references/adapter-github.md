@@ -88,4 +88,12 @@ Mark in front matter: `_deleted: true`. Do not `git rm` until user confirms acro
 
 ## Commit Convention
 
-After all writes: `git add -A && git commit -m "[life-os] {summary}" && git push`
+After all writes, stage only the files that were explicitly written during this session:
+
+```bash
+git add projects/{p}/decisions/*.md projects/{p}/tasks/*.md _meta/journal/*.md _meta/STATUS.md _meta/config.md _meta/lint-state.md user-patterns.md
+git commit -m "[life-os] {summary}"
+git push
+```
+
+**Never use `git add -A` or `git add .`** — these can accidentally commit sensitive files (.env, .claude/, credentials, temporary files). Only stage files that Life OS explicitly wrote.

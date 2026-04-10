@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.2a"
+version: "1.3.0"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -251,13 +251,23 @@ Quick mode: say "quick analysis" to skip Prime Minister and go directly to Secre
 
 ## Pro Mode
 
-Install directly in Claude Code:
+Pro Mode launches 14 independent subagents with true information isolation and parallel execution. Available on three platforms:
 
-```
-/install-skill https://github.com/jasonhnd/life_OS
-```
+| Platform | Install Command | Orchestration File |
+|----------|----------------|-------------------|
+| **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` | `pro/CLAUDE.md` |
+| **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` | `pro/GEMINI.md` |
+| **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` | `pro/AGENTS.md` |
 
-14 subagents auto-ready after installation. Independent processes, independent context, parallel execution. See `pro/CLAUDE.md`.
+**Platform Auto-Detection**: When Pro Mode is available, the system automatically selects the correct orchestration file:
+
+- Claude Code detected → read `pro/CLAUDE.md`
+- Gemini CLI / Antigravity detected → read `pro/GEMINI.md`
+- Codex CLI detected → read `pro/AGENTS.md`
+
+Each platform automatically uses its strongest available model. No hardcoded model names — future model upgrades require zero changes.
+
+All three platforms share the same agent definitions (`pro/agents/*.md`) and global rules (`pro/GLOBAL.md`). Only the orchestration file and model/tool mappings differ.
 
 ---
 
@@ -306,6 +316,6 @@ All agents follow `pro/GLOBAL.md` for universal rules: security boundaries (no d
 11. **Ministry reports must be shown individually and completely** — show each ministry's full report (including research process 🔎/💭/🎯) immediately upon completion. No batching. No summarizing. No omitting research process. HARD RULE.
 12. **Intent clarification cannot be skipped** — before escalating complex matters, Prime Minister must dialogue with user for 2-3 rounds (restate understanding → probe essence → confirm constraints). Cannot escalate immediately. HARD RULE.
 13. **Pre-court preparation must be shown** — Prime Minister's first response must include Morning Court Official's preparation results (platform/model/version/history/behavior archive). Cannot be omitted. HARD RULE.
-14. **CC environment forces Pro mode** — when Claude Code environment is detected, must use Pro mode (launch independent subagents). Single-context role simulation is prohibited. HARD RULE.
+14. **Pro environment forces Pro mode** — when Claude Code, Gemini CLI/Antigravity, or Codex CLI is detected, must use Pro mode (launch independent subagents). Single-context role simulation is prohibited. HARD RULE.
 15. **Session project binding** — each session must confirm the associated project or area. All subsequent reads/writes are scoped to that project. No reading/writing other project data (except cross-project decisions). HARD RULE.
 16. **Start Court / Adjourn Court** — "Start Court" triggers full sync pull + preparation + briefing. "Adjourn Court" triggers full sync push + archive. See Trigger Words table for all trigger words in English, Chinese, and Japanese. HARD RULE.
