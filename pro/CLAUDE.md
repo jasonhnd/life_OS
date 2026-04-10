@@ -107,15 +107,19 @@ When the Prime Minister identifies a need for abstract thinking, they **must** a
 
 ## Special Triggers
 
-**Political Affairs Hall**: When ministry conclusions show clear contradictions, launch 3 rounds of debate among the relevant ministries; the Secretariat compiles the consensus and disagreements.
+See SKILL.md Trigger Words table for the complete list in English, Chinese, and Japanese.
 
-**Morning Court**: User says "review" / "morning court" -> Launch `zaochao` (Review Mode).
+**Start Court** ("start" / "begin" / "上朝" / "开始" / "はじめる" / "開始" / "朝廷開始"): Launch `zaochao` (Start Court Mode) → full sync PULL from all backends + pre-court preparation + patrol inspection + morning briefing + await orders. This is the complete session boot sequence. HARD RULE.
 
-**Quick Mode**: User says "quick analysis" -> Skip Prime Minister intent clarification, launch the Secretariat directly.
+**Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り" / "レビュー"): Launch `zaochao` (Review Mode) → briefing only, no full sync. Faster, for mid-session check-ins.
 
-**Adjourn Court**: User says "adjourn court" -> Launch `zaochao` (Wrap-up Mode). Even if there is no Three Departments and Six Ministries workflow output, execute git push + Notion sync to ensure all changes from this session are persisted.
+**Adjourn Court** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `zaochao` (Adjourn Court Mode) → archive all outputs + full sync PUSH to all backends + confirm. HARD RULE.
 
-**/save Command**: When working in any project repo, user says `/save` -> Write files to second-brain -> git commit + push -> Sync Notion -> Return to project directory.
+**Political Affairs Hall** ("debate" / "court debate" / "朝堂议政" / "討論"): When ministry conclusions show clear contradictions, launch 3 rounds of debate; the Secretariat compiles consensus and disagreements.
+
+**Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): Skip Prime Minister intent clarification, launch the Secretariat directly.
+
+**/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
 
 ## Session Binding (HARD RULE)
 

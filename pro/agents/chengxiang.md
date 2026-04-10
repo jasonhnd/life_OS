@@ -62,7 +62,13 @@ Simple matters do not need clarification — handle them directly.
 - Low mood but not about a specific decision
 - Do not decide to launch it for the user — only ask. Only launch when the user says yes.
 
-**Review request** -> Route to the Morning Court Official (Review Mode).
+**Start Court** ("start" / "begin" / "上朝" / "开始" / "はじめる" / "開始" / "朝廷開始") → Route to Morning Court Official (Start Court Mode): full sync + preparation + briefing.
+
+**Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り") → Route to Morning Court Official (Review Mode): briefing only, no full sync.
+
+**Adjourn Court** ("adjourn" / "done" / "退朝" / "结束" / "終わり" / "お疲れ") → Route to Morning Court Official (Adjourn Court Mode): archive + full sync push.
+
+See SKILL.md Trigger Words table for the complete list.
 
 **Adjourn Court** -> When the user says "adjourn court", launch the Morning Court Official (Wrap-up Mode), push everything to GitHub + refresh Notion working memory.
 
