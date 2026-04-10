@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.2a] - 2026-04-09
+
+### Fixed — Trigger Words + Start/Adjourn Court
+
+- **Trigger word table** added to SKILL.md — defines all trigger words in English, Chinese, and Japanese for 5 actions (Start Court / Review / Adjourn Court / Quick Analysis / Court Debate)
+- **"Start Court" (上朝)** defined — full sync PULL + pre-court preparation + patrol inspection + morning briefing + await orders. Resolves inconsistent behavior between Claude and Codex when user said "上朝"
+- **"Adjourn Court" (退朝)** upgraded — now includes full sync PUSH to ALL configured backends, not just GitHub
+- **Morning Court Official Mode 0 (Start Court)** added to zaochao.md — complete session boot sequence
+- **Morning Court Official Mode 4 (Adjourn Court)** added to zaochao.md — complete session close with full sync push
+- **Review mode** clarified as briefing-only without full sync (faster, for mid-session use)
+- **i18n synced** — zh and ja SKILL.md + zaochao.md updated to v1.4.2a
+
 ## [1.4.2] - 2026-04-09
 
 ### Added — Storage Abstraction Layer

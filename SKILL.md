@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.2"
+version: "1.4.2a"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -162,16 +162,50 @@ Format: 3 rounds of debate.
 
 ---
 
-## Morning Court Official · Periodic Reviews
+## Trigger Words
 
-Triggered when user says "morning court" / "review". Supports daily/weekly/monthly/quarterly/annual reviews.
+| Action | English | 中文 | 日本語 |
+|--------|---------|------|--------|
+| **Start Court** (full sync pull + prep + briefing + await orders) | "start" / "begin" / "court begins" | "上朝" / "开始" | "はじめる" / "初める" / "開始" / "朝廷開始" |
+| **Review** (briefing only, no full sync) | "review" / "morning court" | "早朝" / "复盘" | "振り返り" / "レビュー" / "早朝" |
+| **Adjourn Court** (archive + full sync push + confirm) | "adjourn" / "done" / "end" | "退朝" / "结束" | "終わり" / "退朝" / "お疲れ" |
+| **Quick Analysis** (skip Prime Minister, go to Secretariat) | "quick" / "quick analysis" | "快速分析" / "快速" | "クイック" / "すぐ分析" |
+| **Court Debate** (multi-ministry debate) | "debate" / "court debate" | "朝堂议政" | "討論" / "朝堂議政" |
 
-Output (compressed format):
+## Start Court · Full Session Initialization
+
+Triggered when user says any Start Court trigger word. This is the **complete session boot sequence**:
+
+```
+1. Full sync PULL: query ALL configured backends for changes, compare, resolve conflicts, update primary
+2. Pre-court preparation: platform, model, version, project overview, behavior archive
+3. Patrol inspection: if lint-state >4h, run lightweight Censorate inspection
+4. Morning court briefing: all areas status + metrics dashboard + overdue tasks + pending decisions + inbox items
+5. Present everything to user: sync results + preparation + briefing
+6. "Your Majesty, the morning report is ready. What are your orders?"
+```
+
+## Adjourn Court · Full Session Wrap-up
+
+Triggered when user says any Adjourn Court trigger word. This is the **complete session close sequence**:
+
+```
+1. Archive all session outputs to primary backend (decisions, tasks, journals)
+2. Update STATUS.md + lint-state + user-patterns
+3. Full sync PUSH: write all changes to ALL configured backends
+4. Confirm: "Court adjourned. All changes committed and synced to [backend list]."
+```
+
+## Morning Court Official · Review Only
+
+Triggered when user says any Review trigger word. Produces a briefing **without full sync** (faster, for mid-session check-ins).
+
+Output:
 ```
 🌅 Morning Court Briefing · [period]
 📊 Overview: [one sentence]
 
-Area status: (report by user's 🌊 Areas in Notion; fall back to Six Ministries if no Notion)
+Area status:
 [Area name]: [status]
 ...
 
@@ -179,8 +213,6 @@ Area status: (report by user's 🌊 Areas in Notion; fall back to Six Ministries
 🟡 Current priorities: [...]
 💡 Suggestions: [...]
 ```
-
-Censorate and Remonstrator reports stored in journal.
 
 ---
 
@@ -276,4 +308,4 @@ All agents follow `pro/GLOBAL.md` for universal rules: security boundaries (no d
 13. **Pre-court preparation must be shown** — Prime Minister's first response must include Morning Court Official's preparation results (platform/model/version/history/behavior archive). Cannot be omitted. HARD RULE.
 14. **CC environment forces Pro mode** — when Claude Code environment is detected, must use Pro mode (launch independent subagents). Single-context role simulation is prohibited. HARD RULE.
 15. **Session project binding** — each session must confirm the associated project or area. All subsequent reads/writes are scoped to that project. No reading/writing other project data (except cross-project decisions). HARD RULE.
-16. **Adjourn court** — when user says "adjourn" / "退朝", Morning Court Official executes wrap-up: push all to GitHub + refresh Notion memory (status/working memory/backlog board).
+16. **Start Court / Adjourn Court** — "Start Court" triggers full sync pull + preparation + briefing. "Adjourn Court" triggers full sync push + archive. See Trigger Words table for all trigger words in English, Chinese, and Japanese. HARD RULE.
