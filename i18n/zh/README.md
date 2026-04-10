@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.2a-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-purple.svg)](CHANGELOG.md)
 
 Life OS 把 AI 变成你的私人朝廷 —— 15 个角色分权制衡，全方位管理你的生活、工作、学习、财务、健康和人际关系。
 
@@ -124,15 +124,16 @@ Life OS 支持多种 AI 平台。**[查看完整安装指南 →](docs/installat
 
 **快速开始**：
 
-| 平台 | 安装方式 |
-|------|---------|
-| **Claude Code**（推荐） | `/install-skill https://github.com/jasonhnd/life_OS` |
-| **Claude.ai** | 上传 `SKILL.md` 到 Project Knowledge |
-| **Cursor / VS Code Copilot** | `npx skills add jasonhnd/life_OS` |
-| **Gemini CLI / Codex CLI** | `npx skills add jasonhnd/life_OS` |
-| **ChatGPT / Gemini Web** | 把 `SKILL.md` 内容粘贴到 Instructions |
+| 平台 | 模式 | 安装方式 |
+|------|------|---------|
+| **Claude Code** | Pro | `/install-skill https://github.com/jasonhnd/life_OS` |
+| **Gemini CLI / Antigravity** | Pro | `npx skills add jasonhnd/life_OS` |
+| **OpenAI Codex CLI** | Pro | `npx skills add jasonhnd/life_OS` |
+| **Claude.ai** | Lite | 上传 `SKILL.md` 到 Project Knowledge |
+| **Cursor / VS Code Copilot** | Lite | `npx skills add jasonhnd/life_OS` |
+| **ChatGPT / Gemini Web** | Lite | 把 `SKILL.md` 内容粘贴到 Instructions |
 
-> Claude Code 运行 Pro 模式（14 个独立 subagent，真正信息隔离）；其他平台运行 Lite 模式（单 context）。详见[安装指南](docs/installation.md)。
+> **Pro 模式**（Claude Code / Gemini / Codex）：14 个独立 subagent，真正信息隔离，并行执行。**Lite 模式**（其他平台）：单 context，顺序执行。详见[安装指南](docs/installation.md)。
 
 ## 使用方法
 

@@ -97,3 +97,33 @@ git push
 ```
 
 **Never use `git add -A` or `git add .`** — these can accidentally commit sensitive files (.env, .claude/, credentials, temporary files). Only stage files that Life OS explicitly wrote.
+
+## Worktree Maintenance
+
+Claude Code creates temporary worktrees under `.claude/worktrees/`. These can cause problems:
+
+1. **Cross-platform interference**: Gemini / Antigravity may choke on large worktree directories flooding its context
+2. **Path breakage after repo migration**: If the repo moves (e.g., Dropbox → iCloud), worktree `.git` files point to the old path, breaking all git operations
+
+### Prevention
+
+- Add `.claude/worktrees/` to `.gitignore`
+- After finishing a Claude Code worktree session, choose **remove** (not keep)
+- Before migrating a repo to a different location, clean up first:
+
+```bash
+git worktree prune
+rm -rf .claude/worktrees/
+git config --unset core.hooksPath   # if set to the old path
+```
+
+### Recovery
+
+If git reports `fatal: not a git repository: /old/path/.git/worktrees/...`:
+
+```bash
+git worktree prune                  # clean git-level references
+rm -rf .claude/worktrees/           # remove stale worktree directories
+git config --unset core.hooksPath   # remove broken hooks path
+git config --unset extensions.worktreeConfig  # remove worktree extension flag
+```

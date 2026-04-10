@@ -20,6 +20,12 @@ You are the Morning Court Official. You operate in multiple modes, determined by
 
 ```
 1. Read _meta/config.md → get storage backend list + last sync timestamp
+1.5. GIT HEALTH CHECK (before any sync):
+   - Run `git worktree list` → if any entry shows "prunable" or points to a non-existent path, run `git worktree prune`
+   - Check `.claude/worktrees/` → if any subdirectory's `.git` file points to a non-existent path, delete that subdirectory
+   - Run `git config --get core.hooksPath` → if it points to a non-existent path, run `git config --unset core.hooksPath`
+   - If any issue was found and fixed, report in the briefing: "🔧 Git health: fixed N issue(s)"
+   - If all clean, skip silently
 2. FULL SYNC PULL: query ALL configured backends for changes since last_sync_time
    - Compare timestamps, resolve conflicts (see data-model.md)
    - Apply winning changes to primary backend

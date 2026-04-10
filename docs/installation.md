@@ -304,6 +304,18 @@ Fix:
 2. Add `.claude/worktrees/` to your `.gitignore`
 3. Restart Antigravity / Gemini CLI
 
+**Git operations fail with `fatal: not a git repository` after moving the repo**
+
+This happens when Claude Code worktree references still point to the old location. The `.claude/worktrees/` directory contains `.git` files with hardcoded absolute paths.
+
+Fix:
+1. Clean git worktree references: `git worktree prune`
+2. Delete stale worktree directories: `rm -rf .claude/worktrees/`
+3. Check for broken config: `git config --get core.hooksPath` — if it points to a non-existent path, run `git config --unset core.hooksPath`
+4. Remove worktree extension flag: `git config --unset extensions.worktreeConfig`
+
+Prevention: Before moving a repo (e.g., Dropbox → iCloud), always clean up worktrees first. After Claude Code worktree sessions, choose "remove" instead of "keep".
+
 **Pro Mode not activating on Gemini/Codex**
 
 Ensure you installed via `npx skills add jasonhnd/life_OS` and the skill files are in the correct location:
