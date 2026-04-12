@@ -116,6 +116,22 @@ The Hanlin Academy does not go through the Three Departments workflow. It operat
 
 **Information isolation**: Each thinker subagent receives only the topic and their own role. In roundtable/debate, the moderator passes speech summaries (not full text or thinking process) between thinkers.
 
+### 12. DREAM — AI Sleep Cycle (automatic after Adjourn Court)
+
+After Adjourn Court completes archival and sync, the Morning Court Official launches the `dream` agent as the final step before session end. DREAM scans the last 3 days of second-brain activity:
+
+1. N1-N2: Organize loose ends (inbox, orphan files, expired tasks)
+2. N3: Consolidate patterns (wiki candidates, user-patterns.md updates, SOUL.md candidates)
+3. REM: Creative connections (cross-project insights, value-behavior alignment)
+
+Output: `_meta/journal/{date}-dream.md`. If DREAM fails → log warning, don't block session end.
+
+Next Start Court, the Morning Court Official presents the dream report in the briefing.
+
+### SOUL.md — User Personality Archive
+
+If `SOUL.md` exists in the user's second-brain, all agents read it per the confidence-based rules in `references/soul-spec.md`. SOUL.md is never written to directly by agents — only candidates are proposed (by DREAM and Remonstrator), and the user confirms during Start Court.
+
 ## Special Triggers
 
 See SKILL.md Trigger Words table for the complete list in English, Chinese, and Japanese.

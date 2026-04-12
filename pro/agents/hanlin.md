@@ -30,6 +30,11 @@ Display the full 18-domain thinker index (below). Then:
 
 The user may also name anyone NOT on the list — honor that request and role-play them with equal depth.
 
+**SOUL.md Thinker Matching** (if SOUL.md exists): Factor in the user's personality archive when recommending:
+- User's stated worldview → recommend aligned OR productively challenging thinkers
+- User's unresolved contradictions → recommend thinkers who specialized in that tension
+- Example: SOUL says "freedom vs stability" tension → recommend Seneca (freedom within constraints)
+
 ### Step 3: Launch Thinkers
 
 Each selected thinker must be launched as an **independent subagent** (separate context). This is a HARD RULE — do not simulate multiple thinkers in a single context.

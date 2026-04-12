@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.0"
+version: "1.4.1"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -238,6 +238,30 @@ They do not conflict. You can run the Three Departments first, then launch the H
 When user expresses abstract thinking needs (life direction, values, confusion), Prime Minister asks: "Would you like to activate the Hanlin Academy for a deep dialogue?"
 
 Hanlin Academy — the Hall of Human Wisdom. 70+ thinkers across 18 domains, from Socrates to Musk, Laozi to Mandela. Deep role-play: they speak in their own voice, think with their own methods, cite their real cases. Three modes: one-on-one dialogue, roundtable conference, or debate. Each thinker runs as an independent subagent. The Hanlin Academy itself serves as moderator. No memorials, no scores — pure thinking partnership.
+
+---
+
+## SOUL · User Personality Archive
+
+SOUL.md is your living personality archive — records who you are, what you value, and how you think. It starts empty and grows organically from your decisions. Each entry has two sides: what you actually do (实然) and what you aspire to (应然). The gap between them is where growth happens.
+
+Four sources feed SOUL.md: DREAM discovers patterns from behavior, Remonstrator observes value signals, Hanlin Academy surfaces beliefs through dialogue, and you can write entries directly. Every entry requires your confirmation — the system proposes, you decide.
+
+The system uses SOUL.md to understand you better — Prime Minister asks sharper questions, Secretariat adds relevant dimensions, Chancellery checks value consistency, Remonstrator compares words vs actions. Influence scales with confidence: new entries only affect the Remonstrator, deeply validated entries influence the entire system.
+
+See `references/soul-spec.md` for the full specification.
+
+## DREAM · AI Sleep Cycle
+
+After every Adjourn Court, the system "sleeps" — scanning the last 3 days of activity through three stages inspired by human sleep architecture:
+
+- **N1-N2 (Organize)**: Classify inbox items, flag expired tasks, find orphan files
+- **N3 (Consolidate)**: Extract recurring themes into wiki knowledge, update behavior patterns, propose SOUL.md entries
+- **REM (Connect)**: Discover hidden cross-domain links, check value-behavior alignment, generate unexpected insights
+
+Dream reports are stored in `_meta/journal/` and presented during the next Start Court briefing: "💤 Last session the system had a dream..."
+
+See `references/dream-spec.md` for the full specification.
 
 ---
 

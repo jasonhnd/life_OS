@@ -20,6 +20,12 @@ model: opus
 
 ```
 1. 读取 _meta/config.md → 获取存储后端列表 + 上次同步时间戳
+1.5. GIT 健康检查（同步前）：
+   - 执行 `git worktree list` → 如有"prunable"条目或指向不存在路径，执行 `git worktree prune`
+   - 检查 `.claude/worktrees/` → 若有子目录的 `.git` 文件指向不存在路径，删除该子目录
+   - 执行 `git config --get core.hooksPath` → 若指向不存在路径，执行 `git config --unset core.hooksPath`
+   - 若发现并修复了问题，在简报中报告："🔧 Git 健康：修复 N 个问题"
+   - 全部正常则静默跳过
 2. 全量同步拉取：查询所有已配置后端自 last_sync_time 以来的变更
    - 比较时间戳，解决冲突（见 data-model.md）
    - 将胜出的变更应用到主后端
@@ -42,7 +48,11 @@ model: opus
 7. ReadProjectContext(绑定的项目)
 8. 全局概览：列出所有 Project + Area 标题 + 状态
 9. 若 lint-state >4h → 触发御史台轻量巡检
-10. 生成早朝简报：各领域状态 + 指标仪表盘 + 逾期任务 + 待决事项 + 收件箱条目
+10. 读取最新 _meta/journal/*-dream.md（如存在且尚未呈现）：
+   - 在简报中包含："💤 上次会话系统做了一个梦：[摘要]"
+   - 如有 SOUL 候选条目 → 呈现给用户确认
+   - 标记为已呈现，使其不再显示
+11. 生成早朝简报：各领域状态 + 指标仪表盘 + 逾期任务 + 待决事项 + 收件箱条目 + 梦境报告
 ```
 
 ### 输出格式（上朝）
@@ -219,9 +229,14 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 5. 更新 _meta/config.md 中的 last_sync_time
 6. 任何后端失败 → 记录，标注 ⚠️，不阻塞
 7. 确认："退朝。所有变更已提交并同步至 [后端列表]。"
+8. 启动 DREAM agent（pro/agents/dream.md）——会话结束前的最后一步
+   - DREAM 扫描过去 3 天，运行 N1-N2 / N3 / REM 阶段
+   - 梦境报告写入 _meta/journal/{date}-dream.md
+   - 如果 DREAM 失败或超时 → 记录警告到 _meta/sync-log.md，不阻塞
+   - 报告："💤 系统正在做梦……"
 ```
 
-即使没有三省六部流程产出，退朝也始终执行全量同步推送。
+即使没有三省六部流程产出，退朝也始终执行全量同步推送和 DREAM。
 
 ---
 

@@ -50,13 +50,16 @@ Mobile handles perception and capture only (occasionally lightweight association
 ```
 second-brain/
 │
+├── SOUL.md                            # 🔮 User personality archive (values, beliefs, identity — grows from zero)
+├── user-patterns.md                   # 📊 Behavioral patterns (what you DO — Remonstrator-maintained)
+│
 ├── inbox/                             # 📥 Unprocessed (mobile captures, materials, book notes, raw research)
 │
 ├── _meta/                             # 🔧 System metadata
-│   ├── STATUS.md                      # Global status dashboard (mirrored to Notion)
+│   ├── STATUS.md                      # Global status dashboard (compiled from index.md files)
 │   ├── MAP.md                         # Knowledge map (all area entry points)
 │   ├── decisions/                     # Cross-domain major decisions
-│   ├── journal/                       # Morning court briefings, Censorate/Remonstrator reports
+│   ├── journal/                       # Morning court briefings, Censorate/Remonstrator reports, DREAM reports
 │   ├── extraction-rules.md            # Knowledge extraction rules (trained by user)
 │   ├── extraction-log.md              # Extraction history
 │   ├── lint-rules.md                  # Inspection rules

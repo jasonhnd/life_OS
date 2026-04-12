@@ -50,6 +50,9 @@
 ```
 second-brain/
 │
+├── SOUL.md                            # 🔮 用户人格档案（价值观、信念、身份——从零生长）
+├── user-patterns.md                   # 📊 行为模式（你做了什么——谏官维护）
+│
 ├── inbox/                             # 📥 未处理（手机端捕获、素材、读书笔记、原始研究）
 │
 ├── _meta/                             # 🔧 系统元数据
@@ -213,20 +216,23 @@ Life OS 支持三种存储后端。用户选择 1、2 或全部 3 个。
 ### 管家模式（会话开始）
 
 ```
-1. 读取 _meta/config.md → 获取后端列表和上次同步时间戳
-2. 多后端同步（如配置了多个后端）：
-   - 查询每个同步后端自 last_sync_time 以来的变更
+0. 检查 _meta/.lock → 如存在且不足 2 小时，警告用户存在并发会话
+1. 写入 _meta/.lock，内容为 {platform, timestamp, session_id}
+2. 读取 _meta/config.md → 获取后端列表和本平台的上次同步时间戳
+3. 检测每个已配置后端的 MCP 可用性（不可用的标记为 SKIPPED）
+4. 多后端同步（如配置了多个后端且可用）：
+   - 查询每个可用同步后端自本平台 last_sync_time 以来的变更
    - 比较、解决冲突（见 data-model.md）
    - 将变更应用到主后端
    - 推送到同步后端
-3. 读取 inbox（未处理项目）— 通过主后端
-4. 读取 _meta/STATUS.md（全局状态）
-5. 读取 _meta/lint-state.md（检查是否需要巡检：距上次运行 >4 小时）
-6. ReadProjectContext（绑定项目）— 任务、决策、日志
-7. 读取 user-patterns.md
-8. 全局概览：List Project + List Area（仅标题 + 状态）
-9. 如 lint-state.md 显示 >4 小时 → 触发轻量级御史台巡检
-10. 平台感知 + 版本检查
+5. 读取 inbox（未处理项目）— 通过主后端
+6. 读取 _meta/STATUS.md（全局状态）
+7. 读取 _meta/lint-state.md（检查是否需要巡检：距上次运行 >4 小时）
+8. ReadProjectContext（绑定项目）— 任务、决策、日志
+9. 读取 user-patterns.md
+10. 全局概览：List Project + List Area（仅标题 + 状态）
+11. 如 lint-state.md 显示 >4 小时 → 触发轻量级御史台巡检
+12. 平台感知 + 版本检查
 ```
 
 ### 收尾模式（流程结束）
@@ -237,10 +243,11 @@ Life OS 支持三种存储后端。用户选择 1、2 或全部 3 个。
 3. 从所有 projects/*/index.md 编译 _meta/STATUS.md — 禁止手写项目版本到 STATUS.md
 4. 更新 _meta/lint-state.md
 4. 更新 user-patterns.md
-5. 提交（如 GitHub 后端：git add + commit + push）
-6. 同步到所有同步后端（写入输出 + STATUS）
+5. 提交（如 GitHub 后端：仅暂存明确写入的文件，commit + push。禁止 git add -A）
+6. 同步到所有可用同步后端（写入输出 + STATUS）
 7. 任何后端失败 → 记录到 _meta/sync-log.md，不阻塞
-8. 更新 _meta/config.md 中的 last_sync_time
+8. 更新 _meta/config.md 中本平台的 last_sync_time
+9. 删除 _meta/.lock（释放会话锁）
 ```
 
 ### 审查模式

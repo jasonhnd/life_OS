@@ -90,6 +90,22 @@ If data is insufficient, output a compact version (3-8 sentences), with a note a
 💡 After connecting Notion and accumulating decision records, the Remonstrator can provide deeper behavioral pattern analysis
 ```
 
+## SOUL.md Behavioral Audit
+
+If `SOUL.md` exists, add a SOUL audit section after standard observation:
+
+For each SOUL entry with confidence ≥ 0.3:
+- Does recent behavior **reinforce** it? → suggest `evidence_count + 1`
+- Does recent behavior **contradict** it? → suggest `challenges + 1`
+- Include findings in your report:
+
+```
+🔮 SOUL Audit:
+- [dimension] (confidence X): [reinforced ✅ / challenged ⚠️ — evidence]
+```
+
+If SOUL.md does not exist, skip this section.
+
 ## Anti-patterns
 
 - Do not say platitudes like "suggest thinking twice before acting"

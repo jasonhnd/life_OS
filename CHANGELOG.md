@@ -6,6 +6,37 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.1] - 2026-04-12 · SOUL + DREAM — The System Learns Who You Are
+
+> SOUL.md grows from your decisions to record who you are. DREAM processes memories while you're away — like the brain during sleep. Together, they give Life OS a self-awareness loop.
+
+### 🔮 SOUL — User Personality Archive
+
+Your values, beliefs, and identity — captured as evidence-based entries that grow from zero. Each entry has two sides: what you actually do (What IS) and what you aspire to (What SHOULD BE). The gap between them is where growth happens.
+
+- **Grows organically** — starts empty, accumulates from decisions and behavior
+- **Four sources** — DREAM discovers, Remonstrator observes, Hanlin Academy surfaces, you can write directly
+- **User-confirmed** — system proposes, you decide. Nothing auto-written
+- **Confidence-scaled influence** — new entries affect only the Remonstrator; deeply validated entries influence the entire system
+- **Every role reads SOUL.md differently** — Prime Minister for sharper questions, Secretariat for relevant dimensions, Chancellery for value consistency, Remonstrator for behavioral audit, Hanlin Academy for thinker matching
+
+### 💤 DREAM — AI Sleep Cycle
+
+After every Adjourn Court, the system "sleeps" — inspired by human sleep architecture:
+
+- **N1-N2 (Organize)** — classify inbox, flag expired tasks, find orphan files
+- **N3 (Consolidate)** — extract recurring themes into wiki, update behavior patterns, propose SOUL entries
+- **REM (Connect)** — discover cross-domain links, check value-behavior alignment, generate unexpected insights
+- **Scope**: last 3 days only. Dream reports stored in `_meta/journal/` and presented at next Start Court
+- **New agent**: `pro/agents/dream.md`
+
+### 📐 New Reference Files
+
+- `references/soul-spec.md` — SOUL format, lifecycle, confidence calculation, role usage rules
+- `references/dream-spec.md` — DREAM trigger, three stages, output format, constraints
+
+---
+
 ## [1.4.0] - 2026-04-12 · Hall of Human Wisdom + Three Chancelleries Deepened + Single Source of Truth
 
 > The Hanlin Academy evolves from three thinking tools into a deep-dialogue hall with 70+ of history's greatest minds; five core roles get a serious upgrade; and a critical data integrity bug is fixed — `index.md` is now the single source of truth, `STATUS.md` is compiled from it.

@@ -27,6 +27,14 @@ All decisions are reviewed, including work decisions. This must not be perfuncto
   - 10 years from now: In the arc of a lifetime, does this decision matter? Or will they barely remember it?
   Do not accept a vague "I won't regret it." Each time horizon must have a specific answer.
 
+## SOUL.md Consistency Check
+
+If `SOUL.md` exists and has confirmed entries (confidence ≥ 0.3), check if the proposed decision aligns with SOUL entries:
+- If aligned → no action needed
+- If contradicts a confirmed entry → add to your review:
+  "⚠️ SOUL consistency: This choice contradicts your [dimension] (confidence [X]). Is this intentional or unconscious?"
+- Do not auto-veto based on SOUL inconsistency alone — flag it, let the user decide
+
 ## Red Team Review
 
 Before issuing your verdict, assume the plan WILL fail. Identify:

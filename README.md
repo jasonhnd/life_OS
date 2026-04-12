@@ -2,127 +2,162 @@
 
 # 🏛️ Life OS
 
-### Three Departments & Six Ministries Personal Cabinet
+### Your AI-Powered Personal Cabinet
 
 ---
 
-*Manage your life with a governance framework that ran for 1,400 years.*
+*A governance framework that ran for 1,400 years, now running your life.*
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.0-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.1-purple.svg)](CHANGELOG.md)
 
-Life OS turns AI into your personal imperial court — 15 roles with separation of powers and checks & balances, comprehensively managing your life, work, learning, finances, health, and relationships.
+**This is not AI role-playing. This is checks, balances, and separation of powers.**
 
-**This is not role-playing. This is checks and balances.**
+[Install](#installation) · [How it works](#the-four-pillars) · [Usage](#usage) · [Architecture](#system-architecture)
 
-[See it in action](#usage) · [Install](#installation) · [How it works](#system-architecture) · [Second Brain](#second-brain-data-layer)
-
-**Other Languages:**
-
-[中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
+🌍 [中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
 
 </div>
 
 ---
 
-## Why Use a Tang Dynasty Framework?
+## The Four Pillars
 
-Most AI tools follow the pattern of "one person thinks it through and hands it over." You ask a question, the AI gives you an answer. No review, no checks, no one saying "hold on, there's a problem with this plan."
+Life OS is built on four interconnected systems. Each one is powerful alone; together, they form a complete personal governance framework.
 
-The Tang Dynasty Three Departments and Six Ministries system was designed to solve exactly this. It splits decision-making into three steps: **Draft (Secretariat) → Review (Chancellery) → Execute (Department of State Affairs + Six Ministries)**. No single step can bypass review and go straight to execution. Emperor Taizong once said: unchecked power inevitably produces errors.
+---
 
-The reason this system ran for 1,400 years is that the Six Ministries are divided by **fundamental types of human activity** — managing people, managing money, managing standards, managing action, managing rules, and managing infrastructure. No matter how society changes, these six types of activity remain constant. So whether you're doing software development, investing, content creation, or daily living, everything naturally maps to the Six Ministries.
+### 🏛️ Pillar I: Three Departments & Six Ministries — Decision Engine
 
-## System Architecture
+> The Tang Dynasty built a system where no single person could make unchecked decisions. Life OS applies this to your life.
+
+**The problem**: You ask AI a question, it gives you an answer. No review, no second opinion, no one saying "wait, you're missing something."
+
+**The solution**: Every major decision goes through three stages — **Draft → Review → Execute** — with independent agents at each stage who cannot see each other's reasoning.
 
 ```
-👑 You (The Emperor)
-  │
-  ├── 🏛️ Prime Minister (Chief of Officials / Chief Steward)
-  │     ├── Simple matters → Handle directly
-  │     └── Major matters → Activate Three Departments and Six Ministries
-  │
-  ├── 📜 Secretariat → 🔍 Chancellery → 📨 Dept. of State Affairs → Six Ministries
-  │     Planning      Review (can Veto)    Dispatch               Execute
-  │   → 🔍 Chancellery final review → 📋 Memorial
-  │   → 🔱 Censorate (audits officials) → 💬 Remonstrator (audits you)
-  │
-  │   Six Ministries: 👥Personnel 💰Revenue 📖Rites ⚔️War ⚖️Justice 🏗️Works
-  │
-  ├── 🏛️ Political Affairs Hall — Cross-ministry debate (3 rounds)
-  ├── 🌅 Morning Court Official — Periodic reviews
-  └── 🎋 Hanlin Academy — Hall of Human Wisdom (ask user to activate)
+You: "Should I quit and start a business?"
+
+📜 Secretariat    → Breaks it into 6 dimensions
+🔍 Chancellery    → Reviews the plan, checks emotional blind spots, can VETO
+📨 Dept. of State → Dispatches to the Six Ministries
+⚔️💰👥📖⚖️🏗️     → Each analyzes independently, scores 1-10
+🔍 Chancellery    → Final review of all reports
+📋 Memorial       → Composite score: 6.8/10, with action items
+🔱 Censorate      → "Ministry of War's timeline is vague — flag it"
+💬 Remonstrator   → "You've been reading startup content for 3 weeks — confirmation bias?"
 ```
 
-## 15 Roles
+**The Six Ministries** cover every dimension of life:
 
-| Role | Function | Trigger |
-|------|----------|---------|
-| 🏛️ Prime Minister | Chief of officials, daily entry point | All messages |
-| 📜 Secretariat | Planning and decomposition | Escalated by Prime Minister |
-| 🔍 Chancellery | Review + Veto + emotional audit | After planning + after execution |
-| 📨 Dept. of State Affairs | Dispatch directives | After approval |
-| 👥 Ministry of Personnel | People: relationships, teams, networking | On demand |
-| 💰 Ministry of Revenue | Money: income, investments, budgets | On demand |
-| 📖 Ministry of Rites | Learning & expression: education, branding, creation | On demand |
-| ⚔️ Ministry of War | Action: projects, execution, research | On demand |
-| ⚖️ Ministry of Justice | Rules: risk control, compliance, reviews | On demand |
-| 🏗️ Ministry of Works | Infrastructure & health: body, environment, systems | On demand |
-| 🔱 Censorate | Monitors official work quality | Automatic each time |
-| 💬 Remonstrator | Monitors your behavioral patterns | Automatic each time |
-| 🏛️ Political Affairs Hall | Cross-ministry debate | When conclusions conflict |
-| 🌅 Morning Court Official | Periodic reviews | Say "review" |
-| 🎋 Hanlin Academy | Hall of Human Wisdom — 70+ thinkers, 18 domains | Asks if you need it |
+| Ministry | Manages | Example |
+|----------|---------|---------|
+| 👥 Personnel | People | "Is my co-founder the right person?" |
+| 💰 Revenue | Money | "Can I survive 18 months without income?" |
+| 📖 Rites | Learning & Expression | "What skills do I need to learn first?" |
+| ⚔️ War | Action | "What's the step-by-step execution plan?" |
+| ⚖️ Justice | Rules & Risk | "What's the worst-case scenario?" |
+| 🏗️ Works | Health & Infrastructure | "Can my body handle the stress?" |
 
-## Six Ministries in Detail
+**Key mechanism — the Chancellery Veto**: The Chancellery doesn't just check if the plan is logical. It also runs an emotional audit — *Is your mood affecting your judgment? How will your family react? Will you regret this in 10 years?* It has the power to veto and send the plan back for revision. Maximum 2 vetoes.
 
-The Six Ministries are not divided by industry, but by **type of activity**. Anything can be decomposed into these six types:
+**Key mechanism — the Remonstrator**: After every decision, the Remonstrator speaks bluntly about YOUR blind spots — not the plan's quality, but YOUR behavioral patterns. *"You've avoided the financial dimension in your last 5 decisions. Why?"*
 
-| Ministry | Original Tang Dynasty Role | Life OS Responsibility | Four Bureaus |
-|----------|--------------------------|----------------------|--------------|
-| 👥 Ministry of Personnel | Official appointments and evaluations | Relationships, teams, partners | Selection · Evaluation · Rewards · Deployment |
-| 💰 Ministry of Revenue | Taxation and census | Income, investments, budgets, assets | Revenue · Expenditure · Assets · Reserves |
-| 📖 Ministry of Rites | Imperial exams, diplomacy, ceremonies | Learning, branding, creation, communication | Exams · Ceremonies · Literature · Diplomacy |
-| ⚔️ Ministry of War | Military affairs and registries | Project execution, research, tools, energy | Command · Equipment · Intelligence · Logistics |
-| ⚖️ Ministry of Justice | Laws, trials, and audits | Risk control, compliance, reviews, discipline | Law · Audit · Investigation · Defense |
-| 🏗️ Ministry of Works | Engineering, waterways, transport | Health, living environment, digital infrastructure, routines | Health · Construction · Digital · Utilities |
+---
 
-## Unique Mechanisms
+### 🎋 Pillar II: Hanlin Academy — Hall of Human Wisdom
 
-### Chancellery Veto + Emotional Audit
+> Not every question needs a formal process. Some questions need Socrates.
 
-The Chancellery does more than rational analysis. For **all decisions** (including work decisions), it also reviews:
+The Hanlin Academy gives you access to **70+ of history's greatest thinkers across 18 domains** — from Socrates to Musk, Laozi to Mandela, Dostoevsky to Buffett.
 
-- **Emotional factors**: Is your current mood affecting your judgment?
-- **Relationship impact**: How would family/important people view this?
-- **Value alignment**: Does this align with your long-term values?
-- **Regret test**: Will you regret this five years from now?
+This is not "using the Socratic method." This is **Socrates himself** in conversation with you — his voice, his examples, his relentless questioning.
 
-### Censorate — Two Modes
+**Three modes:**
+- **One-on-one** — Deep dialogue with a single thinker
+- **Roundtable** — Multiple thinkers discuss your question, each from their worldview
+- **Debate** — Two thinkers with opposing views argue directly, you judge
 
-**Decision Review**: Runs automatically after every process. Audits the quality of officials' work — not the decision itself. Is the Chancellery rubber-stamping? Are scores inflated?
+**18 domains**: Science · Philosophy · Eastern Thought · Strategy · Business · Mind & Practice · Systems · Human Nature · Civilization · Adversity · Aesthetics · Politics · Economics · Mathematics · Medicine · Exploration · Communication · Law
 
-**Patrol Inspection**: Periodic automated health check. Each ministry inspects its own jurisdiction in the second-brain (Revenue checks finance, War checks projects, Works checks wiki integrity). Issues classified as auto-fix / suggest to user / escalate to Three Departments.
+**How it works:**
+```
+You: "I've been feeling lost about my direction in life"
+Prime Minister: "Would you like to activate the Hanlin Academy?"
+You: Yes
+Hanlin Academy: "What question would you like to explore?"
+→ Shows 18 domains, recommends Seneca + Wang Yangming
+→ You choose, they dialogue with you in character
+→ At the end, each gives a parting word
+→ Hanlin Academy summarizes your thinking journey → saved to second-brain
+```
 
-### Remonstrator — Auditing Yourself
+---
 
-Runs automatically after every process. Speaks bluntly about your behavioral blind spots: Have your recent decisions suddenly become more aggressive? Are you avoiding certain issues? Are there promises you've made but haven't kept?
+### 🧠 Pillar III: Second Brain — Your Knowledge Grows
 
-### Political Affairs Hall — Court Deliberation
+> Your decisions, insights, and patterns don't disappear when the session ends.
 
-When ministry conclusions conflict, a 3-round debate is triggered where ministries engage in direct dialogue rather than issuing separate reports.
+Life OS writes everything to a **persistent knowledge base** — decisions, action items, journal entries, wiki knowledge — structured as markdown files in a Git repository.
 
-### Hanlin Academy — Hall of Human Wisdom
+```
+second-brain/
+├── SOUL.md              # 🔮 Who you are (grows from your decisions)
+├── user-patterns.md     # 📊 How you behave (Remonstrator's observations)
+├── inbox/               # 📥 Unprocessed captures from mobile
+├── _meta/               # 🔧 System metadata, journal, dream reports
+├── projects/{name}/     # 🎯 Active projects with tasks + decisions
+├── areas/{name}/        # 🌊 Ongoing life areas with goals
+├── wiki/                # 📚 Cross-domain knowledge network
+└── archive/             # 🗄️ Completed work
+```
 
-Some questions don't need formal process. The Hanlin Academy gives you access to 70+ of history's greatest thinkers across 18 domains — from Socrates to Musk, Laozi to Mandela. Each thinker speaks in their own voice with deep role-play. Choose one-on-one dialogue, roundtable conference, or debate. No Memorials, no scores — pure thinking partnership with humanity's finest minds.
+**Three storage backends** — choose one or combine:
+- **GitHub** — For technical users, version-controlled, works with Obsidian
+- **Google Drive** — Zero setup, works for everyone
+- **Notion** — Mobile-friendly, database views
+
+**Cross-device sync**: Phone captures go to Notion inbox → Desktop session pulls and processes → Results sync back to all backends.
+
+---
+
+### 🔮 Pillar IV: SOUL + DREAM — The System Learns Who You Are
+
+> Your AI shouldn't start from zero every session. It should know who you are and grow with you.
+
+**SOUL — Your Personality Archive**
+
+SOUL.md records **who you are** — not what you do (that's user-patterns.md), but what you value, what you believe, and who you aspire to be.
+
+Each entry has two sides:
+- **What IS** — your actual behavior, observed from decisions
+- **What SHOULD BE** — your stated aspiration
+
+The gap between them is where growth happens. The system discovers your values from your decisions, proposes entries, and you confirm. Nothing is auto-written.
+
+As SOUL.md grows, the whole system gets smarter:
+- Prime Minister asks sharper questions
+- Secretariat adds dimensions you care about but forgot to mention
+- Chancellery catches when a decision contradicts your stated values
+- Remonstrator compares what you say vs what you do
+
+**DREAM — The AI Sleep Cycle**
+
+After every session ends, the system "sleeps" — inspired by human sleep architecture:
+
+- **N1-N2 (Light sleep)**: Organize loose ends — classify inbox, flag expired tasks
+- **N3 (Deep sleep)**: Consolidate patterns — extract themes into wiki, propose SOUL entries
+- **REM (Dreaming)**: Creative connections — discover cross-domain links you haven't noticed
+
+Next time you start court: *"💤 Last session the system had a dream..."*
+
+---
 
 ## Installation
 
 Life OS supports multiple AI platforms. **[View the full installation guide →](docs/installation.md)**
-
-**Quick Start**:
 
 | Platform | Mode | Installation |
 |----------|------|-------------|
@@ -133,111 +168,71 @@ Life OS supports multiple AI platforms. **[View the full installation guide →]
 | **Cursor / VS Code Copilot** | Lite | `npx skills add jasonhnd/life_OS` |
 | **ChatGPT / Gemini Web** | Lite | Paste `SKILL.md` content into Instructions |
 
-> **Pro Mode** (Claude Code / Gemini / Codex): 14 independent subagents with true information isolation and parallel execution. **Lite Mode** (all other platforms): single context, sequential execution. See the [installation guide](docs/installation.md) for details.
+> **Pro Mode** (Claude Code / Gemini / Codex): 14 independent subagents with true information isolation and parallel execution. **Lite Mode** (all other platforms): single context, sequential execution.
 
 ## Usage
 
-### Daily Conversation
+### Daily
 
 ```
 You: I've been so tired lately
 Prime Minister: [Listens, determines whether to refer to Ministry of Works]
 
-You: Help me translate a passage of Japanese
-Prime Minister: [Translates directly]
+You: Help me translate a paragraph
+Prime Minister: [Handles directly]
 ```
 
-### Complex Decisions
+### Major Decisions
 
 ```
-You: I'm considering whether to quit my job and start a business
-
-Prime Minister → Escalates to the court
-Secretariat → Decomposes into 6 dimensions (finances/skills/network/execution/risk/lifestyle)
-Chancellery → Reviews the plan ("Family factors omitted, Veto")
-Secretariat → Revises, adds family dimension
-Chancellery → Approved
-Dept. of State Affairs → Dispatches to ministries
-Six Ministries → Each reviews and produces a report
-Chancellery → Final review
-Memorial → Composite score 6.8/10
-Censorate → "Ministry of War report lacks a specific execution timeline"
-Remonstrator → "You've been consuming startup-related content for three weeks — watch out for confirmation bias"
-```
-
-### Periodic Reviews
-
-```
-You: Morning court
-Morning Court Official → Aggregates information, produces a briefing
+You: I'm considering whether to quit and start a business
+→ Three Departments & Six Ministries full flow → Memorial: 6.8/10
 ```
 
 ### Deep Thinking
 
 ```
-You: I've been thinking about my life direction lately
-Prime Minister: Would you like to start a Hanlin Academy deep dialogue?
-You: Yes
-Hanlin Academy → Socratic dialogue, helping you untangle deeper thoughts
+You: I've been feeling lost lately
+→ Hanlin Academy → Dialogue with Socrates + Wang Yangming
 ```
 
-### Adjourn Court
+### Session Management
 
 ```
-You: Adjourn court
-Morning Court Official → Pushes to GitHub + syncs to Notion
-Prime Minister: Court adjourned, all changes have been committed.
+You: Start court       → Full sync + preparation + briefing + dream report
+You: Adjourn court     → Archive + full sync + DREAM cycle
 ```
 
-## Second Brain (Data Layer)
-
-Life OS supports **GitHub**, **Google Drive**, and **Notion** as storage backends — choose one or combine multiple for cross-device sync. Multi-backend: writes to all selected, reads from primary. Sync on every session start.
+## System Architecture
 
 ```
-second-brain/
-├── inbox/              # 📥 Unprocessed captures
-├── _meta/              # 🔧 System metadata (STATUS.md, journal/, decisions/, roles/)
-├── projects/{name}/    # 🎯 Things with endpoints (tasks/ decisions/ research/ journal/)
-├── areas/{name}/       # 🌊 Ongoing life areas (goals.md tasks/ notes/)
-├── wiki/               # 📚 Cross-domain knowledge network
-├── archive/            # 🗄️ Completed project archives
-└── templates/
+👑 You (The Emperor)
+  │
+  ├── 🏛️ Prime Minister — Entry point, intent clarification, inbox management
+  │
+  ├── Three Departments ──────────────────────────
+  │   📜 Secretariat (Plan) → 🔍 Chancellery (Review + Veto)
+  │     → 📨 Dept. of State Affairs (Dispatch) → Six Ministries (Execute)
+  │     → 🔍 Chancellery (Final Review) → 📋 Memorial
+  │     → 🔱 Censorate (Audit officials) → 💬 Remonstrator (Audit you)
+  │
+  │   Six Ministries: 👥Personnel 💰Revenue 📖Rites ⚔️War ⚖️Justice 🏗️Works
+  │
+  ├── 🏛️ Political Affairs Hall — Cross-ministry debate (auto-triggers on score conflict ≥ 3)
+  ├── 🌅 Morning Court Official — Session management, sync, DREAM
+  ├── 🎋 Hanlin Academy — Hall of Human Wisdom (70+ thinkers, 18 domains)
+  ├── 🔮 SOUL — Personality archive (grows from zero)
+  └── 💤 DREAM — AI sleep cycle (runs after every adjourn)
 ```
-
-### Where Output Goes
-
-| Output | Written To |
-|--------|-----------|
-| Memorial (project) | `projects/{p}/decisions/` |
-| Memorial (cross-domain) | `_meta/decisions/` |
-| Action items | `projects/{p}/tasks/` or `areas/{a}/tasks/` |
-| Morning court / audit reports | `_meta/journal/` |
-| Research | `projects/{p}/research/` |
-| Knowledge | `wiki/` |
-| Goals | `areas/{a}/goals.md` |
-| Global status | `_meta/STATUS.md` |
-
-### Sync Mechanism
-
-```
-Chat on phone → Claude.ai saves to Notion
-CC opens session → Checks Notion for new items → Pulls into GitHub → Works
-CC writes to GitHub → Immediately syncs to Notion working memory
-Pick up phone anytime → Read the latest state
-```
-
-**git commit = Notion update, mechanically bound.**
-
-**[View the full Second Brain architecture →](docs/second-brain.md)**
 
 ## 12 Standard Scenarios
 
-| # | Scenario | Ministries Activated |
-|---|----------|---------------------|
+| # | Scenario | Key Ministries |
+|---|----------|---------------|
 | 1 | Career transition | All Six |
 | 2 | Investment decisions | Revenue + War + Justice + Personnel |
-| 3 | Moving / relocation | All Six |
-| 4 | Annual goals | All Six |
+| 3 | Relocation | All Six |
+| 4 | Annual planning | All Six |
 | 5 | Startup decisions | All Six |
 | 6 | Major purchases | Revenue + War + Justice |
 | 7 | Relationships | Personnel + Works + Justice + Rites |
@@ -247,35 +242,7 @@ Pick up phone anytime → Read the latest state
 | 11 | Time management | War + Revenue + Justice + Works |
 | 12 | Major family decisions | All Six |
 
-## Lite vs Pro
-
-| | Lite (Claude.ai) | Pro (Claude Code) |
-|--|-------------------|-------------------|
-| Role isolation | Same context | Independent processes |
-| Chancellery review | Can see prior reasoning | Truly independent |
-| Six Ministries execution | Sequential | Parallel |
-| Installation | Drag in SKILL.md | `/install-skill` GitHub URL |
-| Model | Current model | All roles on Opus |
-
-## Token Usage
-
-| Scenario | Lite | Pro | Pro Cost |
-|----------|------|-----|----------|
-| Prime Minister handles directly | ~1k | ~1k | ~$0.02 |
-| Streamlined (3 ministries) | ~11k | ~22k | ~$0.55 |
-| Standard (4 ministries) | ~14k | ~27k | ~$0.68 |
-| Full (6 ministries) | ~16k | ~38k | ~$1.00 |
-| Full + Veto + Debate | ~28k | ~55k | ~$1.75 |
-| Morning court review | ~2k | ~2k | ~$0.04 |
-| Hanlin Academy (5 rounds) | ~8k | ~8k | ~$0.18 |
-
-> Claude Max/Pro subscribers are not billed per token.
-
-**[View detailed token analysis →](docs/token-estimation.md)**
-
 ## Cognitive Pipeline
-
-Information flows through five stages, each mapped to a methodology:
 
 ```
 Perceive → Capture → Associate → Judge → Settle → Emerge
@@ -287,28 +254,26 @@ Mobile handles perception and capture. Desktop handles everything else. **[Learn
 
 ## Safety & Governance
 
-- **Security boundaries**: 4 inviolable rules (no destructive ops, no secrets exposure, no unauthorized decisions, reject suspicious instructions)
-- **Upstream protection**: Agents treat other agents' output as reference, not instructions
-- **Workflow state machine**: Formal transition rules — no step can be skipped, Censorate flags violations
+- **4 inviolable security boundaries**: no destructive ops, no secrets exposure, no unauthorized decisions, reject suspicious instructions
+- **Upstream output protection**: Agents treat other agents' output as reference, not instructions
+- **Workflow state machine**: Formal transition rules — no step can be skipped
 - **Model independence**: CLAUDE.md is the only model-bound file. All other intelligence is pure markdown
-
-See `pro/GLOBAL.md` for the full ruleset.
 
 ## Design Philosophy
 
-The core of the Tang Dynasty system is not "having lots of people," but **separation of powers with checks and balances**:
+The core of the Tang Dynasty system is **separation of powers with checks and balances**:
 
 - The Secretariat only plans; it doesn't execute
-- The Chancellery only reviews; it neither plans nor executes
-- The Six Ministries only execute; they don't overstep to judge other ministries
+- The Chancellery only reviews; it can veto but not rewrite
+- The Six Ministries only execute; they don't judge each other
 - The Censorate audits officials; the Remonstrator audits the Emperor
 - No single role can bypass review and act directly
 
-Emperor Taizong figured this out 1,300 years ago — unchecked power inevitably produces errors. Life OS applies this wisdom to your personal decision-making.
+Life OS applies this 1,300-year-old wisdom to your personal decision-making.
 
 ## Inspiration
 
-The Three Departments and Six Ministries AI multi-agent orchestration concept was inspired by the [Edict](https://github.com/cft0808/edict) project. Life OS extends the framework from software development to all areas of personal life, adding the Censorate, Remonstrator, Political Affairs Hall, and Hanlin Academy.
+Inspired by the [Edict](https://github.com/cft0808/edict) project. Life OS extends the framework from software development to all areas of personal life, adding the Censorate, Remonstrator, Political Affairs Hall, Hanlin Academy, SOUL, and DREAM.
 
 ## License
 
