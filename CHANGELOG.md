@@ -2,170 +2,145 @@
 
 ## Versioning Rules
 
-This project follows **Strict SemVer**:
-
-- **MAJOR** (X.0.0) — Breaking changes that require user migration (directory restructure, config format change, etc.)
-- **MINOR** (0.X.0) — New features, backward compatible, no user action needed
-- **PATCH** (0.0.X) — Bug fixes, documentation, i18n sync, wording changes
-
-Additional rules:
-- Same-day changes are batched into a single release
-- No `a`/`b`/`rc` suffixes
-- Every release gets a git tag
+This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new features) · PATCH (fixes and maintenance). Changes on the same day are merged into a single release, and every release gets a git tag.
 
 ---
 
-## [1.4.0] - 2026-04-12
+## [1.4.0] - 2026-04-12 · Hall of Human Wisdom + Three Chancelleries Deepened
 
-### Added — Hanlin Academy: Hall of Human Wisdom
+> The Hanlin Academy evolves from three thinking tools into a deep-dialogue hall with 70+ of history's greatest minds — and five core roles across the Three Chancelleries get a serious upgrade.
 
-- **Hanlin Academy upgraded to "Hall of Human Wisdom"** — from three thinking tools to 70+ thinkers across 18 domains
-- **18 domains**: Science & Cognition, Philosophy & Reasoning, Eastern Thought, Strategy & Leadership, Business & Decision-Making, Mind & Practice, Systems & Discipline, Human Nature & Insight, Civilization & History, Adversity & Antifragility, Aesthetics & Creation, Politics & Governance, Economics & Society, Mathematics & Logic, Medicine & Life, Exploration & Adventure, Communication & Persuasion, Law & Justice
-- **Deep role-play** — each thinker speaks in their own voice, uses their own methodology, cites their real cases and works
-- **Three dialogue modes** — one-on-one, roundtable conference, or debate. Hanlin Academy serves as moderator
-- **Independent subagent architecture** — each thinker runs as a fully independent subagent with true information isolation
-- **Smart recommendations** — Hanlin Academy recommends thinkers and mode based on the user's stated purpose
-- **Session ending ritual** — each thinker gives a parting word in character → Hanlin Academy summarizes (journey, key insights, unresolved questions) → archived to second-brain
-- **Open roster** — users can name any historical figure not on the list
+### 🎋 Hanlin Academy → Hall of Human Wisdom
 
-**Chancellery (Menxia) Strengthened**
-- **10/10/10 Regret Test** — three time horizons (10 minutes / 10 months / 10 years) must each be answered separately
-- **Red Team Review** — assume the plan will fail, identify the 3 most likely failure points
-- **Structured veto format** — vetoes must include failed dimension, core problem, revision direction, and missing information
+The Hanlin Academy is no longer just "first principles + Socratic method + Occam's razor." Now you can talk life with Socrates, dissect business logic with Musk, or let Laozi and Nietzsche argue about the meaning of existence.
 
-**Political Affairs Hall (Zhengshitang) Formalized**
-- **New agent file** — `pro/agents/zhengshitang.md` with structured 3-round debate rules
-- **Quantified triggers** — auto-trigger when ministry scores differ by ≥ 3 points or conclusions directly contradict
-- **Moderated debate** — Department of State Affairs moderates; position (≤3 sentences) → rebuttal (≤5 sentences) → final statement (≤2 sentences) → verdict
+- **18 domains, 70+ thinkers** — from science to philosophy, Eastern thought to legal justice, spanning every major dimension of human civilization
+- **Deep roleplay** — not "using the Socratic method," but Socrates himself in conversation with you: his cadence, his examples, his relentless questioning
+- **Three dialogue modes** — one-on-one deep dive, roundtable (multiple thinkers each weighing in), debate (adversarial exchange)
+- **Independent subagents** — each thinker runs in its own context; the Hanlin Academy itself serves as moderator
+- **Closing ritual** — the thinker offers a parting insight → the Hanlin Academy summarizes how your thinking shifted → saved to second-brain
 
-**Department of State Affairs (Shangshu) Smart Dispatch**
-- **Dependency detection** — auto-detect inter-ministry data dependencies and arrange sequential execution (Group A → Group B)
-- **Consultation mechanism** — ministries can request specific data points from other ministries via the Department of State Affairs
+### 🔍 Chancellery — From Rubber Stamp to Real Last Line of Defense
 
-**Prime Minister (Chengxiang) Intent Clarification**
-- **Question type classification** — decision / planning / confusion / review / information, each with tailored clarification strategy
-- **Emotion separation protocol** — acknowledge emotions first, separate facts from feelings before escalating
+- **10/10/10 regret test** — you must answer separately for 10 minutes from now, 10 months, and 10 years; a vague "I won't regret it" doesn't pass
+- **Red-team review** — assume the plan will fail; surface the most fragile assumptions, the luckiest dependencies, the risks you've been quietly downplaying
+- **Structured veto format** — a veto is no longer just "not approved"; it must specify which dimension failed, what the core problem is, and exactly what to change
 
-**Remonstrator (Jianguan) Behavioral Depth**
-- **Behavioral pattern learning cycle** — new pattern discovery, pattern updates, pattern fading, written to user-patterns.md
-- **Cross-session trend analysis** — compare risk appetite, decision speed, follow-through, and focus shifts across ≥ 3 historical reports
-- **Positive reinforcement protocol** — at least 1 positive observation per 3 critiques, explicitly recognize improvements
+### 🏛️ Political Affairs Hall — From Fuzzy Triggers to Quantified Rules + Structured Debate
 
-## [1.3.1] - 2026-04-12
+- **Quantified trigger** — if two departments' scores differ by ≥ 3, or one says go and one says stop, the Political Affairs Hall convenes automatically
+- **New dedicated agent** — `zhengshitang.md`, with 3 rounds of structured debate: opening position → clash → final stance → ruling
+- **Dept. of State Affairs chairs, you decide** — debate has rules and word limits; it won't collapse into monologue
 
-### Changed — Process Visibility + Role Governance + Maintenance
+### 📨 Dept. of State Affairs — From Task Assignment to Intelligent Scheduling
 
-- **Code of Conduct #11 strengthened** — all subagent output must display complete process with mandatory emoji markers (🔎/💭/🎯/🔄/✅/⚠️). No batching, no summarizing, no omitting any step
-- **Code of Conduct #14 strengthened** — Pro environments must launch real independent subagents (separate context per role). Single-context simulation absolutely prohibited. If platform cannot launch subagents, explicitly notify user and fall back to Lite mode
-- **Code of Conduct #17 added** — only the 15 defined roles exist. Creating or referencing historical offices not in the system (通政使司, 大理寺, etc.) is prohibited
-- **Prime Minister gains inbox management** — inbox checking, triaging, and reporting added to Prime Minister's responsibilities
-- **GLOBAL.md research process upgraded** — emoji markers mandatory, must show specific URLs/file paths consulted, omitting any marker is a process violation
-- **Morning Court Official git health check** — step 1.5 added to Start Court: checks for broken worktrees, stale hooksPath, and dead references before sync
-- **adapter-github.md worktree maintenance** — prevention and recovery procedures for worktree path breakage after repo migration
-- **installation.md troubleshooting expanded** — added git fatal error after repo migration fix
-- **ko/es language support removed** — Korean and Spanish placeholders deleted, language links updated to EN/ZH/JA only
-- **Git tags cleaned** — 13 old tags removed, 5 correct Strict SemVer tags created
-- **second-brain templates standardized** — all templates now use YAML front matter matching data-model.md; added task.md and capture.md
-- **Auto-update on Start Court** — Morning Court Official now checks GitHub for newer SKILL.md version during Start Court and Housekeeping. If a newer version is found, automatically runs the platform-specific update command (Claude Code: `/install-skill`, Gemini/Codex: `npx skills add`)
-- **second-brain old directories removed** — gtd/, records/, zettelkasten/, test-results/ deleted; .gitignore updated
+- **Dependency detection** — automatically identifies cross-department dependencies like "the Ministry of Revenue's conclusion affects the Ministry of War's plan," running group A before group B
+- **Consultation mechanism** — the Ministry of War can ask "Revenue, give me one number: how much is available?" — the Dept. of State Affairs relays it without exposing the full report
 
-## [1.3.0] - 2026-04-10
+### 🏛️ Prime Minister — Intent Clarification, Now Categorized
 
-### Added — Storage Abstraction Layer + Cross-Platform Pro Mode
+- **Five-category strategy** — decision (criteria? constraints?), planning (goal? resources?), confusion (emotion? real concern?), retrospective (standard? dimensions?), information (handle directly)
+- **Emotion separation protocol** — when emotion and decision are tangled, one sentence acknowledges the feeling first, then the facts are separated out
 
-**Storage Abstraction Layer**
-- **`references/data-model.md`** — Standard data model: 6 types (Decision/Task/JournalEntry/WikiNote/Project/Area) with field definitions, 7 standard operations (Save/Update/Archive/Read/List/Search/ReadProjectContext)
-- **`references/adapter-github.md`** — GitHub backend: .md + front matter format, directory paths, query via grep/glob, change detection via git log
-- **`references/adapter-gdrive.md`** — Google Drive backend: same .md format, Google Drive MCP calls, change detection via modifiedTime
-- **`references/adapter-notion.md`** — Notion backend: standard field to Notion property mapping, Notion MCP calls, change detection via last_edited_time
-- **Multi-backend support** — Users choose 1, 2, or all 3 backends (GitHub/GDrive/Notion). Multi-backend: writes to all, reads from primary (auto: GitHub > GDrive > Notion)
-- **Cross-device sync** — Full sync on every session start: query all backends for changes since last sync, timestamp comparison, conflict resolution (last write wins, <1min = ask user)
-- **Trigger word table** — Defines all trigger words in English, Chinese, and Japanese for 5 actions (Start Court / Review / Adjourn Court / Quick Analysis / Court Debate)
-- **Start Court / Adjourn Court** — "Start Court" = full sync PULL + preparation + briefing. "Adjourn Court" = full sync PUSH + archive
+### 💬 Remonstrator — From Observation to Learning
 
-**Cross-Platform Pro Mode**
-- **`pro/GEMINI.md`** — Gemini CLI / Antigravity orchestration file. 14 subagents with full workflow state machine, information isolation, and parallel Six Ministries execution
-- **`pro/AGENTS.md`** — OpenAI Codex CLI orchestration file following the AGENTS.md open standard
-- **Platform auto-detection** — SKILL.md detects the runtime platform and loads the correct orchestration file automatically
-- **Model-agnostic mapping** — Each platform automatically uses its strongest available model. No hardcoded model names — future model upgrades require zero changes
-- **Troubleshooting guide** — Added to `docs/installation.md` covering common issues (worktree context overflow, Pro Mode not activating)
+- **Behavioral pattern learning loop** — every new pattern or pattern shift is flagged and written to user-patterns.md
+- **Cross-session trend analysis** — compares the last 3 reports: shifts in risk appetite, decision speed, follow-through, and what you're paying attention to
+- **Positive reinforcement** — not just criticism. If the last report said "be more decisive" and you were, it says so explicitly
 
-### Changed
-- **SKILL.md** — "Data Layer" → "Storage Configuration" with multi-backend table; Pro Mode section rewritten for three platforms; Code of Conduct #14 updated to "Pro environment forces Pro mode"
-- **docs/installation.md** — Restructured: Pro Mode platforms listed first, added Gemini/Codex Pro Mode sections, Troubleshooting section, updated FAQ
-- **README.md** — Installation table now shows Mode column (Pro/Lite) for each platform
+### ⚖️ System-Level
 
-### Design Principle
+- **"Two kinds of council" comparison table** — SKILL.md now includes a side-by-side: Political Affairs Hall vs Hanlin Academy — one debates "should we do this," the other explores "who are you"
+- **Prime Minister routing rule** — conflicting data goes to the Political Affairs Hall; value confusion goes to the Hanlin Academy
 
-**One set of agents, three platforms.** All 14 agent definitions (`pro/agents/*.md`) and global rules (`pro/GLOBAL.md`) are shared. Only the orchestration files differ per platform.
+---
 
-## [1.2.0] - 2026-04-08
+## [1.3.1] - 2026-04-12 · Process Must Be Visible
 
-### Added — Internationalization + Architecture Consolidation
+> Every subagent now shows its full thinking, and Pro mode is required to spin up real subagents — no more single-context simulations.
 
-- **Full English translation** — All 34 files translated to English as primary version
-- **i18n directory** — zh/ (Chinese), ja/ (Japanese) full translations
-- **Visual README redesign** — Centered header, shields.io badges, visual hierarchy
-- **pro/GLOBAL.md** — Universal rules for all agents extracted into a single source of truth: Research Process (🔎/💭/🎯), Progress Reporting (🔄/🔎/💡/✅), Upstream Output Protection, Security Boundaries (4 inviolable rules), Universal Anti-Patterns, Model Independence
-- **Workflow State Machine** — Formal state transition table in pro/CLAUDE.md defining legal and illegal jumps between workflow steps
+- **Emoji enforcement** — all subagent outputs must carry 🔎/💭/🎯 markers; omission is a violation
+- **Real subagent enforcement** — in Pro environments, each role must be an independent agent call; simulating multiple roles in one context is banned
+- **Role boundary lock** — HARD RULE #17: only the 15 defined roles exist; inventing officials like the Bureau of Transmission or Court of Judicial Review is forbidden
+- **Inbox goes to Prime Minister** — the Prime Minister now officially owns inbox management
+- **Morning Court auto-update** — the Morning Court Official checks the GitHub version on startup and runs platform update commands if a newer version is found
+- **Git health check** — checks for worktree remnants and broken hooksPath before court opens
+- **ko/es removed** — Korean and Spanish placeholders deleted; EN/ZH/JA only
+- **Tag cleanup** — 13 old tags consolidated into 5 correct Strict SemVer tags
+- **Second-brain tidy** — templates filled in with proper front matter; legacy directories (gtd/records/zettelkasten) removed
 
-### Changed
-- **14 agent files simplified** — Each agent now references pro/GLOBAL.md. Average 30% reduction per file
-- **Cognitive pipeline model** — Five-stage information flow: Perceive→Capture→Associate→Judge→Settle→Emerge
-- **Censorate patrol inspection mode** — New second operating mode alongside decision review. Three trigger levels: startup (>4h idle), post-sync, deep (weekly/manual)
-- **Knowledge extraction mechanism** — Four-step training: user decides → accumulate samples → LLM induces rules → periodic correction
-- **Model independence declaration** — CLAUDE.md is the only model-bound file. All other intelligence is pure markdown
+---
 
-### 🔴 Breaking Change — Second Brain Directory Restructure
+## [1.3.0] - 2026-04-10 · Three-Platform Pro Mode + Storage Abstraction Layer
 
-- `zettelkasten/` → `wiki/` — Simpler naming
-- `records/journal/` → `_meta/journal/` — System logs move to _meta
-- Added `_meta/` system metadata layer (STATUS.md, MAP.md, roles/, extraction and lint rules)
-- Removed `records/` and `gtd/` directories
+> Life OS expands from Claude Code-only to a full three-platform Pro Mode across Claude + Gemini + Codex — and storage moves from Notion hardcoding to a pluggable three-backend architecture.
 
-## [1.1.1] - 2026-04-05
+### Storage Abstraction Layer
 
-### Changed — Data Layer Architecture + Session Binding
+One standard data model (6 types, 7 operations), three optional backends (GitHub / Google Drive / Notion) — load whichever adapter you choose. Multiple backends sync automatically; conflicts resolve by last-write-wins or user prompt.
 
-- **GitHub second-brain replaces Notion as primary data store** — Notion downgraded to "working memory" (mobile sync)
-- **GitHub second-brain directory structure** — Fusion of GTD + PARA + Zettelkasten methodologies
-- **Morning Court Official three operating modes** — Housekeeping (auto-start), Review (user-triggered), Wrap-up (post-workflow)
-- **Session-level project binding** — Each session confirms associated project/area; all reads/writes scoped to that project
-- **Adjourn Court command** — Wrap-up: push to GitHub + refresh Notion memory
-- **CC environment enforces Pro mode** — Hard rule: Claude Code detected → must use independent subagents
-- **Sync mechanism** — git commit = Notion update, mechanically bound
-- **/save command** — Save ideas to second-brain while working in any project repo
+### Cross-Platform Pro Mode
 
-## [1.1.0] - 2026-04-04
+All 14 agent definitions are shared; orchestration files split by platform: `CLAUDE.md` (Claude Code), `GEMINI.md` (Gemini CLI / Antigravity), `AGENTS.md` (Codex CLI). Each platform automatically uses its strongest model — no hardcoding.
 
-### Added — Documentation + Research Process + Memory Layer
+### Trigger Word Standardization
 
-- **Multi-platform installation guide** (`docs/installation.md`) — Steps for Claude Code, Claude.ai, Cursor, Gemini CLI, Codex CLI, ChatGPT, Gemini Web
-- **Second Brain setup guide** (`docs/second-brain.md`) — Notion database creation tutorial
-- **Token consumption breakdown** (`docs/token-estimation.md`) — 8 scenarios, monthly cost estimates
-- **Eval system** (`evals/`) — 3 test scenarios, scoring criteria, automation script
-- **Notion database schema** (`references/notion-schema.md`) — Complete field definitions
-- **All 14 agents gain research process display** — 🔎 What I'm researching / 💭 What I'm thinking / 🎯 My judgment
-- **Remonstrator 21 observation capabilities** — Cognitive bias scanning (7), Emotion detection (3), Behavioral tracking (7), Decision quality signals (7), Positive signals (1)
-- **Prime Minister three thinking tools** — First Principles, Socratic Questioning, Occam's Razor
-- **Prime Minister intent clarification flow** — 2-3 rounds of dialogue before escalation
-- **Prime Minister memory layer** — Auto-queries 3 Notion sources before escalation
-- **Morning court metrics dashboard** — 7 metrics: DTR, ACR, OFR + 4 weekly metrics
-- **user-patterns.md long-term memory mechanism** — Behavioral pattern profiles
-- **10 + 2 standard scenario configurations** — Time management, major family decisions added
-- **SKILL.md behavioral rules #9-#13** — Hard rules for intent clarification, pre-court prep, report display
+English / Chinese / Japanese trigger words formally defined, resolving behavioral inconsistencies between Claude and Codex on commands like "open court."
 
-### Changed
-- **Agent prompts streamlined** — Kept skeleton, removed scaffolding
-- **Orchestrator → Prime Minister** — Renamed across entire repository
-- **SKILL.md opening hard directive** — "From the first message you are the Prime Minister"
+---
 
-## [1.0.0] - 2026-04-03
+## [1.2.0] - 2026-04-08 · Internationalization + Architecture Consolidation
 
-### Added — Initial Release
+> All 34 files translated into English as the primary version, with complete Chinese and Japanese translations — alongside a significant architectural consolidation.
 
-- 15 roles: Prime Minister + Three Departments + Six Ministries + Censorate + Remonstrator + Political Affairs Hall + Morning Court Official + Hanlin Academy
+### Internationalization
+
+English is now the canonical version; Chinese and Japanese ship as i18n translations. The README is redesigned with shields.io badges and visual hierarchy.
+
+### Architecture Consolidation
+
+- **pro/GLOBAL.md** — shared rules across all 14 agents extracted into a single authoritative source; each agent file trimmed by ~30%
+- **Cognitive pipeline** — five-stage information flow: perceive → capture → associate → judge → distill → emerge
+- **Censorate audit mode** — a second operating mode beyond decision review: each ministry audits its own territory in the second-brain
+- **Four-step knowledge extraction training** — user decides → accumulates examples → LLM distills rules → periodic correction
+
+### 🔴 Breaking Change
+
+Second-brain directory restructured: `zettelkasten/` → `wiki/`, `records/` → `_meta/journal/`, new `_meta/` system metadata layer added.
+
+---
+
+## [1.1.1] - 2026-04-05 · Data Layer Shift
+
+> GitHub second-brain replaces Notion as the primary database; Notion steps down to mobile working memory.
+
+- **GitHub as primary store** — .md + front matter, merging GTD + PARA + Zettelkasten
+- **Morning Court Official three modes** — housekeeping (automatic), review (user-triggered), wrap-up (post-session)
+- **Session binding** — each session locks to one project/area; all reads and writes stay in scope
+- **Adjourn command** — pushes to GitHub + refreshes Notion
+- **CC enforces Pro** — detecting Claude Code triggers mandatory independent subagent launch
+
+---
+
+## [1.1.0] - 2026-04-04 · Docs + Research Visibility + Memory Layer
+
+> A complete documentation system goes live, every agent gains a visible research process, and the Prime Minister gets a memory layer and thinking tools.
+
+- **Multi-platform install guide** — detailed steps for 7 platforms
+- **All 14 agents gain 🔎/💭/🎯 research process display**
+- **Remonstrator: 21 observation capabilities** — cognitive bias detection, emotional sensing, behavior tracking, decision quality assessment
+- **Prime Minister intent clarification** — 2-3 rounds of dialogue before escalating; no more direct forwarding
+- **Morning Court dashboard** — DTR / ACR / OFR + 4 weekly indicators
+- **12 standard scene configs** — covering career, investment, relocation, entrepreneurship, and other major decision scenarios
+
+---
+
+## [1.0.0] - 2026-04-03 · Initial Release
+
+> The Three Chancelleries and Six Ministries personal cabinet system launches. 15 roles. Checks, balances, and separation of powers.
+
+- 15 roles: Prime Minister + Three Chancelleries + Six Ministries + Censorate + Remonstrator + Political Affairs Hall + Morning Court Official + Hanlin Academy
 - Lite mode (single context) + Pro mode (14 independent subagents)
-- 10 standard scenario configurations
-- Six Ministries × Four Bureaus detailed functional definitions
+- 10 standard scene configurations
+- Six Ministries × Four Bureaus detailed function definitions
 - Apache-2.0 License
