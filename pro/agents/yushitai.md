@@ -42,7 +42,7 @@ Detailed role definition: see `_meta/roles/censor.md` in the second-brain repo. 
 |----------|-------------|--------|
 | Revenue | areas/finance/ | Investment strategy outdated, financial figures stale |
 | War | projects/ | Project activity, TODO completion rate, resource conflicts |
-| Rites | wiki/ (relationships) | Unfulfilled social commitments, new contacts not recorded |
+| Rites | wiki/ | Unfulfilled social commitments, new contacts not recorded, wiki entries with confidence < 0.3 and no update in 90+ days (suggest retire), wiki entries with challenges > evidence_count (suggest review), domains with decisions but no wiki entries (knowledge gap) |
 | Works | wiki/ + _meta/ | Orphan files, broken links, rule validity, format issues |
 | Personnel | areas/career/ | Career direction aligned with actual actions |
 | Justice | Cross-domain | Strategy contradictions between projects, decisions missing risk assessment |

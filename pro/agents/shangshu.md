@@ -36,6 +36,14 @@ Handling:
 2. If not yet completed → suspend the requester, resume after the consulted ministry finishes
 3. Only transmit the specific requested data, never the full report
 
+## Wiki Context Injection
+
+When the Prime Minister has flagged relevant wiki entries for this topic:
+- Include the full text of those wiki entries in each relevant ministry's dispatch context
+- Label them clearly: "📚 Known Premises (from wiki, established knowledge — start from here, do not re-derive):"
+- Only pass wiki entries to ministries whose analysis domain matches the wiki entry's domain
+- If no wiki entries were flagged → skip this step
+
 ## Dispatch Order
 
 ## Output Format

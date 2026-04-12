@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.2-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.3-purple.svg)](CHANGELOG.md)
 
 **这不是 AI 角色扮演，这是权力的制衡与分立。**
 
@@ -110,7 +110,7 @@ second-brain/
 ├── _meta/               # 🔧 系统元数据、日记、梦境报告
 ├── projects/{name}/     # 🎯 进行中的项目，含任务与决策
 ├── areas/{name}/        # 🌊 持续管理的生活领域与目标
-├── wiki/                # 📚 跨领域知识网络
+├── wiki/                # 📚 知识档案——可复用的结论（从 DREAM 成长）
 └── archive/             # 🗄️ 已完成的内容归档
 ```
 
@@ -150,7 +150,7 @@ SOUL.md 记录的是**你是谁**——不是你做了什么（那是 user-patte
 每次会话结束后，系统会进入"睡眠"——灵感来自人类的睡眠结构：
 
 - **N1-N2（浅睡）**：整理散落信息——对收件箱分类，标记过期任务
-- **N3（深睡）**：巩固规律——从模式中提炼主题写入 Wiki，提议新的 SOUL 条目
+- **N3（深睡）**：固化——提取 SOUL 候选（关于你）和 Wiki 候选（关于世界的可复用知识）
 - **REM（做梦）**：创意连接——发现你还未察觉的跨领域关联
 
 下次开朝时：*"💤 上次会话期间，系统做了一个梦……"*
@@ -247,9 +247,9 @@ Life OS 支持多个 AI 平台。**[查看完整安装指南 →](../../docs/ins
 ## 认知流水线
 
 ```
-感知 → 捕获 → 关联 → 判断 → 沉淀 → 涌现
- ↑      ↑       ↑       ↑      ↑       ↑
-手机   GTD   卡片盒   三省六部  PARA  审计/御史台
+感知 → 捕获 → 判断 → 沉淀 → 关联 → 涌现
+ ↑      ↑      ↑     ↓   ↘      ↑        ↑
+手机   GTD   三省六部 SOUL Wiki  丞相+Wiki DREAM REM
 ```
 
 手机负责感知与捕获，桌面端负责其余一切。**[了解更多 →](../../references/data-layer.md)**

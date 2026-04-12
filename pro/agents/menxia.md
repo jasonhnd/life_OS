@@ -35,6 +35,17 @@ If `SOUL.md` exists and has confirmed entries (confidence ≥ 0.3), check if the
   "⚠️ SOUL consistency: This choice contradicts your [dimension] (confidence [X]). Is this intentional or unconscious?"
 - Do not auto-veto based on SOUL inconsistency alone — flag it, let the user decide
 
+## Wiki Consistency Check
+
+If `wiki/INDEX.md` exists and has entries with confidence ≥ 0.7, check if the proposed decision's conclusions contradict any established wiki knowledge:
+- If aligned → no action needed
+- If contradicts a wiki entry → add to your review:
+  "⚠️ Wiki consistency: This conclusion contradicts established knowledge:
+   [wiki entry title] (confidence [X]) at wiki/[path].
+   Either this analysis needs revision, or the wiki entry needs updating."
+- Do not auto-veto based on wiki inconsistency alone — flag it for review
+- If the new analysis is correct and the wiki is outdated → note "📚 suggest wiki revision" in your verdict
+
 ## Red Team Review
 
 Before issuing your verdict, assume the plan WILL fail. Identify:

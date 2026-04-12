@@ -121,12 +121,18 @@ The Hanlin Academy does not go through the Three Departments workflow. It operat
 After Adjourn Court completes archival and sync, the Morning Court Official launches the `dream` agent as the final step before session end. DREAM scans the last 3 days of second-brain activity:
 
 1. N1-N2: Organize loose ends (inbox, orphan files, expired tasks)
-2. N3: Consolidate patterns (wiki candidates, user-patterns.md updates, SOUL.md candidates)
+2. N3: Consolidate — extract SOUL.md candidates (about the person) AND Wiki candidates (about the world — reusable conclusions). Update user-patterns.md.
 3. REM: Creative connections (cross-project insights, value-behavior alignment)
 
 Output: `_meta/journal/{date}-dream.md`. If DREAM fails → log warning, don't block session end.
 
 Next Start Court, the Morning Court Official presents the dream report in the briefing.
+
+### Wiki — Knowledge Archive
+
+If `wiki/` exists in the user's second-brain, the Morning Court Official compiles `wiki/INDEX.md` at every Start Court. The Prime Minister reads the index and informs the user when established knowledge exists for the current topic. The Dept. of State Affairs passes relevant wiki entries to ministries as "known premises." The Chancellery checks new conclusions against wiki for contradictions. The Censorate audits wiki health during patrol inspection.
+
+Wiki entries are never auto-created — DREAM proposes candidates during N3, the user confirms during Start Court. See `references/wiki-spec.md` for the full specification.
 
 ### SOUL.md — User Personality Archive
 

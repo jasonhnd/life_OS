@@ -55,9 +55,13 @@ DREAM 运行三个阶段
 
 **人类等效**：深度睡眠——重要记忆从短期转移到长期存储。
 
+N3 提出两个问题：
+- **Q1（关于人）**：本次 session 有没有关于用户本人的新发现？→ SOUL 候选
+- **Q2（关于事）**：本次 session 有没有下次遇到同类问题可以直接复用的结论？→ Wiki 候选
+
 从最近 3 天提取更深层的模式：
-- 跨决策的反复主题 → 提议创建 wiki 文章
-- 被提及 3 次以上但无 wiki 条目的概念 → 建议创建
+- 决策中的可复用结论 → 提出 wiki 候选（见下方 Wiki 候选格式）
+- 扫描 wiki/INDEX.md（若存在）：新证据支持已有条目 → 提出 evidence_count 更新；新证据反驳已有条目 → 提出 challenges 更新
 - 需根据新证据更新的 `user-patterns.md` 条目 → 提议变更
 - **SOUL.md 候选条目** → 提议新条目或更新现有条目（见下方 SOUL 候选格式）
 
@@ -96,6 +100,34 @@ DREAM 运行三个阶段
 
 ---
 
+## Wiki 候选格式
+
+当 DREAM 发现值得记录到 wiki/ 的可复用结论：
+
+```
+📚 Wiki 候选：
+- Domain: [领域名]
+- Topic: [简短标识]
+- Conclusion: [一句话——可复用的结论]
+- Evidence:
+  - [日期] [决策/行为] — [描述]
+  - [日期] [决策/行为] — [描述]
+- Applicable when: [在什么场景下应想起这条]
+```
+
+对于已有 wiki 条目，提议更新：
+
+```
+📚 Wiki 更新：
+- Entry: wiki/[domain]/[file].md
+- Change: evidence_count +1（或 challenges +1）
+- New evidence: [日期] [发生了什么]
+```
+
+用户将在下次上朝时确认、编辑或拒绝。
+
+---
+
 ## 输出格式
 
 写入 `_meta/journal/{date}-dream.md`：
@@ -108,6 +140,7 @@ date: YYYY-MM-DD
 scope_files: N
 stages: [N1-N2, N3, REM]
 soul_candidates: N
+wiki_candidates: N
 ---
 ```
 
@@ -125,6 +158,9 @@ soul_candidates: N
 
 ### 🌱 SOUL Candidates
 - [提议的条目，如有——或"无新候选条目"]
+
+### 📚 Wiki Candidates
+- [提议的条目或更新，如有——或"无新知识候选"]
 
 ### 📋 Suggested Actions
 - [具体行动，供用户在下次上朝时审阅]
@@ -150,6 +186,7 @@ soul_candidates: N
 
 - **3 天范围是硬性限制** — 不扫描更早的文件，即使它们看起来相关
 - **不直接修改 SOUL.md** — 只提议候选条目
+- **不直接修改 wiki/** — 只提议候选和更新
 - **不直接修改 user-patterns.md** — 只提议更新
 - **简洁** — 梦境报告应为 20-50 行，而非 500 行
 - **诚实** — "无重大发现"是一个有效的梦境。不要捏造洞见

@@ -21,23 +21,23 @@ All agents refer to this file when reading or writing data.
 Information flows through five stages, each mapped to a methodology:
 
 ```
-Perceive → Capture → Associate → Judge → Settle → Emerge
-   ↑         ↑          ↑          ↑        ↑         ↑
- Phone      GTD      Zettelkasten  3D6M    PARA    Lint/Censorate
- Experience  inbox/    wiki/      Desktop   dirs    health check
+Perceive → Capture → Judge → Settle → Associate → Emerge
+   ↑         ↑        ↑      ↓   ↘        ↑          ↑
+ Phone      GTD      3D6M  SOUL  Wiki   Prime+Wiki  DREAM REM
+ Experience  inbox/  Desktop (person)(knowledge) INDEX match  cross-domain
 ```
 
 ### Stage Details
 
 **Perceive → Capture (GTD)**: Zero-friction capture on mobile. User says something, phone AI saves to inbox. No classification at this stage — inbox is the GTD collection basket.
 
-**Capture → Associate (Zettelkasten)**: Desktop CC pulls from inbox, first step is building associations — what existing wiki articles relate? What entities mentioned? What relationships between entities? Build backlink network with wikilinks.
+**Capture → Judge (Three Departments)**: Desktop CC pulls from inbox. Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Three Departments decision mode.
 
-**Associate → Judge (Three Departments)**: Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Three Departments decision mode.
+**Judge → Settle (SOUL + Wiki)**: Conclusions from decisions settle into two pools — SOUL (about the person: values, personality, behavioral patterns) and Wiki (about the world: reusable knowledge, established conclusions). DREAM extracts candidates for both during N3; user confirms at next Start Court.
 
-**Judge → Settle (PARA)**: Conclusions from decisions stored per PARA — Projects (things with endpoints), Areas (ongoing domains), Wiki (cross-domain knowledge), Archive (completed).
+**Settle → Associate (Prime Minister + Wiki INDEX)**: The Prime Minister reads wiki/INDEX.md at session start. When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain." This turns accumulated knowledge into active context.
 
-**Settle → Emerge (Lint/Censorate)**: When knowledge network density reaches critical mass, emergence happens automatically. Lint scans discover cross-domain associations, suggest new concept articles, find contradictions.
+**Associate → Emerge (DREAM REM)**: When wiki entries accumulate across domains, DREAM's REM stage discovers cross-domain connections — insights that surprise the user. The more knowledge settles, the more emergence happens. Censorate patrol also detects wiki contradictions and knowledge gaps.
 
 ### Mobile vs Desktop Division
 
@@ -147,7 +147,7 @@ When idle, each ministry inspects its own jurisdiction. Defined in `_meta/roles/
 |----------|-------------|--------|
 | Revenue | areas/finance/ | Investment strategy outdated, financial figures need updating |
 | War | projects/ | Project activity, TODO completion, resource conflicts |
-| Rites | wiki/ (relationships) | Unfulfilled social commitments, new contacts to record |
+| Rites | wiki/ | Unfulfilled social commitments, new contacts to record, wiki entries with confidence < 0.3 and no update in 90+ days (suggest retire), wiki entries with challenges > evidence_count (suggest review), domains with decisions but no wiki entries (knowledge gap) |
 | Works | wiki/ + _meta/ | Orphan files, broken links, rule validity |
 | Personnel | areas/career/ | Career direction aligned with actions |
 | Justice | Cross-domain | Strategy contradictions between projects, decisions missing risk assessment |

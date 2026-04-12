@@ -6,6 +6,45 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.3] - 2026-04-13 · Wiki Activation — Knowledge Pipeline Comes Alive
+
+> The cognitive pipeline's "settle → emerge" stages finally work. Wiki goes from an empty directory to an active knowledge participant.
+
+### 📚 Wiki Specification (`references/wiki-spec.md`)
+
+Wiki was designed into the second-brain but never plugged into any workflow — no agent wrote to it, no agent read it. Now it has all four elements:
+
+- **Who writes**: DREAM proposes wiki candidates during N3 (alongside SOUL candidates)
+- **When written**: After every Adjourn Court, confirmed by user at next Start Court
+- **Who reads**: Prime Minister reads wiki/INDEX.md, Chancellery checks consistency, Censorate audits health
+- **When read**: Every session start, every decision review, every patrol inspection
+
+### 🔍 Prime Minister Knowledge Matching
+
+The Prime Minister now scans wiki/INDEX.md before routing. If high-confidence entries exist for the current domain: "📚 We already have N established conclusions here. Start from known knowledge, or research from scratch?" — skips redundant analysis when user agrees.
+
+### ⚖️ Chancellery Wiki Consistency Check
+
+The Chancellery now checks new conclusions against established wiki entries. If a contradiction is detected: "⚠️ This contradicts [wiki entry] (confidence X)." Either the analysis needs revision, or the wiki needs updating.
+
+### 🔱 Censorate Wiki Health Audit
+
+Patrol inspection now covers wiki health: entries with confidence < 0.3 and no update in 90+ days (suggest retire), entries with challenges > evidence (suggest review), domains with decisions but no wiki entries (knowledge gap).
+
+### 📨 Dept. of State Affairs Wiki Context
+
+When the Prime Minister flags relevant wiki entries, the Dept. of State Affairs includes them in dispatch: "📚 Known Premises — start from here, do not re-derive."
+
+### 🧠 Cognitive Pipeline Reordered
+
+The pipeline now reflects actual information flow: `Perceive → Capture → Judge → Settle → Associate → Emerge`. Settle splits into SOUL (person) and Wiki (knowledge). Associate happens when the Prime Minister matches new requests against wiki. Emerge happens when DREAM's REM stage finds cross-domain connections.
+
+### Design Principle
+
+No new agents, no new flows. Wiki plugged into existing rhythms: DREAM writes → Morning Court Official compiles INDEX → Prime Minister reads → Chancellery checks → Censorate audits.
+
+---
+
 ## [1.4.2] - 2026-04-12 · Outbox — Parallel Sessions Without Conflicts
 
 > Multiple sessions can now work on different projects simultaneously. No git conflicts, no locks. Each session writes to its own outbox on adjourn; the next session to start court merges everything.

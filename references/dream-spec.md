@@ -55,9 +55,13 @@ For each finding, classify:
 
 **Human equivalent**: Deep sleep — important memories move from short-term to long-term storage.
 
+N3 asks two questions:
+- **Q1 (about the person)**: Did this session reveal anything new about the user? → SOUL candidates
+- **Q2 (about the world)**: Did this session produce any reusable conclusions for next time? → Wiki candidates
+
 From the recent 3 days, extract deeper patterns:
-- Recurring themes across decisions → propose wiki article creation
-- Concepts mentioned 3+ times without a wiki entry → suggest creation
+- Reusable conclusions from decisions → propose wiki candidates (see Wiki Candidate format below)
+- Scan wiki/INDEX.md (if exists): new evidence supporting existing entries → propose evidence_count update; new evidence contradicting existing entries → propose challenges update
 - `user-patterns.md` entries that need updating based on new evidence → propose changes
 - **SOUL.md candidate entries** → propose new entries or updates to existing ones (see SOUL Candidate format below)
 
@@ -96,6 +100,34 @@ The user will confirm, edit, or reject during the next Start Court.
 
 ---
 
+## Wiki Candidate Format
+
+When DREAM discovers a reusable conclusion worth recording in wiki/:
+
+```
+📚 Wiki Candidate:
+- Domain: [domain name]
+- Topic: [short identifier]
+- Conclusion: [one sentence — the reusable takeaway]
+- Evidence:
+  - [date] [decision/behavior] — [description]
+  - [date] [decision/behavior] — [description]
+- Applicable when: [in what scenarios to recall this]
+```
+
+For existing wiki entries, propose updates:
+
+```
+📚 Wiki Update:
+- Entry: wiki/[domain]/[file].md
+- Change: evidence_count +1 (or challenges +1)
+- New evidence: [date] [what happened]
+```
+
+The user will confirm, edit, or reject during the next Start Court.
+
+---
+
 ## Output Format
 
 Written to `_meta/journal/{date}-dream.md`:
@@ -108,6 +140,7 @@ date: YYYY-MM-DD
 scope_files: N
 stages: [N1-N2, N3, REM]
 soul_candidates: N
+wiki_candidates: N
 ---
 ```
 
@@ -125,6 +158,9 @@ soul_candidates: N
 
 ### 🌱 SOUL Candidates
 - [proposed entries, if any — or "No new candidates"]
+
+### 📚 Wiki Candidates
+- [proposed entries or updates, if any — or "No new knowledge candidates"]
 
 ### 📋 Suggested Actions
 - [concrete actions for user to review at next Start Court]
@@ -150,6 +186,7 @@ After presenting, mark the dream report as "presented" so it is not shown again.
 
 - **3-day scope is hard** — do not scan older files, even if they seem relevant
 - **Do not modify SOUL.md directly** — only propose candidates
+- **Do not modify wiki/ directly** — only propose candidates and updates
 - **Do not modify user-patterns.md directly** — only propose updates
 - **Conciseness** — a dream report should be 20-50 lines, not 500
 - **Honesty** — "no significant findings" is a valid dream. Do not fabricate insights.

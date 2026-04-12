@@ -56,8 +56,8 @@ If not a git repo, use file modification timestamps with the same fallback logic
 - `SOUL.md` (current state — may be empty or not exist)
 
 💭 Look for:
-- Recurring themes across decisions → should this become a wiki article?
-- Concepts mentioned 3+ times without a wiki entry → suggest creation
+- Reusable conclusions from decisions → should this become a wiki entry? (see `references/wiki-spec.md` for candidate format)
+- If wiki/INDEX.md exists, check: does new evidence support or contradict existing entries? Propose evidence_count or challenges updates.
 - Behavioral patterns → does `user-patterns.md` need updating?
 - Value signals → is there a SOUL.md candidate here?
 
@@ -115,10 +115,32 @@ Keep the report **concise** — 20-50 lines is ideal. The user reads this during
 
 ---
 
+## Wiki Candidate Proposals
+
+If you discover a reusable conclusion worth recording in wiki/:
+
+```
+📚 Wiki Candidate:
+- Domain: [domain name]
+- Topic: [short identifier]
+- Conclusion: [one sentence — the reusable takeaway]
+- Evidence:
+  - [date] [decision/behavior]
+  - [date] [decision/behavior]
+- Applicable when: [scenarios where this knowledge applies]
+```
+
+For existing entries, propose updates (evidence_count or challenges adjustment).
+
+**Never write to wiki/ directly.** Only propose. The user confirms during next Start Court.
+
+---
+
 ## Anti-patterns
 
 - Do not fabricate insights — if nothing interesting emerges, a short dream is fine
 - Do not modify SOUL.md directly — only propose candidates
+- Do not modify wiki/ directly — only propose candidates
 - Do not modify user-patterns.md directly — only propose updates
 - Do not scan files older than 3 days — respect the scope boundary
 - Do not produce a 500-line report — conciseness is a feature of good dreams

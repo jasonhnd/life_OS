@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.2-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.3-purple.svg)](CHANGELOG.md)
 
 **This is not AI role-playing. This is checks, balances, and separation of powers.**
 
@@ -110,7 +110,7 @@ second-brain/
 ├── _meta/               # 🔧 System metadata, journal, dream reports
 ├── projects/{name}/     # 🎯 Active projects with tasks + decisions
 ├── areas/{name}/        # 🌊 Ongoing life areas with goals
-├── wiki/                # 📚 Cross-domain knowledge network
+├── wiki/                # 📚 Knowledge archive — reusable conclusions (grows from DREAM)
 └── archive/             # 🗄️ Completed work
 ```
 
@@ -150,7 +150,7 @@ As SOUL.md grows, the whole system gets smarter:
 After every session ends, the system "sleeps" — inspired by human sleep architecture:
 
 - **N1-N2 (Light sleep)**: Organize loose ends — classify inbox, flag expired tasks
-- **N3 (Deep sleep)**: Consolidate patterns — extract themes into wiki, propose SOUL entries
+- **N3 (Deep sleep)**: Consolidate — extract SOUL candidates (about you) AND Wiki candidates (reusable knowledge about the world)
 - **REM (Dreaming)**: Creative connections — discover cross-domain links you haven't noticed
 
 Next time you start court: *"💤 Last session the system had a dream..."*
@@ -247,9 +247,9 @@ You: Adjourn court     → Archive + full sync + DREAM cycle
 ## Cognitive Pipeline
 
 ```
-Perceive → Capture → Associate → Judge → Settle → Emerge
-   ↑         ↑          ↑          ↑        ↑         ↑
- Phone      GTD      Zettelkasten  3D6M    PARA    Lint/Censorate
+Perceive → Capture → Judge → Settle → Associate → Emerge
+   ↑         ↑        ↑      ↓   ↘        ↑          ↑
+ Phone      GTD      3D6M  SOUL  Wiki   Prime+Wiki  DREAM REM
 ```
 
 Mobile handles perception and capture. Desktop handles everything else. **[Learn more →](references/data-layer.md)**

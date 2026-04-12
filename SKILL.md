@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.2"
+version: "1.4.3"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -241,6 +241,16 @@ Hanlin Academy — the Hall of Human Wisdom. 70+ thinkers across 18 domains, fro
 
 ---
 
+## Wiki · Knowledge Archive
+
+wiki/ is your living knowledge base — records what you know about the world, what conclusions you've established, and what you can reuse next time. SOUL records who you are; Wiki records what you know.
+
+Wiki entries grow from zero, just like SOUL. DREAM proposes candidates during the N3 stage; you confirm during Start Court. Each entry has confidence scoring, evidence tracking, and a lifecycle from candidate to retirement.
+
+The Prime Minister references wiki/INDEX.md at routing time — if you already have high-confidence knowledge in a domain, you can skip redundant research and start from established conclusions. The Chancellery checks new conclusions against wiki for contradictions. The Censorate audits wiki health during patrol inspection.
+
+See `references/wiki-spec.md` for the full specification.
+
 ## SOUL · User Personality Archive
 
 SOUL.md is your living personality archive — records who you are, what you value, and how you think. It starts empty and grows organically from your decisions. Each entry has two sides: what you actually do (实然) and what you aspire to (应然). The gap between them is where growth happens.
@@ -256,7 +266,7 @@ See `references/soul-spec.md` for the full specification.
 After every Adjourn Court, the system "sleeps" — scanning the last 3 days of activity through three stages inspired by human sleep architecture:
 
 - **N1-N2 (Organize)**: Classify inbox items, flag expired tasks, find orphan files
-- **N3 (Consolidate)**: Extract recurring themes into wiki knowledge, update behavior patterns, propose SOUL.md entries
+- **N3 (Consolidate)**: Extract SOUL.md candidates (about the person) AND Wiki candidates (about the world — reusable conclusions). Update behavior patterns.
 - **REM (Connect)**: Discover hidden cross-domain links, check value-behavior alignment, generate unexpected insights
 
 Dream reports are stored in `_meta/journal/` and presented during the next Start Court briefing: "💤 Last session the system had a dream..."

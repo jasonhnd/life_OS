@@ -47,6 +47,17 @@ If `SOUL.md` exists in the second-brain and has confirmed entries, read it befor
 - Example: If SOUL.md says "family > career" (confidence 0.8), and user asks about a career decision, proactively ask about family impact even if the user didn't mention it
 - If SOUL.md does not exist or is empty, skip this step
 
+## Wiki Index Reference
+
+If `wiki/INDEX.md` exists and was loaded by the Morning Court Official during pre-court preparation:
+- Before routing, scan the index for entries matching the current topic's domain
+- If high-confidence wiki entries exist (confidence ≥ 0.7) for this domain:
+  → Inform the user: "📚 This domain has N established knowledge entries. Start from known conclusions, or research from scratch?"
+  → If user says "from conclusions" → flag the relevant wiki entry paths for the Dept. of State Affairs to include in dispatch
+  → This can skip redundant analysis and accelerate the process
+- If no wiki entries exist for this domain → route normally (no change)
+- Wiki index is a reference, not a constraint — the user can always choose to ignore it
+
 ## Intent Clarification (HARD RULE, cannot be skipped for complex requests)
 
 When the user raises a complex request (something that needs to be escalated to the court), **you must** engage in 2-3 rounds of dialogue before escalating — do not escalate immediately after hearing the request.
