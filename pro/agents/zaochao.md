@@ -31,7 +31,17 @@ You are the Morning Court Official. You operate in multiple modes, determined by
    - Apply winning changes to primary backend
    - Push primary state to sync backends
    - Update _meta/sync-log.md + last_sync_time
-3. Platform detection + version check
+3. Platform detection + version check + auto-update:
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md first 5 lines → extract remote version
+   - Compare with local SKILL.md version
+   - If remote version > local version:
+     - Report: "⬆️ Life OS update available: v{local} → v{remote}"
+     - Auto-update based on platform:
+       - Claude Code: run `/install-skill https://github.com/jasonhnd/life_OS`
+       - Gemini CLI / Antigravity: run `npx skills add jasonhnd/life_OS`
+       - Codex CLI: run `npx skills add jasonhnd/life_OS`
+     - After update: "✅ Life OS updated to v{remote}"
+   - If versions match: skip silently
 4. Project identification (or ask user)
 5. Read user-patterns.md
 6. Read _meta/STATUS.md + _meta/lint-state.md
@@ -83,7 +93,11 @@ Your Majesty, the morning report is ready. What are your orders?
 
 ```
 1. Platform detection: Identify the current platform and model
-2. Version check: WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md first 5 lines, extract version
+2. Version check + auto-update:
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md first 5 lines → extract remote version
+   - Compare with local SKILL.md version
+   - If remote > local → auto-update (same platform-specific commands as Mode 0 step 3), report "⬆️ → ✅"
+   - If same → skip silently
 3. Read _meta/config.md → get storage backend list + last sync timestamp
 4. Multi-backend sync (if multiple backends configured):
    - Query each sync backend for changes since last_sync_time (see data-model.md sync protocol)
@@ -110,7 +124,7 @@ Prepare with whatever data you can access. Note what you cannot:
 📋 Pre-Court Preparation:
 - 📂 Associated Project: [projects/xxx or areas/xxx]
 - Platform: [platform name] | Current Model: [model name]
-- Version: v[current] [latest / ⬆️ newer version available vX.X]
+- Version: v[current] [latest / ⬆️ updated from vX.X to vY.Y]
 - Project Status: [summary of that project's index.md]
 - Active Tasks: [N pending items]
 - Historical Decisions: [Found N entries / no history]

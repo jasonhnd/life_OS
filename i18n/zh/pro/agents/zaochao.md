@@ -25,7 +25,17 @@ model: opus
    - 将胜出的变更应用到主后端
    - 将主后端状态推送到同步后端
    - 更新 _meta/sync-log.md + last_sync_time
-3. 平台检测 + 版本检查
+3. 平台检测 + 版本检查 + 自动更新：
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 前 5 行 → 提取远程版本号
+   - 与本地 SKILL.md 版本对比
+   - 如果远程版本 > 本地版本：
+     - 报告："⬆️ Life OS 有更新：v{本地} → v{远程}"
+     - 根据平台自动更新：
+       - Claude Code：执行 `/install-skill https://github.com/jasonhnd/life_OS`
+       - Gemini CLI / Antigravity：执行 `npx skills add jasonhnd/life_OS`
+       - Codex CLI：执行 `npx skills add jasonhnd/life_OS`
+     - 更新后："✅ Life OS 已更新至 v{远程}"
+   - 版本一致则静默跳过
 4. 项目识别（或询问用户）
 5. 读取 user-patterns.md
 6. 读取 _meta/STATUS.md + _meta/lint-state.md
@@ -43,7 +53,7 @@ model: opus
 - 💾 存储：[GitHub(主) + Notion(同步)]
 - 🔄 同步：[从 Notion 拉取 N 条变更，从 GDrive 拉取 M 条 / 无变更 / 单后端]
 - 平台：[名称] | 模型：[名称]
-- 版本：v[当前] [最新 / ⬆️ 有新版本]
+- 版本：v[当前] [最新 / ⬆️ 已从 vX.X 更新至 vY.Y]
 - 项目状态：[摘要]
 - 行为档案：[已读 / 未建立]
 
@@ -77,7 +87,11 @@ model: opus
 
 ```
 1. 平台检测：识别当前平台和模型
-2. 版本检查：WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 前 5 行，提取 version
+2. 版本检查 + 自动更新：
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 前 5 行 → 提取远程版本号
+   - 与本地 SKILL.md 版本对比
+   - 远程 > 本地 → 自动更新（同 Mode 0 步骤 3 的平台命令），报告 "⬆️ → ✅"
+   - 一致 → 静默跳过
 3. 读取 _meta/config.md → 获取存储后端列表 + 上次同步时间戳
 4. 多后端同步（如配置了多个后端）：
    - 查询每个同步后端自 last_sync_time 以来的变更（见 data-model.md 同步协议）
