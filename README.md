@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.3.1-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.0-purple.svg)](CHANGELOG.md)
 
 Life OS turns AI into your personal imperial court — 15 roles with separation of powers and checks & balances, comprehensively managing your life, work, learning, finances, health, and relationships.
 
@@ -114,9 +114,9 @@ Runs automatically after every process. Speaks bluntly about your behavioral bli
 
 When ministry conclusions conflict, a 3-round debate is triggered where ministries engage in direct dialogue rather than issuing separate reports.
 
-### Hanlin Academy — Strategic Dialogue
+### Hanlin Academy — Hall of Human Wisdom
 
-Some questions don't need formal process, such as "I've been feeling lost lately." The Hanlin Academy is your private strategic advisor — no Memorials, no scores, just deep thinking with you.
+Some questions don't need formal process. The Hanlin Academy gives you access to 70+ of history's greatest thinkers across 18 domains — from Socrates to Musk, Laozi to Mandela. Each thinker speaks in their own voice with deep role-play. Choose one-on-one dialogue, roundtable conference, or debate. No Memorials, no scores — pure thinking partnership with humanity's finest minds.
 
 ## Installation
 

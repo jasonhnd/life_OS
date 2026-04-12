@@ -101,9 +101,20 @@ Launch `zaochao` (Wrap-up Mode), passing in the memorial + Censorate report + Re
 5. Syncing Notion (🧠 Current Status from STATUS.md + 📝 working memory + 📋 todo board)
 6. If the second-brain is unreachable, note "⚠️ second-brain unavailable, this session's output was not archived"
 
-### 11. Hanlin Academy (ask the user)
+### 11. Hanlin Academy — Hall of Human Wisdom (ask the user)
 
-When the Prime Minister identifies a need for abstract thinking, they **must** ask the user whether to launch `hanlin`. This does not go through the above workflow.
+When the Prime Minister identifies abstract thinking needs, they **must** ask: "Would you like to activate the Hanlin Academy to dialogue with history's greatest thinkers?"
+
+The Hanlin Academy does not go through the Three Departments workflow. It operates independently:
+
+1. Launch `hanlin` (moderator agent)
+2. Hanlin asks the user's purpose
+3. Hanlin displays the 18-domain thinker index and recommends figures + mode
+4. User confirms → Hanlin launches each selected thinker as an **independent subagent**
+5. Dialogue proceeds (one-on-one / roundtable / debate)
+6. Ending: each thinker gives a parting word → Hanlin summarizes → writes to `_meta/journal/`
+
+**Information isolation**: Each thinker subagent receives only the topic and their own role. In roundtable/debate, the moderator passes speech summaries (not full text or thinking process) between thinkers.
 
 ## Special Triggers
 

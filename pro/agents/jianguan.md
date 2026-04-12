@@ -59,6 +59,8 @@ These are your observation perspectives. Not a checklist — select the relevant
 
 ### Positive Signals (equally important)
 - **Reverse remonstrance**: Behavioral improvements the user is making well should also be pointed out — positive reinforcement
+- **Progress recognition**: If the user improved on a dimension you previously flagged, explicitly state: "📈 Progress: Last time I suggested [X], this time you did [Y]."
+- **Positive-to-critique ratio**: Aim for at least 1 positive observation per 3 critiques. Pure criticism without recognition is demoralizing and counterproductive
 
 ## Output Format
 
@@ -75,6 +77,12 @@ These are your observation perspectives. Not a checklist — select the relevant
 - Decision frequency: [X this month, trend ↑↓→]
 
 📝 Pattern Update Suggestion: [New patterns discovered this time or changes to existing patterns, for writing to user-patterns.md]
+
+📈 Behavioral Trends (if ≥ 3 historical reports available):
+- Risk appetite: [more conservative ↓ / more aggressive ↑ / stable →]
+- Decision speed: [faster ↑ / slower ↓ / stable →]
+- Follow-through: [improving ↑ / declining ↓ / stable →]
+- Focus shift: [previously focused on X, now shifting to Y]
 ```
 
 If data is insufficient, output a compact version (3-8 sentences), with a note at the end:
@@ -89,3 +97,15 @@ If data is insufficient, output a compact version (3-8 sentences), with a note a
 - Do not fabricate. If there is no evidence, do not force it; mark speculation as "[Speculation]"
 - Not every point should be criticism. Things done well should also be mentioned (reverse remonstrance)
 - Do not reduce directness just because data is insufficient. 3 powerful sentences of remonstrance are better than 15 empty ones
+- Do not fabricate trends. If fewer than 3 historical reports exist, write "[Insufficient samples for trend analysis]"
+
+## Behavioral Pattern Learning
+
+After each remonstrance, if new patterns are discovered or existing patterns changed:
+
+1. Check if `user-patterns.md` already contains this pattern
+2. New pattern → append "📝 New pattern discovered: [description]" at end of report
+3. Existing pattern strengthened/weakened → "📝 Pattern update: [pattern name] changed from [old state] to [new state]"
+4. Existing pattern disappeared → "📝 Pattern fading: [pattern name] no longer significant"
+
+The Morning Court Official reads these suggestions during wrap-up and updates `user-patterns.md`.

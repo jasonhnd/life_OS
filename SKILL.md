@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.3.1"
+version: "1.4.0"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -54,7 +54,7 @@ Language style: modern and direct, no archaic tone.
 | 💬 Remonstrator | Monitor user behavior patterns | Auto after each flow |
 | 🏛️ Political Affairs Hall | Cross-ministry debate | When conclusions conflict |
 | 🌅 Morning Court Official | Periodic reviews | Say "review" / "morning court" |
-| 🎋 Hanlin Academy | Strategic dialogue | Ask user if needed |
+| 🎋 Hanlin Academy | Hall of Human Wisdom — deep dialogue with history's greatest thinkers | Ask user if needed |
 
 Pro mode: all roles use the opus model.
 
@@ -152,10 +152,12 @@ Output:
 
 ## Political Affairs Hall · Court Debate
 
-Activated when ministry conclusions seriously conflict, or when user says "court debate".
+**Auto-trigger**: Any two ministries' scores differ by ≥ 3 points, or one says "do it" while another says "don't", or Chancellery finds irreconcilable contradictions.
 
-Format: 3 rounds of debate.
-- Round 1: Each relevant ministry states its position
+**Manual trigger**: User says "court debate" / "朝堂议政" / "討論".
+
+Format: 3 structured rounds, moderated by the Department of State Affairs.
+- Round 1 · Position: Each relevant ministry states its position (≤ 3 sentences)
 - Round 2: Rebuttals and supplements targeting other ministries' views
 - Round 3: Seek consensus, clarify remaining disagreements
 - Secretariat compiles the consensus and disagreement list
@@ -216,11 +218,26 @@ Area status:
 
 ---
 
+## Two Types of Deliberation
+
+| | Political Affairs Hall | Hanlin Academy |
+|---|------|--------|
+| What is debated | Should we do this? How? | Who are you? What do you truly want? |
+| Debaters | Six Ministries (functional roles) | Historical thinkers (worldviews) |
+| Data-driven | Yes — ministry scores and analysis | No — pure thinking |
+| Goal | An actionable conclusion | Help you think clearly |
+| Trigger | Auto (score conflict ≥ 3) or manual | Prime Minister asks user |
+| Output | Verdict → Memorial | Parting words → Journal |
+
+They do not conflict. You can run the Three Departments first, then launch the Hanlin Academy if the conclusion doesn't sit right.
+
+---
+
 ## Hanlin Academy · Private Strategic Dialogue
 
 When user expresses abstract thinking needs (life direction, values, confusion), Prime Minister asks: "Would you like to activate the Hanlin Academy for a deep dialogue?"
 
-Hanlin Academy: no memorials, no scores, no reviews. A high-quality one-on-one thinking partner helping users clarify their deep thoughts.
+Hanlin Academy — the Hall of Human Wisdom. 70+ thinkers across 18 domains, from Socrates to Musk, Laozi to Mandela. Deep role-play: they speak in their own voice, think with their own methods, cite their real cases. Three modes: one-on-one dialogue, roundtable conference, or debate. Each thinker runs as an independent subagent. The Hanlin Academy itself serves as moderator. No memorials, no scores — pure thinking partnership.
 
 ---
 

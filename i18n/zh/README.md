@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.3.1-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.0-purple.svg)](CHANGELOG.md)
 
 Life OS 把 AI 变成你的私人朝廷 —— 15 个角色分权制衡，全方位管理你的生活、工作、学习、财务、健康和人际关系。
 
@@ -114,9 +114,9 @@ Life OS 把 AI 变成你的私人朝廷 —— 15 个角色分权制衡，全方
 
 当各部结论矛盾时，启动 3 轮辩论，让各部直接对话而不是各自出报告。
 
-### 翰林院 — 战略对话
+### 翰林院 — 人类智慧殿堂
 
-有些问题不需要走流程，比如"我最近很迷茫"。翰林院是你的私人战略顾问 —— 不出奏折、不评分，就是陪你深度思考。
+有些问题不需要走流程。翰林院让你与 18 个领域、70+ 位人类历史上最伟大的思想家深度对话 — 从苏格拉底到马斯克，从老子到曼德拉。每位思想家用自己的口吻深度扮演。可选单人深谈、圆桌会议或辩论。不出奏折、不评分 — 与人类最伟大的头脑纯粹地思考。
 
 ## 安装
 

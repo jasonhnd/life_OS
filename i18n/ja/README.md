@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.3.1-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.0-purple.svg)](../../CHANGELOG.md)
 
 Life OS は AI をあなたの私的な朝廷に変えます — 権力分立とチェック・アンド・バランスを備えた15の役職が、生活、仕事、学習、財務、健康、人間関係を包括的に管理します。
 
@@ -112,9 +112,9 @@ Life OS は AI をあなたの私的な朝廷に変えます — 権力分立と
 
 各部の結論が対立した場合、3ラウンドの討論が発動され、各部が個別にレポートを出すのではなく、直接対話を行います。
 
-### 翰林院 — 戦略対話
+### 翰林院 — 人類の叡智の殿堂
 
-正式なプロセスが不要な問いもあります。例えば「最近迷っていて」。翰林院はあなたの非公開の戦略アドバイザーです — 奏折もスコアもなく、ただあなたと共に深く考えます。
+正式なプロセスが不要な問いもあります。翰林院は18領域、70名以上の歴史上最も偉大な思想家との深い対話を提供します — ソクラテスからマスク、老子からマンデラまで。各思想家が自らの声でディープロールプレイします。一対一の対話、円卓会議、討論から選択可能。奏折もスコアもなし — 人類最高の知性との純粋な思考のパートナーシップ。
 
 ## インストール
 

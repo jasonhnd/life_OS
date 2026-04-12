@@ -15,6 +15,42 @@ Additional rules:
 
 ---
 
+## [1.4.0] - 2026-04-12
+
+### Added — Hanlin Academy: Hall of Human Wisdom
+
+- **Hanlin Academy upgraded to "Hall of Human Wisdom"** — from three thinking tools to 70+ thinkers across 18 domains
+- **18 domains**: Science & Cognition, Philosophy & Reasoning, Eastern Thought, Strategy & Leadership, Business & Decision-Making, Mind & Practice, Systems & Discipline, Human Nature & Insight, Civilization & History, Adversity & Antifragility, Aesthetics & Creation, Politics & Governance, Economics & Society, Mathematics & Logic, Medicine & Life, Exploration & Adventure, Communication & Persuasion, Law & Justice
+- **Deep role-play** — each thinker speaks in their own voice, uses their own methodology, cites their real cases and works
+- **Three dialogue modes** — one-on-one, roundtable conference, or debate. Hanlin Academy serves as moderator
+- **Independent subagent architecture** — each thinker runs as a fully independent subagent with true information isolation
+- **Smart recommendations** — Hanlin Academy recommends thinkers and mode based on the user's stated purpose
+- **Session ending ritual** — each thinker gives a parting word in character → Hanlin Academy summarizes (journey, key insights, unresolved questions) → archived to second-brain
+- **Open roster** — users can name any historical figure not on the list
+
+**Chancellery (Menxia) Strengthened**
+- **10/10/10 Regret Test** — three time horizons (10 minutes / 10 months / 10 years) must each be answered separately
+- **Red Team Review** — assume the plan will fail, identify the 3 most likely failure points
+- **Structured veto format** — vetoes must include failed dimension, core problem, revision direction, and missing information
+
+**Political Affairs Hall (Zhengshitang) Formalized**
+- **New agent file** — `pro/agents/zhengshitang.md` with structured 3-round debate rules
+- **Quantified triggers** — auto-trigger when ministry scores differ by ≥ 3 points or conclusions directly contradict
+- **Moderated debate** — Department of State Affairs moderates; position (≤3 sentences) → rebuttal (≤5 sentences) → final statement (≤2 sentences) → verdict
+
+**Department of State Affairs (Shangshu) Smart Dispatch**
+- **Dependency detection** — auto-detect inter-ministry data dependencies and arrange sequential execution (Group A → Group B)
+- **Consultation mechanism** — ministries can request specific data points from other ministries via the Department of State Affairs
+
+**Prime Minister (Chengxiang) Intent Clarification**
+- **Question type classification** — decision / planning / confusion / review / information, each with tailored clarification strategy
+- **Emotion separation protocol** — acknowledge emotions first, separate facts from feelings before escalating
+
+**Remonstrator (Jianguan) Behavioral Depth**
+- **Behavioral pattern learning cycle** — new pattern discovery, pattern updates, pattern fading, written to user-patterns.md
+- **Cross-session trend analysis** — compare risk appetite, decision speed, follow-through, and focus shifts across ≥ 3 historical reports
+- **Positive reinforcement protocol** — at least 1 positive observation per 3 critiques, explicitly recognize improvements
+
 ## [1.3.1] - 2026-04-12
 
 ### Changed — Process Visibility + Role Governance + Maintenance
