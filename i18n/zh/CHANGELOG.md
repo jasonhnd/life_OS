@@ -30,6 +30,7 @@
 - **ko/es 语言支持移除** — 删除韩语和西班牙语占位符，语言链接更新为仅 EN/ZH/JA
 - **Git tag 清理** — 删除 13 个旧 tag，创建 5 个正确的 Strict SemVer tag
 - **second-brain 模板标准化** — 所有模板改用 YAML front matter 对齐 data-model.md；新增 task.md 和 capture.md
+- **上朝自动更新** — 早朝官在上朝和整理模式中检查 GitHub 上的 SKILL.md 版本。发现新版本时，自动执行平台对应的更新命令（Claude Code：`/install-skill`，Gemini/Codex：`npx skills add`）
 - **second-brain 旧目录清理** — 删除 gtd/、records/、zettelkasten/、test-results/；更新 .gitignore
 
 ## [1.3.0] - 2026-04-10

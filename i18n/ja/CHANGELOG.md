@@ -30,6 +30,7 @@
 - **ko/es 言語サポート削除** — 韓国語とスペイン語のプレースホルダーを削除、言語リンクをEN/ZH/JAのみに更新
 - **Git tag クリーンアップ** — 旧tag 13個を削除、正しいStrict SemVer tag 5個を作成
 - **second-brain テンプレート標準化** — 全テンプレートをdata-model.mdに合わせたYAML front matterに変更、task.mdとcapture.mdを追加
+- **上朝時の自動更新** — 早朝官が上朝およびハウスキーピングモードでGitHub上のSKILL.mdバージョンをチェック。新バージョンが見つかった場合、プラットフォーム対応の更新コマンドを自動実行（Claude Code：`/install-skill`、Gemini/Codex：`npx skills add`）
 - **second-brain 旧ディレクトリ削除** — gtd/、records/、zettelkasten/、test-results/を削除、.gitignoreを更新
 
 ## [1.3.0] - 2026-04-10

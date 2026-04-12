@@ -30,6 +30,7 @@ Additional rules:
 - **ko/es language support removed** — Korean and Spanish placeholders deleted, language links updated to EN/ZH/JA only
 - **Git tags cleaned** — 13 old tags removed, 5 correct Strict SemVer tags created
 - **second-brain templates standardized** — all templates now use YAML front matter matching data-model.md; added task.md and capture.md
+- **Auto-update on Start Court** — Morning Court Official now checks GitHub for newer SKILL.md version during Start Court and Housekeeping. If a newer version is found, automatically runs the platform-specific update command (Claude Code: `/install-skill`, Gemini/Codex: `npx skills add`)
 - **second-brain old directories removed** — gtd/, records/, zettelkasten/, test-results/ deleted; .gitignore updated
 
 ## [1.3.0] - 2026-04-10
