@@ -120,7 +120,7 @@ Life OS 把 AI 变成你的私人朝廷 —— 15 个角色分权制衡，全方
 
 ## 安装
 
-Life OS 支持多种 AI 平台。**[查看完整安装指南 →](docs/installation.md)**
+Life OS 支持多种 AI 平台。**[查看完整安装指南 →](../../docs/installation.md)**
 
 **快速开始**：
 
@@ -133,7 +133,7 @@ Life OS 支持多种 AI 平台。**[查看完整安装指南 →](docs/installat
 | **Cursor / VS Code Copilot** | Lite | `npx skills add jasonhnd/life_OS` |
 | **ChatGPT / Gemini Web** | Lite | 把 `SKILL.md` 内容粘贴到 Instructions |
 
-> **Pro 模式**（Claude Code / Gemini / Codex）：14 个独立 subagent，真正信息隔离，并行执行。**Lite 模式**（其他平台）：单 context，顺序执行。详见[安装指南](docs/installation.md)。
+> **Pro 模式**（Claude Code / Gemini / Codex）：14 个独立 subagent，真正信息隔离，并行执行。**Lite 模式**（其他平台）：单 context，顺序执行。详见[安装指南](../../docs/installation.md)。
 
 ## 使用方法
 
@@ -228,7 +228,7 @@ CC 写入 GitHub → 立即同步到 Notion 工作内存
 
 **git commit = Notion 更新，机械绑定。**
 
-**[查看完整第二大脑架构 →](docs/second-brain.md)**
+**[查看完整第二大脑架构 →](../../docs/second-brain.md)**
 
 ## 12 个标准场景
 
@@ -271,7 +271,7 @@ CC 写入 GitHub → 立即同步到 Notion 工作内存
 
 > Claude Max/Pro 订阅用户不按 token 计费。
 
-**[查看详细 Token 分析 →](docs/token-estimation.md)**
+**[查看详细 Token 分析 →](../../docs/token-estimation.md)**
 
 ## 认知管线
 
@@ -283,7 +283,7 @@ CC 写入 GitHub → 立即同步到 Notion 工作内存
 手机     GTD   Zettelkasten 三省六部  PARA   Lint/御史台
 ```
 
-手机负责感知和捕获。桌面负责其余一切。**[了解更多 →](references/data-layer.md)**
+手机负责感知和捕获。桌面负责其余一切。**[了解更多 →](../../references/data-layer.md)**
 
 ## 安全与治理
 
