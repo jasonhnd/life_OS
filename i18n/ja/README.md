@@ -19,7 +19,7 @@ Life OS は AI をあなたの私的な朝廷に変えます — 権力分立と
 
 [使い方を見る](#使い方) · [インストール](#インストール) · [仕組み](#システムアーキテクチャ) · [セカンドブレイン](#セカンドブレインデータレイヤー)
 
-🌍 [English](../../README.md) | [中文](../zh/README.md) | [日本語](README.md) | [한국어](../ko/README.md) | [Español](../es/README.md)
+🌍 [English](../../README.md) | [中文](../zh/README.md) | [日本語](README.md)
 
 </div>
 

@@ -50,7 +50,7 @@ Additional rules:
 ### Added — Internationalization + Architecture Consolidation
 
 - **Full English translation** — All 34 files translated to English as primary version
-- **i18n directory** — zh/ (Chinese), ja/ (Japanese) full translations; ko/ (Korean), es/ (Spanish) placeholders
+- **i18n directory** — zh/ (Chinese), ja/ (Japanese) full translations
 - **Visual README redesign** — Centered header, shields.io badges, visual hierarchy
 - **pro/GLOBAL.md** — Universal rules for all agents extracted into a single source of truth: Research Process (🔎/💭/🎯), Progress Reporting (🔄/🔎/💡/✅), Upstream Output Protection, Security Boundaries (4 inviolable rules), Universal Anti-Patterns, Model Independence
 - **Workflow State Machine** — Formal state transition table in pro/CLAUDE.md defining legal and illegal jumps between workflow steps

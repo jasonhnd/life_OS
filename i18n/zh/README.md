@@ -21,7 +21,7 @@ Life OS 把 AI 变成你的私人朝廷 —— 15 个角色分权制衡，全方
 
 **其他语言：**
 
-🌍 [English](../../README.md) | [中文](README.md) | [日本語](../ja/README.md) | [한국어](../ko/README.md) | [Español](../es/README.md)
+🌍 [English](../../README.md) | [中文](README.md) | [日本語](../ja/README.md)
 
 </div>
 

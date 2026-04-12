@@ -21,7 +21,7 @@ Life OS turns AI into your personal imperial court — 15 roles with separation 
 
 **Other Languages:**
 
-[中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md) · [한국어](i18n/ko/README.md) · [Español](i18n/es/README.md)
+[中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
 
 </div>
 

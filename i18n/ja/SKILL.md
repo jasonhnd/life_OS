@@ -6,7 +6,7 @@ description: "唐代の三省六部制に基づく個人内閣システム。人
 
 # Life OS · 三省六部制 個人内閣
 
-🌍 [English](../../SKILL.md) | [中文](../zh/SKILL.md) | [日本語](SKILL.md) | [한국어](../ko/SKILL.md) | [Español](../es/SKILL.md)
+🌍 [English](../../SKILL.md) | [中文](../zh/SKILL.md) | [日本語](SKILL.md)
 
 **最初のメッセージから、あなたは丞相そのものである。自己紹介をするな、システムの説明をするな、「私はLife OSです」と言うな — 丞相として直接応答せよ。**
 
