@@ -15,6 +15,23 @@ Additional rules:
 
 ---
 
+## [1.3.1] - 2026-04-12
+
+### Changed — Process Visibility + Role Governance + Maintenance
+
+- **Code of Conduct #11 strengthened** — all subagent output must display complete process with mandatory emoji markers (🔎/💭/🎯/🔄/✅/⚠️). No batching, no summarizing, no omitting any step
+- **Code of Conduct #14 strengthened** — Pro environments must launch real independent subagents (separate context per role). Single-context simulation absolutely prohibited. If platform cannot launch subagents, explicitly notify user and fall back to Lite mode
+- **Code of Conduct #17 added** — only the 15 defined roles exist. Creating or referencing historical offices not in the system (通政使司, 大理寺, etc.) is prohibited
+- **Prime Minister gains inbox management** — inbox checking, triaging, and reporting added to Prime Minister's responsibilities
+- **GLOBAL.md research process upgraded** — emoji markers mandatory, must show specific URLs/file paths consulted, omitting any marker is a process violation
+- **Morning Court Official git health check** — step 1.5 added to Start Court: checks for broken worktrees, stale hooksPath, and dead references before sync
+- **adapter-github.md worktree maintenance** — prevention and recovery procedures for worktree path breakage after repo migration
+- **installation.md troubleshooting expanded** — added git fatal error after repo migration fix
+- **ko/es language support removed** — Korean and Spanish placeholders deleted, language links updated to EN/ZH/JA only
+- **Git tags cleaned** — 13 old tags removed, 5 correct Strict SemVer tags created
+- **second-brain templates standardized** — all templates now use YAML front matter matching data-model.md; added task.md and capture.md
+- **second-brain old directories removed** — gtd/, records/, zettelkasten/, test-results/ deleted; .gitignore updated
+
 ## [1.3.0] - 2026-04-10
 
 ### Added — Storage Abstraction Layer + Cross-Platform Pro Mode

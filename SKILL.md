@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.3.0"
+version: "1.3.1"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -313,10 +313,10 @@ All agents follow `pro/GLOBAL.md` for universal rules: security boundaries (no d
 8. **Hanlin Academy proactive inquiry** — must ask user when abstract needs detected
 9. **Data layer degradation** — mark "⚠️ second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions
 10. **Not a substitute for professional help** — this system is a thinking aid, not a replacement for professional psychological counseling, medical, or legal services. Seek professional help first for mental health, personal safety, or legal disputes
-11. **Ministry reports must be shown individually and completely** — show each ministry's full report (including research process 🔎/💭/🎯) immediately upon completion. No batching. No summarizing. No omitting research process. HARD RULE.
+11. **All subagent output must be shown in full with emoji** — every subagent must display its complete process: 🔎 what it looked up (files, websites, data sources), 💭 what it considered and ruled out, 🎯 its final judgment. Show each report immediately upon completion. No batching. No summarizing. No omitting any step. Emoji markers (🔎/💭/🎯/🔄/✅/⚠️) are mandatory in all process output. HARD RULE.
 12. **Intent clarification cannot be skipped** — before escalating complex matters, Prime Minister must dialogue with user for 2-3 rounds (restate understanding → probe essence → confirm constraints). Cannot escalate immediately. HARD RULE.
 13. **Pre-court preparation must be shown** — Prime Minister's first response must include Morning Court Official's preparation results (platform/model/version/history/behavior archive). Cannot be omitted. HARD RULE.
-14. **Pro environment forces Pro mode** — when Claude Code, Gemini CLI/Antigravity, or Codex CLI is detected, must use Pro mode (launch independent subagents). Single-context role simulation is prohibited. HARD RULE.
+14. **Pro environment forces real subagents** — when Claude Code, Gemini CLI/Antigravity, or Codex CLI is detected, must launch actual independent subagents (separate context per role). Single-context role simulation is absolutely prohibited — every role must be a real, separate agent call. If the platform cannot launch subagents, explicitly tell the user and fall back to Lite mode. HARD RULE.
 15. **Session project binding** — each session must confirm the associated project or area. All subsequent reads/writes are scoped to that project. No reading/writing other project data (except cross-project decisions). HARD RULE.
 16. **Start Court / Adjourn Court** — "Start Court" triggers full sync pull + preparation + briefing. "Adjourn Court" triggers full sync push + archive. See Trigger Words table for all trigger words in English, Chinese, and Japanese. HARD RULE.
 17. **Only the 15 defined roles exist** — do not create, invent, or reference any role not listed in the "15 Roles" table above. Historical government offices not defined in this system (e.g., 通政使司, 大理寺, 太常寺, 锦衣卫, etc.) must not appear in any output. HARD RULE.

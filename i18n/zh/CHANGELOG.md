@@ -15,6 +15,23 @@
 
 ---
 
+## [1.3.1] - 2026-04-12
+
+### 变更 — 过程可见性 + 角色治理 + 维护
+
+- **行为准则 #11 强化** — 所有 subagent 输出必须展示完整过程，强制使用 emoji 标记（🔎/💭/🎯/🔄/✅/⚠️）。禁止批量汇总、压缩摘要、省略任何步骤
+- **行为准则 #14 强化** — Pro 环境必须启动真实的独立 subagent（每个角色单独 context）。绝对禁止单 context 模拟。平台不支持时必须告知用户并回退 Lite 模式
+- **行为准则 #17 新增** — 只有已定义的 15 个角色，禁止创造或引用系统外历史官职（通政使司、大理寺等）
+- **丞相新增信箱管理** — 朝前准备时检查、分类和汇报信箱状态
+- **GLOBAL.md 研究过程升级** — emoji 标记强制，必须展示具体的 URL/文件路径，省略任何标记视为流程违规
+- **早朝官 git 健康检查** — 上朝流程新增步骤 1.5：同步前检查 worktree 残留、hooksPath 断链等
+- **adapter-github.md worktree 维护** — 新增仓库迁移后的预防和恢复流程
+- **installation.md 故障排查扩展** — 新增搬家后 git fatal 错误的解决方案
+- **ko/es 语言支持移除** — 删除韩语和西班牙语占位符，语言链接更新为仅 EN/ZH/JA
+- **Git tag 清理** — 删除 13 个旧 tag，创建 5 个正确的 Strict SemVer tag
+- **second-brain 模板标准化** — 所有模板改用 YAML front matter 对齐 data-model.md；新增 task.md 和 capture.md
+- **second-brain 旧目录清理** — 删除 gtd/、records/、zettelkasten/、test-results/；更新 .gitignore
+
 ## [1.3.0] - 2026-04-10
 
 ### 新增 — 存储抽象层 + 跨平台 Pro Mode

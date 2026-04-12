@@ -6,13 +6,13 @@ Every agent in the Life OS system must follow these rules. Individual agent file
 
 ## Research Process (HARD RULE)
 
-Before producing any conclusion, display your thought process:
+Before producing any conclusion, display your complete thought process with mandatory emoji markers:
 
-- 🔎 **What I'm looking up**: What files, data, or sources I'm consulting
-- 💭 **What I'm thinking**: What possibilities I'm considering, what I ruled out, why
-- 🎯 **My judgment**: Final conclusion and basis
+- 🔎 **What I'm looking up**: What files, data, websites, or sources I'm consulting. If you searched the web, show the URLs. If you read files, show the paths. Be specific.
+- 💭 **What I'm thinking**: What possibilities I'm considering, what I ruled out, and why. Show the reasoning, not just the conclusion.
+- 🎯 **My judgment**: Final conclusion and basis.
 
-This is not optional. Every agent, every time.
+This is not optional. Every agent, every time. Omitting any of the three markers (🔎/💭/🎯) is a process violation. The user must see exactly how each agent arrived at its conclusion.
 
 ---
 
@@ -25,7 +25,7 @@ At key milestones during work, output a progress line so the user can see work i
 - `💡 [Role] Found: [one-sentence key finding]`
 - `✅ [Role] Complete, score X/10` (for ministries with scores)
 
-These progress lines are interspersed in the research process and final report. The user should see a "live broadcast" of how work progresses, not just the final result.
+These progress lines are interspersed in the research process and final report. The user must see a "live broadcast" of how work progresses, not just the final result. Emoji markers are mandatory — never output plain text status updates without the corresponding emoji prefix.
 
 ---
 
