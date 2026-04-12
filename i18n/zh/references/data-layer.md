@@ -233,8 +233,9 @@ Life OS 支持三种存储后端。用户选择 1、2 或全部 3 个。
 
 ```
 1. Save Decision / Save Task / Save JournalEntry → 通过主后端
-2. 更新 _meta/STATUS.md
-3. 更新 _meta/lint-state.md
+2. 先更新 projects/{p}/index.md（版本、阶段、当前重点）— 这是项目状态的唯一权威源
+3. 从所有 projects/*/index.md 编译 _meta/STATUS.md — 禁止手写项目版本到 STATUS.md
+4. 更新 _meta/lint-state.md
 4. 更新 user-patterns.md
 5. 提交（如 GitHub 后端：git add + commit + push）
 6. 同步到所有同步后端（写入输出 + STATUS）
@@ -260,6 +261,23 @@ Life OS 支持三种存储后端。用户选择 1、2 或全部 3 个。
 3. List Decision (limit: 5) → 近期决策
 4. List Task → 计算完成率
 ```
+
+## 单一事实源规则
+
+**`projects/{p}/index.md` 是每个项目的版本、阶段、状态的权威源。** `_meta/STATUS.md` 是编译后的仪表盘 — 必须从 index.md 生成，禁止手写。
+
+| 数据 | 权威源 | 编译视图 |
+|------|--------|---------|
+| 项目版本/阶段/状态 | `projects/{p}/index.md` | `_meta/STATUS.md` |
+| 领域目标/状态 | `areas/{a}/index.md` | `_meta/STATUS.md` |
+| 任务完成度 | `projects/{p}/tasks/*.md` | 指标仪表盘 |
+| 行为模式 | `user-patterns.md` | 谏官报告 |
+
+**写入顺序强制**：先更新权威源，再编译仪表盘。禁止直接在 STATUS.md 中写入项目级信息。
+
+**御史台 lint 规则**：巡检时检查 `_meta/STATUS.md` 中每个项目的版本/状态是否与 `projects/{p}/index.md` 一致。不一致 → 报 🔴，以权威源为准。
+
+---
 
 ## 降级规则
 

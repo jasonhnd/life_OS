@@ -236,8 +236,9 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 
 ```
 1. Save Decision / Save Task / Save JournalEntry → via primary backend
-2. Update _meta/STATUS.md
-3. Update _meta/lint-state.md
+2. Update projects/{p}/index.md FIRST (version, phase, current focus) — this is the SINGLE SOURCE OF TRUTH for project state
+3. Compile _meta/STATUS.md FROM all projects/*/index.md — never hand-write project versions or status into STATUS.md
+4. Update _meta/lint-state.md
 4. Update user-patterns.md
 5. Commit (if GitHub backend: stage only explicitly written files, commit + push. NEVER git add -A)
 6. Sync to all AVAILABLE sync backends (write outputs + STATUS)
@@ -264,6 +265,23 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 3. List Decision (limit: 5) → recent decisions
 4. List Task → compute completion rates
 ```
+
+## Single Source of Truth Rules
+
+**`projects/{p}/index.md` is the authoritative source for each project's version, phase, and status.** `_meta/STATUS.md` is a compiled dashboard — it must be generated from index.md files, never hand-written.
+
+| Data | Authoritative Source | Compiled View |
+|------|---------------------|---------------|
+| Project version / phase / status | `projects/{p}/index.md` | `_meta/STATUS.md` |
+| Area goals / status | `areas/{a}/index.md` | `_meta/STATUS.md` |
+| Task completion | `projects/{p}/tasks/*.md` | Metrics dashboard |
+| Behavior patterns | `user-patterns.md` | Remonstrator reports |
+
+**Write order is enforced**: Always update the authoritative source first, then compile the dashboard. Never write to STATUS.md directly for project-level information.
+
+**Censorate lint rule**: During patrol inspection, check that `_meta/STATUS.md` version/status for each project matches `projects/{p}/index.md`. If inconsistent → report 🔴, flag the authoritative source as correct.
+
+---
 
 ## Degradation Rules
 

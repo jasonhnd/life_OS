@@ -6,9 +6,13 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
-## [1.4.0] - 2026-04-12 · Hall of Human Wisdom + Three Chancelleries Deepened
+## [1.4.0] - 2026-04-12 · Hall of Human Wisdom + Three Chancelleries Deepened + Single Source of Truth
 
-> The Hanlin Academy evolves from three thinking tools into a deep-dialogue hall with 70+ of history's greatest minds — and five core roles across the Three Chancelleries get a serious upgrade.
+> The Hanlin Academy evolves from three thinking tools into a deep-dialogue hall with 70+ of history's greatest minds; five core roles get a serious upgrade; and a critical data integrity bug is fixed — `index.md` is now the single source of truth, `STATUS.md` is compiled from it.
+
+### 🏗️ Architecture Fix — Single Source of Truth
+
+`projects/{p}/index.md` is now the authoritative source for project version, phase, and status. `_meta/STATUS.md` is compiled from index.md files — never hand-written. This fixes a bug where STATUS.md and index.md could drift out of sync. Censorate patrol inspection now includes a mandatory version consistency lint rule.
 
 ### 🎋 Hanlin Academy → Hall of Human Wisdom
 
