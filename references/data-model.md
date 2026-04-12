@@ -238,7 +238,55 @@ No second-brain → config stored in session context, Prime Minister asks each n
 
 ## Constraints
 
-- **Only one agent session should operate the second-brain at a time** — regardless of platform (Claude Code, Gemini CLI, Codex, Antigravity). If two sessions write to the same git repo simultaneously, merge conflicts will occur. The Morning Court Official must check for a lock before writing.
-- **Session lock mechanism**: On session start, write `_meta/.lock` with `{platform, timestamp, session_id}`. On session end, delete it. If a lock exists and is <2 hours old, warn user: "⚠️ Another session ([platform]) may still be active. Proceed anyway?" If >2 hours old, treat as stale and overwrite.
-- Mobile devices write through Notion inbox or GDrive inbox, not directly to structured data (unless using Method B full sync)
+- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`_meta/outbox/{session-id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
+- **Session-id format**: `{platform}-{YYYYMMDD}-{HHMM}`, generated at adjourn time (not session start). Example: `claude-20260412-1700`, `gemini-20260412-1900`.
+- **Outbox merge lock**: During merge, write `_meta/.merge-lock`. If it exists and is < 5 minutes old, skip merge and proceed normally. Delete after merge completes.
+- **Empty sessions**: If a session has no output (no decisions, tasks, or journal entries), do not create an outbox.
+- Mobile devices write through Notion inbox or GDrive inbox, not directly to structured data
 - All adapters must support the 7 standard operations
+
+### Outbox Manifest Format
+
+Each outbox directory contains a `manifest.md`:
+
+```yaml
+---
+session_id: "claude-20260412-1700"
+platform: claude-code
+model: opus
+projects: [gcsb, eip]
+adjourned: "2026-04-12T17:00:00+09:00"
+outputs:
+  decisions: 2
+  tasks: 5
+  journal: 3
+  dream: 1
+  index_delta: true
+  patterns_delta: true
+---
+```
+
+### Index Delta Format
+
+`index-delta.md` records changes to apply to `projects/{p}/index.md`:
+
+```markdown
+# Index Delta
+
+## Target: projects/gcsb/index.md
+## Fields to update:
+- Phase: "v5.4 deployed"
+- Current focus: "打磨计划书到对外版本"
+```
+
+### Patterns Delta Format
+
+`patterns-delta.md` records content to append to `user-patterns.md`:
+
+```markdown
+# Patterns Delta — append to user-patterns.md
+
+### [2026-04-12] New pattern: decision speed increasing
+Source: Remonstrator
+Observation: Last 3 decisions made after first round of clarification.
+```

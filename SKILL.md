@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.1"
+version: "1.4.2"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -323,6 +323,8 @@ Life OS supports multiple storage backends:
 | Notion | Notion users | Notion databases |
 
 Choose 1, 2, or all 3. Multi-backend: writes to all selected, reads from primary (auto-selected: GitHub > GDrive > Notion). First-time users: Prime Minister asks which backend(s) to use.
+
+**Parallel sessions supported**: Multiple sessions can work simultaneously on different projects. Each session writes to its own outbox (`_meta/outbox/{session-id}/`) on adjourn. The next session to start court merges all outboxes. No git conflicts, no lock needed.
 
 Output destinations use standard operations (per current storage backend):
 

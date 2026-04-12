@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.1-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.2-purple.svg)](../../CHANGELOG.md)
 
 **これはロールプレイではありません。権力分立とチェック・アンド・バランスです。**
 
@@ -120,6 +120,8 @@ second-brain/
 - **Notion** — モバイルフレンドリー、データベースビュー
 
 **クロスデバイス同期**：スマホのキャプチャが Notion の inbox へ → デスクトップセッションで取り込み処理 → 結果がすべてのバックエンドに同期。
+
+**並列セッション対応**：複数のセッションが異なるプロジェクトで同時に作業可能 — コンフリクトなし、ロックなし。各セッションは退朝時に自分専用の **outbox** に出力を書き込み、次に上朝したセッションがすべてを統合します。一つのウィンドウで GCSB、別のウィンドウで EIP、三番目で medical-plan — それぞれ独立に退朝し、次の上朝で早朝官がまとめます。
 
 ---
 

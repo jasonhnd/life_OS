@@ -88,13 +88,27 @@ Mark in front matter: `_deleted: true`. Do not `git rm` until user confirms acro
 
 ## Commit Convention
 
-After all writes, stage only the files that were explicitly written during this session:
+### On Adjourn (write to outbox)
 
 ```bash
-git add projects/{p}/decisions/*.md projects/{p}/tasks/*.md _meta/journal/*.md _meta/STATUS.md _meta/config.md _meta/lint-state.md user-patterns.md
-git commit -m "[life-os] {summary}"
+git add _meta/outbox/{session-id}/
+git commit -m "[life-os] session {session-id} output"
 git push
 ```
+
+Only stage the outbox directory. Never touch main files (projects/, STATUS.md, user-patterns.md) during adjourn.
+
+### On Start Court (merge outboxes)
+
+```bash
+# After merging outbox contents into main directories:
+git add projects/ areas/ _meta/journal/ _meta/STATUS.md user-patterns.md SOUL.md
+git rm -r _meta/outbox/{merged-session-ids}/
+git commit -m "[life-os] merge {N} outbox sessions"
+git push
+```
+
+### General Rules
 
 **Never use `git add -A` or `git add .`** — these can accidentally commit sensitive files (.env, .claude/, credentials, temporary files). Only stage files that Life OS explicitly wrote.
 

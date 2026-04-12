@@ -60,6 +60,8 @@ second-brain/
 │   ├── MAP.md                         # Knowledge map (all area entry points)
 │   ├── decisions/                     # Cross-domain major decisions
 │   ├── journal/                       # Morning court briefings, Censorate/Remonstrator reports, DREAM reports
+│   ├── outbox/                        # 📮 Session output staging area (one subdirectory per session)
+│   │   └── {session-id}/             # Each session writes here on adjourn, merged at next start court
 │   ├── extraction-rules.md            # Knowledge extraction rules (trained by user)
 │   ├── extraction-log.md              # Extraction history
 │   ├── lint-rules.md                  # Inspection rules
@@ -216,17 +218,19 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 ### Housekeeping Mode (Start of Conversation)
 
 ```
-0. Check _meta/.lock → if exists and <2h old, warn user about concurrent session
-1. Write _meta/.lock with {platform, timestamp, session_id}
-2. Read _meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
-3. Probe each configured backend for MCP availability (mark unavailable as SKIPPED)
-4. Multi-backend sync (if multiple backends configured and available):
+0. Read _meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
+1. Probe each configured backend for MCP availability (mark unavailable as SKIPPED)
+2. Multi-backend sync (if multiple backends configured and available):
    - Query each AVAILABLE sync backend for changes since this platform's last_sync_time
    - Compare, resolve conflicts (see data-model.md)
    - Apply changes to primary backend
    - Push to sync backends
-3. Read inbox (unprocessed items) — via primary backend
-4. Read _meta/STATUS.md (global status)
+3. OUTBOX MERGE: scan _meta/outbox/ for unmerged sessions
+   - If _meta/.merge-lock exists and < 5min → skip merge
+   - Write .merge-lock → merge each outbox → compile STATUS.md → commit + push → delete .merge-lock
+   - Report merged sessions in briefing
+4. Read inbox (unprocessed items) — via primary backend
+5. Read _meta/STATUS.md (global status)
 5. Read _meta/lint-state.md (check if inspection needed: >4h since last run)
 6. ReadProjectContext(bound project) — tasks, decisions, journal
 7. Read user-patterns.md
@@ -238,16 +242,18 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 ### Wrap-Up Mode (End of Process)
 
 ```
-1. Save Decision / Save Task / Save JournalEntry → via primary backend
-2. Update projects/{p}/index.md FIRST (version, phase, current focus) — this is the SINGLE SOURCE OF TRUTH for project state
-3. Compile _meta/STATUS.md FROM all projects/*/index.md — never hand-write project versions or status into STATUS.md
-4. Update _meta/lint-state.md
-4. Update user-patterns.md
-5. Commit (if GitHub backend: stage only explicitly written files, commit + push. NEVER git add -A)
-6. Sync to all AVAILABLE sync backends (write outputs + STATUS)
-7. Any backend failure → log to _meta/sync-log.md, don't block
-8. Update this platform's last_sync_time in _meta/config.md
-9. Delete _meta/.lock (release session lock)
+1. Generate session-id: {platform}-{YYYYMMDD}-{HHMM}
+2. Create _meta/outbox/{session-id}/
+3. Save Decision / Save Task / Save JournalEntry → to _meta/outbox/{session-id}/ (NOT to main directories)
+4. Write index-delta.md (changes for projects/{p}/index.md)
+5. Write patterns-delta.md (append content for user-patterns.md, if Remonstrator has suggestions)
+6. Write manifest.md (session metadata)
+7. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
+8. Sync outbox to Notion (if configured)
+9. Update this platform's last_sync_time in _meta/config.md
+10. Any backend failure → log to _meta/sync-log.md, don't block
+
+NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Merging happens at next Start Court.
 ```
 
 ### Review Mode

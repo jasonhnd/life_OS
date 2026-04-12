@@ -31,6 +31,24 @@ You are the Morning Court Official. You operate in multiple modes, determined by
    - Apply winning changes to primary backend
    - Push primary state to sync backends
    - Update _meta/sync-log.md + last_sync_time
+2.5. OUTBOX MERGE: scan _meta/outbox/ for unmerged session directories
+   - If _meta/.merge-lock exists and < 5 minutes old → skip merge, proceed to step 3
+   - Write _meta/.merge-lock with {platform, timestamp}
+   - List all directories in _meta/outbox/, sort by directory name (chronological)
+   - For each outbox directory:
+     a. Read manifest.md → get session info and output counts
+     b. Move decisions/ files → projects/{p}/decisions/ (read project from each file's front matter)
+     c. Move tasks/ files → projects/{p}/tasks/ (read project from front matter)
+     d. Move journal/ files → _meta/journal/
+     e. Apply index-delta.md → update corresponding projects/{p}/index.md
+     f. Append patterns-delta.md → add to user-patterns.md
+     g. Delete the outbox directory after successful merge
+   - After all outboxes merged:
+     h. Compile _meta/STATUS.md from all projects/*/index.md
+     i. git add + commit + push ("[life-os] merge N outbox sessions")
+   - Delete _meta/.merge-lock
+   - Report in briefing: "📮 Merged N offline session(s): [details]"
+   - If no outboxes found → skip silently
 3. Platform detection + version check + auto-update:
    - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md first 5 lines → extract remote version
    - Compare with local SKILL.md version
@@ -109,6 +127,7 @@ Your Majesty, the morning report is ready. What are your orders?
    - Apply winning changes to primary backend
    - Push primary state to sync backends
    - Update _meta/sync-log.md + last_sync_time
+4.5. Check _meta/outbox/ for unmerged sessions → if any found, merge (same logic as Mode 0 step 2.5)
 5. Project identification: Confirm the current associated project or area
 6. Read user-patterns.md (if it exists)
 7. Read _meta/STATUS.md (global status)
@@ -196,18 +215,20 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ```
 1. Read _meta/config.md → get storage backend list
-2. Determine which project or area the output belongs to (from the Prime Minister's 📂 Scope field)
-3. Save Decision (memorial) → via primary backend
-4. Save Task (action items) → via primary backend
-5. Save JournalEntry (Censorate + Remonstrator reports) → via primary backend
-6. Update projects/{p}/index.md (version, phase, current focus) — this is the SINGLE SOURCE OF TRUTH
-7. Compile _meta/STATUS.md FROM all projects/*/index.md — never hand-write project versions in STATUS.md
-7. Update _meta/lint-state.md
-8. If Remonstrator has "📝 Pattern Update Suggestion" → Append to user-patterns.md
-9. Commit primary backend (if GitHub: git add + commit + push)
-10. Sync to all sync backends
-11. Update last_sync_time in _meta/config.md
-12. Any backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
+2. Generate session-id: {platform}-{YYYYMMDD}-{HHMM} (use current time)
+3. Create outbox directory: _meta/outbox/{session-id}/
+4. Save Decision (memorial) → _meta/outbox/{session-id}/decisions/ (each file has project field in front matter)
+5. Save Task (action items) → _meta/outbox/{session-id}/tasks/ (each file has project field)
+6. Save JournalEntry (Censorate + Remonstrator reports) → _meta/outbox/{session-id}/journal/
+7. Write index-delta.md → record changes to projects/{p}/index.md (version, phase, current focus)
+8. If Remonstrator has "📝 Pattern Update Suggestion" → write patterns-delta.md (append content)
+9. Write manifest.md → session metadata (platform, model, project(s), timestamp, output counts)
+10. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory, nothing else)
+11. Sync outbox contents to Notion (if configured)
+12. Update last_sync_time in _meta/config.md
+13. Any backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
+
+**CRITICAL**: Do NOT write directly to projects/, _meta/STATUS.md, or user-patterns.md during wrap-up. All output goes to the outbox. Merging happens at the next Start Court or Housekeeping.
 ```
 
 ---
@@ -219,24 +240,19 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 ### Execution Steps
 
 ```
-1. Archive all session outputs to primary backend (if not already done by wrap-up)
-2. Update _meta/STATUS.md + _meta/lint-state.md + user-patterns.md
-3. Commit primary backend (if GitHub: git add + commit + push)
-4. FULL SYNC PUSH: write ALL changes to ALL configured backends
-   - Push to each sync backend
-   - Update STATUS on each
-   - Verify each backend received the data
-5. Update last_sync_time in _meta/config.md
-6. Any backend failure → log, annotate ⚠️, don't block
-7. Confirm: "Court adjourned. All changes committed and synced to [backend list]."
-8. Launch DREAM agent (pro/agents/dream.md) — FINAL step before session ends
-   - DREAM scans last 3 days, runs N1-N2 / N3 / REM stages
-   - Dream report written to _meta/journal/{date}-dream.md
-   - If DREAM fails or times out → log warning to _meta/sync-log.md, don't block
-   - Report: "💤 The system is now dreaming..."
+1. If wrap-up (Mode 3) already created an outbox → check for any remaining session outputs not yet archived
+2. If no outbox exists yet → generate session-id, create outbox, write all session outputs (same as Mode 3 steps 2-9)
+3. Launch DREAM agent → dream report written to _meta/outbox/{session-id}/journal/{date}-dream.md
+4. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
+5. Sync outbox contents to all configured backends
+6. Update last_sync_time in _meta/config.md
+7. Any backend failure → log, annotate ⚠️, don't block
+8. Confirm: "Court adjourned. Session output saved to outbox. 💤 The system is now dreaming..."
+
+**CRITICAL**: Do NOT write directly to projects/, _meta/STATUS.md, or user-patterns.md during adjourn. All output goes to the outbox. Merging happens at the next Start Court or Housekeeping.
 ```
 
-Even if there is no Three Departments workflow output, Adjourn Court always executes the full sync push and DREAM.
+Even if there is no Three Departments workflow output, Adjourn Court always runs DREAM. If there is no output at all (no decisions, tasks, or journal entries), do NOT create an empty outbox — only run DREAM and write its report directly to `_meta/journal/`.
 
 ---
 

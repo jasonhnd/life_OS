@@ -88,4 +88,56 @@ last_modified: "2026-04-08T15:30:00Z"
 
 ## コミット規約
 
-すべての書込後: `git add -A && git commit -m "[life-os] {summary}" && git push`
+### 退朝時（outbox への書き込み）
+
+```bash
+git add _meta/outbox/{session-id}/
+git commit -m "[life-os] session {session-id} output"
+git push
+```
+
+outbox ディレクトリのみをステージングする。退朝時はメインファイル（projects/、STATUS.md、user-patterns.md）には絶対に触れない。
+
+### 上朝時（outbox のマージ）
+
+```bash
+# outbox の内容をメインディレクトリにマージした後:
+git add projects/ areas/ _meta/journal/ _meta/STATUS.md user-patterns.md SOUL.md
+git rm -r _meta/outbox/{merged-session-ids}/
+git commit -m "[life-os] merge {N} outbox sessions"
+git push
+```
+
+### 一般ルール
+
+**`git add -A` や `git add .` は絶対に使わない** — 機密ファイル（.env、.claude/、credentials、一時ファイル）を誤ってコミットする恐れがある。Life OS が明示的に書き込んだファイルのみをステージングすること。
+
+## Worktree のメンテナンス
+
+Claude Code は `.claude/worktrees/` 配下に一時的な worktree を作成する。これが問題を引き起こすことがある：
+
+1. **クロスプラットフォームの干渉**: Gemini / Antigravity が大きな worktree ディレクトリによってコンテキストが溢れる可能性がある
+2. **リポジトリ移行後のパス破損**: リポジトリが移動された場合（例: Dropbox → iCloud）、worktree の `.git` ファイルが古いパスを指し、すべての git 操作が壊れる
+
+### 予防策
+
+- `.claude/worktrees/` を `.gitignore` に追加する
+- Claude Code の worktree session 終了後は **remove**（keepではなく）を選択する
+- リポジトリを別の場所に移行する前に先にクリーンアップする：
+
+```bash
+git worktree prune
+rm -rf .claude/worktrees/
+git config --unset core.hooksPath   # 設定されている場合
+```
+
+### 復旧手順
+
+`fatal: not a git repository: /old/path/.git/worktrees/...` と報告された場合：
+
+```bash
+git worktree prune                  # git レベルの参照をクリーン
+rm -rf .claude/worktrees/           # 古い worktree ディレクトリを削除
+git config --unset core.hooksPath   # 壊れた hooks パスを削除
+git config --unset extensions.worktreeConfig  # worktree 拡張フラグを削除
+```

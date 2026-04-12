@@ -1,6 +1,6 @@
 ---
 name: zaochao
-description: 早朝官、マルチモード運用。ハウスキーピングモード：各会話の開始時に自動起動しコンテキストを準備。レビューモード：ユーザーが「早朝」と言った時にトリガー。ラップアップ/退朝モード：ワークフロー終了時またはユーザーが「退朝」と言った時にアーカイブと同期。
+description: 早朝官、マルチモード運用。ハウスキーピングモード：各会話の開始時に自動起動しコンテキストを準備。レビューモード：ユーザーが「早朝」と言った時にトリガー。ラップアップ/退朝モード：ワークフロー終了時またはユーザーが「退朝」と言った時にアーカイブと同期を実行。
 tools: Read, Grep, Glob, WebSearch, Write, Bash
 model: opus
 ---
@@ -31,6 +31,24 @@ model: opus
    - 勝利した変更をプライマリバックエンドに適用
    - プライマリの状態を同期バックエンドにプッシュ
    - _meta/sync-log.md + last_sync_time を更新
+2.5. Outbox マージ: _meta/outbox/ 内の未マージ session ディレクトリをスキャン
+   - _meta/.merge-lock が存在し 5分未満の場合 → マージをスキップしてステップ3へ
+   - _meta/.merge-lock に {platform, timestamp} を書き込む
+   - _meta/outbox/ 内の全ディレクトリを一覧し、ディレクトリ名でソート（時系列順）
+   - 各 outbox ディレクトリについて：
+     a. manifest.md を読む → session 情報と出力数を取得
+     b. decisions/ ファイルを projects/{p}/decisions/ に移動（各ファイルの front matter からプロジェクトを読み取る）
+     c. tasks/ ファイルを projects/{p}/tasks/ に移動（front matter からプロジェクトを読み取る）
+     d. journal/ ファイルを _meta/journal/ に移動
+     e. index-delta.md を適用 → 対応する projects/{p}/index.md を更新
+     f. patterns-delta.md を追記 → user-patterns.md に追加
+     g. マージ成功後、outbox ディレクトリを削除
+   - 全 outbox のマージ完了後：
+     h. 全 projects/*/index.md から _meta/STATUS.md をコンパイル
+     i. git add + commit + push（"[life-os] merge N outbox sessions"）
+   - _meta/.merge-lock を削除
+   - ブリーフィングで報告：「📮 N個のオフライン session をマージ: [詳細]」
+   - outbox が見つからない場合 → 省略
 3. プラットフォーム検出 + バージョンチェック + 自動更新：
    - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 最初の5行 → リモートバージョンを抽出
    - ローカル SKILL.md のバージョンと比較
@@ -109,6 +127,7 @@ model: opus
    - 勝利した変更をプライマリバックエンドに適用
    - プライマリの状態を同期バックエンドにプッシュ
    - _meta/sync-log.md + last_sync_time を更新
+4.5. _meta/outbox/ に未マージ session がないか確認 → 見つかった場合はマージ（Mode 0 ステップ2.5と同じロジック）
 5. プロジェクト特定：現在の関連プロジェクトまたはエリアを確認
 6. user-patterns.md を読む（存在する場合）
 7. _meta/STATUS.md を読む（グローバルステータス）
@@ -128,7 +147,7 @@ model: opus
 📋 朝議前準備:
 - 📂 関連プロジェクト: [projects/xxx or areas/xxx]
 - プラットフォーム: [プラットフォーム名] | 現在のモデル: [モデル名]
-- バージョン: v[現在] [最新 / ⬆️ 新バージョンあり vX.X]
+- バージョン: v[現在] [最新 / ⬆️ vX.X から vY.Y に更新済み]
 - プロジェクトステータス: [当該プロジェクトのindex.mdの要約]
 - アクティブタスク: [N件の未処理アイテム]
 - 過去の意思決定: [N件発見 / 履歴なし]
@@ -155,7 +174,7 @@ model: opus
 
 ### 意思決定追跡
 
-`projects/*/decisions/` でフロントマターのstatusが「pending」のまま作成から30日以上経過した意思決定を確認する。
+`projects/*/decisions/` で front matter の status が「pending」のまま作成から30日以上経過した意思決定を確認する。
 
 ### メトリクスダッシュボード
 
@@ -196,18 +215,20 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ```
 1. _meta/config.md を読む → ストレージバックエンドリストを取得
-2. 出力がどのプロジェクトまたはエリアに属するか判定（丞相の📂スコープフィールドから）
-3. Save Decision（奏折） → プライマリバックエンド経由
-4. Save Task（アクションアイテム） → プライマリバックエンド経由
-5. Save JournalEntry（御史台 + 諫官レポート） → プライマリバックエンド経由
-6. projects/{p}/index.md を更新（バージョン、フェーズ、現在の重点）— これが唯一の権威ある情報源
-7. 全 projects/*/index.md から _meta/STATUS.md をコンパイル — STATUS.md にプロジェクトバージョンを手書きしてはならない
-7. _meta/lint-state.md を更新
-8. 諫官に「📝 パターン更新提案」がある場合 → user-patterns.md に追記
-9. プライマリバックエンドをコミット（GitHubの場合：git add + commit + push）
-10. 全同期バックエンドに同期
-11. _meta/config.md の last_sync_time を更新
-12. バックエンド障害 → _meta/sync-log.md にログ、⚠️を注記、ブロックしない
+2. session-id を生成：{platform}-{YYYYMMDD}-{HHMM}（現在時刻を使用）
+3. outbox ディレクトリを作成：_meta/outbox/{session-id}/
+4. Decision（奏折）を保存 → _meta/outbox/{session-id}/decisions/（各ファイルの front matter にプロジェクトフィールドを含む）
+5. Task（アクションアイテム）を保存 → _meta/outbox/{session-id}/tasks/（各ファイルにプロジェクトフィールドを含む）
+6. JournalEntry（御史台 + 諫官レポート）を保存 → _meta/outbox/{session-id}/journal/
+7. index-delta.md を書く → projects/{p}/index.md への変更を記録（バージョン、フェーズ、現在の重点）
+8. 諫官に「📝 パターン更新提案」がある場合 → patterns-delta.md を書く（追記内容）
+9. manifest.md を書く → session メタデータ（platform、model、project(s)、timestamp、出力数）
+10. git add _meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ、他は何も触らない）
+11. outbox の内容を Notion に同期（設定されている場合）
+12. _meta/config.md の last_sync_time を更新
+13. バックエンド障害 → _meta/sync-log.md にログ、⚠️を注記、ブロックしない
+
+**CRITICAL**: ラップアップ中は projects/、_meta/STATUS.md、user-patterns.md に直接書き込まないこと。すべての出力は outbox へ。マージは次の上朝またはハウスキーピング時に行う。
 ```
 
 ---
@@ -219,24 +240,19 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 ### 実行ステップ
 
 ```
-1. セッションの全出力をプライマリバックエンドにアーカイブ（ラップアップで未実行の場合）
-2. _meta/STATUS.md + _meta/lint-state.md + user-patterns.md を更新
-3. プライマリバックエンドをコミット（GitHubの場合：git add + commit + push）
-4. フル同期PUSH: 全変更を設定済みの全バックエンドに書き込み
-   - 各同期バックエンドにプッシュ
-   - 各バックエンドのSTATUSを更新
-   - 各バックエンドがデータを受信したことを検証
-5. _meta/config.md の last_sync_time を更新
-6. バックエンド障害 → ログ、⚠️を注記、ブロックしない
-7. 確認: 「退朝しました。全変更が[バックエンドリスト]にコミット・同期されました。」
-8. DREAM エージェント（pro/agents/dream.md）を起動 — セッション終了前の最終ステップ
-   - DREAM は直近3日間をスキャンし、N1-N2 / N3 / REM ステージを実行
-   - ドリームレポートを _meta/journal/{date}-dream.md に書き込む
-   - DREAM が失敗またはタイムアウトした場合 → _meta/sync-log.md に警告を記録し、ブロックしない
-   - 報告: 「💤 システムはただいま夢を見ています...」
+1. ラップアップ（Mode 3）がすでに outbox を作成済みの場合 → まだアーカイブされていない session 出力が残っていないか確認
+2. outbox がまだ存在しない場合 → session-id を生成し、outbox を作成し、すべての session 出力を書き込む（Mode 3 のステップ2〜9と同じ）
+3. DREAM エージェントを起動 → ドリームレポートを _meta/outbox/{session-id}/journal/{date}-dream.md に書き込む
+4. git add _meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ）
+5. outbox の内容を設定済みの全バックエンドに同期
+6. _meta/config.md の last_sync_time を更新
+7. バックエンド障害 → ログ、⚠️を注記、ブロックしない
+8. 確認：「退朝しました。Session 出力を outbox に保存しました。💤 システムはただいま夢を見ています...」
+
+**CRITICAL**: 退朝中は projects/、_meta/STATUS.md、user-patterns.md に直接書き込まないこと。すべての出力は outbox へ。マージは次の上朝またはハウスキーピング時に行う。
 ```
 
-三省六部ワークフローの出力がなくても、退朝は常にフル同期プッシュと DREAM を実行する。
+三省六部ワークフローの出力がなくても、退朝は常に DREAM を実行する。出力が一切ない場合（意思決定、タスク、ジャーナルエントリがない）、空の outbox は作成しない — DREAM のみを実行し、そのレポートを直接 `_meta/journal/` に書き込む。
 
 ---
 

@@ -6,6 +6,44 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.2] - 2026-04-12 · Outbox — Parallel Sessions Without Conflicts
+
+> Multiple sessions can now work on different projects simultaneously. No git conflicts, no locks. Each session writes to its own outbox on adjourn; the next session to start court merges everything.
+
+### 📮 Outbox Architecture
+
+The old model assumed one session at a time and used a `.lock` file to warn about concurrency. The new model embraces parallelism:
+
+- **Each session writes to its own isolated directory** (`_meta/outbox/{session-id}/`) on adjourn — decisions, tasks, journal entries, index deltas, pattern deltas, and a manifest
+- **No direct writes to shared files** during wrap-up or adjourn — `projects/`, `STATUS.md`, and `user-patterns.md` are never touched until merge
+- **Merge happens at Start Court** — the next session to start court scans all outboxes, merges them chronologically into the main structure, compiles STATUS.md, and cleans up
+- **Session-id = `{platform}-{YYYYMMDD}-{HHMM}`**, generated at adjourn time (not session start)
+- **Zero-conflict guarantee** — different directories, different files, no concurrent writes to the same path
+- **Merge-lock** for the rare case of two simultaneous start courts (< 5 minutes, auto-cleanup)
+
+### Scenarios Covered
+
+- Single session, normal flow ✅
+- Multiple platforms alternating ✅
+- Multiple windows in parallel ✅
+- Multiple computers ✅
+- Session spanning multiple days ✅
+- Same session, multiple start/adjourn cycles ✅
+- Empty sessions (no output, no outbox) ✅
+- Push failure (outbox saved locally, retried next time) ✅
+- Lite users (no second-brain, no outbox) ✅
+- Mobile Notion captures (inbox/, unchanged) ✅
+
+### Files Changed
+
+- `pro/agents/zaochao.md` — Mode 0/1 add outbox merge, Mode 3/4 rewritten to write outbox
+- `references/data-model.md` — Session lock removed, outbox rules + manifest/delta formats added
+- `references/data-layer.md` — Directory structure + Housekeeping/Wrap-Up flows updated
+- `references/adapter-github.md` — Commit convention rewritten for outbox pattern
+- `SKILL.md` — Parallel sessions mentioned in Storage Configuration
+
+---
+
 ## [1.4.1] - 2026-04-12 · SOUL + DREAM — The System Learns Who You Are
 
 > SOUL.md grows from your decisions to record who you are. DREAM processes memories while you're away — like the brain during sleep. Together, they give Life OS a self-awareness loop.

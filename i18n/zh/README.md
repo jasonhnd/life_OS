@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.1-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.2-purple.svg)](CHANGELOG.md)
 
 **这不是 AI 角色扮演，这是权力的制衡与分立。**
 
@@ -120,6 +120,8 @@ second-brain/
 - **Notion** — 移动端友好，支持数据库视图
 
 **跨设备同步**：手机捕获 → 写入 Notion 收件箱 → 桌面端会话拉取处理 → 结果同步回所有后端。
+
+**多 Session 并行**：多个 session 可以同时在不同项目上工作——无冲突、无锁。每个 session 退朝时将输出写到自己的 **outbox**；下一个上朝的 session 负责合并所有 outbox。一个窗口做 GCSB，另一个做 EIP，第三个做 medical-plan——各自独立退朝，下次上朝时早朝官统一整合。
 
 ---
 

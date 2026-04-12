@@ -6,6 +6,44 @@
 
 ---
 
+## [1.4.2] - 2026-04-12 · Outbox — 多 Session 并行零冲突
+
+> 多个 session 现在可以同时在不同项目上工作。没有 git 冲突，没有锁。每个 session 退朝时写入自己的 outbox；下一个上朝的 session 负责合并所有 outbox。
+
+### 📮 Outbox 架构
+
+旧模型假设同一时间只有一个 session，用 `.lock` 文件警告并发。新模型拥抱并行：
+
+- **每个 session 退朝时写入自己的隔离目录**（`_meta/outbox/{session-id}/`）— 决策、任务、日志、index delta、patterns delta、manifest
+- **收尾和退朝期间不直接写共享文件** — `projects/`、`STATUS.md`、`user-patterns.md` 在合并前不会被触碰
+- **合并发生在上朝时** — 下一个上朝的 session 扫描所有 outbox，按时间顺序合并到主结构，编译 STATUS.md，清理已合并的 outbox
+- **session-id = `{platform}-{YYYYMMDD}-{HHMM}`**，在退朝时生成（不是 session 开始时）
+- **零冲突保证** — 不同目录、不同文件、不会对同一路径并发写入
+- **merge-lock** 兜底同时上朝的极端情况（< 5 分钟，自动清理）
+
+### 覆盖场景
+
+- 单 session 正常流程 ✅
+- 多平台交替 ✅
+- 多窗口并行 ✅
+- 多台电脑 ✅
+- session 跨越多天 ✅
+- 同一 session 多次上朝退朝 ✅
+- 空 session（无输出，不创建 outbox）✅
+- push 失败（本地保存，下次重试）✅
+- Lite 用户（无 second-brain，无 outbox）✅
+- 手机 Notion 捕获（inbox/，不变）✅
+
+### 改动文件
+
+- `pro/agents/zaochao.md` — Mode 0/1 加 outbox 合并，Mode 3/4 改写 outbox
+- `references/data-model.md` — 删除 session lock，新增 outbox 规则 + manifest/delta 格式
+- `references/data-layer.md` — 目录结构 + Housekeeping/Wrap-Up 流程更新
+- `references/adapter-github.md` — commit convention 改为 outbox 模式
+- `SKILL.md` — 存储配置段新增并行 session 说明
+
+---
+
 ## [1.4.1] - 2026-04-12 · SOUL + DREAM — 系统开始了解你是谁
 
 > SOUL.md 从你的决策中生长，记录你是谁。DREAM 在你离开后处理记忆 — 就像大脑在睡眠中做的事。两者结合，给 Life OS 一个自我认知的反馈循环。

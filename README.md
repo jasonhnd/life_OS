@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.1-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.2-purple.svg)](CHANGELOG.md)
 
 **This is not AI role-playing. This is checks, balances, and separation of powers.**
 
@@ -120,6 +120,8 @@ second-brain/
 - **Notion** — Mobile-friendly, database views
 
 **Cross-device sync**: Phone captures go to Notion inbox → Desktop session pulls and processes → Results sync back to all backends.
+
+**Parallel sessions**: Multiple sessions can work simultaneously on different projects — no conflicts, no locks. Each session writes to its own **outbox** on adjourn; the next session to start court merges everything. Work on GCSB in one window, EIP in another, medical-plan on a third — each adjourns independently, and the next morning court assembles it all.
 
 ---
 

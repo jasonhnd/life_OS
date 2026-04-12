@@ -144,20 +144,27 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 ### セッション開始（早朝官のハウスキーピング）
 
 ```
-1. _meta/config.md を読取 → バックエンドリストと最終同期タイムスタンプを取得
-2. 各同期バックエンドに対して:
-   - "[last_sync_time] 以降に変更されたアイテム" をクエリ
+0. _meta/config.md を読取 → バックエンドリストと最終同期タイムスタンプを取得
+1. 設定済みの各バックエンドの利用可能性を確認：
+   - GitHub: git リポジトリにアクセス可能か確認（git status）
+   - GDrive: Google Drive MCP が接続されているか確認（list を試行）
+   - Notion: Notion MCP が接続されているか確認（search を試行）
+   利用不能なバックエンドは今 session では SKIPPED とマーク。
+   プライマリが利用不能な場合、次の利用可能なバックエンドを暫定的に昇格させる。
+   ログ: 「💾 バックエンド: GitHub ✅ | GDrive ❌ (MCP未接続) | Notion ✅」
+2. 利用可能な各同期バックエンドについて：
+   - 「[このプラットフォームの last_sync_time] 以降に変更されたアイテム」をクエリ
    - GitHub: git log --since
    - GDrive: modifiedTime > last_sync_time
    - Notion: last_edited_time > last_sync_time
-3. 変更を比較:
+3. 変更を比較：
    - 1つのバックエンドのみがアイテムを変更 → それを採用
    - 2つのバックエンドが同一アイテムを変更 → last_modified が勝つ
    - 時間差 < 1分 → CONFLICT としてマーク、両方のバージョンを保持
 4. 勝利した変更をプライマリバックエンドに適用
 5. プライマリの状態をすべての同期バックエンドにプッシュ
 6. _meta/sync-log.md に同期結果を更新
-7. _meta/config.md の last_sync_time を更新
+7. _meta/config.md のこのプラットフォームの last_sync_time を更新（他のプラットフォームのタイムスタンプには触れない）
 ```
 
 ### セッション終了（早朝官のラップアップ）
@@ -216,8 +223,14 @@ storage:
       role: primary
     - type: notion
       role: sync
-  last_sync: "2026-04-08T15:30:00Z"
+  sync_log:
+    - platform: claude-code
+      last_sync: "2026-04-10T15:30:00Z"
+    - platform: gemini-cli
+      last_sync: "2026-04-10T14:00:00Z"
 ```
+
+**プラットフォームごとの同期タイムスタンプ**：各プラットフォームは自身の `last_sync` 時刻を記録する。Gemini CLI が session を開始した場合、**自身の** `last_sync` を読み取り、その時刻以降の変更をクエリする — Claude Code の最終同期時刻ではない。これにより、ユーザーがプラットフォームを交互に使用した際に変更の見落としを防ぐ。
 
 セカンドブレインがない場合 → 設定はセッションコンテキストに保存され、丞相が新しいセッションごとに確認します。
 
@@ -225,6 +238,55 @@ storage:
 
 ## 制約事項
 
-- 一度に1つのCCセッションのみがセカンドブレインを操作すること
-- モバイルデバイスはNotionインボックスまたはGDriveインボックス経由で書き込み、構造化データへの直接書き込みは行わない（方式Bの完全同期を使用する場合を除く）
+- **複数の session が同時にセカンドブレインを操作できる** outbox パターンを使用。各 session は自身の outbox ディレクトリ（`_meta/outbox/{session-id}/`）に書き込む。次に上朝する session が全 outbox をメイン構造にマージする。共有ファイル（STATUS.md、user-patterns.md、index.md）への直接書き込みは、上朝時の Outbox マージステップでのみ行われる。
+- **session-id フォーマット**：`{platform}-{YYYYMMDD}-{HHMM}`、退朝時に生成（session 開始時ではない）。例：`claude-20260412-1700`、`gemini-20260412-1900`。
+- **Outbox マージロック**：マージ中は `_meta/.merge-lock` を書き込む。存在し5分未満の場合はマージをスキップして通常通り続行する。マージ完了後に削除する。
+- **空の session**：session に出力がない場合（意思決定、タスク、ジャーナルエントリがない）、outbox を作成しない。
+- モバイルデバイスは Notion inbox または GDrive inbox 経由で書き込み、構造化データへの直接書き込みは行わない
 - すべてのアダプターは7つの標準オペレーションをサポートしなければならない
+
+### Outbox manifest フォーマット
+
+各 outbox ディレクトリには `manifest.md` が含まれる：
+
+```yaml
+---
+session_id: "claude-20260412-1700"
+platform: claude-code
+model: opus
+projects: [gcsb, eip]
+adjourned: "2026-04-12T17:00:00+09:00"
+outputs:
+  decisions: 2
+  tasks: 5
+  journal: 3
+  dream: 1
+  index_delta: true
+  patterns_delta: true
+---
+```
+
+### Index Delta フォーマット
+
+`index-delta.md` は `projects/{p}/index.md` に適用する変更を記録する：
+
+```markdown
+# Index Delta
+
+## Target: projects/gcsb/index.md
+## Fields to update:
+- Phase: "v5.4 deployed"
+- Current focus: "打磨计划书到对外版本"
+```
+
+### Patterns Delta フォーマット
+
+`patterns-delta.md` は `user-patterns.md` に追記する内容を記録する：
+
+```markdown
+# Patterns Delta — append to user-patterns.md
+
+### [2026-04-12] New pattern: decision speed increasing
+Source: Remonstrator
+Observation: Last 3 decisions made after first round of clarification.
+```

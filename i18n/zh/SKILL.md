@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.1"
+version: "1.4.2"
 description: "三省六部制个人内阁系统。为用户提供全方位的个人事务管理，覆盖人际关系、财务、学习、执行、风险管控、健康与基建。当用户面临复杂的个人决策（职业转型、投资、创业、搬家、人生规划）、需要多角度分析、需要定期复盘、或需要系统化管理生活的某个领域时使用此 skill。触发关键词：分析、规划、多角度、审视、早朝、朝堂议政。即使用户没有提到关键词，只要任务涉及多维度思考或重大决策，也应建议使用此 skill。不用于简单问答、翻译、单步任务。"
 ---
 
@@ -323,6 +323,8 @@ Life OS 支持多种存储后端：
 | Notion | Notion 用户 | Notion 数据库 |
 
 可选 1 个、2 个或全部 3 个。多后端：写入所有已选后端，从主后端读取（自动选择：GitHub > GDrive > Notion）。首次使用时丞相会询问使用哪些后端。
+
+**Outbox 并行 session**：多个 session 可同时操作 second-brain，互不干扰。每个 session 退朝时将产出写入各自的 outbox 目录（`_meta/outbox/{session-id}/`），不直接写入主文件。下一个上朝的 session 负责将所有 outbox 合并到主结构中（STATUS.md、user-patterns.md、index.md）。session-id 格式：`{platform}-{YYYYMMDD}-{HHMM}`。
 
 产出去向使用标准操作（根据当前存储后端）：
 
