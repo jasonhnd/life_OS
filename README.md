@@ -53,7 +53,7 @@ The reason this system ran for 1,400 years is that the Six Ministries are divide
   │
   ├── 🏛️ Political Affairs Hall — Cross-ministry debate (3 rounds)
   ├── 🌅 Morning Court Official — Periodic reviews
-  └── 🎋 Hanlin Academy — Private strategic dialogue
+  └── 🎋 Hanlin Academy — Hall of Human Wisdom (ask user to activate)
 ```
 
 ## 15 Roles
@@ -74,7 +74,7 @@ The reason this system ran for 1,400 years is that the Six Ministries are divide
 | 💬 Remonstrator | Monitors your behavioral patterns | Automatic each time |
 | 🏛️ Political Affairs Hall | Cross-ministry debate | When conclusions conflict |
 | 🌅 Morning Court Official | Periodic reviews | Say "review" |
-| 🎋 Hanlin Academy | Strategic dialogue | Asks if you need it |
+| 🎋 Hanlin Academy | Hall of Human Wisdom — 70+ thinkers, 18 domains | Asks if you need it |
 
 ## Six Ministries in Detail
 
