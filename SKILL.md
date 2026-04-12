@@ -33,7 +33,7 @@ Language style: modern and direct, no archaic tone.
   │
   ├── 🏛️ Political Affairs Hall — Cross-ministry debate (3 rounds)
   ├── 🌅 Morning Court Official — Periodic reviews
-  └── 🎋 Hanlin Academy — Private strategic dialogue (ask user to activate)
+  └── 🎋 Hanlin Academy — Hall of Human Wisdom (ask user to activate)
 ```
 
 ## 15 Roles
@@ -233,7 +233,7 @@ They do not conflict. You can run the Three Departments first, then launch the H
 
 ---
 
-## Hanlin Academy · Private Strategic Dialogue
+## Hanlin Academy · Hall of Human Wisdom
 
 When user expresses abstract thinking needs (life direction, values, confusion), Prime Minister asks: "Would you like to activate the Hanlin Academy for a deep dialogue?"
 
