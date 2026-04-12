@@ -190,7 +190,8 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 3. Save Decision（奏折）→ 通过主后端
 4. Save Task（行动项）→ 通过主后端
 5. Save JournalEntry（御史台 + 谏官报告）→ 通过主后端
-6. 更新 _meta/STATUS.md
+6. 更新 projects/{p}/index.md（版本、阶段、当前重点）— 这是唯一权威源
+7. 从所有 projects/*/index.md 编译 _meta/STATUS.md — 禁止手写项目版本到 STATUS.md
 7. 更新 _meta/lint-state.md
 8. 如果谏官有"📝 模式更新建议"→ 追加写入 user-patterns.md
 9. 提交主后端（如为 GitHub：git add + commit + push）

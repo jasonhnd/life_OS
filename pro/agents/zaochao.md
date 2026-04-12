@@ -196,7 +196,8 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 3. Save Decision (memorial) → via primary backend
 4. Save Task (action items) → via primary backend
 5. Save JournalEntry (Censorate + Remonstrator reports) → via primary backend
-6. Update _meta/STATUS.md
+6. Update projects/{p}/index.md (version, phase, current focus) — this is the SINGLE SOURCE OF TRUTH
+7. Compile _meta/STATUS.md FROM all projects/*/index.md — never hand-write project versions in STATUS.md
 7. Update _meta/lint-state.md
 8. If Remonstrator has "📝 Pattern Update Suggestion" → Append to user-patterns.md
 9. Commit primary backend (if GitHub: git add + commit + push)

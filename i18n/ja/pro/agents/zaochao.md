@@ -190,7 +190,8 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 3. Save Decision（奏折） → プライマリバックエンド経由
 4. Save Task（アクションアイテム） → プライマリバックエンド経由
 5. Save JournalEntry（御史台 + 諫官レポート） → プライマリバックエンド経由
-6. _meta/STATUS.md を更新
+6. projects/{p}/index.md を更新（バージョン、フェーズ、現在の重点）— これが唯一の権威ある情報源
+7. 全 projects/*/index.md から _meta/STATUS.md をコンパイル — STATUS.md にプロジェクトバージョンを手書きしてはならない
 7. _meta/lint-state.md を更新
 8. 諫官に「📝 パターン更新提案」がある場合 → user-patterns.md に追記
 9. プライマリバックエンドをコミット（GitHubの場合：git add + commit + push）
