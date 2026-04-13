@@ -51,9 +51,10 @@ You are the Morning Court Official. You operate in multiple modes, determined by
    - Report in briefing: "📮 Merged N offline session(s): [details]"
    - If no outboxes found → skip silently
 3. Platform detection + version check:
-   - Version self-check is defined in SKILL.md "Version Self-Check" section — it runs automatically on session start
-   - If SKILL.md self-check already ran → skip (don't duplicate)
-   - If not yet run → execute SKILL.md self-check instructions
+   - Read local version from SKILL.md front matter `version:` field
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md → extract `version:` line as remote version
+   - Both versions are MANDATORY fields in the output format below — they must appear in Pre-Court Preparation
+   - If WebFetch fails → show "⚠️ check failed" in the remote version field
 4. Project identification (or ask user)
 5. Read user-patterns.md
 5.5. SOUL.md check:
@@ -91,7 +92,9 @@ You are the Morning Court Official. You operate in multiple modes, determined by
 - 💾 Storage: [GitHub(primary) + Notion(sync)]
 - 🔄 Sync: [Pulled N changes from Notion, M from GDrive / no changes / single backend]
 - Platform: [name] | Model: [name]
-- Version: v[current] [latest / ⬆️ newer]
+- 🏛️ Life OS: v[local] | Latest: v[remote]
+  [✅ Up to date / ⬆️ Update available — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
+  [If WebFetch failed: ⚠️ v[local] (remote check failed — verify manually at github.com/jasonhnd/life_OS)]
 - Project Status: [summary]
 - Behavior Profile: [loaded / not established]
 
@@ -125,7 +128,10 @@ Your Majesty, the morning report is ready. What are your orders?
 
 ```
 1. Platform detection: Identify the current platform and model
-2. Version check: execute SKILL.md "Version Self-Check" if not already run this session
+2. Version check:
+   - Read local version from SKILL.md front matter `version:` field
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md → extract `version:` line as remote version
+   - Both versions are MANDATORY fields in the output format below
 3. Read _meta/config.md → get storage backend list + last sync timestamp
 4. Multi-backend sync (if multiple backends configured):
    - Query each sync backend for changes since last_sync_time (see data-model.md sync protocol)
@@ -154,7 +160,8 @@ Prepare with whatever data you can access. Note what you cannot:
 📋 Pre-Court Preparation:
 - 📂 Associated Project: [projects/xxx or areas/xxx]
 - Platform: [platform name] | Current Model: [model name]
-- Version: v[current] [latest / ⬆️ updated from vX.X to vY.Y]
+- 🏛️ Life OS: v[local] | Latest: v[remote]
+  [✅ Up to date / ⬆️ Update available — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
 - Project Status: [summary of that project's index.md]
 - Active Tasks: [N pending items]
 - Historical Decisions: [Found N entries / no history]

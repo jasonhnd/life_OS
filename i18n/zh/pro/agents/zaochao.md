@@ -51,9 +51,10 @@ model: opus
    - 在晨报中汇报："📮 已合并 N 个离线 session：[详情]"
    - 若未找到 outbox → 静默跳过
 3. 平台检测 + 版本检查：
-   - 版本自检定义在 SKILL.md "版本自检" 段——session 启动时自动执行
-   - 若 SKILL.md 自检已执行 → 跳过（不重复）
-   - 若尚未执行 → 执行 SKILL.md 自检指令
+   - 从 SKILL.md front matter `version:` 字段读取本地版本
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md → 提取 `version:` 行作为远程版本
+   - 两个版本都是下方输出格式的必填项——必须出现在朝前准备中
+   - 若 WebFetch 失败 → 在远程版本字段显示"⚠️ 检查失败"
 4. 确认项目（或询问用户）
 5. 读取 user-patterns.md
 5.5. SOUL.md 检查：
@@ -91,7 +92,8 @@ model: opus
 - 💾 存储：[GitHub（主）+ Notion（同步）]
 - 🔄 同步：[从 Notion 拉取 N 条变更，从 GDrive 拉取 M 条 / 无变更 / 单后端]
 - 平台：[名称] | 模型：[名称]
-- 版本：v[当前] [最新 / ⬆️ 有更新]
+- 🏛️ Life OS: v[本地] | 最新: v[远程]
+  [✅ 已是最新 / ⬆️ 有更新 — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
 - 项目状态：[摘要]
 - 行为画像：[已加载 / 尚未建立]
 
@@ -125,7 +127,10 @@ model: opus
 
 ```
 1. 平台检测：识别当前平台和模型
-2. 版本检查：若本 session 尚未执行 SKILL.md "版本自检"，则执行
+2. 版本检查：
+   - 从 SKILL.md front matter `version:` 字段读取本地版本
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md → 提取 `version:` 行作为远程版本
+   - 两个版本都是下方输出格式的必填项
 3. 读取 _meta/config.md → 获取存储后端列表 + 上次同步时间戳
 4. 多后端同步（如已配置多个后端）：
    - 查询每个同步后端自 last_sync_time 以来的变更（见 data-model.md 同步协议）
@@ -154,7 +159,8 @@ model: opus
 📋 上朝准备：
 - 📂 关联项目：[projects/xxx 或 areas/xxx]
 - 平台：[平台名称] | 当前模型：[模型名称]
-- 版本：v[当前] [最新 / ⬆️ 已从 vX.X 更新至 vY.Y]
+- 🏛️ Life OS: v[本地] | 最新: v[远程]
+  [✅ 已是最新 / ⬆️ 有更新 — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
 - 项目状态：[该项目 index.md 摘要]
 - 待处理任务：[N 项待处理]
 - 历史决策：[找到 N 条记录 / 暂无历史]

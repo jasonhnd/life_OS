@@ -51,9 +51,10 @@ model: opus
    - ブリーフィングで報告：「📮 N個のオフライン session をマージ: [詳細]」
    - outbox が見つからない場合 → 省略
 3. プラットフォーム検出 + バージョンチェック：
-   - バージョン自己チェックは SKILL.md「バージョン自己チェック」セクションで定義——セッション開始時に自動実行
-   - SKILL.md 自己チェックが実行済みの場合 → スキップ（重複しない）
-   - まだ実行されていない場合 → SKILL.md 自己チェック指示を実行
+   - SKILL.md フロントマター `version:` フィールドからローカルバージョンを読み取る
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md → `version:` 行をリモートバージョンとして抽出
+   - 両バージョンは以下の出力フォーマットの必須フィールド——朝議前準備に必ず表示
+   - WebFetch が失敗した場合 → リモートバージョンフィールドに「⚠️ チェック失敗」と表示
 4. プロジェクト特定（またはユーザーに確認）
 5. user-patterns.md を読む
 5.5. SOUL.md チェック:
@@ -91,7 +92,8 @@ model: opus
 - 💾 ストレージ: [GitHub(primary) + Notion(sync)]
 - 🔄 同期: [Notionから N件の変更を取得、GDriveから M件 / 変更なし / 単一バックエンド]
 - プラットフォーム: [名称] | モデル: [名称]
-- バージョン: v[現在] [最新 / ⬆️ 新バージョンあり]
+- 🏛️ Life OS: v[ローカル] | 最新: v[リモート]
+  [✅ 最新 / ⬆️ 更新あり — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
 - プロジェクトステータス: [要約]
 - 行動プロファイル: [読み込み済み / 未確立]
 
@@ -125,7 +127,10 @@ model: opus
 
 ```
 1. プラットフォーム検出：現在のプラットフォームとモデルを特定
-2. バージョンチェック：本セッションでまだ SKILL.md「バージョン自己チェック」が実行されていなければ実行
+2. バージョンチェック：
+   - SKILL.md フロントマター `version:` フィールドからローカルバージョンを読み取る
+   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md → `version:` 行をリモートバージョンとして抽出
+   - 両バージョンは以下の出力フォーマットの必須フィールド
 3. _meta/config.md を読む → ストレージバックエンドリスト + 最終同期タイムスタンプを取得
 4. マルチバックエンド同期（複数バックエンドが設定されている場合）：
    - 各同期バックエンドに last_sync_time 以降の変更を問い合わせ（data-model.md の同期プロトコル参照）
@@ -154,7 +159,8 @@ model: opus
 📋 朝議前準備:
 - 📂 関連プロジェクト: [projects/xxx or areas/xxx]
 - プラットフォーム: [プラットフォーム名] | 現在のモデル: [モデル名]
-- バージョン: v[現在] [最新 / ⬆️ vX.X から vY.Y に更新済み]
+- 🏛️ Life OS: v[ローカル] | 最新: v[リモート]
+  [✅ 最新 / ⬆️ 更新あり — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
 - プロジェクトステータス: [当該プロジェクトのindex.mdの要約]
 - アクティブタスク: [N件の未処理アイテム]
 - 過去の意思決定: [N件発見 / 履歴なし]

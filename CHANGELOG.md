@@ -6,6 +6,18 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.3d] - 2026-04-13 · Version Check as Output Format Field
+
+> Version detection moved from a standalone instruction (that LLMs skip) to a mandatory field in the Pre-Court Preparation output template (that LLMs reliably fill).
+
+- **Version display is now a template field**: `🏛️ Life OS: v[local] | Latest: v[remote]` with update instructions shown inline
+- **zaochao.md Mode 0 + Mode 1**: Step 3 now explicitly fetches remote version via WebFetch; both local and remote versions are mandatory output fields
+- **chengxiang.md**: Pre-Court Preparation format synced with same version display
+- **SKILL.md**: Removed verbose Version Self-Check section (moved to output format)
+- Works because LLMs reliably fill output templates (HARD RULE #13) even when they skip standalone instructions
+
+---
+
 ## [1.4.3c] - 2026-04-13 · Version Self-Check in SKILL.md
 
 > Version detection moved from agent files to SKILL.md — the first file every LLM reads. Solves the bootstrap paradox where outdated agent files couldn't detect their own updates.

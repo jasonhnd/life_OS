@@ -1,30 +1,12 @@
 ---
 name: life-os
-version: "1.4.3c"
+version: "1.4.3d"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
 # Life OS · Three Departments & Six Ministries Personal Cabinet
 
 🌍 [English](SKILL.md) | [中文](i18n/zh/SKILL.md) | [日本語](i18n/ja/SKILL.md)
-
-## Version Self-Check (MUST RUN on every session start)
-
-Before doing anything else, check if this skill is up to date:
-
-1. Read the `version` field in the front matter above (this file's first line after `---`)
-2. Fetch the remote version: `WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md` → extract the `version:` line
-3. Compare:
-   - If remote version > local version → **report to user**: "⬆️ Life OS update available: v{local} → v{remote}. Update now?"
-     - If user agrees → run the platform-appropriate update command:
-       - Claude Code: `/install-skill https://github.com/jasonhnd/life_OS`
-       - Gemini CLI / Antigravity: `npx skills add jasonhnd/life_OS`
-       - Codex CLI: `npx skills add jasonhnd/life_OS`
-     - After update: "✅ Life OS updated to v{remote}. Reloading..."
-   - If versions match → skip silently
-   - If WebFetch fails → report: "⚠️ Version check failed (network issue). Running local v{local}."
-
-This check is in SKILL.md (not in an agent file) so it runs even when other files are outdated.
 
 ---
 
@@ -330,6 +312,12 @@ Pro Mode launches 14 independent subagents with true information isolation and p
 | **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` | `pro/CLAUDE.md` |
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` | `pro/GEMINI.md` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` | `pro/AGENTS.md` |
+
+**Auto-Update Hook (Claude Code only, recommended)**:
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
+Run once after install. Adds a SessionStart hook that checks for updates daily. Without this, the Version Self-Check section above is the fallback (less reliable).
 
 **Platform Auto-Detection**: When Pro Mode is available, the system automatically selects the correct orchestration file:
 

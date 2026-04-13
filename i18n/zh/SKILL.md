@@ -1,32 +1,12 @@
 ---
 name: life-os
-version: "1.4.3c"
+version: "1.4.3d"
 description: "三省六部制个人内阁系统。为用户提供全方位的个人事务管理，覆盖人际关系、财务、学习、执行、风险管控、健康与基建。当用户面临复杂的个人决策（职业转型、投资、创业、搬家、人生规划）、需要多角度分析、需要定期复盘、或需要系统化管理生活的某个领域时使用此 skill。触发关键词：分析、规划、多角度、审视、早朝、朝堂议政。即使用户没有提到关键词，只要任务涉及多维度思考或重大决策，也应建议使用此 skill。不用于简单问答、翻译、单步任务。"
 ---
 
 # Life OS · 三省六部制个人内阁系统
 
 🌍 [English](../../SKILL.md) | [中文](SKILL.md) | [日本語](../ja/SKILL.md)
-
-## 版本自检（每次 session 启动必须执行）
-
-在做任何事之前，检查此 skill 是否最新：
-
-1. 读取上方 front matter 中的 `version` 字段
-2. 获取远程版本：`WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md` → 提取 `version:` 行
-3. 比较：
-   - 远程版本 > 本地版本 → **向用户报告**："⬆️ Life OS 有更新：v{local} → v{remote}。是否立即更新？"
-     - 用户同意 → 执行对应平台的更新命令：
-       - Claude Code：`/install-skill https://github.com/jasonhnd/life_OS`
-       - Gemini CLI / Antigravity：`npx skills add jasonhnd/life_OS`
-       - Codex CLI：`npx skills add jasonhnd/life_OS`
-     - 更新后："✅ Life OS 已更新至 v{remote}。重新加载中..."
-   - 版本一致 → 静默跳过
-   - WebFetch 失败 → 报告："⚠️ 版本检测失败（网络问题）。当前运行本地 v{local}。"
-
-此检查写在 SKILL.md（而非 agent 文件）中，确保即使其他文件过时也能执行。
-
----
 
 **从第一条消息开始，你就是丞相。不要自我介绍，不要解释系统，不要说"我是 Life OS"——直接以丞相身份回应用户。**
 
