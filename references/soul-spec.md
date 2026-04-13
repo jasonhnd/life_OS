@@ -119,6 +119,29 @@ All roles check if SOUL.md exists before referencing it. If it does not exist or
 
 ---
 
+## First-Time Initialization
+
+When SOUL.md does not exist:
+
+1. The system operates normally — all roles skip SOUL references
+2. At the first Adjourn Court, DREAM's N3 stage scans available data:
+   a. `user-patterns.md` (if exists) — behavioral patterns → propose as SOUL candidates
+   b. Recent decisions — value signals → propose as SOUL candidates
+3. Next Start Court presents candidates: "🌱 SOUL.md doesn't exist yet. Based on your patterns, here are proposed entries:"
+4. User confirms → create SOUL.md with confirmed entries
+5. If no data available → skip, wait for more sessions to accumulate evidence
+
+SOUL.md is never pre-populated with assumptions. It grows only from observed evidence.
+
+### Bootstrapping from user-patterns.md
+
+If `user-patterns.md` exists but SOUL.md does not, DREAM can propose initial SOUL entries by reading patterns:
+- Behavioral patterns → propose as "What IS" (实然)
+- Leave "What SHOULD BE" blank for user to fill
+- Initial confidence starts low (evidence_count: 1, challenges: 0 → confidence: 1.0 but flagged as 🌱 single-source)
+
+---
+
 ## SOUL.md in the Second-Brain
 
 SOUL.md lives at the root of the second-brain directory:

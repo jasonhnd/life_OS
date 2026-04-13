@@ -213,6 +213,39 @@ second-brain/
 
 ---
 
+## 首次初始化
+
+当早朝官检测到 wiki/ 为空或没有 INDEX.md 时：
+
+1. 在晨报中报告："📚 Wiki 尚未初始化。是否要进行设置？"
+2. 如果用户同意：
+   a. 扫描 `decisions/` 和 `_meta/journal/` 中可提取的结论（与 DREAM N3 Q2 相同逻辑）
+   b. 呈现前 5 个候选 wiki 条目供用户确认
+   c. 每个确认的条目：创建 `wiki/{domain}/{topic}.md`，包含正确的 front matter
+   d. 编译 `wiki/INDEX.md`
+3. 如果用户拒绝 → 跳过，下次上朝再提醒
+
+此流程只触发一次。INDEX.md 存在后，正常 wiki 流程接管。
+
+---
+
+## 旧格式迁移
+
+当 wiki/ 包含不符合 spec 格式的文件（无 front matter、无领域子目录、标题≠结论）时：
+
+1. 在晨报中报告："📚 发现 N 个不符合当前规范的旧格式 wiki 文件。是否迁移？"
+2. 如果用户同意：
+   a. 逐个读取旧文件
+   b. 每个文件提取 1-3 个可复用结论 → 作为新 wiki 条目候选
+   c. 用户逐一确认 → 写入 `wiki/{domain}/{topic}.md`
+   d. 将原始文件移至 `wiki/_archive/`（保留，不删除）
+   e. 重新编译 INDEX.md
+3. 如果用户拒绝 → 保持原样，不阻塞正常流程
+
+wiki/ 根目录中的旧格式文件（无 front matter）会被 INDEX.md 编译忽略。
+
+---
+
 ## 约束
 
 - **用户确认所有写入** -- wiki 条目永远不会自动创建

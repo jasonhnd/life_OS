@@ -6,6 +6,17 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.3a] - 2026-04-13 · Wiki & SOUL Initialization Guidance
+
+> The system now detects when wiki/ and SOUL.md haven't been initialized, and guides the user through first-time setup and legacy migration.
+
+- **Wiki first-time initialization**: Morning Court Official detects empty wiki/ or missing INDEX.md → proposes extracting conclusions from existing decisions/journal
+- **Wiki legacy migration**: Detects old-format wiki files (research reports without front matter) → proposes extracting conclusions and archiving originals
+- **SOUL bootstrapping**: When SOUL.md doesn't exist, DREAM proposes initial entries from user-patterns.md at the first Adjourn Court
+- **Start Court detection**: Steps 5.5 (SOUL check) and 10.5 (wiki health check) now report initialization status in the briefing
+
+---
+
 ## [1.4.3] - 2026-04-13 · Wiki Activation — Knowledge Pipeline Comes Alive
 
 > The cognitive pipeline's "settle → emerge" stages finally work. Wiki goes from an empty directory to an active knowledge participant.

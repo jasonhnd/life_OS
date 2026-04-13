@@ -119,6 +119,29 @@ SOUL 条目按维度组织。常见维度包括：
 
 ---
 
+## 首次初始化
+
+当 SOUL.md 不存在时：
+
+1. 系统正常运行——所有角色跳过 SOUL 引用
+2. 首次退朝时，DREAM 的 N3 阶段扫描可用数据：
+   a. `user-patterns.md`（如果存在）——行为模式 → 作为 SOUL 候选提出
+   b. 近期决策——价值信号 → 作为 SOUL 候选提出
+3. 下次上朝呈现候选："🌱 SOUL.md 尚未创建。根据你的行为模式，以下是建议的初始条目："
+4. 用户确认 → 创建 SOUL.md 并写入确认的条目
+5. 如果没有可用数据 → 跳过，等待更多 session 积累证据
+
+SOUL.md 永远不会用假设预填充。它只从观察到的证据中成长。
+
+### 从 user-patterns.md 引导启动
+
+如果 `user-patterns.md` 存在但 SOUL.md 不存在，DREAM 可以通过读取行为模式来提出初始 SOUL 条目：
+- 行为模式 → 作为"实然"（What IS）提出
+- "应然"（What SHOULD BE）留空让用户填写
+- 初始置信度较低（evidence_count: 1, challenges: 0 → confidence: 1.0 但标记为 🌱 单源）
+
+---
+
 ## 第二大脑中的 SOUL.md
 
 SOUL.md 位于第二大脑目录的根目录：

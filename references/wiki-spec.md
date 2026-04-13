@@ -213,6 +213,39 @@ second-brain/
 
 ---
 
+## First-Time Initialization
+
+When the Morning Court Official detects that wiki/ is empty or has no INDEX.md:
+
+1. Report in briefing: "📚 Wiki is not yet initialized. Would you like to set it up?"
+2. If user agrees:
+   a. Scan `decisions/` and `_meta/journal/` for extractable conclusions (same logic as DREAM N3 Q2)
+   b. Present top 5 candidates as wiki entries for user confirmation
+   c. For each confirmed entry: create `wiki/{domain}/{topic}.md` with proper front matter
+   d. Compile `wiki/INDEX.md`
+3. If user declines → skip, remind next Start Court
+
+This only triggers once. After INDEX.md exists, normal wiki flow takes over.
+
+---
+
+## Legacy Migration
+
+When wiki/ contains files that don't match the spec format (no front matter, no domain subdirectory, title ≠ conclusion):
+
+1. Report in briefing: "📚 Found N legacy wiki files not matching current spec. Migrate?"
+2. If user agrees:
+   a. Read each legacy file
+   b. Extract 1-3 reusable conclusions per file → propose as new wiki entries
+   c. User confirms each → write to `wiki/{domain}/{topic}.md`
+   d. Move original file to `wiki/_archive/` (preserve, don't delete)
+   e. Recompile INDEX.md
+3. If user declines → leave as-is, don't block normal flow
+
+Legacy files in wiki/ root (without front matter) are ignored by INDEX.md compilation.
+
+---
+
 ## Constraints
 
 - **User confirms all writes** — wiki entries are never auto-created

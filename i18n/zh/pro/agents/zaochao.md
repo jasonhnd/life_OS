@@ -62,6 +62,11 @@ model: opus
    - 若版本一致：静默跳过
 4. 确认项目（或询问用户）
 5. 读取 user-patterns.md
+5.5. SOUL.md 检查：
+   - 若 SOUL.md 存在 → 读取并包含在上下文中
+   - 若 SOUL.md 不存在但 user-patterns.md 存在：
+     → 在晨报中提示："🌱 SOUL.md 尚未创建。经过几次 session 后，DREAM 将从你的行为模式中提出初始条目。"
+   - 两者都不存在 → 静默跳过
 6. 读取 _meta/STATUS.md + _meta/lint-state.md
 7. ReadProjectContext（绑定项目）
 8. 全局概览：列出所有项目 + 领域标题 + 状态
@@ -73,10 +78,14 @@ model: opus
      - 用户确认 → 写入 wiki/{domain}/{topic}.md
      - 用户拒绝 → 跳过
    - 标记为已展示，不再重复显示
-10.5. 读取 wiki/INDEX.md（若存在）：
-   - 从所有 wiki/ 条目编译 wiki/INDEX.md（每次重新生成）
-   - 在晨报中包含："📚 Wiki：N 条知识，覆盖 M 个领域"
-   - 若 wiki/ 为空或不存在 → 静默跳过
+10.5. Wiki 健康检查：
+   a. 若 wiki/ 不存在或为空 → 静默跳过
+   b. 若 wiki/ 有文件但无 INDEX.md：
+      - 检查文件是否符合 spec 格式（包含 domain/topic/confidence 的 front matter）
+      - 若无文件符合 → 报告："📚 发现 N 个不符合当前规范的旧格式 wiki 文件。是否迁移？（参见 wiki-spec.md 旧格式迁移）"
+      - 若部分文件符合 → 从符合的文件编译 INDEX.md，单独报告旧格式文件
+   c. 若 wiki/INDEX.md 存在 → 从 wiki/ 条目重新编译（每次重新生成）
+   d. 在晨报中包含："📚 Wiki：N 条知识，覆盖 M 个领域"（或初始化/迁移状态）
 11. 生成晨报：所有领域状态 + 指标仪表板 + 逾期任务 + 待定决策 + 收件箱事项 + 梦报告 + wiki 概览
 ```
 
