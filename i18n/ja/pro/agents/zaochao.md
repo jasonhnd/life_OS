@@ -255,9 +255,15 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 8. 諫官に「📝 パターン更新提案」がある場合 → patterns-delta.md を書く（追記内容）
 9. manifest.md を書く → session メタデータ（platform、model、project(s)、timestamp、出力数、wiki 候補数）
 10. git add _meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ、他は何も触らない）
-11. outbox の内容を Notion に同期（設定されている場合）
+11. Notion に同期（Notion がバックエンドとして設定されている場合——無言でスキップしてはならない）：
+   a. 🧠 現在の状態ページ：最新の STATUS.md 内容で上書き（必要に応じて全 index.md からコンパイル）
+   b. 📋 ToDo ボード：本セッションのタスクを同期（新タスク → 作成、完了タスク → チェック）
+   c. 📝 ワーキングメモリ：セッションサマリーを書き込み（主題、主要結論、アクションアイテム）
+   d. 📬 受信箱：処理済みの受信箱アイテムを「同期済み」にマーク
+   e. Notion MCP が利用不可 → 明示的に報告：「⚠️ Notion 同期失敗——次回の成功した同期までモバイルでは本セッションの更新を確認できません」
+   f. Notion MCP は利用可能だが特定の書き込みが失敗 → どの書き込みが失敗したか報告し、他は続行
 12. _meta/config.md の last_sync_time を更新
-13. バックエンド障害 → _meta/sync-log.md にログ、⚠️を注記、ブロックしない
+13. GitHub バックエンド障害 → _meta/sync-log.md にログ、⚠️を注記、ブロックしない
 
 **CRITICAL**: ラップアップ中は projects/、_meta/STATUS.md、user-patterns.md に直接書き込まないこと。すべての出力は outbox へ。マージは次の上朝またはハウスキーピング時に行う。
 ```
@@ -276,10 +282,15 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 2.5. Mode 3 がすでに実行済みだがナレッジ抽出をスキップした場合 → ここでステップ 6.5 を実行（DREAM 前の最後のチャンス）
 3. DREAM エージェントを起動 → ドリームレポートを _meta/outbox/{session-id}/journal/{date}-dream.md に書き込む
 4. git add _meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ）
-5. outbox の内容を設定済みの全バックエンドに同期
+5. Notion に同期（Mode 3 ステップ 11 と同じ——無言でスキップしてはならない）：
+   a. 🧠 現在の状態ページ：最新の STATUS.md 内容で上書き
+   b. 📋 ToDo ボード：本セッションのタスクを同期
+   c. 📝 ワーキングメモリ：セッションサマリーを書き込み
+   d. 📬 受信箱：処理済みアイテムを「同期済み」にマーク
+   e. Notion MCP 利用不可 → 報告：「⚠️ Notion 同期失敗——モバイルでは更新を確認できません」
 6. _meta/config.md の last_sync_time を更新
-7. バックエンド障害 → ログ、⚠️を注記、ブロックしない
-8. 確認：「退朝しました。Session 出力を outbox に保存しました。💤 システムはただいま夢を見ています...」
+7. GitHub バックエンド障害 → ログ、⚠️を注記、ブロックしない
+8. 確認：「退朝しました。Session 出力を outbox に保存 + Notion 同期完了。💤 システムはただいま夢を見ています...」
 
 **CRITICAL**: 退朝中は projects/、_meta/STATUS.md、user-patterns.md に直接書き込まないこと。すべての出力は outbox へ。マージは次の上朝またはハウスキーピング時に行う。
 ```

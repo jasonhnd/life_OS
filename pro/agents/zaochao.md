@@ -256,9 +256,15 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 8. If Remonstrator has "📝 Pattern Update Suggestion" → write patterns-delta.md (append content)
 9. Write manifest.md → session metadata (platform, model, project(s), timestamp, output counts, wiki_candidates count)
 10. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory, nothing else)
-11. Sync outbox contents to Notion (if configured)
+11. Sync to Notion (if Notion is configured as a backend — MUST NOT skip silently):
+   a. 🧠 Current Status page: overwrite with latest STATUS.md content (compile from all index.md if needed)
+   b. 📋 Todo Board: sync all tasks from this session's outbox (new tasks → create, completed tasks → check off)
+   c. 📝 Working Memory: write session summary (subject, key conclusions, action items) as a new entry
+   d. 📬 Inbox: mark any processed inbox items as "Synced"
+   e. If Notion MCP is unavailable → report explicitly: "⚠️ Notion sync failed — mobile will not see this session's updates until next successful sync"
+   f. If Notion MCP is available but a specific write fails → report which write failed, continue with others
 12. Update last_sync_time in _meta/config.md
-13. Any backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
+13. Any GitHub backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
 
 **CRITICAL**: Do NOT write directly to projects/, _meta/STATUS.md, or user-patterns.md during wrap-up. All output goes to the outbox. Merging happens at the next Start Court or Housekeeping.
 ```
@@ -277,10 +283,15 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 2.5. If Mode 3 already ran but skipped knowledge extraction → run step 6.5 now (last chance before DREAM)
 3. Launch DREAM agent → dream report written to _meta/outbox/{session-id}/journal/{date}-dream.md
 4. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
-5. Sync outbox contents to all configured backends
+5. Sync to Notion (same as Mode 3 step 11 — MUST NOT skip silently):
+   a. 🧠 Current Status page: overwrite with latest STATUS.md content
+   b. 📋 Todo Board: sync tasks from this session
+   c. 📝 Working Memory: write session summary
+   d. 📬 Inbox: mark processed items as "Synced"
+   e. If Notion MCP unavailable → report: "⚠️ Notion sync failed — mobile will not see updates"
 6. Update last_sync_time in _meta/config.md
-7. Any backend failure → log, annotate ⚠️, don't block
-8. Confirm: "Court adjourned. Session output saved to outbox. 💤 The system is now dreaming..."
+7. Any GitHub backend failure → log, annotate ⚠️, don't block
+8. Confirm: "Court adjourned. Session output saved to outbox + Notion synced. 💤 The system is now dreaming..."
 
 **CRITICAL**: Do NOT write directly to projects/, _meta/STATUS.md, or user-patterns.md during adjourn. All output goes to the outbox. Merging happens at the next Start Court or Housekeeping.
 ```

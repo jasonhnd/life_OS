@@ -255,9 +255,15 @@ OFR [======----] X%      [绿/黄/红]
 8. 若谏官有"📝 Pattern Update Suggestion" → 写入 patterns-delta.md（追加内容）
 9. 写入 manifest.md → session 元数据（平台、模型、项目、时间戳、产出数量、wiki 候选数量）
 10. git add _meta/outbox/{session-id}/ → commit → push（仅 outbox 目录，不含其他）
-11. 同步 outbox 内容至 Notion（如已配置）
+11. 同步至 Notion（如已配置 Notion 后端——不得静默跳过）：
+   a. 🧠 当前状态页：用最新 STATUS.md 内容覆写（必要时从所有 index.md 编译）
+   b. 📋 待办看板：同步本次 session 的任务（新任务 → 创建，已完成 → 勾选）
+   c. 📝 工作记忆：写入 session 摘要（主题、关键结论、行动项）
+   d. 📬 信箱：将已处理的信箱条目标记为"已同步"
+   e. 若 Notion MCP 不可用 → 明确报告："⚠️ Notion 同步失败——手机端将无法看到本次 session 的更新，直到下次成功同步"
+   f. 若 Notion MCP 可用但某项写入失败 → 报告哪项失败，继续其他项
 12. 在 _meta/config.md 中更新 last_sync_time
-13. 任何后端失败 → 记录至 _meta/sync-log.md，标注 ⚠️，不阻塞流程
+13. 任何 GitHub 后端失败 → 记录至 _meta/sync-log.md，标注 ⚠️，不阻塞流程
 
 **关键**：收朝时不得直接写入 projects/、_meta/STATUS.md 或 user-patterns.md。所有产出进入 outbox。合并在下次上朝或家政模式时进行。
 ```
@@ -276,10 +282,15 @@ OFR [======----] X%      [绿/黄/红]
 2.5. 若模式 3 已执行但跳过了知识萃取 → 现在执行步骤 6.5（DREAM 前的最后机会）
 3. 启动 DREAM 代理 → 梦报告写入 _meta/outbox/{session-id}/journal/{date}-dream.md
 4. git add _meta/outbox/{session-id}/ → commit → push（仅 outbox 目录）
-5. 同步 outbox 内容至所有已配置后端
+5. 同步至 Notion（同模式 3 步骤 11——不得静默跳过）：
+   a. 🧠 当前状态页：用最新 STATUS.md 内容覆写
+   b. 📋 待办看板：同步本次 session 的任务
+   c. 📝 工作记忆：写入 session 摘要
+   d. 📬 信箱：将已处理条目标记为"已同步"
+   e. 若 Notion MCP 不可用 → 报告："⚠️ Notion 同步失败——手机端将无法看到更新"
 6. 在 _meta/config.md 中更新 last_sync_time
-7. 任何后端失败 → 记录，标注 ⚠️，不阻塞流程
-8. 确认："退朝。Session 产出已保存至 outbox。💤 系统正在做梦……"
+7. 任何 GitHub 后端失败 → 记录，标注 ⚠️，不阻塞流程
+8. 确认："退朝。Session 产出已保存至 outbox + Notion 已同步。💤 系统正在做梦……"
 
 **关键**：退朝时不得直接写入 projects/、_meta/STATUS.md 或 user-patterns.md。所有产出进入 outbox。合并在下次上朝或家政模式时进行。
 ```
