@@ -6,6 +6,17 @@
 
 ---
 
+## [1.4.3b] - 2026-04-13 · 退朝流程知识萃取
+
+> Wiki 提取不再完全依赖 DREAM。退朝流程现在直接扫描 session 产出并在 DREAM 运行前向用户提出 wiki 候选。
+
+- **退朝知识萃取（步骤 6.5）**：收朝和退朝模式现在扫描 session 产出中的可复用结论 → 向用户提出 wiki 候选 → 确认的条目写入 outbox wiki/
+- **Outbox wiki 合并**：上朝合并现在处理 outbox 中的 wiki/ 文件 → 移动到 wiki/{domain}/{topic}.md
+- **DREAM 去重**：DREAM N3 检查退朝流程是否已提取 wiki 候选（通过 manifest）→ 跳过重复提议，只关注遗漏的结论
+- **Outbox 格式**：manifest.md 的 outputs 中新增 `wiki` 计数
+
+---
+
 ## [1.4.3a] - 2026-04-13 · Wiki & SOUL 初始化引导
 
 > 系统现在能检测到 wiki/ 和 SOUL.md 尚未初始化，并引导用户完成首次设置和旧格式迁移。

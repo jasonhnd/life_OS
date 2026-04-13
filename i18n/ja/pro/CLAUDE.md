@@ -95,6 +95,7 @@
 
 `zaochao`（退朝モード）を起動し、奏折 + 御史台報告 + 諫官報告を渡す。早朝官の担当：
 1. セカンドブレインへの書き込み：決定 → `projects/{p}/decisions/` または `_meta/decisions/`、タスク → `projects/{p}/tasks/`、レポート → `_meta/journal/`
+1.5. **ナレッジ抽出**：全 session 出力をスキャンし、現在のプロジェクトを超えて再利用可能な結論を探す → ユーザーに wiki 候補を提示 → 確認されたエントリを outbox wiki/ に書き込み
 2. `_meta/STATUS.md` の更新（グローバル状態スナップショット）
 3. user-patterns.md の更新（諫官がパターン更新を提案した場合）
 4. git add + commit + push

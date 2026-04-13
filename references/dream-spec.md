@@ -61,6 +61,7 @@ N3 asks two questions:
 
 From the recent 3 days, extract deeper patterns:
 - Reusable conclusions from decisions → propose wiki candidates (see Wiki Candidate format below)
+  **Dedup**: Check the most recent outbox manifest — if `wiki: N` (N > 0), that session's adjourn flow already extracted wiki candidates. Focus only on conclusions the adjourn flow missed. Don't re-propose.
 - Scan wiki/INDEX.md (if exists): new evidence supporting existing entries → propose evidence_count update; new evidence contradicting existing entries → propose challenges update
 - `user-patterns.md` entries that need updating based on new evidence → propose changes
 - **SOUL.md candidate entries** → propose new entries or updates to existing ones (see SOUL Candidate format below)

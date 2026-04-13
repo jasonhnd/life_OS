@@ -42,6 +42,7 @@ You are the Morning Court Official. You operate in multiple modes, determined by
      d. Move journal/ files → _meta/journal/
      e. Apply index-delta.md → update corresponding projects/{p}/index.md
      f. Append patterns-delta.md → add to user-patterns.md
+     f2. Move wiki/ files → wiki/{domain}/{topic}.md (read domain from each file's front matter, create subdirectory if needed)
      g. Delete the outbox directory after successful merge
    - After all outboxes merged:
      h. Compile _meta/STATUS.md from all projects/*/index.md
@@ -237,9 +238,27 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 4. Save Decision (memorial) → _meta/outbox/{session-id}/decisions/ (each file has project field in front matter)
 5. Save Task (action items) → _meta/outbox/{session-id}/tasks/ (each file has project field)
 6. Save JournalEntry (Censorate + Remonstrator reports) → _meta/outbox/{session-id}/journal/
+6.5. KNOWLEDGE EXTRACTION:
+   Scan all session outputs (decisions, memorial, Censorate/Remonstrator reports, journal) and ask:
+   "Is there any conclusion from this session that would be useful beyond this project?"
+   
+   If yes:
+   a. For each extractable conclusion, generate a wiki candidate:
+      - Title = conclusion (not topic), following wiki-spec.md format
+      - Domain classification
+      - 1-2 sentence summary + link back to source decision/journal
+   b. Present candidates to user: "📚 This session produced N knowledge candidates for wiki:"
+      - [candidate 1 title] → wiki/{domain}/{topic}.md
+      - [candidate 2 title] → wiki/{domain}/{topic}.md
+   c. User confirms/edits/rejects each candidate
+   d. Confirmed candidates → write to _meta/outbox/{session-id}/wiki/ with proper front matter
+   e. User says "skip" or "no" → skip all, no problem
+   
+   If nothing extractable → skip silently (don't say "no wiki candidates" every time)
+
 7. Write index-delta.md → record changes to projects/{p}/index.md (version, phase, current focus)
 8. If Remonstrator has "📝 Pattern Update Suggestion" → write patterns-delta.md (append content)
-9. Write manifest.md → session metadata (platform, model, project(s), timestamp, output counts)
+9. Write manifest.md → session metadata (platform, model, project(s), timestamp, output counts, wiki_candidates count)
 10. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory, nothing else)
 11. Sync outbox contents to Notion (if configured)
 12. Update last_sync_time in _meta/config.md
@@ -258,7 +277,8 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ```
 1. If wrap-up (Mode 3) already created an outbox → check for any remaining session outputs not yet archived
-2. If no outbox exists yet → generate session-id, create outbox, write all session outputs (same as Mode 3 steps 2-9)
+2. If no outbox exists yet → generate session-id, create outbox, write all session outputs (same as Mode 3 steps 2-9, INCLUDING step 6.5 Knowledge Extraction)
+2.5. If Mode 3 already ran but skipped knowledge extraction → run step 6.5 now (last chance before DREAM)
 3. Launch DREAM agent → dream report written to _meta/outbox/{session-id}/journal/{date}-dream.md
 4. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
 5. Sync outbox contents to all configured backends

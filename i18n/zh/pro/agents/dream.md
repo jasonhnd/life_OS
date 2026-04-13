@@ -57,6 +57,7 @@ fi
 
 💭 寻找：
 - 决策中的可复用结论 → 是否应成为 wiki 条目？（候选格式见 `references/wiki-spec.md`）
+  **去重检查**：如果最近的 outbox manifest 显示 `wiki: N`（N > 0），说明退朝流程已经提取了该 session 的 wiki 候选。只关注退朝流程可能遗漏的结论——不要重复提议已提取的内容。
 - 若 wiki/INDEX.md 存在，检查：新证据是否支持或反驳已有条目？提出 evidence_count 或 challenges 更新。
 - 行为模式 → `user-patterns.md` 是否需要更新？
 - 价值信号 → 这里是否有 SOUL.md 候选条目？

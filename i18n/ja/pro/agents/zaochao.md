@@ -42,6 +42,7 @@ model: opus
      d. journal/ ファイルを _meta/journal/ に移動
      e. index-delta.md を適用 → 対応する projects/{p}/index.md を更新
      f. patterns-delta.md を追記 → user-patterns.md に追加
+     f2. wiki/ ファイルを移動 → wiki/{domain}/{topic}.md（各ファイルのフロントマターからドメインを読み取り、必要に応じてサブディレクトリを作成）
      g. マージ成功後、outbox ディレクトリを削除
    - 全 outbox のマージ完了後：
      h. 全 projects/*/index.md から _meta/STATUS.md をコンパイル
@@ -237,9 +238,27 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 4. Decision（奏折）を保存 → _meta/outbox/{session-id}/decisions/（各ファイルの front matter にプロジェクトフィールドを含む）
 5. Task（アクションアイテム）を保存 → _meta/outbox/{session-id}/tasks/（各ファイルにプロジェクトフィールドを含む）
 6. JournalEntry（御史台 + 諫官レポート）を保存 → _meta/outbox/{session-id}/journal/
+6.5. ナレッジ抽出：
+   本 session の全出力（意思決定、上奏文、御史台/諫官レポート、ジャーナル）をスキャンし問う：
+   「本 session で、このプロジェクトを超えて再利用可能な結論はあるか？」
+   
+   ある場合：
+   a. 抽出可能な結論ごとに wiki 候補を生成：
+      - タイトル = 結論（トピックではない）、wiki-spec.md フォーマットに従う
+      - ドメイン分類
+      - 1-2 文の要約 + ソース意思決定/ジャーナルへのリンク
+   b. ユーザーに提示：「📚 本 session で N 件のナレッジ候補が生まれました：」
+      - [候補 1 タイトル] → wiki/{domain}/{topic}.md
+      - [候補 2 タイトル] → wiki/{domain}/{topic}.md
+   c. ユーザーが各候補を確認/編集/却下
+   d. 確認された候補 → _meta/outbox/{session-id}/wiki/ に適切なフロントマター付きで書き込む
+   e. ユーザーが「スキップ」→ 全てスキップ
+   
+   抽出可能なものがない場合 → 何も言わずスキップ
+
 7. index-delta.md を書く → projects/{p}/index.md への変更を記録（バージョン、フェーズ、現在の重点）
 8. 諫官に「📝 パターン更新提案」がある場合 → patterns-delta.md を書く（追記内容）
-9. manifest.md を書く → session メタデータ（platform、model、project(s)、timestamp、出力数）
+9. manifest.md を書く → session メタデータ（platform、model、project(s)、timestamp、出力数、wiki 候補数）
 10. git add _meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ、他は何も触らない）
 11. outbox の内容を Notion に同期（設定されている場合）
 12. _meta/config.md の last_sync_time を更新
@@ -258,7 +277,8 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ```
 1. ラップアップ（Mode 3）がすでに outbox を作成済みの場合 → まだアーカイブされていない session 出力が残っていないか確認
-2. outbox がまだ存在しない場合 → session-id を生成し、outbox を作成し、すべての session 出力を書き込む（Mode 3 のステップ2〜9と同じ）
+2. outbox がまだ存在しない場合 → session-id を生成し、outbox を作成し、すべての session 出力を書き込む（Mode 3 のステップ2〜9と同じ、ステップ 6.5 ナレッジ抽出を含む）
+2.5. Mode 3 がすでに実行済みだがナレッジ抽出をスキップした場合 → ここでステップ 6.5 を実行（DREAM 前の最後のチャンス）
 3. DREAM エージェントを起動 → ドリームレポートを _meta/outbox/{session-id}/journal/{date}-dream.md に書き込む
 4. git add _meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ）
 5. outbox の内容を設定済みの全バックエンドに同期

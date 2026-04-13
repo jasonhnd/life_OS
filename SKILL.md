@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.3a"
+version: "1.4.3b"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -193,9 +193,10 @@ Triggered when user says any Adjourn Court trigger word. This is the **complete 
 
 ```
 1. Archive all session outputs to primary backend (decisions, tasks, journals)
-2. Update STATUS.md + lint-state + user-patterns
-3. Full sync PUSH: write all changes to ALL configured backends
-4. Confirm: "Court adjourned. All changes committed and synced to [backend list]."
+2. Knowledge extraction: scan session outputs for reusable conclusions → propose wiki candidates to user
+3. Update STATUS.md + lint-state + user-patterns
+4. Full sync PUSH: write all changes to ALL configured backends + launch DREAM
+5. Confirm: "Court adjourned. All changes committed and synced to [backend list]."
 ```
 
 ## Morning Court Official · Review Only

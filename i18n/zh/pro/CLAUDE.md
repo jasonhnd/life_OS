@@ -95,6 +95,7 @@
 
 启动 `zaochao`（收朝模式），传入奏折 + 御史台报告 + 谏官报告。早朝官负责：
 1. 写入第二大脑：决策 → `projects/{p}/decisions/` 或 `_meta/decisions/`，任务 → `projects/{p}/tasks/`，报告 → `_meta/journal/`
+1.5. **知识萃取**：扫描所有 session 产出，寻找超出当前项目范围的可复用结论 → 向用户提出 wiki 候选 → 确认的条目写入 outbox wiki/
 2. 更新 `_meta/STATUS.md`（全局状态快照）
 3. 更新 user-patterns.md（如果谏官有模式更新建议）
 4. git add + commit + push

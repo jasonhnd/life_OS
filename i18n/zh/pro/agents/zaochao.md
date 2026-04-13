@@ -42,6 +42,7 @@ model: opus
      d. 移动 journal/ 文件 → _meta/journal/
      e. 应用 index-delta.md → 更新对应的 projects/{p}/index.md
      f. 追加 patterns-delta.md → 添加到 user-patterns.md
+     f2. 移动 wiki/ 文件 → wiki/{domain}/{topic}.md（从每个文件的 front matter 读取 domain，必要时创建子目录）
      g. 合并成功后删除该 outbox 目录
    - 所有 outbox 合并完成后：
      h. 从所有 projects/*/index.md 编译 _meta/STATUS.md
@@ -237,9 +238,27 @@ OFR [======----] X%      [绿/黄/红]
 4. 保存决策（奏折）→ _meta/outbox/{session-id}/decisions/（每个文件在 front matter 中含 project 字段）
 5. 保存任务（行动项）→ _meta/outbox/{session-id}/tasks/（每个文件含 project 字段）
 6. 保存 JournalEntry（御史台 + 谏官报告）→ _meta/outbox/{session-id}/journal/
+6.5. 知识萃取：
+   扫描本次 session 所有产出（决策、奏折、御史台/谏官报告、日志），问：
+   "本次 session 中有没有超出本项目范围的可复用结论？"
+   
+   如果有：
+   a. 为每条可萃取的结论生成 wiki 候选：
+      - 标题 = 结论（不是主题），遵循 wiki-spec.md 格式
+      - 领域分类
+      - 1-2 句摘要 + 链接回源决策/日志
+   b. 呈现给用户："📚 本次 session 产出了 N 条知识候选："
+      - [候选 1 标题] → wiki/{domain}/{topic}.md
+      - [候选 2 标题] → wiki/{domain}/{topic}.md
+   c. 用户逐一确认/编辑/拒绝
+   d. 确认的候选 → 写入 _meta/outbox/{session-id}/wiki/，包含正确的 front matter
+   e. 用户说"跳过"或"不要" → 全部跳过
+   
+   如果无可萃取内容 → 静默跳过
+
 7. 写入 index-delta.md → 记录对 projects/{p}/index.md 的变更（版本、阶段、当前重点）
 8. 若谏官有"📝 Pattern Update Suggestion" → 写入 patterns-delta.md（追加内容）
-9. 写入 manifest.md → session 元数据（平台、模型、项目、时间戳、产出数量）
+9. 写入 manifest.md → session 元数据（平台、模型、项目、时间戳、产出数量、wiki 候选数量）
 10. git add _meta/outbox/{session-id}/ → commit → push（仅 outbox 目录，不含其他）
 11. 同步 outbox 内容至 Notion（如已配置）
 12. 在 _meta/config.md 中更新 last_sync_time
@@ -258,7 +277,8 @@ OFR [======----] X%      [绿/黄/红]
 
 ```
 1. 若收朝（模式 3）已创建 outbox → 检查是否有尚未归档的 session 产出
-2. 若 outbox 尚不存在 → 生成 session-id，创建 outbox，写入所有 session 产出（同模式 3 步骤 2-9）
+2. 若 outbox 尚不存在 → 生成 session-id，创建 outbox，写入所有 session 产出（同模式 3 步骤 2-9，包括步骤 6.5 知识萃取）
+2.5. 若模式 3 已执行但跳过了知识萃取 → 现在执行步骤 6.5（DREAM 前的最后机会）
 3. 启动 DREAM 代理 → 梦报告写入 _meta/outbox/{session-id}/journal/{date}-dream.md
 4. git add _meta/outbox/{session-id}/ → commit → push（仅 outbox 目录）
 5. 同步 outbox 内容至所有已配置后端

@@ -61,6 +61,7 @@ N3 提出两个问题：
 
 从最近 3 天提取更深层的模式：
 - 决策中的可复用结论 → 提出 wiki 候选（见下方 Wiki 候选格式）
+  **去重**：检查最近的 outbox manifest——如果 `wiki: N`（N > 0），该 session 的退朝流程已提取了 wiki 候选。只关注退朝流程可能遗漏的结论。不要重复提议。
 - 扫描 wiki/INDEX.md（若存在）：新证据支持已有条目 → 提出 evidence_count 更新；新证据反驳已有条目 → 提出 challenges 更新
 - 需根据新证据更新的 `user-patterns.md` 条目 → 提议变更
 - **SOUL.md 候选条目** → 提议新条目或更新现有条目（见下方 SOUL 候选格式）

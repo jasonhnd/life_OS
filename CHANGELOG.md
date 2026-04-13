@@ -6,6 +6,17 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.3b] - 2026-04-13 · Knowledge Extraction in Adjourn Flow
+
+> Wiki extraction no longer depends solely on DREAM. The adjourn flow now directly scans session outputs and proposes wiki candidates before DREAM runs.
+
+- **Adjourn knowledge extraction (step 6.5)**: Wrap-up and Adjourn modes now scan session outputs for reusable conclusions → present wiki candidates to user → confirmed entries written to outbox wiki/
+- **Outbox wiki merge**: Start Court merge now handles wiki/ files from outbox → moves to wiki/{domain}/{topic}.md
+- **DREAM dedup**: DREAM N3 checks if the adjourn flow already extracted wiki candidates (via manifest) → skips re-proposing, focuses on missed conclusions only
+- **Outbox format**: manifest.md now includes `wiki` count in outputs
+
+---
+
 ## [1.4.3a] - 2026-04-13 · Wiki & SOUL Initialization Guidance
 
 > The system now detects when wiki/ and SOUL.md haven't been initialized, and guides the user through first-time setup and legacy migration.

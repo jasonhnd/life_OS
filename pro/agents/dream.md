@@ -57,6 +57,7 @@ If not a git repo, use file modification timestamps with the same fallback logic
 
 💭 Look for:
 - Reusable conclusions from decisions → should this become a wiki entry? (see `references/wiki-spec.md` for candidate format)
+  **Dedup check**: If the most recent outbox manifest shows `wiki: N` (N > 0), the adjourn flow already extracted wiki candidates for that session. Focus on conclusions the adjourn flow may have MISSED — don't re-propose what was already extracted.
 - If wiki/INDEX.md exists, check: does new evidence support or contradict existing entries? Propose evidence_count or challenges updates.
 - Behavioral patterns → does `user-patterns.md` need updating?
 - Value signals → is there a SOUL.md candidate here?

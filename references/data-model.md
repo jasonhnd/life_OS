@@ -260,6 +260,7 @@ outputs:
   decisions: 2
   tasks: 5
   journal: 3
+  wiki: 1
   dream: 1
   index_delta: true
   patterns_delta: true

@@ -95,6 +95,7 @@ Launch `jianguan`, passing in the memorial + user's original message. The Remons
 
 Launch `zaochao` (Wrap-up Mode), passing in the memorial + Censorate report + Remonstrator report. The Morning Court Official is responsible for:
 1. Writing to second-brain: decisions → `projects/{p}/decisions/` or `_meta/decisions/`, tasks → `projects/{p}/tasks/`, reports → `_meta/journal/`
+1.5. **Knowledge extraction**: scan all session outputs for conclusions reusable beyond the current project → propose wiki candidates to user → confirmed entries written to outbox wiki/
 2. Updating `_meta/STATUS.md` (global status snapshot)
 3. Updating user-patterns.md (if the Remonstrator has pattern update suggestions)
 4. git add + commit + push
