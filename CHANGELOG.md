@@ -6,6 +6,31 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.3e] - 2026-04-13 · SKILL.md Slim Down — Pure Routing File
+
+> SKILL.md compressed from 384 lines to 93 lines. Lite Mode removed. All detailed role definitions, output formats, and configuration are in agent files and reference docs where they belong.
+
+### Token Savings
+- **SKILL.md**: 384 → 93 lines (−291 lines ≈ −4,700 tokens/session)
+- Removed: Censorate/Remonstrator/Political Affairs Hall/Morning Court Official detailed descriptions, Memorial format, Storage Configuration, Lite Mode flow, Two Types of Deliberation table, Pro Mode installation details
+- All removed content already exists in agent files (`pro/agents/*.md`) or reference files (`references/*.md`)
+
+### Code of Conduct Redistribution
+- PM-relevant rules (8 rules) stay in SKILL.md
+- Orchestration rules (#2 veto, #7 auto-trigger, #11 full output, #14 real subagents, #9 degradation) moved to `pro/CLAUDE.md` new "Orchestration Code of Conduct" section
+- Universal agent rules already covered by `pro/GLOBAL.md`
+
+### Ministry On-Demand Selection
+- `zhongshu.md`: New "Ministry Selection (HARD RULE)" — only assign relevant ministries with justification
+- `shangshu.md`: New "Dispatch Only Assigned Ministries (HARD RULE)" — don't dispatch unassigned ministries
+
+### Lite Mode Removed
+- Life OS's core value is independent subagent checks-and-balances — single-context simulation defeats this purpose
+- README installation table: Lite Mode rows removed, note added that single-context platforms are not supported
+- SKILL.md no longer needs to be self-contained for single-file platforms
+
+---
+
 ## [1.4.3d] - 2026-04-13 · Version Check as Output Format Field
 
 > Version detection moved from a standalone instruction (that LLMs skip) to a mandatory field in the Pre-Court Preparation output template (that LLMs reliably fill).

@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.3d-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.3e-purple.svg)](../../CHANGELOG.md)
 
 **これはロールプレイではありません。権力分立とチェック・アンド・バランスです。**
 
@@ -161,16 +161,13 @@ SOUL.md が育つにつれ、システム全体が賢くなります：
 
 Life OS は複数の AI プラットフォームに対応しています。**[インストールガイドの全文はこちら →](../../docs/installation.md)**
 
-| プラットフォーム | Mode | インストール方法 |
-|----------------|------|----------------|
-| **Claude Code** | Pro | `/install-skill https://github.com/jasonhnd/life_OS` |
-| **Gemini CLI / Antigravity** | Pro | `npx skills add jasonhnd/life_OS` |
-| **OpenAI Codex CLI** | Pro | `npx skills add jasonhnd/life_OS` |
-| **Claude.ai** | Lite | `SKILL.md` を Project Knowledge にアップロード |
-| **Cursor / VS Code Copilot** | Lite | `npx skills add jasonhnd/life_OS` |
-| **ChatGPT / Gemini Web** | Lite | `SKILL.md` の内容を Instructions に貼り付け |
+| プラットフォーム | インストール方法 |
+|----------------|----------------|
+| **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` |
+| **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
+| **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
 
-> **Pro Mode**（Claude Code / Gemini / Codex）：14の独立したsubagentによる真の情報隔離と並列実行。**Lite Mode**（その他のプラットフォーム）：単一コンテキスト、逐次実行。
+> Life OS は Pro Mode が必要です —— 14の独立した subagent による真の情報隔離と並列実行。単一コンテキストプラットフォーム（ChatGPT、Gemini Web 等）はサポートされていません。
 
 ## 使い方
 

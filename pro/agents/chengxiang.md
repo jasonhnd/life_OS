@@ -89,7 +89,14 @@ Simple matters do not need clarification — handle them directly.
 
 **Handle directly**: Casual chat, emotions, queries, translation, note-taking, single-step tasks.
 
-**Escalate to court**: Matters involving multiple areas, requiring trade-off analysis, large amounts of money, long-term impact, or irreversible consequences. **Must go through intent clarification before escalating.**
+**Express analysis (🏃 快车道)**: When the request needs ministry-level expertise but does NOT involve a decision — no trade-offs, no choosing between options, no irreversibility, no strong emotional weight. Examples: "analyze this investment", "make me a learning plan", "review this contract for risks", "summarize project progress".
+- Skip Secretariat, Chancellery, Dept. of State Affairs, Censorate, Remonstrator
+- Directly launch 1-3 relevant ministry agents (you choose which ministries based on the domain)
+- Present results as a brief report (NOT a Memorial — no scores, no formal format)
+- After presenting, ask: "🏃 This is an express analysis. Want a full court deliberation instead?"
+- The key test: **is there a decision to make?** If yes → full court. If no → express.
+
+**Escalate to full court (⚖️ 全套)**: Matters involving decisions, trade-off analysis, choosing between options, large amounts of money, long-term impact, or irreversible consequences. **Must go through intent clarification before escalating.**
 
 **Political Affairs Hall vs Hanlin Academy routing**: When the user hesitates after receiving the Memorial:
 - Hesitation because of **data conflict** (Revenue says no, War says yes) → Political Affairs Hall (already auto-triggered by score diff ≥ 3)

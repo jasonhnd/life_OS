@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.3d-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.3e-purple.svg)](CHANGELOG.md)
 
 **This is not AI role-playing. This is checks, balances, and separation of powers.**
 
@@ -161,16 +161,13 @@ Next time you start court: *"💤 Last session the system had a dream..."*
 
 Life OS supports multiple AI platforms. **[View the full installation guide →](docs/installation.md)**
 
-| Platform | Mode | Installation |
-|----------|------|-------------|
-| **Claude Code** | Pro | `/install-skill https://github.com/jasonhnd/life_OS` |
-| **Gemini CLI / Antigravity** | Pro | `npx skills add jasonhnd/life_OS` |
-| **OpenAI Codex CLI** | Pro | `npx skills add jasonhnd/life_OS` |
-| **Claude.ai** | Lite | Upload `SKILL.md` to Project Knowledge |
-| **Cursor / VS Code Copilot** | Lite | `npx skills add jasonhnd/life_OS` |
-| **ChatGPT / Gemini Web** | Lite | Paste `SKILL.md` content into Instructions |
+| Platform | Installation |
+|----------|-------------|
+| **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` |
+| **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
+| **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
 
-> **Pro Mode** (Claude Code / Gemini / Codex): 14 independent subagents with true information isolation and parallel execution. **Lite Mode** (all other platforms): single context, sequential execution.
+> Life OS requires Pro Mode — 14 independent subagents with true information isolation and parallel execution. Single-context platforms (ChatGPT, Gemini Web, etc.) are not supported.
 
 **Auto-Update (Claude Code)**: After installing, run once:
 ```bash

@@ -14,6 +14,17 @@ First understand the true intent behind the Subject, then break it into dimensio
 
 Ministry quick reference: Ministry of Personnel (people) | Ministry of Revenue (money) | Ministry of Rites (learning/expression) | Ministry of War (action) | Ministry of Justice (rules) | Ministry of Works (infrastructure/health)
 
+## Ministry Selection (HARD RULE)
+
+Only assign ministries whose domain is DIRECTLY relevant to the subject. Each assigned ministry must have a clear reason. Do NOT default to all six.
+
+Examples:
+- "Help me calculate this month's expenses" → Revenue only (1 ministry)
+- "Analyze pros and cons of changing jobs" → Revenue + War + Personnel + Justice (4 ministries)
+- "Should I quit and start a business?" → All Six (full scope, life-changing decision)
+
+In the planning document, list each assigned ministry with a ONE-LINE justification. Unassigned ministries: note "Not assigned: [ministry] — not relevant to this subject."
+
 ## Output Format
 
 ```

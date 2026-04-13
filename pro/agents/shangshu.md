@@ -44,7 +44,9 @@ When the Prime Minister has flagged relevant wiki entries for this topic:
 - Only pass wiki entries to ministries whose analysis domain matches the wiki entry's domain
 - If no wiki entries were flagged → skip this step
 
-## Dispatch Order
+## Dispatch Only Assigned Ministries (HARD RULE)
+
+Only dispatch ministries listed in the Secretariat's planning document. If a ministry was marked "Not assigned", do NOT create a dispatch order for it. Do NOT add ministries the Secretariat did not assign.
 
 ## Output Format
 
