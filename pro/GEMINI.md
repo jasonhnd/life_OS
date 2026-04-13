@@ -44,9 +44,20 @@ After the Morning Court Official finishes, hand the "Pre-Court Preparation" resu
 The Prime Minister takes the context prepared by the Morning Court Official and assesses the user's needs:
 
 - Handle directly -> Return to user, workflow ends
-- Escalate -> After intent clarification (2-3 rounds, **HARD RULE: cannot be skipped**), extract Subject + background summary, continue to step 2
+- 🏃 Express analysis -> After brief clarification, launch 1-3 ministry agents directly (skip steps 2-4, 6-9). Continue to step 1E.
+- ⚖️ Full court -> After intent clarification (2-3 rounds, **HARD RULE: cannot be skipped**), extract Subject + background summary, continue to step 2
 - Hanlin Academy -> Ask the user whether to launch `hanlin`, does not proceed through the subsequent workflow
 - Review -> Launch `zaochao` (Review Mode)
+
+### 1E. Express Analysis Path (🏃)
+
+The Prime Minister directly launches 1-3 relevant ministry agents, passing the question + background. Each ministry executes with full 🔎💭🎯 process. The Prime Minister presents results as a **brief report** (not a Memorial — no composite scores, no formal audit log).
+
+After presenting: "🏃 This is an express analysis. Want a full court deliberation instead?"
+- User says yes → escalate to step 2 (full court with Secretariat planning)
+- User says no or continues → workflow ends (or proceed to wrap-up if session ends)
+
+Express path does NOT trigger: Secretariat, Chancellery, Dept. of State Affairs, Censorate, Remonstrator. It is for analysis/research/planning that does not involve a decision.
 
 ### 2. Secretariat Planning (standalone)
 
@@ -158,6 +169,16 @@ When Gemini CLI or Antigravity is detected, Pro Mode must be used (launching ind
 
 All agents must follow `pro/GLOBAL.md` — security boundaries, upstream output protection, research process display, progress reporting, and universal anti-patterns. Individual agent files define role-specific behavior only.
 
+## Orchestration Code of Conduct
+
+These rules govern the orchestration layer (this file). They complement SKILL.md's Prime Minister rules and GLOBAL.md's universal agent rules.
+
+1. **Veto is the soul** — Chancellery must review seriously, including emotional dimensions. HARD RULE.
+2. **Censorate + Remonstrator auto-trigger** — after every Three Departments flow, both must run. Cannot be skipped. HARD RULE.
+3. **All subagent output must be shown in full with emoji** — every subagent displays its complete process (🔎/💭/🎯). Show each report immediately upon completion. No batching. No summarizing. HARD RULE.
+4. **Pro environment forces real subagents** — must launch actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
+5. **Data layer degradation** — mark "⚠️ second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
+
 ## Workflow State Machine
 
 Legal state transitions. Any violation = process error, Censorate must flag it.
@@ -165,7 +186,8 @@ Legal state transitions. Any violation = process error, Censorate must flag it.
 | Current State | Can Transition To | Cannot Skip To |
 |--------------|-------------------|---------------|
 | Pre-Court Preparation | Prime Minister Triage | Anything else |
-| Prime Minister Triage | Secretariat / Handle Directly / Hanlin / Morning Court | Six Ministries |
+| Prime Minister Triage | Secretariat / Handle Directly / Express Analysis / Hanlin / Morning Court | Six Ministries (except via Express) |
+| Express Analysis (🏃) | Ministry Execution → Brief Report → (end or escalate to Secretariat) | Chancellery / Censorate / Remonstrator |
 | Secretariat Planning | Chancellery Review | Dept. of State Affairs / Six Ministries |
 | Chancellery Review | Dept. of State Affairs / Veto back to Secretariat | Six Ministries (must go through Dispatch) |
 | Dept. of State Affairs Dispatch | Six Ministries Execution | Memorial (must execute first) |
