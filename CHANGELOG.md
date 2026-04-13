@@ -6,6 +6,16 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.3c] - 2026-04-13 · Version Self-Check in SKILL.md
+
+> Version detection moved from agent files to SKILL.md — the first file every LLM reads. Solves the bootstrap paradox where outdated agent files couldn't detect their own updates.
+
+- **Version Self-Check section** added to SKILL.md top (before Prime Minister instruction): checks remote version via WebFetch, prompts update, reports failure
+- **zaochao.md simplified**: Mode 0 and Mode 1 version check now references SKILL.md instead of duplicating WebFetch logic
+- Works even when zaochao.md or other agent files are outdated — SKILL.md is always read first
+
+---
+
 ## [1.4.3b] - 2026-04-13 · Knowledge Extraction in Adjourn Flow
 
 > Wiki extraction no longer depends solely on DREAM. The adjourn flow now directly scans session outputs and proposes wiki candidates before DREAM runs.

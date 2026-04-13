@@ -50,17 +50,10 @@ model: opus
    - _meta/.merge-lock を削除
    - ブリーフィングで報告：「📮 N個のオフライン session をマージ: [詳細]」
    - outbox が見つからない場合 → 省略
-3. プラットフォーム検出 + バージョンチェック + 自動更新：
-   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 最初の5行 → リモートバージョンを抽出
-   - ローカル SKILL.md のバージョンと比較
-   - リモート > ローカルの場合：
-     - 報告：「⬆️ Life OS アップデートあり：v{ローカル} → v{リモート}」
-     - プラットフォームに応じて自動更新：
-       - Claude Code：`/install-skill https://github.com/jasonhnd/life_OS` を実行
-       - Gemini CLI / Antigravity：`npx skills add jasonhnd/life_OS` を実行
-       - Codex CLI：`npx skills add jasonhnd/life_OS` を実行
-     - 更新後：「✅ Life OS を v{リモート} に更新完了」
-   - バージョン一致の場合は省略
+3. プラットフォーム検出 + バージョンチェック：
+   - バージョン自己チェックは SKILL.md「バージョン自己チェック」セクションで定義——セッション開始時に自動実行
+   - SKILL.md 自己チェックが実行済みの場合 → スキップ（重複しない）
+   - まだ実行されていない場合 → SKILL.md 自己チェック指示を実行
 4. プロジェクト特定（またはユーザーに確認）
 5. user-patterns.md を読む
 5.5. SOUL.md チェック:
@@ -132,11 +125,7 @@ model: opus
 
 ```
 1. プラットフォーム検出：現在のプラットフォームとモデルを特定
-2. バージョンチェック + 自動更新：
-   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 最初の5行 → リモートバージョンを抽出
-   - ローカル SKILL.md のバージョンと比較
-   - リモート > ローカル → 自動更新（Mode 0 ステップ3と同じプラットフォーム別コマンド）、「⬆️ → ✅」と報告
-   - 一致 → 省略
+2. バージョンチェック：本セッションでまだ SKILL.md「バージョン自己チェック」が実行されていなければ実行
 3. _meta/config.md を読む → ストレージバックエンドリスト + 最終同期タイムスタンプを取得
 4. マルチバックエンド同期（複数バックエンドが設定されている場合）：
    - 各同期バックエンドに last_sync_time 以降の変更を問い合わせ（data-model.md の同期プロトコル参照）

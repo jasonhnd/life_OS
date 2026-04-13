@@ -50,17 +50,10 @@ You are the Morning Court Official. You operate in multiple modes, determined by
    - Delete _meta/.merge-lock
    - Report in briefing: "📮 Merged N offline session(s): [details]"
    - If no outboxes found → skip silently
-3. Platform detection + version check + auto-update:
-   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md first 5 lines → extract remote version
-   - Compare with local SKILL.md version
-   - If remote version > local version:
-     - Report: "⬆️ Life OS update available: v{local} → v{remote}"
-     - Auto-update based on platform:
-       - Claude Code: run `/install-skill https://github.com/jasonhnd/life_OS`
-       - Gemini CLI / Antigravity: run `npx skills add jasonhnd/life_OS`
-       - Codex CLI: run `npx skills add jasonhnd/life_OS`
-     - After update: "✅ Life OS updated to v{remote}"
-   - If versions match: skip silently
+3. Platform detection + version check:
+   - Version self-check is defined in SKILL.md "Version Self-Check" section — it runs automatically on session start
+   - If SKILL.md self-check already ran → skip (don't duplicate)
+   - If not yet run → execute SKILL.md self-check instructions
 4. Project identification (or ask user)
 5. Read user-patterns.md
 5.5. SOUL.md check:
@@ -132,11 +125,7 @@ Your Majesty, the morning report is ready. What are your orders?
 
 ```
 1. Platform detection: Identify the current platform and model
-2. Version check + auto-update:
-   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md first 5 lines → extract remote version
-   - Compare with local SKILL.md version
-   - If remote > local → auto-update (same platform-specific commands as Mode 0 step 3), report "⬆️ → ✅"
-   - If same → skip silently
+2. Version check: execute SKILL.md "Version Self-Check" if not already run this session
 3. Read _meta/config.md → get storage backend list + last sync timestamp
 4. Multi-backend sync (if multiple backends configured):
    - Query each sync backend for changes since last_sync_time (see data-model.md sync protocol)

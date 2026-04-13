@@ -6,6 +6,16 @@
 
 ---
 
+## [1.4.3c] - 2026-04-13 · 版本自检移至 SKILL.md
+
+> 版本检测从 agent 文件移到 SKILL.md——每个 LLM 最先读取的文件。解决了旧版 agent 文件无法检测自身更新的自举悖论。
+
+- **版本自检段**添加到 SKILL.md 顶部（丞相指令之前）：通过 WebFetch 检查远程版本，提示更新，报告失败
+- **zaochao.md 简化**：Mode 0 和 Mode 1 的版本检查改为引用 SKILL.md，不再重复 WebFetch 逻辑
+- 即使 zaochao.md 或其他 agent 文件过时也能工作——SKILL.md 总是最先被读取
+
+---
+
 ## [1.4.3b] - 2026-04-13 · 退朝流程知识萃取
 
 > Wiki 提取不再完全依赖 DREAM。退朝流程现在直接扫描 session 产出并在 DREAM 运行前向用户提出 wiki 候选。

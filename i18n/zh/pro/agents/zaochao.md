@@ -50,17 +50,10 @@ model: opus
    - 删除 _meta/.merge-lock
    - 在晨报中汇报："📮 已合并 N 个离线 session：[详情]"
    - 若未找到 outbox → 静默跳过
-3. 平台检测 + 版本检查 + 自动更新：
-   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 前 5 行 → 提取远程版本
-   - 与本地 SKILL.md 版本比较
-   - 若远程版本 > 本地版本：
-     - 汇报："⬆️ Life OS 有更新可用：v{local} → v{remote}"
-     - 根据平台自动更新：
-       - Claude Code：运行 `/install-skill https://github.com/jasonhnd/life_OS`
-       - Gemini CLI / Antigravity：运行 `npx skills add jasonhnd/life_OS`
-       - Codex CLI：运行 `npx skills add jasonhnd/life_OS`
-     - 更新后："✅ Life OS 已更新至 v{remote}"
-   - 若版本一致：静默跳过
+3. 平台检测 + 版本检查：
+   - 版本自检定义在 SKILL.md "版本自检" 段——session 启动时自动执行
+   - 若 SKILL.md 自检已执行 → 跳过（不重复）
+   - 若尚未执行 → 执行 SKILL.md 自检指令
 4. 确认项目（或询问用户）
 5. 读取 user-patterns.md
 5.5. SOUL.md 检查：
@@ -132,11 +125,7 @@ model: opus
 
 ```
 1. 平台检测：识别当前平台和模型
-2. 版本检查 + 自动更新：
-   - WebFetch https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md 前 5 行 → 提取远程版本
-   - 与本地 SKILL.md 版本比较
-   - 若远程 > 本地 → 自动更新（与模式 0 步骤 3 相同的平台专属命令），汇报 "⬆️ → ✅"
-   - 若相同 → 静默跳过
+2. 版本检查：若本 session 尚未执行 SKILL.md "版本自检"，则执行
 3. 读取 _meta/config.md → 获取存储后端列表 + 上次同步时间戳
 4. 多后端同步（如已配置多个后端）：
    - 查询每个同步后端自 last_sync_time 以来的变更（见 data-model.md 同步协议）
