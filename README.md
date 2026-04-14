@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.3e-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.4-purple.svg)](CHANGELOG.md)
 
 **This is not AI role-playing. This is checks, balances, and separation of powers.**
 
@@ -167,7 +167,7 @@ Life OS supports multiple AI platforms. **[View the full installation guide →]
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
 
-> Life OS requires Pro Mode — 14 independent subagents with true information isolation and parallel execution. Single-context platforms (ChatGPT, Gemini Web, etc.) are not supported.
+> Life OS requires Pro Mode — 16 independent subagents with true information isolation and parallel execution. Single-context platforms (ChatGPT, Gemini Web, etc.) are not supported.
 
 **Auto-Update (Claude Code)**: After installing, run once:
 ```bash
@@ -224,10 +224,11 @@ You: Adjourn court     → Archive + full sync + DREAM cycle
   │   Six Ministries: 👥Personnel 💰Revenue 📖Rites ⚔️War ⚖️Justice 🏗️Works
   │
   ├── 🏛️ Political Affairs Hall — Cross-ministry debate (auto-triggers on score conflict ≥ 3)
-  ├── 🌅 Morning Court Official — Session management, sync, DREAM
+  ├── 🌅 Morning Court Official — Session start, sync pull, briefing
+  ├── 📝 Court Diarist (起居郎) — Archive, knowledge extraction, DREAM, Notion sync
   ├── 🎋 Hanlin Academy — Hall of Human Wisdom (70+ thinkers, 18 domains)
   ├── 🔮 SOUL — Personality archive (grows from zero)
-  └── 💤 DREAM — AI sleep cycle (runs after every adjourn)
+  └── 💤 DREAM — AI sleep cycle (integrated into Court Diarist)
 ```
 
 ## 12 Standard Scenarios

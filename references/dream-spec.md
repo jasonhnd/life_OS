@@ -1,21 +1,21 @@
 # DREAM Specification
 
-DREAM is the system's offline memory processing — inspired by human sleep cycles. It runs automatically at the end of every Adjourn Court session, scanning the last 3 days of activity to organize, consolidate, and discover.
+DREAM is the system's offline memory processing — inspired by human sleep cycles. It runs as **Phase 3 of the Court Diarist** (`pro/agents/qiju.md`) at the end of every session, scanning the last 3 days of activity to organize, consolidate, and discover.
+
+> **Note**: DREAM is not a standalone agent. It was merged into the Court Diarist (起居郎) in v1.4.4. This spec defines the three stages; the Court Diarist integrates them into its closing flow.
 
 ## Trigger
 
 ```
 User says "退朝" / "adjourn" / "終わり"
     ↓
-Morning Court Official: archive + sync + push (Mode 4)
+Court Diarist (起居郎): Phase 1 Archive → Phase 2 Knowledge Extraction
     ↓
-Morning Court Official: launch DREAM agent (final step)
-    ↓
-DREAM runs three stages
+Court Diarist: Phase 3 DREAM (runs three stages below)
     ↓
 Dream report written to _meta/journal/{date}-dream.md
     ↓
-Session ends
+Court Diarist: Phase 4 Sync (git + Notion) → Session ends
 ```
 
 If DREAM fails or times out → log warning to `_meta/sync-log.md`, don't block session end.

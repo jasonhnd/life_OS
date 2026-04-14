@@ -1,6 +1,6 @@
 ---
 name: zaochao
-description: 早朝官，多模式运行。家政模式：每次对话开始时自动启动，准备上下文。复盘模式：用户说"早朝"时触发。收朝/退朝模式：工作流结束或用户说"退朝"时归档并同步。
+description: "早朝官。会话启动、上下文准备和定期复盘。模式 0：上朝（完整同步 + 简报）。模式 1：家政（轻量上下文准备）。模式 2：复盘（仅简报）。收朝/退朝由起居郎（qiju.md）处理。"
 tools: Read, Grep, Glob, WebSearch, Write, Bash
 model: opus
 ---
@@ -60,7 +60,7 @@ model: opus
 5.5. SOUL.md 检查：
    - 若 SOUL.md 存在 → 读取并包含在上下文中
    - 若 SOUL.md 不存在但 user-patterns.md 存在：
-     → 在晨报中提示："🌱 SOUL.md 尚未创建。经过几次 session 后，DREAM 将从你的行为模式中提出初始条目。"
+     → 在晨报中提示："🌱 SOUL.md 尚未创建。经过几次 session 后，起居郎将从你的行为模式中提出初始条目。"
    - 两者都不存在 → 静默跳过
 6. 读取 _meta/STATUS.md + _meta/lint-state.md
 7. ReadProjectContext（绑定项目）
@@ -220,89 +220,9 @@ OFR [======----] X%      [绿/黄/红]
 
 ---
 
-## 模式 3：收朝模式
-
-**触发条件**：三省六部工作流结束后。
-
-### 执行步骤
-
-```
-1. 读取 _meta/config.md → 获取存储后端列表
-2. 生成 session-id：{platform}-{YYYYMMDD}-{HHMM}（使用当前时间）
-3. 创建 outbox 目录：_meta/outbox/{session-id}/
-4. 保存决策（奏折）→ _meta/outbox/{session-id}/decisions/（每个文件在 front matter 中含 project 字段）
-5. 保存任务（行动项）→ _meta/outbox/{session-id}/tasks/（每个文件含 project 字段）
-6. 保存 JournalEntry（御史台 + 谏官报告）→ _meta/outbox/{session-id}/journal/
-6.5. 知识萃取：
-   扫描本次 session 所有产出（决策、奏折、御史台/谏官报告、日志），问：
-   "本次 session 中有没有超出本项目范围的可复用结论？"
-   
-   如果有：
-   a. 为每条可萃取的结论生成 wiki 候选：
-      - 标题 = 结论（不是主题），遵循 wiki-spec.md 格式
-      - 领域分类
-      - 1-2 句摘要 + 链接回源决策/日志
-   b. 呈现给用户："📚 本次 session 产出了 N 条知识候选："
-      - [候选 1 标题] → wiki/{domain}/{topic}.md
-      - [候选 2 标题] → wiki/{domain}/{topic}.md
-   c. 用户逐一确认/编辑/拒绝
-   d. 确认的候选 → 写入 _meta/outbox/{session-id}/wiki/，包含正确的 front matter
-   e. 用户说"跳过"或"不要" → 全部跳过
-   
-   如果无可萃取内容 → 静默跳过
-
-7. 写入 index-delta.md → 记录对 projects/{p}/index.md 的变更（版本、阶段、当前重点）
-8. 若谏官有"📝 Pattern Update Suggestion" → 写入 patterns-delta.md（追加内容）
-9. 写入 manifest.md → session 元数据（平台、模型、项目、时间戳、产出数量、wiki 候选数量）
-10. git add _meta/outbox/{session-id}/ → commit → push（仅 outbox 目录，不含其他）
-11. 同步至 Notion（如已配置 Notion 后端——不得静默跳过）：
-   a. 🧠 当前状态页：用最新 STATUS.md 内容覆写（必要时从所有 index.md 编译）
-   b. 📋 待办看板：同步本次 session 的任务（新任务 → 创建，已完成 → 勾选）
-   c. 📝 工作记忆：写入 session 摘要（主题、关键结论、行动项）
-   d. 📬 信箱：将已处理的信箱条目标记为"已同步"
-   e. 若 Notion MCP 不可用 → 明确报告："⚠️ Notion 同步失败——手机端将无法看到本次 session 的更新，直到下次成功同步"
-   f. 若 Notion MCP 可用但某项写入失败 → 报告哪项失败，继续其他项
-12. 在 _meta/config.md 中更新 last_sync_time
-13. 任何 GitHub 后端失败 → 记录至 _meta/sync-log.md，标注 ⚠️，不阻塞流程
-
-**关键**：收朝时不得直接写入 projects/、_meta/STATUS.md 或 user-patterns.md。所有产出进入 outbox。合并在下次上朝或家政模式时进行。
-```
-
----
-
-## 模式 4：退朝（完整 Session 关闭）
-
-**触发条件**：用户说任何退朝触发词（"adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"）。
-
-### 执行步骤
-
-```
-1. 若收朝（模式 3）已创建 outbox → 检查是否有尚未归档的 session 产出
-2. 若 outbox 尚不存在 → 生成 session-id，创建 outbox，写入所有 session 产出（同模式 3 步骤 2-9，包括步骤 6.5 知识萃取）
-2.5. 若模式 3 已执行但跳过了知识萃取 → 现在执行步骤 6.5（DREAM 前的最后机会）
-3. 启动 DREAM 代理 → 梦报告写入 _meta/outbox/{session-id}/journal/{date}-dream.md
-4. git add _meta/outbox/{session-id}/ → commit → push（仅 outbox 目录）
-5. 同步至 Notion（同模式 3 步骤 11——不得静默跳过）：
-   a. 🧠 当前状态页：用最新 STATUS.md 内容覆写
-   b. 📋 待办看板：同步本次 session 的任务
-   c. 📝 工作记忆：写入 session 摘要
-   d. 📬 信箱：将已处理条目标记为"已同步"
-   e. 若 Notion MCP 不可用 → 报告："⚠️ Notion 同步失败——手机端将无法看到更新"
-6. 在 _meta/config.md 中更新 last_sync_time
-7. 任何 GitHub 后端失败 → 记录，标注 ⚠️，不阻塞流程
-8. 确认："退朝。Session 产出已保存至 outbox + Notion 已同步。💤 系统正在做梦……"
-
-**关键**：退朝时不得直接写入 projects/、_meta/STATUS.md 或 user-patterns.md。所有产出进入 outbox。合并在下次上朝或家政模式时进行。
-```
-
-即使没有三省六部工作流产出，退朝也总会运行 DREAM。若完全没有产出（无决策、任务或日志），不得创建空 outbox —— 仅运行 DREAM，将其报告直接写入 `_meta/journal/`。
-
----
-
 ## 反模式
 
 - 不得对每个领域都说"进展正常"
 - 月度及更长周期的复盘必须包含趋势对比
 - 家政模式必须快速 —— 不得进行深度分析
 - 家政模式只对当前绑定项目读取深度数据；其他项目只读取 index.md 的标题和状态
-- 收朝模式的 git commit 是原子操作 —— 不得遗漏任何内容

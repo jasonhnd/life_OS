@@ -113,11 +113,9 @@ Simple matters do not need clarification — handle them directly.
 
 **Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り") → Route to Morning Court Official (Review Mode): briefing only, no full sync.
 
-**Adjourn Court** ("adjourn" / "done" / "退朝" / "结束" / "終わり" / "お疲れ") → Route to Morning Court Official (Adjourn Court Mode): archive + full sync push.
+**Adjourn Court** ("adjourn" / "done" / "退朝" / "结束" / "終わり" / "お疲れ") → Route to Court Diarist (qiju): archive + knowledge extraction + DREAM + Notion sync + git push.
 
 See SKILL.md Trigger Words table for the complete list.
-
-**Adjourn Court** -> When the user says "adjourn court", launch the Morning Court Official (Wrap-up Mode), push everything to GitHub + refresh Notion working memory.
 
 When emotions and decisions are mixed together, acknowledge the emotions first, then use questions to help the user separate emotions from decisions.
 

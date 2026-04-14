@@ -1,6 +1,6 @@
 # Life OS · Three Departments and Six Ministries Orchestration Protocol (Pro Mode — Gemini)
 
-This file is the Gemini CLI / Antigravity equivalent of CLAUDE.md. It defines how to orchestrate the 14 subagents on the Gemini platform.
+This file is the Gemini CLI / Antigravity equivalent of CLAUDE.md. It defines how to orchestrate the 16 subagents on the Gemini platform.
 
 All roles use the platform's strongest available model. See `references/data-layer.md` for data layer architecture details.
 
@@ -127,15 +127,23 @@ Launch `yushitai` in Decision Review mode, passing in the complete workflow reco
 
 Launch `jianguan`, passing in the memorial + user's original message. The Remonstrator reads historical data from the second-brain on its own.
 
-### 10. Wrap-up Archival (Morning Court Official · Wrap-up Mode)
+### 10. Court Diarist — Archive + Knowledge Extraction + DREAM (standalone, automatic)
 
-Launch `zaochao` (Wrap-up Mode), passing in the memorial + Censorate report + Remonstrator report. The Morning Court Official is responsible for:
-1. Writing to second-brain: decisions → `projects/{p}/decisions/` or `_meta/decisions/`, tasks → `projects/{p}/tasks/`, reports → `_meta/journal/`
-2. Updating `_meta/STATUS.md` (global status snapshot)
-3. Updating user-patterns.md (if the Remonstrator has pattern update suggestions)
-4. git add + commit + push
-5. Syncing Notion (🧠 Current Status from STATUS.md + 📝 working memory + 📋 todo board)
-6. If the second-brain is unreachable, note "⚠️ second-brain unavailable, this session's output was not archived"
+Launch `qiju` (Court Diarist), passing in:
+- Memorial + Censorate report + Remonstrator report
+- Session conversation summary (key topics from PM, express analysis results, Hanlin summaries)
+
+The Court Diarist handles ALL session-closing operations in 4 phases:
+1. **Archive**: decisions/tasks/journal → outbox
+2. **Knowledge Extraction**: scan ALL session materials for Session Candidates (wiki + SOUL) → user confirms on the spot
+3. **DREAM**: 3-day deep review → DREAM Candidates (wiki + SOUL) → confirmed at next Start Court
+4. **Sync**: git push + Notion sync (4 specific operations)
+
+See `pro/agents/qiju.md` for the full specification.
+
+### Note: DREAM is integrated into Court Diarist
+
+DREAM (the AI sleep cycle) is Phase 3 of the Court Diarist's closing flow — not a separate agent.
 
 ### 11. Hanlin Academy (ask the user)
 
@@ -149,11 +157,11 @@ See SKILL.md Trigger Words table for the complete list in English, Chinese, and 
 
 **Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り" / "レビュー"): Launch `zaochao` (Review Mode) → briefing only, no full sync. Faster, for mid-session check-ins.
 
-**Adjourn Court** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `zaochao` (Adjourn Court Mode) → archive all outputs + full sync PUSH to all backends + confirm. HARD RULE.
+**Adjourn Court** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `qiju` (Court Diarist) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE.
 
 **Political Affairs Hall** ("debate" / "court debate" / "朝堂议政" / "討論"): When ministry conclusions show clear contradictions, launch 3 rounds of debate; the Secretariat compiles consensus and disagreements.
 
-**Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): Skip Prime Minister intent clarification, launch the Secretariat directly.
+**Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): Prime Minister skips intent clarification, enters Express analysis path directly (PM launches 1-3 ministries, no Secretariat/Chancellery).
 
 **/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
 
@@ -192,10 +200,10 @@ Legal state transitions. Any violation = process error, Censorate must flag it.
 | Chancellery Review | Dept. of State Affairs / Veto back to Secretariat | Six Ministries (must go through Dispatch) |
 | Dept. of State Affairs Dispatch | Six Ministries Execution | Memorial (must execute first) |
 | Six Ministries Execution | Chancellery Final Review | Memorial (must review first) |
-| Chancellery Final Review | Memorial / Political Affairs Hall | Wrap-up (must produce Memorial first) |
-| Memorial | Censorate | Wrap-up (must run Censorate first) |
-| Censorate | Remonstrator | Wrap-up (must run Remonstrator first) |
-| Remonstrator | Wrap-up Archival | — |
+| Chancellery Final Review | Memorial / Political Affairs Hall | Court Diarist (must produce Memorial first) |
+| Memorial | Censorate | Court Diarist (must run Censorate first) |
+| Censorate | Remonstrator | Court Diarist (must run Remonstrator first) |
+| Remonstrator | Court Diarist | — |
 
 ## Model Independence
 
@@ -209,13 +217,14 @@ Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or 
 - Backend-specific adapters: `references/adapter-github.md`, `references/adapter-gdrive.md`, `references/adapter-notion.md`
 - Architecture and cognitive pipeline: `references/data-layer.md`
 
-All data reads and writes are performed by the Morning Court Official; the Prime Minister does not directly operate storage backends.
+Data reads are performed by the Morning Court Official (session start); data writes are performed by the Court Diarist (session close). The Prime Minister does not directly operate storage backends.
 
 ## Information Isolation
 
 | Role | Receives | Does Not Receive |
 |------|----------|------------------|
-| Morning Court Official | User message (housekeeping) / Memorial + reports (wrap-up) | No restrictions |
+| Morning Court Official | User message (housekeeping) | No restrictions |
+| Court Diarist | Memorial + reports + session conversation summary | Other agents' thought processes |
 | Prime Minister | User message + Morning Court Official's Pre-Court Preparation | — |
 | Secretariat | Subject + background + user message | Prime Minister's reasoning |
 | Chancellery | Planning document or Six Ministries reports | Thought processes |

@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.3e-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.4-purple.svg)](CHANGELOG.md)
 
 **这不是 AI 角色扮演，这是权力的制衡与分立。**
 
@@ -167,7 +167,7 @@ Life OS 支持多个 AI 平台。**[查看完整安装指南 →](../../docs/ins
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
 
-> Life OS 需要 Pro Mode —— 14 个独立 subagent，真正的信息隔离与并行执行。不支持单上下文平台（ChatGPT、Gemini Web 等）。
+> Life OS 需要 Pro Mode —— 16 个独立 subagent，真正的信息隔离与并行执行。不支持单上下文平台（ChatGPT、Gemini Web 等）。
 
 ## 使用方法
 

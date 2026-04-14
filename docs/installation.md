@@ -28,7 +28,7 @@ Life OS can be used on various AI platforms. Choose your platform and follow the
 
 ## Claude Code (Pro Mode)
 
-This is the full form of Life OS on Claude: 14 independent AI roles with true information isolation and parallel execution.
+This is the full form of Life OS on Claude: 16 independent AI roles with true information isolation and parallel execution.
 
 ### Prerequisites
 
@@ -44,7 +44,7 @@ You need to have [Claude Code](https://claude.ai/code) (Anthropic's command-line
 ```
 
 3. Wait for installation to complete; a success message will appear
-4. Done! All 14 subagents are automatically ready and available across all projects
+4. Done! All 16 subagents are automatically ready and available across all projects
 
 ### Verification
 
@@ -72,7 +72,7 @@ If you see a response in this format, installation was successful:
 
 ## Gemini CLI / Antigravity (Pro Mode)
 
-Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemini-cli) and [Google Antigravity](https://idx.google.com/) with 14 independent subagents powered by Gemini 2.5 Pro.
+Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemini-cli) and [Google Antigravity](https://idx.google.com/) with 16 independent subagents powered by Gemini 2.5 Pro.
 
 ### Installation Steps
 
@@ -100,7 +100,7 @@ npx skills add jasonhnd/life_OS
 
 ## OpenAI Codex CLI (Pro Mode)
 
-Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with 14 independent subagents powered by o3.
+Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with 16 independent subagents powered by o3.
 
 ### Installation Steps
 

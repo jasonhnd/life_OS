@@ -6,6 +6,29 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.4] - 2026-04-14 · Court Diarist (起居郎) — Session Close Specialist
+
+> The Morning Court Official is split into two roles: the Morning Court Official handles session start (read), the Court Diarist handles session close (write). DREAM is absorbed into the Court Diarist — no more separate agent launch.
+
+### 📝 New Role: Court Diarist (起居郎)
+
+Named after the Tang Dynasty official who recorded the emperor's words and actions at court. The Court Diarist handles everything that happens when you say "退朝":
+
+- **Phase 1 — Archive**: decisions, tasks, journal → outbox
+- **Phase 2 — Knowledge Extraction** (core responsibility): scan ALL session materials (not just memorial) for wiki + SOUL candidates
+- **Phase 3 — DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections) — no longer a separate agent
+- **Phase 4 — Sync**: git push + Notion sync (4 explicit operations)
+
+### Key Improvements
+- **Knowledge extraction is now the Court Diarist's core mission** — not step 6.5 in a 298-line file
+- **DREAM merged into closing flow** — one fewer agent launch, no more "last step that gets skipped"
+- **Session conversation summary** passed to Court Diarist — can extract knowledge from PM direct-handle conversations, not just memorials
+- **Notion sync guaranteed explicit** — 4 specific writes, failure reported (not silently skipped)
+- 16 roles (was 15): Morning Court Official + Court Diarist replace the old combined role
+- `dream.md` deleted — fully absorbed into `qiju.md`
+
+---
+
 ## [1.4.3e] - 2026-04-13 · SKILL.md Slim Down — Pure Routing File
 
 > SKILL.md compressed from 384 lines to 93 lines. Lite Mode removed. All detailed role definitions, output formats, and configuration are in agent files and reference docs where they belong.
