@@ -44,3 +44,6 @@ evals/
 4. **Information isolation**: Whether agent outputs reference content they shouldn't have access to
 5. **Actionability**: Whether action recommendations are specific enough to execute
 6. **Consistency**: Whether core conclusions remain consistent across multiple runs of the same scenario
+7. **Express path routing**: Whether non-decision requests correctly trigger the Express path instead of full court
+8. **Ministry selection accuracy**: Whether the Prime Minister / Secretariat selects the right ministries for the scenario
+9. **Wiki extraction quality**: Whether the Court Diarist extracts reusable conclusions into wiki at session close

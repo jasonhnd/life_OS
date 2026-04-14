@@ -1,5 +1,7 @@
 # Scenario: Large Purchase
 
+**Path**: 🏃 Express Analysis
+
 ## User Message
 
 ```

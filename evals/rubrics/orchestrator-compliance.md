@@ -17,6 +17,9 @@ Audit the orchestration quality of each complete workflow (the Prime Minister is
 | 9 | Censorate runs automatically | | Not skipped |
 | 10 | Remonstrator runs automatically | | Not skipped |
 | 11 | Notion data persistence | | Memorial/tasks/logs stored in corresponding databases (if Notion available) |
+| 12 | Express path routing | | Non-decision requests trigger Express path (skip Three Departments, direct to 1-3 ministries) |
+| 13 | Ministry selection accuracy | | Prime Minister / Secretariat selects appropriate ministries for the scenario |
+| 14 | Wiki extraction at session close | | Court Diarist extracts reusable conclusions into wiki/ at session end |
 
 ## Score Distribution Check
 

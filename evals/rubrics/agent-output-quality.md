@@ -33,6 +33,14 @@ Score each agent's output item by item (0-2), for cross-scenario comparison.
 | Face-saving score detection | Did not check score distribution | Mentioned but didn't go deep | Accurately identified unreasonable scores |
 | Specificity | Vague praise/criticism | Identified the role but insufficient reasoning | Identified role + specific evidence |
 
+## Court Diarist-Specific Dimensions
+
+| Dimension | 0 points | 1 point | 2 points |
+|-----------|----------|---------|----------|
+| Session journal quality | No journal written or trivially empty | Journal captures events but misses key decisions | Complete journal with decisions, outcomes, and context |
+| Wiki extraction | No wiki entries extracted | Extracted but too vague or redundant with existing entries | Specific, reusable conclusions written to appropriate wiki domain |
+| Pattern recognition | No behavioral patterns noted | Observations present but shallow | Identified recurring patterns with cross-session references |
+
 ## Remonstrator-Specific Dimensions
 
 | Dimension | 0 points | 1 point | 2 points |

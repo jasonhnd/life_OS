@@ -12,13 +12,7 @@ Life OS can be used on various AI platforms. Choose your platform and follow the
 - [Claude Code (Pro Mode)](#claude-code-pro-mode)
 - [Gemini CLI / Antigravity (Pro Mode)](#gemini-cli--antigravity-pro-mode)
 - [OpenAI Codex CLI (Pro Mode)](#openai-codex-cli-pro-mode)
-- [Claude.ai Web / Desktop (Lite Mode)](#claudeai-web--desktop-lite-mode)
-- [Cursor](#cursor)
-- [VS Code + GitHub Copilot](#vs-code--github-copilot)
-- [ChatGPT](#chatgpt)
-- [Gemini Web](#gemini-web)
 - [Other Platforms](#other-platforms)
-- [Pro vs Lite Mode Comparison](#pro-vs-lite-mode-comparison)
 - [Installation Verification](#installation-verification)
 - [Troubleshooting](#troubleshooting)
 - [Updates](#updates)
@@ -94,7 +88,7 @@ npx skills add jasonhnd/life_OS
 
 - Automatically uses Gemini's strongest available model (no hardcoded version)
 - Tool names are mapped automatically (see `pro/GEMINI.md` for the mapping table)
-- Same workflow, same information isolation, same 14 roles
+- Same workflow, same information isolation, same 16 roles
 
 ---
 
@@ -117,128 +111,11 @@ npx skills add jasonhnd/life_OS
 
 - Automatically uses Codex's strongest available model (no hardcoded version)
 - Follows the [AGENTS.md open standard](https://agents.md/)
-- Same workflow, same information isolation, same 14 roles
+- Same workflow, same information isolation, same 16 roles
 
 ---
 
-## Claude.ai Web / Desktop (Lite Mode)
-
-### Method 1: Project Knowledge (Recommended, Permanent)
-
-1. Open [claude.ai](https://claude.ai/) and log in
-2. Find **Projects** in the sidebar, click **+ New Project**
-3. Name the project, e.g., "Life OS"
-4. Click into the project
-5. Find **Project Settings**, click **Add to project knowledge**
-6. Download the SKILL.md file: 👉 **[Click here to download](https://github.com/jasonhnd/life_OS/blob/main/SKILL.md)** (click the ⬇️ download button in the top right, or click "Raw" then Ctrl+S / Cmd+S to save)
-7. Upload the downloaded `SKILL.md` file to Project Knowledge
-8. Done! Every new conversation in this project will have Three Departments and Six Ministries capabilities
-
-### Method 2: Single Conversation (Temporary Trial)
-
-1. Open [claude.ai](https://claude.ai/) and start a new conversation
-2. Download the SKILL.md file: 👉 **[Click here to download](https://github.com/jasonhnd/life_OS/blob/main/SKILL.md)**
-3. **Drag** the `SKILL.md` file into the conversation window
-4. Start asking questions
-
-> Method 2 only works for the current conversation; you need to re-upload after closing.
-
-### Desktop App
-
-The Claude desktop app (macOS / Windows) works identically to the web version and supports Project Knowledge.
-
----
-
-## Cursor
-
-[Cursor](https://cursor.com/) is an AI code editor that supports the Agent Skills standard.
-
-### Installation Steps
-
-1. Open Cursor
-2. Open the built-in terminal (shortcut: `` Ctrl+` `` or `` Cmd+` ``)
-3. Enter the following command and press Enter:
-
-```bash
-npx skills add jasonhnd/life_OS
-```
-
-4. Wait for installation to complete
-5. Done! Available in Cursor's AI chat (Cmd+L / Ctrl+L)
-
----
-
-## VS Code + GitHub Copilot
-
-[VS Code](https://code.visualstudio.com/) with the GitHub Copilot extension also supports Agent Skills.
-
-### Prerequisites
-
-You need to have the [GitHub Copilot extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) installed.
-
-### Installation Steps
-
-1. Open VS Code
-2. Open the built-in terminal (shortcut: `` Ctrl+` ``)
-3. Enter the following command and press Enter:
-
-```bash
-npx skills add jasonhnd/life_OS
-```
-
-4. Wait for installation to complete
-5. Done! Available in Copilot Chat
-
----
-
----
-
-## ChatGPT
-
-[ChatGPT](https://chat.openai.com/) does not support the Agent Skills standard and requires manual setup.
-
-### Method 1: Create a Custom GPT (Recommended, Permanent)
-
-1. Open [chat.openai.com](https://chat.openai.com/) and log in (requires Plus subscription)
-2. Click **Explore GPTs** in the sidebar
-3. Click **+ Create** in the top right
-4. In the **Configure** tab:
-   - **Name**: Enter `Life OS`
-   - **Description**: Enter `Three Departments and Six Ministries personal cabinet system`
-   - **Instructions**: Open 👉 **[SKILL.md raw content](https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md)**, select all (Ctrl+A / Cmd+A), copy (Ctrl+C / Cmd+C), paste into the Instructions field
-5. Click **Save** in the top right, select "Only me"
-6. Done! Find the "Life OS" GPT in the ChatGPT sidebar and click to start a conversation
-
-> **Note**: ChatGPT's Instructions have a character limit (~8000 characters). If you hit the limit after pasting, remove content below "10 Standard Scenarios" in SKILL.md, keeping only the core role definitions and process descriptions.
-
-### Method 2: Single Conversation (Temporary Trial)
-
-1. Open [chat.openai.com](https://chat.openai.com/) and start a new conversation
-2. Open 👉 **[SKILL.md raw content](https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md)**
-3. Select all, copy, paste into the conversation, and send
-4. Start asking questions
-
-> Only works for the current conversation.
-
----
-
-## Gemini Web
-
-[Gemini](https://gemini.google.com/) can use Life OS through the Gems feature.
-
-### Via Gems (Recommended, Permanent)
-
-1. Open [gemini.google.com](https://gemini.google.com/) and log in with your Google account
-2. Find **Gem manager** in the sidebar, click **New Gem**
-3. In the settings:
-   - **Name**: Enter `Life OS`
-   - **Instructions**: Open 👉 **[SKILL.md raw content](https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md)**, select all, copy, paste into the Instructions field
-4. Click **Save**
-5. Done! Find "Life OS" in the Gems list and click to start a conversation
-
-### Single Conversation (Temporary Trial)
-
-Paste the entire content of SKILL.md directly into a new conversation, then start asking questions.
+> **Note**: Life OS requires Pro Mode — 16 independent subagents with true information isolation. Single-context platforms (ChatGPT, Gemini Web, Claude.ai web) are not supported.
 
 ---
 
@@ -254,29 +131,7 @@ npx skills add jasonhnd/life_OS
 
 See the full list of compatible platforms at [agentskills.io](https://agentskills.io/).
 
-### Platforms Without Agent Skills Support
-
-Universal method:
-1. Open 👉 **[SKILL.md raw content](https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md)**
-2. Select all and copy
-3. Paste into the platform's System Prompt / Instructions / Custom Instructions
-
-Most AI platforms support some form of custom instructions.
-
----
-
-## Pro vs Lite Mode Comparison
-
-| | Lite | Pro |
-|--|------|-----|
-| Role isolation | All roles in the same conversation, sharing context | Each role runs independently, invisible to others |
-| Chancellery review | Can see the Secretariat's reasoning (weakened independence) | Cannot see it, truly independent judgment |
-| Six Ministries execution | One after another, sequential | Simultaneous, parallel |
-| Model | Platform's current model | Each platform's strongest available model (auto-select) |
-| Installation | Upload/paste SKILL.md | One command |
-| Supported platforms | 30+ (any AI) | Claude Code, Gemini CLI/Antigravity, Codex CLI |
-
-**Lite mode is still valuable**: Even in a single conversation, the Six Ministries analyzing from different angles, the Chancellery doing emotional review, and the Remonstrator monitoring your behavioral patterns — these mechanisms still deliver more comprehensive analysis than asking AI directly.
+> **Note**: Life OS requires Pro Mode (independent subagents). Platforms without Agent Skills support are not compatible.
 
 ---
 
@@ -341,11 +196,9 @@ The `version` field at the top of SKILL.md shows the current version number. See
 
 | Platform | How to update |
 |----------|--------------|
-| **Claude Code** | Re-run `/install-skill https://github.com/jasonhnd/life_OS`, automatically overwrites the old version |
-| **Claude.ai** | Go to Project Settings → delete old SKILL.md → re-upload [new version](https://github.com/jasonhnd/life_OS/blob/main/SKILL.md) |
-| **Cursor / VS Code etc.** | Re-run `npx skills add jasonhnd/life_OS`, automatically overwrites |
-| **ChatGPT** | Edit your Life OS GPT → replace Instructions with [new SKILL.md content](https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md) |
-| **Gemini** | Edit your Life OS Gem → replace Instructions with [new SKILL.md content](https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md) |
+| **Claude Code** | Re-run `/install-skill https://github.com/jasonhnd/life_OS` |
+| **Gemini CLI / Antigravity** | Re-run `npx skills add jasonhnd/life_OS` |
+| **Codex CLI** | Re-run `npx skills add jasonhnd/life_OS` |
 
 ### How to Know When There's a New Version?
 
@@ -356,23 +209,17 @@ The `version` field at the top of SKILL.md shows the current version number. See
 
 ## FAQ
 
-**Q: I've never used an AI tool before. Which platform should I start with?**
-A: Start with [Claude.ai](https://claude.ai/) (web version, free signup) and install via Project Knowledge. Simplest setup, complete experience.
-
-**Q: Can the Six Ministries run in parallel in Lite mode?**
-A: No. Parallel execution is exclusive to Pro mode (Claude Code, Gemini CLI/Antigravity, Codex CLI). In Lite mode, all roles execute sequentially in one conversation.
+**Q: Which platform should I start with?**
+A: [Claude Code](https://claude.ai/code) is recommended. Full Pro Mode with 16 independent subagents, one-command install.
 
 **Q: I use both Claude Code and Antigravity. Will they conflict?**
 A: No. They use different orchestration files (`CLAUDE.md` vs `GEMINI.md`) and different agent model mappings. The same `pro/agents/*.md` files are shared. Just make sure `.claude/worktrees/` is in your `.gitignore` to prevent Antigravity from choking on Claude's temporary files.
 
 **Q: Can I use it without connecting Notion?**
-A: Yes. Notion is an optional data layer. Without it, all features work normally — you just won't have cross-session memory.
-
-**Q: SKILL.md is too long and won't fit on my platform. What should I do?**
-A: Remove content below "10 Standard Scenarios" and "Token Consumption Estimates", keeping the core role definitions and process descriptions (~4000 characters).
+A: Yes. Notion is an optional data layer. Without it, all features work normally — you just won't have cross-session memory on mobile.
 
 **Q: Can I use it in a language other than Chinese?**
-A: Yes. The system instructions are in Chinese, but you can ask questions in any language and it will work normally.
+A: Yes. The system supports English, Chinese, and Japanese. You can ask questions in any language.
 
-**Q: Do I need to reinstall for every conversation?**
-A: Depends on the installation method. Project Knowledge (Claude.ai), Custom GPT (ChatGPT), Gems (Gemini), and `/install-skill` (Claude Code) are all install-once-use-forever. Only the "single conversation" method requires repeating each time.
+**Q: What's the Express analysis path?**
+A: When your request doesn't involve a decision (just analysis, research, or planning), the Prime Minister can skip the full Three Departments flow and directly launch 1-3 relevant ministries. Faster, fewer tokens, same quality for non-decision tasks.

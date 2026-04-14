@@ -1,5 +1,7 @@
 # Scenario: Interpersonal Relationship Decision
 
+**Path**: ⚖️ Full Court
+
 ## User Message
 
 ```

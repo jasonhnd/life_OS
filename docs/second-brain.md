@@ -28,9 +28,13 @@ second-brain/
 │
 ├── inbox/                    # 📥 Unprocessed (captures, materials, notes, raw research)
 │
+├── SOUL.md                   # 🧬 Identity — values, principles, behavioral patterns
+├── user-patterns.md          # 📊 Behavioral patterns observed across sessions
+│
 ├── _meta/                    # 🔧 System metadata
 │   ├── STATUS.md             # Global status snapshot
 │   ├── MAP.md                # Knowledge map
+│   ├── outbox/               # 📤 Pending outputs for external sync
 │   ├── decisions/            # Cross-domain major decisions
 │   ├── journal/              # Morning court briefings, Censorate/Remonstrator reports
 │   ├── extraction-rules.md
@@ -53,7 +57,9 @@ second-brain/
 │   ├── tasks/                # Area tasks
 │   └── notes/                # Area notes
 │
-├── wiki/                     # 📚 Cross-domain knowledge network
+├── wiki/                     # 📚 Knowledge archive — reusable conclusions (grows from DREAM)
+│   ├── INDEX.md              # Wiki entry index
+│   └── {domain}/{topic}.md   # Domain-organized knowledge pages
 │
 ├── archive/                  # 🗄️ Completed project archives
 │
@@ -90,9 +96,17 @@ Each project has its own self-contained world: tasks, decisions, research, and j
 
 No endpoint, no deadline. Each area has goals, tasks, and notes. A project can reference an area; an area can spawn projects.
 
-### wiki/ — Cross-Domain Knowledge
+### wiki/ — Knowledge Archive
 
-Replaces the previous zettelkasten structure. A flat or lightly nested wiki of interlinked notes. Not bound to any project — projects die, knowledge lives.
+Replaces the previous zettelkasten structure. A domain-organized wiki of interlinked notes with an INDEX.md entry point. Not bound to any project — projects die, knowledge lives. Grows from DREAM: the Court Diarist extracts reusable conclusions from session analysis into wiki pages.
+
+### SOUL.md — Identity Profile
+
+Captures the user's core values, principles, decision-making tendencies, and behavioral patterns. Referenced by the Remonstrator and Hanlin Academy to provide personalized counsel.
+
+### DREAM — Knowledge Extraction
+
+The Court Diarist's session-close process: reviews the session, extracts reusable insights, and writes them to wiki/ as permanent knowledge entries. This is how ephemeral analysis becomes lasting knowledge.
 
 ---
 
@@ -108,6 +122,8 @@ Replaces the previous zettelkasten structure. A flat or lightly nested wiki of i
 | Research | `projects/{p}/research/` |
 | Cross-domain knowledge | `wiki/` |
 | Goals | `areas/{a}/goals.md` |
+| Session journal (session-close) | `_meta/journal/` (via Court Diarist) |
+| Wiki extraction (session-close) | `wiki/{domain}/{topic}.md` (via Court Diarist) |
 | Global status | `_meta/STATUS.md` |
 
 ---

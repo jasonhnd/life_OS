@@ -1,6 +1,6 @@
 # Token Consumption Breakdown
 
-Life OS token consumption depends on three variables: **mode** (Lite/Pro), **scenario complexity** (how many ministries are activated), and **process events** (whether Veto/Political Affairs Hall are triggered). This document breaks down the consumption for each case.
+Life OS token consumption depends on two variables: **scenario complexity** (how many ministries are activated) and **process events** (whether Veto/Political Affairs Hall are triggered). This document breaks down the consumption for each case.
 
 > Claude Max/Pro subscribers are not billed per token. The analysis below is for API users and cost-conscious users only.
 
@@ -21,19 +21,11 @@ Each role invocation = **input tokens** (system instructions + incoming context)
 | Six Ministries (each) | ~350 | Instructions + background ~500 | Assessment report ~800 | ~1,650 |
 | Censorate | ~350 | Complete process record ~3,000 | Performance evaluation ~300 | ~3,650 |
 | Remonstrator | ~300 | Memorial + user message ~1,500 | Admonition ~300 | ~2,100 |
-| Morning Court Official | ~350 | Notion data ~1,000 | Briefing ~600 | ~1,950 |
+| Morning Court Official | ~350 | Notion data ~1,000 | Briefing ~600 | ~1,950 (session-start only) |
+| Court Diarist | ~300 | Session context ~1,500 | Journal + wiki extraction ~500 | ~2,300 |
 | Hanlin Academy | ~250 | User message ~300 | Conversation reply ~500 | ~1,050 |
 
 > The above are estimates. Actual consumption varies with user input length and model output detail.
-
-### Cost Difference: Lite vs Pro
-
-| | Lite | Pro |
-|--|------|-----|
-| Invocation method | Single context, accumulates all role outputs | Each role as independent API call |
-| Input repetition | Later roles' input = accumulated output of all prior roles (grows larger) | Each role only receives its needed input (fixed size) |
-| Total consumption | Lower (shared context) | Higher (multiple independent calls, but no accumulation) |
-| Typical ratio | 1x | 2-2.5x |
 
 ---
 
@@ -47,13 +39,30 @@ User → Prime Minister → Reply
 
 The lightest usage pattern. Prime Minister determines it's simple and handles directly.
 
-| | Lite | Pro |
-|--|------|-----|
-| Call count | 1 (main context) | 1 (chengxiang agent) |
-| Tokens | ~700-1,000 | ~700-1,000 |
-| Cost | ~$0.01-0.02 | ~$0.01-0.02 |
+| | Tokens |
+|--|--------|
+| Call count | 1 (chengxiang agent) |
+| Tokens | ~700-1,000 |
+| Cost | ~$0.01-0.02 |
 
 Applicable: casual chat, translation, lookups, recording, single-step tasks.
+
+---
+
+### Scenario A2: Express Analysis (🏃)
+
+```
+Prime Minister → 1-2 Ministries → Memorial summary
+```
+
+When the request doesn't involve a decision (just analysis, research, or planning), the Prime Minister skips the full Three Departments flow and directly launches 1-2 relevant ministries.
+
+| | Tokens |
+|--|--------|
+| Tokens | ~15,000-20,000 |
+| Cost | ~$0.35-0.50 |
+
+Applicable: research requests, planning tasks, market analysis, information gathering.
 
 ---
 
@@ -65,19 +74,19 @@ Prime Minister → Secretariat → Chancellery → Dept. of State Affairs → 3 
 
 Typical scenario: major purchase (Revenue + War + Justice)
 
-| Step | Lite | Pro |
-|------|------|-----|
-| Prime Minister | ~1,000 | ~1,000 |
-| Secretariat | ~1,700 (accumulated) | ~1,700 |
-| Chancellery plan review | ~2,500 (accumulated) | ~1,850 |
-| Dept. of State Affairs | ~3,000 (accumulated) | ~1,750 |
-| 3 Ministries | ~5,000 (accumulated) | ~4,950 (3x1,650, parallel) |
-| Chancellery final review | ~4,500 (accumulated) | ~2,450 |
-| Prime Minister memorial summary | — | ~2,000 |
-| Censorate | ~4,000 (accumulated) | ~3,650 |
-| Remonstrator | ~3,500 (accumulated) | ~2,100 |
-| **Total** | **~10,000-12,000** | **~21,000-23,000** |
-| **Cost** | **~$0.20-0.25** | **~$0.50-0.60** |
+| Step | Tokens |
+|------|--------|
+| Prime Minister | ~1,000 |
+| Secretariat | ~1,700 |
+| Chancellery plan review | ~1,850 |
+| Dept. of State Affairs | ~1,750 |
+| 3 Ministries | ~4,950 (3x1,650, parallel) |
+| Chancellery final review | ~2,450 |
+| Prime Minister memorial summary | ~2,000 |
+| Censorate | ~3,650 |
+| Remonstrator | ~2,100 |
+| **Total** | **~21,000-23,000** |
+| **Cost** | **~$0.50-0.60** |
 
 ---
 
@@ -89,10 +98,10 @@ Prime Minister → Secretariat → Chancellery → Dept. of State Affairs → 4 
 
 Typical scenario: investment decision (Revenue + War + Justice + Personnel), health management (Works + War + Revenue + Justice)
 
-| | Lite | Pro |
-|--|------|-----|
-| Total | ~12,000-15,000 | ~25,000-28,000 |
-| Cost | ~$0.25-0.35 | ~$0.60-0.75 |
+| | Tokens |
+|--|--------|
+| Total | ~25,000-28,000 |
+| Cost | ~$0.60-0.75 |
 
 ---
 
@@ -104,10 +113,10 @@ Prime Minister → Secretariat → Chancellery → Dept. of State Affairs → 6 
 
 Typical scenario: career transition, relocation, annual goals, startup decision
 
-| | Lite | Pro |
-|--|------|-----|
-| Total | ~15,000-18,000 | ~35,000-40,000 |
-| Cost | ~$0.30-0.50 | ~$0.80-1.20 |
+| | Tokens |
+|--|--------|
+| Total | ~35,000-40,000 |
+| Cost | ~$0.80-1.20 |
 
 ---
 
@@ -119,18 +128,18 @@ Prime Minister → Secretariat → Chancellery (Veto) → Secretariat (revision)
 
 A Veto adds one Secretariat + Chancellery cycle.
 
-| | Lite | Pro |
-|--|------|-----|
-| Extra consumption per Veto | +3,000-4,000 | +5,000-6,000 |
-| Total (all 6 + 1 Veto) | ~18,000-22,000 | ~40,000-46,000 |
-| Cost | ~$0.40-0.55 | ~$1.00-1.40 |
+| | Tokens |
+|--|--------|
+| Extra consumption per Veto | +5,000-6,000 |
+| Total (all 6 + 1 Veto) | ~40,000-46,000 |
+| Cost | ~$1.00-1.40 |
 
 Maximum 2 Vetoes. With 2 Vetoes:
 
-| | Lite | Pro |
-|--|------|-----|
-| Total | ~21,000-26,000 | ~45,000-52,000 |
-| Cost | ~$0.50-0.65 | ~$1.20-1.60 |
+| | Tokens |
+|--|--------|
+| Total | ~45,000-52,000 |
+| Cost | ~$1.20-1.60 |
 
 ---
 
@@ -142,11 +151,11 @@ Maximum 2 Vetoes. With 2 Vetoes:
 
 The Political Affairs Hall triggers when ministry conclusions contradict each other; relevant ministries conduct 3 rounds of debate. Assuming 3 ministries participate.
 
-| | Lite | Pro |
-|--|------|-----|
-| Political Affairs Hall extra consumption | +3,000-5,000 | +8,000-10,000 |
-| Total (all 6 + Veto + Political Affairs Hall) | ~24,000-31,000 | ~48,000-62,000 |
-| Cost | ~$0.55-0.75 | ~$1.50-2.00 |
+| | Tokens |
+|--|--------|
+| Political Affairs Hall extra consumption | +8,000-10,000 |
+| Total (all 6 + Veto + Political Affairs Hall) | ~48,000-62,000 |
+| Cost | ~$1.50-2.00 |
 
 This is the theoretical maximum consumption for a single process.
 
@@ -158,12 +167,12 @@ This is the theoretical maximum consumption for a single process.
 Morning Court Official (independent process, does not go through Three Departments and Six Ministries)
 ```
 
-| | Lite | Pro |
-|--|------|-----|
-| Total | ~1,500-2,500 | ~1,500-2,500 |
-| Cost | ~$0.03-0.05 | ~$0.03-0.05 |
+| | Tokens |
+|--|--------|
+| Total | ~1,500-2,500 |
+| Cost | ~$0.03-0.05 |
 
-The Morning Court Official is a single call; Lite and Pro cost the same. If connected to Notion, reading data increases input tokens.
+The Morning Court Official is a single call at session start. If connected to Notion, reading data increases input tokens.
 
 ---
 
@@ -184,16 +193,17 @@ The Hanlin Academy is a multi-turn conversation, about 1,000-1,500 tokens per tu
 
 ## Summary Table
 
-| Scenario | Ministries | Lite Tokens | Lite Cost | Pro Tokens | Pro Cost |
-|----------|-----------|-------------|----------|------------|---------|
-| Prime Minister handles directly | 0 | ~1k | ~$0.02 | ~1k | ~$0.02 |
-| Major purchase | 3 | ~11k | ~$0.22 | ~22k | ~$0.55 |
-| Investment/health/learning | 4 | ~14k | ~$0.30 | ~27k | ~$0.68 |
-| Career transition/relocation | 6 | ~16k | ~$0.40 | ~38k | ~$1.00 |
-| All 6 + Veto | 6+veto | ~20k | ~$0.48 | ~43k | ~$1.20 |
-| All 6 + Veto + Political Affairs Hall | 6+veto+hall | ~28k | ~$0.65 | ~55k | ~$1.75 |
-| Morning court review | — | ~2k | ~$0.04 | ~2k | ~$0.04 |
-| Hanlin Academy (5 turns) | — | ~8k | ~$0.18 | ~8k | ~$0.18 |
+| Scenario | Ministries | Tokens | Cost |
+|----------|-----------|--------|------|
+| Prime Minister handles directly | 0 | ~1k | ~$0.02 |
+| Express analysis (🏃) | 1-2 | ~18k | ~$0.43 |
+| Major purchase | 3 | ~22k | ~$0.55 |
+| Investment/health/learning | 4 | ~27k | ~$0.68 |
+| Career transition/relocation | 6 | ~38k | ~$1.00 |
+| All 6 + Veto | 6+veto | ~43k | ~$1.20 |
+| All 6 + Veto + Political Affairs Hall | 6+veto+hall | ~55k | ~$1.75 |
+| Morning court review | — | ~2k | ~$0.04 |
+| Hanlin Academy (5 turns) | — | ~8k | ~$0.18 |
 
 ---
 
@@ -202,26 +212,26 @@ The Hanlin Academy is a multi-turn conversation, about 1,000-1,500 tokens per tu
 | Strategy | Effect | Notes |
 |----------|--------|-------|
 | **Don't convene court for simple matters** | Save 90%+ | Prime Minister handles directly, ~1k tokens |
+| **Use Express path** | Save 60-75% | Skip Three Departments, launch 1-2 ministries directly |
 | **Quick mode** | Save ~1k | Skip Prime Minister triage, go straight to Secretariat |
 | **Activate ministries as needed** | Save 20-50% | Major purchase with 3 ministries vs all 6 is a 2x difference |
 | **Use Morning Court Official for daily reviews** | Save 80%+ | Single call ~2k, no full process |
-| **Use Lite mode** | Save 50-60% | Trade information isolation for lower cost |
 | **Limit Hanlin Academy turns** | Varies | Each additional turn +1-2k |
 
 ### Monthly Cost Estimate
 
 Assuming a typical active user's monthly usage pattern:
 
-| Usage Type | Frequency/Month | Per Session (Pro) | Monthly (Pro) |
-|------------|----------------|-------------------|---------------|
+| Usage Type | Frequency/Month | Per Session | Monthly |
+|------------|----------------|-------------|---------|
 | Prime Minister handles directly | 30 times | ~1k | ~30k |
+| Express analysis (1-2 ministries) | 4 times | ~18k | ~72k |
 | Streamlined process (3-4 ministries) | 4 times | ~25k | ~100k |
 | Full process (6 ministries) | 2 times | ~40k | ~80k |
 | Morning court review | 4 times | ~2k | ~8k |
 | Hanlin Academy | 1 time | ~8k | ~8k |
-| **Monthly total** | | | **~226k tokens** |
-| **Monthly cost (Pro)** | | | **~$5-7** |
-| **Monthly cost (Lite)** | | | **~$2-3** |
+| **Monthly total** | | | **~298k tokens** |
+| **Monthly cost** | | | **~$7-9** |
 
 > Claude Max subscription at $100/month includes generous usage; the above scenarios are well within the quota. Pro subscription at $20/month also covers most daily use.
 

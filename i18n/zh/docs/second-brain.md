@@ -28,9 +28,13 @@ second-brain/
 │
 ├── inbox/                    # 📥 未处理（捕获、素材、笔记、原始研究）
 │
+├── SOUL.md                   # 🧬 身份 — 价值观、原则、行为模式
+├── user-patterns.md          # 📊 跨会话观察到的行为模式
+│
 ├── _meta/                    # 🔧 系统元数据
 │   ├── STATUS.md             # 全局状态快照
 │   ├── MAP.md                # 知识地图
+│   ├── outbox/               # 📤 待同步的外部输出
 │   ├── decisions/            # 跨领域重大决策
 │   ├── journal/              # 早朝简报、御史台/谏官报告
 │   ├── extraction-rules.md
@@ -53,7 +57,9 @@ second-brain/
 │   ├── tasks/                # 领域任务
 │   └── notes/                # 领域笔记
 │
-├── wiki/                     # 📚 跨领域知识网络
+├── wiki/                     # 📚 知识存档 — 可复用的结论（从 DREAM 中生长）
+│   ├── INDEX.md              # Wiki 索引
+│   └── {domain}/{topic}.md   # 按领域组织的知识页面
 │
 ├── archive/                  # 🗄️ 已完成项目归档
 │
@@ -90,9 +96,17 @@ social/    learning/   ops/        creation/  spirit/
 
 没有终点，没有截止日期。每个领域有目标、任务和笔记。项目可以引用领域；领域可以生成项目。
 
-### wiki/ — 跨领域知识
+### wiki/ — 知识存档
 
-取代之前的 zettelkasten 结构。一个扁平或浅层嵌套的互链笔记 wiki。不绑定任何项目——项目会结束，知识永存。
+取代之前的 zettelkasten 结构。按领域组织的互链笔记 wiki，以 INDEX.md 为入口。不绑定任何项目——项目会结束，知识永存。从 DREAM 中生长：起居郎从会话分析中提取可复用的结论，写入 wiki 页面。
+
+### SOUL.md — 身份档案
+
+记录用户的核心价值观、原则、决策倾向和行为模式。谏官和翰林院参考此文件提供个性化建议。
+
+### DREAM — 知识提取
+
+起居郎的会话结束流程：回顾会话，提取可复用的洞察，以永久知识条目的形式写入 wiki/。这是临时分析如何转化为持久知识的方式。
 
 ---
 
@@ -108,6 +122,8 @@ social/    learning/   ops/        creation/  spirit/
 | 研究 | `projects/{p}/research/` |
 | 跨领域知识 | `wiki/` |
 | 目标 | `areas/{a}/goals.md` |
+| 会话日志（会话结束） | `_meta/journal/`（由起居郎写入） |
+| Wiki 提取（会话结束） | `wiki/{domain}/{topic}.md`（由起居郎写入） |
 | 全局状态 | `_meta/STATUS.md` |
 
 ---

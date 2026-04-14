@@ -1,5 +1,7 @@
 # Scenario: Resign to Start a Business
 
+**Path**: ⚖️ Full Court
+
 ## User Message
 
 ```
