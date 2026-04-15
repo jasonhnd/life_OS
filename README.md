@@ -1,21 +1,17 @@
 <div align="center">
 
-# 🏛️ Life OS
+# Life OS
 
-### Your AI-Powered Personal Cabinet
+### Stop asking AI for answers. Start governing your decisions.
 
 ---
-
-*A governance framework that ran for 1,400 years, now running your life.*
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
 [![Version](https://img.shields.io/badge/version-1.5.0-purple.svg)](CHANGELOG.md)
 
-**This is not AI role-playing. This is checks, balances, and separation of powers.**
-
-[Install](#installation) · [How it works](#the-four-pillars) · [Usage](#usage) · [Architecture](#system-architecture)
+[Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
 🌍 [中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
 
@@ -23,308 +19,369 @@
 
 ---
 
-## The Four Pillars
+## What if your AI pushed back?
 
-Life OS is built on four interconnected systems. Each one is powerful alone; together, they form a complete personal governance framework.
+You ask AI a question, it gives you an answer. Always agreeable. Always confident. Nobody reviews the plan. Nobody says "wait — are you sure that's not just fear talking?" Nobody catches the dimension you forgot.
 
----
+Life OS fixes this.
 
-### 🏛️ Pillar I: Three Departments & Six Ministries — Decision Engine
+It installs into your AI terminal (Claude Code, Gemini CLI, or Codex CLI) and transforms it into a **personal cabinet** — 16 independent AI agents that analyze your decisions from every angle, argue with each other, and hold both the plan *and you* accountable.
 
-> The Tang Dynasty built a system where no single person could make unchecked decisions. Life OS applies this to your life.
+The design comes from a real governance system that ran for 1,400 years: the Tang Dynasty's Three Departments and Six Ministries. The principle is simple — **no single voice goes unchecked**.
 
-**The problem**: You ask AI a question, it gives you an answer. No review, no second opinion, no one saying "wait, you're missing something."
-
-**The solution**: Every major decision goes through three stages — **Draft → Review → Execute** — with independent agents at each stage who cannot see each other's reasoning.
-
-```
-You: "Should I quit and start a business?"
-
-📜 Secretariat    → Breaks it into 6 dimensions
-🔍 Chancellery    → Reviews the plan, checks emotional blind spots, can VETO
-📨 Dept. of State → Dispatches to the Six Ministries
-⚔️💰👥📖⚖️🏗️     → Each analyzes independently, scores 1-10
-🔍 Chancellery    → Final review of all reports
-📋 Memorial       → Composite score: 6.8/10, with action items
-🔱 Censorate      → "Ministry of War's timeline is vague — flag it"
-💬 Remonstrator   → "You've been reading startup content for 3 weeks — confirmation bias?"
-```
-
-**The Six Ministries** cover every dimension of life:
-
-| Ministry | Manages | Example |
-|----------|---------|---------|
-| 👥 Personnel | People | "Is my co-founder the right person?" |
-| 💰 Revenue | Money | "Can I survive 18 months without income?" |
-| 📖 Rites | Learning & Expression | "What skills do I need to learn first?" |
-| ⚔️ War | Action | "What's the step-by-step execution plan?" |
-| ⚖️ Justice | Rules & Risk | "What's the worst-case scenario?" |
-| 🏗️ Works | Health & Infrastructure | "Can my body handle the stress?" |
-
-**Key mechanism — the Chancellery Veto**: The Chancellery doesn't just check if the plan is logical. It also runs an emotional audit — *Is your mood affecting your judgment? How will your family react? Will you regret this in 10 years?* It has the power to veto and send the plan back for revision. Maximum 2 vetoes.
-
-**Key mechanism — the Remonstrator**: After every decision, the Remonstrator speaks bluntly about YOUR blind spots — not the plan's quality, but YOUR behavioral patterns. *"You've avoided the financial dimension in your last 5 decisions. Why?"*
+> **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
 
 ---
 
-### 🎋 Pillar II: Hanlin Academy — Hall of Human Wisdom
+## How it works
 
-> Not every question needs a formal process. Some questions need Socrates.
+### The Decision Engine — Three Departments & Six Ministries
 
-The Hanlin Academy gives you access to **70+ of history's greatest thinkers across 18 domains** — from Socrates to Musk, Laozi to Mandela, Dostoevsky to Buffett.
+Every major decision passes through three stages. No shortcuts.
 
-This is not "using the Socratic method." This is **Socrates himself** in conversation with you — his voice, his examples, his relentless questioning.
+**Draft** — The Secretariat breaks your situation into six dimensions and builds a plan.
+
+**Review** — The Chancellery reviews the plan independently. It runs an emotional audit: *Is fear driving this? Will your family support it? Will you regret this in ten years?* If it finds a blind spot, it sends a veto — the plan goes back for revision.
+
+**Execute** — Six Ministries each analyze the plan from their domain, scoring 1-10 independently:
+
+| Ministry | What it covers | The question it asks |
+|----------|---------------|---------------------|
+| Personnel | People, relationships | "Are the right people involved?" |
+| Revenue | Money, resources | "Can you afford this — including the worst case?" |
+| Rites | Learning, expression, culture | "What do you need to learn first?" |
+| War | Action, execution, logistics | "What's the concrete plan, week by week?" |
+| Justice | Rules, risk, compliance | "What happens if everything goes wrong?" |
+| Works | Health, infrastructure, energy | "Can your body and environment sustain this?" |
+
+After all six report, the Censorate audits the officials' work ("Ministry of War's timeline has no milestones — flag it"). Then the Remonstrator turns to *you*: "You've avoided addressing finances in your last four decisions. Why?"
+
+Here is what the full flow looks like:
+
+```
+You: "I'm thinking about leaving my job to start something new."
+
+    Draft
+    📜 Secretariat     → Breaks it into 6 dimensions, builds the plan
+
+    Review
+    🔍 Chancellery     → Emotional audit: running away or running toward?
+                         Veto: "Financial runway not addressed. Revise."
+
+    Execute  (after revision passes review)
+    👥 Personnel  7/10   "Co-founder chemistry is untested"
+    💰 Revenue    5/10   "18 months runway, but only if nothing goes wrong"
+    📖 Rites      8/10   "Strong domain expertise, credibility is real"
+    ⚔️ War        6/10   "No milestone plan past month 3"
+    ⚖️ Justice    4/10   "Non-compete clause needs legal review"
+    🏗️ Works      7/10   "Health is good, but stress plan is vague"
+
+    Audit
+    🔱 Censorate       → "War's plan is vague past month 3 — request revision"
+    💬 Remonstrator    → "You've been consuming startup content for weeks.
+                          Confirmation bias is likely. When did you last
+                          seriously consider staying?"
+
+    📋 Final Memorial  → Composite: 6.2/10 — Proceed with conditions
+```
+
+Not every request needs this. The Prime Minister (your always-on entry point) handles casual chat, quick questions, and emotional support directly. For questions that need ministry expertise but are not decisions — say, "what tax rules apply to freelancers?" — an **express path** sends it to 1-3 relevant ministries without the full court process.
+
+---
+
+### The Hanlin Academy — When You Need Wisdom, Not Analysis
+
+Some questions do not have a "correct answer." They need perspective.
+
+The Hanlin Academy gives you access to **70+ of history's greatest thinkers across 18 domains** — from Socrates to Buffett, Laozi to Mandela, Dostoevsky to Feynman. Each one runs as a real subagent with their own voice, their own examples, their own way of pushing you.
 
 **Three modes:**
-- **One-on-one** — Deep dialogue with a single thinker
-- **Roundtable** — Multiple thinkers discuss your question, each from their worldview
-- **Debate** — Two thinkers with opposing views argue directly, you judge
 
-**18 domains**: Science · Philosophy · Eastern Thought · Strategy · Business · Mind & Practice · Systems · Human Nature · Civilization · Adversity · Aesthetics · Politics · Economics · Mathematics · Medicine · Exploration · Communication · Law
+- **One-on-one** — Deep dialogue with a single thinker. Socrates will not let you off easy.
+- **Roundtable** — Multiple thinkers discuss your question, each from their worldview. Watch Seneca and Wang Yangming find unexpected common ground.
+- **Debate** — Two thinkers with opposing views argue directly. You judge.
 
-**How it works:**
 ```
-You: "I've been feeling lost about my direction in life"
-Prime Minister: "Would you like to activate the Hanlin Academy?"
-You: Yes
-Hanlin Academy: "What question would you like to explore?"
-→ Shows 18 domains, recommends Seneca + Wang Yangming
-→ You choose, they dialogue with you in character
-→ At the end, each gives a parting word
-→ Hanlin Academy summarizes your thinking journey → saved to second-brain
+You: "I keep starting things and never finishing them."
+
+Hanlin Academy: Recommended — Seneca (on time) + Wang Yangming (on action)
+
+Seneca: "You do not lack time. You waste it on things you have not
+         examined. Which of your current pursuits would you begin again,
+         knowing what you know now?"
+
+Wang Yangming: "Knowledge and action are one. If you truly knew what you
+                wanted, you would already be doing it. The gap between
+                knowing and doing is the gap between wanting and truly
+                wanting."
+
+→ Parting words from each thinker
+→ Summary of your thinking journey saved to your knowledge base
 ```
+
+**18 domains**: Philosophy, Eastern Thought, Science, Strategy, Business, Psychology, Systems Thinking, Human Nature, Civilization, Adversity, Aesthetics, Politics, Economics, Mathematics, Medicine, Exploration, Communication, Law.
 
 ---
 
-### 🧠 Pillar III: Second Brain — Your Knowledge Grows
+### Second Brain — Nothing Disappears When the Session Ends
 
-> Your decisions, insights, and patterns don't disappear when the session ends.
-
-Life OS writes everything to a **persistent knowledge base** — decisions, action items, journal entries, wiki knowledge — structured as markdown files in a Git repository.
+Every decision, insight, pattern, and action item is written to a **persistent knowledge base** — structured markdown files that you own, in a storage system you choose.
 
 ```
 second-brain/
-├── SOUL.md              # 🔮 Who you are (grows from your decisions)
-├── user-patterns.md     # 📊 How you behave (Remonstrator's observations)
-├── inbox/               # 📥 Unprocessed captures from mobile
+├── SOUL.md                 # Who you are — values, identity, aspirations
+├── user-patterns.md        # How you behave — the Remonstrator's observations
+├── inbox/                  # Quick captures from your phone
 ├── _meta/
-│   ├── STATUS.md        # 📊 Global status (compiled)
-│   ├── STRATEGIC-MAP.md # 🗺️ Strategic relationships (compiled — v1.5.0)
-│   ├── strategic-lines.md # Strategic line definitions (user-defined)
-│   ├── journal/         # 🔧 Reports, DREAM reports
-│   └── outbox/          # 📮 Session staging
-├── projects/{name}/     # 🎯 Active projects with tasks + decisions
-├── areas/{name}/        # 🌊 Ongoing life areas with goals
-├── wiki/                # 📚 Knowledge archive — reusable conclusions (grows from DREAM)
-└── archive/             # 🗄️ Completed work
+│   ├── STATUS.md           # Global status dashboard
+│   ├── STRATEGIC-MAP.md    # Relationships between projects (v1.5.0)
+│   ├── journal/            # Session reports, DREAM reports
+│   └── outbox/             # Session staging area
+├── projects/{name}/        # Active projects with tasks + decisions
+├── areas/{name}/           # Ongoing life areas with goals
+├── wiki/                   # Reusable knowledge — grows from DREAM
+└── archive/                # Completed work
 ```
 
-**Three storage backends** — choose one or combine:
-- **GitHub** — For technical users, version-controlled, works with Obsidian
-- **Google Drive** — Zero setup, works for everyone
-- **Notion** — Mobile-friendly, database views
+**Three storage backends** — pick what fits your life:
 
-**Cross-device sync**: Phone captures go to Notion inbox → Desktop session pulls and processes → Results sync back to all backends.
+| Backend | Best for | Tradeoff |
+|---------|----------|----------|
+| **GitHub** | Version control, works with Obsidian | Requires basic Git knowledge |
+| **Google Drive** | Zero setup, just works | Less structured |
+| **Notion** | Mobile-friendly, database views | Best for phone capture |
 
-**Parallel sessions**: Multiple sessions can work simultaneously on different projects — no conflicts, no locks. Each session writes to its own **outbox** on adjourn; the next session to start court merges everything. Work on project-A in one window, project-B in another, project-C on a third — each adjourns independently, and the next morning court assembles it all.
+**Cross-device sync**: Capture a thought on your phone (Notion inbox) at lunch. When you sit down at your computer and start court, the system pulls it in, processes it, and syncs results back.
+
+**Parallel sessions**: Work on project-alpha in one terminal window, project-beta in another. Each session writes to its own outbox. The next time you start court, everything merges cleanly — no conflicts, no locks.
 
 ---
 
-### 🗺️ Pillar IV: Strategic Map — See the Whole Board (v1.5.0)
+### Strategic Map — See the Whole Board *(v1.5.0)*
 
-> Individual projects are trees. The Strategic Map shows you the forest.
+You are good at thinking about individual projects. You are probably bad at seeing how they connect — which ones feed into each other, which ones compete for your time, and what happens to the rest when one stalls.
 
-**The problem**: You have many active projects. Some feed knowledge into others. Some compete for your time. When one stalls, it silently blocks others. But your morning briefing shows a flat list — no relationships, no priorities, no "what should I actually do today?"
+Strategic Map adds the relationship layer:
 
-**Strategic Map** adds the relationship layer between projects:
+**Strategic Lines** — Group projects by the purpose they serve. Each line has a stated purpose *and* a driving force (what actually motivates you — these can differ, and that tension is worth examining).
 
-- **Strategic Lines** — group projects by purpose. Each line has a stated purpose AND a `driving_force` (what really motivates you — these can differ)
-- **Flow Graph** — track what flows between projects: knowledge, deliverables, decisions, relationship capital
-- **Health Archetypes** — no numerical scores. Pattern matching + narrative assessment: "project-alpha is in controlled wait (legal review, expected next month). Use this window to advance the enabler."
-- **Action Recommendations** — highest-leverage action, with effort estimate and cost of inaction
+**Flow Graph** — Define what flows between projects: knowledge, deliverables, decisions, relationship capital. When a decision in one project invalidates another project's assumptions, the system warns you.
 
-**Morning briefing upgrade:**
+**Health Archetypes** — No abstract numerical scores. The system matches each project to a pattern and writes a narrative: what is happening, what it means, what to do.
+
+**Blind Spot Detection** — Actively looks for what is *missing*: unaffiliated projects, broken flows, neglected driving forces, approaching deadlines with no preparation.
+
+Your morning briefing becomes strategic:
+
 ```
-🗺️ Strategic Overview:
+🗺️ Strategic Overview
 
-💰 market-expansion                     🟡 Controlled wait
-   Window: 2026-09-30 (24 weeks)
-   Driving: Build market presence in target segment
+💰 market-expansion                       🟡 Controlled wait
+   project-alpha    critical-path    ⏸ on-hold (legal review)
+   project-beta     enabler          🟢 active
 
-   project-alpha    critical-path   ⏸ on-hold
-   project-beta     enabler         🟢 active (3d)
+   The legal review creates a natural window.
+   → Push project-beta prep work (2-3h) — high leverage, low risk.
 
-   Narrative: Legal review in window. Use wait to advance project-beta.
-   → Action: Push project-beta prep work (2-3h, high leverage)
-
-⚡ Today:
+⚡ Today
 🥇 Push project-beta prep — exploit the waiting period
-🟢 Safe to ignore: project-gamma (on track), side-project-x (non-critical)
-❓ Decide: Which line does project-delta belong to?
+🟢 Safe to ignore: project-gamma (on track), side-project (non-critical)
+❓ Decide: project-delta is unaffiliated — which strategic line does it serve?
 ```
 
-**Cross-layer integration**: Strategic Map works with SOUL (values alignment), Wiki (knowledge flow verification), and DREAM (cross-layer insights). Four knowledge layers, one cognitive system.
-
-Designed on cognitive science: Goal Systems Theory (Kruglanski), Recognition-Primed Decision (Klein), Predictive Coding (Friston).
+Strategic Map integrates with SOUL (are your driving forces aligned with your values?), Wiki (do the knowledge flows actually carry real knowledge?), and DREAM (the sleep cycle uses the flow graph to discover cross-layer insights).
 
 ---
 
-### 🔮 Pillar V: SOUL + DREAM — The System Learns Who You Are
+### SOUL + DREAM — The System Learns Who You Are
 
-> Your AI shouldn't start from zero every session. It should know who you are and grow with you.
+**SOUL** records who you are — not what you do, but what you value, what you believe, and who you aspire to be. Each entry has two sides: what IS (observed from your decisions) and what SHOULD BE (your stated aspiration). The gap between them is where growth happens.
 
-**SOUL — Your Personality Archive**
+Nothing is auto-written. The system proposes entries; you confirm. Over time, SOUL makes the entire cabinet smarter — the Chancellery catches when a decision contradicts your values, the Remonstrator compares what you say versus what you do.
 
-SOUL.md records **who you are** — not what you do (that's user-patterns.md), but what you value, what you believe, and who you aspire to be.
+**DREAM** is the AI sleep cycle. After every session ends, the system "sleeps" — inspired by human sleep architecture:
 
-Each entry has two sides:
-- **What IS** — your actual behavior, observed from decisions
-- **What SHOULD BE** — your stated aspiration
+- **Light sleep** — Organize loose ends: classify inbox items, flag expired tasks
+- **Deep sleep** — Consolidate: extract SOUL candidates (about you) and Wiki candidates (reusable knowledge about the world)
+- **REM** — Creative connections: discover cross-domain links you have not noticed
 
-The gap between them is where growth happens. The system discovers your values from your decisions, proposes entries, and you confirm. Nothing is auto-written.
+Next time you start court: *"Last session, the system noticed a connection between your learning project and your career goal that you haven't explored..."*
 
-As SOUL.md grows, the whole system gets smarter:
-- Prime Minister asks sharper questions
-- Secretariat adds dimensions you care about but forgot to mention
-- Chancellery catches when a decision contradicts your stated values
-- Remonstrator compares what you say vs what you do
+Both SOUL and DREAM grow from zero. On day one, the system knows nothing about you. It learns only from what you tell it and what it observes in your decisions.
 
-**DREAM — The AI Sleep Cycle**
+---
 
-After every session ends, the system "sleeps" — inspired by human sleep architecture:
+## See it in action
 
-- **N1-N2 (Light sleep)**: Organize loose ends — classify inbox, flag expired tasks
-- **N3 (Deep sleep)**: Consolidate — extract SOUL candidates (about you) AND Wiki candidates (reusable knowledge about the world)
-- **REM (Dreaming)**: Creative connections — discover cross-domain links you haven't noticed
+### Start your day
 
-Next time you start court: *"💤 Last session the system had a dream..."*
+```
+You: Start court.
+
+🌅 Morning Court Official:
+   Syncing second-brain... 3 inbox items pulled from Notion.
+   📥 "Look into certification programs" — captured yesterday on phone
+   📥 "project-alpha: supplier replied" — forwarded from email
+   📥 Quick note: "revisit budget assumptions"
+
+   🗺️ Strategic overview: [see Strategic Map above]
+
+   💤 DREAM report: Last session noticed your wiki entry on negotiation
+      tactics could apply to the supplier conversation in project-alpha.
+
+   📋 Recommended: Process supplier reply first (time-sensitive).
+```
+
+### Make a decision
+
+```
+You: I'm considering switching from full-time to freelance.
+→ 2-3 rounds of intent clarification
+→ Full Three Departments & Six Ministries flow
+→ Memorial: 5.8/10 — "Viable but timing is premature. Revenue runway
+   is 11 months, not the 18 you assumed. Recommendation: build 3 more
+   months of savings and one anchor client before transitioning."
+```
+
+### Think deeply
+
+```
+You: I keep saying yes to things I don't care about.
+→ Hanlin Academy activates
+→ One-on-one with Marcus Aurelius on priorities and refusal
+→ Insights saved to second-brain
+```
+
+### End your day
+
+```
+You: Adjourn court.
+
+📝 Court Diarist:
+   Archiving session... extracting knowledge...
+   💤 DREAM cycle running...
+   - SOUL candidate: "Values autonomy over stability" — Confirm? [Y/n]
+   - Wiki candidate: "Freelance runway formula" → wiki/career/
+   - REM insight: Your health goals and career timeline share a
+     constraint you haven't addressed — energy management.
+   Syncing to Notion... done.
+```
+
+---
+
+## 12 Standard Scenarios
+
+Life OS comes pre-configured for the decisions people actually face:
+
+| # | Scenario | Ministries involved | What the Chancellery asks |
+|---|----------|-------------------|--------------------------|
+| 1 | Career transition | All Six | "Running away or pursuing something?" |
+| 2 | Investment decisions | Revenue, War, Justice, Personnel | "FOMO or rational? Can you survive total loss?" |
+| 3 | Relocation | All Six | "Do you really know the destination?" |
+| 4 | Annual planning | All Six | "Too many goals? Measurable? Aligned with values?" |
+| 5 | Startup decisions | All Six | "Solving a real pain point? Are you the right person?" |
+| 6 | Major purchases | Revenue, War, Justice | "Need or want? Would you still want it in a month?" |
+| 7 | Relationships | Personnel, Works, Justice, Rites | "Are you evaluating the other person with bias?" |
+| 8 | Periodic reviews | Morning Court Official | Daily, weekly, monthly, quarterly, yearly |
+| 9 | Health management | Works, War, Revenue, Justice | "Sustainable, or another short burst?" |
+| 10 | Learning plans | Rites, War, Revenue, Personnel | "Learning for growth, or avoiding real work?" |
+| 11 | Time management | War, Revenue, Justice, Works | "Really no time, or avoiding something?" |
+| 12 | Major family decisions | All Six | "Whose voice hasn't been heard?" |
 
 ---
 
 ## Installation
 
-Life OS supports multiple AI platforms. **[View the full installation guide →](docs/installation.md)**
+Life OS installs in one command. It requires a **Pro Mode** terminal — that means real subagents running in parallel with information isolation, not a chatbot.
 
-| Platform | Installation |
-|----------|-------------|
+| Platform | Command |
+|----------|---------|
 | **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` |
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
 
-> Life OS requires Pro Mode — 16 independent subagents with true information isolation and parallel execution. Single-context platforms (ChatGPT, Gemini Web, etc.) are not supported.
-
-**Auto-Update (Claude Code)**: After installing, run once:
+**Set up auto-updates** (Claude Code):
 ```bash
 bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 ```
-This adds a SessionStart hook that checks for updates daily.
+This checks for updates once a day when you start a session.
 
-## Usage
+**Manual update**: Just say "update" (or "更新" or "アップデート") in any session.
 
-### Daily
+> **Not supported**: ChatGPT, Gemini Web, or any single-context chat interface. Life OS requires 16 independent subagents with true information isolation — a single chat window cannot do this.
 
-```
-You: I've been so tired lately
-Prime Minister: [Listens, determines whether to refer to Ministry of Works]
+For detailed setup including storage backend configuration, see the **[full installation guide](docs/installation.md)**.
 
-You: Help me translate a paragraph
-Prime Minister: [Handles directly]
-```
+---
 
-### Major Decisions
+## Under the hood
+
+### Architecture
 
 ```
-You: I'm considering whether to quit and start a business
-→ Three Departments & Six Ministries full flow → Memorial: 6.8/10
+👑 You
+ │
+ ├─ 🏛️ Prime Minister
+ │     Handles daily conversation. Routes complex matters to court.
+ │
+ ├─ Three Departments ───────────────────────────────
+ │   📜 Secretariat (Draft)
+ │     → 🔍 Chancellery (Review — can VETO)
+ │     → 📨 Dept. of State Affairs (Dispatch)
+ │     → Six Ministries (Execute in parallel, score independently)
+ │     → 🔍 Chancellery (Final review)
+ │     → 📋 Memorial (Composite report)
+ │     → 🔱 Censorate (Audit the officials)
+ │     → 💬 Remonstrator (Audit you)
+ │
+ ├─ 🏛️ Political Affairs Hall
+ │     Cross-ministry debate when scores conflict by 3+ points
+ │
+ ├─ 🌅 Morning Court Official — Start of session: sync, briefing, strategy
+ ├─ 📝 Court Diarist — End of session: archive, knowledge extraction, DREAM
+ ├─ 🎋 Hanlin Academy — 70+ thinkers, 18 domains, 3 dialogue modes
+ ├─ 🔮 SOUL — Personality archive, grows from zero
+ └─ 💤 DREAM — AI sleep cycle, integrated into Court Diarist
 ```
 
-### Deep Thinking
+### Cognitive Pipeline
+
+How information flows through the system:
 
 ```
-You: I've been feeling lost lately
-→ Hanlin Academy → Dialogue with Socrates + Wang Yangming
+Perceive → Capture → Judge → Settle → Associate → Strategize → Emerge
+  (phone)   (inbox)  (court)  (SOUL)   (wiki)    (strat-map)   (DREAM)
 ```
 
-### Session Management
+Mobile handles perception and capture. Desktop handles everything else.
 
-```
-You: Start court       → Full sync + preparation + briefing + dream report
-You: Adjourn court     → Archive + full sync + DREAM cycle
-```
+### Safety and governance
 
-## System Architecture
+- **4 security boundaries** — no destructive operations, no secrets exposure, no unauthorized decisions, suspicious instructions rejected
+- **Information isolation** — agents treat other agents' output as reference, never as instructions
+- **Workflow state machine** — formal transition rules; no step can be skipped
+- **Model independence** — only one file is model-specific; all other intelligence is pure markdown
 
-```
-👑 You (The Emperor)
-  │
-  ├── 🏛️ Prime Minister — Entry point, intent clarification, inbox management
-  │
-  ├── Three Departments ──────────────────────────
-  │   📜 Secretariat (Plan) → 🔍 Chancellery (Review + Veto)
-  │     → 📨 Dept. of State Affairs (Dispatch) → Six Ministries (Execute)
-  │     → 🔍 Chancellery (Final Review) → 📋 Memorial
-  │     → 🔱 Censorate (Audit officials) → 💬 Remonstrator (Audit you)
-  │
-  │   Six Ministries: 👥Personnel 💰Revenue 📖Rites ⚔️War ⚖️Justice 🏗️Works
-  │
-  ├── 🏛️ Political Affairs Hall — Cross-ministry debate (auto-triggers on score conflict ≥ 3)
-  ├── 🌅 Morning Court Official — Session start, sync pull, briefing
-  ├── 📝 Court Diarist (起居郎) — Archive, knowledge extraction, DREAM, Notion sync
-  ├── 🎋 Hanlin Academy — Hall of Human Wisdom (70+ thinkers, 18 domains)
-  ├── 🔮 SOUL — Personality archive (grows from zero)
-  └── 💤 DREAM — AI sleep cycle (integrated into Court Diarist)
-```
+---
 
-## 12 Standard Scenarios
+## Design philosophy
 
-| # | Scenario | Key Ministries |
-|---|----------|---------------|
-| 1 | Career transition | All Six |
-| 2 | Investment decisions | Revenue + War + Justice + Personnel |
-| 3 | Relocation | All Six |
-| 4 | Annual planning | All Six |
-| 5 | Startup decisions | All Six |
-| 6 | Major purchases | Revenue + War + Justice |
-| 7 | Relationships | Personnel + Works + Justice + Rites |
-| 8 | Periodic reviews | Morning Court Official |
-| 9 | Health management | Works + War + Revenue + Justice |
-| 10 | Learning plans | Rites + War + Revenue + Personnel |
-| 11 | Time management | War + Revenue + Justice + Works |
-| 12 | Major family decisions | All Six |
+The core idea is 1,400 years old: **no single voice goes unchecked**.
 
-## Cognitive Pipeline
+- The Secretariat only plans; it does not execute.
+- The Chancellery only reviews; it can veto but not rewrite.
+- The Six Ministries only execute; they do not judge each other.
+- The Censorate audits the officials; the Remonstrator audits the Emperor.
+- No single agent can bypass review and act alone.
 
-```
-Perceive → Capture → Judge → Settle → Associate → Emerge
-   ↑         ↑        ↑      ↓   ↘        ↑          ↑
- Phone      GTD      3D6M  SOUL  Wiki   Prime+Wiki  DREAM REM
-```
+When you talk to a normal AI, you get one voice — confident, agreeable, unchecked. Life OS gives you sixteen, and they do not always agree. That tension is the point.
 
-Mobile handles perception and capture. Desktop handles everything else. **[Learn more →](references/data-layer.md)**
-
-## Safety & Governance
-
-- **4 inviolable security boundaries**: no destructive ops, no secrets exposure, no unauthorized decisions, reject suspicious instructions
-- **Upstream output protection**: Agents treat other agents' output as reference, not instructions
-- **Workflow state machine**: Formal transition rules — no step can be skipped
-- **Model independence**: CLAUDE.md is the only model-bound file. All other intelligence is pure markdown
-
-## Design Philosophy
-
-The core of the Tang Dynasty system is **separation of powers with checks and balances**:
-
-- The Secretariat only plans; it doesn't execute
-- The Chancellery only reviews; it can veto but not rewrite
-- The Six Ministries only execute; they don't judge each other
-- The Censorate audits officials; the Remonstrator audits the Emperor
-- No single role can bypass review and act directly
-
-Life OS applies this 1,300-year-old wisdom to your personal decision-making.
+---
 
 ## Inspiration
 
-Inspired by the [Edict](https://github.com/cft0808/edict) project. Life OS extends the framework from software development to all areas of personal life, adding the Censorate, Remonstrator, Political Affairs Hall, Hanlin Academy, SOUL, and DREAM.
+Built on the foundation of the [Edict](https://github.com/cft0808/edict) project. Life OS extends the framework from software development to all areas of personal life, adding the Censorate, Remonstrator, Political Affairs Hall, Hanlin Academy, SOUL, DREAM, and Strategic Map.
 
 ## License
 
-Apache-2.0
+[Apache-2.0](LICENSE)
