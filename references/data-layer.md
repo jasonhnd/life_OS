@@ -242,7 +242,7 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 ### Wrap-Up Mode (End of Process)
 
 ```
-1. Generate session-id: {platform}-{YYYYMMDD}-{HHMM}
+1. Generate session-id: run date command to get actual timestamp, format as {platform}-{YYYYMMDD}-{HHMM}. Do NOT fabricate — use system clock. HARD RULE.
 2. Create _meta/outbox/{session-id}/
 3. Save Decision / Save Task / Save JournalEntry → to _meta/outbox/{session-id}/ (NOT to main directories)
 4. Write index-delta.md (changes for projects/{p}/index.md)

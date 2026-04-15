@@ -20,7 +20,7 @@ Adjourn = Wrap-up + final confirmation. Both modes execute the same 4-phase flow
 
 ```
 1. Read _meta/config.md → get storage backend list
-2. Generate session-id: {platform}-{YYYYMMDD}-{HHMM} (use current time)
+2. Generate session-id: run date command to get actual timestamp, then format as {platform}-{YYYYMMDD}-{HHMM}. Do NOT fabricate the timestamp — use the real output from the system clock. HARD RULE.
 3. Create outbox directory: _meta/outbox/{session-id}/
 4. Save Decision (memorial) → _meta/outbox/{session-id}/decisions/ (each file has project field in front matter)
 5. Save Task (action items) → _meta/outbox/{session-id}/tasks/ (each file has project field)

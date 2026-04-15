@@ -239,7 +239,7 @@ storage:
 ## 制約事項
 
 - **複数の session が同時にセカンドブレインを操作できる** outbox パターンを使用。各 session は自身の outbox ディレクトリ（`_meta/outbox/{session-id}/`）に書き込む。次に上朝する session が全 outbox をメイン構造にマージする。共有ファイル（STATUS.md、user-patterns.md、index.md）への直接書き込みは、上朝時の Outbox マージステップでのみ行われる。
-- **session-id フォーマット**：`{platform}-{YYYYMMDD}-{HHMM}`、退朝時に生成（session 開始時ではない）。例：`claude-20260412-1700`、`gemini-20260412-1900`。
+- **session-id フォーマット**：`{platform}-{YYYYMMDD}-{HHMM}`、退朝時に生成（session 開始時ではない）。タイムスタンプは date コマンドでシステムクロックから取得すること、捏造禁止。例：`claude-20260412-1700`、`gemini-20260412-1900`。
 - **Outbox マージロック**：マージ中は `_meta/.merge-lock` を書き込む。存在し5分未満の場合はマージをスキップして通常通り続行する。マージ完了後に削除する。
 - **空の session**：session に出力がない場合（意思決定、タスク、ジャーナルエントリがない）、outbox を作成しない。
 - モバイルデバイスは Notion inbox または GDrive inbox 経由で書き込み、構造化データへの直接書き込みは行わない

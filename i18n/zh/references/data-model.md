@@ -239,7 +239,7 @@ storage:
 ## 约束条件
 
 - **多个 session 可同时操作 second-brain**，使用 outbox 模式。每个 session 写入各自的 outbox 目录（`_meta/outbox/{session-id}/`）。下一个上朝的 session 将所有 outbox 合并到主结构中。直接写入共享文件（STATUS.md、user-patterns.md、index.md）只在上朝时的 Outbox 合并步骤中发生。
-- **session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在退朝时生成（非 session 开始时）。示例：`claude-20260412-1700`、`gemini-20260412-1900`。
+- **session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在退朝时生成（非 session 开始时）。时间戳必须通过 date 命令从系统时钟获取，禁止编造。示例：`claude-20260412-1700`、`gemini-20260412-1900`。
 - **Outbox merge lock**：合并期间写入 `_meta/.merge-lock`。若该文件存在且时间 < 5 分钟，跳过合并正常进行。合并完成后删除。
 - **空 session**：若 session 无任何产出（无决策、任务或日志），不创建 outbox。
 - 移动设备通过 Notion 收件箱或 GDrive 收件箱写入，不直接写入结构化数据

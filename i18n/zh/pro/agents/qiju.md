@@ -20,7 +20,7 @@ model: opus
 
 ```
 1. 读取 _meta/config.md → 获取存储后端列表
-2. 生成 session-id：{platform}-{YYYYMMDD}-{HHMM}
+2. 生成 session-id：执行 date 命令获取实际时间戳，格式为 {platform}-{YYYYMMDD}-{HHMM}。禁止编造时间戳——必须使用系统时钟的真实输出。硬规则。
 3. 创建 outbox 目录：_meta/outbox/{session-id}/
 4. 保存决策（奏折）→ _meta/outbox/{session-id}/decisions/
 5. 保存任务（行动项）→ _meta/outbox/{session-id}/tasks/

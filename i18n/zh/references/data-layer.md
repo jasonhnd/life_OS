@@ -242,7 +242,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 ### 收朝模式（流程结束时）
 
 ```
-1. 生成 session-id：{platform}-{YYYYMMDD}-{HHMM}
+1. 生成 session-id：执行 date 命令获取实际时间戳，格式为 {platform}-{YYYYMMDD}-{HHMM}。禁止编造——必须使用系统时钟。硬规则。
 2. 创建 _meta/outbox/{session-id}/
 3. Save Decision / Save Task / Save JournalEntry → 写入 _meta/outbox/{session-id}/（不写入主目录）
 4. 写入 index-delta.md（projects/{p}/index.md 的变更）

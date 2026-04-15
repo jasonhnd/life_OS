@@ -20,7 +20,7 @@ pro/GLOBAL.md のすべてのユニバーサルルールに従うこと。
 
 ```
 1. _meta/config.md を読む → ストレージバックエンドリスト取得
-2. session-id を生成：{platform}-{YYYYMMDD}-{HHMM}
+2. session-id を生成：date コマンドを実行して実際のタイムスタンプを取得し、{platform}-{YYYYMMDD}-{HHMM} 形式にする。タイムスタンプを捏造してはならない——システムクロックの実際の出力を使用すること。HARD RULE。
 3. outbox ディレクトリを作成：_meta/outbox/{session-id}/
 4. 意思決定（上奏文）を保存 → _meta/outbox/{session-id}/decisions/
 5. タスク（アクションアイテム）を保存 → _meta/outbox/{session-id}/tasks/

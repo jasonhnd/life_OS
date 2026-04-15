@@ -6,6 +6,18 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.4b] - 2026-04-15 · Prevent Fabricated Timestamps
+
+> LLMs were fabricating timestamps in session-id generation instead of reading the system clock. All session-id generation instructions now explicitly require running a date command. Template-style specs changed to command-style specs.
+
+### Changes
+
+- **qiju.md**: session-id step changed from template format to "run date command, use real output. HARD RULE."
+- **data-layer.md + data-model.md**: session-id generation synced with same command-style wording
+- All changes applied across EN/ZH/JA
+
+---
+
 ## [1.4.4a] - 2026-04-15 · Enforce Agent File Loading
 
 > LLMs were skipping adjourn phases by executing from memory instead of reading `qiju.md`. This patch adds 3-layer enforcement: explicit MUST-read routing in SKILL.md, a mandatory completion checklist in qiju.md, and a new orchestration rule requiring agent file loading on every trigger word.
