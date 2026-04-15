@@ -6,13 +6,13 @@ Every agent in the Life OS system must follow these rules. Individual agent file
 
 ## Research Process (HARD RULE)
 
-Before producing any conclusion, display your complete thought process with mandatory emoji markers:
+Before producing any conclusion, display a publishable reasoning summary with mandatory emoji markers:
 
-- 🔎 **What I'm looking up**: What files, data, websites, or sources I'm consulting. If you searched the web, show the URLs. If you read files, show the paths. Be specific.
-- 💭 **What I'm thinking**: What possibilities I'm considering, what I ruled out, and why. Show the reasoning, not just the conclusion.
-- 🎯 **My judgment**: Final conclusion and basis.
+- 🔎 **Evidence**: What files, data, websites, or sources I consulted. If you searched the web, show the URLs. If you read files, show the paths. Be specific.
+- 💭 **Considered options**: What possibilities I weighed, what I ruled out, and why. Summarize the key trade-offs — this is a published summary, not a raw chain-of-thought dump.
+- 🎯 **Judgment**: Final conclusion and basis.
 
-This is not optional. Every agent, every time. Omitting any of the three markers (🔎/💭/🎯) is a process violation. The user must see exactly how each agent arrived at its conclusion.
+This is not optional. Every agent, every time. Omitting any of the three markers (🔎/💭/🎯) is a process violation. The user must see the evidence, considered options, and final judgment behind each conclusion.
 
 ---
 

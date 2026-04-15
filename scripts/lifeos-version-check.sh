@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SKILL_PATH="$HOME/.claude/skills/life_OS/SKILL.md"
-CACHE_DIR="/tmp/lifeos"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/lifeos"
 CACHE_FILE="$CACHE_DIR/version-check-$(date +%Y%m%d)"
 
 # Only check once per day
@@ -16,21 +16,22 @@ if [ -f "$CACHE_FILE" ]; then
 fi
 
 mkdir -p "$CACHE_DIR"
+chmod 700 "$CACHE_DIR"
 
-# Get local version
+# Get local version (scan full frontmatter, not just first N lines)
 if [ ! -f "$SKILL_PATH" ]; then
   echo "[Life OS] Skill not found at $SKILL_PATH"
   exit 0
 fi
 
-LOCAL=$(head -5 "$SKILL_PATH" | grep '^version:' | sed 's/.*"\(.*\)".*/\1/')
+LOCAL=$(grep -m1 '^version:' "$SKILL_PATH" | sed 's/.*"\(.*\)".*/\1/')
 if [ -z "$LOCAL" ]; then
   echo "[Life OS] Could not read local version"
   exit 0
 fi
 
 # Get remote version (3 second timeout, fail silently)
-REMOTE=$(curl -sf --max-time 3 "https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md" 2>/dev/null | head -5 | grep '^version:' | sed 's/.*"\(.*\)".*/\1/' || echo "")
+REMOTE=$(curl -sf --max-time 3 "https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md" 2>/dev/null | grep -m1 '^version:' | sed 's/.*"\(.*\)".*/\1/' || echo "")
 
 if [ -z "$REMOTE" ]; then
   RESULT="[Life OS] v${LOCAL} (version check skipped — network unavailable)"

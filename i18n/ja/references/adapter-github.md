@@ -123,9 +123,10 @@ Claude Code は `.claude/worktrees/` 配下に一時的な worktree を作成す
 
 - `.claude/worktrees/` を `.gitignore` に追加する
 - Claude Code の worktree session 終了後は **remove**（keepではなく）を選択する
-- リポジトリを別の場所に移行する前に先にクリーンアップする：
+- リポジトリを別の場所に移行する前に先にクリーンアップする（ターミナルで手動実行すること）：
 
-```bash
+```text
+# ユーザー手動復旧コマンド — 自動実行禁止；人間の確認が必要
 git worktree prune
 rm -rf .claude/worktrees/
 git config --unset core.hooksPath   # 設定されている場合
@@ -133,9 +134,10 @@ git config --unset core.hooksPath   # 設定されている場合
 
 ### 復旧手順
 
-`fatal: not a git repository: /old/path/.git/worktrees/...` と報告された場合：
+`fatal: not a git repository: /old/path/.git/worktrees/...` と報告された場合、以下のコマンドを**ターミナルで手動実行**すること（エージェントはユーザーの明示的な確認なしにこれらを実行してはならない — GLOBAL.md セキュリティ境界 #1 参照）：
 
-```bash
+```text
+# ユーザー手動復旧コマンド — 自動実行禁止；人間の確認が必要
 git worktree prune                  # git レベルの参照をクリーン
 rm -rf .claude/worktrees/           # 古い worktree ディレクトリを削除
 git config --unset core.hooksPath   # 壊れた hooks パスを削除

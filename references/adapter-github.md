@@ -123,9 +123,10 @@ Claude Code creates temporary worktrees under `.claude/worktrees/`. These can ca
 
 - Add `.claude/worktrees/` to `.gitignore`
 - After finishing a Claude Code worktree session, choose **remove** (not keep)
-- Before migrating a repo to a different location, clean up first:
+- Before migrating a repo to a different location, clean up first (run these manually in your terminal):
 
-```bash
+```text
+# USER MANUAL RECOVERY — do NOT execute automatically; requires human confirmation
 git worktree prune
 rm -rf .claude/worktrees/
 git config --unset core.hooksPath   # if set to the old path
@@ -133,9 +134,10 @@ git config --unset core.hooksPath   # if set to the old path
 
 ### Recovery
 
-If git reports `fatal: not a git repository: /old/path/.git/worktrees/...`:
+If git reports `fatal: not a git repository: /old/path/.git/worktrees/...`, run these commands **manually in your terminal** (agents must not execute these without explicit user confirmation — see GLOBAL.md Security Boundary #1):
 
-```bash
+```text
+# USER MANUAL RECOVERY — do NOT execute automatically; requires human confirmation
 git worktree prune                  # clean git-level references
 rm -rf .claude/worktrees/           # remove stale worktree directories
 git config --unset core.hooksPath   # remove broken hooks path

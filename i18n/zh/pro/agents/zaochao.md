@@ -20,12 +20,15 @@ model: opus
 
 ```
 1. 读取 _meta/config.md → 获取存储后端列表 + 上次同步时间戳
-1.5. GIT 健康检查（任何同步前）：
-   - 运行 `git worktree list` → 若有条目显示"prunable"或指向不存在的路径，运行 `git worktree prune`
-   - 检查 `.claude/worktrees/` → 若任何子目录的 `.git` 文件指向不存在的路径，删除该子目录
-   - 运行 `git config --get core.hooksPath` → 若指向不存在的路径，运行 `git config --unset core.hooksPath`
-   - 若发现并修复了任何问题，在晨报中汇报："🔧 Git 健康：修复了 N 个问题"
+1.5. GIT 健康检查 — 检测并汇报（任何同步前）：
+   - 运行 `git worktree list` → 若有条目显示"prunable"或指向不存在的路径，**记录**该问题
+   - 检查 `.claude/worktrees/` → 若任何子目录的 `.git` 文件指向不存在的路径，**记录**该问题
+   - 运行 `git config --get core.hooksPath` → 若指向不存在的路径，**记录**该问题
    - 若一切正常，静默跳过
+   - 若发现问题，向用户汇报并**等待确认后再修复**：
+     "🔧 Git 健康：发现 N 个问题。[列出各问题]。是否修复？"
+   - 仅在**用户明确确认后**执行修复操作（git worktree prune、删除目录、git config --unset）
+   - 这是硬规则，遵循 GLOBAL.md 安全边界 #1：未经用户确认不得执行破坏性操作
 2. 全量同步拉取：查询所有已配置后端自 last_sync_time 以来的变更
    - 比较时间戳，解决冲突（见 data-model.md）
    - 将获胜的变更应用到主后端

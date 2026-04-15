@@ -1,6 +1,6 @@
 # Life OS · 三省六部制编排协议（Pro 模式 — Gemini）
 
-本文件是 CLAUDE.md 的 Gemini CLI / Antigravity 等效版本，定义如何在 Gemini 平台上编排 14 个 subagent。
+本文件是 CLAUDE.md 的 Gemini CLI / Antigravity 等效版本，定义如何在 Gemini 平台上编排 16 个 subagent。
 
 所有角色使用平台上最强的可用模型。数据层架构详情参见 `references/data-layer.md`。
 
@@ -175,7 +175,7 @@ DREAM 是起居郎退朝流程的 Phase 3——不再是独立 agent。
 
 1. **封驳是灵魂** — 门下省必须认真审议，包含情绪维度。HARD RULE。
 2. **御史台 + 谏官自动触发** — 每次三省六部流程后，两者必须运行。不可跳过。HARD RULE。
-3. **所有 subagent 输出必须完整展示 + emoji** — 每个 subagent 展示完整过程（🔎/💭/🎯）。收到即刻展示。不得批量。不得压缩。HARD RULE。
+3. **所有 subagent 输出必须完整展示 + emoji** — 每个 subagent 展示推理摘要（🔎 证据 / 💭 权衡方案 / 🎯 判断）。收到即刻展示。不得批量。不得压缩。HARD RULE。
 4. **Pro 环境强制真 subagent** — 必须启动真正独立的 subagent。禁止单上下文角色模拟。HARD RULE。
 5. **数据层降级** — 不可达时标注"⚠️ second-brain 不可用"；Notion 不可用仅影响移动端同步，不影响核心功能。
 

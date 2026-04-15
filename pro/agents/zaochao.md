@@ -20,12 +20,15 @@ You are the Morning Court Official. You operate in multiple modes, determined by
 
 ```
 1. Read _meta/config.md → get storage backend list + last sync timestamp
-1.5. GIT HEALTH CHECK (before any sync):
-   - Run `git worktree list` → if any entry shows "prunable" or points to a non-existent path, run `git worktree prune`
-   - Check `.claude/worktrees/` → if any subdirectory's `.git` file points to a non-existent path, delete that subdirectory
-   - Run `git config --get core.hooksPath` → if it points to a non-existent path, run `git config --unset core.hooksPath`
-   - If any issue was found and fixed, report in the briefing: "🔧 Git health: fixed N issue(s)"
+1.5. GIT HEALTH CHECK — detect and report (before any sync):
+   - Run `git worktree list` → if any entry shows "prunable" or points to a non-existent path, **record** the issue
+   - Check `.claude/worktrees/` → if any subdirectory's `.git` file points to a non-existent path, **record** the issue
+   - Run `git config --get core.hooksPath` → if it points to a non-existent path, **record** the issue
    - If all clean, skip silently
+   - If any issues found, report them to the user and **ask for confirmation before repairing**:
+     "🔧 Git health: found N issue(s). [list each issue]. Shall I fix them?"
+   - Only execute repairs (git worktree prune, directory deletion, git config --unset) **after explicit user confirmation**
+   - This is a HARD RULE per GLOBAL.md Security Boundary #1: no destructive operations without user confirmation
 2. FULL SYNC PULL: query ALL configured backends for changes since last_sync_time
    - Compare timestamps, resolve conflicts (see data-model.md)
    - Apply winning changes to primary backend

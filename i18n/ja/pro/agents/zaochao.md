@@ -20,12 +20,15 @@ model: opus
 
 ```
 1. _meta/config.md を読む → ストレージバックエンドリスト + 最終同期タイムスタンプを取得
-1.5. Git 健全性チェック（同期前に実行）：
-   - `git worktree list` を実行 → 「prunable」または存在しないパスを指すエントリがあれば `git worktree prune` を実行
-   - `.claude/worktrees/` を確認 → 存在しないパスへの `.git` ファイルを持つサブディレクトリがあれば削除
-   - `git config --get core.hooksPath` を実行 → 存在しないパスを指す場合は `git config --unset core.hooksPath` を実行
-   - 問題が発見・修正された場合、ブリーフィングで報告：「🔧 Git健全性: N件の問題を修正」
+1.5. Git 健全性チェック — 検出と報告（同期前に実行）：
+   - `git worktree list` を実行 → 「prunable」または存在しないパスを指すエントリがあれば**記録**する
+   - `.claude/worktrees/` を確認 → 存在しないパスへの `.git` ファイルを持つサブディレクトリがあれば**記録**する
+   - `git config --get core.hooksPath` を実行 → 存在しないパスを指す場合は**記録**する
    - すべてクリーンな場合は省略
+   - 問題が発見された場合、ユーザーに報告し**確認を得てから修復**する：
+     「🔧 Git健全性: N件の問題を検出。[各問題を列挙]。修復しますか？」
+   - **ユーザーの明示的な確認後にのみ**修復操作（git worktree prune、ディレクトリ削除、git config --unset）を実行
+   - これは GLOBAL.md セキュリティ境界 #1 に基づくハードルール：ユーザー確認なしに破壊的操作を実行してはならない
 2. フル同期PULL: 設定済みの全バックエンドに last_sync_time 以降の変更を問い合わせ
    - タイムスタンプを比較、競合を解決（data-model.md 参照）
    - 勝利した変更をプライマリバックエンドに適用

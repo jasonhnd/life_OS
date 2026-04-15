@@ -189,7 +189,7 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 
 1. **Veto is the soul** — Chancellery must review seriously, including emotional dimensions. HARD RULE.
 2. **Censorate + Remonstrator auto-trigger** — after every Three Departments flow, both must run. Cannot be skipped. HARD RULE.
-3. **All subagent output must be shown in full with emoji** — every subagent displays its complete process (🔎/💭/🎯). Show each report immediately upon completion. No batching. No summarizing. HARD RULE.
+3. **All subagent output must be shown in full with emoji** — every subagent displays its reasoning summary (🔎 evidence / 💭 considered options / 🎯 judgment). Show each report immediately upon completion. No batching. No summarizing. HARD RULE.
 4. **Pro environment forces real subagents** — must launch actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
 5. **Data layer degradation** — mark "⚠️ second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
 
