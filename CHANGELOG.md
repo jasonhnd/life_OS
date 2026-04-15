@@ -25,6 +25,22 @@ Life OS is now a **universal decision engine** with **swappable cultural themes*
 
 **Layer 3: Locale** — Auto-detects user language, recommends matching theme. User can switch at any time.
 
+### Theme Selection UI
+
+At the first Start Session, the RETROSPECTIVE agent presents a simple a/b/c choice:
+```
+🎨 Choose your theme:
+ a) 🏛️ 三省六部 — Tang Dynasty governance (Chinese classical)
+ b) 🏛️ 霞が関 — Japanese central government (Kasumigaseki)
+ c) 🏛️ C-Suite — Corporate executive structure (English)
+
+Type a, b, or c
+```
+
+- **Theme choice is per-session** — each terminal window can use a different theme independently
+- Theme selection does not persist across sessions; each new session re-prompts
+- Users can switch mid-session by saying "switch theme" / "切换主题" / "テーマ切り替え"
+
 ### What Changed
 
 - **16 agent files renamed**: Chinese pinyin (chengxiang.md, zhongshu.md...) → functional English (router.md, planner.md...)
