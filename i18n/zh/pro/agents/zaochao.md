@@ -76,7 +76,20 @@ model: opus
      - 用户确认 → 写入 wiki/{domain}/{topic}.md
      - 用户拒绝 → 跳过
    - 标记为已展示，不再重复显示
-10.5. Wiki 健康检查：
+10.5. 战略地图编译：
+   a. 若 _meta/strategic-lines.md 不存在 → 静默跳过（未定义战略关系）
+   b. 读取 _meta/strategic-lines.md → 获取所有战略线定义
+   c. 对每条战略线：
+      - 扫描 projects/*/index.md 中匹配 strategic.line 的项目
+      - 计算每个项目的 project_health（状态 + 活跃度 + 任务）
+      - 计算 line_health（按角色加权平均）
+      - 检测瓶颈（critical-path 停滞或 enabler 阻塞）
+      - 检测衰退（按角色的活跃度阈值——见 strategic-map-spec.md）
+   d. 从所有 flows_to/flows_from 构建流转图
+   e. 检查决策传播预警（上次编译以来的决策）
+   f. 写入 _meta/STRATEGIC-MAP.md（编译产物）
+   g. 在晨报中包含：战略概览 + 预警（见产出格式）
+10.6. Wiki 健康检查：
    a. 若 wiki/ 不存在或为空 → 静默跳过
    b. 若 wiki/ 有文件但无 INDEX.md：
       - 检查文件是否符合 spec 格式（包含 domain/topic/confidence 的 front matter）
@@ -106,6 +119,13 @@ model: opus
 领域状态：
 [领域]：[状态]
 ...
+
+🗺️ 战略概览（如 strategic-lines.md 存在）：
+[emoji] [line-name] ([health]/10 [indicator]): [一行状态]
+  [tree] [project] — [indicator] [status] ([role], [activity])
+  [tree] [project] — [indicator] [status]
+[warning] 全局瓶颈: [project] — [对战略线的影响]
+（若无 strategic-lines.md → 静默跳过此部分）
 
 📈 指标仪表板（如有数据）
 
@@ -145,6 +165,7 @@ model: opus
 5. 确认项目：确认当前关联的项目或领域
 6. 读取 user-patterns.md（若存在）
 6.5. 读取 wiki/INDEX.md（若存在）→ 传给丞相作为已知知识摘要
+6.7. 读取 _meta/STRATEGIC-MAP.md（若存在）→ 传给丞相作为战略上下文
 7. 读取 _meta/STATUS.md（全局状态）
 8. 读取 _meta/lint-state.md（检查是否需要巡查：距上次运行 >4h）
 9. ReadProjectContext（绑定项目）—— index.md + 决策 + 任务
@@ -169,6 +190,7 @@ model: opus
 - 历史决策：[找到 N 条记录 / 暂无历史]
 - 行为画像：[已加载 / 尚未建立]
 - 全局概览：[共 N 个项目：A（进行中）B（进行中）C（暂停）...]
+- 战略地图：[N 条战略线 / 未配置]
 - Notion 收件箱：[N 条新消息 / 为空 / 未连接]
 ```
 
@@ -186,6 +208,7 @@ model: opus
 3. 读取 ~/second-brain/areas/*/goals.md 获取目标进展
 4. 读取 ~/second-brain/_meta/journal/ 获取近期日志
 5. 读取 ~/second-brain/projects/*/journal/ 获取项目专属日志
+6. 读取 ~/second-brain/_meta/STRATEGIC-MAP.md 获取战略线健康趋势（若存在）
 ```
 
 ### 决策追踪
@@ -207,6 +230,11 @@ model: opus
 领域状态：（按 areas/ 下各领域汇报）
 [领域名称]：[状态]
 ...
+
+🗺️ 战略健康（如 STRATEGIC-MAP.md 存在）：
+[emoji] [line-name] ([health]/10 [indicator]): [与上次复盘的趋势对比]
+  🚧 瓶颈: [project] — [原因]（若有）
+  🔴 衰退: [project] — [N 天不活跃]（若有）
 
 📈 决策仪表板：
 DTR [====------] X/周    [绿/黄/红]

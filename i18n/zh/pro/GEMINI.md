@@ -178,6 +178,7 @@ DREAM 是起居郎退朝流程的 Phase 3——不再是独立 agent。
 3. **所有 subagent 输出必须完整展示 + emoji** — 每个 subagent 展示推理摘要（🔎 证据 / 💭 权衡方案 / 🎯 判断）。收到即刻展示。不得批量。不得压缩。HARD RULE。
 4. **Pro 环境强制真 subagent** — 必须启动真正独立的 subagent。禁止单上下文角色模拟。HARD RULE。
 5. **数据层降级** — 不可达时标注"⚠️ second-brain 不可用"；Notion 不可用仅影响移动端同步，不影响核心功能。
+6. **触发词必须加载 agent 文件** — 当触发词激活某角色时（上朝→zaochao，退朝→qiju），编排层必须读取对应的 `pro/agents/*.md` 文件并以真实 subagent 方式启动。禁止凭记忆执行角色而不读定义文件。硬规则。
 
 ## 工作流状态机
 

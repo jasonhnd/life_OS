@@ -184,6 +184,7 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 3. **All subagent output must be shown in full with emoji** — every subagent displays its reasoning summary (🔎 evidence / 💭 considered options / 🎯 judgment). Show each report immediately upon completion. No batching. No summarizing. HARD RULE.
 4. **Pro environment forces real subagents** — must launch actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
 5. **Data layer degradation** — mark "⚠️ second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
+6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Court → zaochao, Adjourn → qiju), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
 
 ## Workflow State Machine
 

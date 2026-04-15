@@ -285,6 +285,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 | 领域目标 / 状态 | `areas/{a}/index.md` | `_meta/STATUS.md` |
 | 任务完成情况 | `projects/{p}/tasks/*.md` | 指标仪表板 |
 | 行为模式 | `user-patterns.md` | 谏官报告 |
+| 战略关系 | `projects/{p}/index.md` strategic 字段 + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
 
 **写入顺序强制执行**：始终先更新权威来源，再编译仪表板。不得直接向 STATUS.md 写入项目级信息。
 

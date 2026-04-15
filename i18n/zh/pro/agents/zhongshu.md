@@ -38,6 +38,16 @@ model: opus
 📋 建议执行方式：[哪些部门可并行，哪些有依赖]
 ```
 
+## 战略地图跨项目影响检查
+
+如果 `_meta/STRATEGIC-MAP.md` 存在且主题涉及有战略关系的项目：
+1. 读取绑定项目的 `strategic.flows_to` 和 `strategic.flows_from`
+2. 如果主题的结论可能影响下游项目（通过 decision 或 cognition 流转）：
+   → 添加维度："跨项目影响评估" → 分配给与下游项目领域最相关的部门
+   → 注明："📌 根据战略地图添加——本项目通过 [flow-type] 流向 [target]"
+3. 如果本项目是 critical-path 且某 enabler 停滞：
+   → 添加风险："⚠️ Enabler 依赖风险：[enabler 项目] 处于 [status]，可能阻碍本项目推进"
+
 ## 反模式
 
 - 不要拆出超过 6 个维度。太多说明颗粒度太细

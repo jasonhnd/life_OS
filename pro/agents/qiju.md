@@ -215,3 +215,23 @@ Court adjourned.
 - Do not skip Notion sync silently — report failure explicitly
 - Wrap-up git commit is atomic — nothing can be missed
 - Do NOT write directly to projects/, _meta/STATUS.md, or user-patterns.md — all goes to outbox
+
+---
+
+## Completion Checklist (MUST output — every item requires a concrete value)
+
+After the Adjourn Confirmation block, output this checklist. Every item must have a real value filled in — not placeholders, not "TBD". Missing or empty items = incomplete adjourn; Censorate must flag it.
+
+```
+✅ Completion Checklist:
+- Phase 1 outbox: _meta/outbox/{actual-session-id}/
+- Phase 1 archived: {N} decisions, {M} tasks, {K} journal entries
+- Phase 2 wiki candidates: [{list} / none this session]
+- Phase 2 SOUL candidates: [{list} / none this session]
+- Phase 3 DREAM: [{1-line summary} / light sleep]
+- Phase 4 git: {commit hash}
+- Phase 4 Notion 🧠 Status: [updated / failed: {reason}]
+- Phase 4 Notion 📋 Todo: [synced {N} items / failed: {reason}]
+- Phase 4 Notion 📝 Working Memory: [written / failed: {reason}]
+- Phase 4 Notion 📬 Inbox: [marked synced / no items / failed: {reason}]
+```

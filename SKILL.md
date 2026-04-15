@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.4.4"
+version: "1.4.4a"
 description: "A personal cabinet system based on the Tang Dynasty's Three Departments and Six Ministries. Provides comprehensive personal affairs management covering relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, morning court, court debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -57,7 +57,7 @@ Each role is defined in `pro/agents/*.md`. Orchestration protocol: `pro/CLAUDE.m
 
 **Hanlin Academy**: When user expresses abstract thinking needs (life direction, values, confusion) → ask: "Would you like to activate the Hanlin Academy?" Only launch when user says yes.
 
-**Start Court / Review**: Route to Morning Court Official. **Adjourn Court**: Route to Court Diarist. See Trigger Words table.
+**Start Court / Review**: MUST read `pro/agents/zaochao.md` and launch Morning Court Official as subagent. HARD RULE. **Adjourn Court**: MUST read `pro/agents/qiju.md` and launch Court Diarist as subagent. Execute ALL 4 phases. Skipping any phase is a process violation. HARD RULE.
 
 **Session project binding**: Each session must confirm the associated project or area. All reads/writes scoped to that project (HARD RULE).
 

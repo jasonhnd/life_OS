@@ -6,6 +6,29 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.4.4a] - 2026-04-15 · Enforce Agent File Loading
+
+> LLMs were skipping adjourn phases by executing from memory instead of reading `qiju.md`. This patch adds 3-layer enforcement: explicit MUST-read routing in SKILL.md, a mandatory completion checklist in qiju.md, and a new orchestration rule requiring agent file loading on every trigger word.
+
+### Enforcement Changes
+
+- **SKILL.md**: Start Court / Adjourn routing changed from "Route to X" → "MUST read `pro/agents/X.md` and launch as subagent. HARD RULE."
+- **qiju.md**: Added mandatory Completion Checklist — every phase must report a concrete value (commit hash, Notion sync status, etc.). Missing items = incomplete adjourn.
+- **Orchestration Code of Conduct**: Added rule #6 — "Trigger words MUST load agent files. Never execute a role from memory without reading its definition file. HARD RULE."
+
+### Also Included (audit remediation from same day)
+
+- zaochao.md git health check: auto-fix → detect-report-confirm (GLOBAL.md Security Boundary #1)
+- GLOBAL.md: "complete thought process" → "publishable reasoning summary" (cross-model portability)
+- 14→16 subagent count fixed in remaining entry files
+- Dead link `notion-schema.md` removed from AGENTS.md
+- adapter-github.md: recovery commands changed to text blocks with manual-only headers
+- evals/run-eval.sh: exit code capture, path sanitization, tri-lingual header support
+- setup-hooks.sh: pre-flight validation before file writes
+- lifeos-version-check.sh: XDG cache path, grep-based version parsing
+
+---
+
 ## [1.4.4] - 2026-04-14 · Court Diarist (起居郎) — Session Close Specialist
 
 > The Morning Court Official is split into two roles: the Morning Court Official handles session start (read), the Court Diarist handles session close (write). DREAM is absorbed into the Court Diarist — no more separate agent launch.

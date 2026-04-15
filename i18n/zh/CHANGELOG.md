@@ -6,6 +6,29 @@
 
 ---
 
+## [1.4.4a] - 2026-04-15 · 强制 Agent 文件加载
+
+> LLM 在退朝时偷懒，不读 qiju.md 而凭记忆执行简化版流程。此补丁增加 3 层强制：SKILL.md 路由改为"必须读文件"、qiju.md 增加必填完成清单、编排准则新增第 6 条。
+
+### 强制机制变更
+
+- **SKILL.md**：上朝/退朝路由从"路由给 X"改为"必须读取 `pro/agents/X.md` 并以 subagent 方式启动。硬规则。"
+- **qiju.md**：新增必填完成清单——每个 Phase 必须填入实际值（commit hash、Notion 同步状态等）。缺项 = 退朝未完成。
+- **编排行为准则**：新增第 6 条——"触发词必须加载 agent 文件。禁止凭记忆执行角色而不读定义文件。硬规则。"
+
+### 同日包含的审计修复
+
+- zaochao.md git 健康检查：自动修复改为检测→汇报→确认（GLOBAL.md 安全边界 #1）
+- GLOBAL.md："完整思考过程"改为"可发布的推理摘要"（跨模型兼容性）
+- 14→16 subagent 数量修复
+- AGENTS.md 死链 notion-schema.md 修复
+- adapter-github.md：恢复命令改为 text 块 + 手动确认标注
+- evals/run-eval.sh：退出码捕获、路径清洗、三语标题支持
+- setup-hooks.sh：写文件前先做前置校验
+- lifeos-version-check.sh：XDG 缓存路径、grep 版本解析
+
+---
+
 ## [1.4.4] - 2026-04-14 · 起居郎——Session 关闭专家
 
 > 早朝官拆分为两个角色：早朝官负责会话启动（读取），起居郎负责会话关闭（写入）。DREAM 融入起居郎——不再单独调用 agent。
