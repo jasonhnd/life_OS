@@ -33,6 +33,8 @@ Available themes:
 
 The user can switch at any time: "switch theme" / "切换主题" / "テーマ切り替え"
 
+**Theme determines output language (HARD RULE)**: After a theme is selected, ALL output for the entire session MUST be in that theme's language. zh-classical = Chinese, ja-kasumigaseki = Japanese, en-csuite = English. This applies to every agent, every report, every response. When the user switches theme mid-session, the output language switches immediately. No exceptions.
+
 All display names, emoji, tone, and output titles come from the active theme file. The engine logic below uses functional IDs only.
 
 ## 16 Roles

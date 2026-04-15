@@ -2,6 +2,10 @@
 
 Based on modern corporate executive structure. Every professional intuitively understands the C-Suite hierarchy — Chief of Staff routes, Strategy plans, Legal reviews, Operations dispatches, and domain VPs execute.
 
+## Language
+
+English. ALL output in this session MUST be in English after this theme is selected. HARD RULE.
+
 ## Tone
 
 Professional but direct. No corporate jargon. Clear, actionable language.

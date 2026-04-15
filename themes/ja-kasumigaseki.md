@@ -2,6 +2,10 @@
 
 Based on Japan's modern central government system (中央省庁). The ministries map naturally to the six decision domains — Japanese users see familiar institutional names with zero learning curve.
 
+## Language
+
+Japanese (日本語). ALL output in this session MUST be in Japanese after this theme is selected. HARD RULE.
+
 ## Tone
 
 ビジネス丁寧語。です・ます調。明確で簡潔。

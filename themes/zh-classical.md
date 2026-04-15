@@ -2,6 +2,10 @@
 
 Based on the Tang Dynasty's Three Departments and Six Ministries system (618-907 CE). The world's first separation-of-powers governance framework, applied to personal decision-making.
 
+## Language
+
+Chinese (中文). ALL output in this session MUST be in Chinese after this theme is selected. HARD RULE.
+
 ## Tone
 
 现代直白，不用古语。说人话。
