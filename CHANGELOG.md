@@ -8,11 +8,11 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ## [1.5.0] - 2026-04-15 · Strategic Map — From Project Assistant to Life Strategist
 
-> Life OS could analyze any single project brilliantly but was blind to the connections between them. With 9 active projects sharing dependencies, resources, and hidden strategic purposes, the system needed a relationship layer. Strategic Map adds exactly that — and integrates deeply with SOUL, Wiki, and DREAM to form a unified cognitive system.
+> Life OS could analyze any single project brilliantly but was blind to the connections between them. With many active projects sharing dependencies, resources, and hidden strategic purposes, the system needed a relationship layer. Strategic Map adds exactly that — and integrates deeply with SOUL, Wiki, and DREAM to form a unified cognitive system.
 
 ### The Problem
 
-You have 9 projects. Some feed knowledge into others. Some share your limited time. Some exist for a stated purpose that differs from your real motivation. When one stalls, it silently blocks three others. But the morning briefing showed a flat list with no relationships, no priorities, no "what should I actually do today?"
+You have many projects. Some feed knowledge into others. Some share your limited time. Some exist for a stated purpose that differs from your real motivation. When one stalls, it silently blocks others. But the morning briefing showed a flat list with no relationships, no priorities, no "what should I actually do today?"
 
 ### What's New
 

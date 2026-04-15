@@ -81,7 +81,7 @@ wiki/{domain}/{topic}.md
 - `wiki/finance/lending-law-npo.md`
 - `wiki/startup/mvp-validation.md`
 - `wiki/health/intermittent-fasting.md`
-- `wiki/gcsb/biz-plan-versions.md`
+- `wiki/startup/biz-plan-versions.md`
 
 ---
 
@@ -131,7 +131,7 @@ compiled: YYYY-MM-DD
 
 ## Startup
 - MVP验证的是需求，不是产品 (0.88) → wiki/startup/mvp-validation.md
-- 商业计划：内部版与外部版本质不同 (0.72) → wiki/gcsb/biz-plan-versions.md
+- 商业计划：内部版与外部版本质不同 (0.72) → wiki/startup/biz-plan-versions.md
 
 ## Health
 - 16:8间歇性断食适合我 (0.80) → wiki/health/intermittent-fasting.md

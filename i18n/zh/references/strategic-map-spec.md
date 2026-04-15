@@ -22,10 +22,10 @@
 ```yaml
 ---
 type: strategic-line
-id: "crypto-compliance"
-name: "Crypto Compliance Pipeline"
-purpose: "Build regulated crypto service infrastructure"
-driving_force: "Establish first-mover advantage in regulated crypto services before market consolidation"
+id: "market-expansion"
+name: "Market Expansion Pipeline"
+purpose: "Build regulated service infrastructure for new markets"
+driving_force: "Establish first-mover advantage in regulated services before market consolidation"
 health_signals:
   - "Regulatory filings progressing"
   - "Partner onboarding on track"
@@ -68,18 +68,18 @@ created: 2026-04-15
 
 ```yaml
 strategic:
-  line: "crypto-compliance"
+  line: "market-expansion"
   role: "critical-path"
   flows_to:
-    - target: "bittrade-jetro"
+    - target: "project-beta"
       type: "cognition"
       description: "Certification results reused"
   flows_from:
-    - source: "ndfg"
+    - source: "project-gamma"
       type: "cognition"
       description: "Industry knowledge input"
   last_activity: 2026-04-12
-  status_reason: "Waiting for legal review, expected mid-May"
+  status_reason: "Waiting for legal review, expected next month"
 ```
 
 | 字段 | 类型 | 取值 | 说明 |

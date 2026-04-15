@@ -22,12 +22,12 @@ Lives in the user's second-brain (not the Life OS repo). Multiple lines separate
 ```yaml
 ---
 type: strategic-line
-id: "crypto-compliance"
-name: "Crypto Compliance Pipeline"
-purpose: "Build regulated crypto service infrastructure"
-driving_force: "Establish first-mover advantage in regulated crypto services before market consolidation"
+id: "market-expansion"
+name: "Market Expansion Pipeline"
+purpose: "Build market presence in target segment"
+driving_force: "Establish first-mover advantage in target segment before market consolidation"
 health_signals:
-  - "Regulatory filings progressing"
+  - "Key milestones progressing"
   - "Partner onboarding on track"
   - "Legal review turnaround within expected windows"
 time_window: 2026-09-30
@@ -68,18 +68,18 @@ Added to the existing frontmatter. All fields are optional and default to empty/
 
 ```yaml
 strategic:
-  line: "crypto-compliance"
+  line: "market-expansion"
   role: "critical-path"
   flows_to:
-    - target: "bittrade-jetro"
+    - target: "project-beta"
       type: "cognition"
       description: "Certification results reused"
   flows_from:
-    - source: "ndfg"
+    - source: "project-gamma"
       type: "cognition"
       description: "Industry knowledge input"
   last_activity: 2026-04-12
-  status_reason: "Waiting for legal review, expected mid-May"
+  status_reason: "Waiting for legal review, expected next month"
 ```
 
 | Field | Type | Values | Description |

@@ -284,7 +284,7 @@ storage:
 session_id: "claude-20260412-1700"
 platform: claude-code
 model: opus
-projects: [gcsb, eip]
+projects: [project-a, project-b]
 adjourned: "2026-04-12T17:00:00+09:00"
 outputs:
   decisions: 2
@@ -303,7 +303,7 @@ outputs:
 ```markdown
 # Index Delta
 
-## 目标：projects/gcsb/index.md
+## 目标：projects/my-project/index.md
 ## 需更新的字段：
 - Phase: "v5.4 deployed"
 - Current focus: "打磨计划书到对外版本"

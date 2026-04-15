@@ -81,7 +81,7 @@ wiki/{domain}/{topic}.md
 - `wiki/finance/lending-law-npo.md`
 - `wiki/startup/mvp-validation.md`
 - `wiki/health/intermittent-fasting.md`
-- `wiki/gcsb/biz-plan-versions.md`
+- `wiki/startup/biz-plan-versions.md`
 
 ---
 
@@ -131,7 +131,7 @@ compiled: YYYY-MM-DD
 
 ## Startup
 - MVP validates demand, not product (0.88) → wiki/startup/mvp-validation.md
-- Business plan: internal vs external versions differ fundamentally (0.72) → wiki/gcsb/biz-plan-versions.md
+- Business plan: internal vs external versions differ fundamentally (0.72) → wiki/startup/biz-plan-versions.md
 
 ## Health
 - 16:8 intermittent fasting works for me (0.80) → wiki/health/intermittent-fasting.md

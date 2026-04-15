@@ -152,7 +152,7 @@ social/    learning/   ops/        creation/  spirit/
 
 ## 多仓库工作流
 
-- **项目代码**（EIP、life_OS 等）→ 各自独立仓库
+- **项目代码**（如 life_OS）→ 各自独立仓库
 - **关于项目的思考**（决策、笔记、任务）→ second-brain 仓库
 
 同一个 CC 对话连接两个目录。`/save` 命令：写入文件 → cd ~/second-brain → git commit/push → 返回项目目录。

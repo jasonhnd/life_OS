@@ -152,7 +152,7 @@ Active tasks synced from projects/*/tasks/ and areas/*/tasks/. Viewable and chec
 
 ## Multi-Repo Workflow
 
-- **Project code** (EIP, life_OS, etc.) → each in its own repo
+- **Project code** (e.g., life_OS) → each in its own repo
 - **Thinking about projects** (decisions, notes, tasks) → second-brain repo
 
 The same CC conversation connects both directories. `/save` command: write files → cd ~/second-brain → git commit/push → return to project.

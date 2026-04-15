@@ -126,7 +126,7 @@ second-brain/
 
 **Cross-device sync**: Phone captures go to Notion inbox → Desktop session pulls and processes → Results sync back to all backends.
 
-**Parallel sessions**: Multiple sessions can work simultaneously on different projects — no conflicts, no locks. Each session writes to its own **outbox** on adjourn; the next session to start court merges everything. Work on GCSB in one window, EIP in another, medical-plan on a third — each adjourns independently, and the next morning court assembles it all.
+**Parallel sessions**: Multiple sessions can work simultaneously on different projects — no conflicts, no locks. Each session writes to its own **outbox** on adjourn; the next session to start court merges everything. Work on project-A in one window, project-B in another, project-C on a third — each adjourns independently, and the next morning court assembles it all.
 
 ---
 
@@ -134,33 +134,33 @@ second-brain/
 
 > Individual projects are trees. The Strategic Map shows you the forest.
 
-**The problem**: You have 9 active projects. Some feed knowledge into others. Some compete for your time. When one stalls, it silently blocks three others. But your morning briefing shows a flat list — no relationships, no priorities, no "what should I actually do today?"
+**The problem**: You have many active projects. Some feed knowledge into others. Some compete for your time. When one stalls, it silently blocks others. But your morning briefing shows a flat list — no relationships, no priorities, no "what should I actually do today?"
 
 **Strategic Map** adds the relationship layer between projects:
 
 - **Strategic Lines** — group projects by purpose. Each line has a stated purpose AND a `driving_force` (what really motivates you — these can differ)
 - **Flow Graph** — track what flows between projects: knowledge, deliverables, decisions, relationship capital
-- **Health Archetypes** — no numerical scores. Pattern matching + narrative assessment: "tokenized-gold is in controlled wait (legal review, expected mid-May). Use this window to advance the enabler."
+- **Health Archetypes** — no numerical scores. Pattern matching + narrative assessment: "project-alpha is in controlled wait (legal review, expected next month). Use this window to advance the enabler."
 - **Action Recommendations** — highest-leverage action, with effort estimate and cost of inaction
 
 **Morning briefing upgrade:**
 ```
 🗺️ Strategic Overview:
 
-💰 crypto-compliance                    🟡 Controlled wait
+💰 market-expansion                     🟡 Controlled wait
    Window: 2026-09-30 (24 weeks)
-   Driving: Regulated crypto infrastructure
+   Driving: Build market presence in target segment
 
-   tokenized-gold   critical-path   ⏸ on-hold
-   bittrade-jetro   enabler         🟢 active (3d)
+   project-alpha    critical-path   ⏸ on-hold
+   project-beta     enabler         🟢 active (3d)
 
-   Narrative: Legal review in window. Use wait to advance jetro.
-   → Action: Push jetro prep work (2-3h, high leverage)
+   Narrative: Legal review in window. Use wait to advance project-beta.
+   → Action: Push project-beta prep work (2-3h, high leverage)
 
 ⚡ Today:
-🥇 Push jetro prep — exploit the waiting period
-🟢 Safe to ignore: ndfg (on track), side-project-x (non-critical)
-❓ Decide: Which line does passpay belong to?
+🥇 Push project-beta prep — exploit the waiting period
+🟢 Safe to ignore: project-gamma (on track), side-project-x (non-critical)
+❓ Decide: Which line does project-delta belong to?
 ```
 
 **Cross-layer integration**: Strategic Map works with SOUL (values alignment), Wiki (knowledge flow verification), and DREAM (cross-layer insights). Four knowledge layers, one cognitive system.
