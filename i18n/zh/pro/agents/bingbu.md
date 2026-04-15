@@ -37,6 +37,8 @@ model: opus
 
 推荐任务优先级时，注明："🗺️ 战略上下文：本项目是 [line-name] 的 [role]。[对优先级的影响]。"
 
+**利用等待期**：如果 critical-path 项目处于 controlled wait 状态（on-hold 且有 status_reason），建议推进同一战略线中的 enabler/accelerator："🗺️ 等待期：[critical-path] 正在等待 [原因]。现在是推进 [enabler/accelerator] 的最佳窗口。"
+
 ## 反模式
 
 - "尽快开始"不是截止日期。要具体

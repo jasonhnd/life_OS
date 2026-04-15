@@ -147,6 +147,14 @@ Wiki entries are never auto-created — DREAM proposes candidates during N3, the
 
 If `SOUL.md` exists in the user's second-brain, all agents read it per the confidence-based rules in `references/soul-spec.md`. SOUL.md is never written to directly by agents — only candidates are proposed (by DREAM and Remonstrator), and the user confirms during Start Court.
 
+### Strategic Map — Strategic Relationship Layer
+
+If `_meta/strategic-lines.md` and/or projects with `strategic:` frontmatter fields exist in the user's second-brain, the Morning Court Official compiles `_meta/STRATEGIC-MAP.md` at every Start Court. The compiled map includes strategic line health assessments (archetype-based, not numerical), flow graphs, cross-layer verification (SOUL × strategy, wiki × flows), blind spot detection, and action recommendations.
+
+The Prime Minister reads the compiled map to frame cross-project questions. The Secretariat checks for cross-project impact during planning. The Chancellery checks decision consistency against the flow graph and SOUL alignment. The Ministry of War uses strategic roles for priority weighting. The Court Diarist detects new relationships during knowledge extraction, updates `last_activity` dates, and DREAM REM uses the flow graph as scaffolding for cross-layer insights.
+
+STRATEGIC-MAP.md is a compiled artifact — never hand-edit it. Strategic lines are defined in `_meta/strategic-lines.md`. Per-project relationships are stored in each `projects/{p}/index.md` frontmatter. See `references/strategic-map-spec.md` for the full specification.
+
 ## Special Triggers
 
 See SKILL.md Trigger Words table for the complete list in English, Chinese, and Japanese.
@@ -222,12 +230,12 @@ Data reads are performed by the Morning Court Official (session start); data wri
 
 | Role | Receives | Does Not Receive |
 |------|----------|------------------|
-| Morning Court Official | User message (housekeeping) | No restrictions |
-| Court Diarist | Memorial + reports + session conversation summary | Other agents' thought processes |
-| Prime Minister | User message + Morning Court Official's Pre-Court Preparation | — |
-| Secretariat | Subject + background + user message | Prime Minister's reasoning |
-| Chancellery | Planning document or Six Ministries reports | Thought processes |
+| Morning Court Official | User message (housekeeping), `_meta/strategic-lines.md` + all project strategic fields | No restrictions |
+| Court Diarist | Memorial + reports + session conversation summary, all project strategic fields | Other agents' thought processes |
+| Prime Minister | User message + Morning Court Official's Pre-Court Preparation + `_meta/STRATEGIC-MAP.md` (compiled) | — |
+| Secretariat | Subject + background + user message + bound project's strategic context (flows only, not full map) | Prime Minister's reasoning, full strategic map |
+| Chancellery | Planning document or Six Ministries reports + flow graph relevant to current decision | Thought processes, full strategic map |
 | Department of State Affairs | Approved planning document | Thought processes |
-| Each Ministry | Dispatch instructions + background | Other ministries' reports |
+| Each Ministry | Dispatch instructions + background + bound project's strategic role (if exists) | Other ministries' reports, full strategic map |
 | Censorate | Complete workflow record | No restrictions |
 | Remonstrator | Memorial + user message (reads second-brain on its own) | Thought processes |

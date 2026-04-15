@@ -74,6 +74,26 @@ If yes:
 
 SOUL candidates are presented at next Start Court, not confirmed now.
 
+**Strategic Relationship Candidates**: Ask: "Did this session reveal any new dependency or flow between projects?"
+
+If yes:
+  a. For each detected relationship:
+     🗺️ Strategic Candidate:
+     - Source: [project A]
+     - Target: [project B]
+     - Flow type: cognition / resource / decision / trust
+     - Evidence: [what in this session revealed the relationship]
+  b. Present to user: "🗺️ This session revealed N potential strategic relationships:"
+     - [project A] →(flow-type)→ [project B]: [description]
+  c. User confirms → write to index-delta.md as strategic field updates
+  d. User rejects → skip
+
+Note: Strategic LINE assignments and role assignments are structural decisions. Only propose them if the user has explicitly discussed strategic groupings. Do NOT auto-propose line membership.
+
+**Last Activity Update**: For every project touched in this session, auto-update strategic.last_activity to today's date in index-delta.md (factual observation, no user confirmation needed).
+
+**Cross-Layer Verification**: If the current project has cognition flow definitions, check whether this session referenced upstream wiki knowledge. If not → note: "⚠️ cognition flow defined but not actively used this session"
+
 ---
 
 ## Phase 3 — DREAM (Deep Review) → DREAM Candidates
@@ -129,6 +149,13 @@ No checklist — let the data speak.
 - If SOUL.md exists, are recent behaviors consistent with stated values?
 - What would the user's future self wish they had noticed today?
 
+If _meta/STRATEGIC-MAP.md exists, also check:
+- **Structural**: Among defined flows, have any become stale, invalid, or gained new evidence?
+- **SOUL × strategy**: Are driving forces consistent with SOUL dimensions? Any life dimension absent from all strategic lines?
+- **Patterns × strategy**: Do behavioral patterns (user-patterns.md) align with strategic priorities? Is the user avoiding a critical-path project?
+- **wiki × flows**: Are cognition flows actually carrying wiki knowledge? Any entries from upstream not referenced downstream?
+- **Beyond structure**: What connections exist that the strategic map hasn't captured yet?
+
 🎯 Output 1-3 genuine insights. Quality over quantity. "No significant cross-domain patterns detected" is valid — do not fabricate.
 
 ### DREAM Output
@@ -144,6 +171,7 @@ scope_files: N
 stages: [N1-N2, N3, REM]
 soul_candidates: N
 wiki_candidates: N
+strategic_candidates: N
 ---
 ```
 
@@ -164,6 +192,9 @@ wiki_candidates: N
 
 ### 📚 Wiki Candidates (supplementary)
 - [only items Phase 2 missed — or "All extracted in Phase 2"]
+
+### 🗺️ Strategic Map Observations
+- [flow/relationship findings, stale flows, SOUL-strategy alignment, wiki-flow verification — or "No changes"]
 
 ### 📋 Suggested Actions
 - [concrete actions for user to review at next Start Court]
@@ -196,6 +227,7 @@ Keep the report **concise** — 20-50 lines.
 📦 Archived: N decisions, M tasks, K journal entries
 📚 Wiki: X candidates confirmed (or "skipped" or "none this session")
 🌱 SOUL: Y candidates proposed (confirmed at next Start Court)
+🗺️ Strategic: [N new relationships detected / no changes / strategic map not configured]
 💤 DREAM: [1-line summary of key insight, or "light sleep — no significant patterns"]
 🔄 Synced: GitHub ✅ Notion [✅/⚠️]
 
@@ -228,6 +260,8 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 - Phase 1 archived: {N} decisions, {M} tasks, {K} journal entries
 - Phase 2 wiki candidates: [{list} / none this session]
 - Phase 2 SOUL candidates: [{list} / none this session]
+- Phase 2 strategic candidates: [{list} / none this session]
+- Phase 2 last_activity updated: [{projects touched}]
 - Phase 3 DREAM: [{1-line summary} / light sleep]
 - Phase 4 git: {commit hash}
 - Phase 4 Notion 🧠 Status: [updated / failed: {reason}]

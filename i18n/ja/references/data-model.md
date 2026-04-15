@@ -88,6 +88,36 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 | last_modified | datetime | 自動 | |
 | goals | text | いいえ | 目標の説明 |
 
+### StrategicLine
+
+`_meta/strategic-lines.md`（ユーザーのセカンドブレイン）に保存。複数のラインは `---` で区切る。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|------|------|------|
+| id | string | はい | 一意識別子（kebab-case） |
+| name | string | はい | 表示名 |
+| purpose | text | はい | 一文の正式な目的 |
+| driving_force | text | いいえ | このラインへの投資を本当に駆動するもの（purpose と異なる場合がある） |
+| health_signals | text[] | いいえ | このラインが健全であることを示すシグナル（AI が提案、ユーザーが確認） |
+| time_window | date | いいえ | ライン全体に影響する期限 |
+| area | string | いいえ | 関連する生活エリア |
+| created | date | 自動 | 作成日 |
+
+### プロジェクト別戦略フィールド
+
+`projects/{p}/index.md` の frontmatter へのオプション拡張。すべてのフィールドのデフォルトは空/null。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|------|------|------|
+| strategic.line | string | いいえ | 戦略ライン ID（`_meta/strategic-lines.md` を参照） |
+| strategic.role | enum | いいえ | `critical-path` / `enabler` / `accelerator` / `insurance` |
+| strategic.flows_to[] | array | いいえ | 出力フロー: [{target, type, description}] |
+| strategic.flows_from[] | array | いいえ | 入力フロー: [{source, type, description}] |
+| strategic.last_activity | date | 自動 | 最終更新日（起居郎が自動更新） |
+| strategic.status_reason | text | いいえ | このプロジェクトが現在のステータスにある理由 |
+
+フロータイプ: `cognition` / `resource` / `decision` / `trust`。役割とフローの定義: `references/strategic-map-spec.md`。
+
 ---
 
 ## 標準オペレーション

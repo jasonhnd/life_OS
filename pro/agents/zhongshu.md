@@ -38,6 +38,18 @@ Subject: [Title] | Intent: [What is really being solved]
 📋 Suggested Execution Approach: [Which ministries can run in parallel, which have dependencies]
 ```
 
+## Strategic Map Cross-Impact Check
+
+If `_meta/STRATEGIC-MAP.md` exists and the Subject involves a project with strategic relationships:
+1. Read the bound project's `strategic.flows_to` and `strategic.flows_from`
+2. If the Subject's conclusions could affect downstream projects (via decision or cognition flows):
+   → Add a dimension: "Cross-project impact assessment" → assign to the ministry most relevant to the downstream project's domain
+   → Note: "📌 Added based on Strategic Map — this project flows into [target] via [flow-type]"
+3. If the project is critical-path and an enabler is stalled:
+   → Add a risk: "⚠️ Enabler dependency risk: [enabler project] is [status], may block this project's progress"
+4. If there is an upstream cognition flow with corresponding wiki entries:
+   → Include those wiki entries as "known premises" in the background materials
+
 ## Anti-patterns
 
 - Do not break into more than 6 dimensions. Too many means the granularity is too fine

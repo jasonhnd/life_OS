@@ -6,6 +6,66 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.5.0] - 2026-04-15 · Strategic Map — From Project Assistant to Life Strategist
+
+> Life OS could analyze any single project brilliantly but was blind to the connections between them. With 9 active projects sharing dependencies, resources, and hidden strategic purposes, the system needed a relationship layer. Strategic Map adds exactly that — and integrates deeply with SOUL, Wiki, and DREAM to form a unified cognitive system.
+
+### The Problem
+
+You have 9 projects. Some feed knowledge into others. Some share your limited time. Some exist for a stated purpose that differs from your real motivation. When one stalls, it silently blocks three others. But the morning briefing showed a flat list with no relationships, no priorities, no "what should I actually do today?"
+
+### What's New
+
+**Strategic Lines** — Group projects by strategic purpose. Each line has a `purpose` (formal), a `driving_force` (what actually motivates you), and `health_signals` (what to watch). Multiple projects can serve one line with different roles: `critical-path`, `enabler`, `accelerator`, `insurance`.
+
+**Flow Graph** — Define what flows between projects: `cognition` (knowledge), `resource` (deliverables), `decision` (constraints), `trust` (relationship capital). When a decision in Project A invalidates Project B's assumptions, the system warns you.
+
+**Narrative Health Assessment** — No more "6/10 🟡" scores. Based on Klein's Recognition-Primed Decision model, the system matches projects to health archetypes (🟢 steady progress / 🟡 controlled wait / 🟡 momentum decay / 🔴 uncontrolled stall / 🔴 direction drift / ⚪ dormant) and writes a narrative: what's happening, what it means, what to do.
+
+**Morning Briefing Upgrade** — The flat "Area Status" list becomes a strategic overview grouped by strategic lines, with blind spot detection and actionable recommendations:
+- 🥇 Highest leverage action (with effort estimate and cost of inaction)
+- 🥈 Worth attention
+- 🟢 Safe to ignore (active suppression reduces cognitive load)
+- ❓ Decisions needed (structural gaps for user to fill)
+
+**Cross-Layer Integration** — Strategic Map works with SOUL, Wiki, and DREAM as one system:
+- SOUL × Strategy: checks if your driving forces align with your stated values
+- Wiki × Flows: verifies that cognition flows actually carry wiki knowledge (detects paper-only flows)
+- DREAM × Strategy: REM stage uses the flow graph as scaffolding to discover cross-layer insights
+- Patterns × Strategy: flags when your behavior contradicts your strategic priorities
+
+**Blind Spot Detection** — Based on predictive coding neuroscience: the system actively looks for what's missing, not just what's present. Unaffiliated projects, broken flows, neglected driving forces, missing life dimensions, approaching time windows with no preparation.
+
+### Agent Integration
+
+| Agent | How they use the Strategic Map |
+|-------|-------------------------------|
+| Morning Court Official | Compiles STRATEGIC-MAP.md at Start Court (step 8.5). Briefing grouped by strategic lines |
+| Prime Minister | Frames cross-project questions in strategic-line terms. Recommends time allocation by role |
+| Secretariat | Adds cross-project impact dimensions when flows exist. Flags enabler dependency risks |
+| Chancellery | Checks decision propagation (downstream impact) + SOUL-strategy alignment |
+| Ministry of War | Weights task priority by strategic role. Recommends exploiting waiting periods |
+| Court Diarist | Detects new relationships (Phase 2 candidates). Updates last_activity. DREAM REM enhanced with flow graph scaffolding |
+
+### Data Architecture
+
+- `_meta/strategic-lines.md` — Strategic line definitions (user-defined, like config.md)
+- `projects/{p}/index.md` strategic fields — Per-project relationships (like existing status/priority fields)
+- `_meta/STRATEGIC-MAP.md` — Compiled view (like STATUS.md / wiki/INDEX.md — never hand-edited)
+- Cognitive pipeline: 5 stages → 6 stages (added "Strategize" between Associate and Emerge)
+- Follows existing patterns: single source of truth, outbox merge, user-confirmed candidates, from-zero growth
+
+### Design Foundations
+
+Built on cognitive science research:
+- **Goal Systems Theory** (Kruglanski 2002) — dual-layer intent (purpose vs driving_force)
+- **Recognition-Primed Decision** (Klein 1998) — archetype matching + narrative assessment instead of numerical scoring
+- **Predictive Coding** (Friston 2005) — blind spot detection through absence monitoring
+- **Expected Value of Control** (Shenhav et al. 2013) — leverage-based action recommendations considering effort and opportunity cost
+- **Biased Competition** (Desimone & Duncan 1995) — "safe to ignore" as active cognitive suppression
+
+---
+
 ## [1.4.4b] - 2026-04-15 · Prevent Fabricated Timestamps
 
 > LLMs were fabricating timestamps in session-id generation instead of reading the system clock. All session-id generation instructions now explicitly require running a date command. Template-style specs changed to command-style specs.

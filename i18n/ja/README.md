@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.4b-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.0-purple.svg)](../../CHANGELOG.md)
 
 **これはロールプレイではありません。権力分立とチェック・アンド・バランスです。**
 
@@ -107,7 +107,12 @@ second-brain/
 ├── SOUL.md              # 🔮 あなたとは誰か（決断から成長する）
 ├── user-patterns.md     # 📊 あなたの行動パターン（諫官の観察記録）
 ├── inbox/               # 📥 モバイルからの未処理キャプチャ
-├── _meta/               # 🔧 システムメタデータ、日記、夢レポート
+├── _meta/
+│   ├── STATUS.md        # 📊 グローバルステータス（コンパイル生成）
+│   ├── STRATEGIC-MAP.md # 🗺️ 戦略関係マップ（コンパイル生成 — v1.5.0）
+│   ├── strategic-lines.md # 戦略ライン定義（ユーザー定義）
+│   ├── journal/         # 🔧 レポート、DREAMレポート
+│   └── outbox/          # 📮 セッションステージング
 ├── projects/{name}/     # 🎯 アクティブなプロジェクト（タスク＋決定）
 ├── areas/{name}/        # 🌊 継続的な生活領域と目標
 ├── wiki/                # 📚 ナレッジアーカイブ——再利用可能な結論（DREAMから成長）
@@ -125,7 +130,46 @@ second-brain/
 
 ---
 
-### 🔮 第四の柱：SOUL + DREAM — システムはあなたを学ぶ
+### 🗺️ 第四の柱：戦略マップ — 全体像を把握する (v1.5.0)
+
+> 個々のプロジェクトは木。戦略マップは森を見せてくれます。
+
+**問題点**：9つのアクティブなプロジェクトがある。あるプロジェクトは他に知識を供給し、あるプロジェクトはあなたの時間を奪い合う。1つが停滞すると、気づかないうちに他の3つがブロックされる。しかし朝のブリーフィングにはフラットなリストが表示されるだけ — 関係性なし、優先順位なし、「今日は実際に何をすべきか？」もなし。
+
+**戦略マップ**はプロジェクト間に関係レイヤーを追加します：
+
+- **戦略ライン** — 目的別にプロジェクトをグループ化。各ラインには明示的な `purpose`（目的）と `driving_force`（本当の動機 — 異なる場合がある）がある
+- **フローグラフ** — プロジェクト間の流れを追跡：知識、成果物、意思決定、関係資本
+- **ヘルスアーキタイプ** — 数値スコアは廃止。パターンマッチング＋ナラティブ評価：「tokenized-gold は制御された待機状態（法的レビュー中、5月中旬完了見込み）。このウィンドウを活用して enabler を推進せよ。」
+- **アクション推奨** — 最もレバレッジの高いアクション、工数見積もりと不作為のコスト付き
+
+**朝のブリーフィングがアップグレード：**
+```
+🗺️ 戦略概要：
+
+💰 crypto-compliance                    🟡 制御された待機
+   ウィンドウ: 2026-09-30（24週間）
+   ドライビングフォース: 規制対応の暗号インフラ
+
+   tokenized-gold   critical-path   ⏸ on-hold
+   bittrade-jetro   enabler         🟢 active (3d)
+
+   ナラティブ: 法的レビューのウィンドウ期間。待機を活用してjetroを推進。
+   → アクション: jetro準備作業を推進（2-3時間、高レバレッジ）
+
+⚡ 本日：
+🥇 jetro準備を推進 — 待機期間を活用
+🟢 無視して安全: ndfg（順調）、side-project-x（非クリティカル）
+❓ 要決定: passpayはどの戦略ラインに属するか？
+```
+
+**クロスレイヤー統合**：戦略マップは SOUL（価値観の整合）、Wiki（知識フローの検証）、DREAM（クロスレイヤーインサイト）と連携。4つの知識レイヤーで1つの認知システム。
+
+認知科学に基づく設計：目標システム理論（Kruglanski）、認識駆動型意思決定（Klein）、予測符号化（Friston）。
+
+---
+
+### 🔮 第五の柱：SOUL + DREAM — システムはあなたを学ぶ
 
 > AIはセッションのたびにゼロからスタートすべきではない。あなたが誰かを知り、ともに成長すべきです。
 

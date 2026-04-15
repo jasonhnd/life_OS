@@ -88,6 +88,36 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 | last_modified | datetime | auto | |
 | goals | text | no | Goals description |
 
+### StrategicLine
+
+Stored in `_meta/strategic-lines.md` (user's second-brain). Multiple lines separated by `---`.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| id | string | yes | Unique identifier (kebab-case) |
+| name | string | yes | Display name |
+| purpose | text | yes | One-sentence formal purpose |
+| driving_force | text | no | What truly drives investment in this line (can differ from purpose) |
+| health_signals | text[] | no | What signals indicate this line is healthy (AI proposes, user confirms) |
+| time_window | date | no | Deadline affecting the entire line |
+| area | string | no | Associated life area |
+| created | date | auto | Creation date |
+
+### Per-Project Strategic Fields
+
+Optional extension to `projects/{p}/index.md` frontmatter. All fields default to empty/null.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| strategic.line | string | no | Strategic line ID (references `_meta/strategic-lines.md`) |
+| strategic.role | enum | no | `critical-path` / `enabler` / `accelerator` / `insurance` |
+| strategic.flows_to[] | array | no | Outgoing flows: [{target, type, description}] |
+| strategic.flows_from[] | array | no | Incoming flows: [{source, type, description}] |
+| strategic.last_activity | date | auto | Last modification date (auto-updated by Court Diarist) |
+| strategic.status_reason | text | no | Why this project is in its current status |
+
+Flow types: `cognition` / `resource` / `decision` / `trust`. Role and flow definitions: `references/strategic-map-spec.md`.
+
 ---
 
 ## Standard Operations

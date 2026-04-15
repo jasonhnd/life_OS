@@ -32,7 +32,9 @@ second-brain/
 ├── user-patterns.md          # 📊 セッション横断で観察された行動パターン
 │
 ├── _meta/                    # 🔧 システムメタデータ
-│   ├── STATUS.md             # グローバルステータスのスナップショット
+│   ├── STATUS.md             # グローバルステータスのスナップショット（コンパイル生成）
+│   ├── STRATEGIC-MAP.md      # 🗺️ 戦略マップ（プロジェクトの strategic フィールドからコンパイル生成 — v1.5.0）
+│   ├── strategic-lines.md    # 戦略ライン定義（ユーザー定義 — v1.5.0）
 │   ├── MAP.md                # ナレッジマップ
 │   ├── outbox/               # 📤 外部同期待ちの出力
 │   ├── decisions/            # 横断的な重大な決定

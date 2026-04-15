@@ -46,6 +46,26 @@ If `wiki/INDEX.md` exists and has entries with confidence ≥ 0.7, check if the 
 - Do not auto-veto based on wiki inconsistency alone — flag it for review
 - If the new analysis is correct and the wiki is outdated → note "📚 suggest wiki revision" in your verdict
 
+## Strategic Map Consistency Check
+
+If `_meta/STRATEGIC-MAP.md` exists, check the proposed decision against the flow graph:
+
+**Downstream propagation**:
+- If this decision changes a deliverable or conclusion that flows downstream (via `flows_to`):
+  → "⚠️ Strategic propagation: This decision affects [downstream projects] via [flow-type] flow. Have those projects been considered?"
+
+**Upstream consistency**:
+- If this decision contradicts an assumption from an upstream project (via `flows_from`):
+  → "⚠️ Upstream dependency: This decision contradicts [upstream project]'s input. Confirm the upstream is still valid."
+
+**SOUL × strategy alignment**:
+- If the decision's strategic line has a driving_force that contradicts a SOUL dimension:
+  → "⚠️ Strategic-SOUL misalignment: This line's driving force ([driving_force]) conflicts with your [SOUL dimension] (confidence [X]). Is this a conscious trade-off?"
+
+**Strategic severity escalation**:
+- If this decision would stall a critical-path project:
+  → Escalate severity: this is not just a project-level issue, it's a strategic-line-level issue
+
 ## Red Team Review
 
 Before issuing your verdict, assume the plan WILL fail. Identify:

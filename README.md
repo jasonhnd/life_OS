@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.4b-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.0-purple.svg)](CHANGELOG.md)
 
 **This is not AI role-playing. This is checks, balances, and separation of powers.**
 
@@ -107,7 +107,12 @@ second-brain/
 ├── SOUL.md              # 🔮 Who you are (grows from your decisions)
 ├── user-patterns.md     # 📊 How you behave (Remonstrator's observations)
 ├── inbox/               # 📥 Unprocessed captures from mobile
-├── _meta/               # 🔧 System metadata, journal, dream reports
+├── _meta/
+│   ├── STATUS.md        # 📊 Global status (compiled)
+│   ├── STRATEGIC-MAP.md # 🗺️ Strategic relationships (compiled — v1.5.0)
+│   ├── strategic-lines.md # Strategic line definitions (user-defined)
+│   ├── journal/         # 🔧 Reports, DREAM reports
+│   └── outbox/          # 📮 Session staging
 ├── projects/{name}/     # 🎯 Active projects with tasks + decisions
 ├── areas/{name}/        # 🌊 Ongoing life areas with goals
 ├── wiki/                # 📚 Knowledge archive — reusable conclusions (grows from DREAM)
@@ -125,7 +130,46 @@ second-brain/
 
 ---
 
-### 🔮 Pillar IV: SOUL + DREAM — The System Learns Who You Are
+### 🗺️ Pillar IV: Strategic Map — See the Whole Board (v1.5.0)
+
+> Individual projects are trees. The Strategic Map shows you the forest.
+
+**The problem**: You have 9 active projects. Some feed knowledge into others. Some compete for your time. When one stalls, it silently blocks three others. But your morning briefing shows a flat list — no relationships, no priorities, no "what should I actually do today?"
+
+**Strategic Map** adds the relationship layer between projects:
+
+- **Strategic Lines** — group projects by purpose. Each line has a stated purpose AND a `driving_force` (what really motivates you — these can differ)
+- **Flow Graph** — track what flows between projects: knowledge, deliverables, decisions, relationship capital
+- **Health Archetypes** — no numerical scores. Pattern matching + narrative assessment: "tokenized-gold is in controlled wait (legal review, expected mid-May). Use this window to advance the enabler."
+- **Action Recommendations** — highest-leverage action, with effort estimate and cost of inaction
+
+**Morning briefing upgrade:**
+```
+🗺️ Strategic Overview:
+
+💰 crypto-compliance                    🟡 Controlled wait
+   Window: 2026-09-30 (24 weeks)
+   Driving: Regulated crypto infrastructure
+
+   tokenized-gold   critical-path   ⏸ on-hold
+   bittrade-jetro   enabler         🟢 active (3d)
+
+   Narrative: Legal review in window. Use wait to advance jetro.
+   → Action: Push jetro prep work (2-3h, high leverage)
+
+⚡ Today:
+🥇 Push jetro prep — exploit the waiting period
+🟢 Safe to ignore: ndfg (on track), side-project-x (non-critical)
+❓ Decide: Which line does passpay belong to?
+```
+
+**Cross-layer integration**: Strategic Map works with SOUL (values alignment), Wiki (knowledge flow verification), and DREAM (cross-layer insights). Four knowledge layers, one cognitive system.
+
+Designed on cognitive science: Goal Systems Theory (Kruglanski), Recognition-Primed Decision (Klein), Predictive Coding (Friston).
+
+---
+
+### 🔮 Pillar V: SOUL + DREAM — The System Learns Who You Are
 
 > Your AI shouldn't start from zero every session. It should know who you are and grow with you.
 

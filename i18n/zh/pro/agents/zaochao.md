@@ -68,6 +68,21 @@ model: opus
 6. 读取 _meta/STATUS.md + _meta/lint-state.md
 7. ReadProjectContext（绑定项目）
 8. 全局概览：列出所有项目 + 领域标题 + 状态
+8.5. 战略地图编译：
+   a. 若 _meta/strategic-lines.md 不存在 → 静默跳过（未定义战略关系）
+   b. 读取 _meta/strategic-lines.md → 获取所有战略线定义（含 driving_force、health_signals）
+   c. 读取所有 projects/*/index.md → 收集 strategic 字段
+   d. 对每条战略线：
+      - 收集匹配 strategic.line 的项目，按 role 排序（critical-path 优先）
+      - 匹配健康原型（见 strategic-map-spec.md）：🟢 steady / 🟡 controlled wait / 🟡 momentum decay / 🔴 uncontrolled stall / 🔴 direction drift / ⚪ dormant
+      - 撰写叙述：正在发生什么 + 意味着什么 + 行动建议
+      - 检测盲点：中断的流转、衰退、缺失信息
+   e. 跨层验证：
+      - SOUL × 战略线：driving_force 是否与 SOUL 维度对齐？
+      - wiki × 流转：cognition 流转领域有 wiki 内容吗？下游引用了吗？
+      - user-patterns × 角色：行为是否与战略优先级对齐？
+   f. 生成行动建议（🥇 最高杠杆 / 🥈 值得关注 / 🟢 可安全忽略 / ❓ 需要决策）
+   g. 编译 _meta/STRATEGIC-MAP.md
 9. 若 lint-state >4h → 触发御史台轻量巡查
 10. 读取最新 _meta/journal/*-dream.md（若存在且尚未展示）：
    - 在晨报中包含："💤 上次 session 系统做了一个梦：[摘要]"
@@ -76,20 +91,7 @@ model: opus
      - 用户确认 → 写入 wiki/{domain}/{topic}.md
      - 用户拒绝 → 跳过
    - 标记为已展示，不再重复显示
-10.5. 战略地图编译：
-   a. 若 _meta/strategic-lines.md 不存在 → 静默跳过（未定义战略关系）
-   b. 读取 _meta/strategic-lines.md → 获取所有战略线定义
-   c. 对每条战略线：
-      - 扫描 projects/*/index.md 中匹配 strategic.line 的项目
-      - 计算每个项目的 project_health（状态 + 活跃度 + 任务）
-      - 计算 line_health（按角色加权平均）
-      - 检测瓶颈（critical-path 停滞或 enabler 阻塞）
-      - 检测衰退（按角色的活跃度阈值——见 strategic-map-spec.md）
-   d. 从所有 flows_to/flows_from 构建流转图
-   e. 检查决策传播预警（上次编译以来的决策）
-   f. 写入 _meta/STRATEGIC-MAP.md（编译产物）
-   g. 在晨报中包含：战略概览 + 预警（见产出格式）
-10.6. Wiki 健康检查：
+10.5. Wiki 健康检查：
    a. 若 wiki/ 不存在或为空 → 静默跳过
    b. 若 wiki/ 有文件但无 INDEX.md：
       - 检查文件是否符合 spec 格式（包含 domain/topic/confidence 的 front matter）
@@ -116,16 +118,19 @@ model: opus
 🌅 早朝晨报：
 📊 概览：[一句话]
 
-领域状态：
-[领域]：[状态]
-...
-
 🗺️ 战略概览（如 strategic-lines.md 存在）：
-[emoji] [line-name] ([health]/10 [indicator]): [一行状态]
-  [tree] [project] — [indicator] [status] ([role], [activity])
-  [tree] [project] — [indicator] [status]
-[warning] 全局瓶颈: [project] — [对战略线的影响]
-（若无 strategic-lines.md → 静默跳过此部分）
+[emoji] [line-name]                    [健康原型指标]
+   窗口期：[截止日期]（[N 周]）| 驱动力：[driving_force]
+   [project]   [role]   [状态指标]
+   叙述：[正在发生什么 + 意味着什么]
+   → 行动：[对今天的影响]
+（若无 strategic-lines.md → 回退至扁平领域状态列表）
+
+⚡ 今日：
+🥇 [最高杠杆]：[原因] | 工作量：[时间] | 不行动的代价：[后果]
+🥈 [值得关注]：[原因]
+🟢 可安全忽略：[列表]
+❓ 需要决策：[列表]
 
 📈 指标仪表板（如有数据）
 
@@ -232,9 +237,9 @@ model: opus
 ...
 
 🗺️ 战略健康（如 STRATEGIC-MAP.md 存在）：
-[emoji] [line-name] ([health]/10 [indicator]): [与上次复盘的趋势对比]
-  🚧 瓶颈: [project] — [原因]（若有）
-  🔴 衰退: [project] — [N 天不活跃]（若有）
+[emoji] [line-name] ([健康原型])：[与上次复盘的趋势对比]
+  🚧 瓶颈：[project] — [原因]（若有）
+  🔴 衰退：[project] — [N 天不活跃]（若有）
 
 📈 决策仪表板：
 DTR [====------] X/周    [绿/黄/红]

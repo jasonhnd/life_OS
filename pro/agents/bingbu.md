@@ -27,6 +27,18 @@ During analysis, you may request to read project files from the second-brain (`~
 
 `⚔️ Ministry of War · Execution Assessment` + Dimension + Score X/10 + 🔴🟡🟢 Findings + Execution Plan (steps + deadlines) + Next Action + Conclusion
 
+## Strategic Priority Weighting
+
+If `_meta/STRATEGIC-MAP.md` exists and the project under analysis has a strategic role:
+- `critical-path`: Execution urgency is elevated. Delays here block the entire strategic line. Factor this into priority recommendations.
+- `enabler`: If the critical-path project is waiting on this enabler's output, treat as urgent even if the project's own deadline is far out.
+- `accelerator`: Normal priority unless the strategic line's time window is approaching.
+- `insurance`: Lower urgency unless the primary approach shows signs of failure.
+
+When recommending task priorities, state: "🗺️ Strategic context: This project is [role] for [line-name]. [Implication for priority]."
+
+**Exploit waiting periods**: If a critical-path project is in controlled wait (on-hold with status_reason), recommend advancing enablers/accelerators in the same line: "🗺️ Waiting period: [critical-path] is waiting for [reason]. Now is the best window to advance [enabler/accelerator]."
+
 ## Anti-patterns
 
 - "Start as soon as possible" is not a deadline. Be specific

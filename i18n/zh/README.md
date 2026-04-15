@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.4.4b-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.0-purple.svg)](CHANGELOG.md)
 
 **这不是 AI 角色扮演，这是权力的制衡与分立。**
 
@@ -107,7 +107,12 @@ second-brain/
 ├── SOUL.md              # 🔮 你是谁（从决策中持续生长）
 ├── user-patterns.md     # 📊 你怎么行动（谏官的观察记录）
 ├── inbox/               # 📥 手机端未处理的捕获内容
-├── _meta/               # 🔧 系统元数据、日记、梦境报告
+├── _meta/
+│   ├── STATUS.md        # 📊 全局状态（编译生成）
+│   ├── STRATEGIC-MAP.md # 🗺️ 战略关系图（编译生成 — v1.5.0）
+│   ├── strategic-lines.md # 战略线定义（用户定义）
+│   ├── journal/         # 🔧 报告、DREAM 报告
+│   └── outbox/          # 📮 会话暂存区
 ├── projects/{name}/     # 🎯 进行中的项目，含任务与决策
 ├── areas/{name}/        # 🌊 持续管理的生活领域与目标
 ├── wiki/                # 📚 知识档案——可复用的结论（从 DREAM 成长）
@@ -125,7 +130,46 @@ second-brain/
 
 ---
 
-### 🔮 支柱四：SOUL + DREAM — 系统认识你、陪你成长
+### 🗺️ 支柱四：战略地图 — 纵览全局 (v1.5.0)
+
+> 单个项目是树木，战略地图让你看见整片森林。
+
+**问题所在**：你有 9 个在进行的项目。有的在向其他项目输送知识，有的在争夺你的时间。当一个项目停滞时，它会悄悄阻塞另外三个。但早朝简报只展示一个扁平列表——没有关系、没有优先级、没有"今天我到底该做什么？"。
+
+**战略地图**为项目之间添加了关系层：
+
+- **战略线** — 按目的对项目分组。每条战略线有明确的 `purpose`（目的）和 `driving_force`（真正驱动你的动力——两者可能不同）
+- **流动图** — 追踪项目间的流动：知识、交付物、决策、关系资本
+- **健康原型** — 不再用数字评分。模式匹配 + 叙事评估："tokenized-gold 处于受控等待状态（法律审查中，预计五月中旬完成），利用此窗口推进 enabler。"
+- **行动建议** — 最高杠杆行动，附带工作量估算和不行动的代价
+
+**早朝简报升级：**
+```
+🗺️ 战略概览：
+
+💰 crypto-compliance                    🟡 受控等待
+   窗口期：2026-09-30（24 周）
+   驱动力：合规加密基础设施
+
+   tokenized-gold   critical-path   ⏸ on-hold
+   bittrade-jetro   enabler         🟢 active (3d)
+
+   叙事：法律审查窗口期。利用等待推进 jetro。
+   → 行动：推进 jetro 准备工作（2-3 小时，高杠杆）
+
+⚡ 今日：
+🥇 推进 jetro 准备——利用等待期
+🟢 可安全忽略：ndfg（正常推进）、side-project-x（非关键）
+❓ 待决：passpay 属于哪条战略线？
+```
+
+**跨层集成**：战略地图与 SOUL（价值观对齐）、Wiki（知识流验证）、DREAM（跨层洞察）协同工作。四个知识层，一套认知系统。
+
+设计基于认知科学：目标系统理论（Kruglanski）、识别启发式决策（Klein）、预测编码（Friston）。
+
+---
+
+### 🔮 支柱五：SOUL + DREAM — 系统认识你、陪你成长
 
 > 你的 AI 不应该每次会话都从零开始。它应该认识你，并随你一起成长。
 

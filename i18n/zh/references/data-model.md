@@ -88,6 +88,36 @@
 | last_modified | datetime | 自动 | |
 | goals | text | 否 | 目标描述 |
 
+### StrategicLine（战略线）
+
+存储在 `_meta/strategic-lines.md`（用户的第二大脑中）。多条线以 `---` 分隔。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| id | string | 是 | 唯一标识符（kebab-case） |
+| name | string | 是 | 显示名称 |
+| purpose | text | 是 | 一句话正式目的 |
+| driving_force | text | 否 | 真正驱动对此线投入的动力（可能与 purpose 不同） |
+| health_signals | text[] | 否 | 哪些信号表明此线是健康的（AI 提议，用户确认） |
+| time_window | date | 否 | 影响整条线的截止日期 |
+| area | string | 否 | 关联的生活领域 |
+| created | date | 自动 | 创建日期 |
+
+### 项目级战略字段
+
+`projects/{p}/index.md` frontmatter 的可选扩展。所有字段默认为空/null。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| strategic.line | string | 否 | 战略线 ID（引用 `_meta/strategic-lines.md`） |
+| strategic.role | enum | 否 | `critical-path` / `enabler` / `accelerator` / `insurance` |
+| strategic.flows_to[] | array | 否 | 输出流：[{target, type, description}] |
+| strategic.flows_from[] | array | 否 | 输入流：[{source, type, description}] |
+| strategic.last_activity | date | 自动 | 最后修改日期（起居郎自动更新） |
+| strategic.status_reason | text | 否 | 此项目处于当前状态的原因 |
+
+流动类型：`cognition` / `resource` / `decision` / `trust`。角色和流动定义：`references/strategic-map-spec.md`。
+
 ---
 
 ## 标准操作

@@ -47,6 +47,8 @@ model: opus
    → 注明："📌 根据战略地图添加——本项目通过 [flow-type] 流向 [target]"
 3. 如果本项目是 critical-path 且某 enabler 停滞：
    → 添加风险："⚠️ Enabler 依赖风险：[enabler 项目] 处于 [status]，可能阻碍本项目推进"
+4. 如果存在上游 cognition 流转且有对应的 wiki 条目：
+   → 将这些 wiki 条目作为"已知前提"包含在背景材料中
 
 ## 反模式
 

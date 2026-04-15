@@ -18,13 +18,13 @@
 
 ## 认知管线
 
-信息经过六个阶段流转：
+信息经过六个阶段流转，每个阶段对应一种方法论：
 
 ```
-感知 → 捕获 → 判断 → 沉淀 → 关联 → 涌现
- ↑       ↑      ↑     ↓   ↘      ↑        ↑
-手机    GTD    3D6M  SOUL  Wiki  丞相+Wiki  DREAM REM
-体验   inbox/  桌面  (人)  (知识) INDEX匹配  跨域碰撞
+感知 → 捕获 → 判断 → 沉淀 → 关联 → 战略化 → 涌现
+ ↑       ↑      ↑     ↓   ↘      ↑        ↑         ↑
+手机    GTD    3D6M  SOUL  Wiki  丞相+Wiki  战略      DREAM REM
+体验   inbox/  桌面  (人)  (知识) INDEX匹配    MAP      跨域碰撞
 ```
 
 ### 各阶段详情
@@ -37,7 +37,9 @@
 
 **沉淀 → 关联（丞相 + Wiki INDEX）**：丞相在每次会话开始时读取 wiki/INDEX.md。当新请求到来时，已有知识被自动匹配——"我们在这个领域已经知道 X"。这将积累的知识转化为活跃的上下文。
 
-**关联 → 涌现（DREAM REM）**：当 wiki 条目跨领域积累时，DREAM 的 REM 阶段发现跨域连接——让用户意外的洞见。知识沉淀得越多，涌现就越多。御史台巡查也检测 wiki 矛盾和知识空白。
+**关联 → 战略化（战略地图）**：丞相在每次会话开始时读取 `_meta/STRATEGIC-MAP.md`。当请求涉及具有战略关系的项目时，系统自动浮现下游依赖、瓶颈状态和决策传播警告。这将项目级分析转化为战略线感知的分析。参见 `references/strategic-map-spec.md`。
+
+**战略化 → 涌现（DREAM REM）**：当 wiki 条目和战略关系积累时，DREAM 的 REM 阶段以流动图为脚手架发现跨域连接——检查 SOUL x 战略一致性、wiki x 流动完整性、行为模式 x 战略优先级一致性。知识和关系沉淀得越多，涌现就越多。御史台巡查也检测 wiki 矛盾、知识空白和项目间的战略矛盾。
 
 ### 移动 vs 桌面分工
 
@@ -57,6 +59,8 @@ second-brain/
 │
 ├── _meta/                             # 🔧 系统元数据
 │   ├── STATUS.md                      # 全局状态仪表板（从 index.md 文件编译）
+│   ├── STRATEGIC-MAP.md               # 战略地图（从项目战略字段编译）
+│   ├── strategic-lines.md             # 战略线定义（用户定义）
 │   ├── MAP.md                         # 知识地图（所有领域入口）
 │   ├── decisions/                     # 跨领域重大决策
 │   ├── journal/                       # 早朝晨报、御史台/谏官报告、DREAM 报告
@@ -235,6 +239,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 6. ReadProjectContext（绑定项目）—— 任务、决策、日志
 7. 读取 user-patterns.md
 8. 全局概览：列出项目 + 列出领域（仅标题 + 状态）
+8.5. 战略地图编译：若 `_meta/strategic-lines.md` 存在 → 读取所有 `projects/*/index.md` 的战略字段 → 编译 `_meta/STRATEGIC-MAP.md`（原型匹配、叙事评估、跨层验证、行动建议）。参见 `references/strategic-map-spec.md`。
 9. 若 lint-state.md 显示 >4h → 触发御史台轻量巡查
 10. 平台感知 + 版本检查
 ```

@@ -18,13 +18,13 @@ All agents refer to this file when reading or writing data.
 
 ## Cognitive Pipeline
 
-Information flows through five stages, each mapped to a methodology:
+Information flows through six stages, each mapped to a methodology:
 
 ```
-Perceive → Capture → Judge → Settle → Associate → Emerge
-   ↑         ↑        ↑      ↓   ↘        ↑          ↑
- Phone      GTD      3D6M  SOUL  Wiki   Prime+Wiki  DREAM REM
- Experience  inbox/  Desktop (person)(knowledge) INDEX match  cross-domain
+Perceive → Capture → Judge → Settle → Associate → Strategize → Emerge
+   ↑         ↑        ↑      ↓   ↘        ↑           ↑           ↑
+ Phone      GTD      3D6M  SOUL  Wiki   Prime+Wiki  Strategic   DREAM REM
+ Experience  inbox/  Desktop (person)(knowledge) INDEX match    MAP       cross-domain
 ```
 
 ### Stage Details
@@ -37,7 +37,9 @@ Perceive → Capture → Judge → Settle → Associate → Emerge
 
 **Settle → Associate (Prime Minister + Wiki INDEX)**: The Prime Minister reads wiki/INDEX.md at session start. When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain." This turns accumulated knowledge into active context.
 
-**Associate → Emerge (DREAM REM)**: When wiki entries accumulate across domains, DREAM's REM stage discovers cross-domain connections — insights that surprise the user. The more knowledge settles, the more emergence happens. Censorate patrol also detects wiki contradictions and knowledge gaps.
+**Associate → Strategize (Strategic Map)**: The Prime Minister reads `_meta/STRATEGIC-MAP.md` at session start. When a request involves a project with strategic relationships, the system automatically surfaces downstream dependencies, bottleneck status, and decision propagation warnings. This turns per-project analysis into strategic-line-aware analysis. See `references/strategic-map-spec.md`.
+
+**Strategize → Emerge (DREAM REM)**: When wiki entries and strategic relationships accumulate, DREAM's REM stage discovers cross-domain connections using the flow graph as scaffolding — checking SOUL × strategy alignment, wiki × flow completeness, and behavioral pattern × strategic priority consistency. The more knowledge and relationships settle, the more emergence happens. Censorate patrol also detects wiki contradictions, knowledge gaps, and strategy contradictions between projects.
 
 ### Mobile vs Desktop Division
 
@@ -57,6 +59,8 @@ second-brain/
 │
 ├── _meta/                             # 🔧 System metadata
 │   ├── STATUS.md                      # Global status dashboard (compiled from index.md files)
+│   ├── STRATEGIC-MAP.md               # Strategic map (compiled from project strategic fields)
+│   ├── strategic-lines.md             # Strategic line definitions (user-defined)
 │   ├── MAP.md                         # Knowledge map (all area entry points)
 │   ├── decisions/                     # Cross-domain major decisions
 │   ├── journal/                       # Morning court briefings, Censorate/Remonstrator reports, DREAM reports
@@ -235,6 +239,7 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 6. ReadProjectContext(bound project) — tasks, decisions, journal
 7. Read user-patterns.md
 8. Global overview: List Project + List Area (titles + status only)
+8.5. Strategic Map compilation: If `_meta/strategic-lines.md` exists → read all `projects/*/index.md` strategic fields → compile `_meta/STRATEGIC-MAP.md` (archetype matching, narrative assessment, cross-layer verification, action recommendations). See `references/strategic-map-spec.md`.
 9. If lint-state.md shows >4h → trigger lightweight Censorate inspection
 10. Platform awareness + version check
 ```
@@ -285,6 +290,7 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 | Area goals / status | `areas/{a}/index.md` | `_meta/STATUS.md` |
 | Task completion | `projects/{p}/tasks/*.md` | Metrics dashboard |
 | Behavior patterns | `user-patterns.md` | Remonstrator reports |
+| Strategic relationships | `projects/{p}/index.md` strategic fields + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
 
 **Write order is enforced**: Always update the authoritative source first, then compile the dashboard. Never write to STATUS.md directly for project-level information.
 
