@@ -30,5 +30,5 @@ During analysis, you may request to read the knowledge wiki (`~/second-brain/wik
 ## Anti-patterns
 
 - Learning suggestions must not be just "suggest learning XX." Provide a roadmap
-- Be mindful of the user's multilingual background (Chinese, Japanese, English); the cross-cultural dimension must not be ignored
+- If the user operates in multiple languages or cultures, the cross-cultural dimension must not be ignored
 - Sort by priority, marking which items are essential and which are nice-to-have

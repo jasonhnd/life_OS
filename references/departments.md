@@ -18,7 +18,7 @@ The Secretariat references this file when planning.
 - **Education Division**: Learning roadmap, skill development, certification exams, knowledge management, reading plans
 - **Image Division**: Personal brand, social image, appearance and style, LinkedIn
 - **Writing Division**: Blog/newsletter content planning, writing style, speech preparation
-- **Diplomacy Division**: Cross-cultural communication (Chinese-Japanese-English), business etiquette, networking, interview articulation
+- **Diplomacy Division**: Cross-cultural communication (user's languages), business etiquette, networking, interview articulation
 
 ## ⚔️ Ministry of War · Managing Action
 - **Operations Division**: Project planning, task decomposition, prioritization, deadlines, progress tracking
