@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.5.0-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.0-purple.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -134,7 +134,7 @@ second-brain/
 ├── inbox/                  # Quick captures from your phone
 ├── _meta/
 │   ├── STATUS.md           # Global status dashboard
-│   ├── STRATEGIC-MAP.md    # Relationships between projects (v1.5.0)
+│   ├── STRATEGIC-MAP.md    # Relationships between projects (v1.6.0)
 │   ├── journal/            # Session reports, DREAM reports
 │   └── outbox/             # Session staging area
 ├── projects/{name}/        # Active projects with tasks + decisions
@@ -157,7 +157,7 @@ second-brain/
 
 ---
 
-### Strategic Map — See the Whole Board *(v1.5.0)*
+### Strategic Map — See the Whole Board *(v1.6.0)*
 
 You are good at thinking about individual projects. You are probably bad at seeing how they connect — which ones feed into each other, which ones compete for your time, and what happens to the rest when one stalls.
 

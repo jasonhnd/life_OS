@@ -1,21 +1,21 @@
 # DREAM Specification
 
-DREAM is the system's offline memory processing — inspired by human sleep cycles. It runs as **Phase 3 of the Court Diarist** (`pro/agents/qiju.md`) at the end of every session, scanning the last 3 days of activity to organize, consolidate, and discover.
+DREAM is the system's offline memory processing — inspired by human sleep cycles. It runs as **Phase 3 of the ARCHIVER** (`pro/agents/archiver.md`) at the end of every session, scanning the last 3 days of activity to organize, consolidate, and discover.
 
-> **Note**: DREAM is not a standalone agent. It was merged into the Court Diarist (起居郎) in v1.4.4. This spec defines the three stages; the Court Diarist integrates them into its closing flow.
+> **Note**: DREAM is not a standalone agent. It was merged into the ARCHIVER in v1.4.4. This spec defines the three stages; the ARCHIVER integrates them into its closing flow.
 
 ## Trigger
 
 ```
 User says "退朝" / "adjourn" / "終わり"
     ↓
-Court Diarist (起居郎): Phase 1 Archive → Phase 2 Knowledge Extraction
+ARCHIVER: Phase 1 Archive → Phase 2 Knowledge Extraction
     ↓
-Court Diarist: Phase 3 DREAM (runs three stages below)
+ARCHIVER: Phase 3 DREAM (runs three stages below)
     ↓
 Dream report written to _meta/journal/{date}-dream.md
     ↓
-Court Diarist: Phase 4 Sync (git + Notion) → Session ends
+ARCHIVER: Phase 4 Sync (git + Notion) → Session ends
 ```
 
 If DREAM fails or times out → log warning to `_meta/sync-log.md`, don't block session end.
@@ -97,7 +97,7 @@ When DREAM discovers a value pattern worth recording in SOUL.md:
   - Gap: [if apparent]
 ```
 
-The user will confirm, edit, or reject during the next Start Court.
+The user will confirm, edit, or reject during the next session start.
 
 ---
 
@@ -125,7 +125,7 @@ For existing wiki entries, propose updates:
 - New evidence: [date] [what happened]
 ```
 
-The user will confirm, edit, or reject during the next Start Court.
+The user will confirm, edit, or reject during the next session start.
 
 ---
 
@@ -164,14 +164,14 @@ wiki_candidates: N
 - [proposed entries or updates, if any — or "No new knowledge candidates"]
 
 ### 📋 Suggested Actions
-- [concrete actions for user to review at next Start Court]
+- [concrete actions for user to review at next session start]
 ```
 
 ---
 
 ## Morning Briefing Integration
 
-Next Start Court, the Morning Court Official reads the latest unread dream report and includes in the briefing:
+Next session start, the RETROSPECTIVE reads the latest unread dream report and includes in the briefing:
 
 ```
 💤 Last session the system had a dream:

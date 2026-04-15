@@ -53,11 +53,11 @@ Based on Goal Systems Theory (Kruglanski 2002) and self-deception research (von 
 
 - If driving_force = purpose, leave it empty (system treats them as identical)
 - driving_force affects which health signals matter — a line driven by "relationships" should watch social activity, not code commits
-- The Remonstrator checks if your behavior aligns with driving_force, not just purpose
+- The ADVISOR checks if your behavior aligns with driving_force, not just purpose
 
 #### About `health_signals`
 
-- First time a strategic line is created, the Morning Court Official proposes health signals based on driving_force
+- First time a strategic line is created, the RETROSPECTIVE proposes health signals based on driving_force
 - User confirms or modifies
 - Confirmed signals are stored and used for subsequent assessments
 - DREAM may propose signal updates as the line evolves
@@ -88,7 +88,7 @@ strategic:
 | strategic.role | enum | `critical-path` / `enabler` / `accelerator` / `insurance` | Role within the line |
 | strategic.flows_to[] | array | objects: {target, type, description} | Outgoing flows to other projects |
 | strategic.flows_from[] | array | objects: {source, type, description} | Incoming flows from other projects |
-| strategic.last_activity | date | ISO date | Last modification date (auto-updated by Court Diarist) |
+| strategic.last_activity | date | ISO date | Last modification date (auto-updated by ARCHIVER) |
 | strategic.status_reason | text | free text | Why this project is in its current status (critical for distinguishing controlled wait vs uncontrolled stall) |
 
 ### Role Definitions
@@ -152,9 +152,9 @@ When a decision is made in a project, check flows_to for downstream impact:
 | `trust` | Relationship changes affect downstream trust capital | Low — note for awareness |
 
 Checked by:
-- **Chancellery**: during review (pre-decision, as a veto criterion)
-- **Court Diarist**: during Phase 2 (post-decision, as a warning in outbox)
-- **Morning Court Official**: during compilation (stale warnings from previous sessions)
+- **REVIEWER**: during review (pre-decision, as a veto criterion)
+- **ARCHIVER**: during Phase 2 (post-decision, as a warning in outbox)
+- **RETROSPECTIVE**: during compilation (stale warnings from previous sessions)
 
 ### Blind Spot Detection
 
@@ -162,11 +162,11 @@ Based on Predictive Coding (Friston 2005) and Kahneman's research on absence neg
 
 | Blind spot type | Detector | When |
 |----------------|----------|------|
-| Undefined relationships (projects not in any line) | Morning Court Official | Start Court — scan unaffiliated projects |
-| Driving force neglect (behavior misaligned with driving_force) | Remonstrator | After every Three Departments flow |
+| Undefined relationships (projects not in any line) | RETROSPECTIVE | Start Court — scan unaffiliated projects |
+| Driving force neglect (behavior misaligned with driving_force) | ADVISOR | After every Draft-Review-Execute flow |
 | Dimension gaps (life areas absent from all strategic lines) | DREAM REM | 3-day scan — check life dimension coverage |
-| Approaching time windows with no preparation | Morning Court Official + Ministry of War | Start Court briefing + execution assessment |
-| Broken flows (defined but not actually flowing) | Chancellery + Court Diarist | Review — check wiki references; Adjourn — check session materials |
+| Approaching time windows with no preparation | RETROSPECTIVE + EXECUTION domain | Start Court briefing + execution assessment |
+| Broken flows (defined but not actually flowing) | REVIEWER + ARCHIVER | Review — check wiki references; Adjourn — check session materials |
 
 ## Cross-Layer Integration
 
@@ -175,7 +175,7 @@ Based on Predictive Coding (Friston 2005) and Kahneman's research on absence neg
 `driving_force` is essentially "what part of SOUL does this strategic line serve."
 
 - If SOUL.md says "family > career" (confidence 0.8) but all strategic lines have career-related driving forces → flag as SOUL-strategy misalignment
-- Chancellery checks: does this decision's strategic line align with SOUL dimensions?
+- REVIEWER checks: does this decision's strategic line align with SOUL dimensions?
 - DREAM REM checks: are driving forces consistent with SOUL over time?
 
 ### wiki × Strategic Map
@@ -183,7 +183,7 @@ Based on Predictive Coding (Friston 2005) and Kahneman's research on absence neg
 Cognition flows between projects are carried by wiki content.
 
 - If a cognition flow is defined (A → B) and wiki has entries from A's domain, those entries ARE the substance of the flow
-- Morning Court Official cross-checks: does the cognition flow's wiki domain have content? Has the downstream project referenced it?
+- RETROSPECTIVE cross-checks: does the cognition flow's wiki domain have content? Has the downstream project referenced it?
 - A "broken flow" = wiki entries exist but downstream project never cited them
 
 ### DREAM × Strategic Map
@@ -200,7 +200,7 @@ With Strategic Map: DREAM REM has scaffolding:
 
 ## Compiled Output: `_meta/STRATEGIC-MAP.md`
 
-Compiled by the Morning Court Official at every Start Court (step 8.5). Never hand-edited.
+Compiled by the RETROSPECTIVE at every Start Court (step 8.5). Never hand-edited.
 
 ### Compilation Algorithm
 
@@ -320,16 +320,16 @@ Generated when the system detects structural gaps:
 ## Cold Start
 
 If `_meta/strategic-lines.md` does not exist:
-- Morning Court Official skips strategic compilation silently
+- RETROSPECTIVE skips strategic compilation silently
 - Briefing falls back to original Area Status flat list format
 - After 3+ sessions with multiple projects, DREAM REM may propose: "You have N active projects but no strategic relationships defined. Would you like to map how they relate?"
-- The user can define relationships at any time by telling the Prime Minister
+- The user can define relationships at any time by telling the ROUTER
 
 First-time setup flow:
 1. User says "let's map my projects" (or DREAM proposes)
-2. Prime Minister guides conversation: "Which projects serve the same purpose?" → "What flows between them?" → "What's really driving you on this?"
-3. Court Diarist writes strategic-lines.md + index-delta.md with strategic fields
-4. Morning Court Official proposes health_signals based on driving_force → user confirms
+2. ROUTER guides conversation: "Which projects serve the same purpose?" → "What flows between them?" → "What's really driving you on this?"
+3. ARCHIVER writes strategic-lines.md + index-delta.md with strategic fields
+4. RETROSPECTIVE proposes health_signals based on driving_force → user confirms
 5. Next Start Court → first Strategic Map compilation
 
 ## Graceful Degradation

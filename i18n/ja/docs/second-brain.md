@@ -33,8 +33,8 @@ second-brain/
 │
 ├── _meta/                    # 🔧 システムメタデータ
 │   ├── STATUS.md             # グローバルステータスのスナップショット（コンパイル生成）
-│   ├── STRATEGIC-MAP.md      # 🗺️ 戦略マップ（プロジェクトの strategic フィールドからコンパイル生成 — v1.5.0）
-│   ├── strategic-lines.md    # 戦略ライン定義（ユーザー定義 — v1.5.0）
+│   ├── STRATEGIC-MAP.md      # 🗺️ 戦略マップ（プロジェクトの strategic フィールドからコンパイル生成 — v1.6.0）
+│   ├── strategic-lines.md    # 戦略ライン定義（ユーザー定義 — v1.6.0）
 │   ├── MAP.md                # ナレッジマップ
 │   ├── outbox/               # 📤 外部同期待ちの出力
 │   ├── decisions/            # 横断的な重大な決定

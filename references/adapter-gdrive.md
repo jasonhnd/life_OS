@@ -75,4 +75,4 @@ Google Drive does not have git history. Change detection relies solely on `modif
 User needs:
 1. Google Drive MCP connected
 2. A `second-brain` root folder created in Drive
-3. Folder structure created (can be done by Morning Court Official on first run)
+3. Folder structure created (can be done by RETROSPECTIVE on first run)

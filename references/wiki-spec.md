@@ -96,8 +96,8 @@ confidence = evidence_count / (evidence_count + challenges × 2)
 | Confidence | Meaning | System Behavior |
 |------------|---------|-----------------|
 | < 0.3 | Tentative, few data points | Visible in INDEX but not referenced during routing |
-| 0.3 – 0.6 | Moderate evidence | Chancellery references during consistency check |
-| 0.6 – 0.8 | Well-established | Prime Minister informs user of existing knowledge |
+| 0.3 – 0.6 | Moderate evidence | REVIEWER references during consistency check |
+| 0.6 – 0.8 | Well-established | ROUTER informs user of existing knowledge |
 | > 0.8 | Deeply validated | Full system reference — can accelerate decision routing |
 
 ---
@@ -117,7 +117,7 @@ confidence = evidence_count / (evidence_count + challenges × 2)
 
 ## Wiki INDEX
 
-`wiki/INDEX.md` is a compiled summary of all wiki entries. The Morning Court Official compiles it during every Start Court from the actual wiki/ files.
+`wiki/INDEX.md` is a compiled summary of all wiki entries. The RETROSPECTIVE compiles it during every Start Court from the actual wiki/ files.
 
 ### Format
 
@@ -148,7 +148,7 @@ Each line ≤ 80 characters. The entire INDEX is typically 20-100 lines — very
 | Source | How | When |
 |--------|-----|------|
 | **DREAM** | N3 stage discovers reusable conclusions from 3-day activity | After every Adjourn Court |
-| **Session** | During a Three Departments workflow, a ministry produces a reusable finding | Journal entries marked `wiki_candidate: true` |
+| **Session** | During a Draft-Review-Execute workflow, a ministry produces a reusable finding | Journal entries marked `wiki_candidate: true` |
 | **User** | Direct input at any time | "Remember this fact: X" |
 
 ---
@@ -178,13 +178,13 @@ All roles check if wiki/INDEX.md exists before referencing it. If it does not ex
 
 | Role | What they read | How they use it |
 |------|---------------|-----------------|
-| **Prime Minister** | wiki/INDEX.md (full index) | Scans for domain match — if high-confidence entries exist, informs user "we already know X" and offers to skip redundant research |
-| **Dept. of State Affairs** | Relevant wiki entries (passed by Prime Minister) | Includes in dispatch context as "known premises — start from here" |
-| **Six Ministries** | Wiki entries in their dispatch context | Start analysis from established conclusions, not from zero |
-| **Chancellery** | wiki/INDEX.md | Consistency check — flags when new conclusions contradict existing high-confidence wiki entries |
-| **Censorate** | wiki/ directory (during patrol) | Wiki health audit — stale entries, contradictions, knowledge gaps |
+| **ROUTER** | wiki/INDEX.md (full index) | Scans for domain match — if high-confidence entries exist, informs user "we already know X" and offers to skip redundant research |
+| **DISPATCHER** | Relevant wiki entries (passed by ROUTER) | Includes in dispatch context as "known premises — start from here" |
+| **Six Domains** | Wiki entries in their dispatch context | Start analysis from established conclusions, not from zero |
+| **REVIEWER** | wiki/INDEX.md | Consistency check — flags when new conclusions contradict existing high-confidence wiki entries |
+| **AUDITOR** | wiki/ directory (during patrol) | Wiki health audit — stale entries, contradictions, knowledge gaps |
 | **DREAM** | wiki/INDEX.md + wiki/ entries | N3: propose new candidates + update evidence/challenges for existing entries. REM: cross-domain connections using wiki as material |
-| **Morning Court Official** | wiki/ directory | Compiles INDEX.md at Start Court, presents wiki candidates for user confirmation |
+| **RETROSPECTIVE** | wiki/ directory | Compiles INDEX.md at Start Court, presents wiki candidates for user confirmation |
 
 ---
 
@@ -215,7 +215,7 @@ second-brain/
 
 ## First-Time Initialization
 
-When the Morning Court Official detects that wiki/ is empty or has no INDEX.md:
+When the RETROSPECTIVE detects that wiki/ is empty or has no INDEX.md:
 
 1. Report in briefing: "📚 Wiki is not yet initialized. Would you like to set it up?"
 2. If user agrees:

@@ -10,10 +10,10 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 |-------|------|----------|-------------|
 | id | string | auto | Unique identifier (filename or database ID) |
 | title | string | yes | Subject (≤20 chars) |
-| type | enum | yes | `simple` / `3d6m` (Three Departments and Six Ministries) |
-| ministries | string[] | no | Activated ministries |
+| type | enum | yes | `simple` / `3d6m` (Draft-Review-Execute and Six Domains) |
+| domains | string[] | no | Activated domains |
 | score | number | no | Composite score (1-10) |
-| veto_count | number | no | Number of Chancellery vetoes |
+| veto_count | number | no | Number of REVIEWER vetoes |
 | status | enum | yes | `considering` / `decided` / `reversed` |
 | category | enum | no | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
 | outcome | enum | no | `good` / `neutral` / `bad` / `tbd` |
@@ -21,7 +21,7 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 | project | string | no | Associated project |
 | area | string | no | Associated area |
 | last_modified | datetime | auto | Last modification timestamp |
-| content | text | yes | Memorial full text (body) |
+| content | text | yes | Summary report full text (body) |
 
 ### Task
 
@@ -113,7 +113,7 @@ Optional extension to `projects/{p}/index.md` frontmatter. All fields default to
 | strategic.role | enum | no | `critical-path` / `enabler` / `accelerator` / `insurance` |
 | strategic.flows_to[] | array | no | Outgoing flows: [{target, type, description}] |
 | strategic.flows_from[] | array | no | Incoming flows: [{source, type, description}] |
-| strategic.last_activity | date | auto | Last modification date (auto-updated by Court Diarist) |
+| strategic.last_activity | date | auto | Last modification date (auto-updated by ARCHIVER) |
 | strategic.status_reason | text | no | Why this project is in its current status |
 
 Flow types: `cognition` / `resource` / `decision` / `trust`. Role and flow definitions: `references/strategic-map-spec.md`.
@@ -171,7 +171,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 
 ## Sync Protocol
 
-### Session Start (Morning Court Official Housekeeping)
+### Session Start (RETROSPECTIVE Housekeeping)
 
 ```
 0. Read _meta/config.md → get backend list and last sync timestamp
@@ -197,7 +197,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 7. Update this platform's last_sync_time in _meta/config.md (do not touch other platforms' timestamps)
 ```
 
-### Session End (Morning Court Official Wrap-up)
+### Session End (RETROSPECTIVE Wrap-up)
 
 ```
 1. Write all outputs to primary backend
@@ -214,7 +214,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 |-----------|--------|
 | One backend changed | Adopt the change |
 | Two backends changed same item, time diff > 1 min | Last_modified wins (last write wins) |
-| Two backends changed same item, time diff ≤ 1 min | CONFLICT: keep both versions, Prime Minister asks user to choose |
+| Two backends changed same item, time diff ≤ 1 min | CONFLICT: keep both versions, ROUTER asks user to choose |
 | User resolves conflict | Winning version pushed to all backends |
 
 ---
@@ -223,7 +223,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 
 - **Deletion does NOT sync across backends**
 - When an item is deleted on one backend → other backends mark it `_deleted: true` (soft delete)
-- Next session, Prime Minister asks user: "Item X was deleted on [backend]. Delete from all backends?"
+- Next session, ROUTER asks user: "Item X was deleted on [backend]. Delete from all backends?"
 - User confirms → hard delete everywhere
 - User declines → restore on the backend where it was deleted
 
@@ -235,10 +235,10 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 |----------|---------|
 | Backend offline during write | Skip that backend, annotate ⚠️, log to sync-log.md. Next session auto-retries. |
 | Crash mid-sync | Next startup: compare last_modified across all backends, detect inconsistencies, auto-repair from newest. |
-| Data corrupted on one backend | Prime Minister detects anomaly, asks user: "Restore from [other backend]?" |
+| Data corrupted on one backend | ROUTER detects anomaly, asks user: "Restore from [other backend]?" |
 | New device | Config lives in _meta/config.md. Git clone → config ready. No second-brain → session-level config. |
-| Add new backend | Prime Minister asks: "Sync existing data from [primary] to [new backend]?" |
-| Remove backend | Prime Minister asks: "Keep data on [removed backend] or clean up?" |
+| Add new backend | ROUTER asks: "Sync existing data from [primary] to [new backend]?" |
+| Remove backend | ROUTER asks: "Keep data on [removed backend] or clean up?" |
 
 ---
 
@@ -262,7 +262,7 @@ storage:
 
 **Per-platform sync timestamps**: Each platform records its own `last_sync` time. When Gemini CLI starts a session, it reads **its own** `last_sync` and queries for changes since that time — not since Claude Code's last sync. This prevents missed changes when the user alternates between platforms.
 
-No second-brain → config stored in session context, Prime Minister asks each new session.
+No second-brain → config stored in session context, ROUTER asks each new session.
 
 ---
 
@@ -318,6 +318,6 @@ outputs:
 # Patterns Delta — append to user-patterns.md
 
 ### [2026-04-12] New pattern: decision speed increasing
-Source: Remonstrator
+Source: ADVISOR
 Observation: Last 3 decisions made after first round of clarification.
 ```

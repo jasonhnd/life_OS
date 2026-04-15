@@ -10,15 +10,15 @@ Score each agent's output item by item (0-2), for cross-scenario comparison.
 | Substantive content | Vague generalities, no specific analysis | Has analysis but lacks depth | Specific, actionable analysis |
 | Alignment with instructions | Deviated from dispatch instructions | Basically covers instruction requirements | Fully covers with additional insights |
 
-## Six Ministries-Specific Dimensions
+## Six Domains-Specific Dimensions
 
 | Dimension | 0 points | 1 point | 2 points |
 |-----------|----------|---------|----------|
 | Score reasonableness | Score contradicts analysis content | Score roughly reasonable | Score fully consistent with analysis |
 | Recommendation actionability | Empty advice ("think it over") | Has direction but lacks detail | Specific and actionable, with timelines |
-| 🔴🟡🟢 Severity layering | No layering or improper layering | Layering basically reasonable | Severity accurate, nothing missed |
+| Severity layering | No layering or improper layering | Layering basically reasonable | Severity accurate, nothing missed |
 
-## Chancellery-Specific Dimensions
+## Reviewer-Specific Dimensions
 
 | Dimension | 0 points | 1 point | 2 points |
 |-----------|----------|---------|----------|
@@ -26,14 +26,14 @@ Score each agent's output item by item (0-2), for cross-scenario comparison.
 | Sentiment review substance | Perfunctory ("consider this") | Has judgment but lacks evidence | Specific judgment + evidence |
 | Veto courage | Approved when should have vetoed | — | Vetoed when should have vetoed |
 
-## Censorate-Specific Dimensions
+## Auditor-Specific Dimensions
 
 | Dimension | 0 points | 1 point | 2 points |
 |-----------|----------|---------|----------|
 | Face-saving score detection | Did not check score distribution | Mentioned but didn't go deep | Accurately identified unreasonable scores |
 | Specificity | Vague praise/criticism | Identified the role but insufficient reasoning | Identified role + specific evidence |
 
-## Court Diarist-Specific Dimensions
+## Archiver-Specific Dimensions
 
 | Dimension | 0 points | 1 point | 2 points |
 |-----------|----------|---------|----------|
@@ -41,7 +41,7 @@ Score each agent's output item by item (0-2), for cross-scenario comparison.
 | Wiki extraction | No wiki entries extracted | Extracted but too vague or redundant with existing entries | Specific, reusable conclusions written to appropriate wiki domain |
 | Pattern recognition | No behavioral patterns noted | Observations present but shallow | Identified recurring patterns with cross-session references |
 
-## Remonstrator-Specific Dimensions
+## Advisor-Specific Dimensions
 
 | Dimension | 0 points | 1 point | 2 points |
 |-----------|----------|---------|----------|

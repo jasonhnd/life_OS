@@ -53,11 +53,11 @@ created: 2026-04-15
 
 - 若 driving_force = purpose，留空即可（系统视为相同）
 - driving_force 影响哪些健康信号重要——由"关系"驱动的战略线应关注社交活动，而非代码提交
-- 谏官检查你的行为是否与 driving_force 一致，而不仅仅是 purpose
+- ADVISOR检查你的行为是否与 driving_force 一致，而不仅仅是 purpose
 
 #### 关于 `health_signals`
 
-- 首次创建战略线时，早朝官基于 driving_force 提议健康信号
+- 首次创建战略线时，RETROSPECTIVE基于 driving_force 提议健康信号
 - 用户确认或修改
 - 确认后的信号被存储并用于后续评估
 - DREAM 可在战略线演变时提议信号更新
@@ -88,7 +88,7 @@ strategic:
 | strategic.role | enum | `critical-path` / `enabler` / `accelerator` / `insurance` | 在战略线中的角色 |
 | strategic.flows_to[] | array | 对象：{target, type, description} | 流向其他项目的输出流 |
 | strategic.flows_from[] | array | 对象：{source, type, description} | 来自其他项目的输入流 |
-| strategic.last_activity | date | ISO 日期 | 最后修改日期（起居郎自动更新） |
+| strategic.last_activity | date | ISO 日期 | 最后修改日期（ARCHIVER自动更新） |
 | strategic.status_reason | text | 自由文本 | 此项目处于当前状态的原因（区分可控等待与失控停滞的关键） |
 
 ### 角色定义
@@ -152,9 +152,9 @@ strategic:
 | `trust` | 关系变化影响下游信任资本 | 低——标记以知晓 |
 
 由以下角色检查：
-- **门下省**：在审议期间（决策前，作为封驳标准）
-- **起居郎**：在第二阶段（决策后，作为 outbox 中的警告）
-- **早朝官**：在编译期间（来自前序 session 的过时警告）
+- **REVIEWER**：在审议期间（决策前，作为封驳标准）
+- **ARCHIVER**：在第二阶段（决策后，作为 outbox 中的警告）
+- **RETROSPECTIVE**：在编译期间（来自前序 session 的过时警告）
 
 ### 盲点检测
 
@@ -162,11 +162,11 @@ strategic:
 
 | 盲点类型 | 检测者 | 时机 |
 |---------|--------|------|
-| 未定义关系（未纳入任何战略线的项目） | 早朝官 | 上朝——扫描未关联项目 |
-| 驱动力忽视（行为与 driving_force 不一致） | 谏官 | 每次三省六部流程后 |
+| 未定义关系（未纳入任何战略线的项目） | RETROSPECTIVE | 上朝——扫描未关联项目 |
+| 驱动力忽视（行为与 driving_force 不一致） | ADVISOR | 每次Draft-Review-Execute流程后 |
 | 维度缺口（所有战略线中缺失的生活领域） | DREAM REM | 3 天扫描——检查生活维度覆盖 |
-| 逼近的时间窗口但无准备 | 早朝官 + 兵部 | 上朝简报 + 执行评估 |
-| 断裂的流动（已定义但实际未流通） | 门下省 + 起居郎 | 审议——检查 wiki 引用；退朝——检查 session 材料 |
+| 逼近的时间窗口但无准备 | RETROSPECTIVE + EXECUTION | 上朝简报 + 执行评估 |
+| 断裂的流动（已定义但实际未流通） | REVIEWER + ARCHIVER | 审议——检查 wiki 引用；退朝——检查 session 材料 |
 
 ## 跨层集成
 
@@ -175,7 +175,7 @@ strategic:
 `driving_force` 本质上是"此战略线服务于 SOUL 的哪个部分"。
 
 - 若 SOUL.md 表明"家庭 > 事业"（置信度 0.8），但所有战略线都有事业相关的 driving force → 标记为 SOUL-战略不一致
-- 门下省检查：此决策所属战略线是否与 SOUL 维度一致？
+- REVIEWER检查：此决策所属战略线是否与 SOUL 维度一致？
 - DREAM REM 检查：driving force 是否随时间与 SOUL 保持一致？
 
 ### wiki x 战略地图
@@ -183,7 +183,7 @@ strategic:
 项目间的认知流通过 wiki 内容承载。
 
 - 若定义了认知流（A → B）且 wiki 中有来自 A 领域的条目，那些条目就是该流的实质内容
-- 早朝官交叉检查：认知流的 wiki 领域是否有内容？下游项目是否引用了它？
+- RETROSPECTIVE交叉检查：认知流的 wiki 领域是否有内容？下游项目是否引用了它？
 - "断裂的流" = wiki 条目存在但下游项目从未引用
 
 ### DREAM x 战略地图
@@ -200,7 +200,7 @@ DREAM 是跨三个知识层的综合引擎。
 
 ## 编译产出：`_meta/STRATEGIC-MAP.md`
 
-由早朝官在每次上朝时编译（步骤 8.5）。不可手工编辑。
+由RETROSPECTIVE在每次上朝时编译（步骤 8.5）。不可手工编辑。
 
 ### 编译算法
 
@@ -320,16 +320,16 @@ compiled: YYYY-MM-DD
 ## 冷启动
 
 若 `_meta/strategic-lines.md` 不存在：
-- 早朝官静默跳过战略编译
+- RETROSPECTIVE静默跳过战略编译
 - 简报退回到原始的领域状态平面列表格式
 - 在 3 次以上包含多个项目的 session 后，DREAM REM 可能提议："您有 N 个活跃项目但未定义战略关系。是否想要映射它们之间的关系？"
-- 用户可随时通过告诉丞相来定义关系
+- 用户可随时通过告诉ROUTER来定义关系
 
 首次设置流程：
 1. 用户说"来映射我的项目"（或 DREAM 提议）
-2. 丞相引导对话："哪些项目服务于同一目的？" → "它们之间流动什么？" → "真正驱动你做这件事的是什么？"
-3. 起居郎写入 strategic-lines.md + index-delta.md 的战略字段
-4. 早朝官基于 driving_force 提议 health_signals → 用户确认
+2. ROUTER引导对话："哪些项目服务于同一目的？" → "它们之间流动什么？" → "真正驱动你做这件事的是什么？"
+3. ARCHIVER写入 strategic-lines.md + index-delta.md 的战略字段
+4. RETROSPECTIVE基于 driving_force 提议 health_signals → 用户确认
 5. 下次上朝 → 首次战略地图编译
 
 ## 优雅降级

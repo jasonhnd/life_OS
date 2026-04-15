@@ -1,6 +1,6 @@
 # Life OS Eval System
 
-Test the output quality of the Three Departments and Six Ministries workflow using fixed scenarios, quantifying consistency and compliance.
+Test the output quality of the Draft-Review-Execute and Six Domains workflow using fixed scenarios, quantifying consistency and compliance.
 
 ## Usage
 
@@ -27,9 +27,9 @@ evals/
 ├── README.md              # This file
 ├── run-eval.sh            # Automated test script
 ├── scenarios/             # Fixed test scenarios
-│   ├── resign-startup.md  # Resign to start a business (all Six Ministries)
-│   ├── large-purchase.md  # Large purchase (Revenue + Military + Justice)
-│   └── relationship.md    # Interpersonal relationship (Personnel + Works + Justice + Rites)
+│   ├── resign-startup.md  # Resign to start a business (all Six Domains)
+│   ├── large-purchase.md  # Large purchase (FINANCE + EXECUTION + GOVERNANCE)
+│   └── relationship.md    # Interpersonal relationship (PEOPLE + INFRA + GOVERNANCE + GROWTH)
 ├── rubrics/               # Scoring criteria
 │   ├── agent-output-quality.md    # Agent output quality
 │   └── orchestrator-compliance.md # Workflow compliance
@@ -40,10 +40,10 @@ evals/
 
 1. **Format compliance**: Whether each agent follows its specified output format
 2. **Score distribution**: Whether all scores are 7-8 (face-saving score detection)
-3. **Chancellery substantiveness**: Whether it always approves (rubber-stamp detection)
+3. **Reviewer substantiveness**: Whether it always approves (rubber-stamp detection)
 4. **Information isolation**: Whether agent outputs reference content they shouldn't have access to
 5. **Actionability**: Whether action recommendations are specific enough to execute
 6. **Consistency**: Whether core conclusions remain consistent across multiple runs of the same scenario
 7. **Express path routing**: Whether non-decision requests correctly trigger the Express path instead of full court
-8. **Ministry selection accuracy**: Whether the Prime Minister / Secretariat selects the right ministries for the scenario
-9. **Wiki extraction quality**: Whether the Court Diarist extracts reusable conclusions into wiki at session close
+8. **Domain selection accuracy**: Whether the Router / Planner selects the right domains for the scenario
+9. **Wiki extraction quality**: Whether the Archiver extracts reusable conclusions into wiki at End Session

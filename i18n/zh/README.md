@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.5.0-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.0-purple.svg)](../../CHANGELOG.md)
 
 🌍 [English](../../README.md) | [中文](README.md) | [日本語](../ja/README.md)
 
@@ -155,7 +155,7 @@ second-brain/
 ├── inbox/               # 手机上随手记的东西
 ├── _meta/
 │   ├── STATUS.md        # 全局状态总览
-│   ├── STRATEGIC-MAP.md # 战略关系图（v1.5.0 新增）
+│   ├── STRATEGIC-MAP.md # 战略关系图（v1.6.0）
 │   ├── journal/         # 决策报告、DREAM 日志
 │   └── outbox/          # 多窗口暂存区
 ├── projects/            # 你的每个项目，附带任务和决策记录
@@ -182,7 +182,7 @@ second-brain/
 
 ---
 
-## 核心四：战略地图 — 看见森林，而不只是树 (v1.5.0)
+## 核心四：战略地图 — 看见森林，而不只是树 (v1.6.0)
 
 ### 一个常见的困境
 

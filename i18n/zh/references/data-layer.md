@@ -23,7 +23,7 @@
 ```
 感知 → 捕获 → 判断 → 沉淀 → 关联 → 战略化 → 涌现
  ↑       ↑      ↑     ↓   ↘      ↑        ↑         ↑
-手机    GTD    3D6M  SOUL  Wiki  丞相+Wiki  战略      DREAM REM
+手机    GTD    3D6M  SOUL  Wiki  ROUTER+Wiki  战略      DREAM REM
 体验   inbox/  桌面  (人)  (知识) INDEX匹配    MAP      跨域碰撞
 ```
 
@@ -31,15 +31,15 @@
 
 **感知 → 捕获（GTD）**：移动端零摩擦捕获。用户说些什么，手机 AI 存入收件箱。此阶段不分类——收件箱就是 GTD 的收集篮。
 
-**捕获 → 判断（三省六部）**：桌面 CC 从收件箱拉取。不是所有信息都需要决策。只有涉及重大资源分配、多选项权衡或难以逆转的后果时，才激活三省六部决策模式。
+**捕获 → 判断（Draft-Review-Execute）**：桌面 CC 从收件箱拉取。不是所有信息都需要决策。只有涉及重大资源分配、多选项权衡或难以逆转的后果时，才激活Draft-Review-Execute决策模式。
 
 **判断 → 沉淀（SOUL + Wiki）**：决策的结论沉淀到两个池——SOUL（关于人：价值观、人格、行为模式）和 Wiki（关于事：可复用的知识、已确立的结论）。DREAM 在 N3 阶段为两者提取候选；用户在下次上朝时确认。
 
-**沉淀 → 关联（丞相 + Wiki INDEX）**：丞相在每次会话开始时读取 wiki/INDEX.md。当新请求到来时，已有知识被自动匹配——"我们在这个领域已经知道 X"。这将积累的知识转化为活跃的上下文。
+**沉淀 → 关联（ROUTER + Wiki INDEX）**：ROUTER在每次会话开始时读取 wiki/INDEX.md。当新请求到来时，已有知识被自动匹配——"我们在这个领域已经知道 X"。这将积累的知识转化为活跃的上下文。
 
-**关联 → 战略化（战略地图）**：丞相在每次会话开始时读取 `_meta/STRATEGIC-MAP.md`。当请求涉及具有战略关系的项目时，系统自动浮现下游依赖、瓶颈状态和决策传播警告。这将项目级分析转化为战略线感知的分析。参见 `references/strategic-map-spec.md`。
+**关联 → 战略化（战略地图）**：ROUTER在每次会话开始时读取 `_meta/STRATEGIC-MAP.md`。当请求涉及具有战略关系的项目时，系统自动浮现下游依赖、瓶颈状态和决策传播警告。这将项目级分析转化为战略线感知的分析。参见 `references/strategic-map-spec.md`。
 
-**战略化 → 涌现（DREAM REM）**：当 wiki 条目和战略关系积累时，DREAM 的 REM 阶段以流动图为脚手架发现跨域连接——检查 SOUL x 战略一致性、wiki x 流动完整性、行为模式 x 战略优先级一致性。知识和关系沉淀得越多，涌现就越多。御史台巡查也检测 wiki 矛盾、知识空白和项目间的战略矛盾。
+**战略化 → 涌现（DREAM REM）**：当 wiki 条目和战略关系积累时，DREAM 的 REM 阶段以流动图为脚手架发现跨域连接——检查 SOUL x 战略一致性、wiki x 流动完整性、行为模式 x 战略优先级一致性。知识和关系沉淀得越多，涌现就越多。AUDITOR巡查也检测 wiki 矛盾、知识空白和项目间的战略矛盾。
 
 ### 移动 vs 桌面分工
 
@@ -53,7 +53,7 @@
 second-brain/
 │
 ├── SOUL.md                            # 🔮 用户人格档案（价值观、信念、身份认同——从零成长）
-├── user-patterns.md                   # 📊 行为模式（你的行为——谏官维护）
+├── user-patterns.md                   # 📊 行为模式（你的行为——ADVISOR维护）
 │
 ├── inbox/                             # 📥 未处理（移动端捕获、材料、读书笔记、原始研究）
 │
@@ -63,7 +63,7 @@ second-brain/
 │   ├── strategic-lines.md             # 战略线定义（用户定义）
 │   ├── MAP.md                         # 知识地图（所有领域入口）
 │   ├── decisions/                     # 跨领域重大决策
-│   ├── journal/                       # 早朝晨报、御史台/谏官报告、DREAM 报告
+│   ├── journal/                       # 早朝晨报、AUDITOR/ADVISOR报告、DREAM 报告
 │   ├── outbox/                        # 📮 Session 输出暂存区（每个 session 一个子目录）
 │   │   └── {session-id}/             # 每个 session 在退朝时写入此处，下次上朝时合并
 │   ├── extraction-rules.md            # 知识提取规则（用户训练）
@@ -72,9 +72,9 @@ second-brain/
 │   ├── lint-state.md                  # 巡查状态（上次运行时间等）
 │   ├── lint-reports/                  # 历史巡查报告
 │   └── roles/                         # 常驻角色定义
-│       ├── censor.md                  # 御史台（巡察模式）
+│       ├── censor.md                  # AUDITOR（巡察模式）
 │       ├── historian.md               # 史官（可选：自动记录每日工作）
-│       └── reviewer.md               # 门下省值班（可选：写入时审查内容质量）
+│       └── reviewer.md               # REVIEWER值班（可选：写入时审查内容质量）
 │
 ├── projects/                          # 🎯 有终点的事项（PARA-P）
 │   └── {name}/
@@ -125,13 +125,13 @@ second-brain/
 
 ---
 
-## 御史台：两种运行模式
+## AUDITOR：两种运行模式
 
-御史台在三省六部系统中有两种模式：
+AUDITOR在Draft-Review-Execute系统中有两种模式：
 
 ### 模式 1：决策审查（现有）
 
-每次三省六部工作流结束后审查官员工作质量。已在 `pro/agents/yushitai.md` 中定义。
+每次Draft-Review-Execute工作流结束后审查官员工作质量。已在 `pro/agents/auditor.md` 中定义。
 
 ### 模式 2：巡察（新增）
 
@@ -143,26 +143,26 @@ second-brain/
 |------|------|------|
 | **启动巡查** | 每次桌面 CC session 启动，若 `lint-state.md` 显示距上次运行 >4h | 轻量，3 行简报 |
 | **同步后巡查** | 收件箱同步完成后 | 检查新内容与 wiki 一致性、需要建立 wiki 文章的新实体、STATUS.md 更新 |
-| **深度巡查** | 每周或手动触发 | 六部完整巡察 |
+| **深度巡查** | 每周或手动触发 | 六领域完整巡察 |
 
-#### 六部巡察职责
+#### 六领域巡察职责
 
 | 部门 | 职责范围 | 检查内容 |
 |------|---------|---------|
-| 户部 | areas/finance/ | 投资策略是否过时、财务数据是否需要更新 |
-| 兵部 | projects/ | 项目活跃度、TODO 完成情况、资源冲突 |
-| 礼部 | wiki/（关系） | 未兑现的社交承诺、需记录的新联系人 |
-| 工部 | wiki/ + _meta/ | 孤立文件、断开的链接、规则有效性 |
-| 吏部 | areas/career/ | 职业方向与实际行动是否一致 |
-| 刑部 | 跨领域 | 项目间策略矛盾、决策缺少风险评估 |
+| FINANCE | areas/finance/ | 投资策略是否过时、财务数据是否需要更新 |
+| EXECUTION | projects/ | 项目活跃度、TODO 完成情况、资源冲突 |
+| GROWTH | wiki/（关系） | 未兑现的社交承诺、需记录的新联系人 |
+| INFRA | wiki/ + _meta/ | 孤立文件、断开的链接、规则有效性 |
+| PEOPLE | areas/career/ | 职业方向与实际行动是否一致 |
+| GOVERNANCE | 跨领域 | 项目间策略矛盾、决策缺少风险评估 |
 
 #### 问题分级
 
 | 级别 | 处理方式 | 示例 |
 |------|---------|------|
-| **自动修复** | 御史台直接处理 | 缺少 index 条目、缺少反向链接、格式问题 |
+| **自动修复** | AUDITOR直接处理 | 缺少 index 条目、缺少反向链接、格式问题 |
 | **建议** | 发送至收件箱供用户处理 | 数据不一致、项目可能停滞、wiki 建议 |
-| **上报** | 激活三省六部决策模式 | 财务矛盾 >¥100 万、多项目策略冲突、人际风险 |
+| **上报** | 激活Draft-Review-Execute决策模式 | 财务矛盾 >¥100 万、多项目策略冲突、人际风险 |
 
 #### 实现
 
@@ -177,13 +177,13 @@ second-brain/
 
 | 角色 | 文件 | 功能 |
 |------|------|------|
-| 御史台 | `_meta/roles/censor.md` | 巡察（必需） |
+| AUDITOR | `_meta/roles/censor.md` | 巡察（必需） |
 | 史官 | `_meta/roles/historian.md` | session 结束时自动记录每日工作（可选） |
-| 门下省值班 | `_meta/roles/reviewer.md` | 写入时审查内容质量（可选） |
+| REVIEWER值班 | `_meta/roles/reviewer.md` | 写入时审查内容质量（可选） |
 
 ---
 
-## 三省六部产出去向
+## Draft-Review-Execute产出去向
 
 所有产出使用 `references/data-model.md` 中的标准操作。用户所选后端的适配器将这些操作翻译为平台特定的调用。
 
@@ -191,7 +191,7 @@ second-brain/
 |------|---------|
 | 决策奏折 | Save Decision |
 | 行动项 | Save Task |
-| 早朝 / 御史台 / 谏官报告 | Save JournalEntry |
+| 早朝 / AUDITOR / ADVISOR报告 | Save JournalEntry |
 | 巡查报告 | Save JournalEntry（type: inspection） |
 | 调研 / 知识 | Save WikiNote |
 | 目标 | Update Area（goals 字段） |
@@ -215,7 +215,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 
 ---
 
-## 早朝官数据操作
+## RETROSPECTIVE数据操作
 
 所有操作使用标准接口。根据用户配置的后端适配调用。
 
@@ -240,7 +240,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 7. 读取 user-patterns.md
 8. 全局概览：列出项目 + 列出领域（仅标题 + 状态）
 8.5. 战略地图编译：若 `_meta/strategic-lines.md` 存在 → 读取所有 `projects/*/index.md` 的战略字段 → 编译 `_meta/STRATEGIC-MAP.md`（原型匹配、叙事评估、跨层验证、行动建议）。参见 `references/strategic-map-spec.md`。
-9. 若 lint-state.md 显示 >4h → 触发御史台轻量巡查
+9. 若 lint-state.md 显示 >4h → 触发AUDITOR轻量巡查
 10. 平台感知 + 版本检查
 ```
 
@@ -251,7 +251,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 2. 创建 _meta/outbox/{session-id}/
 3. Save Decision / Save Task / Save JournalEntry → 写入 _meta/outbox/{session-id}/（不写入主目录）
 4. 写入 index-delta.md（projects/{p}/index.md 的变更）
-5. 写入 patterns-delta.md（若谏官有建议，追加 user-patterns.md 内容）
+5. 写入 patterns-delta.md（若ADVISOR有建议，追加 user-patterns.md 内容）
 6. 写入 manifest.md（session 元数据）
 7. git add _meta/outbox/{session-id}/ → commit → push（仅 outbox 目录）
 8. 同步 outbox 至 Notion（如已配置）
@@ -271,7 +271,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 5. 从结果计算指标仪表板
 ```
 
-## 谏官数据获取
+## ADVISOR数据获取
 
 ```
 1. 读取 user-patterns.md
@@ -289,12 +289,12 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 | 项目版本 / 阶段 / 状态 | `projects/{p}/index.md` | `_meta/STATUS.md` |
 | 领域目标 / 状态 | `areas/{a}/index.md` | `_meta/STATUS.md` |
 | 任务完成情况 | `projects/{p}/tasks/*.md` | 指标仪表板 |
-| 行为模式 | `user-patterns.md` | 谏官报告 |
+| 行为模式 | `user-patterns.md` | ADVISOR报告 |
 | 战略关系 | `projects/{p}/index.md` strategic 字段 + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
 
 **写入顺序强制执行**：始终先更新权威来源，再编译仪表板。不得直接向 STATUS.md 写入项目级信息。
 
-**御史台 lint 规则**：巡察时，检查 `_meta/STATUS.md` 中每个项目的版本/状态是否与 `projects/{p}/index.md` 一致。若不一致 → 报告 🔴，以权威来源为准。
+**AUDITOR lint 规则**：巡察时，检查 `_meta/STATUS.md` 中每个项目的版本/状态是否与 `projects/{p}/index.md` 一致。若不一致 → 报告 🔴，以权威来源为准。
 
 ---
 

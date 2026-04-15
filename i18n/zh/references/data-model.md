@@ -10,10 +10,10 @@
 |------|------|------|------|
 | id | string | 自动 | 唯一标识符（文件名或数据库 ID） |
 | title | string | 是 | 主题（≤20 字） |
-| type | enum | 是 | `simple` / `3d6m`（三省六部制） |
+| type | enum | 是 | `simple` / `3d6m`（Draft-Review-Execute） |
 | ministries | string[] | 否 | 已激活的部门 |
 | score | number | 否 | 综合评分（1-10） |
-| veto_count | number | 否 | 门下省封驳次数 |
+| veto_count | number | 否 | REVIEWER封驳次数 |
 | status | enum | 是 | `considering` / `decided` / `reversed` |
 | category | enum | 否 | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
 | outcome | enum | 否 | `good` / `neutral` / `bad` / `tbd` |
@@ -21,7 +21,7 @@
 | project | string | 否 | 关联项目 |
 | area | string | 否 | 关联领域 |
 | last_modified | datetime | 自动 | 最后修改时间戳 |
-| content | text | 是 | 奏折正文（正文内容） |
+| content | text | 是 | 报告正文（正文内容） |
 
 ### Task（任务）
 
@@ -113,7 +113,7 @@
 | strategic.role | enum | 否 | `critical-path` / `enabler` / `accelerator` / `insurance` |
 | strategic.flows_to[] | array | 否 | 输出流：[{target, type, description}] |
 | strategic.flows_from[] | array | 否 | 输入流：[{source, type, description}] |
-| strategic.last_activity | date | 自动 | 最后修改日期（起居郎自动更新） |
+| strategic.last_activity | date | 自动 | 最后修改日期（ARCHIVER自动更新） |
 | strategic.status_reason | text | 否 | 此项目处于当前状态的原因 |
 
 流动类型：`cognition` / `resource` / `decision` / `trust`。角色和流动定义：`references/strategic-map-spec.md`。
@@ -171,7 +171,7 @@
 
 ## 同步协议
 
-### Session 开始（早朝官家政）
+### Session 开始（RETROSPECTIVE家政）
 
 ```
 0. 读取 _meta/config.md → 获取后端列表和上次同步时间戳
@@ -197,7 +197,7 @@
 7. 在 _meta/config.md 中更新本平台的 last_sync_time（不修改其他平台的时间戳）
 ```
 
-### Session 结束（早朝官收朝）
+### Session 结束（RETROSPECTIVE收朝）
 
 ```
 1. 将所有产出写入主后端
@@ -214,7 +214,7 @@
 |------|---------|
 | 只有一个后端发生变更 | 采用该变更 |
 | 两个后端修改了同一条目，时间差 > 1 分钟 | last_modified 获胜（最后写入获胜） |
-| 两个后端修改了同一条目，时间差 ≤ 1 分钟 | CONFLICT：保留两个版本，丞相询问用户选择 |
+| 两个后端修改了同一条目，时间差 ≤ 1 分钟 | CONFLICT：保留两个版本，ROUTER询问用户选择 |
 | 用户解决冲突 | 获胜版本推送至所有后端 |
 
 ---
@@ -223,7 +223,7 @@
 
 - **删除操作不跨后端同步**
 - 在某个后端删除条目后 → 其他后端将其标记为 `_deleted: true`（软删除）
-- 下次 session，丞相询问用户："条目 X 在 [后端] 上已被删除。是否从所有后端删除？"
+- 下次 session，ROUTER询问用户："条目 X 在 [后端] 上已被删除。是否从所有后端删除？"
 - 用户确认 → 所有后端硬删除
 - 用户拒绝 → 在被删除的后端上恢复该条目
 
@@ -235,10 +235,10 @@
 |------|---------|
 | 写入时后端离线 | 跳过该后端，标注 ⚠️，记录至 sync-log.md。下次 session 自动重试。 |
 | 同步中途崩溃 | 下次启动时：比较所有后端的 last_modified，检测不一致性，从最新版本自动修复。 |
-| 某后端数据损坏 | 丞相检测到异常，询问用户："是否从 [其他后端] 恢复？" |
+| 某后端数据损坏 | ROUTER检测到异常，询问用户："是否从 [其他后端] 恢复？" |
 | 新设备 | 配置存储在 _meta/config.md。git clone → 配置就绪。无 second-brain → session 级别配置。 |
-| 添加新后端 | 丞相询问："是否将现有数据从 [主后端] 同步至 [新后端]？" |
-| 移除后端 | 丞相询问："保留 [被移除后端] 上的数据还是清理？" |
+| 添加新后端 | ROUTER询问："是否将现有数据从 [主后端] 同步至 [新后端]？" |
+| 移除后端 | ROUTER询问："保留 [被移除后端] 上的数据还是清理？" |
 
 ---
 
@@ -262,7 +262,7 @@ storage:
 
 **按平台记录同步时间戳**：每个平台记录各自的 `last_sync` 时间。Gemini CLI 启动 session 时，读取**自己的** `last_sync` 并查询该时间以来的变更——而非 Claude Code 的上次同步时间。这样可防止用户在多平台间交替使用时遗漏变更。
 
-无 second-brain → 配置存储在 session 上下文中，丞相在每次新 session 时询问。
+无 second-brain → 配置存储在 session 上下文中，ROUTER在每次新 session 时询问。
 
 ---
 
@@ -317,6 +317,6 @@ outputs:
 # Patterns Delta — 追加到 user-patterns.md
 
 ### [2026-04-12] 新模式：决策速度加快
-来源：谏官
+来源：ADVISOR
 观察：最近 3 次决策均在第一轮澄清后完成。
 ```

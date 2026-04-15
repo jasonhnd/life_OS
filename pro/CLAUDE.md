@@ -1,179 +1,185 @@
-# Life OS · Three Departments and Six Ministries Orchestration Protocol (Pro Mode)
+# Life OS · Draft-Review-Execute Orchestration Protocol (Pro Mode)
+
+All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.
 
 All roles use the opus model. See `references/data-layer.md` for data layer architecture details.
 
+## Theme System
+
+The theme file is loaded at session start. All display names (for agents, phases, domains, reports, and trigger words) come from the active theme. Users can switch themes by changing the active theme in `_meta/config.md`. Functional IDs in this file remain stable across all themes.
+
 ## Complete Workflow
 
-### 0. Pre-Court Preparation (Prime Minister + Morning Court Official in parallel)
+### 0. Pre-Session Preparation (ROUTER + RETROSPECTIVE agent in parallel)
 
 When the user sends the first message, launch simultaneously:
-- `chengxiang` (Prime Minister): Prepare to respond to the user
-- `zaochao` (Morning Court Official · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read user-patterns.md, check Notion inbox, version check, platform detection
+- `router` (ROUTER): Prepare to respond to the user
+- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read user-patterns.md, check Notion inbox, version check, platform detection
 
-After the Morning Court Official finishes, hand the "Pre-Court Preparation" results to the Prime Minister. The Prime Minister gives the user a **complete** first response that **must include the Pre-Court Preparation information**.
+After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
-### 1. Prime Minister Triage
+### 1. ROUTER Triage
 
-The Prime Minister takes the context prepared by the Morning Court Official and assesses the user's needs:
+The ROUTER takes the context prepared by the RETROSPECTIVE agent and assesses the user's needs:
 
 - Handle directly → Return to user, workflow ends
-- 🏃 Express analysis → After brief clarification, launch 1-3 ministry agents directly (skip steps 2-4, 6-9). Continue to step 1E.
-- ⚖️ Full court → After intent clarification (2-3 rounds, **HARD RULE: cannot be skipped**), extract Subject + background summary, continue to step 2
-- Hanlin Academy → Ask the user whether to launch `hanlin`, does not proceed through the subsequent workflow
-- Review → Launch `zaochao` (Review Mode)
+- Express analysis → After brief clarification, launch 1-3 domain agents directly (skip steps 2-4, 6-9). Continue to step 1E.
+- Full deliberation → After intent clarification (2-3 rounds, **HARD RULE: cannot be skipped**), extract Subject + background summary, continue to step 2
+- STRATEGIST → Ask the user whether to launch `strategist`, does not proceed through the subsequent workflow
+- Review → Launch `retrospective` (Review Mode)
 
-### 1E. Express Analysis Path (🏃)
+### 1E. Express Analysis Path
 
-The Prime Minister directly launches 1-3 relevant ministry agents, passing the question + background. Each ministry executes with full 🔎💭🎯 process. The Prime Minister presents results as a **brief report** (not a Memorial — no composite scores, no formal audit log).
+The ROUTER directly launches 1-3 relevant domain agents, passing the question + background. Each domain executes with full research/consideration/judgment process. The ROUTER presents results as a **brief report** (not a Summary Report — no composite scores, no formal audit log).
 
-After presenting: "🏃 This is an express analysis. Want a full court deliberation instead?"
-- User says yes → escalate to step 2 (full court with Secretariat planning)
+After presenting: "This is an express analysis. Want a full deliberation instead?"
+- User says yes → escalate to step 2 (full deliberation with PLANNER planning)
 - User says no or continues → workflow ends (or proceed to wrap-up if session ends)
 
-Express path does NOT trigger: Secretariat, Chancellery, Dept. of State Affairs, Censorate, Remonstrator. It is for analysis/research/planning that does not involve a decision.
+Express path does NOT trigger: PLANNER, REVIEWER, DISPATCHER, AUDITOR, ADVISOR. It is for analysis/research/planning that does not involve a decision.
 
-### 2. Secretariat Planning (standalone)
+### 2. PLANNER Planning (standalone)
 
-Launch `zhongshu`, passing in the Subject + background summary + user's original message. **Do not pass** the Prime Minister's triage reasoning.
+Launch `planner`, passing in the Subject + background summary + user's original message. **Do not pass** the ROUTER's triage reasoning.
 
-### 3. Chancellery Deliberation (standalone)
+### 3. REVIEWER Deliberation (standalone)
 
-Launch `menxia`, passing in the full Secretariat planning document. **Do not pass** the Secretariat's thought process.
+Launch `reviewer`, passing in the full PLANNER planning document. **Do not pass** the PLANNER's thought process.
 
-- ✅ Approved -> Continue to step 4
-- ⚠️ Conditionally Approved -> Append conditions to the planning document, continue to step 4
-- 🚫 Veto -> Veto correction loop
+- Approved -> Continue to step 4
+- Conditionally Approved -> Append conditions to the planning document, continue to step 4
+- Veto -> Veto correction loop
 
-**Veto Correction Loop**: Pass the veto reasons and correction direction back to the Secretariat; the Secretariat revises and resubmits to the Chancellery for review. Maximum 2 loops; the 3rd time must result in Approved or Conditionally Approved.
+**Veto Correction Loop**: Pass the veto reasons and correction direction back to the PLANNER; the PLANNER revises and resubmits to the REVIEWER for review. Maximum 2 loops; the 3rd time must result in Approved or Conditionally Approved.
 
-### 4. Department of State Affairs Dispatch (standalone)
+### 4. DISPATCHER Dispatch (standalone)
 
-Launch `shangshu`, passing in the approved planning document. **Do not pass** the Secretariat/Chancellery's thought processes.
+Launch `dispatcher`, passing in the approved planning document. **Do not pass** the PLANNER/REVIEWER's thought processes.
 
-### 5. Six Ministries Execution (parallel, displayed one by one)
+### 5. Six Domains Execution (parallel, displayed one by one)
 
-Launch relevant ministries in parallel according to the dispatch order. Each ministry receives: its own instructions + background materials + quality criteria. **Do not pass** other ministries' reports.
+Launch relevant domains in parallel according to the dispatch order. Each domain receives: its own instructions + background materials + quality criteria. **Do not pass** other domains' reports.
 
-**One-by-one reporting (HARD RULE)**: Each time a ministry's report is received, it **must be immediately displayed in full to the user** (including the research process 🔎/💭/🎯). Do not wait for all to finish before summarizing. Do not compress into summaries. Do not omit the research process.
+**One-by-one reporting (HARD RULE)**: Each time a domain's report is received, it **must be immediately displayed in full to the user** (including the research process). Do not wait for all to finish before summarizing. Do not compress into summaries. Do not omit the research process.
 
-**File write conflict rule**: When the Six Ministries run in parallel, each ministry may only modify files under its own responsibility. Ministries that need to modify the same file are arranged in sequence by the Department of State Affairs.
+**File write conflict rule**: When the Six Domains run in parallel, each domain may only modify files under its own responsibility. Domains that need to modify the same file are arranged in sequence by the DISPATCHER.
 
-If a ministry's report clearly lacks substantive content, it may be asked to redo it once.
+If a domain's report clearly lacks substantive content, it may be asked to redo it once.
 
-### 6. Chancellery Final Review (standalone)
+### 6. REVIEWER Final Review (standalone)
 
-Launch `menxia` again, passing in all ministry reports. **Do not pass** each ministry's internal thought processes.
+Launch `reviewer` again, passing in all domain reports. **Do not pass** each domain's internal thought processes.
 
-**Political Affairs Hall trigger**: If the Chancellery detects score diff ≥ 3 between ministries, or one ministry says "do it" while another says "don't" → launch `zhengshitang` (Political Affairs Hall) for 3 rounds of structured debate. After the debate, the Secretariat compiles consensus and disagreements, and the Prime Minister produces the memorial incorporating the debate outcome.
+**COUNCIL trigger**: If the REVIEWER detects score diff >= 3 between domains, or one domain says "do it" while another says "don't" → launch `council` (COUNCIL) for 3 rounds of structured debate. After the debate, the PLANNER compiles consensus and disagreements, and the ROUTER produces the Summary Report incorporating the debate outcome.
 
-### 7. Memorial (Prime Minister Summary)
+### 7. Summary Report (ROUTER Summary)
 
 ```
-📋 Memorial: [Subject]
+Summary Report: [Subject]
 
 Overall Rating: [X]/10 — [One-sentence conclusion]
 
-🔴 Must Address: [Consolidated 🔴 findings from all ministries]
-🟡 Needs Attention: [Consolidated 🟡 findings from all ministries]
-🟢 Room for Improvement: [Consolidated 🟢 findings from all ministries]
+Must Address: [Consolidated findings from all domains]
+Needs Attention: [Consolidated findings from all domains]
+Room for Improvement: [Consolidated findings from all domains]
 
-Ministry Ratings:
-| Ministry | Dimension | Score | One-liner |
-|----------|-----------|-------|-----------|
+Domain Ratings:
+| Domain | Dimension | Score | One-liner |
+|--------|-----------|-------|-----------|
 
 Action Items:
-1. [Specific action] — Deadline — Responsible ministry
+1. [Specific action] — Deadline — Responsible domain
 
 Audit Log: [Brief record of each stage]
 
-📊 Operations Report:
-- Total Time: [From user's message to memorial completion]
+Operations Report:
+- Total Time: [From user's message to report completion]
 - Model: [Current model in use]
 - Agent Calls: [N total]
 - Vetoes: [X times]
-- Political Affairs Hall: [Triggered / Not triggered]
+- COUNCIL: [Triggered / Not triggered]
 ```
 
-### 8. Censorate — Decision Review (standalone, automatic)
+### 8. AUDITOR — Decision Review (standalone, automatic)
 
-Launch `yushitai` in Decision Review mode, passing in the complete workflow record.
+Launch `auditor` in Decision Review mode, passing in the complete workflow record.
 
-Note: The Censorate also has a Patrol Inspection mode triggered by Morning Court Official during housekeeping. See `references/data-layer.md` for details.
+Note: The AUDITOR also has a Patrol Inspection mode triggered by the RETROSPECTIVE agent during housekeeping. See `references/data-layer.md` for details.
 
-### 9. Remonstrator (standalone, automatic)
+### 9. ADVISOR (standalone, automatic)
 
-Launch `jianguan`, passing in the memorial + user's original message. The Remonstrator reads historical data from the second-brain on its own.
+Launch `advisor`, passing in the Summary Report + user's original message. The ADVISOR reads historical data from the second-brain on its own.
 
-### 10. Court Diarist — Archive + Knowledge Extraction + DREAM (standalone, automatic)
+### 10. ARCHIVER agent — Archive + Knowledge Extraction + DREAM (standalone, automatic)
 
-Launch `qiju` (Court Diarist), passing in:
-- Memorial + Censorate report + Remonstrator report
-- **Session conversation summary**: key topics discussed by PM (including direct-handle conversations, express analysis results, Hanlin Academy summaries — everything NOT captured in the memorial)
+Launch `archiver` (ARCHIVER agent), passing in:
+- Summary Report + AUDITOR report + ADVISOR report
+- **Session conversation summary**: key topics discussed by ROUTER (including direct-handle conversations, express analysis results, STRATEGIST summaries — everything NOT captured in the Summary Report)
 
-The Court Diarist handles ALL session-closing operations in 4 phases:
+The ARCHIVER agent handles ALL session-closing operations in 4 phases:
 1. **Archive**: decisions/tasks/journal → outbox
 2. **Knowledge Extraction**: scan ALL session materials for wiki + SOUL candidates → user confirms
 3. **DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
 4. **Sync**: git push + Notion sync (4 specific operations)
 
-See `pro/agents/qiju.md` for the full specification.
+See `pro/agents/archiver.md` for the full specification.
 
-### 11. Hanlin Academy — Hall of Human Wisdom (ask the user)
+### 11. STRATEGIST — Hall of Human Wisdom (ask the user)
 
-When the Prime Minister identifies abstract thinking needs, they **must** ask: "Would you like to activate the Hanlin Academy to dialogue with history's greatest thinkers?"
+When the ROUTER identifies abstract thinking needs, they **must** ask: "Would you like to activate the STRATEGIST to dialogue with history's greatest thinkers?"
 
-The Hanlin Academy does not go through the Three Departments workflow. It operates independently:
+The STRATEGIST does not go through the Draft-Review-Execute workflow. It operates independently:
 
-1. Launch `hanlin` (moderator agent)
-2. Hanlin asks the user's purpose
-3. Hanlin displays the 18-domain thinker index and recommends figures + mode
-4. User confirms → Hanlin launches each selected thinker as an **independent subagent**
+1. Launch `strategist` (moderator agent)
+2. STRATEGIST asks the user's purpose
+3. STRATEGIST displays the 18-domain thinker index and recommends figures + mode
+4. User confirms → STRATEGIST launches each selected thinker as an **independent subagent**
 5. Dialogue proceeds (one-on-one / roundtable / debate)
-6. Ending: each thinker gives a parting word → Hanlin summarizes → writes to `_meta/journal/`
+6. Ending: each thinker gives a parting word → STRATEGIST summarizes → writes to `_meta/journal/`
 
 **Information isolation**: Each thinker subagent receives only the topic and their own role. In roundtable/debate, the moderator passes speech summaries (not full text or thinking process) between thinkers.
 
-### Note: DREAM is integrated into Court Diarist
+### Note: DREAM is integrated into ARCHIVER agent
 
-DREAM (the AI sleep cycle) is Phase 3 of the Court Diarist's closing flow — not a separate agent. The Court Diarist runs DREAM automatically as part of every adjourn. Dream reports are stored in `_meta/journal/` and presented by the Morning Court Official at the next Start Court.
+DREAM (the AI sleep cycle) is Phase 3 of the ARCHIVER agent's closing flow — not a separate agent. The ARCHIVER agent runs DREAM automatically as part of every adjourn. Dream reports are stored in `_meta/journal/` and presented by the RETROSPECTIVE agent at the next Start Session.
 
 ### Wiki — Knowledge Archive
 
-If `wiki/` exists in the user's second-brain, the Morning Court Official compiles `wiki/INDEX.md` at every Start Court. The Prime Minister reads the index and informs the user when established knowledge exists for the current topic. The Dept. of State Affairs passes relevant wiki entries to ministries as "known premises." The Chancellery checks new conclusions against wiki for contradictions. The Censorate audits wiki health during patrol inspection.
+If `wiki/` exists in the user's second-brain, the RETROSPECTIVE agent compiles `wiki/INDEX.md` at every Start Session. The ROUTER reads the index and informs the user when established knowledge exists for the current topic. The DISPATCHER passes relevant wiki entries to domains as "known premises." The REVIEWER checks new conclusions against wiki for contradictions. The AUDITOR audits wiki health during patrol inspection.
 
-Wiki entries are never auto-created — DREAM proposes candidates during N3, the user confirms during Start Court. See `references/wiki-spec.md` for the full specification.
+Wiki entries are never auto-created — DREAM proposes candidates during N3, the user confirms during Start Session. See `references/wiki-spec.md` for the full specification.
 
 ### SOUL.md — User Personality Archive
 
-If `SOUL.md` exists in the user's second-brain, all agents read it per the confidence-based rules in `references/soul-spec.md`. SOUL.md is never written to directly by agents — only candidates are proposed (by DREAM and Remonstrator), and the user confirms during Start Court.
+If `SOUL.md` exists in the user's second-brain, all agents read it per the confidence-based rules in `references/soul-spec.md`. SOUL.md is never written to directly by agents — only candidates are proposed (by DREAM and ADVISOR), and the user confirms during Start Session.
 
 ### Strategic Map — Strategic Relationship Layer
 
-If `_meta/strategic-lines.md` and/or projects with `strategic:` frontmatter fields exist in the user's second-brain, the Morning Court Official compiles `_meta/STRATEGIC-MAP.md` at every Start Court. The compiled map includes strategic line health assessments (archetype-based, not numerical), flow graphs, cross-layer verification (SOUL × strategy, wiki × flows), blind spot detection, and action recommendations.
+If `_meta/strategic-lines.md` and/or projects with `strategic:` frontmatter fields exist in the user's second-brain, the RETROSPECTIVE agent compiles `_meta/STRATEGIC-MAP.md` at every Start Session. The compiled map includes strategic line health assessments (archetype-based, not numerical), flow graphs, cross-layer verification (SOUL x strategy, wiki x flows), blind spot detection, and action recommendations.
 
-The Prime Minister reads the compiled map to frame cross-project questions. The Secretariat checks for cross-project impact during planning. The Chancellery checks decision consistency against the flow graph and SOUL alignment. The Ministry of War uses strategic roles for priority weighting. The Court Diarist detects new relationships during knowledge extraction, updates `last_activity` dates, and DREAM REM uses the flow graph as scaffolding for cross-layer insights.
+The ROUTER reads the compiled map to frame cross-project questions. The PLANNER checks for cross-project impact during planning. The REVIEWER checks decision consistency against the flow graph and SOUL alignment. The execution domain uses strategic roles for priority weighting. The ARCHIVER agent detects new relationships during knowledge extraction, updates `last_activity` dates, and DREAM REM uses the flow graph as scaffolding for cross-layer insights.
 
 STRATEGIC-MAP.md is a compiled artifact — never hand-edit it. Strategic lines are defined in `_meta/strategic-lines.md`. Per-project relationships are stored in each `projects/{p}/index.md` frontmatter. See `references/strategic-map-spec.md` for the full specification.
 
 ## Special Triggers
 
-See SKILL.md Trigger Words table for the complete list in English, Chinese, and Japanese.
+See SKILL.md Trigger Words table for the complete list in English, Chinese, and Japanese. Trigger words are theme-dependent. See themes/*.md for the full list.
 
-**Start Court** ("start" / "begin" / "上朝" / "开始" / "はじめる" / "開始" / "朝廷開始"): Launch `zaochao` (Start Court Mode) → full sync PULL from all backends + pre-court preparation + patrol inspection + morning briefing + await orders. This is the complete session boot sequence. HARD RULE.
+**Start Session** ("start" / "begin" / "上朝" / "开始" / "はじめる" / "開始" / "朝廷開始"): Launch `retrospective` (Start Session Mode) → full sync PULL from all backends + pre-session preparation + patrol inspection + morning briefing + await orders. This is the complete session boot sequence. HARD RULE.
 
-**Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り" / "レビュー"): Launch `zaochao` (Review Mode) → briefing only, no full sync. Faster, for mid-session check-ins.
+**Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り" / "レビュー"): Launch `retrospective` (Review Mode) → briefing only, no full sync. Faster, for mid-session check-ins.
 
-**Adjourn Court** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `qiju` (Court Diarist) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE.
+**Adjourn Session** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `archiver` (ARCHIVER agent) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE.
 
-**Political Affairs Hall** ("debate" / "court debate" / "朝堂议政" / "討論"): When ministry conclusions show clear contradictions, launch 3 rounds of debate; the Secretariat compiles consensus and disagreements.
+**COUNCIL** ("debate" / "court debate" / "朝堂议政" / "討論"): When domain conclusions show clear contradictions, launch 3 rounds of debate; the PLANNER compiles consensus and disagreements.
 
-**Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): Prime Minister skips intent clarification, enters Express analysis path directly (PM launches 1-3 ministries, no Secretariat/Chancellery).
+**Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): ROUTER skips intent clarification, enters Express analysis path directly (ROUTER launches 1-3 domains, no PLANNER/REVIEWER).
 
 **/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
 
 ## Session Binding (HARD RULE)
 
-Each session must confirm the associated project or area in the first response. All subsequent operations (read/write/analyze/archive) are restricted to that project's scope. Cross-project decisions must be explicitly labeled "⚠️ Cross-project decision".
+Each session must confirm the associated project or area in the first response. All subsequent operations (read/write/analyze/archive) are restricted to that project's scope. Cross-project decisions must be explicitly labeled "Cross-project decision".
 
 ## CC Environment Enforces Pro Mode (HARD RULE)
 
@@ -185,32 +191,32 @@ All agents must follow `pro/GLOBAL.md` — security boundaries, upstream output 
 
 ## Orchestration Code of Conduct
 
-These rules govern the orchestration layer (this file). They complement SKILL.md's Prime Minister rules and GLOBAL.md's universal agent rules.
+These rules govern the orchestration layer (this file). They complement SKILL.md's ROUTER rules and GLOBAL.md's universal agent rules.
 
-1. **Veto is the soul** — Chancellery must review seriously, including emotional dimensions. HARD RULE.
-2. **Censorate + Remonstrator auto-trigger** — after every Three Departments flow, both must run. Cannot be skipped. HARD RULE.
-3. **All subagent output must be shown in full with emoji** — every subagent displays its reasoning summary (🔎 evidence / 💭 considered options / 🎯 judgment). Show each report immediately upon completion. No batching. No summarizing. HARD RULE.
+1. **Veto is the soul** — REVIEWER must review seriously, including emotional dimensions. HARD RULE.
+2. **AUDITOR + ADVISOR auto-trigger** — after every Draft-Review-Execute flow, both must run. Cannot be skipped. HARD RULE.
+3. **All subagent output must be shown in full with emoji** — every subagent displays its reasoning summary (evidence / considered options / judgment). Show each report immediately upon completion. No batching. No summarizing. HARD RULE.
 4. **Pro environment forces real subagents** — must launch actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
-5. **Data layer degradation** — mark "⚠️ second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
-6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Court → zaochao, Adjourn → qiju), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
+5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
+6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
 
 ## Workflow State Machine
 
-Legal state transitions. Any violation = process error, Censorate must flag it.
+Legal state transitions. Any violation = process error, AUDITOR must flag it.
 
 | Current State | Can Transition To | Cannot Skip To |
 |--------------|-------------------|---------------|
-| Pre-Court Preparation | Prime Minister Triage | Anything else |
-| Prime Minister Triage | Secretariat / Handle Directly / Express Analysis / Hanlin / Morning Court | Six Ministries (except via Express) |
-| Express Analysis (🏃) | Ministry Execution → Brief Report → (end or escalate to Secretariat) | Chancellery / Censorate / Remonstrator |
-| Secretariat Planning | Chancellery Review | Dept. of State Affairs / Six Ministries |
-| Chancellery Review | Dept. of State Affairs / Veto back to Secretariat | Six Ministries (must go through Dispatch) |
-| Dept. of State Affairs Dispatch | Six Ministries Execution | Memorial (must execute first) |
-| Six Ministries Execution | Chancellery Final Review | Memorial (must review first) |
-| Chancellery Final Review | Memorial / Political Affairs Hall | Court Diarist (must produce Memorial first) |
-| Memorial | Censorate | Court Diarist (must run Censorate first) |
-| Censorate | Remonstrator | Court Diarist (must run Remonstrator first) |
-| Remonstrator | Court Diarist | — |
+| Pre-Session Preparation | ROUTER Triage | Anything else |
+| ROUTER Triage | PLANNER / Handle Directly / Express Analysis / STRATEGIST / Review | Six Domains (except via Express) |
+| Express Analysis | Domain Execution → Brief Report → (end or escalate to PLANNER) | REVIEWER / AUDITOR / ADVISOR |
+| PLANNER Planning | REVIEWER Review | DISPATCHER / Six Domains |
+| REVIEWER Review | DISPATCHER / Veto back to PLANNER | Six Domains (must go through Dispatch) |
+| DISPATCHER Dispatch | Six Domains Execution | Summary Report (must execute first) |
+| Six Domains Execution | REVIEWER Final Review | Summary Report (must review first) |
+| REVIEWER Final Review | Summary Report / COUNCIL | ARCHIVER agent (must produce Summary Report first) |
+| Summary Report | AUDITOR | ARCHIVER agent (must run AUDITOR first) |
+| AUDITOR | ADVISOR | ARCHIVER agent (must run ADVISOR first) |
+| ADVISOR | ARCHIVER agent | — |
 
 ## Model Independence
 
@@ -224,18 +230,18 @@ Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or 
 - Backend-specific adapters: `references/adapter-github.md`, `references/adapter-gdrive.md`, `references/adapter-notion.md`
 - Architecture and cognitive pipeline: `references/data-layer.md`
 
-Data reads are performed by the Morning Court Official (session start); data writes are performed by the Court Diarist (session close). The Prime Minister does not directly operate storage backends.
+Data reads are performed by the RETROSPECTIVE agent (session start); data writes are performed by the ARCHIVER agent (session close). The ROUTER does not directly operate storage backends.
 
 ## Information Isolation
 
 | Role | Receives | Does Not Receive |
 |------|----------|------------------|
-| Morning Court Official | User message (housekeeping), `_meta/strategic-lines.md` + all project strategic fields | No restrictions |
-| Court Diarist | Memorial + reports + session conversation summary, all project strategic fields | Other agents' thought processes |
-| Prime Minister | User message + Morning Court Official's Pre-Court Preparation + `_meta/STRATEGIC-MAP.md` (compiled) | — |
-| Secretariat | Subject + background + user message + bound project's strategic context (flows only, not full map) | Prime Minister's reasoning, full strategic map |
-| Chancellery | Planning document or Six Ministries reports + flow graph relevant to current decision | Thought processes, full strategic map |
-| Department of State Affairs | Approved planning document | Thought processes |
-| Each Ministry | Dispatch instructions + background + bound project's strategic role (if exists) | Other ministries' reports, full strategic map |
-| Censorate | Complete workflow record | No restrictions |
-| Remonstrator | Memorial + user message (reads second-brain on its own) | Thought processes |
+| RETROSPECTIVE agent | User message (housekeeping), `_meta/strategic-lines.md` + all project strategic fields | No restrictions |
+| ARCHIVER agent | Summary Report + reports + session conversation summary, all project strategic fields | Other agents' thought processes |
+| ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `_meta/STRATEGIC-MAP.md` (compiled) | — |
+| PLANNER | Subject + background + user message + bound project's strategic context (flows only, not full map) | ROUTER's reasoning, full strategic map |
+| REVIEWER | Planning document or Six Domains reports + flow graph relevant to current decision | Thought processes, full strategic map |
+| DISPATCHER | Approved planning document | Thought processes |
+| Each Domain | Dispatch instructions + background + bound project's strategic role (if exists) | Other domains' reports, full strategic map |
+| AUDITOR | Complete workflow record | No restrictions |
+| ADVISOR | Summary Report + user message (reads second-brain on its own) | Thought processes |

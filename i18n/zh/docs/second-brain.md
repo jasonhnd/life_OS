@@ -33,8 +33,8 @@ second-brain/
 │
 ├── _meta/                    # 🔧 系统元数据
 │   ├── STATUS.md             # 全局状态快照（编译生成）
-│   ├── STRATEGIC-MAP.md      # 🗺️ 战略地图（从项目 strategic 字段编译生成 — v1.5.0）
-│   ├── strategic-lines.md    # 战略线定义（用户定义 — v1.5.0）
+│   ├── STRATEGIC-MAP.md      # 🗺️ 战略地图（从项目 strategic 字段编译生成 — v1.6.0）
+│   ├── strategic-lines.md    # 战略线定义（用户定义 — v1.6.0）
 │   ├── MAP.md                # 知识地图
 │   ├── outbox/               # 📤 待同步的外部输出
 │   ├── decisions/            # 跨领域重大决策

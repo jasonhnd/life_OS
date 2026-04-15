@@ -41,7 +41,7 @@ The lightest usage pattern. Prime Minister determines it's simple and handles di
 
 | | Tokens |
 |--|--------|
-| Call count | 1 (chengxiang agent) |
+| Call count | 1 (router agent) |
 | Tokens | ~700-1,000 |
 | Cost | ~$0.01-0.02 |
 

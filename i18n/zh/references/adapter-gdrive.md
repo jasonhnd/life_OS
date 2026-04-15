@@ -75,4 +75,4 @@ Google Drive 没有 git 历史。变更检测完全依赖 `modifiedTime`。Drive
 用户需要：
 1. 连接 Google Drive MCP
 2. 在 Drive 中创建一个 `second-brain` 根文件夹
-3. 创建文件夹结构（可由早朝官在首次运行时完成）
+3. 创建文件夹结构（可由RETROSPECTIVE在首次运行时完成）

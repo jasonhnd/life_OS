@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.5.0-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.0-purple.svg)](../../CHANGELOG.md)
 
 **ロールプレイではない。権力分立だ。**
 
@@ -148,7 +148,7 @@ second-brain/
 ├── inbox/                 # スマホから放り込んだ未処理のメモ
 ├── _meta/
 │   ├── STATUS.md          # 全体のステータス
-│   ├── STRATEGIC-MAP.md   # 戦略マップ（v1.5.0 新機能）
+│   ├── STRATEGIC-MAP.md   # 戦略マップ（v1.6.0）
 │   ├── strategic-lines.md # 戦略ラインの定義
 │   ├── journal/           # レポート・DREAMレポート
 │   └── outbox/            # セッションごとの一時出力
@@ -174,7 +174,7 @@ second-brain/
 
 ---
 
-### 🗺️ 柱 IV：戦略マップ——森を見る（v1.5.0）
+### 🗺️ 柱 IV：戦略マップ——森を見る（v1.6.0）
 
 **あなたが抱えている問題：**
 

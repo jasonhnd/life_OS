@@ -75,4 +75,4 @@ Google Drive にはgit履歴がありません。変更検出は `modifiedTime` 
 ユーザーに必要なもの：
 1. Google Drive MCP が接続されていること
 2. Driveに `second-brain` ルートフォルダが作成されていること
-3. フォルダ構造が作成されていること（初回実行時に早朝官が作成可能）
+3. フォルダ構造が作成されていること（初回実行時にRETROSPECTIVEが作成可能）

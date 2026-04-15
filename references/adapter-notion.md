@@ -26,7 +26,7 @@ Only 3 components used:
 - 🧠 Status Dashboard (page): mirror of `_meta/STATUS.md`
 - 🗄️ Archive: read-only archive access
 
-**Important**: In transport mode, Notion does NOT have Task/Decision/Journal databases. If the user edits content directly in Notion outside of the inbox, those changes are invisible to the sync protocol. The Morning Court Official should remind the user on first setup: "In transport mode, use the 📬 Inbox for all mobile captures. Direct edits to Notion pages outside the inbox will not sync to GitHub/GDrive."
+**Important**: In transport mode, Notion does NOT have Task/Decision/Journal databases. If the user edits content directly in Notion outside of the inbox, those changes are invisible to the sync protocol. The RETROSPECTIVE should remind the user on first setup: "In transport mode, use the 📬 Inbox for all mobile captures. Direct edits to Notion pages outside the inbox will not sync to GitHub/GDrive."
 
 ## Field Mapping
 

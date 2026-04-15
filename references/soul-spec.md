@@ -21,7 +21,7 @@ dimension: "[dimension name]"
 confidence: 0.0          # 0-1, auto-calculated
 evidence_count: 0         # supporting decisions/behaviors
 challenges: 0             # contradicting behaviors
-source: dream             # dream / remonstrator / hanlin / user
+source: dream             # dream / advisor / strategist / user
 created: YYYY-MM-DD
 last_validated: YYYY-MM-DD
 ---
@@ -47,7 +47,7 @@ last_validated: YYYY-MM-DD
 ## Entry Lifecycle
 
 ```
-1. 🌱 Candidate — DREAM or Remonstrator proposes
+1. 🌱 Candidate — DREAM or ADVISOR proposes
 2. ✅ Confirmed — User approves (may edit wording)
 3. 📈 Strengthened — More evidence accumulates (confidence rises)
 4. ⚠️ Challenged — Contradicting behaviors detected
@@ -67,10 +67,10 @@ Confidence determines how much influence a SOUL entry has on the system:
 
 | Confidence | Condition | System Behavior |
 |------------|-----------|----------------|
-| < 0.3 | Newly written, few data points | Only Remonstrator references |
-| 0.3 – 0.6 | Moderate evidence | Remonstrator + Chancellery reference |
-| 0.6 – 0.8 | Strong evidence | + Secretariat references |
-| > 0.8 | Deeply validated, low contradiction | Full system reference (including Prime Minister) |
+| < 0.3 | Newly written, few data points | Only ADVISOR references |
+| 0.3 – 0.6 | Moderate evidence | ADVISOR + REVIEWER reference |
+| 0.6 – 0.8 | Strong evidence | + PLANNER references |
+| > 0.8 | Deeply validated, low contradiction | Full system reference (including ROUTER) |
 
 Confidence is auto-calculated — the user does not manage it.
 
@@ -98,8 +98,8 @@ Users may define their own dimensions. The system does not impose categories.
 | Source | How | Example |
 |--------|-----|---------|
 | **DREAM** | During dreaming, discovers patterns from 3-day behavior data | "4 of 5 recent decisions prioritized control over profit" |
-| **Remonstrator** | After workflow, observes repeated value signals | "You always ask about family impact first" |
-| **Hanlin Academy** | During deep dialogue, user reveals values through conversation | User tells Socrates "stability matters more than adventure" |
+| **ADVISOR** | After workflow, observes repeated value signals | "You always ask about family impact first" |
+| **STRATEGIST** | During deep dialogue, user reveals values through conversation | User tells Socrates "stability matters more than adventure" |
 | **User** | Direct input at any time | "Remember: I never compromise on X" |
 
 ---
@@ -110,11 +110,11 @@ All roles check if SOUL.md exists before referencing it. If it does not exist or
 
 | Role | What they read | How they use it |
 |------|---------------|-----------------|
-| **Prime Minister** | Preferences, red lines | Sharper intent clarification — asks about dimensions the user cares about even if not mentioned |
-| **Secretariat** | Value priorities (confidence ≥ 0.6) | Auto-adds relevant dimensions to planning if the user didn't mention them |
-| **Chancellery** | What IS vs What SHOULD BE gap (confidence ≥ 0.3) | Value consistency check — flags when a decision contradicts a stated aspiration |
-| **Remonstrator** | All entries, evidence & challenge counts | Behavioral audit — reinforces or challenges SOUL entries, proposes updates |
-| **Hanlin Academy** | Worldview, unresolved contradictions | Recommends thinkers who address the user's specific tensions |
+| **ROUTER** | Preferences, red lines | Sharper intent clarification — asks about dimensions the user cares about even if not mentioned |
+| **PLANNER** | Value priorities (confidence ≥ 0.6) | Auto-adds relevant dimensions to planning if the user didn't mention them |
+| **REVIEWER** | What IS vs What SHOULD BE gap (confidence ≥ 0.3) | Value consistency check — flags when a decision contradicts a stated aspiration |
+| **ADVISOR** | All entries, evidence & challenge counts | Behavioral audit — reinforces or challenges SOUL entries, proposes updates |
+| **STRATEGIST** | Worldview, unresolved contradictions | Recommends thinkers who address the user's specific tensions |
 | **DREAM** | All entries (full read/write proposals) | Discovers new candidates, updates evidence/challenge counts, proposes evolution |
 
 ---
@@ -157,7 +157,7 @@ second-brain/
 ```
 
 **SOUL.md vs user-patterns.md**:
-- `user-patterns.md` records **what you do** — behavioral patterns observed by the Remonstrator
+- `user-patterns.md` records **what you do** — behavioral patterns observed by the ADVISOR
 - `SOUL.md` records **who you are** — values, beliefs, and aspirations confirmed by you
 - One is descriptive (patterns), the other is identity (soul)
 - They feed each other: patterns reveal values, values contextualize patterns

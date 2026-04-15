@@ -6,6 +6,50 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.6.0] - 2026-04-15 · Theme Engine — One Engine, Every Culture
+
+> A Japanese user tried Life OS and the experience was poor — not because the logic was wrong, but because "Three Departments and Six Ministries" is a Chinese cultural concept that creates a learning barrier for non-Chinese users. v1.6.0 solves this by separating the decision engine from its cultural presentation.
+
+### The Change
+
+Life OS is now a **universal decision engine** with **swappable cultural themes**. The governance logic (plan → review → veto → execute → audit) is identical across all themes — only the names, tone, and metaphors change.
+
+### Three-Layer Architecture
+
+**Layer 1: Engine** — 16 agents with functional IDs (ROUTER, PLANNER, REVIEWER, DISPATCHER, 6 domain analysts, AUDITOR, ADVISOR, COUNCIL, RETROSPECTIVE, ARCHIVER, STRATEGIST). Language-neutral, culture-neutral.
+
+**Layer 2: Theme** — Swappable cultural skins that map functional IDs to familiar names:
+- `zh-classical` — 三省六部 (Tang Dynasty governance): 丞相, 中书省, 门下省, 六部, 御史台...
+- `ja-kasumigaseki` — 霞が関 (Japanese central government): 内閣官房長官, 内閣法制局, 財務省, 会計検査院...
+- `en-csuite` — C-Suite (corporate executive): Chief of Staff, General Counsel, CFO, Internal Audit...
+
+**Layer 3: Locale** — Auto-detects user language, recommends matching theme. User can switch at any time.
+
+### What Changed
+
+- **16 agent files renamed**: Chinese pinyin (chengxiang.md, zhongshu.md...) → functional English (router.md, planner.md...)
+- **themes/ directory created**: 3 theme files (~60 lines each) define role mappings, tone, trigger words, output titles
+- **i18n agent duplication eliminated**: 48 agent files (16 × 3 languages) → 16 files. Themes handle display, agents handle logic.
+- **~42 translated agent/orchestration files deleted**: No longer needed — one source of truth per agent
+- **departments.md → domains.md**: Six Ministries → Six Domains (PEOPLE, FINANCE, GROWTH, EXECUTION, GOVERNANCE, INFRA)
+- **All orchestration protocols updated**: CLAUDE.md, AGENTS.md, GEMINI.md use functional IDs
+- **All reference docs updated**: data-layer, data-model, strategic-map-spec, wiki-spec, soul-spec, dream-spec, scene-configs
+- **All eval scenarios updated**: Test cases use functional IDs (router-triage.md, council-debate.md)
+
+### Why This Matters
+
+- **Japanese users** see 財務省, 法務省, 会計検査院 — zero learning curve
+- **English users** see CFO, General Counsel, Internal Audit — immediately intuitive
+- **Chinese users** still see 丞相, 中书省, 门下省 — nothing lost
+- **Developers** maintain 16 agent files instead of 48 — every logic change applies once
+- **New themes** require only one ~60-line file — no engine changes needed
+
+### Zero Functionality Loss
+
+All 28 Hard Rules preserved. All scoring rubrics intact. All output formats maintained (with theme-dependent names). SOUL, DREAM, Wiki, Strategic Map, Completion Checklist, veto loops, session lifecycle — everything works identically. Verified against the complete 34-item preservation checklist.
+
+---
+
 ## [1.5.0] - 2026-04-15 · Strategic Map — From Project Assistant to Life Strategist
 
 > Life OS could analyze any single project brilliantly but was blind to the connections between them. With many active projects sharing dependencies, resources, and hidden strategic purposes, the system needed a relationship layer. Strategic Map adds exactly that — and integrates deeply with SOUL, Wiki, and DREAM to form a unified cognitive system.

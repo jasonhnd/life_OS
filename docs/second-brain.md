@@ -33,8 +33,8 @@ second-brain/
 │
 ├── _meta/                    # 🔧 System metadata
 │   ├── STATUS.md             # Global status snapshot (compiled)
-│   ├── STRATEGIC-MAP.md      # 🗺️ Strategic map (compiled from project strategic fields — v1.5.0)
-│   ├── strategic-lines.md    # Strategic line definitions (user-defined — v1.5.0)
+│   ├── STRATEGIC-MAP.md      # 🗺️ Strategic map (compiled from project strategic fields — v1.6.0)
+│   ├── strategic-lines.md    # Strategic line definitions (user-defined — v1.6.0)
 │   ├── MAP.md                # Knowledge map
 │   ├── outbox/               # 📤 Pending outputs for external sync
 │   ├── decisions/            # Cross-domain major decisions

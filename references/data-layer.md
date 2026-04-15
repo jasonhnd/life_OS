@@ -31,15 +31,15 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 
 **Perceive → Capture (GTD)**: Zero-friction capture on mobile. User says something, phone AI saves to inbox. No classification at this stage — inbox is the GTD collection basket.
 
-**Capture → Judge (Three Departments)**: Desktop CC pulls from inbox. Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Three Departments decision mode.
+**Capture → Judge (Draft-Review-Execute cycle)**: Desktop CC pulls from inbox. Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Draft-Review-Execute decision mode.
 
 **Judge → Settle (SOUL + Wiki)**: Conclusions from decisions settle into two pools — SOUL (about the person: values, personality, behavioral patterns) and Wiki (about the world: reusable knowledge, established conclusions). DREAM extracts candidates for both during N3; user confirms at next Start Court.
 
-**Settle → Associate (Prime Minister + Wiki INDEX)**: The Prime Minister reads wiki/INDEX.md at session start. When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain." This turns accumulated knowledge into active context.
+**Settle → Associate (ROUTER + Wiki INDEX)**: The ROUTER reads wiki/INDEX.md at session start. When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain." This turns accumulated knowledge into active context.
 
-**Associate → Strategize (Strategic Map)**: The Prime Minister reads `_meta/STRATEGIC-MAP.md` at session start. When a request involves a project with strategic relationships, the system automatically surfaces downstream dependencies, bottleneck status, and decision propagation warnings. This turns per-project analysis into strategic-line-aware analysis. See `references/strategic-map-spec.md`.
+**Associate → Strategize (Strategic Map)**: The ROUTER reads `_meta/STRATEGIC-MAP.md` at session start. When a request involves a project with strategic relationships, the system automatically surfaces downstream dependencies, bottleneck status, and decision propagation warnings. This turns per-project analysis into strategic-line-aware analysis. See `references/strategic-map-spec.md`.
 
-**Strategize → Emerge (DREAM REM)**: When wiki entries and strategic relationships accumulate, DREAM's REM stage discovers cross-domain connections using the flow graph as scaffolding — checking SOUL × strategy alignment, wiki × flow completeness, and behavioral pattern × strategic priority consistency. The more knowledge and relationships settle, the more emergence happens. Censorate patrol also detects wiki contradictions, knowledge gaps, and strategy contradictions between projects.
+**Strategize → Emerge (DREAM REM)**: When wiki entries and strategic relationships accumulate, DREAM's REM stage discovers cross-domain connections using the flow graph as scaffolding — checking SOUL × strategy alignment, wiki × flow completeness, and behavioral pattern × strategic priority consistency. The more knowledge and relationships settle, the more emergence happens. AUDITOR patrol also detects wiki contradictions, knowledge gaps, and strategy contradictions between projects.
 
 ### Mobile vs Desktop Division
 
@@ -53,7 +53,7 @@ Mobile handles perception and capture only (occasionally lightweight association
 second-brain/
 │
 ├── SOUL.md                            # 🔮 User personality archive (values, beliefs, identity — grows from zero)
-├── user-patterns.md                   # 📊 Behavioral patterns (what you DO — Remonstrator-maintained)
+├── user-patterns.md                   # 📊 Behavioral patterns (what you DO — ADVISOR-maintained)
 │
 ├── inbox/                             # 📥 Unprocessed (mobile captures, materials, book notes, raw research)
 │
@@ -63,7 +63,7 @@ second-brain/
 │   ├── strategic-lines.md             # Strategic line definitions (user-defined)
 │   ├── MAP.md                         # Knowledge map (all area entry points)
 │   ├── decisions/                     # Cross-domain major decisions
-│   ├── journal/                       # Morning court briefings, Censorate/Remonstrator reports, DREAM reports
+│   ├── journal/                       # RETROSPECTIVE briefings, AUDITOR/ADVISOR reports, DREAM reports
 │   ├── outbox/                        # 📮 Session output staging area (one subdirectory per session)
 │   │   └── {session-id}/             # Each session writes here on adjourn, merged at next start court
 │   ├── extraction-rules.md            # Knowledge extraction rules (trained by user)
@@ -72,9 +72,9 @@ second-brain/
 │   ├── lint-state.md                  # Inspection state (last run time, etc.)
 │   ├── lint-reports/                  # Historical inspection reports
 │   └── roles/                         # Resident role definitions
-│       ├── censor.md                  # Censorate (inspection mode)
+│       ├── censor.md                  # AUDITOR (inspection mode)
 │       ├── historian.md               # Historian (optional: auto-records daily work)
-│       └── reviewer.md               # Chancellery on-duty (optional: reviews content quality on write)
+│       └── reviewer.md               # REVIEWER on-duty (optional: reviews content quality on write)
 │
 ├── projects/                          # 🎯 Things with endpoints (PARA-P)
 │   └── {name}/
@@ -125,17 +125,17 @@ Core: The "learning" carrier is markdown files, not model weights. Switching mod
 
 ---
 
-## Censorate: Two Operating Modes
+## AUDITOR: Two Operating Modes
 
-The Censorate (御史台) runs in two modes within the Three Departments system:
+The AUDITOR runs in two modes within the Draft-Review-Execute system:
 
 ### Mode 1: Decision Review (existing)
 
-After every Three Departments workflow, reviews official work quality. Already defined in `pro/agents/yushitai.md`.
+After every Draft-Review-Execute workflow, reviews official work quality. Already defined in `pro/agents/auditor.md`.
 
 ### Mode 2: Patrol Inspection (new)
 
-When idle, each ministry inspects its own jurisdiction. Defined in `_meta/roles/censor.md`.
+When idle, each domain inspects its own jurisdiction. Defined in `_meta/roles/censor.md`.
 
 #### Trigger Levels
 
@@ -143,26 +143,26 @@ When idle, each ministry inspects its own jurisdiction. Defined in `_meta/roles/
 |---------|------|-------|
 | **Startup inspection** | Every desktop CC session start, if `lint-state.md` shows >4h since last run | Lightweight, 3-line briefing |
 | **Post-sync inspection** | After inbox sync completes | Check new content vs wiki consistency, new entities needing wiki articles, STATUS.md update |
-| **Deep inspection** | Weekly or manual trigger | Full six-ministry patrol |
+| **Deep inspection** | Weekly or manual trigger | Full Six Domains patrol |
 
-#### Six Ministry Patrol Responsibilities
+#### Six Domains Patrol Responsibilities
 
-| Ministry | Jurisdiction | Checks |
-|----------|-------------|--------|
-| Revenue | areas/finance/ | Investment strategy outdated, financial figures need updating |
-| War | projects/ | Project activity, TODO completion, resource conflicts |
-| Rites | wiki/ | Unfulfilled social commitments, new contacts to record, wiki entries with confidence < 0.3 and no update in 90+ days (suggest retire), wiki entries with challenges > evidence_count (suggest review), domains with decisions but no wiki entries (knowledge gap) |
-| Works | wiki/ + _meta/ | Orphan files, broken links, rule validity |
-| Personnel | areas/career/ | Career direction aligned with actions |
-| Justice | Cross-domain | Strategy contradictions between projects, decisions missing risk assessment |
+| Domain | Jurisdiction | Checks |
+|--------|-------------|--------|
+| FINANCE | areas/finance/ | Investment strategy outdated, financial figures need updating |
+| EXECUTION | projects/ | Project activity, TODO completion, resource conflicts |
+| GROWTH | wiki/ | Unfulfilled social commitments, new contacts to record, wiki entries with confidence < 0.3 and no update in 90+ days (suggest retire), wiki entries with challenges > evidence_count (suggest review), domains with decisions but no wiki entries (knowledge gap) |
+| INFRA | wiki/ + _meta/ | Orphan files, broken links, rule validity |
+| PEOPLE | areas/career/ | Career direction aligned with actions |
+| GOVERNANCE | Cross-domain | Strategy contradictions between projects, decisions missing risk assessment |
 
 #### Issue Classification
 
 | Level | Action | Example |
 |-------|--------|---------|
-| **Auto-fix** | Censorate handles directly | Missing index entries, missing backlinks, format issues |
+| **Auto-fix** | AUDITOR handles directly | Missing index entries, missing backlinks, format issues |
 | **Suggest** | Send to inbox for user | Data inconsistency, project possibly stalled, wiki suggestion |
-| **Escalate** | Activate Three Departments decision mode | Financial contradictions >¥1M, multi-project strategy conflict, interpersonal risk |
+| **Escalate** | Activate Draft-Review-Execute decision mode | Financial contradictions >¥1M, multi-project strategy conflict, interpersonal risk |
 
 #### Implementation
 
@@ -177,21 +177,21 @@ When idle, each ministry inspects its own jurisdiction. Defined in `_meta/roles/
 
 | Role | File | Function |
 |------|------|----------|
-| Censorate | `_meta/roles/censor.md` | Patrol inspection (required) |
+| AUDITOR | `_meta/roles/censor.md` | Patrol inspection (required) |
 | Historian | `_meta/roles/historian.md` | Auto-records daily work at session end (optional) |
-| Chancellery on-duty | `_meta/roles/reviewer.md` | Reviews content quality on write (optional) |
+| REVIEWER on-duty | `_meta/roles/reviewer.md` | Reviews content quality on write (optional) |
 
 ---
 
-## Three Departments Output Destinations
+## Draft-Review-Execute Output Destinations
 
 All outputs use standard operations from `references/data-model.md`. The adapter for the user's chosen backend translates these into platform-specific calls.
 
 | Output | Standard Operation |
 |--------|-------------------|
-| Decision memorial | Save Decision |
+| Decision summary report | Save Decision |
 | Action items | Save Task |
-| Morning court / Censorate / Remonstrator reports | Save JournalEntry |
+| RETROSPECTIVE / AUDITOR / ADVISOR reports | Save JournalEntry |
 | Inspection reports | Save JournalEntry (type: inspection) |
 | Research / knowledge | Save WikiNote |
 | Goals | Update Area (goals field) |
@@ -215,7 +215,7 @@ Multi-backend rules (sync, conflict, deletion, failure handling): `references/da
 
 ---
 
-## Morning Court Official Data Operations
+## RETROSPECTIVE Data Operations
 
 All operations use standard interfaces. Adapt calls per the user's configured backend(s).
 
@@ -240,7 +240,7 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 7. Read user-patterns.md
 8. Global overview: List Project + List Area (titles + status only)
 8.5. Strategic Map compilation: If `_meta/strategic-lines.md` exists → read all `projects/*/index.md` strategic fields → compile `_meta/STRATEGIC-MAP.md` (archetype matching, narrative assessment, cross-layer verification, action recommendations). See `references/strategic-map-spec.md`.
-9. If lint-state.md shows >4h → trigger lightweight Censorate inspection
+9. If lint-state.md shows >4h → trigger lightweight AUDITOR inspection
 10. Platform awareness + version check
 ```
 
@@ -251,7 +251,7 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 2. Create _meta/outbox/{session-id}/
 3. Save Decision / Save Task / Save JournalEntry → to _meta/outbox/{session-id}/ (NOT to main directories)
 4. Write index-delta.md (changes for projects/{p}/index.md)
-5. Write patterns-delta.md (append content for user-patterns.md, if Remonstrator has suggestions)
+5. Write patterns-delta.md (append content for user-patterns.md, if ADVISOR has suggestions)
 6. Write manifest.md (session metadata)
 7. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
 8. Sync outbox to Notion (if configured)
@@ -271,7 +271,7 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 5. Metrics dashboard computed from results
 ```
 
-## Remonstrator Data Retrieval
+## ADVISOR Data Retrieval
 
 ```
 1. Read user-patterns.md
@@ -289,12 +289,12 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 | Project version / phase / status | `projects/{p}/index.md` | `_meta/STATUS.md` |
 | Area goals / status | `areas/{a}/index.md` | `_meta/STATUS.md` |
 | Task completion | `projects/{p}/tasks/*.md` | Metrics dashboard |
-| Behavior patterns | `user-patterns.md` | Remonstrator reports |
+| Behavior patterns | `user-patterns.md` | ADVISOR reports |
 | Strategic relationships | `projects/{p}/index.md` strategic fields + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
 
 **Write order is enforced**: Always update the authoritative source first, then compile the dashboard. Never write to STATUS.md directly for project-level information.
 
-**Censorate lint rule**: During patrol inspection, check that `_meta/STATUS.md` version/status for each project matches `projects/{p}/index.md`. If inconsistent → report 🔴, flag the authoritative source as correct.
+**AUDITOR lint rule**: During patrol inspection, check that `_meta/STATUS.md` version/status for each project matches `projects/{p}/index.md`. If inconsistent → report 🔴, flag the authoritative source as correct.
 
 ---
 

@@ -6,6 +6,50 @@
 
 ---
 
+## [1.6.0] - 2026-04-15 · Theme Engine — 一套引擎，服务所有文化
+
+> 一位日本用户试用了 Life OS，体验很差——不是因为逻辑有问题，而是因为"三省六部"是中国文化概念，对非中文用户造成了学习门槛。v1.6.0 通过将决策引擎与文化呈现分离来解决这个问题。
+
+### 核心变化
+
+Life OS 现在是一个**通用决策引擎**，搭配**可切换的文化主题**。治理逻辑（规划 → 审查 → 否决 → 执行 → 审计）在所有主题下完全一致——只有名称、语气和隐喻发生变化。
+
+### 三层架构
+
+**Layer 1: Engine** — 16 个 agent，使用功能性 ID（ROUTER, PLANNER, REVIEWER, DISPATCHER, 6 个领域分析师, AUDITOR, ADVISOR, COUNCIL, RETROSPECTIVE, ARCHIVER, STRATEGIST）。语言中立，文化中立。
+
+**Layer 2: Theme** — 可切换的文化皮肤，将功能性 ID 映射到熟悉的名称：
+- `zh-classical` — 三省六部（唐朝治理制度）：丞相、中书省、门下省、六部、御史台……
+- `ja-kasumigaseki` — 霞が関（日本中央省庁）：内閣官房長官、内閣法制局、財務省、会計検査院……
+- `en-csuite` — C-Suite（企业高管）：Chief of Staff、General Counsel、CFO、Internal Audit……
+
+**Layer 3: Locale** — 自动检测用户语言，推荐匹配的主题。用户可随时切换。
+
+### 具体变更
+
+- **16 个 agent 文件重命名**：中文拼音（chengxiang.md, zhongshu.md...）→ 功能性英文（router.md, planner.md...）
+- **themes/ 目录创建**：3 个主题文件（每个约 60 行），定义角色映射、语气、触发词、输出标题
+- **i18n agent 重复消除**：48 个 agent 文件（16 × 3 语言）→ 16 个文件。主题处理展示，agent 处理逻辑
+- **约 42 个翻译后的 agent/编排文件删除**：不再需要——每个 agent 一个事实来源
+- **departments.md → domains.md**：六部 → Six Domains（PEOPLE, FINANCE, GROWTH, EXECUTION, GOVERNANCE, INFRA）
+- **所有编排协议更新**：CLAUDE.md、AGENTS.md、GEMINI.md 使用功能性 ID
+- **所有参考文档更新**：data-layer、data-model、strategic-map-spec、wiki-spec、soul-spec、dream-spec、scene-configs
+- **所有评估场景更新**：测试用例使用功能性 ID（router-triage.md、council-debate.md）
+
+### 为什么重要
+
+- **日本用户**看到財務省、法務省、会計検査院——零学习成本
+- **英语用户**看到 CFO、General Counsel、Internal Audit——直觉即懂
+- **中文用户**仍然看到丞相、中书省、门下省——什么都没丢
+- **开发者**维护 16 个 agent 文件而非 48 个——每次逻辑变更只需改一处
+- **新主题**只需一个约 60 行的文件——不需要修改引擎
+
+### 零功能损失
+
+所有 28 条硬规则保持不变。所有评分标准完整。所有输出格式保持不变（名称随主题变化）。SOUL、DREAM、Wiki、Strategic Map、Completion Checklist、封驳循环、会话生命周期——一切运作如前。已通过完整的 34 项保存清单验证。
+
+---
+
 ## [1.5.0] - 2026-04-15 · 战略地图 — 从项目助手到人生战略师
 
 > Life OS 能出色地分析任何单个项目，但对项目之间的关联视而不见。当多个活跃项目共享依赖、资源和隐藏的战略目的时，系统需要一个关系层。战略地图正是为此而生——并与 SOUL、Wiki、DREAM 深度集成，形成统一的认知系统。
