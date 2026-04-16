@@ -223,25 +223,31 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 
 ```
 0. Read _meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
-1. Probe each configured backend for MCP availability (mark unavailable as SKIPPED)
-2. Multi-backend sync (if multiple backends configured and available):
+0. DATA LAYER CHECK: If _meta/config.md does not exist → FIRST-RUN mode:
+   - Ask user for storage backend choice (GitHub / GDrive / Notion)
+   - Create minimum directory structure: _meta/ (config.md, STATUS.md, journal/, outbox/), projects/, areas/, wiki/, inbox/, archive/, templates/
+   - Write _meta/config.md with chosen backends
+   - Skip steps 1-8, proceed to briefing
+1. Read _meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
+2. Probe each configured backend for MCP availability (mark unavailable as SKIPPED)
+3. Multi-backend sync (if multiple backends configured and available):
    - Query each AVAILABLE sync backend for changes since this platform's last_sync_time
    - Compare, resolve conflicts (see data-model.md)
    - Apply changes to primary backend
    - Push to sync backends
-3. OUTBOX MERGE: scan _meta/outbox/ for unmerged sessions
+4. OUTBOX MERGE: scan _meta/outbox/ for unmerged sessions
    - If _meta/.merge-lock exists and < 5min → skip merge
    - Write .merge-lock → merge each outbox → compile STATUS.md → commit + push → delete .merge-lock
    - Report merged sessions in briefing
-4. Read inbox (unprocessed items) — via primary backend
-5. Read _meta/STATUS.md (global status)
-5. Read _meta/lint-state.md (check if inspection needed: >4h since last run)
-6. ReadProjectContext(bound project) — tasks, decisions, journal
-7. Read user-patterns.md
-8. Global overview: List Project + List Area (titles + status only)
-8.5. Strategic Map compilation: If `_meta/strategic-lines.md` exists → read all `projects/*/index.md` strategic fields → compile `_meta/STRATEGIC-MAP.md` (archetype matching, narrative assessment, cross-layer verification, action recommendations). See `references/strategic-map-spec.md`.
-9. If lint-state.md shows >4h → trigger lightweight AUDITOR inspection
-10. Platform awareness + version check
+5. Read inbox (unprocessed items) — via primary backend
+6. Read _meta/STATUS.md (global status)
+7. Read _meta/lint-state.md (check if inspection needed: >4h since last run)
+8. ReadProjectContext(bound project) — tasks, decisions, journal
+9. Read user-patterns.md
+10. Global overview: List Project + List Area (titles + status only)
+11. Strategic Map compilation: If `_meta/strategic-lines.md` exists → compile `_meta/STRATEGIC-MAP.md`. See `references/strategic-map-spec.md`.
+12. If lint-state.md shows >4h → trigger lightweight AUDITOR inspection
+13. Platform awareness + version check
 ```
 
 ### Wrap-Up Mode (End of Process)
