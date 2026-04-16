@@ -6,6 +6,36 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.6.1] - 2026-04-16 · Nine Themes — Every Culture, Every Style
+
+> The theme system expands from 3 to 9 themes. Each language now offers three distinct governance styles: historical, modern government, and corporate.
+
+### New Themes
+
+**English** (3 total):
+- 🏛️ Roman Republic — Consul, Tribune (veto inventor), Senate, Quaestor, Legatus
+- 🇺🇸 US Government — Chief of Staff, Attorney General, NSC, Treasury, GAO
+- 🏢 Corporate — CEO, General Counsel, CFO, VP Operations (existing, unchanged)
+
+**中文** (3 total):
+- 🏛️ 三省六部 — 丞相、中书省、门下省、六部、御史台 (existing, unchanged)
+- 🇨🇳 中国政府 — 国务院总理、发改委、人大常委会、财政部、审计署
+- 🏢 公司部门 — 总经理、战略规划部、法务合规部、财务部、内审部
+
+**日本語** (3 total):
+- 🏛️ 明治政府 — 内閣総理大臣、参議、枢密院、大蔵省、元老
+- 🏛️ 霞が関 — 内閣官房長官、内閣法制局、財務省、会計検査院 (existing, unchanged)
+- 🏢 企業 — 社長室、経営企画部、法務部、経理部、内部監査室
+
+### Theme Selection UI Updated
+
+The selector now groups by language. Trigger word inference is smarter:
+- "上朝" → auto-loads 三省六部 (唐朝-specific word)
+- "閣議開始" → auto-loads 霞が関 (modern government-specific)
+- Generic triggers ("开始", "はじめる", "start") → show that language's 3 sub-choices
+
+---
+
 ## [1.6.0] - 2026-04-15 · Theme Engine — One Engine, Every Culture
 
 > A Japanese user tried Life OS and the experience was poor — not because the logic was wrong, but because "Three Departments and Six Ministries" is a Chinese cultural concept that creates a learning barrier for non-Chinese users. v1.6.0 solves this by separating the decision engine from its cultural presentation.

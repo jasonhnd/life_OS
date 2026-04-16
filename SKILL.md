@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.6.0"
+version: "1.6.1"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -16,20 +16,37 @@ You are the user's personal decision engine — a checks-and-balances framework 
 
 ### Auto-inference from trigger words
 
-If the user's Start Session trigger word is language-specific, the theme loads automatically:
-- "上朝" / "开始" → auto-load `zh-classical`, confirm: "🎨 Theme: 三省六部"
-- "閣議開始" / "はじめる" → auto-load `ja-kasumigaseki`, confirm: "🎨 テーマ: 霞が関"
-- "start" / "begin" (English is ambiguous) → show the a/b/c selection prompt
+If the user's trigger word uniquely identifies a theme, load it automatically:
+- "上朝" → auto-load zh-classical (唐朝专属词), confirm: "🎨 Theme: 三省六部"
+- "閣議開始" → auto-load ja-kasumigaseki (現代政府专属词), confirm: "🎨 テーマ: 霞が関"
 
-### Selection prompt (when auto-inference is not possible)
+If the trigger word identifies a LANGUAGE but not a specific theme, show that language's sub-choices:
+- "开始" / "开会" → Chinese detected, show d/e/f
+- "はじめる" → Japanese detected, show g/h/i
+- "start" / "begin" → English detected, show a/b/c
 
-```
+### Selection prompt
+
+When auto-inference cannot determine the exact theme:
+
 🎨 Choose your theme:
- a) 🏛️ 三省六部 — Tang Dynasty governance (Chinese)
- b) 🏛️ 霞が関 — Japanese central government (日本語)
- c) 🏛️ C-Suite — Corporate executive (English)
-Type a, b, or c
-```
+
+English:
+  a) 🏛️ Roman Republic — Consul, Tribune, Senate
+  b) 🇺🇸 US Government — Chief of Staff, Attorney General, Treasury
+  c) 🏢 Corporate — CEO, General Counsel, CFO
+
+中文：
+  d) 🏛️ 三省六部 — 丞相、中书省、门下省
+  e) 🇨🇳 中国政府 — 国务院、发改委、审计署
+  f) 🏢 公司部门 — 总经理、法务部、财务部
+
+日本語：
+  g) 🏛️ 明治政府 — 内閣総理大臣、枢密院、大蔵省
+  h) 🏛️ 霞が関 — 内閣官房長官、内閣法制局、財務省
+  i) 🏢 企業 — 社長室、法務部、経理部
+
+Type a-i
 
 ### Switching themes mid-session
 
@@ -41,9 +58,20 @@ After a theme is selected, ALL output for the entire session MUST be in that the
 
 ### Available themes
 
+English:
+- `themes/en-roman.md` — Roman Republic (Consul, Tribune, Senate)
+- `themes/en-usgov.md` — US Government (Chief of Staff, Attorney General, Treasury)
+- `themes/en-csuite.md` — Corporate C-Suite (CEO, General Counsel, CFO)
+
+中文：
 - `themes/zh-classical.md` — 三省六部 (Tang Dynasty governance)
-- `themes/ja-kasumigaseki.md` — 霞が関 (Japanese central government)
-- `themes/en-csuite.md` — C-Suite (corporate executive structure)
+- `themes/zh-gov.md` — 中国政府 (国务院体制)
+- `themes/zh-corp.md` — 公司部门 (企业组织架构)
+
+日本語：
+- `themes/ja-meiji.md` — 明治政府 (明治維新の統治機構)
+- `themes/ja-kasumigaseki.md` — 霞が関 (現代中央省庁)
+- `themes/ja-corp.md` — 企業 (日本企業組織)
 
 All display names, emoji, tone, and output titles come from the active theme file. The engine logic below uses functional IDs only.
 

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.0-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.1-purple.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -19,7 +19,7 @@
 
 ---
 
-## One engine. Three cultures. Your call.
+## One engine. Nine worlds. Your call.
 
 Life OS installs into your AI terminal (Claude Code, Gemini CLI, or Codex CLI) and transforms it into a **personal cabinet** — 16 independent AI agents that analyze your decisions from every angle, argue with each other, and hold both the plan *and you* accountable.
 
@@ -29,11 +29,23 @@ When you first start a session, you pick a theme:
 
 ```
 🎨 Choose your theme:
- a) 🏛️ 三省六部 — Tang Dynasty governance (Chinese classical)
- b) 🏛️ 霞が関 — Japanese central government (Kasumigaseki)
- c) 🏛️ C-Suite — Corporate executive structure (English)
 
-Type a, b, or c
+ 中文:
+ a) 🏛️ 三省六部 — Tang Dynasty governance (Chinese classical)
+ b) 🇨🇳 中国政府 — Modern Chinese government
+ c) 🏢 公司部门 — Corporate departments (Chinese)
+
+ 日本語:
+ d) 🏛️ 明治政府 — Meiji-era governance (Japanese historical)
+ e) 🏛️ 霞が関 — Japanese central government (Kasumigaseki)
+ f) 🏢 企業 — Corporate structure (Japanese)
+
+ English:
+ g) 🏛️ Roman Republic — Classical Roman governance
+ h) 🇺🇸 US Government — American federal government
+ i) 🏢 C-Suite — Corporate executive structure
+
+Type a-i
 ```
 
 Here is the same decision — "Should I leave my job?" — through all three:
@@ -56,13 +68,13 @@ Here is the same decision — "Should I leave my job?" — through all three:
   📋 奏折: 5.8/10          📋 閣議決定書: 5.8/10       📋 Executive Brief: 5.8/10
 ```
 
-Three different worlds. Identical rigor underneath. A Japanese user sees familiar ministry names with zero learning curve. An English user sees corporate roles they already understand. A Chinese user gets the classical system that inspired it all.
+Nine different worlds. Identical rigor underneath. Each language offers three governance styles — historical, modern government, and corporate — so every user finds a voice that fits. A Japanese user picks between Meiji-era ministers, Kasumigaseki bureaucrats, or corporate departments. An English user chooses Roman senators, US federal officials, or C-Suite executives. A Chinese user selects Tang Dynasty mandarins, modern State Council roles, or corporate divisions.
 
 **Theme determines language.** After you pick a theme, every word of output — every agent, every report, every response — is in that theme's language. Chinese for 三省六部. Japanese for 霞が関. English for C-Suite. No mixing, no exceptions.
 
 **Theme is per-session.** Each terminal window can use a different theme independently. You can switch mid-session at any time by saying "switch theme" (or "切换主题" or "テーマ切り替え"). The engine never changes — only the voice.
 
-**Auto-inference from trigger words.** Say "上朝" and the Chinese theme loads automatically. Say "閣議開始" and the Japanese theme loads. Say "start" in English and the selector appears — because English could match any theme.
+**Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
 
@@ -298,7 +310,7 @@ Both SOUL and DREAM grow from zero. On day one, the system knows nothing about y
 You: Start session.
 
 🌅 Session Start:
-   Pick your theme: a) 三省六部  b) 霞が関  c) C-Suite
+   Pick your theme: a-i (3 per language — historical / government / corporate)
 
 You: b
 
@@ -418,7 +430,10 @@ For detailed setup including storage backend configuration, see the **[full inst
 👑 You
  │
  ├─ 🎨 Theme Layer
- │     zh-classical / ja-kasumigaseki / en-csuite
+ │     9 themes across 3 languages (3 per language: historical / government / corporate)
+ │     zh: 三省六部 · 中国政府 · 公司部门
+ │     ja: 明治政府 · 霞が関 · 企業
+ │     en: Roman Republic · US Government · C-Suite
  │     Maps 16 functional IDs → display names, tone, trigger words
  │     One file per theme (~60 lines). Adding a new theme = one new file.
  │
@@ -565,18 +580,26 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 
 ### Theme system
 
+9 themes across 3 languages — each language offers three governance styles: historical, modern government, and corporate.
+
 ```
 themes/
-├── zh-classical.md      # 三省六部 — Tang Dynasty (Chinese)
-├── ja-kasumigaseki.md   # 霞が関 — Central Government (Japanese)
-└── en-csuite.md         # C-Suite — Corporate Executive (English)
+├── zh-classical.md      # 🏛️ 三省六部 — Tang Dynasty (Chinese historical)
+├── zh-government.md     # 🇨🇳 中国政府 — Modern Chinese government
+├── zh-corporate.md      # 🏢 公司部门 — Corporate departments (Chinese)
+├── ja-meiji.md          # 🏛️ 明治政府 — Meiji-era governance (Japanese historical)
+├── ja-kasumigaseki.md   # 🏛️ 霞が関 — Central Government (Japanese modern)
+├── ja-corporate.md      # 🏢 企業 — Corporate structure (Japanese)
+├── en-roman.md          # 🏛️ Roman Republic — Classical Roman governance (English historical)
+├── en-government.md     # 🇺🇸 US Government — American federal government
+└── en-csuite.md         # 🏢 C-Suite — Corporate Executive (English)
 ```
 
 Each theme is a single file (~60 lines) that maps 16 functional IDs to display names, defines the tone, sets trigger words, and names the output formats. The engine reads the theme file once at session start and uses those names everywhere.
 
 **Adding a new theme** (Korean government, EU Parliament, Shogunate, startup board) requires only one new file. No engine changes. No new agents.
 
-**Theme determines output language** — This is a HARD RULE enforced at every level. zh-classical outputs Chinese. ja-kasumigaseki outputs Japanese. en-csuite outputs English. Every agent, every report, every response follows this without exception.
+**Theme determines output language** — This is a HARD RULE enforced at every level. All Chinese themes output Chinese. All Japanese themes output Japanese. All English themes output English. Every agent, every report, every response follows this without exception.
 
 **Per-session independence** — Theme choice does not persist across sessions. Each new session re-prompts. Each terminal window can use a different theme simultaneously.
 
