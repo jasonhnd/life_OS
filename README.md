@@ -419,34 +419,106 @@ For detailed setup including storage backend configuration, see the **[full inst
  │
  ├─ 🎨 Theme Layer
  │     zh-classical / ja-kasumigaseki / en-csuite
- │     Maps functional IDs → display names, tone, trigger words
+ │     Maps 16 functional IDs → display names, tone, trigger words
  │     One file per theme (~60 lines). Adding a new theme = one new file.
  │
  ├─ ⚙️ Decision Engine (16 agents, culture-neutral)
  │  │
- │  ├─ 🏛️ ROUTER
- │  │     Handles daily conversation. Routes complex matters to the engine.
+ │  ├─ 🏛️ ROUTER — Daily entry point
+ │  │     Direct handling: casual chat, emotional support, quick questions
+ │  │     Express 🏃: 1-3 domains for non-decision analysis
+ │  │     Full deliberation ⚖️: 2-3 rounds of intent clarification → three stages
+ │  │     Detects confusion/values questions → offers STRATEGIST
  │  │
- │  ├─ Three Stages ───────────────────────────────
+ │  ├─ Three Stages ──────────────────────────────────────
  │  │   📜 PLANNER (Draft)
- │  │     → 🔍 REVIEWER (Review — can VETO, max 2 rounds)
- │  │     → 📨 DISPATCHER (Dispatch — parallel or sequential)
- │  │     → Six Domain Analysts (Execute in parallel, score independently)
- │  │     → 🔍 REVIEWER (Final review — may trigger COUNCIL)
- │  │     → 📋 Summary Report (Composite report)
- │  │     → 🔱 AUDITOR (Audit the agents)
- │  │     → 💬 ADVISOR (Audit you)
+ │  │     Break into 3-6 dimensions, assign domains, set quality criteria
+ │  │     Reference SOUL for value dimensions user didn't mention
+ │  │     Check Strategic Map: does this affect downstream projects?
  │  │
- │  ├─ 🏛️ COUNCIL — Cross-domain debate when scores conflict by 3+ points
- │  ├─ 🌅 RETROSPECTIVE — Start of session: sync, briefing, strategy
- │  ├─ 📝 ARCHIVER — End of session: archive, knowledge extraction, DREAM
- │  ├─ 🎋 STRATEGIST — 93 thinkers, 18 domains, 3 dialogue modes
- │  ├─ 🔮 SOUL — Personality archive, grows from zero
- │  └─ 💤 DREAM — AI sleep cycle, integrated into ARCHIVER
+ │  │   🔍 REVIEWER (Review — has veto power)
+ │  │     😰 Emotional audit: fear? impulse? avoidance?
+ │  │     👨‍👩‍👧 Relationship impact: how will family react?
+ │  │     🔮 SOUL alignment: contradicts your stated values?
+ │  │     ⏰ Regret test: 10 minutes / 10 months / 10 years?
+ │  │     🎯 Red team: assume it fails — weakest assumption?
+ │  │     🗺️ Strategic propagation: invalidates downstream premises?
+ │  │     🚫 Veto → back to PLANNER (max 2 rounds)
+ │  │
+ │  │   📨 DISPATCHER (Dispatch)
+ │  │     Detect data dependencies → parallel or sequential execution
+ │  │     Inject wiki known premises: "start from these conclusions"
+ │  │
+ │  │   Six Domains (parallel execution, independent scoring 1-10)
+ │  │     👥 PEOPLE — relationships, stakeholders, team dynamics
+ │  │     💰 FINANCE — income, spending, assets, reserves
+ │  │     📖 GROWTH — learning, personal brand, expression, cross-cultural
+ │  │     ⚔️ EXECUTION — project mgmt, tools, research, energy
+ │  │     ⚖️ GOVERNANCE — legal, audit, discipline, info security
+ │  │     🏗️ INFRA — fitness, housing, digital infrastructure, routines
+ │  │     Each domain has 4 specialized divisions (24 total)
+ │  │
+ │  │   🔍 REVIEWER (Final review) → 📋 Summary Report
+ │  │   🔱 AUDITOR (Audit agent work quality)
+ │  │   💬 ADVISOR (Audit YOUR behavioral patterns)
+ │  │
+ │  ├─ 🏛️ COUNCIL — Cross-domain debate
+ │  │     Auto-triggers when domain scores differ by ≥3 points
+ │  │     Manual trigger: "debate" / theme equivalent
+ │  │     3 structured rounds: position → rebuttal → final statement
+ │  │     Moderator assessment + recommendation (not decision)
+ │  │
+ │  ├─ 🌅 RETROSPECTIVE — Session start (18 steps)
+ │  │     Step 1: 🎨 Theme selection (trigger word inference or a/b/c)
+ │  │     Step 2: 📂 Directory type detection (system repo / second-brain / project)
+ │  │     Step 3: 📦 Data layer check (first-run → create directory structure)
+ │  │     Step 4-7: 🔄 Sync (config → git health → full pull → outbox merge)
+ │  │     Step 8-9: 📋 Version check + project binding
+ │  │     Step 10-14: 📖 Context loading (patterns → SOUL → STATUS → project → overview)
+ │  │     Step 15: 🗺️ Strategic Map compilation (archetype matching + narrative + actions)
+ │  │     Step 16: 💤 DREAM report (present last session's discoveries + candidates)
+ │  │     Step 17: 📚 Wiki health check (compile INDEX)
+ │  │     Step 18: 📋 Generate briefing (strategic overview + ⚡ today's actions + metrics)
+ │  │
+ │  ├─ 📝 ARCHIVER — Session close (4 phases)
+ │  │     Phase 1 📦 Archive: decisions / tasks / journal → outbox
+ │  │     Phase 2 🔍 Knowledge extraction (core mission):
+ │  │       📚 Wiki candidates → user confirms on the spot
+ │  │       🌱 SOUL candidates → confirm at next session start
+ │  │       🗺️ Strategic relationship candidates → user confirms on the spot
+ │  │       🔄 last_activity auto-update for touched projects
+ │  │     Phase 3 💤 DREAM (AI sleep cycle):
+ │  │       N1-N2 💭 Light sleep: organize inbox, flag expired tasks
+ │  │       N3 🧠 Deep sleep: consolidate SOUL + Wiki candidates
+ │  │       REM 🌙 Dreaming: cross-layer discovery using strategic map
+ │  │         · SOUL × strategy: driving forces aligned with values?
+ │  │         · Wiki × flows: knowledge actually transferring between projects?
+ │  │         · Patterns × priorities: avoiding a critical-path project?
+ │  │     Phase 4 🔄 Sync: git push + Notion (4 operations)
+ │  │     ✅ Completion checklist: every item must have a concrete value
+ │  │
+ │  └─ 🎋 STRATEGIST — Hall of Human Wisdom
+ │        93 thinkers across 18 domains
+ │        Socrates · Laozi · Buffett · Mandela · Feynman · Wang Yangming …
+ │        🗣️ One-on-one: deep dialogue with one thinker
+ │        🪑 Roundtable (2-4): multi-perspective discussion
+ │        ⚔️ Debate (2): opposing views, 3 rounds, you judge
+ │        Each thinker is an independent subagent with their own voice
+ │        Ending: parting words → thinking journey saved to knowledge base
  │
  └─ 💾 Storage Layer
-       GitHub / Google Drive / Notion — pick one or combine
-       Writes to all selected. Reads from primary. Cross-device sync.
+       GitHub / Google Drive / Notion (pick 1-3)
+       ├── SOUL.md          🔮 Personality archive (grows from zero)
+       ├── user-patterns.md 📊 Behavioral patterns (ADVISOR observations)
+       ├── _meta/
+       │   ├── STATUS.md         📊 Global status dashboard
+       │   ├── STRATEGIC-MAP.md  🗺️ Strategic relationship map
+       │   ├── journal/          📝 Reports + DREAM logs
+       │   └── outbox/           📮 Session staging
+       ├── projects/        🎯 Active projects with tasks + decisions
+       ├── areas/           🌊 Ongoing life areas with goals
+       ├── wiki/            📚 Reusable knowledge (grows from DREAM)
+       └── archive/         🗄️ Completed work
 ```
 
 ### 6 Domains
