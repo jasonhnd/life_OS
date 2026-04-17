@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.6.1"
+version: "1.6.2"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -112,6 +112,40 @@ Trigger words are theme-dependent. Each theme file defines its own triggers. Com
 | **Update** | "update" | See active theme |
 | **Switch Theme** | "switch theme" | See active theme |
 
+## Trigger Execution Templates (HARD RULE)
+
+Certain triggers have fixed execution templates. ROUTER must follow these verbatim.
+
+### Start Session
+User says Start Session trigger → ROUTER output:
+```
+Line 1 (in active theme language): "🌅 [Starting session preparation — 18 steps]..."
+Line 2+: Immediately Launch(retrospective) as subagent in Mode 0
+```
+ROUTER must NOT output any step's content itself.
+
+### Adjourn
+User says Adjourn trigger → ROUTER output:
+```
+Line 1 (in active theme language): "📝 [Starting archive flow — 4 phases]..."
+Line 2+: Immediately Launch(archiver) as subagent
+```
+ROUTER must NOT:
+- Scan session for wiki/SOUL/strategic candidates
+- List candidates to user
+- Ask "do you want to save these?"
+- Say "tell me, then I'll launch DREAM/Notion sync"
+- Perform ANY Phase 1/2/3/4 logic
+
+After archiver subagent emits the Completion Checklist → session ends.
+
+### Review
+User says Review trigger → ROUTER output:
+```
+Line 1: "🌅 [Starting review — briefing only]..."
+Line 2+: Immediately Launch(retrospective) as subagent in Mode 2
+```
+
 ## ROUTER Rules
 
 **Handle directly**: casual chat, emotional support, simple queries, translation, single-step tasks.
@@ -124,7 +158,17 @@ Trigger words are theme-dependent. Each theme file defines its own triggers. Com
 
 **STRATEGIST**: When user expresses abstract thinking needs (life direction, values, confusion) → ask if they want to activate the STRATEGIST. Only launch when user says yes.
 
-**Start Session / Review**: MUST read `pro/agents/retrospective.md` and launch RETROSPECTIVE as subagent. HARD RULE. **Adjourn**: MUST read `pro/agents/archiver.md` and launch ARCHIVER as subagent. Execute ALL 4 phases. Skipping any phase is a process violation. HARD RULE.
+**Start Session / Review**: MUST read `pro/agents/retrospective.md` and launch RETROSPECTIVE as subagent. HARD RULE.
+
+**Adjourn (HARD RULE, no exceptions)**:
+- ROUTER's ONLY job: immediately Launch(archiver) as subagent. Nothing else.
+- ROUTER is FORBIDDEN from doing any of these in the main context:
+  - Scanning the session for "pre-extracted" wiki/SOUL/strategic candidates (that's Phase 2, archiver's job)
+  - Asking the user "which candidates do you want to save?" (archiver asks inside the subagent)
+  - Listing candidates and waiting for user's pick (same — it's archiver's internal interaction)
+  - Saying "tell me your decision, then I'll launch DREAM / Notion sync" (splits the 4-phase flow — violation)
+- The entire adjourn flow must be executed by the archiver subagent in ONE launch, producing all 4 phases + Completion Checklist
+- If ROUTER outputs ANY Phase content in the main context → this is a process violation. AUDITOR must flag it.
 
 **Session project binding**: Each session must confirm the associated project or area. All reads/writes scoped to that project (HARD RULE).
 

@@ -80,6 +80,96 @@ Quality over quantity. 1-3 genuine insights. If nothing non-obvious emerges, say
 
 ---
 
+## Auto-Triggered Actions (REM)
+
+When REM discovers patterns, DREAM automatically performs these actions — no user confirmation. Each trigger has a **hard threshold** (quantitative rule) and **soft signals** (LLM qualitative cues). `mode: hard` means the threshold was met automatically; `mode: soft` means the LLM detected a qualitative signal beyond the threshold and the auto-action requires AUDITOR review.
+
+All triggers are subject to **24h anti-spam suppression** — if the same trigger fired within the last 24 hours (per `_meta/journal/*-dream.md`), it is skipped.
+
+#### 1. new-project-relationship
+
+- **Data source**: `projects/*/index.md` strategic fields, `_meta/strategic-lines.md`
+- **Hard threshold**: new cross-project dependency or bottleneck edge detected since last dream report
+- **Soft signals**: recent decisions implicitly reference another project without a formal strategic link
+- **Auto-action**: write STRATEGIC-MAP candidate + flag for next briefing prominent display
+- **Anti-spam**: suppressed if fired within last 24h
+
+#### 2. behavior-mismatch-driving-force
+
+- **Data source**: last 3 days' decisions + SOUL.md driving_force dimension
+- **Hard threshold**: ≥2 recent decisions contradict the stated driving_force
+- **Soft signals**: user expresses discomfort or hesitation while executing a driving_force-aligned path
+- **Auto-action**: inject into next ADVISOR briefing input
+- **Anti-spam**: suppressed if fired within last 24h
+
+#### 3. wiki-contradicted
+
+- **Data source**: `wiki/**/*.md`, recent decisions, new evidence notes
+- **Hard threshold**: ≥1 piece of new evidence directly contradicts an existing wiki conclusion
+- **Soft signals**: user tone shifts from certainty to doubt on a topic covered in wiki
+- **Auto-action**: increment `challenges: +1` on that wiki entry
+- **Anti-spam**: suppressed if same entry was challenged within last 24h
+
+#### 4. soul-dormant-30d
+
+- **Data source**: SOUL.md `last_validated` timestamps
+- **Hard threshold**: dimension with `last_validated` older than 30 days AND `confidence ≥ 0.5`
+- **Soft signals**: (none — purely time-based)
+- **Auto-action**: flag briefing warning ("⚠️ [dimension] not activated in 30+ days")
+- **Anti-spam**: suppressed if fired within last 24h
+
+#### 5. cross-project-cognition-unused
+
+- **Data source**: `wiki/INDEX.md`, recent decisions across projects
+- **Hard threshold**: ≥1 wiki entry directly applicable to recent decision was not referenced
+- **Soft signals**: user is re-deriving a conclusion already established in another project's wiki
+- **Auto-action**: flag for next DISPATCHER to force-inject relevant wiki entries
+- **Anti-spam**: suppressed if same entry was flagged within last 24h
+
+#### 6. decision-fatigue
+
+- **Data source**: last 3 days' decision timestamps + REVIEWER scores
+- **Hard threshold**: ≥5 decisions in 24h AND avg score of second half ≤ first half - 2
+- **Soft signals**: user expresses fatigue in session ("whatever" / "fine" / "随便" / "まあいい")
+- **Auto-action**: flag next briefing with "consider no major decisions today"
+- **Anti-spam**: suppressed if fired within last 24h
+
+#### 7. value-drift
+
+- **Data source**: SOUL.md evidence/challenge history + last 30 days' decisions
+- **Hard threshold**: dimension accumulates ≥3 challenges with ≤1 new supporting evidence in 30 days
+- **Soft signals**: user's framing of a value shifts over time (e.g., "security" → "freedom")
+- **Auto-action**: auto-propose SOUL dimension revision
+- **Anti-spam**: suppressed if same dimension was revised within last 24h
+
+#### 8. stale-commitment
+
+- **Data source**: decisions where user said "I will X" + task completion state
+- **Hard threshold**: commitment statement ≥30 days old AND no associated task completed / no follow-up decision
+- **Soft signals**: user avoids mentioning the topic in subsequent sessions
+- **Auto-action**: flag for next briefing to resurface ("You said you would X — what happened?")
+- **Anti-spam**: suppressed if same commitment was resurfaced within last 24h
+
+#### 9. emotional-decision
+
+- **Data source**: decision session journals + user expression patterns
+- **Hard threshold**: ≥2 recent decisions made during sessions flagged with strong emotional markers
+- **Soft signals**: elevated punctuation, short replies, rapid subject changes during decision phase
+- **Auto-action**: flag for next REVIEWER to add mandatory "emotional state check" dimension
+- **Anti-spam**: suppressed if fired within last 24h
+
+#### 10. repeated-decisions
+
+- **Data source**: `_meta/decisions/*.md` + project decisions history
+- **Hard threshold**: same question/subject decided ≥3 times without execution in between
+- **Soft signals**: user rephrases the question to avoid recognizing it as repetition
+- **Auto-action**: flag for next briefing ("You're deciding X again — are you avoiding commitment?")
+- **Anti-spam**: suppressed if fired within last 24h
+
+All flags are written to `_meta/journal/{date}-dream.md` with a structured `triggered_actions` YAML block. RETROSPECTIVE reads this at next Start Session and surfaces relevant flags in the briefing.
+
+---
+
 ## SOUL Candidate Format
 
 When DREAM discovers a value pattern worth recording in SOUL.md:
@@ -97,16 +187,27 @@ When DREAM discovers a value pattern worth recording in SOUL.md:
   - Gap: [if apparent]
 ```
 
-The user will confirm, edit, or reject during the next session start.
+Passing candidates are auto-written to SOUL.md at confidence 0.3, with "What SHOULD BE" left empty for the user to fill in later. Users can edit freely or delete at any time, or say "undo recent SOUL" at the next session to roll back.
 
 ---
 
-## Wiki Candidate Format
+## Wiki Auto-Write (no user confirmation)
 
-When DREAM discovers a reusable conclusion worth recording in wiki/:
+When DREAM discovers a reusable conclusion during N3, apply the 6 Auto-Write Criteria and Privacy Filter defined in `references/wiki-spec.md`:
+
+1. Cross-project reusable
+2. About the world, not about you
+3. Zero personal privacy
+4. Factual or methodological
+5. Multiple evidence points (≥2 independent)
+6. No contradiction with existing wiki
+
+If ALL 6 pass → auto-write directly to `wiki/{domain}/{topic}.md`. No user confirmation in the main context.
+
+**Internal candidate structure** used during evaluation:
 
 ```
-📚 Wiki Candidate:
+📚 Wiki Auto-Write (internal):
 - Domain: [domain name]
 - Topic: [short identifier]
 - Conclusion: [one sentence — the reusable takeaway]
@@ -114,18 +215,25 @@ When DREAM discovers a reusable conclusion worth recording in wiki/:
   - [date] [decision/behavior] — [description]
   - [date] [decision/behavior] — [description]
 - Applicable when: [in what scenarios to recall this]
+- Criteria check: [6/6 passed or X/6 → discarded with reason]
+- Privacy filter: [what was stripped, or "nothing to strip"]
 ```
 
-For existing wiki entries, propose updates:
+**Initial confidence**:
+- 3+ independent evidence points → 0.5
+- Exactly 2 evidence points → 0.3
+- 1 evidence or below → DISCARD
+
+For existing wiki entries, auto-update directly:
 
 ```
-📚 Wiki Update:
+📚 Wiki Update (auto):
 - Entry: wiki/[domain]/[file].md
 - Change: evidence_count +1 (or challenges +1)
 - New evidence: [date] [what happened]
 ```
 
-The user will confirm, edit, or reject during the next session start.
+Users nudge wiki post-hoc (delete file = retire; "undo recent wiki" = rollback). See `references/wiki-spec.md` for the full auto-write specification.
 
 ---
 
@@ -142,8 +250,22 @@ scope_files: N
 stages: [N1-N2, N3, REM]
 soul_candidates: N
 wiki_candidates: N
+triggered_actions:
+  - trigger_id: 6
+    trigger_name: "decision-fatigue"
+    mode: "hard"          # or "soft"
+    detection:
+      hard_signals:
+        - "6 decisions in 18 hours"
+        - "avg score 7.5 → 4.2"
+      soft_signals: []
+    action: "flag-next-briefing"
+    surfaces_at: "next-start-session"
+    auditor_review: false  # true if mode=soft
 ---
 ```
+
+`mode` = **hard** means the threshold was met automatically; **soft** means the LLM detected a qualitative signal beyond the threshold and requires AUDITOR review before the auto-action surfaces in the next briefing.
 
 ```markdown
 ## 💤 Dream Report · YYYY-MM-DD
@@ -176,7 +298,8 @@ Next session start, the RETROSPECTIVE reads the latest unread dream report and i
 ```
 💤 Last session the system had a dream:
 - [1-3 line summary of key findings]
-- [SOUL candidates for user confirmation, if any]
+- [Auto-written SOUL dimensions awaiting "What SHOULD BE" input, if any]
+- [Auto-written Wiki entries with paths, if any; user can delete to retire]
 ```
 
 After presenting, mark the dream report as "presented" so it is not shown again.
@@ -186,8 +309,8 @@ After presenting, mark the dream report as "presented" so it is not shown again.
 ## Constraints
 
 - **3-day scope is hard** — do not scan older files, even if they seem relevant
-- **Do not modify SOUL.md directly** — only propose candidates
-- **Do not modify wiki/ directly** — only propose candidates and updates
+- **Do not modify SOUL.md directly** — only propose candidates (SOUL auto-write is scoped to archiver Phase 2, not DREAM)
+- **Wiki auto-write under strict criteria** — write directly when all 6 Auto-Write Criteria pass (see wiki-spec.md); discard otherwise
 - **Do not modify user-patterns.md directly** — only propose updates
 - **Conciseness** — a dream report should be 20-50 lines, not 500
 - **Honesty** — "no significant findings" is a valid dream. Do not fabricate insights.

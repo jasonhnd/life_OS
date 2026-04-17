@@ -33,7 +33,7 @@
 
 **捕获 → 判断（Draft-Review-Execute）**：桌面 CC 从收件箱拉取。不是所有信息都需要决策。只有涉及重大资源分配、多选项权衡或难以逆转的后果时，才激活Draft-Review-Execute决策模式。
 
-**判断 → 沉淀（SOUL + Wiki）**：决策的结论沉淀到两个池——SOUL（关于人：价值观、人格、行为模式）和 Wiki（关于事：可复用的知识、已确立的结论）。DREAM 在 N3 阶段为两者提取候选；用户在下次上朝时确认。
+**判断 → 沉淀（SOUL + Wiki）**：决策的结论沉淀到两个池——SOUL（关于人：价值观、人格、行为模式）和 Wiki（关于事：可复用的知识、已确立的结论）。两者都**在严格标准下自动写入**（v1.6.2）：起居郎和 DREAM 自动写入通过 6 项 wiki 标准 + 隐私过滤器（wiki）或 SOUL 标准 + 低初始置信度（SOUL）的条目。用户事后调整——删除文件即废弃，说"撤销最近 wiki/SOUL"即回滚。**快照**：archiver 在每次会话结束时捕获 SOUL 状态，供 RETROSPECTIVE 用于趋势计算。
 
 **沉淀 → 关联（ROUTER + Wiki INDEX）**：ROUTER在每次会话开始时读取 wiki/INDEX.md。当新请求到来时，已有知识被自动匹配——"我们在这个领域已经知道 X"。这将积累的知识转化为活跃的上下文。
 
@@ -66,6 +66,9 @@ second-brain/
 │   ├── journal/                       # 早朝晨报、AUDITOR/ADVISOR报告、DREAM 报告
 │   ├── outbox/                        # 📮 Session 输出暂存区（每个 session 一个子目录）
 │   │   └── {session-id}/             # 每个 session 在退朝时写入此处，下次上朝时合并
+│   ├── snapshots/                     # 📸 用于趋势计算的状态快照
+│   │   └── soul/                      # 每 session 的 SOUL 快照（YYYY-MM-DD-HHMM.md）
+│   │       └── _archive/              # 30 天以上的快照
 │   ├── extraction-rules.md            # 知识提取规则（用户训练）
 │   ├── extraction-log.md              # 提取历史
 │   ├── lint-rules.md                  # 巡查规则
@@ -223,25 +226,31 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 
 ```
 0. 读取 _meta/config.md → 获取后端列表和本平台的上次同步时间戳
-1. 探测每个已配置后端的 MCP 可用性（标记不可用为 SKIPPED）
-2. 多后端同步（如已配置多个后端且可用）：
+0. 数据层检查：若 _meta/config.md 不存在 → 首次运行模式：
+   - 询问用户存储后端选择（GitHub / GDrive / Notion）
+   - 创建最小目录结构：_meta/（config.md、STATUS.md、journal/、outbox/）、projects/、areas/、wiki/、inbox/、archive/、templates/
+   - 写入 _meta/config.md 并记录所选后端
+   - 跳过步骤 1-8，直接进入晨报
+1. 读取 _meta/config.md → 获取后端列表和本平台的上次同步时间戳
+2. 探测每个已配置后端的 MCP 可用性（标记不可用为 SKIPPED）
+3. 多后端同步（如已配置多个后端且可用）：
    - 查询每个可用同步后端自本平台 last_sync_time 以来的变更
    - 比较，解决冲突（见 data-model.md）
    - 将变更应用到主后端
    - 推送至同步后端
-3. OUTBOX 合并：扫描 _meta/outbox/ 中未合并的 session
+4. OUTBOX 合并：扫描 _meta/outbox/ 中未合并的 session
    - 若 _meta/.merge-lock 存在且时间 < 5 分钟 → 跳过合并
    - 写入 .merge-lock → 合并每个 outbox → 编译 STATUS.md → commit + push → 删除 .merge-lock
    - 在晨报中汇报已合并的 session
-4. 读取收件箱（未处理条目）—— 通过主后端
-5. 读取 _meta/STATUS.md（全局状态）
-5. 读取 _meta/lint-state.md（检查是否需要巡查：距上次运行 >4h）
-6. ReadProjectContext（绑定项目）—— 任务、决策、日志
-7. 读取 user-patterns.md
-8. 全局概览：列出项目 + 列出领域（仅标题 + 状态）
-8.5. 战略地图编译：若 `_meta/strategic-lines.md` 存在 → 读取所有 `projects/*/index.md` 的战略字段 → 编译 `_meta/STRATEGIC-MAP.md`（原型匹配、叙事评估、跨层验证、行动建议）。参见 `references/strategic-map-spec.md`。
-9. 若 lint-state.md 显示 >4h → 触发AUDITOR轻量巡查
-10. 平台感知 + 版本检查
+5. 读取收件箱（未处理条目）—— 通过主后端
+6. 读取 _meta/STATUS.md（全局状态）
+7. 读取 _meta/lint-state.md（检查是否需要巡查：距上次运行 >4h）
+8. ReadProjectContext（绑定项目）—— 任务、决策、日志
+9. 读取 user-patterns.md
+10. 全局概览：列出项目 + 列出领域（仅标题 + 状态）
+11. 战略地图编译：若 `_meta/strategic-lines.md` 存在 → 编译 `_meta/STRATEGIC-MAP.md`。参见 `references/strategic-map-spec.md`。
+12. 若 lint-state.md 显示 >4h → 触发AUDITOR轻量巡查
+13. 平台感知 + 版本检查
 ```
 
 ### 收朝模式（流程结束时）

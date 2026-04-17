@@ -92,21 +92,74 @@ If data is insufficient, output a compact version (3-8 sentences), with a note a
 💡 After connecting Notion and accumulating decision records, the advisor can provide deeper behavioral pattern analysis
 ```
 
-## SOUL.md Behavioral Audit
+## SOUL Runtime (every decision)
 
-If `SOUL.md` exists, add a SOUL audit section after standard observation:
+Runs after every Summary Report. If `SOUL.md` does not exist, skip this entire section.
 
-For each SOUL entry with confidence ≥ 0.3:
-- Does recent behavior **reinforce** it? → suggest `evidence_count + 1`
-- Does recent behavior **contradict** it? → suggest `challenges + 1`
-- Include findings in your report:
+### Step 1: Per-dimension impact evaluation
+
+For each existing SOUL dimension with confidence ≥ 0.3, evaluate how this decision affects it:
+- **SUPPORT**: decision consistent with dimension → `evidence_count +1`
+- **CHALLENGE**: decision inconsistent with dimension → `challenges +1`
+- **NEUTRAL**: no direct relationship
+
+Produce a per-dimension impact table (shown to user in Step 5).
+
+### Step 2: Write evidence/challenge deltas
+
+Write to `_meta/outbox/{session-id}/patterns-delta.md`. Merged into SOUL.md by archiver at session end.
+
+### Step 3: New dimension detection
+
+Scan current session + last 30 days of decisions for NEW value/principle patterns not covered by existing dimensions. Auto-write criteria:
+1. About identity/values/principles (NOT behavioral patterns — those go to user-patterns.md)
+2. ≥2 decisions as evidence (current session + recent history)
+3. Not already covered by an existing dimension (even low-confidence ones — if covered, increment evidence instead)
+
+If ALL 3 pass → auto-write to `_meta/outbox/{session-id}/soul-new-dimensions.md`:
+- `confidence: 0.3`
+- `What IS`: system-described observation
+- `What SHOULD BE`: **blank** (user fills in later)
+
+### Step 4: Conflict detection
+
+If any dimension's last 3 decisions were ALL marked CHALLENGE → flag as "conflict" for the next REVIEWER to focus on.
+
+### Step 5: Output — 🔮 SOUL Delta block
+
+Present in ADVISOR report after Summary Report:
 
 ```
-🔮 SOUL Audit:
-- [dimension] (confidence X): [reinforced ✅ / challenged ⚠️ — evidence]
+🔮 SOUL Delta (this decision):
+
+【Affected existing dimensions】
+  · [dim A] 0.XX 🟢 support (+1 evidence) — [reason]
+  · [dim B] 0.XX 🟡 challenge (+1 challenge) — [reason]
+  · [dim C] 0.XX → neutral — [reason if notable, else omit]
+
+【New dimension candidates】
+  · 🌱 "[proposed name]"
+    confidence 0.3 (evidence: N decisions this session + M from recent history)
+    What IS: [observation]
+    What SHOULD BE: [blank — fill in at your own pace]
+
+【Conflict warnings】
+  · [dim X] last 3 decisions all challenged → next REVIEWER will focus here
+  (omit section if no conflicts)
+
+【Writes】
+  _meta/outbox/{session-id}/patterns-delta.md
+  _meta/outbox/{session-id}/soul-new-dimensions.md (if new dimensions found)
 ```
 
-If SOUL.md does not exist, skip this section.
+This runs in EVERY decision workflow, not just at adjourn. Users see SOUL moving in real time.
+
+### Edge cases
+
+- `SOUL.md` does not exist → skip entire section
+- `SOUL.md` exists but empty → skip Steps 1-2, run Step 3 (may produce first dimension)
+- Express-path decisions (no Summary Report) → skip entire section
+- Delta files already exist (multi-decision session) → append, do not overwrite
 
 ## Anti-patterns
 

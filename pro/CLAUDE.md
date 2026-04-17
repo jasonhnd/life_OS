@@ -110,19 +110,31 @@ Note: The AUDITOR also has a Patrol Inspection mode triggered by the RETROSPECTI
 
 Launch `advisor`, passing in the Summary Report + user's original message. The ADVISOR reads historical data from the second-brain on its own.
 
-### 10. ARCHIVER agent — Archive + Knowledge Extraction + DREAM (standalone, automatic)
+### 10. ARCHIVER agent — Archive + Knowledge Extraction + DREAM (standalone) — HARD RULE
 
-Launch `archiver` (ARCHIVER agent), passing in:
+**Mandatory launch template** (ROUTER output, in the active theme's language):
+```
+📝 [theme: archiver display name] — Starting archive flow (4 phases)...
+[Launch archiver subagent here]
+```
+
+ROUTER output must match this template. Any deviation is a process violation, including:
+- "Let me first check what candidates to save" — NO, archiver does that internally
+- "Tell me your decision, then I'll launch DREAM/sync" — NO, split flow is forbidden
+- Listing wiki/SOUL/strategic candidates in the main context — NO, that's Phase 2's job
+- Performing any file move, git commit, or Notion write in the main context — NO
+
+Launch `archiver` as subagent, passing in:
 - Summary Report + AUDITOR report + ADVISOR report
 - **Session conversation summary**: key topics discussed by ROUTER (including direct-handle conversations, express analysis results, STRATEGIST summaries — everything NOT captured in the Summary Report)
 
-The ARCHIVER agent handles ALL session-closing operations in 4 phases:
+The ARCHIVER subagent handles ALL session-closing operations in 4 phases end-to-end in a single invocation:
 1. **Archive**: decisions/tasks/journal → outbox
-2. **Knowledge Extraction**: scan ALL session materials for wiki + SOUL candidates → user confirms
+2. **Knowledge Extraction**: scan ALL session materials for wiki + SOUL + strategic candidates. Archiver auto-writes wiki and SOUL entries when strict criteria are met (6 wiki criteria + privacy filter; SOUL criteria + low initial confidence). Users nudge post-hoc by deletion ("undo recent wiki" rolls back).
 3. **DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
 4. **Sync**: git push + Notion sync (4 specific operations)
 
-See `pro/agents/archiver.md` for the full specification.
+ROUTER does not interject between phases. The subagent emits the Completion Checklist when done. See `pro/agents/archiver.md` for the full specification.
 
 ### 11. STRATEGIST — Hall of Human Wisdom (ask the user)
 
@@ -147,11 +159,11 @@ DREAM (the AI sleep cycle) is Phase 3 of the ARCHIVER agent's closing flow — n
 
 If `wiki/` exists in the user's second-brain, the RETROSPECTIVE agent compiles `wiki/INDEX.md` at every Start Session. The ROUTER reads the index and informs the user when established knowledge exists for the current topic. The DISPATCHER passes relevant wiki entries to domains as "known premises." The REVIEWER checks new conclusions against wiki for contradictions. The AUDITOR audits wiki health during patrol inspection.
 
-Wiki entries are never auto-created — DREAM proposes candidates during N3, the user confirms during Start Session. See `references/wiki-spec.md` for the full specification.
+Wiki entries are auto-written by archiver (Phase 2) and DREAM (N3) when all 6 strict criteria pass + privacy filter clears. Users nudge post-hoc: delete file = retire; "undo recent wiki" = rollback most recent auto-writes. See `references/wiki-spec.md` for the full specification.
 
 ### SOUL.md — User Personality Archive
 
-If `SOUL.md` exists in the user's second-brain, all agents read it per the confidence-based rules in `references/soul-spec.md`. SOUL.md is never written to directly by agents — only candidates are proposed (by DREAM and ADVISOR), and the user confirms during Start Session.
+If `SOUL.md` exists in the user's second-brain, all agents read it per the confidence-based rules in `references/soul-spec.md`. SOUL is auto-updated under strict criteria: ADVISOR increments `evidence_count` / `challenges` on existing dimensions after every decision; new dimensions auto-write at low confidence (0.3) when ≥2 evidence points accumulate; the "What SHOULD BE" field is deliberately left empty for the user. REVIEWER must reference relevant SOUL dimensions in every decision. RETROSPECTIVE shows a fixed SOUL Health Report at the top of every Start Session briefing. Users nudge post-hoc (edit / delete / fill in).
 
 ### Strategic Map — Strategic Relationship Layer
 
@@ -217,6 +229,31 @@ Legal state transitions. Any violation = process error, AUDITOR must flag it.
 | Summary Report | AUDITOR | ARCHIVER agent (must run AUDITOR first) |
 | AUDITOR | ADVISOR | ARCHIVER agent (must run ADVISOR first) |
 | ADVISOR | ARCHIVER agent | — |
+
+## Adjourn State Machine (HARD RULE)
+
+Adjourn is NOT a single step in the main workflow — it is an independent state machine enforced end-to-end.
+
+| Current State | Can Transition To | Cannot Do |
+|---------------|-------------------|-----------|
+| Adjourn Triggered | Launch(archiver) as subagent | Any main-context Phase execution, ask user candidates, partial execution |
+| archiver Running | archiver emits Completion Checklist | End without checklist, split across messages |
+| Checklist Output | Session End | Accept checklist with missing or placeholder values ("TBD", empty) |
+| Session End | — | — |
+
+**Legal transitions**:
+- Adjourn Triggered → archiver Running (via subagent launch)
+- archiver Running → Checklist Output (after archiver subagent completes all 4 phases in one invocation)
+- Checklist Output → Session End
+
+**Illegal transitions (all are violations)**:
+- Adjourn Triggered → main-context Phase 2 execution ("let me check what to save first")
+- Adjourn Triggered → "tell me your decision, then I'll launch subagent"
+- archiver Running → partial exit (exit before Phase 3 DREAM or Phase 4 Sync)
+- Checklist Output → Session End with placeholder values
+- ROUTER interjects between archiver's phases
+
+**Enforcement**: AUDITOR runs immediately after session end. Any illegal transition is reported and recorded in `user-patterns.md` for the next session's ADVISOR to flag as behavioral pattern.
 
 ## Model Independence
 

@@ -19,9 +19,45 @@ SOUL manages the person. Wiki manages knowledge. They must not be mixed.
 
 1. **Grows from zero** — wiki/ starts empty. No initialization required.
 2. **Evidence-based** — Every entry links to the decisions/experiences that support it.
-3. **User-confirmed** — System proposes candidates, user confirms. Nothing is auto-written.
+3. **Auto-written under strict criteria** — Wiki entries are auto-created by archiver and DREAM when strict criteria are met; users nudge by deletion (delete file = retire; say "undo recent wiki" = rollback).
 4. **Title = Conclusion** — The title of every entry must be the conclusion itself, not the topic.
 5. **One conclusion per file** — No multi-topic compilations.
+
+---
+
+## Auto-Write Criteria (6 rules)
+
+Every candidate conclusion must pass ALL 6 criteria before being auto-written. One failure → discard the candidate, do not write a low-confidence entry.
+
+1. **Cross-project reusable** — The conclusion is useful in projects/domains beyond the session where it was observed.
+2. **About the world, not about you** — Facts, rules, or methods. NOT values or personal preferences (those belong in SOUL). NOT behavioral patterns (those belong in user-patterns.md).
+3. **Zero personal privacy** — No names, amounts, account numbers, IDs, specific companies, family/friend info, or traceable date+location combinations. If the conclusion requires these to make sense → it isn't wiki material, skip it.
+4. **Factual or methodological** — Describes "what happened" or "how to do X". Not feelings or opinions.
+5. **Multiple evidence points (≥2 independent)** — At least 2 cases, data points, decisions, or references. Single observations get discarded (they belong in a journal, not the wiki).
+6. **No contradiction with existing wiki** — If the new conclusion contradicts an existing entry → increment `challenges: +1` on that entry, do NOT create a new competing entry.
+
+**Initial confidence** (once a candidate passes all 6):
+- 3+ independent evidence points → `confidence: 0.5`
+- Exactly 2 evidence points → `confidence: 0.3`
+- 1 evidence or below → DISCARDED (fails criterion 5)
+
+**Privacy Filter** — applied before every write:
+- Strip names (unless public figures directly relevant to the conclusion)
+- Strip specific amounts, account numbers, ID numbers
+- Strip specific company names (unless it's a public case study)
+- Strip family/friend references
+- Strip traceable date+location combinations
+- If stripping these leaves the conclusion meaningless → discard (it wasn't really reusable, it was a personal note dressed up as knowledge)
+
+---
+
+## User Nudges (post-write)
+
+Users don't pre-approve wiki entries. They nudge the system post-hoc:
+
+- Delete `wiki/{domain}/{topic}.md` → retire the entry
+- Say "undo recent wiki" in a session → archiver (next invocation) rolls back the most recent auto-writes
+- Edit confidence manually to reject (set to 0 or below 0.3) → entry stays but not referenced
 
 ---
 
@@ -105,12 +141,12 @@ confidence = evidence_count / (evidence_count + challenges × 2)
 ## Entry Lifecycle
 
 ```
-1. 🌱 Candidate — DREAM proposes during N3 stage, or extracted during a session
-2. ✅ Confirmed — User approves during Start Court (may edit wording)
-3. 📈 Strengthened — More evidence accumulates (evidence_count rises, confidence increases)
-4. ⚠️ Challenged — Contradicting experience detected (challenges increase, confidence drops)
-5. 🔄 Revised — User updates the conclusion based on new evidence
-6. 🗄️ Retired — Moved to wiki/_archive/ (low confidence + no activity for 90+ days)
+1. ✅ Auto-written — archiver (Phase 2) or DREAM (N3) passes all 6 criteria → writes directly to wiki/{domain}/{topic}.md
+2. 📈 Strengthened — More evidence accumulates (evidence_count rises, confidence increases)
+3. ⚠️ Challenged — Contradicting experience detected (challenges increase, confidence drops)
+4. 🔄 Revised — User updates the conclusion based on new evidence
+5. 🗑️ Nudged out — User deletes the file manually (= retire) or says "undo recent wiki" in a session (archiver rolls back most recent auto-writes)
+6. 🗄️ Retired — Moved to wiki/_archive/ (low confidence + no activity for 90+ days, or user-deleted)
 ```
 
 ---
@@ -155,10 +191,10 @@ Each line ≤ 80 characters. The entire INDEX is typically 20-100 lines — very
 
 ## Wiki Candidate Format
 
-When DREAM discovers knowledge worth recording:
+When archiver or DREAM discovers knowledge worth recording AND all 6 Auto-Write Criteria pass, the entry is written directly (no candidate confirmation). The internal candidate structure used for evaluation:
 
 ```
-📚 Wiki Candidate:
+📚 Wiki Auto-Write (internal):
 - Domain: [domain name]
 - Topic: [short identifier]
 - Conclusion: [one sentence — the reusable takeaway]
@@ -166,9 +202,11 @@ When DREAM discovers knowledge worth recording:
   - [date] [decision/behavior] — [description]
   - [date] [decision/behavior] — [description]
 - Applicable when: [in what scenarios to recall this]
+- Criteria check: [6/6 passed or X/6 → discarded with reason]
+- Privacy filter: [what was stripped, or "nothing to strip"]
 ```
 
-The user confirms, edits, or rejects during the next Start Court.
+If all 6 criteria pass → write directly to `wiki/{domain}/{topic}.md`. Otherwise → discard with reason logged in Completion Checklist.
 
 ---
 
@@ -184,7 +222,7 @@ All roles check if wiki/INDEX.md exists before referencing it. If it does not ex
 | **REVIEWER** | wiki/INDEX.md | Consistency check — flags when new conclusions contradict existing high-confidence wiki entries |
 | **AUDITOR** | wiki/ directory (during patrol) | Wiki health audit — stale entries, contradictions, knowledge gaps |
 | **DREAM** | wiki/INDEX.md + wiki/ entries | N3: propose new candidates + update evidence/challenges for existing entries. REM: cross-domain connections using wiki as material |
-| **RETROSPECTIVE** | wiki/ directory | Compiles INDEX.md at Start Court, presents wiki candidates for user confirmation |
+| **RETROSPECTIVE** | wiki/ directory | Compiles INDEX.md at Start Court. Surfaces "undo recent wiki" flags when user asked for rollback in previous session. |
 
 ---
 
@@ -217,12 +255,13 @@ second-brain/
 
 When the RETROSPECTIVE detects that wiki/ is empty or has no INDEX.md:
 
-1. Report in briefing: "📚 Wiki is not yet initialized. Would you like to set it up?"
+1. Report in briefing: "📚 Wiki is not yet initialized. Would you like to bootstrap from existing decisions?"
 2. If user agrees:
    a. Scan `decisions/` and `_meta/journal/` for extractable conclusions (same logic as DREAM N3 Q2)
-   b. Present top 5 candidates as wiki entries for user confirmation
-   c. For each confirmed entry: create `wiki/{domain}/{topic}.md` with proper front matter
+   b. Apply the 6 Auto-Write Criteria + Privacy Filter to each candidate
+   c. Auto-write all passing candidates to `wiki/{domain}/{topic}.md` with proper front matter
    d. Compile `wiki/INDEX.md`
+   e. Report: "Auto-wrote N entries, discarded M (reasons: ...). Delete any file you disagree with."
 3. If user declines → skip, remind next Start Court
 
 This only triggers once. After INDEX.md exists, normal wiki flow takes over.
@@ -236,10 +275,12 @@ When wiki/ contains files that don't match the spec format (no front matter, no 
 1. Report in briefing: "📚 Found N legacy wiki files not matching current spec. Migrate?"
 2. If user agrees:
    a. Read each legacy file
-   b. Extract 1-3 reusable conclusions per file → propose as new wiki entries
-   c. User confirms each → write to `wiki/{domain}/{topic}.md`
-   d. Move original file to `wiki/_archive/` (preserve, don't delete)
-   e. Recompile INDEX.md
+   b. Extract 1-3 reusable conclusions per file
+   c. Apply the 6 Auto-Write Criteria + Privacy Filter to each extracted conclusion
+   d. Auto-write passing conclusions to `wiki/{domain}/{topic}.md`
+   e. Move original file to `wiki/_archive/` (preserve, don't delete)
+   f. Recompile INDEX.md
+   g. Report: "Migrated N entries, discarded M (reasons: ...). Delete any file you disagree with."
 3. If user declines → leave as-is, don't block normal flow
 
 Legacy files in wiki/ root (without front matter) are ignored by INDEX.md compilation.
@@ -248,7 +289,9 @@ Legacy files in wiki/ root (without front matter) are ignored by INDEX.md compil
 
 ## Constraints
 
-- **User confirms all writes** — wiki entries are never auto-created
+- **Auto-written only when all 6 criteria pass** — see Auto-Write Criteria section. Anything less → discard, don't write a low-confidence entry
+- **Privacy filter applied before every write** — names, amounts, IDs, specific companies, family/friend references, traceable date+location combos get stripped; if stripping makes the conclusion meaningless → discard
+- **Users nudge post-hoc, not pre-approve** — delete the file to retire; say "undo recent wiki" to rollback; set confidence below 0.3 to suppress without deletion
 - **INDEX.md is compiled, not authored** — regenerated from wiki/ files at every Start Court
 - **One conclusion per file** — do not create "topic compilation" files
 - **Title = conclusion** — opening the file gives you the answer

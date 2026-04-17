@@ -6,7 +6,7 @@ SOUL.md is the user's personality archive — a living document that records who
 
 1. **Grows from zero** — SOUL.md starts empty. No initialization required.
 2. **Evidence-based** — Every entry links to decisions/behaviors that support it.
-3. **User-confirmed** — System proposes, user confirms. Nothing is auto-written.
+3. **Auto-written under strict criteria** — ADVISOR auto-updates existing dimensions after every decision. New dimensions auto-write at low initial confidence (0.3) when ≥2 evidence points accumulate. Users nudge post-hoc: edit freely, delete dimensions, or fill in the "What SHOULD BE" field when ready.
 4. **Contradictions are valuable** — Don't resolve them; surface them.
 
 ---
@@ -142,6 +142,140 @@ If `user-patterns.md` exists but SOUL.md does not, DREAM can propose initial SOU
 
 ---
 
+## Auto-Write Mechanism (v1.6.2)
+
+SOUL dimensions are auto-created and auto-updated by ADVISOR during every decision workflow. Users nudge the system by editing/deleting, not by pre-approving.
+
+### Auto-Create Criteria
+
+ADVISOR creates a new SOUL dimension when:
+1. The observation is about identity/values/principles (not behavior patterns)
+2. There are ≥2 decisions as evidence (current session or within last 30 days)
+3. No existing dimension covers it
+
+Initial values:
+- `confidence: 0.3`
+- `What IS`: auto-filled from evidence
+- `What SHOULD BE`: EMPTY (user fills)
+
+### Auto-Update (every decision)
+
+After every Three Departments workflow, ADVISOR:
+- For each existing dimension (confidence ≥ 0.3): evidence_count +1 if supported, challenges +1 if contradicted
+- Recalculates `confidence = evidence_count / (evidence_count + 2 × challenges)`
+
+### User Nudges
+
+Users don't pre-approve, but can:
+- Edit `What SHOULD BE` field (aspiration — system never fills this)
+- Delete a dimension (removes entry)
+- Say "undo recent SOUL" → ADVISOR rolls back latest additions
+- Edit confidence manually to override
+
+### Why Auto vs Confirm
+
+Previous version asked for confirmation. v1.6.2 removes this because:
+- Users didn't see SOUL "working" — candidates appeared once a week
+- Confidence grew too slowly (1 evidence per session)
+- Pattern detection delayed by user review overhead
+
+Post-hoc nudges + real-time evolution gives the user a LIVING SOUL archive.
+
+---
+
+## Snapshot Mechanism (v1.6.2)
+
+To compute trend arrows (↗↘→) in the SOUL Health Report, archiver dumps a SOUL snapshot at the end of every session (Phase 2, after delta merge).
+
+### Storage
+
+- Active snapshots: `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
+- Archived (>30 days): `_meta/snapshots/soul/_archive/YYYY-MM-DD-HHMM.md`
+- Deleted (>90 days): removed from filesystem (preserved in git + Notion)
+
+### Snapshot Format
+
+```yaml
+---
+type: soul-snapshot
+taken_at: ISO 8601 timestamp
+session_id: {session UUID}
+previous_snapshot: {prior filename, or null if first}
+---
+
+# SOUL Snapshot · YYYY-MM-DD
+
+## Dimensions (count: N)
+
+| dimension | confidence | evidence | challenges | last_validated |
+|-----------|-----------|----------|------------|----------------|
+```
+
+### Reader: RETROSPECTIVE Mode 0 Step 11
+
+At next Start Session, RETROSPECTIVE reads the latest snapshot, compares per-dimension metrics with current SOUL.md, and computes:
+- `confidence_Δ > +0.05` → ↗
+- `confidence_Δ < -0.05` → ↘
+- `|confidence_Δ| ≤ 0.05` → →
+
+New dimensions (in current but not snapshot) → 🌱 NEW
+Removed dimensions (in snapshot but not current) → 🗑️ REMOVED (user deletion)
+
+### Archive Policy
+
+archiver Phase 2 Step 4 also performs housekeeping:
+- Move snapshots older than 30 days to `_archive/`
+- Delete snapshots older than 90 days from `_archive/`
+- Both operations are idempotent
+
+### Why Snapshots (vs alternatives)
+
+- Single-file frontmatter (`last_session_evidence`): rejected — no long-term trend data
+- Compare-within-session only: rejected — loses cross-session progression
+- Full snapshot: chosen — small files (SOUL is tiny), full history, simple reader logic
+
+---
+
+## Health Report Format (every session briefing)
+
+Every Start Session includes a SOUL Health Report in a fixed, prominent position in the briefing (not optional).
+
+### Format
+
+```
+🔮 SOUL Health Report
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 Current Profile:
+   Active dimensions (confidence > 0.5): N
+   · [Dimension A] 0.8 🟢 ↗ (+2 evidence since last session)
+   · [Dimension B] 0.6 🟢 → (no change)
+   · [Dimension C] 0.5 🟡 ↘ (+1 challenge — last decision contradicted)
+
+🌱 New dimensions (auto-detected since last session):
+   · [Dimension D] 0.3 (based on 2 decisions)
+     What IS: [system observation]
+     What SHOULD BE: [awaiting your input — fill when you have clarity]
+
+⚠️ Conflict warnings:
+   · [Dimension X] last 3 decisions all challenged → needs reflection or revision
+
+💤 Dormant dimensions (30+ days no activation):
+   · [Dimension Y] — no related decisions recently
+
+📈 This period's trajectory:
+   Net evidence +N, net challenges +M, new dimensions +K
+```
+
+### Display Rules
+
+- ALWAYS appears in Mode 0 briefing (Start Session), regardless of SOUL size
+- If SOUL is empty → show "SOUL is still gathering initial observations. After a few decisions, your first dimensions will emerge."
+- Should be near the TOP of the briefing, before STATUS/project details
+- RETROSPECTIVE agent is responsible for generating this from current SOUL.md state
+
+---
+
 ## SOUL.md in the Second-Brain
 
 SOUL.md lives at the root of the second-brain directory:
@@ -161,3 +295,32 @@ second-brain/
 - `SOUL.md` records **who you are** — values, beliefs, and aspirations confirmed by you
 - One is descriptive (patterns), the other is identity (soul)
 - They feed each other: patterns reveal values, values contextualize patterns
+
+---
+
+## Tiered Reference by Confidence (v1.6.2)
+
+REVIEWER references SOUL in every decision (HARD RULE). To prevent noise when SOUL has many dimensions, a 3-tier strategy applies:
+
+| Tier | Confidence | Reference strategy | Limit |
+|------|-----------|-------------------|-------|
+| **Tier 1 · Core Identity** | ≥ 0.7 | Reference ALL | No upper limit |
+| **Tier 2 · Active Values** | 0.3 – 0.7 | Reference top N semantically relevant | Max 3 |
+| **Tier 3 · Emerging** | < 0.3 | Count only, don't surface (ADVISOR tracks in Delta) | 0 |
+
+### Relevance Judgment (Tier 2)
+
+REVIEWER reads decision Subject + Summary + PLANNER proposal, then for each Tier 2 dimension rates:
+- **strong match** (directly relevant) → priority include
+- **weak match** (indirectly relevant) → sort by confidence, take top
+- **no match** → skip
+
+REVIEWER report must list ALL Tier 2 dimensions evaluated + inclusion reason → AUDITOR reviews quality.
+
+### Special States
+
+- Decision challenges a Tier 1 dimension → REVIEWER adds ⚠️ SOUL CONFLICT warning at top of Summary Report (semi-veto signal)
+- Dimension crossed 0.7 upward since last snapshot → 🌟 "newly promoted to core"
+- Dimension crossed 0.7 downward → ⚠️ "demoted from core"
+- All dimensions in Tier 3 → REVIEWER outputs "SOUL tracking, not yet referencing"
+- >20 dimensions → Tier 1 no upper limit but compress: top 5 detailed, rest listed by name

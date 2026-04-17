@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.1-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.2-purple.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -77,6 +77,24 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's new in v1.6.2
+
+**Four conceptual pillars**:
+- **🛡️ Bulletproof adjourn.** Three-layer defense (wording + state machine + launch templates) ensures the 4-phase archive flow cannot be partially skipped.
+- **📚 Wiki auto-writes.** No more "which candidates should I save?" prompts. Archiver auto-writes wiki entries that pass 6 strict criteria + a zero-privacy filter. Delete any file to retire it; say "undo recent wiki" to roll back.
+- **🔮 SOUL auto-writes, continuously.** ADVISOR updates SOUL after every decision. New dimensions auto-create at low confidence (0.3) when ≥2 evidence points accumulate. "What SHOULD BE" is left empty for you.
+- **💤 DREAM gains 10 auto-triggered actions.** REM now detects and acts on 10 concrete patterns: stale commitments, value drift, decision fatigue, repeated decisions, and six more. Flags surface in the next briefing.
+
+**Four engineering refinements** (detailed specs shipped):
+- **Hard thresholds + soft signals for all 10 DREAM triggers.** Each trigger has a quantitative rule + LLM qualitative cue option (soft mode requires AUDITOR review). Examples: decision-fatigue = "≥5 decisions in 24h, second-half avg score ≤ first-half - 2"; stale-commitment = "I will X / 我会 X / X する regex + 30 days no action".
+- **SOUL snapshots for trend arrows.** `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` dumped at end of every session. RETROSPECTIVE reads latest snapshot to compute ↗↘→ arrows (±0.05 confidence threshold) plus special states: 🌟 promoted to core, ⚠️ demoted, 💤 dormant, ❗ conflict zone.
+- **REVIEWER 3-tier SOUL reference strategy.** Tier 1 (confidence ≥ 0.7) = reference ALL core dimensions; Tier 2 (0.3-0.7) = top 3 semantically relevant; Tier 3 (<0.3) = count only, don't surface. Decisions challenging Tier 1 → ⚠️ SOUL CONFLICT semi-veto at report top.
+- **SOUL Health Report in fixed briefing position.** Every session starts with your current profile (trend arrows), new dimensions awaiting input, conflict warnings, and dormant dimensions.
+
+See [CHANGELOG](CHANGELOG.md) for the full list.
 
 ---
 
@@ -282,23 +300,27 @@ Strategic Map grows from zero. If you have not defined any strategic relationshi
 
 ---
 
-### V. SOUL + DREAM — The System Learns Who You Are
+### V. SOUL + DREAM + Wiki — The System Learns Who You Are (v1.6.2: now fully automatic)
 
 **SOUL** records who you are — not what you do, but what you value, what you believe, and who you aspire to be. Each entry has two sides: what IS (observed from your decisions) and what SHOULD BE (your stated aspiration). The gap between them is where growth happens.
 
-Nothing is auto-written. The system proposes entries from four sources — DREAM (discovers patterns from recent behavior), ADVISOR (observes repeated value signals), STRATEGIST (you reveal values through deep dialogue), or direct input from you. You confirm every entry. Over time, SOUL makes the entire cabinet smarter — the REVIEWER catches when a decision contradicts your values, the PLANNER auto-adds dimensions you care about, and the ADVISOR compares what you say versus what you do.
+**Auto-writes, with you in control** (v1.6.2). The system no longer asks you to confirm every entry. ADVISOR runs after every decision and increments evidence or challenges on existing SOUL dimensions. When a new value pattern accumulates 2+ pieces of evidence, SOUL auto-writes a new dimension at low confidence (0.3) — with the "What SHOULD BE" field deliberately left empty for you to fill in when you're ready. You stay in charge: edit freely, delete dimensions that don't fit, or say "undo recent SOUL" to roll back.
 
-Confidence grows with evidence. A newly observed pattern has low influence. An entry validated by dozens of decisions shapes how every agent thinks about your situation.
+**Every session starts with a SOUL Health Report** — fixed position at the top of the briefing. Current profile with trend arrows, newly auto-detected dimensions awaiting your input, conflict warnings (dimensions your last 3 decisions all challenged), and dormant dimensions (30+ days without activation). You see the system's model of you every single time.
+
+REVIEWER references SOUL in every decision. If a decision challenges a stated value, it surfaces the contradiction instead of rubber-stamping.
 
 **DREAM** is the AI sleep cycle. After every session ends, the system "sleeps" — inspired by human sleep architecture:
 
 - **Light sleep (N1-N2)** — Organize loose ends: classify unprocessed inbox items, flag expired tasks, detect orphan files
-- **Deep sleep (N3)** — Consolidate: extract SOUL candidates (patterns about you) and Wiki candidates (reusable knowledge about the world) from the last 3 days of activity
-- **REM** — Creative connections: discover cross-domain links you have not noticed. Uses the Strategic Map flow graph as scaffolding — checking SOUL-strategy alignment, wiki-flow completeness, and behavioral-pattern-strategic-priority consistency
+- **Deep sleep (N3)** — Consolidate: extract Wiki knowledge and update SOUL dimensions from the last 3 days of activity
+- **REM (creative connections + 10 auto-triggers)** — Discovers cross-domain links you have not noticed, and automatically acts on 10 specific patterns: new project relationships, behavior diverging from stated values, wiki contradictions, dormant SOUL dimensions, unused cross-project cognition, decision fatigue, value drift, stale commitments (*"30 days ago you said you would do X — what happened?"*), emotional-state decision clusters, and repeated identical decisions (*"You're deciding X for the 4th time — are you avoiding commitment?"*)
 
-Next time you start a session: *"Last session, the system noticed a connection between your learning project and your career goal that you haven't explored..."*
+All triggered actions flow into the next session's briefing in a fixed "DREAM Auto-Triggers" block. Next morning: *"Last session I noticed you're deciding the contract question again — this is the 3rd time. What's actually blocking you?"*
 
-Both SOUL and DREAM grow from zero. On day one, the system knows nothing about you. It learns only from what you tell it and what it observes in your decisions.
+**Wiki** captures reusable knowledge about the world — not about you. After every session, the ARCHIVER auto-writes wiki entries that pass all 6 strict criteria: cross-project reusable, about the world (not you), **zero personal privacy** (no names, amounts, IDs, or traceable details — if stripping privacy makes the conclusion meaningless, it's discarded), factual/methodological, ≥2 independent evidence points, no contradiction with existing entries. Personal material belongs in SOUL; reusable knowledge belongs in Wiki. The two never mix.
+
+All three systems grow from zero. On day one, the system knows nothing about you. It learns only from your decisions and observations — and it now learns continuously, not just when you ask.
 
 ---
 
@@ -360,15 +382,21 @@ You: End session.
 
 📝 Archiver:
    Phase 1 — Archive: decisions, tasks, journal → outbox
-   Phase 2 — Knowledge extraction: scanning session for wiki + SOUL candidates
+   Phase 2 — Knowledge extraction (auto-write under strict criteria):
+     🔮 SOUL auto-written: "Values autonomy over stability" — confidence 0.3
+        (evidence: 2 decisions this session; "What SHOULD BE" left empty for you)
+     📚 Wiki auto-written: "Freelance runway formula" → wiki/career/
+        (passes 6 criteria + privacy filter: zero personal details)
+     ❌ 1 wiki candidate discarded — contained personal amount, couldn't strip
    Phase 3 — DREAM:
      💤 N1-N2: 2 inbox items need classification
-     💤 N3: SOUL candidate: "Values autonomy over stability" — Confirm? [Y/n]
-            Wiki candidate: "Freelance runway formula" → wiki/career/
-     💤 REM: Your health goals and career timeline share a constraint
-            you haven't addressed — energy management.
+     💤 N3: new evidence for "deliberate decision-maker" dimension (+1)
+     💤 REM: 🚨 Stale commitment detected — 32 days ago you said you would
+            draft the freelance plan. Triggered for next session's briefing.
    Phase 4 — Sync: git push... Notion sync... done.
    ✅ Completion checklist verified. Session archived.
+   ↩️ To undo any auto-write: delete the file, or say "undo recent wiki/SOUL"
+      next session.
 ```
 
 ---
@@ -497,15 +525,17 @@ For detailed setup including storage backend configuration, see the **[full inst
  │  │
  │  ├─ 📝 ARCHIVER — Session close (4 phases)
  │  │     Phase 1 📦 Archive: decisions / tasks / journal → outbox
- │  │     Phase 2 🔍 Knowledge extraction (core mission):
- │  │       📚 Wiki candidates → user confirms on the spot
- │  │       🌱 SOUL candidates → confirm at next session start
+ │  │     Phase 2 🔍 Knowledge extraction (core mission · v1.6.2 auto-write):
+ │  │       📚 Wiki → auto-written if passes 6 criteria + privacy filter
+ │  │       🔮 SOUL → auto-written at confidence 0.3 if ≥2 evidence
  │  │       🗺️ Strategic relationship candidates → user confirms on the spot
  │  │       🔄 last_activity auto-update for touched projects
+ │  │       ↩️ User nudges post-hoc: delete file or "undo recent wiki/SOUL"
  │  │     Phase 3 💤 DREAM (AI sleep cycle):
  │  │       N1-N2 💭 Light sleep: organize inbox, flag expired tasks
- │  │       N3 🧠 Deep sleep: consolidate SOUL + Wiki candidates
- │  │       REM 🌙 Dreaming: cross-layer discovery using strategic map
+ │  │       N3 🧠 Deep sleep: consolidate Wiki knowledge + SOUL updates
+ │  │       REM 🌙 Dreaming: creative connections + 10 auto-triggered actions
+ │  │         · Stale commitments, value drift, decision fatigue, repeated decisions...
  │  │         · SOUL × strategy: driving forces aligned with values?
  │  │         · Wiki × flows: knowledge actually transferring between projects?
  │  │         · Patterns × priorities: avoiding a critical-path project?

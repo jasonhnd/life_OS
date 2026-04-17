@@ -6,6 +6,113 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.6.2] - 2026-04-17 · Adjourn Defense + Wiki/SOUL Auto-Write + 10 DREAM Triggers
+
+> Three reinforcements in one release: (1) bulletproof adjourn flow that cannot be partially skipped; (2) wiki and SOUL now auto-write under strict criteria instead of asking for confirmation; (3) DREAM gains 10 concrete auto-triggered actions.
+
+### 🛡️ Adjourn 3-Layer Defense
+
+Previous bug: ROUTER sometimes executed Phase 2 (knowledge extraction) in the main context instead of launching the ARCHIVER subagent, splitting the 4-phase flow.
+
+Three independent defenses added:
+- **SKILL.md + archiver.md wording** — HARD RULE forbidding ROUTER from any Phase content in the main context; explicit "Subagent-Only Execution" block in archiver.md
+- **Adjourn State Machine in pro/CLAUDE.md** — legal/illegal state transitions enumerated; AUDITOR flags every violation to user-patterns.md
+- **Mandatory launch templates** — SKILL.md's "Trigger Execution Templates (HARD RULE)" section pins the exact output pattern for Start Session / Adjourn / Review
+
+### 📚 Wiki Auto-Write (no user confirmation)
+
+Previous: archiver listed wiki candidates and asked user to pick which to save. This interrupted the flow and encouraged skipping.
+
+New: archiver auto-writes under **6 strict criteria** + Privacy Filter:
+1. Cross-project reusable
+2. About the world, not about you (values → SOUL, not wiki)
+3. **Zero personal privacy** — names, amounts, account IDs, specific companies, family/friend info, traceable date+location combos → stripped; if stripping makes the conclusion meaningless → discard
+4. Factual or methodological
+5. Multiple evidence points (≥2 independent)
+6. No contradiction with existing wiki (contradictions → `challenges: +1` on existing entry, don't create competitor)
+
+Initial confidence: 3+ evidence → 0.5; exactly 2 → 0.3; 1 or below → DISCARD.
+
+User nudges post-hoc: delete file = retire, say "undo recent wiki" to rollback most recent auto-writes, or manually lower `confidence` below 0.3 to suppress.
+
+### 🔮 SOUL Auto-Write + Continuous Runtime
+
+Previous: SOUL dimensions only created through user confirmation; only surfaced periodically.
+
+New:
+- **ADVISOR auto-updates every decision** — increments `evidence_count` or `challenges` on existing SOUL dimensions after every Summary Report; detects new dimensions with ≥2 evidence points and auto-writes at `confidence: 0.3` with "What SHOULD BE" deliberately left empty for the user to fill when ready
+- **REVIEWER mandatory SOUL reference** — every decision must cite relevant SOUL dimensions or explicitly note "no directly relevant dimension, this may open a new one"
+- **SOUL Health Report in fixed briefing position** — every Start Session, the first block after Pre-Session Preparation is 🔮 SOUL Health Report (current profile with trend arrows, newly auto-detected dimensions awaiting user input, conflict warnings, dormant dimensions 30+ days, trajectory delta)
+
+Confidence formula unchanged: `confidence = evidence_count / (evidence_count + challenges × 2)`.
+
+### 💤 DREAM 10 Auto-Triggered Actions (REM stage)
+
+REM now evaluates 10 concrete patterns and auto-acts on matches:
+
+| # | Pattern | Auto-Action |
+|---|---------|-------------|
+| 1 | New project relationship | Write STRATEGIC-MAP candidate + flag for briefing |
+| 2 | Behavior ≠ driving_force | Inject into next ADVISOR input |
+| 3 | Wiki contradicted by new evidence | `challenges: +1` on that entry |
+| 4 | SOUL dimension dormant 30+ days | Briefing warning |
+| 5 | Cross-project cognition unused | Force-inject into next DISPATCHER |
+| 6 | Decision fatigue detected | Suggest "no major decisions today" |
+| 7 | Value drift in driving_force | Auto-propose SOUL revision |
+| 8 | Stale commitment (30+ days no action) | Resurface in briefing |
+| 9 | Emotional decision pattern | Next REVIEWER adds emotional-state check |
+| 10 | Repeated identical decisions | Briefing: "Are you avoiding commitment?" |
+
+All flags written to dream journal's `triggered_actions` YAML block. RETROSPECTIVE surfaces them in the fixed "💤 DREAM Auto-Triggers" briefing block at next Start Session.
+
+### 🔬 Design Refinements (detailed specifications)
+
+Building on the four conceptual pillars above, v1.6.2 also ships the detailed behavior specs:
+
+**DREAM trigger detection logic** — each of the 10 triggers now has:
+- A **hard threshold** (quantitative rule, auto-fires)
+- **Soft signals** (LLM qualitative cues, fires with `mode: soft` + AUDITOR review required)
+- Explicit data source, anti-spam 24h suppression, and structured output
+
+Examples: decision-fatigue = "≥5 decisions in 24h AND second-half avg score ≤ first-half - 2"; value-drift = "≥3 challenges with ≤1 new evidence in 30d AND confidence drop >30%"; stale-commitment = "I will X / 我会 X / X する regex + 30 days no matching completion"; emotional-decision = "ADVISOR emotional flag + REVIEWER cool-off advised + session proceeded anyway"; repeated-decisions = "topic keyword overlap >70% with ≥2 past 30-day decisions". See `references/dream-spec.md` for all 10.
+
+**ADVISOR SOUL Runtime unification** — merged the old read-only "SOUL Behavioral Audit" section into the new auto-update mechanism. One unified flow: per-dimension impact (support/challenge/neutral) → write evidence/challenge deltas → detect new dimensions → conflict warnings → output 🔮 SOUL Delta block. Runs every decision, not only at adjourn.
+
+**SOUL snapshot mechanism for trend arrows** — archiver Phase 2 now dumps a minimal snapshot to `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` at the end of every session (numerical metadata only, no duplicated content). RETROSPECTIVE reads latest snapshot at next Start Session and computes:
+- `confidence_Δ > +0.05` → ↗
+- `confidence_Δ < -0.05` → ↘
+- `|confidence_Δ| ≤ 0.05` → →
+Plus special states: 🌟 newly promoted to core, ⚠️ demoted from core, 💤 dormant, ❗ conflict zone. Archive policy: >30 days → `_archive/`, >90 days → delete (git + Notion retain).
+
+**REVIEWER 3-tier SOUL reference strategy** — prevents noise when SOUL has many dimensions:
+- **Tier 1** (confidence ≥ 0.7): reference ALL, no upper limit — core identity must be considered
+- **Tier 2** (0.3 ≤ confidence < 0.7): top 3 semantically relevant via strong/weak-match judgment
+- **Tier 3** (confidence < 0.3): count only, don't surface (ADVISOR tracks in Delta)
+
+Decision challenging a Tier 1 dimension → REVIEWER adds ⚠️ SOUL CONFLICT warning at top of Summary Report (semi-veto signal). Every Tier 2 dimension evaluated is listed with inclusion reason so AUDITOR can review quality.
+
+### Files Touched
+
+- `SKILL.md` (version + trigger templates)
+- `pro/CLAUDE.md` (state machines + wiki/SOUL auto-write descriptions)
+- `pro/GEMINI.md` / `pro/AGENTS.md` (cross-platform Gemini CLI + Codex CLI parity)
+- `pro/agents/archiver.md` (Phase 2 auto-write + snapshot dump + Phase 3 10-trigger detection logic)
+- `pro/agents/advisor.md` (unified SOUL Runtime: 5 steps, every decision)
+- `pro/agents/reviewer.md` (3-tier SOUL reference strategy)
+- `pro/agents/retrospective.md` (Step 11 expanded to 11.1-11.6: snapshot read + trend computation)
+- `references/wiki-spec.md` + 三語 (6 criteria + privacy filter + user nudges)
+- `references/soul-spec.md` + 三語 (auto-write + snapshot mechanism + tiered reference)
+- `references/dream-spec.md` + 三語 (10 triggers per-section with hard/soft detection)
+- `references/data-layer.md` + 三語 (`_meta/snapshots/` in directory tree + auto-write reflected)
+- `README.md` + 三語 (What's new in v1.6.2 + Section V rewritten + architecture diagram)
+- `CHANGELOG.md` + 三語
+
+### Migration
+
+No user action required. Existing wiki/SOUL entries continue to work. New entries auto-write starting next session. First Start Session after upgrade will show "no trend data yet" until second session provides a snapshot baseline. To disable a specific auto-written entry without deleting it: set `confidence: 0.0` in the frontmatter.
+
+---
+
 ## [1.6.1] - 2026-04-16 · Nine Themes — Every Culture, Every Style
 
 > The theme system expands from 3 to 9 themes. Each language now offers three distinct governance styles: historical, modern government, and corporate.

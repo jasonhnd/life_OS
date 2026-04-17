@@ -33,7 +33,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 
 **Capture → Judge (Draft-Review-Execute cycle)**: Desktop CC pulls from inbox. Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Draft-Review-Execute decision mode.
 
-**Judge → Settle (SOUL + Wiki)**: Conclusions from decisions settle into two pools — SOUL (about the person: values, personality, behavioral patterns) and Wiki (about the world: reusable knowledge, established conclusions). DREAM extracts candidates for both during N3; user confirms at next Start Court.
+**Judge → Settle (SOUL + Wiki)**: Conclusions from decisions settle into two pools — SOUL (about the person: values, personality, behavioral patterns) and Wiki (about the world: reusable knowledge, established conclusions). Both are **auto-written under strict criteria** (v1.6.2): ARCHIVER and DREAM auto-write entries that pass 6 wiki criteria + privacy filter (wiki) or SOUL criteria + low initial confidence (SOUL). Users nudge post-hoc — delete file to retire, say "undo recent wiki/SOUL" to roll back. **Snapshots**: SOUL state captured by archiver at end of every session, read by RETROSPECTIVE for trend computation.
 
 **Settle → Associate (ROUTER + Wiki INDEX)**: The ROUTER reads wiki/INDEX.md at session start. When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain." This turns accumulated knowledge into active context.
 
@@ -66,6 +66,9 @@ second-brain/
 │   ├── journal/                       # RETROSPECTIVE briefings, AUDITOR/ADVISOR reports, DREAM reports
 │   ├── outbox/                        # 📮 Session output staging area (one subdirectory per session)
 │   │   └── {session-id}/             # Each session writes here on adjourn, merged at next start court
+│   ├── snapshots/                     # 📸 State snapshots for trend computation
+│   │   └── soul/                      # SOUL snapshots per session (YYYY-MM-DD-HHMM.md)
+│   │       └── _archive/              # Snapshots older than 30 days
 │   ├── extraction-rules.md            # Knowledge extraction rules (trained by user)
 │   ├── extraction-log.md              # Extraction history
 │   ├── lint-rules.md                  # Inspection rules

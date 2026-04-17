@@ -29,13 +29,62 @@ All decisions are reviewed, including work decisions. This must not be perfuncto
   - 10 years from now: In the arc of a lifetime, does this decision matter? Or will they barely remember it?
   Do not accept a vague "I won't regret it." Each time horizon must have a specific answer.
 
-## SOUL.md Consistency Check
+## SOUL Reference (HARD RULE — every decision)
 
-If `SOUL.md` exists and has confirmed entries (confidence ≥ 0.3), check if the proposed decision aligns with SOUL entries:
-- If aligned → no action needed
-- If contradicts a confirmed entry → add to your review:
-  "⚠️ SOUL consistency: This choice contradicts your [dimension] (confidence [X]). Is this intentional or unconscious?"
-- Do not auto-veto based on SOUL inconsistency alone — flag it, let the user decide
+Every decision must include a SOUL Reference block. If SOUL.md does not exist → output "🔮 SOUL: not yet established. This decision may open a new dimension: [proposed dimension name and brief description]."
+
+If SOUL.md exists, apply the 3-tier reference strategy:
+
+### Tier 1 · Core Identity (confidence ≥ 0.7)
+
+**Reference ALL** Tier 1 dimensions. No upper limit. High-confidence dimensions represent the user's core identity and must be considered in every decision.
+
+### Tier 2 · Active Values (0.3 ≤ confidence < 0.7)
+
+**Reference top 3** dimensions semantically relevant to the decision. REVIEWER evaluates relevance:
+- **Strong match** (directly relevant) → priority include
+- **Weak match** (indirectly relevant) → sort by confidence, take top
+- **No match** → skip
+
+REVIEWER report must list ALL Tier 2 dimensions evaluated + inclusion reason, so AUDITOR can review selection quality.
+
+### Tier 3 · Emerging Dimensions (confidence < 0.3)
+
+**Count only, don't surface**. ADVISOR tracks these in the Delta block; REVIEWER does not reference them.
+
+### Output Format
+
+```
+🔮 SOUL Reference (mandatory block):
+
+【Tier 1 · Core Identity (must consider)】
+  · [dim name] (0.XX) — [question asked of this decision]
+    → [answer: support/challenge/neutral + reason]
+
+【Tier 2 · Active Values (top 3 relevant)】
+  · [dim name] (0.XX) [strong match] — [question]
+    → [answer]
+  · [dim name] (0.XX) [weak match] — [question]
+    → [answer]
+  [Evaluated but not selected: dim X (0.XX), dim Y (0.XX) — no match]
+
+【Tier 3 · Emerging dimensions】
+  No direct reference. N emerging dimensions tracked by ADVISOR Delta.
+
+【Integrated Conclusion】
+  SOUL compatibility: ✅ high / 🟡 mixed / ❌ conflict
+  Focus callout: [if a pattern emerges worth noting]
+```
+
+### Special Cases
+
+- **SOUL empty (first session)**: simplified output "🔮 SOUL: not yet established. This decision may open: [speculative dimension name]"
+- **All dimensions in Tier 3**: output "🔮 SOUL: N dimensions all below 0.3 threshold. Tracking, not yet referencing."
+- **Decision challenges Tier 1 dimension**: REVIEWER must add "⚠️ SOUL CONFLICT: this decision challenges core identity dimension [X]. Re-examine?" at the top of Summary Report — this is a semi-veto signal.
+- **More than 20 dimensions**: Tier 1 no upper limit, but add note "N core dimensions; top 5 most relevant discussed in detail, remaining [N-5] listed by name only"
+- **Dimension just promoted to Tier 1** (crossed 0.7): add "🌟 newly promoted to core" label
+- **Dimension demoted from Tier 1 to Tier 2** (challenges accumulated): add "⚠️ core dimension under challenge, may demote" label
+- **Strong match with low confidence** (e.g., 0.25): still Tier 3, but ADVISOR Delta will weight this dimension
 
 ## Wiki Consistency Check
 

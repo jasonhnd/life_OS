@@ -6,6 +6,113 @@
 
 ---
 
+## [1.6.2] - 2026-04-17 · 退朝防御 + Wiki/SOUL 自动写入 + DREAM 10 触发器
+
+> 三项加固同时发布：(1) 退朝流程无法被部分跳过；(2) wiki 和 SOUL 在严格标准下自动写入，不再询问用户确认；(3) DREAM 获得 10 个具体的自动触发行动。
+
+### 🛡️ 退朝三层防御
+
+此前 bug：ROUTER 有时在主上下文中执行 Phase 2（知识提取），而非启动 ARCHIVER 子代理，导致 4 阶段流程被拆分。
+
+三重独立防御：
+- **SKILL.md + archiver.md 措辞加固** — HARD RULE 禁止 ROUTER 在主上下文中执行任何 Phase 内容；archiver.md 新增明确的"Subagent-Only Execution"条款
+- **退朝状态机（pro/CLAUDE.md）** — 列出合法/非法状态转换；AUDITOR 将每次违规记入 user-patterns.md
+- **强制启动模板** — SKILL.md 新增"Trigger Execution Templates (HARD RULE)"章节，钉死 Start Session / Adjourn / Review 的精确输出格式
+
+### 📚 Wiki 自动写入（无需用户确认）
+
+此前：archiver 列出 wiki 候选让用户挑选保存。中断流程且鼓励跳过。
+
+现在：archiver 在 **6 项严格标准 + 隐私过滤器** 下自动写入：
+1. 跨项目可复用
+2. 关于世界而非关于你（价值观 → SOUL，不进 wiki）
+3. **零个人隐私** — 姓名、金额、账户 ID、具体公司、家人朋友信息、可追溯的日期+地点组合 → 剥离；若剥离后结论变得无意义 → 丢弃
+4. 事实或方法论
+5. 多个证据点（≥2 个独立）
+6. 不与现有 wiki 矛盾（矛盾 → 现有条目 `challenges: +1`，不创建竞争条目）
+
+初始置信度：3+ 证据 → 0.5；恰好 2 个 → 0.3；1 个或更少 → 丢弃。
+
+用户事后调整：删除文件 = 废弃；说"撤销最近 wiki"回滚最近的自动写入；手动将 `confidence` 调至 0.3 以下即可抑制。
+
+### 🔮 SOUL 自动写入 + 持续运行时
+
+此前：SOUL 维度只通过用户确认创建；只定期显示。
+
+现在：
+- **ADVISOR 每次决策自动更新** — 每次 Summary Report 后，为现有 SOUL 维度递增 `evidence_count` 或 `challenges`；检测到 ≥2 证据点的新维度时，以 `confidence: 0.3` 自动写入，"What SHOULD BE"字段故意留空让用户自行填写
+- **REVIEWER 强制引用 SOUL** — 每次决策必须引用相关 SOUL 维度，或明确标注"无直接相关维度，此决策可能开启一个新维度"
+- **SOUL 健康报告固定在简报顶部位置** — 每次上朝，Pre-Session Preparation 之后第一个区块即 🔮 SOUL Health Report（当前画像带趋势箭头、新检测出的待输入维度、冲突警告、30+ 天休眠维度、轨迹变化）
+
+置信度公式不变：`confidence = evidence_count / (evidence_count + challenges × 2)`。
+
+### 💤 DREAM 10 个自动触发行动（REM 阶段）
+
+REM 现在评估 10 个具体模式，匹配即自动执行：
+
+| # | 模式 | 自动行动 |
+|---|------|---------|
+| 1 | 新项目关系 | 写 STRATEGIC-MAP 候选 + 简报显眼位置 |
+| 2 | 行为 ≠ driving_force | 注入下次 ADVISOR 输入 |
+| 3 | Wiki 被新证据反驳 | 该条目 `challenges: +1` |
+| 4 | SOUL 维度休眠 30+ 天 | 简报警告 |
+| 5 | 跨项目认知未使用 | 下次 DISPATCHER 强制注入 |
+| 6 | 检测到决策疲劳 | 建议"今天不做重大决策" |
+| 7 | driving_force 价值漂移 | 自动提议 SOUL 修订 |
+| 8 | 陈旧承诺（30+ 天无行动） | 简报唤起 |
+| 9 | 情绪化决策模式 | 下次 REVIEWER 加情绪状态检查 |
+| 10 | 重复相同决策 | 简报提示"你在回避承诺吗？" |
+
+所有标志写入 dream journal 的 `triggered_actions` YAML 块。下次上朝时 RETROSPECTIVE 在固定的"💤 DREAM Auto-Triggers"简报区块显示。
+
+### 🔬 设计细化（详细规范）
+
+在以上四根概念支柱之上，v1.6.2 还交付了详细的行为规范：
+
+**DREAM 触发器检测逻辑** —— 10 个触发器每一个都具备：
+- **硬性阈值**（定量规则，自动触发）
+- **软性信号**（LLM 定性线索，以 `mode: soft` 触发并需要 AUDITOR 审核）
+- 明确的数据源、24 小时反重复抑制、结构化输出
+
+示例：决策疲劳 = "24 小时内 ≥5 决策 且 后半段平均分 ≤ 前半段 -2"；价值漂移 = "30 天内 ≥3 挑战 且 ≤1 新证据 且 confidence 下降 >30%"；陈旧承诺 = "'我会 X'正则匹配 + 30 天无对应完成"；情绪化决策 = "ADVISOR 情绪标记 + REVIEWER 建议冷静 + 仍推进"；重复决策 = "主题关键词与过去 30 天 ≥2 决策重叠 >70%"。完整 10 项见 `references/dream-spec.md`。
+
+**ADVISOR SOUL Runtime 统一** —— 合并了旧的只读"SOUL 行为审计"节与新的自动更新机制。单一统一流程：逐维度影响（支持/挑战/中立）→ 写入 evidence/challenge 增量 → 检测新维度 → 冲突预警 → 输出 🔮 SOUL Delta 块。每次决策运行，不仅限于散朝。
+
+**SOUL 快照机制用于趋势箭头** —— archiver Phase 2 现在在每次会话结束时向 `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` 导出一份最小化快照（仅数字元数据，不重复内容）。RETROSPECTIVE 在下次上朝时读取最新快照并计算：
+- `confidence_Δ > +0.05` → ↗
+- `confidence_Δ < -0.05` → ↘
+- `|confidence_Δ| ≤ 0.05` → →
+加上特殊状态：🌟 新晋核心、⚠️ 从核心降级、💤 休眠、❗ 冲突区。归档策略：>30 天 → `_archive/`，>90 天 → 删除（git + Notion 保留）。
+
+**REVIEWER SOUL 3 层引用策略** —— 避免 SOUL 维度多时产生噪音：
+- **Tier 1**（confidence ≥ 0.7）：全部引用，无上限 —— 核心身份必须考虑
+- **Tier 2**（0.3 ≤ confidence < 0.7）：通过强/弱匹配判断挑选语义最相关的 3 条
+- **Tier 3**（confidence < 0.3）：仅计数，不露面（ADVISOR 在 Delta 中追踪）
+
+决策挑战 Tier 1 维度 → REVIEWER 在 Summary Report 顶部加 ⚠️ SOUL CONFLICT 警告（半否决信号）。每个被评估的 Tier 2 维度必须列出入选理由，供 AUDITOR 审查质量。
+
+### 涉及文件
+
+- `SKILL.md`（版本 + 触发模板）
+- `pro/CLAUDE.md`（状态机 + wiki/SOUL 自动写入描述）
+- `pro/GEMINI.md` / `pro/AGENTS.md`（跨平台 Gemini CLI + Codex CLI 一致性）
+- `pro/agents/archiver.md`（Phase 2 自动写入 + 快照导出 + Phase 3 10 触发器检测逻辑）
+- `pro/agents/advisor.md`（统一 SOUL Runtime：5 步，每次决策）
+- `pro/agents/reviewer.md`（3 层 SOUL 引用策略）
+- `pro/agents/retrospective.md`（Step 11 扩展为 11.1-11.6：快照读取 + 趋势计算）
+- `references/wiki-spec.md` + 三语（6 标准 + 隐私过滤器 + 用户调整）
+- `references/soul-spec.md` + 三语（自动写入 + 快照机制 + 分层引用）
+- `references/dream-spec.md` + 三语（10 触发器逐节含硬/软检测）
+- `references/data-layer.md` + 三语（`_meta/snapshots/` 加入目录树 + 反映自动写入）
+- `README.md` + 三语（v1.6.2 新特性 + 第五节重写 + 架构图）
+- `CHANGELOG.md` + 三语
+
+### 迁移
+
+用户无需操作。现有 wiki/SOUL 条目继续工作。新条目将从下次会话开始自动写入。升级后首次上朝将显示"暂无趋势数据"，直到第二次会话提供快照基线。要抑制某个自动写入条目但不删除：在 frontmatter 中将 `confidence: 0.0`。
+
+---
+
 ## [1.6.1] - 2026-04-16 · 九大主题 — 每种文化，每种风格
 
 > 主题系统从 3 个扩展到 9 个。每种语言现在提供三种治理风格：历史、现代政府、企业。
