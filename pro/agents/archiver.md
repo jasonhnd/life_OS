@@ -275,20 +275,15 @@ Keep the report **concise** — 20-50 lines.
 
 ---
 
-## Phase 4 — Sync
+## Phase 4 — Sync (git only; Notion handled by orchestrator)
 
 ```
 1. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
-2. Sync to Notion (if configured — MUST NOT skip silently):
-   a. 🧠 Current Status page: overwrite with latest STATUS.md content
-   b. 📋 Todo Board: sync tasks from this session (new → create, completed → check off)
-   c. 📝 Working Memory: write session summary (subject, key conclusions, action items)
-   d. 📬 Inbox: mark processed items as "Synced"
-   e. If Notion MCP unavailable → report: "⚠️ Notion sync failed — mobile will not see this session's updates until next successful sync"
-   f. If a specific write fails → report which one, continue with others
-3. Update last_sync_time in _meta/config.md
-4. Any GitHub backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
+2. Update last_sync_time in _meta/config.md
+3. Any GitHub backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
 ```
+
+**Notion sync is NOT performed by the archiver subagent.** The archiver does not have access to Notion MCP tools (they are environment-specific and cannot be declared in agent frontmatter). After the archiver completes and returns the Completion Checklist, the **orchestrator (main context)** executes Notion sync using the MCP tools available in the user's environment. See `pro/CLAUDE.md` Step 10a for the orchestrator's Notion sync responsibilities.
 
 ### Adjourn Confirmation
 
@@ -300,7 +295,7 @@ Keep the report **concise** — 20-50 lines.
 🌱 SOUL: Y entries auto-written (or "0 this session")
 🗺️ Strategic: [N new relationships detected / no changes / strategic map not configured]
 💤 DREAM: [1-line summary of key insight, or "light sleep — no significant patterns"]
-🔄 Synced: GitHub ✅ Notion [✅/⚠️]
+🔄 Git: ✅ {commit hash} | Notion: ⏳ pending (orchestrator will sync)
 
 Session adjourned.
 ```
@@ -315,7 +310,7 @@ Session adjourned.
 - Do not modify user-patterns.md directly — only propose updates via patterns-delta
 - Do not scan files older than 3 days in Phase 3 — respect scope
 - Do not produce a 500-line dream report — 20-50 lines is ideal
-- Do not skip Notion sync silently — report failure explicitly
+- Do not attempt Notion sync — you lack MCP tools; the orchestrator handles it after you return
 - Session-close git commit is atomic — nothing can be missed
 - Do NOT write directly to projects/, _meta/STATUS.md, or user-patterns.md — all goes to outbox
 
@@ -337,8 +332,5 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 - Phase 2 last_activity updated: [{projects touched}]
 - Phase 3 DREAM: [{1-line summary} / light sleep]
 - Phase 4 git: {commit hash}
-- Phase 4 Notion 🧠 Status: [updated / failed: {reason}]
-- Phase 4 Notion 📋 Todo: [synced {N} items / failed: {reason}]
-- Phase 4 Notion 📝 Working Memory: [written / failed: {reason}]
-- Phase 4 Notion 📬 Inbox: [marked synced / no items / failed: {reason}]
+- Phase 4 Notion: ⏳ deferred to orchestrator (archiver lacks MCP tools)
 ```

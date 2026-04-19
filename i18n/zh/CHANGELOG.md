@@ -6,6 +6,19 @@
 
 ---
 
+## [1.6.2a] - 2026-04-19 · Notion 同步回归编排层
+
+> archiver subagent 报告"Notion MCP 未接入"，因为 Notion MCP 工具是环境特定的，在 subagent 内不可用。Notion 同步现在从 archiver 中拆出，由编排层（主上下文）执行，主上下文拥有 MCP 工具访问权限。
+
+### 变更
+
+- **archiver.md**：Phase 4 缩减为仅 git 操作；Notion 同步移除并注明 MCP 工具限制
+- **CLAUDE.md**：新增 Step 10a — 编排层在 archiver 返回后执行 Notion 同步
+- **GEMINI.md / AGENTS.md**：同步 Step 10a
+- **SKILL.md**：退朝模板更新为包含 Notion 同步作为 archiver 后续步骤
+
+---
+
 ## [1.6.2] - 2026-04-17 · 退朝防御 + Wiki/SOUL 自动写入 + DREAM 10 触发器
 
 > 三项加固同时发布：(1) 退朝流程无法被部分跳过；(2) wiki 和 SOUL 在严格标准下自动写入，不再询问用户确认；(3) DREAM 获得 10 个具体的自动触发行动。

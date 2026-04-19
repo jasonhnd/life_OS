@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.6.2"
+version: "1.6.2a"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -137,7 +137,7 @@ ROUTER must NOT:
 - Say "tell me, then I'll launch DREAM/Notion sync"
 - Perform ANY Phase 1/2/3/4 logic
 
-After archiver subagent emits the Completion Checklist → session ends.
+After archiver subagent emits the Completion Checklist → orchestrator executes Notion sync (Step 10a in CLAUDE.md) using MCP tools available in the main context → then session ends.
 
 ### Review
 User says Review trigger → ROUTER output:

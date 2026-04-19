@@ -6,6 +6,19 @@
 
 ---
 
+## [1.6.2a] - 2026-04-19 · Notion 同期をオーケストレーターに移管
+
+> archiver subagent が「Notion MCP 未接続」と報告していた。原因は Notion MCP ツールが環境固有であり subagent 内で利用できないため。Notion 同期を archiver から分離し、MCP ツールアクセスを持つオーケストレーター（メインコンテキスト）で実行するように変更。
+
+### 変更
+
+- **archiver.md**：Phase 4 を git のみに縮小。Notion 同期を削除し MCP ツール制限の明記を追加
+- **CLAUDE.md**：新規 Step 10a — オーケストレーターが archiver 完了後に Notion 同期を実行
+- **GEMINI.md / AGENTS.md**：Step 10a を同期
+- **SKILL.md**：退朝テンプレートを更新し、Notion 同期を archiver 後のステップとして追加
+
+---
+
 ## [1.6.2] - 2026-04-17 · 退朝防御 + Wiki/SOUL 自動書き込み + DREAM 10 トリガー
 
 > 3つの強化を同時リリース：(1) 退朝フローの部分スキップを不可能に；(2) wiki と SOUL が厳格な基準下で自動書き込み、ユーザー確認を不要に；(3) DREAM に 10 個の具体的な自動トリガーアクションを追加。

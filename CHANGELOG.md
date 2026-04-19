@@ -6,6 +6,19 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.6.2a] - 2026-04-19 · Notion Sync Returns to Orchestrator
+
+> The archiver subagent reported "Notion MCP not connected" because Notion MCP tools are environment-specific and unavailable inside subagents. Notion sync is now split out of the archiver and executed by the orchestrator (main context) which has MCP access.
+
+### Changes
+
+- **archiver.md**: Phase 4 reduced to git-only; Notion sync removed with explicit note about MCP tool limitation
+- **CLAUDE.md**: New Step 10a — orchestrator executes Notion sync after archiver returns
+- **GEMINI.md / AGENTS.md**: Synced with Step 10a addition
+- **SKILL.md**: Adjourn template updated to include Notion sync as post-archiver step
+
+---
+
 ## [1.6.2] - 2026-04-17 · Adjourn Defense + Wiki/SOUL Auto-Write + 10 DREAM Triggers
 
 > Three reinforcements in one release: (1) bulletproof adjourn flow that cannot be partially skipped; (2) wiki and SOUL now auto-write under strict criteria instead of asking for confirmation; (3) DREAM gains 10 concrete auto-triggered actions.

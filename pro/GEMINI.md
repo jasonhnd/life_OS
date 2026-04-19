@@ -139,13 +139,22 @@ Launch `archiver` (ARCHIVER agent), passing in:
 - Summary Report + AUDITOR report + ADVISOR report
 - Session conversation summary (key topics from ROUTER, express analysis results, STRATEGIST summaries)
 
-The ARCHIVER agent handles ALL session-closing operations in 4 phases:
+The ARCHIVER agent handles session-closing operations in 4 phases:
 1. **Archive**: decisions/tasks/journal → outbox
 2. **Knowledge Extraction**: scan ALL session materials for wiki + SOUL + strategic candidates. Archiver auto-writes wiki and SOUL entries when strict criteria are met (6 wiki criteria + privacy filter; SOUL criteria + low initial confidence 0.3). Users nudge post-hoc by deletion ("undo recent wiki" rolls back).
 3. **DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections + 10 auto-triggered actions)
-4. **Sync**: git push + Notion sync (4 specific operations)
+4. **Sync**: git commit + push only (archiver lacks Notion MCP tools)
 
 See `pro/agents/archiver.md` for the full specification.
+
+### 10a. Notion Sync (orchestrator, after archiver returns)
+
+The archiver subagent cannot access Notion MCP tools. After the archiver returns, the **orchestrator** MUST execute Notion sync:
+- 🧠 Current Status page: overwrite with STATUS.md
+- 📋 Todo Board: sync tasks
+- 📝 Working Memory: write session summary
+- 📬 Inbox: mark processed items as "Synced"
+- If MCP unavailable → report explicitly. Do NOT skip silently.
 
 ### Note: DREAM is integrated into ARCHIVER agent
 

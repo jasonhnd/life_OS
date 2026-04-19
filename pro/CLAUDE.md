@@ -136,6 +136,30 @@ The ARCHIVER subagent handles ALL session-closing operations in 4 phases end-to-
 
 ROUTER does not interject between phases. The subagent emits the Completion Checklist when done. See `pro/agents/archiver.md` for the full specification.
 
+### 10a. Notion Sync (orchestrator, after archiver returns) — HARD RULE
+
+The archiver subagent cannot access Notion MCP tools (they are environment-specific). After the archiver returns with its Completion Checklist, the **orchestrator (main context)** MUST execute Notion sync using the Notion MCP tools available in the session:
+
+```
+a. 🧠 Current Status page: overwrite with latest STATUS.md content
+b. 📋 Todo Board: sync tasks from this session (new → create, completed → check off)
+c. 📝 Working Memory: write session summary (subject, key conclusions, action items)
+d. 📬 Inbox: mark processed items as "Synced"
+e. If Notion MCP unavailable → report: "⚠️ Notion sync failed — mobile will not see updates"
+f. If a specific write fails → report which one, continue with others
+```
+
+After Notion sync completes, output the Notion portion of the checklist:
+```
+🔄 Notion sync:
+- 🧠 Status: [updated / failed: {reason}]
+- 📋 Todo: [synced {N} items / failed: {reason}]
+- 📝 Working Memory: [written / failed: {reason}]
+- 📬 Inbox: [marked synced / no items / failed: {reason}]
+```
+
+Do NOT skip Notion sync silently. Do NOT say "Notion MCP not connected" without actually attempting to call the tools.
+
 ### 11. STRATEGIST — Hall of Human Wisdom (ask the user)
 
 When the ROUTER identifies abstract thinking needs, they **must** ask: "Would you like to activate the STRATEGIST to dialogue with history's greatest thinkers?"
