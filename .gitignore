@@ -4,3 +4,11 @@
 # Eval outputs (generated, not tracked)
 evals/outputs/
 .DS_Store
+
+# Local documentation (not published to GitHub)
+docs/
+
+# Compliance incident archives (contain sanitized but sensitive context)
+pro/compliance/*.md
+!pro/compliance/violations.md
+!pro/compliance/violations.example.md
