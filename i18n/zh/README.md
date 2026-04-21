@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.3b-purple.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.0--alpha-orange.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -72,6 +72,50 @@ Life OS 装进你的 AI 终端（Claude Code、Gemini CLI 或 Codex CLI），把
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.7.0-alpha 新特性 — Cortex 路由前认知层
+
+**Life OS 历史上第一次 Layer 2 架构升级**。v1.7 之前，系统只在会话边界访问长期记忆。在边界之间，所有决策都靠当前对话——16 个子代理的制衡很强，但共享的认知底座是空的。v1.7 加入**路由前认知层**，把跨会话记忆、概念图、SOUL 信号注入每一次决策工作流。
+
+### 6 个新子代理
+
+| 代理 | 职责 |
+|------|------|
+| `hippocampus` | 跨会话记忆检索 · 3 波扩散激活（每个 message 检索 5-7 个相关历史会话）|
+| `concept-lookup` | 概念图直接匹配（当前 message 触及的前 5-10 个概念）|
+| `soul-check` | SOUL 维度信号（对齐 / 冲突 / 休眠重激活）|
+| `gwt-arbitrator` | Global Workspace Theory 信号整合 · top-5 信号合成 `[COGNITIVE CONTEXT]` 给 ROUTER |
+| `narrator` | 用 `[source:signal_id]` 引用包装 Summary Report 实质性主张（反 confabulation）|
+| `narrator-validator` | Sonnet 层引用纪律审计 |
+
+### 概念图 — markdown，无数据库
+
+概念是 `_meta/concepts/{domain}/{concept_id}.md` 下的 markdown 文件。突触边活在 concept frontmatter 中。共激活按 Hebbian 规则加权（+1）。3 层生命周期（`tentative → confirmed → canonical`）。4 层 permanence（`identity / skill / fact / transient`）决定衰减曲线。
+
+### Phase 1 实施完成度
+
+- ✅ 6 个子代理全部实现（~900 行 markdown 契约）
+- ✅ Python 数据层：`tools/lib/second_brain.py` + `tools/lib/cortex/`（~1500 行，纯 stdlib + pyyaml）
+- ✅ 4 个 CLI 工具：`rebuild_session_index.py`、`rebuild_concept_index.py`、`stats.py`、`setup-hooks.sh`
+- ✅ 77 个 pytest 测试覆盖所有 Python 模块
+- ✅ Archiver Phase 2 接线完成（SessionSummary 写入 + 概念提取 + Hebbian 更新）
+- ✅ Retrospective Mode 0 接线完成（INDEX.md 编译）
+- ✅ Orchestrator Step 0.5（Pre-Router）接线完成
+- ✅ AUDITOR Mode 3 扩展加 7 项 Cortex 合规检测（CX1-CX7）
+
+### 默认 OFF（按需启用）
+
+Cortex 在 v1.7.0-alpha 默认禁用。用户通过 `_meta/config.md` 加 `cortex_enabled: true` 启用。建议在 second-brain 累积 ≥30 个 sessions 后启用（否则检索无内容可浮现）。成本：~$0.05-0.25/turn（Opus tokens 跨 Pre-Router 子代理）。
+
+### v1.6.3 五层防御依然可用
+
+L1 hook · L2 Pre-flight · L3 子代理自检 · L4 AUDITOR Compliance Patrol · L5 eval auto-detection。全部已接线并生产验证。
+
+> **Alpha 警告**：生产验证待办。请在有显著历史的 use repo 启用 cortex_enabled 测试。问题报到 GitHub。
+
+完整 v1.7 commit 链（19 个）和 COURT-START-001 v1.6.3 事件档案见 [CHANGELOG](./CHANGELOG.md)。
 
 ---
 

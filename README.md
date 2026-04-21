@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.3b-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.0--alpha-orange.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -77,6 +77,50 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's new in v1.7.0-alpha — Cortex Pre-Router Cognitive Layer
+
+**The first Layer-2 architectural upgrade in Life OS history.** Before v1.7, the system touched long-term memory only at session boundaries. Between those points, decisions were made from the current conversation alone — the 16-subagent checks-and-balances was strong, but the cognitive substrate was empty. v1.7 adds a **Pre-Router Cognitive Layer** that loads cross-session memory, concept graphs, and SOUL signals into every decision workflow.
+
+### 6 new subagents
+
+| Agent | Role |
+|-------|------|
+| `hippocampus` | Cross-session memory retrieval via 3-wave spreading activation (5-7 relevant past sessions per message) |
+| `concept-lookup` | Direct concept-graph match (top 5-10 concepts touched by current message) |
+| `soul-check` | SOUL dimension signals (alignment / conflict / dormant reactivation) |
+| `gwt-arbitrator` | Global Workspace Theory consolidation — top-5 signals composed into `[COGNITIVE CONTEXT]` for ROUTER |
+| `narrator` | Wraps Summary Report substantive claims with `[source:signal_id]` citations (anti-confabulation) |
+| `narrator-validator` | Sonnet-tier audit of narrator's citation discipline |
+
+### Concept graph — markdown, no database
+
+Concepts are markdown files under `_meta/concepts/{domain}/{concept_id}.md`. Synapse edges live in concept frontmatter. Co-activation increases edge weight by +1 (Hebbian). Three lifecycle tiers (`tentative` → `confirmed` → `canonical`). Four permanence tiers (`identity` / `skill` / `fact` / `transient`) determine decay curves.
+
+### Phase 1 implementation status
+
+- ✅ All 6 subagents implemented (~900 lines markdown contracts)
+- ✅ Python data layer: `tools/lib/second_brain.py` + `tools/lib/cortex/` (~1500 lines, pure stdlib + pyyaml)
+- ✅ 4 CLI tools: `rebuild_session_index.py`, `rebuild_concept_index.py`, `stats.py`, `setup-hooks.sh`
+- ✅ 77 pytest tests covering all Python modules
+- ✅ Archiver Phase 2 wired (SessionSummary write + concept extraction + Hebbian)
+- ✅ Retrospective Mode 0 wired (INDEX.md compilation)
+- ✅ Orchestrator Step 0.5 (Pre-Router) wired
+- ✅ AUDITOR Mode 3 extended with 7 Cortex compliance checks (CX1-CX7)
+
+### Default OFF (opt-in)
+
+Cortex is disabled by default in v1.7.0-alpha. Users opt in by setting `cortex_enabled: true` in `_meta/config.md`. Recommended once a second-brain has accumulated ≥30 sessions (otherwise retrieval has nothing to surface). Cost: ~$0.05-0.25/turn (Opus tokens across the Pre-Router subagents).
+
+### Still current from v1.6.3 (five-layer compliance defense)
+
+L1 hook · L2 Pre-flight · L3 subagent self-check · L4 AUDITOR Compliance Patrol · L5 eval auto-detection. All wired and production-verified.
+
+> **Alpha caveat**: production validation pending. Use cortex_enabled in a use repo with significant history to test. Report issues in GitHub.
+
+See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain (19 commits) and the COURT-START-001 v1.6.3 incident archive.
 
 ---
 

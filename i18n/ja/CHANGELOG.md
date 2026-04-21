@@ -6,6 +6,120 @@
 
 ---
 
+## [1.7.0-alpha] - 2026-04-21 · Cortex プリルーター認知層
+
+> Life OS 史上初の Layer 2 アーキテクチャアップグレード。クロスセッション記憶・コンセプトグラフ・アイデンティティ信号をあらゆる意思決定ワークフローへの入力として追加。本日 19 commits で v1.7 を仕様ドラフトから機能完成まで推進。
+
+### 🧠 プリルーター認知層 (オーケストレーター Step 0.5)
+
+`_meta/config.md` で `cortex_enabled: true` を設定すると、すべての非 Start-Session ユーザーメッセージは ROUTER トリアージ**前**に 4 つの並列サブエージェントを通過：
+
+```
+user message
+    ↓
+Step 0.5 (プリルーター認知層)
+    ├─ hippocampus       → 3 波セッション検索 (5-7 セッション)
+    ├─ concept-lookup    → コンセプトグラフマッチ (5-10 コンセプト)
+    └─ soul-check        → SOUL 次元信号 (top 5)
+         ↓
+    gwt-arbitrator        → salience 式で top-5 信号選定
+         ↓
+[COGNITIVE CONTEXT] ブロックを user message に前置
+    ↓
+Step 1 (注釈付き入力で ROUTER トリアージ)
+```
+
+REVIEWER 最終審査後、オプションの `narrator` が Summary Report の実質的主張を `[source:signal_id]` 引用で包装。`narrator-validator` (Sonnet 層) が引用規律を監査。
+
+### 📋 6 つの新サブエージェント (~900 行の markdown 契約)
+
+| エージェント | ファイル | spec |
+|-------------|---------|------|
+| hippocampus | `pro/agents/hippocampus.md` | `references/hippocampus-spec.md` |
+| concept-lookup | `pro/agents/concept-lookup.md` | `references/concept-spec.md` |
+| soul-check | `pro/agents/soul-check.md` | soul-spec + gwt-spec §6 から派生 |
+| gwt-arbitrator | `pro/agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
+| narrator | `pro/agents/narrator.md` | `references/narrator-spec.md` |
+| narrator-validator | `pro/agents/narrator-validator.md` | narrator-spec validator セクション |
+
+6 エージェントすべて情報隔離を強制：同層 Pre-Router エージェントの出力を拒否。すべて読み取り専用 — 変更は archiver Phase 2 でのみ発生。
+
+### 🐍 Python ツール (~1500 行 · pure stdlib + pyyaml)
+
+| モジュール | 用途 |
+|-----------|------|
+| `tools/lib/second_brain.py` | 11 second-brain 型のデータクラス + frontmatter parser/dumper + パス解決 |
+| `tools/lib/cortex/session_index.py` | SessionSummary IO + INDEX.md コンパイル (冪等) |
+| `tools/lib/cortex/concept.py` | Concept IO + INDEX/SYNAPSES コンパイル + Hebbian 更新 |
+| `tools/lib/cortex/snapshot.py` | SoulSnapshot IO + アーカイブポリシー (30d/90d) |
+| `tools/stats.py` | コンプライアンス違反エスカレーションラダー実行 |
+
+### 🔧 4 CLI ツール
+
+```bash
+uv run tools/rebuild_session_index.py [--root PATH] [--dry-run]
+uv run tools/rebuild_concept_index.py [--root PATH] [--dry-run] [--no-synapses]
+uv run tools/stats.py [--violations PATH] [--json]
+bash scripts/setup-hooks.sh   # SessionStart + UserPromptSubmit hooks を自動登録
+```
+
+### ✅ 77 pytest テスト — すべて 0.23 秒で合格
+
+| ファイル | テスト数 |
+|---------|---------|
+| `tests/test_second_brain.py` | 15 (frontmatter / データクラス / パス) |
+| `tests/test_session_index.py` | 16 (truncate / write / compile / rebuild / 冪等) |
+| `tests/test_concept_and_snapshot.py` | 18 (concept IO / INDEX / SYNAPSES / Hebbian / スナップショットポリシー) |
+| `tests/test_stats.py` | 18 (parse / エスカレーション / 閾値 / パス解決) |
+
+```bash
+python3 -m pytest tests/ -v        # 77 passed in 0.23s
+```
+
+### 🚦 デフォルト OFF (オプトイン)
+
+Cortex は v1.7.0-alpha でデフォルト無効。ユーザーは：
+
+```bash
+echo "cortex_enabled: true" >> _meta/config.md
+```
+
+second-brain に ≥30 セッションが蓄積されてから有効化推奨。コスト：~$0.05-0.25/turn (Pre-Router サブエージェント全体での Opus トークン)。
+
+### 📊 Cortex 合規分類 (AUDITOR Mode 3 に追加)
+
+| コード | 名称 | 重大度 |
+|-------|------|------|
+| CX1 | Skip Pre-Router subagents | P1 |
+| CX2 | Skip GWT arbitrator | P1 |
+| CX3 | Missing [COGNITIVE CONTEXT] delimiters | P1 |
+| CX4 | Hippocampus session cap exceeded | P1 |
+| CX5 | GWT signal cap exceeded | P1 |
+| CX6 | Cortex isolation breach | P0 |
+| CX7 | Cortex write breach | P0 |
+
+`cortex_enabled: false` の時 CX チェックすべてスキップ。
+
+### 🚧 既知の制限 / 未対応
+
+- **本番検証保留** — alpha は pytest + 仕様準拠でテスト済だが、実際の user second-brain での大規模実戦未実施
+- **`concept-lookup` はエッジトラバーサルしない** — Wave 1 のみ；Wave 2/3 は hippocampus の領域
+- **Narrator validator** Phase 2 はセルフチェックループ；スタンドアロン validator サブエージェントは Phase 2.5 で
+- **`tools/backup.py`** スナップショットアーカイブローテーション：v1.7.0 安定版に延期
+- **adjourn-compliance eval シナリオ** はまだプレースホルダー
+
+### 移行
+
+既存ユーザー (v1.6.3b → v1.7.0-alpha)：
+1. skill 再インストール：`/install-skill https://github.com/jasonhnd/life_OS`
+2. hooks セットアップ再実行：`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`
+3. (オプション) Python ツールインストール：`cd ~/.claude/skills/life_OS && uv sync`
+4. (オプション) Cortex 有効化：`echo "cortex_enabled: true" >> {your-second-brain}/_meta/config.md`
+
+デフォルト OFF は既存ユーザーがオプトインしない限り動作変化ゼロを意味する。v1.6.3 5 層コンプライアンス防御は引き続き有効・変更なし。
+
+---
+
 ## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 自動トリガー結線完了
 
 > v1.6.3 は Mode 3（Compliance Patrol）仕様を `pro/agents/auditor.md` に出荷したが、**実際には誰も呼び出していなかった**。ユーザー second-brain での初稼働がギャップを確認：retrospective Mode 0 完了・ブリーフィング表示後に AUDITOR Compliance Patrol レポートが現れず。5 層防御の Layer 4 が不活性状態。

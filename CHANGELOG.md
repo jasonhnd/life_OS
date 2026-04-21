@@ -6,6 +6,138 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.0-alpha] - 2026-04-21 · Cortex Pre-Router Cognitive Layer
+
+> First Layer-2 architectural upgrade in Life OS history. Adds cross-session memory, concept graph, and identity signals as inputs to every decision workflow. 19 commits today brought v1.7 from spec drafts to functional completeness.
+
+### 🧠 Pre-Router Cognitive Layer (orchestrator Step 0.5)
+
+When `cortex_enabled: true` in `_meta/config.md`, every non-Start-Session user message now flows through 4 parallel subagents BEFORE ROUTER triage:
+
+```
+user message
+    ↓
+Step 0.5 (Pre-Router Cognitive Layer)
+    ├─ hippocampus       → 3-wave session retrieval (5-7 sessions)
+    ├─ concept-lookup    → concept-graph match (5-10 concepts)
+    └─ soul-check        → SOUL dimension signals (top 5)
+         ↓
+    gwt-arbitrator        → top-5 signals via salience formula
+         ↓
+[COGNITIVE CONTEXT] block prepended to user message
+    ↓
+Step 1 (ROUTER Triage with annotated input)
+```
+
+After REVIEWER Final Review, optional `narrator` wraps Summary Report substantive claims with `[source:signal_id]` citations. `narrator-validator` (Sonnet-tier) audits citation discipline.
+
+### 📋 6 new subagents (~900 lines markdown contracts)
+
+| Agent | File | Spec |
+|-------|------|------|
+| hippocampus | `pro/agents/hippocampus.md` | `references/hippocampus-spec.md` |
+| concept-lookup | `pro/agents/concept-lookup.md` | `references/concept-spec.md` |
+| soul-check | `pro/agents/soul-check.md` | derived from soul-spec + gwt-spec §6 |
+| gwt-arbitrator | `pro/agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
+| narrator | `pro/agents/narrator.md` | `references/narrator-spec.md` |
+| narrator-validator | `pro/agents/narrator-validator.md` | narrator-spec validator section |
+
+All 6 enforce information isolation: peer Pre-Router agent outputs are rejected. All are read-only — mutations happen only in archiver Phase 2.
+
+### 🐍 Python tools (~1500 lines, pure stdlib + pyyaml)
+
+| Module | Purpose |
+|--------|---------|
+| `tools/lib/second_brain.py` | Dataclasses for 11 second-brain types + frontmatter parser/dumper + path resolver |
+| `tools/lib/cortex/session_index.py` | SessionSummary IO + INDEX.md compilation (idempotent) |
+| `tools/lib/cortex/concept.py` | Concept IO + INDEX/SYNAPSES compilation + Hebbian update |
+| `tools/lib/cortex/snapshot.py` | SoulSnapshot IO + archive policy (30d/90d) |
+| `tools/stats.py` | Compliance violations escalation ladder enforcement |
+
+### 🔧 4 CLI tools
+
+```bash
+uv run tools/rebuild_session_index.py [--root PATH] [--dry-run]
+uv run tools/rebuild_concept_index.py [--root PATH] [--dry-run] [--no-synapses]
+uv run tools/stats.py [--violations PATH] [--json]
+bash scripts/setup-hooks.sh   # auto-registers SessionStart + UserPromptSubmit hooks (v1.6.3a)
+```
+
+### ✅ 77 pytest tests — all passing in 0.23s
+
+| File | Tests |
+|------|-------|
+| `tests/test_second_brain.py` | 15 (frontmatter parser, dataclasses, path resolver) |
+| `tests/test_session_index.py` | 16 (truncate, write, compile, rebuild, idempotence) |
+| `tests/test_concept_and_snapshot.py` | 18 (concept IO, INDEX, SYNAPSES, Hebbian, snapshot policy) |
+| `tests/test_stats.py` | 18 (parse, escalation, threshold triggers, path resolution) |
+
+```bash
+python3 -m pytest tests/ -v        # 77 passed in 0.23s
+```
+
+### 🔌 Wiring updates
+
+- **`pro/agents/archiver.md`** Phase 2 — adds (a) concept extraction + Hebbian update + SYNAPSES regeneration step, (b) SessionSummary write step
+- **`pro/agents/retrospective.md`** Mode 0 — adds INDEX.md compilation step + AUDITOR Compliance Patrol auto-follow
+- **`pro/CLAUDE.md`** — new Workflow Step 0.5 (Pre-Router Cognitive Layer); Information Isolation table extended for hippocampus + gwt-arbitrator entries
+- **`pro/agents/auditor.md`** Mode 3 — adds 7 Cortex compliance checks (CX1-CX7)
+
+### 🚦 Default OFF (opt-in)
+
+Cortex is disabled by default in v1.7.0-alpha. Users opt in:
+
+```bash
+echo "cortex_enabled: true" >> _meta/config.md
+```
+
+Recommended once a second-brain has accumulated ≥30 sessions. Cost: ~$0.05-0.25/turn (Opus tokens across Pre-Router subagents).
+
+### 📊 Cortex compliance taxonomy (added to AUDITOR Mode 3)
+
+| Code | Name | Severity |
+|------|------|----------|
+| CX1 | Skip Pre-Router subagents | P1 |
+| CX2 | Skip GWT arbitrator | P1 |
+| CX3 | Missing [COGNITIVE CONTEXT] delimiters | P1 |
+| CX4 | Hippocampus session cap exceeded | P1 |
+| CX5 | GWT signal cap exceeded | P1 |
+| CX6 | Cortex isolation breach | P0 |
+| CX7 | Cortex write breach | P0 |
+
+CX checks skipped when `cortex_enabled: false`.
+
+### 📁 Files Touched (19 commits)
+
+Specs: `references/{cortex,hippocampus,gwt,concept,snapshot,session-index,narrator,hooks,tools,eval-history,method-library}-spec.md` + 8 modified existing references.
+Subagents: `pro/agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`.
+Wiring: `pro/CLAUDE.md`, `pro/agents/{archiver,retrospective,auditor}.md`.
+Tools: `tools/lib/{second_brain.py,cortex/*}`, `tools/{stats,rebuild_session_index,rebuild_concept_index}.py`.
+Project: `pyproject.toml`, `.python-version`, `tools/README.md`.
+Tests: `tests/{__init__,test_second_brain,test_session_index,test_concept_and_snapshot,test_stats}.py`.
+Hooks: `scripts/lifeos-compliance-check.sh` (L5 closure for v1.6.3 chain).
+Docs: 3 README + 3 CHANGELOG (this commit).
+
+### 🚧 Known limitations / TBD
+
+- **Production validation pending** — alpha is theory-tested via pytest + spec compliance, but not yet exercised in a real user second-brain at scale
+- **No `concept-lookup` traversal of edges yet** — Wave 1 only; Wave 2/3 is hippocampus's domain
+- **Narrator validator** is shipped but uses self-check loop in Phase 2; standalone validator subagent pending Phase 2.5
+- **`tools/backup.py`** for snapshot archival rotation: deferred to v1.7.0 stable
+- **adjourn-compliance eval scenario** still placeholder
+
+### Migration
+
+Existing users (v1.6.3b → v1.7.0-alpha):
+1. Re-install skill: `/install-skill https://github.com/jasonhnd/life_OS`
+2. Re-run hooks setup: `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`
+3. (Optional) Install Python tools: `cd ~/.claude/skills/life_OS && uv sync`
+4. (Optional) Enable Cortex: `echo "cortex_enabled: true" >> {your-second-brain}/_meta/config.md`
+
+Default OFF means existing users see ZERO behavior change unless they opt in. v1.6.3 five-layer compliance defense remains active and unchanged.
+
+---
+
 ## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 Auto-Trigger Wired
 
 > v1.6.3 shipped Mode 3 (Compliance Patrol) spec into `pro/agents/auditor.md` but **nothing actually invoked it**. The first production run in a user second-brain confirmed the gap: retrospective Mode 0 completed, briefing displayed, but no AUDITOR Compliance Patrol report appeared. Layer 4 of the five-layer defense was inert.

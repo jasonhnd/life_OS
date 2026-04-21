@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.3b-purple.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.0--alpha-orange.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -75,6 +75,50 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.7.0-alpha の新機能 — Cortex プリルーター認知層
+
+**Life OS 史上初の Layer 2 アーキテクチャアップグレード**。v1.7 以前、システムはセッション境界でのみ長期記憶に触れていた。境界間では現在の会話だけで意思決定 — 16 サブエージェントのチェックは強かったが、共有の認知基盤は空だった。v1.7 は**プリルーター認知層**を追加し、クロスセッション記憶・コンセプトグラフ・SOUL 信号をあらゆる意思決定ワークフローに注入する。
+
+### 6 つの新サブエージェント
+
+| エージェント | 役割 |
+|-------------|------|
+| `hippocampus` | クロスセッション記憶検索 · 3 波拡散活性化（メッセージごとに 5-7 件の関連過去セッション） |
+| `concept-lookup` | コンセプトグラフ直接マッチ（現メッセージが触れる上位 5-10 コンセプト） |
+| `soul-check` | SOUL 次元信号（整合 / 競合 / 休眠再活性化） |
+| `gwt-arbitrator` | Global Workspace Theory 信号統合 · top-5 信号を `[COGNITIVE CONTEXT]` に合成し ROUTER へ |
+| `narrator` | Summary Report の実質的主張を `[source:signal_id]` 引用で包装（confabulation 防止） |
+| `narrator-validator` | Sonnet 層の引用規律監査 |
+
+### コンセプトグラフ — markdown、データベースなし
+
+コンセプトは `_meta/concepts/{domain}/{concept_id}.md` 配下の markdown ファイル。シナプスエッジは concept frontmatter に存在。共活性化で重み +1 (Hebbian)。3 層ライフサイクル (`tentative → confirmed → canonical`)。4 層 permanence (`identity / skill / fact / transient`) が減衰カーブを決定。
+
+### Phase 1 実装ステータス
+
+- ✅ 6 サブエージェントすべて実装 (~900 行の markdown 契約)
+- ✅ Python データ層：`tools/lib/second_brain.py` + `tools/lib/cortex/` (~1500 行、pure stdlib + pyyaml)
+- ✅ 4 CLI ツール：`rebuild_session_index.py`、`rebuild_concept_index.py`、`stats.py`、`setup-hooks.sh`
+- ✅ 77 pytest テストですべての Python モジュールをカバー
+- ✅ Archiver Phase 2 配線完了 (SessionSummary 書込 + コンセプト抽出 + Hebbian 更新)
+- ✅ Retrospective Mode 0 配線完了 (INDEX.md コンパイル)
+- ✅ Orchestrator Step 0.5 (Pre-Router) 配線完了
+- ✅ AUDITOR Mode 3 拡張で 7 Cortex 合規チェック追加 (CX1-CX7)
+
+### デフォルト OFF (オプトイン)
+
+Cortex は v1.7.0-alpha でデフォルト無効。ユーザーは `_meta/config.md` に `cortex_enabled: true` を追加して有効化。second-brain に ≥30 セッションが蓄積されてから有効化推奨（それ未満では検索する内容がない）。コスト：~$0.05-0.25/turn (Pre-Router サブエージェント全体での Opus トークン)。
+
+### v1.6.3 5 層防御は引き続き利用可能
+
+L1 hook · L2 Pre-flight · L3 サブエージェント自己チェック · L4 AUDITOR Compliance Patrol · L5 eval auto-detection。すべて配線済 + 本番検証済。
+
+> **Alpha 注意**：本番検証は保留中。重要な履歴を持つ use repo で cortex_enabled を有効化してテスト。問題は GitHub に報告。
+
+v1.7 の全 commit チェーン (19 個) と COURT-START-001 v1.6.3 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
 
 ---
 

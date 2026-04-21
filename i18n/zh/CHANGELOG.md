@@ -6,6 +6,120 @@
 
 ---
 
+## [1.7.0-alpha] - 2026-04-21 · Cortex 路由前认知层
+
+> Life OS 历史上首次 Layer 2 架构升级。把跨会话记忆、概念图、身份信号作为每次决策工作流的输入。今日 19 个 commit 将 v1.7 从 spec 草稿推到功能完整。
+
+### 🧠 路由前认知层（编排 Step 0.5）
+
+当 `_meta/config.md` 设 `cortex_enabled: true` 时，所有非 Start-Session 的用户消息在 ROUTER 分诊**之前**经过 4 个并行子代理：
+
+```
+user message
+    ↓
+Step 0.5（路由前认知层）
+    ├─ hippocampus       → 3 波会话检索（5-7 个 sessions）
+    ├─ concept-lookup    → 概念图匹配（5-10 个 concepts）
+    └─ soul-check        → SOUL 维度信号（top 5）
+         ↓
+    gwt-arbitrator        → 用 salience 公式选 top-5 信号
+         ↓
+[COGNITIVE CONTEXT] 块前置到 user message
+    ↓
+Step 1（ROUTER 用注释化输入分诊）
+```
+
+REVIEWER 终审后，可选的 `narrator` 用 `[source:signal_id]` 引用包装 Summary Report 实质性主张。`narrator-validator`（Sonnet 层）审计引用纪律。
+
+### 📋 6 个新子代理（~900 行 markdown 契约）
+
+| 代理 | 文件 | spec |
+|------|------|------|
+| hippocampus | `pro/agents/hippocampus.md` | `references/hippocampus-spec.md` |
+| concept-lookup | `pro/agents/concept-lookup.md` | `references/concept-spec.md` |
+| soul-check | `pro/agents/soul-check.md` | 派生自 soul-spec + gwt-spec §6 |
+| gwt-arbitrator | `pro/agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
+| narrator | `pro/agents/narrator.md` | `references/narrator-spec.md` |
+| narrator-validator | `pro/agents/narrator-validator.md` | narrator-spec validator 部分 |
+
+6 个代理全部强制信息隔离：拒绝同层 Pre-Router 代理的输出。全部只读——只在 archiver Phase 2 发生写入。
+
+### 🐍 Python 工具（~1500 行 · 纯 stdlib + pyyaml）
+
+| 模块 | 职责 |
+|------|------|
+| `tools/lib/second_brain.py` | 11 种 second-brain 类型 dataclass + frontmatter parser/dumper + 路径解析 |
+| `tools/lib/cortex/session_index.py` | SessionSummary IO + INDEX.md 编译（幂等）|
+| `tools/lib/cortex/concept.py` | Concept IO + INDEX/SYNAPSES 编译 + Hebbian 更新 |
+| `tools/lib/cortex/snapshot.py` | SoulSnapshot IO + 归档策略（30d/90d）|
+| `tools/stats.py` | 合规违规升级阶梯执行 |
+
+### 🔧 4 个 CLI 工具
+
+```bash
+uv run tools/rebuild_session_index.py [--root PATH] [--dry-run]
+uv run tools/rebuild_concept_index.py [--root PATH] [--dry-run] [--no-synapses]
+uv run tools/stats.py [--violations PATH] [--json]
+bash scripts/setup-hooks.sh   # 自动注册 SessionStart + UserPromptSubmit hooks
+```
+
+### ✅ 77 个 pytest 测试 — 全部通过 0.23 秒
+
+| 文件 | 测试数 |
+|------|------|
+| `tests/test_second_brain.py` | 15（frontmatter / dataclass / 路径）|
+| `tests/test_session_index.py` | 16（truncate / write / compile / rebuild / 幂等）|
+| `tests/test_concept_and_snapshot.py` | 18（concept IO / INDEX / SYNAPSES / Hebbian / 快照策略）|
+| `tests/test_stats.py` | 18（parse / 升级 / 阈值 / 路径解析）|
+
+```bash
+python3 -m pytest tests/ -v        # 77 passed in 0.23s
+```
+
+### 🚦 默认 OFF（按需启用）
+
+Cortex 在 v1.7.0-alpha 默认禁用。用户启用：
+
+```bash
+echo "cortex_enabled: true" >> _meta/config.md
+```
+
+建议在 second-brain 累积 ≥30 个 sessions 后启用。成本：~$0.05-0.25/turn（Opus tokens 跨 Pre-Router 子代理）。
+
+### 📊 Cortex 合规分类（已加入 AUDITOR Mode 3）
+
+| 代码 | 名称 | 严重度 |
+|------|------|------|
+| CX1 | Skip Pre-Router subagents | P1 |
+| CX2 | Skip GWT arbitrator | P1 |
+| CX3 | Missing [COGNITIVE CONTEXT] delimiters | P1 |
+| CX4 | Hippocampus session cap exceeded | P1 |
+| CX5 | GWT signal cap exceeded | P1 |
+| CX6 | Cortex isolation breach | P0 |
+| CX7 | Cortex write breach | P0 |
+
+`cortex_enabled: false` 时跳过所有 CX 检测。
+
+### 🚧 已知限制 / 待办
+
+- **生产验证待办** — alpha 通过 pytest + 规格合规性测试，但未在真实 user second-brain 大规模实战
+- **`concept-lookup` 不做边遍历** — 仅 Wave 1；Wave 2/3 是 hippocampus 的领域
+- **Narrator validator** Phase 2 用自检环；独立 validator 子代理待 Phase 2.5
+- **`tools/backup.py`** 快照归档轮转：延后到 v1.7.0 稳定版
+- **adjourn-compliance eval 场景** 仍为占位
+
+### 迁移
+
+现有用户（v1.6.3b → v1.7.0-alpha）：
+1. 重装 skill：`/install-skill https://github.com/jasonhnd/life_OS`
+2. 重跑 hooks 安装：`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`
+3.（可选）安装 Python 工具：`cd ~/.claude/skills/life_OS && uv sync`
+4.（可选）启用 Cortex：`echo "cortex_enabled: true" >> {你的 second-brain}/_meta/config.md`
+
+默认 OFF 意味着现有用户除非主动启用否则零行为变化。v1.6.3 五层合规防御保持激活不变。
+
+---
+
 ## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 自动触发已接线
 
 > v1.6.3 把 Mode 3（Compliance Patrol）规格交付到 `pro/agents/auditor.md`，但**没人实际调用它**。在用户 second-brain 的首次生产运行确认了这个缺口：retrospective Mode 0 完成、简报显示，但没有 AUDITOR Compliance Patrol 报告。五层防御的第 4 层处于失活状态。
