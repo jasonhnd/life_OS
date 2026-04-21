@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.3-purple.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.3a-purple.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -88,6 +88,8 @@ Life OS 装进你的 AI 终端（Claude Code、Gemini CLI 或 Codex CLI），把
 **双仓库违规日志**（md + git，遵循用户存储约束）：违规持久化到 `pro/compliance/violations.md`（dev repo，公开）和 `_meta/compliance/violations.md`（user second-brain，私有）。升级阶梯：30 天内同类 ≥3 → hook 提醒加严；≥5 → briefing 顶部加 `🚨 Compliance Watch`；90 天内 ≥10 → AUDITOR 每次 Session 巡检。
 
 **v1.6.2 依然可用**：退朝流程无法被绕过 · Wiki 自动写入 · SOUL 持续自动写入 · DREAM 10 个自动触发 · SOUL 趋势箭头 · REVIEWER 3 层 SOUL 策略 · 简报顶部 SOUL 健康报告。
+
+> **v1.6.3a 热修补（2026-04-21）** — 关闭第 1 层安装缺口。`scripts/setup-hooks.sh` 现可自动注册 UserPromptSubmit hook（一次运行：`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`）。Hook regex 收紧（首行 + 长度检查）以减少粘贴内容假阳性。违规分类新增 F 类（False positive）。
 
 完整列表及原始 COURT-START-001 事件档案见 [CHANGELOG](./CHANGELOG.md)。
 

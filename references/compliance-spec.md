@@ -68,6 +68,7 @@ Each violation is one row in a markdown table:
 | **C** | Incomplete Phase | archiver exited before all 4 phases (stopped mid-execution) |
 | **D** | Placeholder value | Completion Checklist contained `TBD`, empty field, or literal `{...}` |
 | **E** | Main-context Phase execution | ROUTER executed archiver's Phase 1/2/3/4 logic in main context |
+| **F** | False positive | Hook fired on paste/quote content, not a real user trigger (v1.6.3a new). Default severity P2. Detected by assistant judgment when trigger word appears in paste indicators (long prompt, trigger not on first line, surrounded by quote/code-fence markers). Excluded from escalation ladder — high count = hook miscalibration, not user behavior. |
 
 ### Severity Rubric
 

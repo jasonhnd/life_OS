@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.3-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.3a-purple.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -93,6 +93,8 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Dual-repo violations log** (md + git, per user's storage constraint): violations persist to `pro/compliance/violations.md` (dev repo, public) and `_meta/compliance/violations.md` (user second-brain, private). Escalation ladder: ≥3 same type in 30 days → stricter hook reminder; ≥5 → briefing `🚨 Compliance Watch`; ≥10 in 90 days → AUDITOR patrol every session.
 
 **Still current from v1.6.2**: Bulletproof adjourn · Wiki auto-writes · SOUL auto-writes · DREAM 10 auto-triggers · SOUL trend arrows · REVIEWER 3-tier SOUL strategy · SOUL Health Report in briefing.
+
+> **v1.6.3a hot patch (2026-04-21)** — closes the Layer 1 install gap. `scripts/setup-hooks.sh` now auto-registers the UserPromptSubmit hook (run once: `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`). Hook regex tightened (first-line + length checks) to reduce false positives on pasted content. New Class F (false positive) added to violation taxonomy.
 
 See [CHANGELOG](CHANGELOG.md) for the full list and the original COURT-START-001 incident archive.
 

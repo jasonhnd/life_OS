@@ -34,6 +34,33 @@ if [[ -z "$PROMPT" ]]; then
   exit 0
 fi
 
+# ─── Conservative false-positive guard (v1.6.3a) ────────────────────────────
+# Reduces Class F false positives when user pastes content (transcripts, code,
+# long quotes) containing trigger words mid-content.
+#
+# Two checks:
+#   1. Whole prompt length ≤ 500 chars (long prompts = conversational/paste)
+#   2. First non-empty line ≤ 100 chars (filters paste blocks with intros)
+#
+# Trigger regex then runs against the FIRST LINE only (was multiline before).
+# See references/compliance-spec.md Class F.
+
+PROMPT_LEN=${#PROMPT}
+if [[ $PROMPT_LEN -gt 500 ]]; then
+  echo "$INPUT"
+  exit 0
+fi
+
+FIRST_LINE=$(echo "$PROMPT" | sed -n '/[^[:space:]]/{p;q;}')
+LINE_LEN=${#FIRST_LINE}
+if [[ $LINE_LEN -gt 100 ]]; then
+  echo "$INPUT"
+  exit 0
+fi
+
+# Use FIRST_LINE for trigger matching (not full multiline PROMPT).
+PROMPT="$FIRST_LINE"
+
 # ─── Trigger word taxonomy ───────────────────────────────────────────────────
 # Covers all 9 themes' Start Session / Review / Adjourn / Debate triggers,
 # plus the universal English words that work in any theme.

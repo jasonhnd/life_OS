@@ -101,6 +101,22 @@
 - `partial` → `true`: eval regression pass AND 30-day no-recurrence observed
 - `true` entries stay indefinitely for historical record
 
+## Example 11 · Class F (False positive · v1.6.3a new)
+
+When user pastes content (transcript, code, quoted text) containing a trigger word mid-content, the hook regex may match a non-first line and fire erroneously.
+
+```
+| 2026-04-21T13:42+09:00 | 上朝 | F | P2 | Hook fired on user pasting v1.6.3 production-verification transcript containing "上朝" mid-content. Real intent: "看一下下面的用户反馈". Detected by assistant judgment (paste indicators: prompt > 500 chars + trigger not on first line). | true (mitigated by v1.6.3a hook first-line + length checks) |
+```
+
+**Detection rule** (assistant judgment, not bash hook):
+- Trigger word appears in clearly quoted/pasted context
+- Heuristics: prompt length, line position of trigger, presence of code fences or quote markers, content semantics ("look at", "review", "user feedback below")
+
+**Severity F default**: P2 (informational). Excluded from escalation ladder — high F count = hook miscalibration, not user violation pattern.
+
+**v1.6.3a mitigation**: hook now extracts first non-empty line only (was multiline) AND requires prompt ≤ 500 chars + first line ≤ 100 chars. Most paste content fails these gates and passes through silently.
+
 ## Example 10 · Hook-generated entry (terse format)
 
 When the hook itself writes entries (vs AUDITOR), Details are machine-generated and shorter:

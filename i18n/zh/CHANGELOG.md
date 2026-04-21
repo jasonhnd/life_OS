@@ -6,6 +6,75 @@
 
 ---
 
+## [1.6.3a] - 2026-04-21 · v1.6.3 热修补 · 第 1 层安装缺口 + Hook 假阳性守卫
+
+> v1.6.3 在用户 second-brain 的首次生产运行（同日）验证了第 2-5 层防御端到端 work。同时暴露 2 个真实 gap：
+> 1. **第 1 层（UserPromptSubmit hook）未自动注册** — `/install-skill` 只复制文件，不改 `~/.claude/settings.json`。默认安装下 L1 直接没了。
+> 2. **Hook regex 误报粘贴内容** — 粘贴的转录里含触发词时会错误触发 reminder。
+
+### 🔧 修复 1 — 第 1 层安装自动化
+
+`scripts/setup-hooks.sh` 重构：
+- 单次运行同时安装 SessionStart hook（版本检查）和 UserPromptSubmit hook（第 1 层防御）
+- 加入 `register_hook()` 辅助函数，DRY 幂等注册跨事件类型
+- 幂等：可安全反复运行；已注册的 hook 跳过
+- 向后兼容：现有 v1.6.3 安装不受影响；重跑会干净地补上 L1
+
+用户在 install/upgrade 后跑一次：
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
+
+### 🔧 修复 2 — Hook 假阳性降低
+
+`scripts/lifeos-pre-prompt-guard.sh` 在 regex 匹配前加两道前置检查：
+- **长度检查**：prompt 整体 ≤ 500 字符（长 prompt = 对话/粘贴，非指令）
+- **首行检查**：首个非空行 ≤ 100 字符（过滤掉段落式开头的粘贴块）
+
+触发词 regex 现仅对**首行**匹配（此前为多行）。粘贴含触发词的转录不再触发 hook。
+
+### 🆕 F 类 · 假阳性
+
+加入 `references/compliance-spec.md` Type Taxonomy 和 `pro/compliance/violations.md` Type Legend：
+
+| 代码 | 名称 | 默认严重度 |
+|-----|------|-----------|
+| **F** | False positive | P2（信息性）— hook 触发在粘贴/引用内容，非真实用户指令。从升级阶梯中排除。|
+
+首条 F 类记录：2026-04-21T13:42 — 在 dev repo 粘贴 v1.6.3 生产验证转录触发了 hook。Assistant 正确识别为粘贴上下文并拒绝启动 retrospective。已由修复 2 缓解。
+
+### 📋 COURT-START-001 状态推进
+
+`pro/compliance/violations.md` 中 4 条 incident 条目加注生产验证证据：
+- L2（Pre-flight Compliance Check）— 2026-04-21 user second-brain 验证 work
+- L3（Subagent Self-Check）— 2026-04-21 user second-brain 验证 work
+- L4（AUDITOR Compliance Patrol）+ L5（eval 回归）— 等观察窗
+
+`partial → true` 转换仍按 `references/compliance-spec.md` 等待 eval 回归通过 + 30 天无复发窗。
+
+### 涉及文件
+
+- `SKILL.md`（版本 1.6.3 → 1.6.3a）
+- `scripts/setup-hooks.sh`（重构 + register_hook 辅助函数 + UserPromptSubmit 注册）
+- `scripts/lifeos-pre-prompt-guard.sh`（+ 长度检查 + 首行提取）
+- `references/compliance-spec.md`（+ F 类入 Type Taxonomy）
+- `pro/compliance/violations.md`（+ F 类入 legend，+ 1 条 F 记录，+ 4 条 COURT-START-001 加 L2/L3 验证注解）
+- `pro/compliance/violations.example.md`（+ Example 11 F 类）
+- `README.md` + 三语（版本徽章 + v1.6.3a 热修补提示）
+- `CHANGELOG.md` + 三语
+
+### 迁移
+
+现有 v1.6.3 安装：
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
+激活第 1 层防御。其他无需操作；L2-5 不变。
+
+新安装：同一行命令一次激活所有层。
+
+---
+
 ## [1.6.3] - 2026-04-21 · COURT-START-001 修复 · 五层防御
 
 > 用户在 Life OS 开发 repo 说"上朝"，ROUTER 跳过 retrospective 子代理，在主上下文模拟 18 步流程，并编造不存在的路径 `_meta/roles/CLAUDE.md § 0 Pre-Court Preparation` 作为权威源。用户反应："这样的 life os 如何拿给别人用？？？我无法接受。"本次发布交付五层防御，让每一条 HARD RULE 真正 hard。

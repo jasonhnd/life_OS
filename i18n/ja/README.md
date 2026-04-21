@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.3-purple.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.3a-purple.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -91,6 +91,8 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **デュアルリポ違反ログ**（md + git、ユーザーのストレージ制約に準拠）：違反は `pro/compliance/violations.md`（dev repo、公開）と `_meta/compliance/violations.md`（ユーザー second-brain、プライベート）に永続化。エスカレーションラダー：30 日以内に同種 ≥3 → hook リマインダー強化；≥5 → briefing 冒頭に `🚨 Compliance Watch`；90 日以内に ≥10 → AUDITOR が毎セッション巡検。
 
 **v1.6.2 の機能も引き続き利用可能**：退朝フロー部分スキップ不可 · Wiki 自動書き込み · SOUL 継続自動書き込み · DREAM 10 自動トリガー · SOUL トレンド矢印 · REVIEWER SOUL 3 層戦略 · ブリーフィング冒頭の SOUL ヘルスレポート。
+
+> **v1.6.3a ホットパッチ（2026-04-21）** — Layer 1 のインストールギャップを解消。`scripts/setup-hooks.sh` が UserPromptSubmit hook を自動登録するように（1 回実行：`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`）。Hook regex を強化（最初の行 + 長さチェック）し、ペースト内容の偽陽性を削減。違反分類に F クラス（偽陽性）を追加。
 
 完全なリストと元の COURT-START-001 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
 

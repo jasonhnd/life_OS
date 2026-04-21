@@ -6,6 +6,75 @@
 
 ---
 
+## [1.6.3a] - 2026-04-21 · v1.6.3 ホットパッチ · Layer 1 インストールギャップ + Hook 偽陽性ガード
+
+> v1.6.3 の本番初稼働（同日、ユーザー second-brain 内）で Layer 2-5 が end-to-end に動作することを検証。同時に 2 つの実 gap が顕在化：
+> 1. **Layer 1（UserPromptSubmit hook）は自動登録されていない** — `/install-skill` はファイルをコピーするが `~/.claude/settings.json` を変更しない。デフォルトインストールでは L1 防御が出荷されない。
+> 2. **Hook regex がペースト内容で偽発火** — トリガーワードを含む転送ペーストが誤って reminder を発火させた。
+
+### 🔧 修正 1 — Layer 1 インストール自動化
+
+`scripts/setup-hooks.sh` リファクタリング：
+- 単一実行で SessionStart hook（バージョンチェック）と UserPromptSubmit hook（Layer 1 防御）を両方インストール
+- `register_hook()` ヘルパー関数を追加し、イベントタイプ間で DRY 冪等登録
+- 冪等：安全に複数回実行可能；既登録 hook はスキップ
+- 後方互換：既存 v1.6.3 インストールに影響なし；再実行で L1 をクリーンに追加
+
+インストール / アップグレード後にユーザーが一度実行：
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
+
+### 🔧 修正 2 — Hook 偽陽性削減
+
+`scripts/lifeos-pre-prompt-guard.sh` regex マッチング前に 2 つの事前チェックを追加：
+- **長さチェック**：prompt 全体 ≤ 500 文字（長い prompt = 会話的 / ペースト、トリガーではない）
+- **最初の行チェック**：最初の非空行 ≤ 100 文字（段落形式のイントロを持つペーストブロックを除外）
+
+トリガーワード regex は**最初の行のみ**でマッチング（以前は複数行）。トリガーワードを含む転送ペーストは hook を発火させなくなった。
+
+### 🆕 Class F · 偽陽性
+
+`references/compliance-spec.md` Type Taxonomy と `pro/compliance/violations.md` Type Legend に追加：
+
+| コード | 名称 | デフォルト重大度 |
+|-------|------|--------------|
+| **F** | False positive | P2（情報的）— hook がペースト / 引用コンテンツで発火、実ユーザートリガーではない。エスカレーションラダーから除外。|
+
+最初の Class F エントリ記録：2026-04-21T13:42 — dev repo で v1.6.3 本番検証転送をペーストして hook 発火。Assistant がペーストコンテキストを正しく識別し retrospective 起動を拒否。修正 2 で緩和済み。
+
+### 📋 COURT-START-001 ステータス更新
+
+`pro/compliance/violations.md` の 4 件の incident エントリに本番検証証拠を追記：
+- L2（Pre-flight Compliance Check）— 2026-04-21 ユーザー second-brain で動作検証
+- L3（Subagent Self-Check）— 2026-04-21 ユーザー second-brain で動作検証
+- L4（AUDITOR Compliance Patrol）+ L5（eval 回帰）— 観察ウィンドウ待ち
+
+`partial → true` 遷移は `references/compliance-spec.md` 通り eval 回帰パス + 30 日無再発ウィンドウ待ち。
+
+### 関連ファイル
+
+- `SKILL.md`（バージョン 1.6.3 → 1.6.3a）
+- `scripts/setup-hooks.sh`（リファクタ + register_hook ヘルパー + UserPromptSubmit 登録）
+- `scripts/lifeos-pre-prompt-guard.sh`（+ 長さチェック + 最初の行抽出）
+- `references/compliance-spec.md`（+ Class F を Type Taxonomy に追加）
+- `pro/compliance/violations.md`（+ Class F を legend に、+ 1 件の F エントリ、+ 4 件の COURT-START-001 に L2/L3 検証注釈）
+- `pro/compliance/violations.example.md`（+ Example 11 Class F）
+- `README.md` + 三言語（バージョンバッジ + v1.6.3a ホットパッチ注記）
+- `CHANGELOG.md` + 三言語
+
+### 移行
+
+既存 v1.6.3 インストール：
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
+Layer 1 防御を有効化。他の操作不要；L2-5 は変更なし。
+
+新規インストール：同じ 1 行コマンドですべてを一度に有効化。
+
+---
+
 ## [1.6.3] - 2026-04-21 · COURT-START-001 修正 · 五層防御
 
 > ユーザーが Life OS 開発 repo で「上朝」と発言した際、ROUTER は retrospective サブエージェントをスキップし、メインコンテキストで 18 ステップを模倣実行し、存在しないパス `_meta/roles/CLAUDE.md § 0 Pre-Court Preparation` を権威ソースとして捏造した。ユーザーの反応：「こんな Life OS を他人にどう渡せと？？？受け入れられない。」本リリースはあらゆる HARD RULE を本当に hard にする五層防御を提供する。

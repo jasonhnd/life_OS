@@ -6,6 +6,75 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.6.3a] - 2026-04-21 · v1.6.3 Hot Patch · Layer 1 Install Gap + Hook False-Positive Guard
+
+> First production run of v1.6.3 in a user second-brain (same day) validated Layers 2-5 working end-to-end. Two real gaps surfaced:
+> 1. **Layer 1 (UserPromptSubmit hook) was NOT auto-registered** — `/install-skill` copies files but doesn't modify `~/.claude/settings.json`. Default installs shipped without L1 defense.
+> 2. **Hook regex fired on paste content** — pasted transcripts containing a trigger word mid-content erroneously triggered the reminder.
+
+### 🔧 Fix 1 — Layer 1 install automation
+
+`scripts/setup-hooks.sh` refactored:
+- Now installs both SessionStart hook (version check) AND UserPromptSubmit hook (Layer 1 defense) in one run
+- Added `register_hook()` helper for DRY idempotent registration across event types
+- Idempotent: safe to re-run; skips already-registered hooks
+- Backwards compatible: existing v1.6.3 installs unaffected; re-running adds L1 cleanly
+
+User runs once after install/upgrade:
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
+
+### 🔧 Fix 2 — Hook false-positive reduction
+
+`scripts/lifeos-pre-prompt-guard.sh` adds two pre-checks before regex matching:
+- **Length check**: prompt overall ≤ 500 chars (long prompts = conversational/paste, not triggers)
+- **First-line check**: first non-empty line ≤ 100 chars (filters paste blocks starting with paragraph-length intros)
+
+Trigger regex now runs against **first line only** (was multiline). Pasted transcripts with trigger words mid-content no longer fire the hook.
+
+### 🆕 Class F — False positive
+
+Added to `references/compliance-spec.md` Type Taxonomy and `pro/compliance/violations.md` Type Legend:
+
+| Code | Name | Default Severity |
+|------|------|------------------|
+| **F** | False positive | P2 (informational) — hook fired on paste/quote content, not real user trigger. Excluded from escalation ladder. |
+
+First documented Class F entry: 2026-04-21T13:42 — paste of v1.6.3 production-verification transcript triggered hook in dev repo. Assistant correctly identified paste context and refused to launch retrospective. Mitigated by Fix 2 above.
+
+### 📋 COURT-START-001 status update
+
+4 incident entries in `pro/compliance/violations.md` annotated with production-verification evidence:
+- L2 (Pre-flight Compliance Check) — verified working in user second-brain on 2026-04-21
+- L3 (Subagent Self-Check) — verified working in user second-brain on 2026-04-21
+- L4 (AUDITOR Compliance Patrol) + L5 (eval regression) — pending observation window
+
+`partial → true` transition still gated by eval regression pass + 30-day no-recurrence window per `references/compliance-spec.md`.
+
+### Files Touched
+
+- `SKILL.md` (version 1.6.3 → 1.6.3a)
+- `scripts/setup-hooks.sh` (refactor with register_hook helper + UserPromptSubmit registration)
+- `scripts/lifeos-pre-prompt-guard.sh` (+ length check + first-line extraction)
+- `references/compliance-spec.md` (+ Class F to Type Taxonomy)
+- `pro/compliance/violations.md` (+ Class F to legend, + 1 F entry, + L2/L3 verification annotations on 4 COURT-START-001 entries)
+- `pro/compliance/violations.example.md` (+ Example 11 Class F)
+- `README.md` + 三語 (version badge + v1.6.3a hot-patch note)
+- `CHANGELOG.md` + 三語
+
+### Migration
+
+Existing v1.6.3 installs:
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
+Activates Layer 1 defense. No other action needed; Layers 2-5 unchanged.
+
+New installs: same single command activates everything.
+
+---
+
 ## [1.6.3] - 2026-04-21 · COURT-START-001 Fix · Five-Layer Defense
 
 > When the user said "上朝" in the Life OS dev repo, ROUTER bypassed the retrospective subagent, simulated 18 steps inline, and fabricated the non-existent path `_meta/roles/CLAUDE.md § 0 Pre-Court Preparation` as authority. User reaction: "how can this Life OS be given to others? I cannot accept." This release ships a five-layer defense so every HARD RULE is actually hard.
