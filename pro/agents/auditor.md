@@ -138,6 +138,32 @@ For each completed Adjourn session, scan transcript:
    - Phase 4: "git commit" / "git push"
    - Any → log E.
 
+### Detection checks (Cortex Phase 1 — when cortex_enabled in `_meta/config.md`)
+
+For each session with Cortex active, scan transcript for Pre-Router orchestration compliance per `pro/CLAUDE.md` Step 0.5:
+
+1. **CX1 check** — Did orchestrator launch hippocampus, concept-lookup (or null placeholder), and soul-check (or null placeholder) BEFORE ROUTER triage? Missing any → log CX1 (P1).
+2. **CX2 check** — Did orchestrator launch gwt-arbitrator AFTER all 3 Cortex modules returned? Skipped → log CX2 (P1).
+3. **CX3 check** — Does ROUTER input contain `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters when Cortex enabled? Missing → log CX3 (P1) — orchestrator failed to prepend GWT output to user message.
+4. **CX4 check** — Does hippocampus output respect 5-7 session cap? Exceeded → log CX4 (P1).
+5. **CX5 check** — Does GWT arbitrator output respect 5-signal cap? Exceeded → log CX5 (P1).
+6. **CX6 check** — Did any Cortex subagent (hippocampus, concept-lookup, soul-check) read peer outputs? Information isolation breach → log CX6 (P0).
+7. **CX7 check** — Did any Cortex subagent write to a file? Read-only contract violation → log CX7 (P0).
+
+When `cortex_enabled: false` (default in v1.7), skip ALL CX checks — the user explicitly opted out.
+
+### Cortex violation taxonomy (added v1.7 Phase 1)
+
+| Type | Name | Default Severity | Context |
+|------|------|------------------|---------|
+| **CX1** | Skip Pre-Router subagents | P1 | Orchestrator did not launch hippocampus + concept-lookup + soul-check before ROUTER |
+| **CX2** | Skip GWT arbitrator | P1 | Orchestrator skipped GWT consolidation step |
+| **CX3** | Missing [COGNITIVE CONTEXT] delimiters | P1 | GWT output not prepended to ROUTER input correctly |
+| **CX4** | Hippocampus session cap exceeded | P1 | Returned > 7 sessions (spec §11) |
+| **CX5** | GWT signal cap exceeded | P1 | Composed > 5 signals (spec §7) |
+| **CX6** | Cortex isolation breach | P0 | Subagent read peer module output (information isolation HARD RULE) |
+| **CX7** | Cortex write breach | P0 | Subagent wrote to file (Cortex layer is read-only HARD RULE) |
+
 ### Write path
 
 For each detected violation:
