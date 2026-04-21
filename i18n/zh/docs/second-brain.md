@@ -82,7 +82,7 @@ social/    learning/   ops/        creation/  spirit/
 ### _meta/ — 系统元数据
 
 关于大脑的大脑。包含：
-- **STATUS.md**：跨所有项目和领域的全局快照。由早朝官在会话结束时更新。
+- **STATUS.md**：跨所有项目和领域的全局快照。会话开始时由早朝官读取（简报 + 巡查），会话结束时由起居郎写入（归档 + DREAM + 同步）。
 - **MAP.md**：跨 wiki/ 的知识地图，连接概念。
 - **decisions/**：不属于任何单一项目的跨领域决策。
 - **journal/**：系统级日志——早朝简报、御史台和谏官报告。
@@ -138,7 +138,7 @@ social/    learning/   ops/        creation/  spirit/
 
 ### 🧠 当前状态（页面）
 
-镜像 `_meta/STATUS.md`。由 CC 在会话结束时覆盖。
+镜像 `_meta/STATUS.md`。由起居郎在会话结束时覆盖（作为归档 + 同步流程的一部分）。
 
 ### 📝 工作记忆（主题页面）
 

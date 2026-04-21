@@ -237,16 +237,18 @@ Assuming a typical active user's monthly usage pattern:
 
 ---
 
-## API Pricing Reference
+## API Pricing Reference (example, may drift)
 
-Using Claude Sonnet 4.5 API pricing as an example (April 2026):
+> **Disclaimer**: Prices below are snapshots as of 2026-04 and will change as providers adjust pricing and release new model tiers. Always check the official pricing pages for current rates. Life OS itself is model-agnostic — the specific model in use is set in your platform's orchestrator binding (e.g., `CLAUDE.md`), not in this doc.
+
+Using Claude's sonnet-tier model API pricing as an example (as of 2026-04):
 
 | | Price |
 |--|-------|
 | Input | $3 / 1M tokens |
 | Output | $15 / 1M tokens |
 
-Pro mode uses Opus 4.5:
+Pro mode uses Claude's opus-tier model (as of 2026-04):
 
 | | Price |
 |--|-------|

@@ -57,16 +57,16 @@ If you see a response in this format, installation was successful:
 
 ### What Makes Pro Mode Special
 
-- 14 AI roles each run independently, unable to see each other's thought processes
+- 16 AI roles each run independently, unable to see each other's thought processes
 - Six Ministries can work in parallel (no queuing)
 - The Chancellery cannot see how the Secretariat thinks during review — truly independent review
-- All roles use the strongest opus model
+- All roles use Claude's opus-tier model (strongest available, auto-selected)
 
 ---
 
 ## Gemini CLI / Antigravity (Pro Mode)
 
-Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemini-cli) and [Google Antigravity](https://idx.google.com/) with 16 independent subagents powered by Gemini 2.5 Pro.
+Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemini-cli) and [Google Antigravity](https://idx.google.com/) with 16 independent subagents powered by Gemini's strongest available model (auto-selected at runtime, no hardcoded version).
 
 ### Installation Steps
 
@@ -94,7 +94,7 @@ npx skills add jasonhnd/life_OS
 
 ## OpenAI Codex CLI (Pro Mode)
 
-Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with 16 independent subagents powered by o3.
+Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with 16 independent subagents powered by Codex's strongest reasoning model (auto-selected at runtime, no hardcoded version).
 
 ### Installation Steps
 
@@ -154,20 +154,40 @@ Regardless of platform, test with these messages after installation:
 
 This is usually caused by large files in `.claude/worktrees/` (leftover from Claude Code sessions). These worktree copies flood Gemini's context window.
 
-Fix:
-1. Delete the worktree folder: `rm -rf .claude/worktrees/`
-2. Add `.claude/worktrees/` to your `.gitignore`
-3. Restart Antigravity / Gemini CLI
+> ⚠️ **Manual Recovery (Human Only)** — The following commands involve destructive operations (`rm -rf`). Agents MUST NOT auto-execute them; run them yourself in your own terminal. GLOBAL.md Security Boundary #1 forbids agents from executing destructive commands without explicit user confirmation.
+
+```text
+# HUMAN ONLY — DO NOT auto-execute
+# 1. Delete the worktree folder
+rm -rf .claude/worktrees/
+
+# 2. Add `.claude/worktrees/` to your `.gitignore` (edit manually)
+
+# 3. Restart Antigravity / Gemini CLI
+```
 
 **Git operations fail with `fatal: not a git repository` after moving the repo**
 
 This happens when Claude Code worktree references still point to the old location. The `.claude/worktrees/` directory contains `.git` files with hardcoded absolute paths.
 
-Fix:
-1. Clean git worktree references: `git worktree prune`
-2. Delete stale worktree directories: `rm -rf .claude/worktrees/`
-3. Check for broken config: `git config --get core.hooksPath` — if it points to a non-existent path, run `git config --unset core.hooksPath`
-4. Remove worktree extension flag: `git config --unset extensions.worktreeConfig`
+> ⚠️ **Manual Recovery (Human Only)** — The following commands involve destructive operations (`rm -rf`, `git config --unset`). Agents MUST NOT auto-execute them; run them yourself in your own terminal. GLOBAL.md Security Boundary #1 forbids agents from executing destructive commands without explicit user confirmation.
+
+```text
+# HUMAN ONLY — DO NOT auto-execute
+# 1. Clean git worktree references
+git worktree prune
+
+# 2. Delete stale worktree directories
+rm -rf .claude/worktrees/
+
+# 3. Check for broken config — if it points to a non-existent path,
+#    run the unset command below
+git config --get core.hooksPath
+git config --unset core.hooksPath
+
+# 4. Remove worktree extension flag
+git config --unset extensions.worktreeConfig
+```
 
 Prevention: Before moving a repo (e.g., Dropbox → iCloud), always clean up worktrees first. After Claude Code worktree sessions, choose "remove" instead of "keep".
 

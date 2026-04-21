@@ -154,20 +154,39 @@ npx skills add jasonhnd/life_OS
 
 通常是 `.claude/worktrees/` 中的大文件（Claude Code 会话残留）导致。这些 worktree 副本会淹没 Gemini 的上下文窗口。
 
-修复方法：
-1. 删除 worktree 文件夹：`rm -rf .claude/worktrees/`
-2. 将 `.claude/worktrees/` 添加到 `.gitignore`
-3. 重启 Antigravity / Gemini CLI
+> ⚠️ **手动恢复手册（仅限人工执行）** —— 以下命令涉及破坏性操作（`rm -rf`）。Agent 不得自动执行，必须由用户在自己终端中手动运行。GLOBAL.md 安全边界 #1 禁止 agent 未经确认执行破坏性命令。
+
+```text
+# HUMAN ONLY — DO NOT auto-execute
+# 1. 删除 worktree 文件夹
+rm -rf .claude/worktrees/
+
+# 2. 将 `.claude/worktrees/` 添加到 `.gitignore`（手动编辑）
+
+# 3. 重启 Antigravity / Gemini CLI
+```
 
 **移动仓库后 Git 操作失败，报错 `fatal: not a git repository`**
 
 这是因为 Claude Code worktree 引用仍指向旧路径。`.claude/worktrees/` 目录中包含硬编码绝对路径的 `.git` 文件。
 
-修复方法：
-1. 清理 git worktree 引用：`git worktree prune`
-2. 删除过时的 worktree 目录：`rm -rf .claude/worktrees/`
-3. 检查损坏的配置：`git config --get core.hooksPath` —— 如果指向不存在的路径，运行 `git config --unset core.hooksPath`
-4. 移除 worktree 扩展标志：`git config --unset extensions.worktreeConfig`
+> ⚠️ **手动恢复手册（仅限人工执行）** —— 以下命令涉及破坏性操作（`rm -rf`、`git config --unset`）。Agent 不得自动执行，必须由用户在自己终端中手动运行。GLOBAL.md 安全边界 #1 禁止 agent 未经确认执行破坏性命令。
+
+```text
+# HUMAN ONLY — DO NOT auto-execute
+# 1. 清理 git worktree 引用
+git worktree prune
+
+# 2. 删除过时的 worktree 目录
+rm -rf .claude/worktrees/
+
+# 3. 检查损坏的配置 —— 如果指向不存在的路径，运行下面的 unset 命令
+git config --get core.hooksPath
+git config --unset core.hooksPath
+
+# 4. 移除 worktree 扩展标志
+git config --unset extensions.worktreeConfig
+```
 
 预防措施：移动仓库前（例如从 Dropbox 到 iCloud），务必先清理 worktree。Claude Code worktree 会话结束后，选择"remove"而非"keep"。
 

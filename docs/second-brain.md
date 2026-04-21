@@ -82,7 +82,7 @@ social/    learning/   ops/        creation/  spirit/
 ### _meta/ — System Metadata
 
 The brain about the brain. Contains:
-- **STATUS.md**: Global snapshot of what's happening across all projects and areas. Updated by Morning Court Official at session end.
+- **STATUS.md**: Global snapshot of what's happening across all projects and areas. Read by Morning Court Official at session start (briefing + patrol); written by Court Diarist at session close (archive + DREAM + sync).
 - **MAP.md**: Knowledge map linking concepts across wiki/.
 - **decisions/**: Cross-domain decisions that don't belong to any single project.
 - **journal/**: System-level logs — morning court briefings, Censorate and Remonstrator reports.
@@ -116,14 +116,14 @@ The Court Diarist's session-close process: reviews the session, extracts reusabl
 
 | Output | GitHub Path |
 |--------|------------|
-| Decision memorials (project) | `projects/{p}/decisions/` |
+| Decision memorials (project) | `projects/{project}/decisions/` |
 | Decision memorials (cross-domain) | `_meta/decisions/` |
-| Action items | `projects/{p}/tasks/` or `areas/{a}/tasks/` |
+| Action items | `projects/{project}/tasks/` or `areas/{area}/tasks/` |
 | Morning court briefings | `_meta/journal/` |
 | Censorate/Remonstrator reports | `_meta/journal/` |
-| Research | `projects/{p}/research/` |
+| Research | `projects/{project}/research/` |
 | Cross-domain knowledge | `wiki/` |
-| Goals | `areas/{a}/goals.md` |
+| Goals | `areas/{area}/goals.md` |
 | Session journal (session-close) | `_meta/journal/` (via Court Diarist) |
 | Wiki extraction (session-close) | `wiki/{domain}/{topic}.md` (via Court Diarist) |
 | Global status | `_meta/STATUS.md` |
@@ -138,7 +138,7 @@ Message queue between mobile and desktop. Fields: Content / Source (Mobile/Deskt
 
 ### 🧠 Current Status (Page)
 
-Mirrors `_meta/STATUS.md`. Overwritten by CC at session end.
+Mirrors `_meta/STATUS.md`. Overwritten by Court Diarist at session close (as part of archive + sync).
 
 ### 📝 Working Memory (Topic Pages)
 

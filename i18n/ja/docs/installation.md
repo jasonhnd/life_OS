@@ -154,20 +154,39 @@ npx skills add jasonhnd/life_OS
 
 通常、`.claude/worktrees/`内の大きなファイル（Claude Codeセッションの残留物）が原因です。これらのworktreeコピーがGeminiのコンテキストウィンドウを溢れさせます。
 
-修正方法：
-1. worktreeフォルダを削除：`rm -rf .claude/worktrees/`
-2. `.claude/worktrees/`を`.gitignore`に追加
-3. Antigravity / Gemini CLIを再起動
+> ⚠️ **手動リカバリ（人間のみ実行）** —— 以下のコマンドは破壊的操作（`rm -rf`）を含みます。エージェントは自動実行してはならず、ユーザーが自分のターミナルで手動で実行する必要があります。GLOBAL.md セキュリティ境界 #1 はエージェントが確認なしに破壊的コマンドを実行することを禁止しています。
+
+```text
+# HUMAN ONLY — DO NOT auto-execute
+# 1. worktreeフォルダを削除
+rm -rf .claude/worktrees/
+
+# 2. `.claude/worktrees/`を`.gitignore`に追加（手動で編集）
+
+# 3. Antigravity / Gemini CLIを再起動
+```
 
 **リポジトリの移動後にGit操作が`fatal: not a git repository`で失敗する**
 
 Claude Codeのworktree参照がまだ古い場所を指しているために発生します。`.claude/worktrees/`ディレクトリにはハードコードされた絶対パスの`.git`ファイルが含まれています。
 
-修正方法：
-1. git worktree参照をクリーン：`git worktree prune`
-2. 古いworktreeディレクトリを削除：`rm -rf .claude/worktrees/`
-3. 壊れた設定をチェック：`git config --get core.hooksPath` — 存在しないパスを指している場合、`git config --unset core.hooksPath`を実行
-4. worktree拡張フラグを削除：`git config --unset extensions.worktreeConfig`
+> ⚠️ **手動リカバリ（人間のみ実行）** —— 以下のコマンドは破壊的操作（`rm -rf`、`git config --unset`）を含みます。エージェントは自動実行してはならず、ユーザーが自分のターミナルで手動で実行する必要があります。GLOBAL.md セキュリティ境界 #1 はエージェントが確認なしに破壊的コマンドを実行することを禁止しています。
+
+```text
+# HUMAN ONLY — DO NOT auto-execute
+# 1. git worktree参照をクリーン
+git worktree prune
+
+# 2. 古いworktreeディレクトリを削除
+rm -rf .claude/worktrees/
+
+# 3. 壊れた設定をチェック —— 存在しないパスを指している場合、下記の unset コマンドを実行
+git config --get core.hooksPath
+git config --unset core.hooksPath
+
+# 4. worktree拡張フラグを削除
+git config --unset extensions.worktreeConfig
+```
 
 予防策：リポジトリを移動する前（例：Dropbox → iCloud）、必ずworktreeを先にクリーンアップしてください。Claude Codeのworktreeセッション後は「keep」ではなく「remove」を選択してください。
 
