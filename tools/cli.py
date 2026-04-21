@@ -43,6 +43,10 @@ _COMMANDS: dict[str, tuple[str, str]] = {
         "tools.extract",
         "Concept candidate extraction from text (frequency + slug helpers)",
     ),
+    "seed-concepts": (
+        "tools.seed_concepts",
+        "Bootstrap concept graph from existing second-brain content (wiki + decisions + journal)",
+    ),
 }
 
 
