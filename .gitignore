@@ -17,3 +17,16 @@ pro/compliance/*.md
 !pro/compliance/*-spec-violation.md
 !pro/compliance/*-court-*.md
 !pro/compliance/*-incident-*.md
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local backup dir (from tools/backup.py tests)
+backup/
