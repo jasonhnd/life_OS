@@ -14,7 +14,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from tools.lib.second_brain import (
-    ParsedMarkdown,
     SnapshotDimension,
     SoulSnapshot,
     dump_frontmatter,

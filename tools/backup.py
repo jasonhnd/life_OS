@@ -26,7 +26,7 @@ import argparse
 import re
 import shutil
 import sys
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -37,7 +37,6 @@ from tools.lib.cortex.snapshot import (  # noqa: E402
     should_archive,
     should_delete,
 )
-
 
 _NINETY_DAYS = timedelta(days=90)
 
@@ -118,7 +117,6 @@ def rotate_violations(
     keep_lines: list[str] = []
     archive_buckets: dict[str, list[str]] = {}
 
-    in_violations_table = False
     for line in lines:
         m = _VIOLATION_ROW_RE.match(line)
         if not m:

@@ -8,24 +8,15 @@ from pathlib import Path
 import pytest
 
 from tools.lib.second_brain import (
-    ActionItem,
     Concept,
-    ConceptEdge,
-    ConceptProvenance,
-    EvalEntry,
-    Method,
-    ParsedMarkdown,
-    SecondBrainEntity,
     SessionSummary,
     SnapshotDimension,
     SoulSnapshot,
-    WikiNote,
     dump_frontmatter,
     load_markdown,
     parse_frontmatter,
     resolve_path,
 )
-
 
 # ─── Frontmatter parser ──────────────────────────────────────────────────────
 

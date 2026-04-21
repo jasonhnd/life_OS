@@ -5,8 +5,6 @@ from __future__ import annotations
 from datetime import date, datetime
 from pathlib import Path
 
-import pytest
-
 from tools.lib.cortex.session_index import (
     compile_index,
     compile_index_line,
@@ -20,7 +18,6 @@ from tools.lib.second_brain import (
     SessionSummary,
     parse_frontmatter,
 )
-
 
 # ─── Helpers ────────────────────────────────────────────────────────────────
 

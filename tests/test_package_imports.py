@@ -7,9 +7,6 @@ exported, etc).
 
 from __future__ import annotations
 
-import pytest
-
-
 # ─── tools.lib.cortex package-level imports ────────────────────────────────
 
 
@@ -111,6 +108,9 @@ class TestCortexPackageExports:
 
 class TestSecondBrainImports:
     def test_all_dataclasses_importable(self):
+        # Verify all are actually classes (dataclasses)
+        from dataclasses import is_dataclass
+
         from tools.lib.second_brain import (
             ActionItem,
             Concept,
@@ -125,8 +125,6 @@ class TestSecondBrainImports:
             SoulSnapshot,
             WikiNote,
         )
-        # Verify all are actually classes (dataclasses)
-        from dataclasses import is_dataclass
 
         for cls in (
             ActionItem,

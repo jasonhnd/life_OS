@@ -35,7 +35,6 @@ from typing import Any, ClassVar
 
 import yaml
 
-
 # ─── Frontmatter parsing ────────────────────────────────────────────────────
 
 

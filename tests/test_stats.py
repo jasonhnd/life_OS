@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-
-import pytest
-
-import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -17,7 +14,6 @@ from tools.stats import (
     parse_violations,
     resolve_violations_path,
 )
-
 
 # ─── parse_violations ───────────────────────────────────────────────────────
 

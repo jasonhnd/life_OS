@@ -23,11 +23,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-import pytest
-
 from tools.lib.cortex import (
-    compile_concept_index,
-    compile_index,
     compile_synapses_index,
     find_latest_snapshot,
     find_previous_snapshot,
@@ -40,17 +36,14 @@ from tools.lib.cortex import (
     write_session_summary,
     write_snapshot,
 )
-from tools.lib.cortex.session_index import session_summary_to_markdown
 from tools.lib.second_brain import (
     Concept,
     ConceptEdge,
-    ConceptProvenance,
     SessionSummary,
     SnapshotDimension,
     SoulSnapshot,
     parse_frontmatter,
 )
-
 
 # ─── Fixture builders ──────────────────────────────────────────────────────
 

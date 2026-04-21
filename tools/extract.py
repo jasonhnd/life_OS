@@ -91,7 +91,7 @@ def main() -> int:
         }
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
-        print(f"📊 Concept candidate extraction")
+        print("📊 Concept candidate extraction")
         print(f"   Total unique candidates: {len(counts)}")
         print(f"   After ≥{args.min_count}-mention filter: {len(filtered)}")
         print(f"   Top {args.top}:")

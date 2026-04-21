@@ -18,7 +18,6 @@ from tools.lib.cortex.concept import (
 from tools.lib.cortex.snapshot import (
     find_latest_snapshot,
     find_previous_snapshot,
-    list_active_snapshots,
     should_archive,
     should_delete,
     write_snapshot,
@@ -26,11 +25,9 @@ from tools.lib.cortex.snapshot import (
 from tools.lib.second_brain import (
     Concept,
     ConceptEdge,
-    ConceptProvenance,
     SnapshotDimension,
     SoulSnapshot,
 )
-
 
 # ─── Helpers ────────────────────────────────────────────────────────────────
 

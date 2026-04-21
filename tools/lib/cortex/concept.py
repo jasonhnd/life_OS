@@ -18,7 +18,6 @@ from tools.lib.second_brain import (
     Concept,
     ConceptEdge,
     ConceptProvenance,
-    ParsedMarkdown,
     dump_frontmatter,
     load_markdown,
 )

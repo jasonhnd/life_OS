@@ -7,9 +7,6 @@ from collections import Counter
 import pytest
 
 from tools.lib.cortex.extraction import (
-    STOPWORDS_EN,
-    STOPWORDS_JA_BASIC,
-    STOPWORDS_ZH_BASIC,
     count_candidate_frequencies,
     deduplicate_aliases,
     filter_by_min_frequency,
@@ -18,7 +15,6 @@ from tools.lib.cortex.extraction import (
     slug_from_name,
     split_into_candidate_phrases,
 )
-
 
 # ─── normalize_name ─────────────────────────────────────────────────────────
 

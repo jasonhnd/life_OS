@@ -20,7 +20,7 @@ import re
 import string
 import unicodedata
 from collections import Counter
-from typing import Iterable
+from collections.abc import Iterable
 
 __all__ = [
     "normalize_name",
@@ -88,10 +88,7 @@ def is_stopword(word: str, languages: Iterable[str] = ("en", "zh", "ja")) -> boo
         "zh": STOPWORDS_ZH_BASIC,
         "ja": STOPWORDS_JA_BASIC,
     }
-    for lang in languages:
-        if word_lower in sets.get(lang, frozenset()):
-            return True
-    return False
+    return any(word_lower in sets.get(lang, frozenset()) for lang in languages)
 
 
 # ─── Name normalization ────────────────────────────────────────────────────
