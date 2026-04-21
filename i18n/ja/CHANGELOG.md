@@ -6,6 +6,52 @@
 
 ---
 
+## [Unreleased] — v1.7.0-alpha 後続フォローアップ (2026-04-21 同日)
+
+> v1.7.0-alpha タグ後の 13 commits — alpha CHANGELOG の TBD クローズ + ツール/テストインフラ追加。v1.7.0 安定版にロール予定。
+
+### 🔧 新ツール
+
+- `tools/cli.py` — 統合サブコマンドディスパッチャ；`pyproject.toml` で `life-os-tool` コンソールスクリプト有効化
+- `tools/backup.py` — スナップショットローテーション (30d アーカイブ、90d 削除) + violations ログ四半期アーカイブ
+- `scripts/lifeos-compliance-check.sh` — `check_adjourn()` + `check_cortex()` 実装 (alpha プレースホルダーをクローズ)
+- `tools/lib/cortex/__init__.py` — 22 個のヘルパーシンボルをパッケージレベルでエクスポート
+
+### 📋 新 eval シナリオ
+
+- `evals/scenarios/adjourn-compliance.md` — Class C/D/E + A3 検出
+- `evals/scenarios/cortex-retrieval.md` — CX1-CX7 検出 + 劣化パス
+
+### ✅ テストスイート拡張
+
+- `tests/test_backup.py` — 19 テスト
+- `tests/test_cli.py` — 8 テスト
+- `tests/test_compliance_check.py` — 11 subprocess ベーステスト
+- `tests/test_integration.py` — 7 エンドツーエンド統合テスト
+
+**総テスト数：122、すべて 0.68s で合格。**
+
+### 🚀 CI
+
+- `.github/workflows/test.yml` — pytest マトリクス + bash 構文 + スモークテスト
+
+### 📚 アーキテクチャドキュメント
+
+- `references/cortex-architecture.md` — エンドツーエンドデータフロー + 情報隔離マトリクス + 失敗カスケード + コストプロファイル + 合規マップ
+
+### 🔌 配線磨き
+
+- `pro/CLAUDE.md` Information Isolation テーブルを v1.7 サブエージェント 6 つすべてに拡張
+- `pro/agents/archiver.md` に "Phase 2 Mid-Step — SOUL Snapshot" を追加
+
+### 🐛 バグ修正
+
+- `tools/cli.py` `_print_usage(stream=sys.stdout)` デフォルト値評価タイミング bug
+- `scripts/lifeos-compliance-check.sh` `set -e` + `grep -c` サイレント終了 bug
+- 正規表現 `\s` (GNU 限定) → POSIX `[[:space:]]` 移植性
+
+---
+
 ## [1.7.0-alpha] - 2026-04-21 · Cortex プリルーター認知層
 
 > Life OS 史上初の Layer 2 アーキテクチャアップグレード。クロスセッション記憶・コンセプトグラフ・アイデンティティ信号をあらゆる意思決定ワークフローへの入力として追加。本日 19 commits で v1.7 を仕様ドラフトから機能完成まで推進。

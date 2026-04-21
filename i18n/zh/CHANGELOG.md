@@ -6,6 +6,52 @@
 
 ---
 
+## [Unreleased] — v1.7.0-alpha 后续跟进（2026-04-21 同日）
+
+> v1.7.0-alpha tag 之后 13 个 commit，关闭 alpha CHANGELOG 的 TBD + 加工具/测试基础设施。将合入 v1.7.0 稳定版。
+
+### 🔧 新工具
+
+- `tools/cli.py` — 统一子命令派发；`pyproject.toml` 启用 `life-os-tool` 控制台脚本
+- `tools/backup.py` — 快照轮转（30d 归档、90d 删除）+ violations 日志按季度归档
+- `scripts/lifeos-compliance-check.sh` — `check_adjourn()` + `check_cortex()` 实现（关闭 alpha 占位）
+- `tools/lib/cortex/__init__.py` — 22 个辅助符号包级导出
+
+### 📋 新 eval 场景
+
+- `evals/scenarios/adjourn-compliance.md` — Class C/D/E + A3 检测
+- `evals/scenarios/cortex-retrieval.md` — CX1-CX7 检测 + 降级路径
+
+### ✅ 测试套件扩展
+
+- `tests/test_backup.py` — 19 测试
+- `tests/test_cli.py` — 8 测试
+- `tests/test_compliance_check.py` — 11 subprocess-based 测试
+- `tests/test_integration.py` — 7 端到端集成测试
+
+**总测试数：122，全部 0.68s 通过。**
+
+### 🚀 CI
+
+- `.github/workflows/test.yml` — pytest 矩阵 + bash 语法 + smoke 测试
+
+### 📚 架构文档
+
+- `references/cortex-architecture.md` — 端到端数据流 + 信息隔离矩阵 + 失败级联 + 成本概况 + 合规映射
+
+### 🔌 接线打磨
+
+- `pro/CLAUDE.md` Information Isolation 表扩展全 6 个 v1.7 子代理
+- `pro/agents/archiver.md` 加 "Phase 2 Mid-Step — SOUL Snapshot"
+
+### 🐛 Bug 修复
+
+- `tools/cli.py` `_print_usage(stream=sys.stdout)` 默认值求值时机 bug
+- `scripts/lifeos-compliance-check.sh` `set -e` + `grep -c` 静默退出 bug
+- 正则 `\s` (GNU only) → POSIX `[[:space:]]` 可移植性
+
+---
+
 ## [1.7.0-alpha] - 2026-04-21 · Cortex 路由前认知层
 
 > Life OS 历史上首次 Layer 2 架构升级。把跨会话记忆、概念图、身份信号作为每次决策工作流的输入。今日 19 个 commit 将 v1.7 从 spec 草稿推到功能完整。
