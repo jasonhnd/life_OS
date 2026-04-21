@@ -30,6 +30,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -54,7 +55,7 @@ _HEADER_TIMESTAMP = "timestamp"
 _HEADER_SEPARATOR_FRAGMENT = "---"
 
 
-def parse_violations(violations_path: Path) -> list[dict]:
+def parse_violations(violations_path: Path) -> list[dict[str, Any]]:
     """Parse violations.md into a list of structured records.
 
     Returns list of dicts with keys: timestamp, trigger, type, severity,
@@ -65,7 +66,7 @@ def parse_violations(violations_path: Path) -> list[dict]:
     """
     if not violations_path.exists():
         return []
-    rows: list[dict] = []
+    rows: list[dict[str, Any]] = []
     in_code_block = False
     for line in violations_path.read_text(encoding="utf-8").splitlines():
         if line.strip().startswith("```"):
@@ -118,7 +119,9 @@ _THRESHOLDS = [
 ]
 
 
-def compute_escalations(rows: list[dict], now: datetime | None = None) -> dict:
+def compute_escalations(
+    rows: list[dict[str, Any]], now: datetime | None = None
+) -> dict[str, Any]:
     """Compute escalation state per violation type.
 
     Returns dict with keys:
@@ -132,9 +135,9 @@ def compute_escalations(rows: list[dict], now: datetime | None = None) -> dict:
     cutoff_30 = now - timedelta(days=30)
     cutoff_90 = now - timedelta(days=90)
 
-    all_by_type: Counter = Counter()
-    active_30d: Counter = Counter()
-    active_90d: Counter = Counter()
+    all_by_type: Counter[str] = Counter()
+    active_30d: Counter[str] = Counter()
+    active_90d: Counter[str] = Counter()
     unresolved = 0
 
     for r in rows:
@@ -154,7 +157,7 @@ def compute_escalations(rows: list[dict], now: datetime | None = None) -> dict:
         if dt >= cutoff_90:
             active_90d[t] += 1
 
-    escalations: list[dict] = []
+    escalations: list[dict[str, Any]] = []
     for threshold_count, window_days, action, description in _THRESHOLDS:
         counter = active_30d if window_days == 30 else active_90d
         for vtype, count in counter.items():
