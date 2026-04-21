@@ -8,6 +8,8 @@
 
 ## [1.7.0-alpha.2] - 2026-04-21 · v1.7.0-alpha 後続フォローアップバンドル
 
+> 📚 **包括的概要**: [`references/v1.7-shipping-report-2026-04-21.md`](../../references/v1.7-shipping-report-2026-04-21.md) を参照 — v1.6.3 COURT-START-001 修正と v1.7 Cortex の両ラインをカバーする単一ページのナラティブ。「今日何が出荷されたか？」の出発点として推奨。
+
 > v1.7.0-alpha タグ後の 13 commits — alpha CHANGELOG の TBD クローズ + ツール/テストインフラ追加。v1.7.0 安定版にロール予定。
 
 ### 🔧 新ツール

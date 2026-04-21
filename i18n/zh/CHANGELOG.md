@@ -8,6 +8,8 @@
 
 ## [1.7.0-alpha.2] - 2026-04-21 · v1.7.0-alpha 后续跟进打包
 
+> 📚 **完整概览**：参见 [`references/v1.7-shipping-report-2026-04-21.md`](../../references/v1.7-shipping-report-2026-04-21.md) — 单页叙事文档，涵盖 v1.6.3 COURT-START-001 修复 + v1.7 Cortex 两条线。推荐作为"今天发了什么？"的起点。
+
 > v1.7.0-alpha tag 之后 13 个 commit，关闭 alpha CHANGELOG 的 TBD + 加工具/测试基础设施。将合入 v1.7.0 稳定版。
 
 ### 🔧 新工具

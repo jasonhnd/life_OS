@@ -8,6 +8,8 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ## [1.7.0-alpha.2] - 2026-04-21 · Post-v1.7.0-alpha follow-ups bundle
 
+> 📚 **Comprehensive overview**: see [`references/v1.7-shipping-report-2026-04-21.md`](references/v1.7-shipping-report-2026-04-21.md) for the full single-page narrative covering both the v1.6.3 COURT-START-001 fix line AND the v1.7 Cortex line in one document. Recommended starting point if you're returning to the repo and want to know "what shipped today".
+
 > 13 commits shipped after v1.7.0-alpha to close TBDs from the alpha CHANGELOG and add tooling/test infrastructure. Will roll into v1.7.0 stable release.
 
 ### 🔧 New tooling
