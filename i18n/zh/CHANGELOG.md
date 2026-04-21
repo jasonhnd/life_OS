@@ -6,6 +6,53 @@
 
 ---
 
+## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 自动触发已接线
+
+> v1.6.3 把 Mode 3（Compliance Patrol）规格交付到 `pro/agents/auditor.md`，但**没人实际调用它**。在用户 second-brain 的首次生产运行确认了这个缺口：retrospective Mode 0 完成、简报显示，但没有 AUDITOR Compliance Patrol 报告。五层防御的第 4 层处于失活状态。
+
+### 🔧 修复
+
+`pro/CLAUDE.md` Orchestration Code of Conduct 新增规则 #7：
+
+> **AUDITOR Compliance Patrol 自动触发** — 每次 `retrospective` Mode 0（Start Session）完成或 `archiver` 返回后，orchestrator 必须启动 `auditor` 的 Mode 3（Compliance Patrol）。不可跳过。HARD RULE。
+
+3 个配套文档更新使契约显式：
+
+- `pro/agents/retrospective.md` — 加 "Auto-Follow: AUDITOR Compliance Patrol" 段，注明 orchestrator 在 Mode 0 返回后链接 Mode 3。子代理本身不启动 AUDITOR。
+- `pro/agents/auditor.md` — Mode 3 "When to run" 段加明确触发契约：orchestrator 启动，非自启动，交叉引用 `pro/CLAUDE.md` 规则 #7。
+- `SKILL.md` — 版本 1.6.3a → 1.6.3b。
+
+### 📊 五层防御状态（v1.6.3b 后）
+
+| 层 | 状态 |
+|-------|--------|
+| L1 · UserPromptSubmit hook | ✅ v1.6.3 交付 · setup-hooks.sh 自动安装（v1.6.3a）|
+| L2 · Pre-flight Compliance Check | ✅ 已交付 + 2026-04-21 生产验证 |
+| L3 · Subagent Self-Check | ✅ 已交付 + 2026-04-21 生产验证 |
+| L4 · AUDITOR Compliance Patrol（Mode 3）| ✅ 规格已交付（v1.6.3）· **触发已接线（v1.6.3b）** |
+| L5 · Eval 回归 | ✅ 场景已交付（v1.6.3）· auto-runner 扩展延后到 v1.7 |
+
+### 涉及文件
+
+- `SKILL.md`（版本 1.6.3a → 1.6.3b）
+- `pro/CLAUDE.md`（+ Orchestration 规则 #7）
+- `pro/agents/retrospective.md`（+ Auto-Follow 段）
+- `pro/agents/auditor.md`（Mode 3 "When to run" 触发契约明确化）
+- `README.md` + 三语（徽章）
+- `CHANGELOG.md` + 三语
+
+### 迁移
+
+用户无需操作。现有 v1.6.3a 安装会在下次会话自动启用规则 #7。今后每次 Start Session 和 Adjourn 结束都会出 AUDITOR Compliance Patrol 报告。无违规时的输出格式：
+
+```
+🔱 [theme: auditor] · Compliance Patrol (v1.6.3)
+✅ All 6 Start Session compliance checks passed
+No violations logged. Session adheres to v1.6.3 HARD RULES.
+```
+
+---
+
 ## [1.6.3a] - 2026-04-21 · v1.6.3 热修补 · 第 1 层安装缺口 + Hook 假阳性守卫
 
 > v1.6.3 在用户 second-brain 的首次生产运行（同日）验证了第 2-5 层防御端到端 work。同时暴露 2 个真实 gap：

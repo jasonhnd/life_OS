@@ -6,6 +6,53 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 Auto-Trigger Wired
+
+> v1.6.3 shipped Mode 3 (Compliance Patrol) spec into `pro/agents/auditor.md` but **nothing actually invoked it**. The first production run in a user second-brain confirmed the gap: retrospective Mode 0 completed, briefing displayed, but no AUDITOR Compliance Patrol report appeared. Layer 4 of the five-layer defense was inert.
+
+### 🔧 Fix
+
+`pro/CLAUDE.md` Orchestration Code of Conduct gains rule #7:
+
+> **AUDITOR Compliance Patrol auto-trigger** — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). Cannot be skipped. HARD RULE.
+
+Three supporting docs updated to make the contract explicit:
+
+- `pro/agents/retrospective.md` — adds "Auto-Follow: AUDITOR Compliance Patrol" section noting orchestrator chains Mode 3 after Mode 0 returns. Subagent itself does not launch AUDITOR.
+- `pro/agents/auditor.md` — Mode 3 "When to run" section adds explicit trigger contract: orchestrator-launched, not self-launched, with cross-reference to `pro/CLAUDE.md` rule #7.
+- `SKILL.md` — version 1.6.3a → 1.6.3b.
+
+### 📊 Five-layer defense status (post-1.6.3b)
+
+| Layer | Status |
+|-------|--------|
+| L1 · UserPromptSubmit hook | ✅ shipped (v1.6.3) · auto-installed by setup-hooks.sh (v1.6.3a) |
+| L2 · Pre-flight Compliance Check | ✅ shipped + production-verified 2026-04-21 |
+| L3 · Subagent Self-Check | ✅ shipped + production-verified 2026-04-21 |
+| L4 · AUDITOR Compliance Patrol (Mode 3) | ✅ spec shipped (v1.6.3) · **trigger wired (v1.6.3b)** |
+| L5 · Eval regression | ✅ scenario shipped (v1.6.3) · auto-runner extension deferred to v1.7 |
+
+### Files Touched
+
+- `SKILL.md` (version 1.6.3a → 1.6.3b)
+- `pro/CLAUDE.md` (+ Orchestration rule #7)
+- `pro/agents/retrospective.md` (+ Auto-Follow section)
+- `pro/agents/auditor.md` (Mode 3 "When to run" trigger contract clarified)
+- `README.md` + 三語 (badge)
+- `CHANGELOG.md` + 三語
+
+### Migration
+
+No user action required. Existing v1.6.3a installs will auto-pick-up rule #7 on next session. AUDITOR Compliance Patrol report will appear at end of every Start Session and Adjourn going forward. Output format (when no violations):
+
+```
+🔱 [theme: auditor] · Compliance Patrol (v1.6.3)
+✅ All 6 Start Session compliance checks passed
+No violations logged. Session adheres to v1.6.3 HARD RULES.
+```
+
+---
+
 ## [1.6.3a] - 2026-04-21 · v1.6.3 Hot Patch · Layer 1 Install Gap + Hook False-Positive Guard
 
 > First production run of v1.6.3 in a user second-brain (same day) validated Layers 2-5 working end-to-end. Two real gaps surfaced:

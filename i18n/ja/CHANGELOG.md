@@ -6,6 +6,53 @@
 
 ---
 
+## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 自動トリガー結線完了
+
+> v1.6.3 は Mode 3（Compliance Patrol）仕様を `pro/agents/auditor.md` に出荷したが、**実際には誰も呼び出していなかった**。ユーザー second-brain での初稼働がギャップを確認：retrospective Mode 0 完了・ブリーフィング表示後に AUDITOR Compliance Patrol レポートが現れず。5 層防御の Layer 4 が不活性状態。
+
+### 🔧 修正
+
+`pro/CLAUDE.md` Orchestration Code of Conduct にルール #7 を追加：
+
+> **AUDITOR Compliance Patrol 自動トリガー** — 各 `retrospective` Mode 0（Start Session）完了後または `archiver` 戻り後、オーケストレーターは `auditor` を Mode 3（Compliance Patrol）で起動しなければならない。スキップ不可。HARD RULE。
+
+契約を明示化する 3 つの補助ドキュメント更新：
+
+- `pro/agents/retrospective.md` — "Auto-Follow: AUDITOR Compliance Patrol" セクション追加。オーケストレーターが Mode 0 戻り後に Mode 3 を連結することを記述。サブエージェント自身は AUDITOR を起動しない。
+- `pro/agents/auditor.md` — Mode 3 "When to run" セクションに明示的トリガー契約を追加：オーケストレーター起動、自己起動ではない、`pro/CLAUDE.md` ルール #7 へのクロスリファレンス。
+- `SKILL.md` — バージョン 1.6.3a → 1.6.3b。
+
+### 📊 5 層防御ステータス（v1.6.3b 以降）
+
+| Layer | ステータス |
+|-------|----------|
+| L1 · UserPromptSubmit hook | ✅ v1.6.3 出荷 · setup-hooks.sh で自動インストール（v1.6.3a）|
+| L2 · Pre-flight Compliance Check | ✅ 出荷 + 2026-04-21 本番検証 |
+| L3 · Subagent Self-Check | ✅ 出荷 + 2026-04-21 本番検証 |
+| L4 · AUDITOR Compliance Patrol（Mode 3）| ✅ 仕様出荷（v1.6.3）· **トリガー結線完了（v1.6.3b）** |
+| L5 · Eval 回帰 | ✅ シナリオ出荷（v1.6.3）· auto-runner 拡張は v1.7 へ延期 |
+
+### 関連ファイル
+
+- `SKILL.md`（バージョン 1.6.3a → 1.6.3b）
+- `pro/CLAUDE.md`（+ Orchestration ルール #7）
+- `pro/agents/retrospective.md`（+ Auto-Follow セクション）
+- `pro/agents/auditor.md`（Mode 3 "When to run" トリガー契約明確化）
+- `README.md` + 三言語（バッジ）
+- `CHANGELOG.md` + 三言語
+
+### 移行
+
+ユーザー操作不要。既存の v1.6.3a インストールは次セッションでルール #7 を自動的に取り込む。今後すべての Start Session と Adjourn の終わりに AUDITOR Compliance Patrol レポートが出力される。違反なし時の出力形式：
+
+```
+🔱 [theme: auditor] · Compliance Patrol (v1.6.3)
+✅ All 6 Start Session compliance checks passed
+No violations logged. Session adheres to v1.6.3 HARD RULES.
+```
+
+---
+
 ## [1.6.3a] - 2026-04-21 · v1.6.3 ホットパッチ · Layer 1 インストールギャップ + Hook 偽陽性ガード
 
 > v1.6.3 の本番初稼働（同日、ユーザー second-brain 内）で Layer 2-5 が end-to-end に動作することを検証。同時に 2 つの実 gap が顕在化：

@@ -99,6 +99,8 @@ Automatic post-hoc audit to detect HARD RULE violations introduced by COURT-STAR
 - **After archiver completes** (Adjourn triggers: "退朝", "adjourn", "done", etc.) — audit 3 Adjourn failure modes
 - Not triggered by Express analysis or Direct handle paths.
 
+**Trigger contract (v1.6.3b, HARD RULE)**: Mode 3 is launched by the **orchestrator (main context)** as a separate subagent call immediately after the preceding subagent (`retrospective` Mode 0 or `archiver`) returns. Enforcement in `pro/CLAUDE.md` Orchestration Code of Conduct rule #7. Neither retrospective nor archiver launches Mode 3 themselves — the orchestrator chains it. If the orchestrator skips Mode 3, AUDITOR's own next-session run (or eval scenario `start-session-compliance.md`) catches the omission.
+
 ### Violation taxonomy (7 classes)
 
 | Type | Name | Default Severity | Context |

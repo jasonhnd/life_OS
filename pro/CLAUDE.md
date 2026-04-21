@@ -235,6 +235,7 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 4. **Pro environment forces real subagents** — must launch actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
 5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
+7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). The Mode 3 spec exists in `pro/agents/auditor.md` since v1.6.3 but no caller was wired — this rule fixes that gap. Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). All-pass output: `🔱 [theme: auditor] · ✅ Compliance Patrol passed`. Cannot be skipped. HARD RULE.
 
 ## Workflow State Machine
 
