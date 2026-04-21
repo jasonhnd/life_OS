@@ -92,10 +92,41 @@ check_start_session() {
   fi
 }
 
-# ─── Detection: Adjourn path (placeholder) ───────────────────────────────────
+# ─── Detection: Adjourn path (4 COURT-START-001 / v1.6.2 failure modes) ─────
 check_adjourn() {
-  echo "ℹ️ adjourn-compliance scenario detection not yet implemented (no scenario file exists)" >&2
-  return 0
+  local file="$1"
+
+  # Class A3: Adjourn Pre-flight line missing
+  if ! grep -qE '📝 Trigger:.*Action: Launch\(archiver\)' "$file"; then
+    VIOLATIONS+=("A3 (P1): Adjourn Pre-flight line missing — expected '📝 Trigger: <word> → ... → Action: Launch(archiver) (4 phases)'")
+  fi
+
+  # Class C: Incomplete Phase — checklist must mark all 4 phases
+  for phase_num in 1 2 3 4; do
+    if ! grep -qE "Phase ${phase_num}[^a-zA-Z0-9]" "$file"; then
+      VIOLATIONS+=("C (P0): Phase ${phase_num} not present in archiver Completion Checklist")
+    fi
+  done
+
+  # Class D: Placeholder values
+  for placeholder in "TBD" '{...}' '{actual' "pending (TBD)"; do
+    if grep -qF "$placeholder" "$file"; then
+      VIOLATIONS+=("D (P1): Placeholder value '$placeholder' found in Completion Checklist (should be concrete value)")
+    fi
+  done
+
+  # Class E: Main-context Phase execution (Phase-specific keywords appearing
+  # BEFORE the archiver subagent identity declaration would suggest the
+  # orchestrator ran Phase content itself)
+  for keyword in "扫描 wiki 候选" "wiki 候选 evidence_count" "scan wiki candidates" "concepts_activated:" "DREAM N1-N2" "DREAM N3 consolidate"; do
+    if grep -qF "$keyword" "$file"; then
+      # Check if it appears before archiver subagent identity (proxy for main-context exec)
+      # Note: this is a content-level proxy; AUDITOR Mode 3 has the authoritative tool-call check
+      if ! grep -qE '✅ archiver subagent.*Phase 1' "$file"; then
+        VIOLATIONS+=("E (P0): Phase keyword '$keyword' present without archiver subagent identity declaration — likely main-context execution")
+      fi
+    fi
+  done
 }
 
 # ─── Dispatch ────────────────────────────────────────────────────────────────
@@ -104,7 +135,7 @@ case "$SCENARIO" in
     check_start_session "$OUTPUT_FILE"
     ;;
   adjourn-compliance)
-    check_adjourn
+    check_adjourn "$OUTPUT_FILE"
     ;;
   *)
     echo "ℹ️ No compliance checks defined for scenario '$SCENARIO' — skipping" >&2
