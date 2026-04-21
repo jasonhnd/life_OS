@@ -12,3 +12,8 @@ docs/
 pro/compliance/*.md
 !pro/compliance/violations.md
 !pro/compliance/violations.example.md
+# Whitelist: spec-violation and court-start incident dossiers (high info-density,
+# long-term value, sanitized-safe — track in git so they travel with the repo).
+!pro/compliance/*-spec-violation.md
+!pro/compliance/*-court-*.md
+!pro/compliance/*-incident-*.md

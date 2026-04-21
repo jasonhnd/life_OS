@@ -59,9 +59,11 @@ class TestDispatch:
             encoding="utf-8",
         )
         # Run from tmp_path so resolve_violations_path finds the file
-        with patch.object(sys, "argv", ["life-os-tool", "stats"]):
-            with patch("pathlib.Path.cwd", return_value=tmp_path):
-                result = main()
+        with (
+            patch.object(sys, "argv", ["life-os-tool", "stats"]),
+            patch("pathlib.Path.cwd", return_value=tmp_path),
+        ):
+            result = main()
         captured = capsys.readouterr()
         assert result == 0
         assert "Compliance Stats" in captured.out
@@ -72,7 +74,6 @@ class TestDispatch:
             sys, "argv", ["life-os-tool", "rebuild-session-index", "--root", str(tmp_path)]
         ):
             result = main()
-        captured = capsys.readouterr()
         # Should return 2 because _meta/sessions/ doesn't exist
         assert result == 2
 

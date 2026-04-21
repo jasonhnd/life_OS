@@ -93,11 +93,11 @@ class TestCortexPackageExports:
         import tools.lib.cortex as cortex_pkg
 
         # Submodule names are accessible as attrs but not part of the public API
-        SUBMODULES = {"session_index", "concept", "snapshot", "extraction"}
+        submodules = {"session_index", "concept", "snapshot", "extraction"}
         public_attrs = {
             name
             for name in dir(cortex_pkg)
-            if not name.startswith("_") and name not in SUBMODULES
+            if not name.startswith("_") and name not in submodules
         }
         unexpected = public_attrs - set(cortex_pkg.__all__)
         assert not unexpected, f"Public attrs not in __all__: {unexpected}"
