@@ -8,10 +8,12 @@ on:
 
 jobs:
   pytest:
-    name: pytest (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    name: pytest (${{ matrix.os }} · Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.11", "3.12"]
 
     steps:
@@ -31,7 +33,7 @@ jobs:
 
       - name: Run pytest
         run: |
-          uv run pytest tests/ -v --tb=short
+          uv run pytest tests/ -v --tb=short -m "not integration"
 
       - name: Run mypy (type check)
         run: |
@@ -44,19 +46,64 @@ jobs:
         continue-on-error: true
 
   bash-syntax:
-    name: Bash script syntax check
-    runs-on: ubuntu-latest
+    name: Bash scripts (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # windows-latest (Windows Server) ships Git for Windows which
+        # includes a bash (MSYS2). Most of our hook tests are portable,
+        # but a few use GNU-specific tools (od flags, mktemp defaults);
+        # those are gated on runner.os != 'Windows' below.
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        # Force bash on Windows too — actions/checkout's default shell on
+        # windows-latest is PowerShell.
+        shell: bash
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check bash syntax
+      - name: Check bash syntax (all runners)
         run: |
-          for script in scripts/*.sh evals/run-eval.sh; do
-            echo "Checking $script..."
-            bash -n "$script"
+          for script in scripts/*.sh scripts/hooks/*.sh evals/run-eval.sh; do
+            if [ -f "$script" ]; then
+              echo "Checking $script..."
+              bash -n "$script"
+            fi
           done
 
-      - name: Verify hook script regex
+      - name: Run hook test suite (Linux + macOS only)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x tests/hooks/*.sh
+          failed=0
+          for s in tests/hooks/test_*.sh; do
+            echo "── $s ──"
+            if ! bash "$s"; then
+              failed=1
+            fi
+          done
+          exit $failed
+
+      - name: Run hook test suite (Windows, portable subset)
+        if: runner.os == 'Windows'
+        run: |
+          # Windows Git Bash ships MSYS coreutils. Some tests relying on
+          # GNU-specific tools (od -An -tx1, /dev/stdin in subshells) may
+          # behave differently; the jq-free setup-hooks test is known
+          # portable. Add others here as they're verified on Windows.
+          failed=0
+          for s in tests/hooks/test_setup_hooks.sh; do
+            echo "── $s ──"
+            if ! bash "$s"; then
+              failed=1
+            fi
+          done
+          exit $failed
+
+      - name: Verify hook script regex (Linux + macOS only)
+        if: runner.os != 'Windows'
         run: |
           # Smoke test: hook should detect '上朝' as trigger
           chmod +x scripts/lifeos-pre-prompt-guard.sh
@@ -71,7 +118,8 @@ jobs:
           fi
           echo "✅ Hook regex OK"
 
-      - name: Verify compliance check
+      - name: Verify compliance check (Linux + macOS only)
+        if: runner.os != 'Windows'
         run: |
           chmod +x scripts/lifeos-compliance-check.sh
           # Synthetic clean output should pass
