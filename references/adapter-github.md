@@ -26,14 +26,19 @@ last_modified: "2026-04-08T15:30:00Z"
 
 | Data Type | Path | Filename Pattern |
 |-----------|------|-----------------|
-| Decision (project) | `projects/{p}/decisions/` | `{date}-{slug}.md` |
+| Decision (project) | `projects/{project}/decisions/` | `{date}-{slug}.md` |
 | Decision (cross-domain) | `_meta/decisions/` | `{date}-{slug}.md` |
-| Task (project) | `projects/{p}/tasks/` | `{slug}.md` |
-| Task (area) | `areas/{a}/tasks/` | `{slug}.md` |
+| Task (project) | `projects/{project}/tasks/` | `{slug}.md` |
+| Task (area) | `areas/{area}/tasks/` | `{slug}.md` |
 | JournalEntry | `_meta/journal/` | `{date}-{type}.md` |
-| WikiNote | `wiki/` | `{slug}.md` |
-| Project | `projects/{p}/index.md` | Fixed name |
-| Area | `areas/{a}/index.md` | Fixed name |
+| WikiNote | `wiki/{domain}/` | `{slug}.md` |
+| Project | `projects/{project}/index.md` | Fixed name |
+| Area | `areas/{area}/index.md` | Fixed name |
+| SessionSummary (v1.7) | `_meta/sessions/` | `{session_id}.md` |
+| Concept (v1.7) | `_meta/concepts/{domain}/` | `{concept_id}.md` |
+| SoulSnapshot (v1.7) | `_meta/snapshots/soul/` | `{YYYY-MM-DD-HHMM}.md` |
+| EvalEntry (v1.7) | `_meta/eval-history/` | `{YYYY-MM-DD}-{project}.md` |
+| Method (v1.7) | `_meta/methods/{domain}/` | `{method_id}.md` |
 
 ## Operations
 
@@ -70,10 +75,10 @@ last_modified: "2026-04-08T15:30:00Z"
 3. Return results with source paths
 
 ### ReadProjectContext(project_id)
-1. Read `projects/{p}/index.md`
-2. Glob `projects/{p}/tasks/*.md`
-3. Glob `projects/{p}/decisions/*.md`
-4. Glob `projects/{p}/journal/*.md`
+1. Read `projects/{project}/index.md`
+2. Glob `projects/{project}/tasks/*.md`
+3. Glob `projects/{project}/decisions/*.md`
+4. Glob `projects/{project}/journal/*.md`
 5. Return all parsed
 
 ## Change Detection
@@ -91,8 +96,8 @@ Mark in front matter: `_deleted: true`. Do not `git rm` until user confirms acro
 ### On Adjourn (write to outbox)
 
 ```bash
-git add _meta/outbox/{session-id}/
-git commit -m "[life-os] session {session-id} output"
+git add _meta/outbox/{session_id}/
+git commit -m "[life-os] session {session_id} output"
 git push
 ```
 

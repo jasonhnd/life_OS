@@ -9,9 +9,17 @@ Wiki is the system's knowledge archive — a living collection of reusable concl
 | `decisions/` | What you decided (specific, timestamped) | "2026-04-01: decided to use trust structure" |
 | `user-patterns.md` | What you do (behavioral patterns) | "Tends to avoid financial dimensions" |
 | `SOUL.md` | Who you are (values, personality) | "Risk appetite: medium-high" |
-| `wiki/` | What you know (reusable conclusions) | "NPO lending in Japan has no 貸金業法 exemption" |
+| `wiki/` | What you know — declarative knowledge | "NPO lending in Japan has no 貸金業法 exemption" |
+| `_meta/concepts/` | Synaptic graph — how ideas connect (v1.7) | "company-a-holding" node with weighted edges to related concepts |
+| `_meta/methods/` | Procedural memory — reusable workflows (v1.7) | "Refine documents in 5 escalating quality rounds" |
 
-SOUL manages the person. Wiki manages knowledge. They must not be mixed.
+Each layer answers a different question. SOUL answers "who you are". Wiki answers "what you know about the world" (declarative). Concepts answer "how ideas connect" (associative). Methods answer "how you work best" (procedural). The four layers must not be mixed — archiver routes candidates to the right layer based on what the candidate is, not based on surface form.
+
+**Not wiki material** (goes elsewhere):
+- Identity / values / personal preferences → `SOUL.md`
+- Behavioral patterns → `user-patterns.md`
+- Procedural workflows → `_meta/methods/`
+- Concept-level associations (who connects to whom) → `_meta/concepts/`
 
 ---
 
@@ -67,7 +75,7 @@ Each wiki entry is a standalone markdown file:
 
 ```yaml
 ---
-domain: "[domain name]"       # finance / startup / health / legal / tech / project-name...
+domain: "[domain name]"       # finance / startup / personal / technical / method / relationship / health / legal / project-name...
 topic: "[short identifier]"
 confidence: 0.0               # 0-1, auto-calculated
 evidence_count: 0             # supporting decisions/experiences

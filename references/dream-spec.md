@@ -315,3 +315,41 @@ After presenting, mark the dream report as "presented" so it is not shown again.
 - **Conciseness** — a dream report should be 20-50 lines, not 500
 - **Honesty** — "no significant findings" is a valid dream. Do not fabricate insights.
 - **No blocking** — if DREAM fails, the session still ends normally
+
+---
+
+## DREAM × Cortex Integration (v1.7)
+
+DREAM predates Cortex. With v1.7's concept graph, hippocampus, and session index, DREAM gains new material and its boundary with Cortex has to be explicit.
+
+### What DREAM consumes from Cortex
+
+- **`_meta/concepts/INDEX.md`** — REM stage uses the concept graph as scaffolding for cross-domain associations. Where v1.6.2 REM looked for "unexpected connections" from raw decision history, v1.7 REM can traverse `outgoing_edges` with weight ≥ 2 to surface neighbour concepts that the 3-day scope missed on the surface.
+- **`_meta/concepts/SYNAPSES-INDEX.md`** — REM uses the reverse index to answer "what past decisions touched this newly-active concept?" without re-reading session files.
+- **`_meta/sessions/INDEX.md`** — DREAM's 3-day scope cross-references session summaries for quicker lookup than `git log + read file`.
+- **`_meta/snapshots/soul/`** — the last 3 snapshots feed the `value-drift` trigger (§7) with stronger signal than v1.6.2 prose-only detection (see "SOUL + Cortex signals" below).
+
+### What DREAM writes to Cortex
+
+- **DREAM MAY write concept candidates.** `concept-spec.md §YAML Frontmatter Schema` allows `provenance.extracted_by: dream`. REM-detected cross-domain associations that meet the 6-criteria check land in `_meta/concepts/_tentative/{concept_id}.md` just like archiver-detected concepts. DREAM uses the same privacy filter and initial `status: tentative` — promotion to `confirmed` requires ≥3 independent sessions and is archiver's responsibility at subsequent Adjourn flows.
+- **DREAM MUST NOT write to `_meta/concepts/{domain}/` directly.** All new concepts land in `_tentative/` regardless of detector. Promotion pathways stay centralised in archiver Phase 2.
+- **DREAM MUST NOT modify `outgoing_edges` or `SYNAPSES-INDEX.md`.** Hebbian updates remain archiver's exclusive write scope — DREAM is a pattern detector, not a graph writer. If REM surfaces a "these two concepts should be connected" insight, it writes it as a **concept candidate** with a textual note, not as an edge. Archiver Phase 2 will decide whether to actually create the edge on its next run if the two concepts co-activate.
+
+### Deduplication with hippocampus
+
+The `cross-project-cognition-unused` trigger (#5) overlaps semantically with hippocampus per-message retrieval (v1.7 runs hippocampus **every message**, not just at DREAM time). Before firing trigger #5, DREAM checks the current session's recorded hippocampus signals (from `_meta/sessions/{session_id}.md` frontmatter's `concepts_activated`):
+
+- If hippocampus already surfaced the wiki entry in the current session → DREAM **skips** the trigger (no double-flagging)
+- If hippocampus did not surface it → DREAM **fires** as in v1.6.2
+
+This preserves DREAM's role as the **offline, cross-session** complement to hippocampus's **real-time, current-message** retrieval.
+
+### SOUL + Cortex signals for value-drift detection
+
+The `value-drift` trigger (#7) in v1.7 reads the last 3 SOUL snapshots from `_meta/snapshots/soul/` in addition to 30-day decision history. If a dimension's `confidence` dropped by ≥ 0.2 across the three snapshots **AND** the net (evidence − challenges) trend is negative, DREAM fires with higher confidence than v1.6.2 prose-only detection. The snapshot trend gives DREAM a trust-worthy numeric substrate that doesn't require re-reading decision texts.
+
+### REM safety invariants
+
+- REM never exceeds 1-3 genuine insights per run. Concept graph traversal is bounded to 2-hop neighbours from the concept set activated in the last 3 days. No exhaustive traversal.
+- Concept candidates REM proposes must pass the same 6-criteria + privacy filter as archiver-detected candidates. REM's "creative" licence is about **which connections are worth proposing**, not about bypassing validation.
+- REM's concept candidates carry `provenance.extracted_by: dream` so later audits can distinguish dream-sourced concepts from archiver-sourced concepts.

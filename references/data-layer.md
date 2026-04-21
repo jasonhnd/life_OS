@@ -18,24 +18,27 @@ All agents refer to this file when reading or writing data.
 
 ## Cognitive Pipeline
 
-Information flows through six stages, each mapped to a methodology:
+Information flows through seven stages, each mapped to a methodology. The **Activate** stage is new in v1.7 (Cortex Pre-Router Cognitive Layer) — it turns stored associations into active context before the Judge stage runs.
 
 ```
-Perceive → Capture → Judge → Settle → Associate → Strategize → Emerge
-   ↑         ↑        ↑      ↓   ↘        ↑           ↑           ↑
- Phone      GTD      3D6M  SOUL  Wiki   Prime+Wiki  Strategic   DREAM REM
- Experience  inbox/  Desktop (person)(knowledge) INDEX match    MAP       cross-domain
+Perceive → Capture → Activate → Judge → Settle → Associate → Strategize → Emerge
+   ↑         ↑          ↑         ↑       ↓   ↘        ↑           ↑           ↑
+ Phone      GTD      Cortex     3D6M    SOUL  Wiki   Prime+Wiki  Strategic   DREAM REM
+ Experience  inbox/  Pre-Router Desktop (person)(knowledge) INDEX match    MAP       cross-domain
+                     (v1.7)
 ```
 
 ### Stage Details
 
 **Perceive → Capture (GTD)**: Zero-friction capture on mobile. User says something, phone AI saves to inbox. No classification at this stage — inbox is the GTD collection basket.
 
-**Capture → Judge (Draft-Review-Execute cycle)**: Desktop CC pulls from inbox. Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Draft-Review-Execute decision mode.
+**Capture → Activate (Cortex Pre-Router, v1.7)**: Before ROUTER triages the user message, three parallel subagents run — hippocampus (cross-session retrieval from `_meta/sessions/INDEX.md`), concept lookup (spreading activation across `_meta/concepts/`), SOUL dimension check (reuses RETROSPECTIVE's SOUL Health Report). The GWT arbitrator consolidates their signals into an annotated input. ROUTER receives the annotated input, not the raw message. Failure modes degrade to v1.6.2a behaviour (raw message to ROUTER). See `references/cortex-spec.md` §Workflow Integration.
 
-**Judge → Settle (SOUL + Wiki)**: Conclusions from decisions settle into two pools — SOUL (about the person: values, personality, behavioral patterns) and Wiki (about the world: reusable knowledge, established conclusions). Both are **auto-written under strict criteria** (v1.6.2): ARCHIVER and DREAM auto-write entries that pass 6 wiki criteria + privacy filter (wiki) or SOUL criteria + low initial confidence (SOUL). Users nudge post-hoc — delete file to retire, say "undo recent wiki/SOUL" to roll back. **Snapshots**: SOUL state captured by archiver at end of every session, read by RETROSPECTIVE for trend computation.
+**Activate → Judge (Draft-Review-Execute cycle)**: Desktop CC pulls from inbox. Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Draft-Review-Execute decision mode. The judge stage operates on cognitively-annotated input — PLANNER / REVIEWER / six domains start from context, not cold.
 
-**Settle → Associate (ROUTER + Wiki INDEX)**: The ROUTER reads wiki/INDEX.md at session start. When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain." This turns accumulated knowledge into active context.
+**Judge → Settle (SOUL + Wiki + Concepts + Methods + Snapshots)**: Conclusions from decisions settle into five pools — SOUL (who you are), Wiki (what you know about the world), Concepts (the synaptic graph that connects knowledge), Methods (procedural memory — reusable workflows), and Snapshots (historical SOUL state for trend computation). All are auto-written under strict criteria: ARCHIVER Phase 2 produces wiki / SOUL / concept / method / snapshot candidates; users nudge post-hoc (delete file to retire, say "undo recent" to roll back). See `references/concept-spec.md`, `references/method-library-spec.md`, `references/snapshot-spec.md`.
+
+**Settle → Associate (ROUTER + Wiki INDEX + Concept INDEX + Methods INDEX)**: The ROUTER reads compiled INDEX files at session start (wiki/INDEX.md, _meta/concepts/INDEX.md, _meta/methods/INDEX.md, _meta/sessions/INDEX.md). When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain, and we have a canonical method for Y." This turns accumulated knowledge into active context.
 
 **Associate → Strategize (Strategic Map)**: The ROUTER reads `_meta/STRATEGIC-MAP.md` at session start. When a request involves a project with strategic relationships, the system automatically surfaces downstream dependencies, bottleneck status, and decision propagation warnings. This turns per-project analysis into strategic-line-aware analysis. See `references/strategic-map-spec.md`.
 
@@ -65,10 +68,38 @@ second-brain/
 │   ├── decisions/                     # Cross-domain major decisions
 │   ├── journal/                       # RETROSPECTIVE briefings, AUDITOR/ADVISOR reports, DREAM reports
 │   ├── outbox/                        # 📮 Session output staging area (one subdirectory per session)
-│   │   └── {session-id}/             # Each session writes here on adjourn, merged at next start court
+│   │   └── {session_id}/              # Each session writes here on adjourn, merged at next start court
 │   ├── snapshots/                     # 📸 State snapshots for trend computation
 │   │   └── soul/                      # SOUL snapshots per session (YYYY-MM-DD-HHMM.md)
 │   │       └── _archive/              # Snapshots older than 30 days
+│   ├── sessions/                      # 🧠 Session summaries (v1.7 Cortex)
+│   │   ├── INDEX.md                   # Compiled one-liner index (retrospective Mode 0)
+│   │   └── {session_id}.md            # Per-session structured summary (archiver Phase 2)
+│   ├── concepts/                      # 🧬 Concept graph + synapses (v1.7 Cortex)
+│   │   ├── INDEX.md                   # Compiled concept one-liners (retrospective Mode 0)
+│   │   ├── SYNAPSES-INDEX.md          # Compiled reverse edge index (archiver Phase 2)
+│   │   ├── _tentative/                # Concepts awaiting promotion
+│   │   ├── _archive/                  # Retired concepts
+│   │   └── {domain}/{concept_id}.md   # One concept per file
+│   ├── methods/                       # 📐 Method library — procedural memory (v1.7)
+│   │   ├── INDEX.md                   # Compiled method one-liners (retrospective Mode 0)
+│   │   ├── _tentative/                # Methods awaiting user confirmation
+│   │   ├── _archive/                  # Dormant methods (≥12 months unused)
+│   │   └── {domain}/{method_id}.md    # One method per file
+│   ├── eval-history/                  # 📊 AUDITOR evaluation history (v1.7)
+│   │   ├── {YYYY-MM-DD}-{project}.md  # One per session through AUDITOR
+│   │   ├── _digest/{YYYY-Q}.md        # Quarterly digest (tools/stats.py --compress-old)
+│   │   └── _archive/                  # Originals moved here after digest
+│   ├── cortex/                        # 🧠 Cortex runtime state (v1.7)
+│   │   ├── config.md                  # Cortex thresholds and switches
+│   │   ├── bootstrap-status.md        # Migration log (tools/migrate.py output)
+│   │   └── decay-log.md               # Concept decay actions
+│   ├── audit/                         # 🕵️ Meta-cognitive audit (v1.7)
+│   │   └── suspicious.md              # Drift candidates awaiting user confirmation
+│   ├── ambiguous_corrections/         # Mid-confidence user corrections awaiting confirmation (v1.7)
+│   ├── compliance/                    # ⚖️ Runtime violations (shell hooks, v1.7)
+│   │   ├── violations.md              # Rolling 90-day window
+│   │   └── archive/                   # Quarterly archive of older rows
 │   ├── extraction-rules.md            # Knowledge extraction rules (trained by user)
 │   ├── extraction-log.md              # Extraction history
 │   ├── lint-rules.md                  # Inspection rules
@@ -111,9 +142,11 @@ second-brain/
 | Decision records | areas/ or projects/ | Project switched from Tool A to Tool B |
 | Todos / intentions | tasks/ | Try Product X next time |
 | Inspiration / intuition | inbox/ (temporary) | There's an opportunity between X and Y |
-| Process knowledge | wiki/ | Steps to register a company in Japan |
+| Factual / declarative knowledge | wiki/ | "NPO lending in Japan has no 貸金業法 exemption" |
+| Procedural knowledge (reusable workflows, v1.7) | `_meta/methods/` | "Refine documents in 5 escalating quality rounds" |
+| Concept graph (synapses, v1.7) | `_meta/concepts/` | "company-a-holding" node with weighted edges to related concepts |
 
-These 7 types may expand over time based on actual usage.
+These types may expand over time based on actual usage. v1.7 splits "Process knowledge" into two: factual process descriptions stay in `wiki/`, reusable procedural workflows move to `_meta/methods/` (see `references/method-library-spec.md`).
 
 ---
 
@@ -257,12 +290,12 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 
 ```
 1. Generate session-id: run date command to get actual timestamp, format as {platform}-{YYYYMMDD}-{HHMM}. Do NOT fabricate — use system clock. HARD RULE.
-2. Create _meta/outbox/{session-id}/
-3. Save Decision / Save Task / Save JournalEntry → to _meta/outbox/{session-id}/ (NOT to main directories)
-4. Write index-delta.md (changes for projects/{p}/index.md)
+2. Create _meta/outbox/{session_id}/
+3. Save Decision / Save Task / Save JournalEntry → to _meta/outbox/{session_id}/ (NOT to main directories)
+4. Write index-delta.md (changes for projects/{project}/index.md)
 5. Write patterns-delta.md (append content for user-patterns.md, if ADVISOR has suggestions)
 6. Write manifest.md (session metadata)
-7. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
+7. git add _meta/outbox/{session_id}/ → commit → push (ONLY the outbox directory)
 8. Sync outbox to Notion (if configured)
 9. Update this platform's last_sync_time in _meta/config.md
 10. Any backend failure → log to _meta/sync-log.md, don't block
@@ -291,19 +324,19 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 
 ## Single Source of Truth Rules
 
-**`projects/{p}/index.md` is the authoritative source for each project's version, phase, and status.** `_meta/STATUS.md` is a compiled dashboard — it must be generated from index.md files, never hand-written.
+**`projects/{project}/index.md` is the authoritative source for each project's version, phase, and status.** `_meta/STATUS.md` is a compiled dashboard — it must be generated from index.md files, never hand-written.
 
 | Data | Authoritative Source | Compiled View |
 |------|---------------------|---------------|
-| Project version / phase / status | `projects/{p}/index.md` | `_meta/STATUS.md` |
-| Area goals / status | `areas/{a}/index.md` | `_meta/STATUS.md` |
-| Task completion | `projects/{p}/tasks/*.md` | Metrics dashboard |
+| Project version / phase / status | `projects/{project}/index.md` | `_meta/STATUS.md` |
+| Area goals / status | `areas/{area}/index.md` | `_meta/STATUS.md` |
+| Task completion | `projects/{project}/tasks/*.md` | Metrics dashboard |
 | Behavior patterns | `user-patterns.md` | ADVISOR reports |
-| Strategic relationships | `projects/{p}/index.md` strategic fields + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
+| Strategic relationships | `projects/{project}/index.md` strategic fields + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
 
 **Write order is enforced**: Always update the authoritative source first, then compile the dashboard. Never write to STATUS.md directly for project-level information.
 
-**AUDITOR lint rule**: During patrol inspection, check that `_meta/STATUS.md` version/status for each project matches `projects/{p}/index.md`. If inconsistent → report 🔴, flag the authoritative source as correct.
+**AUDITOR lint rule**: During patrol inspection, check that `_meta/STATUS.md` version/status for each project matches `projects/{project}/index.md`. If inconsistent → report 🔴, flag the authoritative source as correct.
 
 ---
 

@@ -183,50 +183,23 @@ Post-hoc nudges + real-time evolution gives the user a LIVING SOUL archive.
 
 ---
 
-## Snapshot Mechanism (v1.6.2)
+## Snapshot Mechanism
 
-To compute trend arrows (↗↘→) in the SOUL Health Report, archiver dumps a SOUL snapshot at the end of every session (Phase 2, after delta merge).
+SOUL snapshots are small immutable metadata dumps written at session close. RETROSPECTIVE Mode 0 reads the two most recent snapshots to compute trend arrows (↗↘→🌟⚠️💤❗) in the SOUL Health Report.
 
-### Storage
+**Authoritative source**: `references/snapshot-spec.md`. That spec defines:
 
-- Active snapshots: `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
-- Archived (>30 days): `_meta/snapshots/soul/_archive/YYYY-MM-DD-HHMM.md`
-- Deleted (>90 days): removed from filesystem (preserved in git + Notion)
+- File format, YAML schema (`captured_at`, `snapshot_id`, `session_id`, `previous_snapshot`, `dimensions[]`)
+- 4-tier mapping derived at capture time: `core` (≥0.7) / `secondary` (0.3-0.7) / `emerging` (0.2-0.3) / `dormant` (excluded, <0.2)
+- Delta rules for trend arrows and tier-transition badges
+- Archive policy (active 30d → archive 30-90d → delete >90d)
+- Invariants (one snapshot per session, metadata only, immutable after write, real timestamps)
 
-### Snapshot Format
+**Write trigger**: `archiver` Phase 2 Step 3, after concept extraction / Hebbian update and before housekeeping.
 
-```yaml
----
-type: soul-snapshot
-taken_at: ISO 8601 timestamp
-session_id: {session UUID}
-previous_snapshot: {prior filename, or null if first}
----
+**Read trigger**: RETROSPECTIVE Mode 0 during Start Session briefing.
 
-# SOUL Snapshot · YYYY-MM-DD
-
-## Dimensions (count: N)
-
-| dimension | confidence | evidence | challenges | last_validated |
-|-----------|-----------|----------|------------|----------------|
-```
-
-### Reader: RETROSPECTIVE Mode 0 Step 11
-
-At next Start Session, RETROSPECTIVE reads the latest snapshot, compares per-dimension metrics with current SOUL.md, and computes:
-- `confidence_Δ > +0.05` → ↗
-- `confidence_Δ < -0.05` → ↘
-- `|confidence_Δ| ≤ 0.05` → →
-
-New dimensions (in current but not snapshot) → 🌱 NEW
-Removed dimensions (in snapshot but not current) → 🗑️ REMOVED (user deletion)
-
-### Archive Policy
-
-archiver Phase 2 Step 4 also performs housekeeping:
-- Move snapshots older than 30 days to `_archive/`
-- Delete snapshots older than 90 days from `_archive/`
-- Both operations are idempotent
+This SOUL spec deliberately does not duplicate the schema — one authoritative source prevents drift. If a snapshot field changes, it changes in snapshot-spec and the archiver agent file.
 
 ### Why Snapshots (vs alternatives)
 
@@ -300,27 +273,30 @@ second-brain/
 
 ## Tiered Reference by Confidence (v1.6.2)
 
-REVIEWER references SOUL in every decision (HARD RULE). To prevent noise when SOUL has many dimensions, a 3-tier strategy applies:
+REVIEWER references SOUL in every decision (HARD RULE). To prevent noise when SOUL has many dimensions, a 4-tier strategy applies. Tier names are aligned with `references/snapshot-spec.md` (§YAML Frontmatter Schema `tier` field) so one vocabulary carries through both the live reference model and the historical snapshot format.
 
 | Tier | Confidence | Reference strategy | Limit |
 |------|-----------|-------------------|-------|
-| **Tier 1 · Core Identity** | ≥ 0.7 | Reference ALL | No upper limit |
-| **Tier 2 · Active Values** | 0.3 – 0.7 | Reference top N semantically relevant | Max 3 |
-| **Tier 3 · Emerging** | < 0.3 | Count only, don't surface (ADVISOR tracks in Delta) | 0 |
+| **core** · Core Identity | ≥ 0.7 | Reference ALL | No upper limit |
+| **secondary** · Active Values | 0.3 – 0.7 | Reference top N semantically relevant | Max 3 |
+| **emerging** · Emerging | 0.2 – 0.3 | Count only, don't surface (ADVISOR tracks in Delta) | 0 |
+| **dormant** | < 0.2 | Retained in history (SOUL.md) but excluded from active reference and from snapshots | — |
 
-### Relevance Judgment (Tier 2)
+Legacy references to "Tier 1 / 2 / 3" in earlier specs map to `core / secondary / emerging` respectively; `dormant` is new in v1.7 and reuses snapshot-spec's name for dimensions below the active floor.
 
-REVIEWER reads decision Subject + Summary + PLANNER proposal, then for each Tier 2 dimension rates:
+### Relevance Judgment (secondary tier)
+
+REVIEWER reads decision Subject + Summary + PLANNER proposal, then for each `secondary` dimension rates:
 - **strong match** (directly relevant) → priority include
 - **weak match** (indirectly relevant) → sort by confidence, take top
 - **no match** → skip
 
-REVIEWER report must list ALL Tier 2 dimensions evaluated + inclusion reason → AUDITOR reviews quality.
+REVIEWER report must list ALL `secondary` dimensions evaluated + inclusion reason → AUDITOR reviews quality.
 
 ### Special States
 
-- Decision challenges a Tier 1 dimension → REVIEWER adds ⚠️ SOUL CONFLICT warning at top of Summary Report (semi-veto signal)
+- Decision challenges a `core` dimension → REVIEWER adds ⚠️ SOUL CONFLICT warning at top of Summary Report (semi-veto signal)
 - Dimension crossed 0.7 upward since last snapshot → 🌟 "newly promoted to core"
 - Dimension crossed 0.7 downward → ⚠️ "demoted from core"
-- All dimensions in Tier 3 → REVIEWER outputs "SOUL tracking, not yet referencing"
-- >20 dimensions → Tier 1 no upper limit but compress: top 5 detailed, rest listed by name
+- All dimensions in `emerging` or `dormant` → REVIEWER outputs "SOUL tracking, not yet referencing"
+- >20 active dimensions → `core` no upper limit but compress: top 5 detailed, rest listed by name

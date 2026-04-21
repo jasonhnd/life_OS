@@ -105,7 +105,7 @@ Stored in `_meta/strategic-lines.md` (user's second-brain). Multiple lines separ
 
 ### Per-Project Strategic Fields
 
-Optional extension to `projects/{p}/index.md` frontmatter. All fields default to empty/null.
+Optional extension to `projects/{project}/index.md` frontmatter. All fields default to empty/null.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -117,6 +117,153 @@ Optional extension to `projects/{p}/index.md` frontmatter. All fields default to
 | strategic.status_reason | text | no | Why this project is in its current status |
 
 Flow types: `cognition` / `resource` / `decision` / `trust`. Role and flow definitions: `references/strategic-map-spec.md`.
+
+---
+
+## v1.7 Cortex Data Types
+
+The following types are introduced in v1.7 for the Cortex cognitive layer. Each has its own authoritative spec file; this table is the short form that `tools/lib/second_brain.py` dataclasses consume.
+
+### SessionSummary
+
+Authoritative spec: `references/session-index-spec.md` §3.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| session_id | string | yes | Format `{platform}-{YYYYMMDD}-{HHMM}` |
+| date | date | yes | ISO 8601 date |
+| started_at | datetime | yes | Timezone-aware timestamp |
+| ended_at | datetime | yes | Timezone-aware timestamp |
+| duration_minutes | integer | yes | |
+| platform | enum | yes | `claude` / `gemini` / `codex` |
+| theme | enum | yes | Theme ID (e.g. `zh-classical`, `ja-kasumigaseki`) |
+| project | string | yes | Bound project (enforces session-binding HARD RULE) |
+| workflow | enum | yes | `full_deliberation` / `express_analysis` / `direct_handle` / `strategist` / `review` |
+| subject | string | yes | Extracted subject (max 200 chars) |
+| domains_activated | string[] | no | Subset of PEOPLE/FINANCE/GROWTH/EXECUTION/GOVERNANCE/INFRA |
+| overall_score | number | no | 0-10 from Summary Report |
+| domain_scores | map | no | Per-domain 0-10 scores |
+| veto_count | integer | no | REVIEWER veto events |
+| council_triggered | boolean | no | COUNCIL debate fired? |
+| soul_dimensions_touched | string[] | no | SOUL dimension IDs referenced |
+| wiki_written | string[] | no | Wiki entry IDs auto-written this session |
+| methods_used | string[] | no | Method IDs applied |
+| methods_discovered | string[] | no | New method IDs archived |
+| concepts_activated | string[] | no | Concept IDs referenced |
+| concepts_discovered | string[] | no | New concept IDs written by archiver Phase 2 |
+| dream_triggers | string[] | no | DREAM REM trigger names fired |
+| keywords | string[] | no | Up to 10, for hippocampus Wave 1 scan |
+| action_items | array | no | `[{text, deadline, status}]` |
+| compliance_violations | integer | no | AUDITOR-flagged violations |
+
+Storage: `_meta/sessions/{session_id}.md`. Immutable after archiver writes.
+
+### Concept
+
+Authoritative spec: `references/concept-spec.md` §YAML Frontmatter Schema.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| concept_id | string | yes | Lowercase + hyphens, ≤64 chars, unique |
+| canonical_name | string | yes | Human-readable display name |
+| aliases | string[] | no | Alternative surface forms |
+| domain | enum | yes | `finance` / `startup` / `personal` / `technical` / `method` / `relationship` / `health` / `legal` / user-extensible |
+| status | enum | yes | `tentative` / `confirmed` / `canonical` |
+| permanence | enum | yes | `identity` / `skill` / `fact` / `transient` |
+| activation_count | integer | yes | Monotonic during active life |
+| last_activated | datetime | yes | Used by decay pass |
+| created | datetime | yes | Creation timestamp |
+| outgoing_edges | array | no | `[{to: concept_id, weight: 1-100, via: [tag], last_reinforced: ISO}]` |
+| provenance.source_sessions | string[] | no | Session IDs where evidence appeared |
+| provenance.extracted_by | enum | no | `archiver` / `manual` / `dream` |
+| decay_policy | enum | yes | Matches `permanence` tier |
+
+Storage: `_meta/concepts/{domain}/{concept_id}.md` (confirmed/canonical) or `_meta/concepts/_tentative/{concept_id}.md` (tentative).
+
+### SoulSnapshot
+
+Authoritative spec: `references/snapshot-spec.md` §YAML Frontmatter Schema.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| snapshot_id | string | yes | `{YYYY-MM-DD-HHMM}`, matches filename |
+| captured_at | datetime | yes | Real ISO 8601 timestamp from system clock |
+| session_id | string | yes | References `_meta/sessions/{session_id}.md` |
+| previous_snapshot | string \| null | yes | Prior filename or null for first snapshot |
+| dimensions | array | yes | `[{name, confidence: 0-1, evidence_count, challenges, tier}]` where tier ∈ `core`/`secondary`/`emerging` |
+
+Storage: `_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`. Local-only (not Notion-synced). Metadata only — no SOUL body content. Immutable.
+
+### EvalEntry
+
+Authoritative spec: `references/eval-history-spec.md` §3.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| eval_id | string | yes | `{YYYY-MM-DD-HHMM}-{project}` |
+| session_id | string | yes | References `_meta/sessions/` entry |
+| evaluator | enum | yes | `auditor` / `auditor-patrol` |
+| evaluation_mode | enum | yes | `decision-review` / `patrol-inspection` |
+| date | datetime | yes | |
+| scores | map | yes | 10 dimensions, each 0-10 integer (see eval-history-spec §5) |
+| violations | array | no | `[{type, agent, severity, detail}]` |
+| agent_quality_notes | map | no | Per-agent one-line observations |
+
+Storage: `_meta/eval-history/{YYYY-MM-DD}-{project}.md`. Local-only. Immutable after creation. No migration backfill.
+
+### Soul
+
+Authoritative spec: `references/soul-spec.md`. Unlike the other v1.7 types, `Soul` is the **in-memory view of the live `SOUL.md` file**, not a per-record file. Tools read the whole SOUL.md, parse it into this structure, and (for archiver-side auto-writes) write back.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| path | Path | yes | Absolute path to `SOUL.md` |
+| dimensions | `List[SoulDimension]` | yes | All parsed dimensions (may be empty for new users) |
+| raw_body | str | yes | Full markdown body (for diff-based writes) |
+
+`SoulDimension` sub-record:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| name | str | yes | Dimension name (e.g. "risk-tolerance") |
+| confidence | float | yes | 0-1, auto-calculated via `evidence_count / (evidence_count + challenges × 2)` |
+| evidence_count | int | yes | |
+| challenges | int | yes | |
+| source | enum | yes | `dream` / `advisor` / `strategist` / `user` |
+| created | date | yes | YYYY-MM-DD |
+| last_validated | date | yes | YYYY-MM-DD |
+| tier | enum | auto | `core` (≥0.7) / `secondary` (0.3-0.7) / `emerging` (0.2-0.3) / `dormant` (<0.2) — derived at read time |
+| what_is | str | no | Body section "What IS (实然)" |
+| what_should_be | str | no | Body section "What SHOULD BE (应然)" |
+| gap | str | no | Body section "Gap (差距)" |
+| evidence | `List[str]` | no | Body section "Evidence" bullets |
+| challenges_list | `List[str]` | no | Body section "Challenges" bullets |
+
+Storage: single file `SOUL.md` at second-brain root. Read by every major role; written by ARCHIVER Phase 2 (auto-write criteria in soul-spec) and by user directly.
+
+### Method
+
+Authoritative spec: `references/method-library-spec.md` §4.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| method_id | string | yes | Lowercase + hyphens, unique |
+| name | string | yes | Display name |
+| description | string | yes | One-liner for INDEX.md |
+| domain | enum | yes | Same domain vocabulary as Concept |
+| status | enum | yes | `tentative` / `confirmed` / `canonical` |
+| confidence | number | yes | 0-1, formula `evidence_count / (evidence_count + challenges × 2)` |
+| times_used | integer | yes | Increments every session that applies the method |
+| last_used | datetime | no | ISO 8601 |
+| applicable_when | array | no | `[{condition, signal}]` |
+| not_applicable_when | array | no | `[{condition}]` |
+| source_sessions | string[] | no | session_ids that contributed |
+| evidence_count | integer | yes | Sessions where the method worked |
+| challenges | integer | yes | Sessions where it failed |
+| related_concepts | string[] | no | concept_ids |
+| related_methods | string[] | no | method_ids (soft composition) |
+
+Storage: `_meta/methods/{domain}/{method_id}.md` or `_meta/methods/_tentative/{method_id}.md`. Local-only.
 
 ---
 
@@ -268,7 +415,7 @@ No second-brain → config stored in session context, ROUTER asks each new sessi
 
 ## Constraints
 
-- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`_meta/outbox/{session-id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
+- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`_meta/outbox/{session_id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
 - **Session-id format**: `{platform}-{YYYYMMDD}-{HHMM}`, generated at adjourn time (not session start). Example: `claude-20260412-1700`, `gemini-20260412-1900`.
 - **Outbox merge lock**: During merge, write `_meta/.merge-lock`. If it exists and is < 5 minutes old, skip merge and proceed normally. Delete after merge completes.
 - **Empty sessions**: If a session has no output (no decisions, tasks, or journal entries), do not create an outbox.
@@ -299,7 +446,7 @@ outputs:
 
 ### Index Delta Format
 
-`index-delta.md` records changes to apply to `projects/{p}/index.md`:
+`index-delta.md` records changes to apply to `projects/{project}/index.md`:
 
 ```markdown
 # Index Delta

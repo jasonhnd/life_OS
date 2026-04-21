@@ -7,7 +7,7 @@ Designed based on cognitive science research: Goal Systems Theory (Kruglanski 20
 ## Design Principles
 
 1. **Two-layer architecture**: structural (user-defined, slow-changing) + dynamic (system-computed, refreshed at each Start Court)
-2. **Single source of truth**: `projects/{p}/index.md` frontmatter stores per-project strategic data; `_meta/strategic-lines.md` stores line definitions; `_meta/STRATEGIC-MAP.md` is compiled (never hand-edited)
+2. **Single source of truth**: `projects/{project}/index.md` frontmatter stores per-project strategic data; `_meta/strategic-lines.md` stores line definitions; `_meta/STRATEGIC-MAP.md` is compiled (never hand-edited)
 3. **Grows from zero**: if no strategic data exists, the system operates normally — the feature is dormant until the user defines relationships
 4. **User-confirmed structural changes**: new strategic lines, project roles, and flow relationships require user confirmation (like SOUL/wiki candidates)
 5. **Pattern matching + narrative assessment**: no numerical scores — match health archetypes and write a story about what's happening, what it means, and what to do
@@ -62,7 +62,7 @@ Based on Goal Systems Theory (Kruglanski 2002) and self-deception research (von 
 - Confirmed signals are stored and used for subsequent assessments
 - DREAM may propose signal updates as the line evolves
 
-### Per-Project Strategic Fields (`projects/{p}/index.md`)
+### Per-Project Strategic Fields (`projects/{project}/index.md`)
 
 Added to the existing frontmatter. All fields are optional and default to empty/null.
 

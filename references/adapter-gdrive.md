@@ -54,7 +54,7 @@ All operations use Google Drive MCP tools.
 2. Download and parse matching files
 
 ### ReadProjectContext(project_id)
-1. List and download all files under `projects/{p}/`
+1. List and download all files under `projects/{project}/`
 
 ## Change Detection
 
