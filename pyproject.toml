@@ -36,6 +36,14 @@ dev = [
 notion = [
     "notion-client>=2.2",
 ]
+# Export pipeline — used by tools/export.py (v1.7 Sprint 5,
+# per references/tools-spec.md §6.9). pandoc is an external binary
+# requirement for --format pdf and is NOT a Python dep.
+export = [
+    "jinja2>=3.1",
+    "markdown-it-py>=3.0",
+    "genanki>=0.13",
+]
 
 # CLI entry point — dispatches to tools/{command}.py based on first arg.
 # See tools/cli.py for available subcommands.
