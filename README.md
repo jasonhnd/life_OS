@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.2a-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.3-purple.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -80,21 +80,21 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 
 ---
 
-## What's new in v1.6.2
+## What's new in v1.6.3
 
-**Four conceptual pillars**:
-- **🛡️ Bulletproof adjourn.** Three-layer defense (wording + state machine + launch templates) ensures the 4-phase archive flow cannot be partially skipped.
-- **📚 Wiki auto-writes.** No more "which candidates should I save?" prompts. Archiver auto-writes wiki entries that pass 6 strict criteria + a zero-privacy filter. Delete any file to retire it; say "undo recent wiki" to roll back.
-- **🔮 SOUL auto-writes, continuously.** ADVISOR updates SOUL after every decision. New dimensions auto-create at low confidence (0.3) when ≥2 evidence points accumulate. "What SHOULD BE" is left empty for you.
-- **💤 DREAM gains 10 auto-triggered actions.** REM now detects and acts on 10 concrete patterns: stale commitments, value drift, decision fatigue, repeated decisions, and six more. Flags surface in the next briefing.
+**Trust guard — five-layer defense against HARD RULE violations.** In testing, the author said "上朝" in the Life OS dev repo and the LLM bypassed the retrospective subagent, simulated 18 steps inline, and fabricated non-existent paths as authority. Documentation alone doesn't enforce anything — every HARD RULE was descriptive, with zero real enforcement. v1.6.3 ships five independent layers so every trigger word actually launches a real subagent:
 
-**Four engineering refinements** (detailed specs shipped):
-- **Hard thresholds + soft signals for all 10 DREAM triggers.** Each trigger has a quantitative rule + LLM qualitative cue option (soft mode requires AUDITOR review). Examples: decision-fatigue = "≥5 decisions in 24h, second-half avg score ≤ first-half - 2"; stale-commitment = "I will X / 我会 X / X する regex + 30 days no action".
-- **SOUL snapshots for trend arrows.** `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` dumped at end of every session. RETROSPECTIVE reads latest snapshot to compute ↗↘→ arrows (±0.05 confidence threshold) plus special states: 🌟 promoted to core, ⚠️ demoted, 💤 dormant, ❗ conflict zone.
-- **REVIEWER 3-tier SOUL reference strategy.** Tier 1 (confidence ≥ 0.7) = reference ALL core dimensions; Tier 2 (0.3-0.7) = top 3 semantically relevant; Tier 3 (<0.3) = count only, don't surface. Decisions challenging Tier 1 → ⚠️ SOUL CONFLICT semi-veto at report top.
-- **SOUL Health Report in fixed briefing position.** Every session starts with your current profile (trend arrows), new dimensions awaiting input, conflict warnings, and dormant dimensions.
+1. **UserPromptSubmit hook** (`scripts/lifeos-pre-prompt-guard.sh`) — detects 上朝 / start / 閣議開始 / 退朝 etc. across all 9 themes, injects HARD RULE reminder into the model's context before any response
+2. **Pre-flight Compliance Check** — ROUTER must output `🌅 Trigger: [word] → Theme: [name] → Action: Launch([agent]) [Mode]` before any tool call; missing line = logged violation
+3. **Subagent self-check** — retrospective Mode 0 first line proves the subagent was actually launched (not main-context simulation)
+4. **AUDITOR Compliance Patrol (Mode 3)** — 7-class violation taxonomy (A1 skip subagent, A2 skip directory check, A3 skip Pre-flight, B fabricate, C incomplete phase, D placeholder, E main-context phase) runs after every session start and archive
+5. **Eval regression** — `evals/scenarios/start-session-compliance.md` codifies all 6 COURT-START-001 failure modes
 
-See [CHANGELOG](CHANGELOG.md) for the full list.
+**Dual-repo violations log** (md + git, per user's storage constraint): violations persist to `pro/compliance/violations.md` (dev repo, public) and `_meta/compliance/violations.md` (user second-brain, private). Escalation ladder: ≥3 same type in 30 days → stricter hook reminder; ≥5 → briefing `🚨 Compliance Watch`; ≥10 in 90 days → AUDITOR patrol every session.
+
+**Still current from v1.6.2**: Bulletproof adjourn · Wiki auto-writes · SOUL auto-writes · DREAM 10 auto-triggers · SOUL trend arrows · REVIEWER 3-tier SOUL strategy · SOUL Health Report in briefing.
+
+See [CHANGELOG](CHANGELOG.md) for the full list and the original COURT-START-001 incident archive.
 
 ---
 

@@ -6,6 +6,83 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.6.3] - 2026-04-21 · COURT-START-001 Fix · Five-Layer Defense
+
+> When the user said "上朝" in the Life OS dev repo, ROUTER bypassed the retrospective subagent, simulated 18 steps inline, and fabricated the non-existent path `_meta/roles/CLAUDE.md § 0 Pre-Court Preparation` as authority. User reaction: "how can this Life OS be given to others? I cannot accept." This release ships a five-layer defense so every HARD RULE is actually hard.
+
+### 🛡️ Five-Layer Defense Against Class A / B Violations
+
+Root cause of COURT-START-001: documentation was complete, but **every HARD RULE was descriptive — zero enforcement**. The author himself could be tricked by the LLM; ordinary users would be inevitably misled. Five independent layers now guard every trigger word:
+
+1. **Hook layer** — `scripts/lifeos-pre-prompt-guard.sh` runs on `UserPromptSubmit`, detects trigger words (上朝 / start / 閣議開始 / 退朝 / etc., all 9 themes), injects a `<system-reminder>` with the exact HARD RULE text and violation taxonomy into the assistant's context before any response.
+2. **Pre-flight Compliance Check** — `SKILL.md` now requires ROUTER to output a 1-line confirmation before any tool call: `🌅 Trigger: [word] → Theme: [name] → Action: Launch([agent]) [Mode]`. Missing line = Class A3 violation, logged.
+3. **Subagent self-check** — `pro/agents/retrospective.md` Mode 0 first line must be: `✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.` This proves the subagent was actually launched.
+4. **AUDITOR Compliance Patrol (Mode 3)** — `pro/agents/auditor.md` adds Mode 3 with a 7-class taxonomy (A1/A2/A3/B/C/D/E) and 6 detection checks for Start Session / Adjourn paths. Runs after every retrospective Mode 0 and archiver completion.
+5. **Eval regression** — `evals/scenarios/start-session-compliance.md` codifies the 6 COURT-START-001 failure modes as Quality Checkpoints with grep-based failure detection commands.
+
+### 📋 Violation Taxonomy (7 classes)
+
+| Code | Name | Default Severity |
+|------|------|------------------|
+| A1 | Skip subagent — ROUTER simulates subagent's steps in main context | P0 |
+| A2 | Skip directory check — dev repo bypasses retrospective Step 2 | P1 |
+| A3 | Skip Pre-flight — first response missing `🌅 Trigger: ...` line | P1 |
+| B | Fabricate fact — reference non-existent path / section as authority | P0 |
+| C | Incomplete Phase — archiver exits before all 4 phases complete | P0 |
+| D | Placeholder value — Completion Checklist contains `TBD` / `{...}` / empty | P1 |
+| E | Main-context Phase execution — ROUTER runs Phase 1-4 logic inline | P0 |
+
+### 📁 Dual-Repo Compliance Log (md + git, per user constraint)
+
+User explicitly required: *"local sh command execution is fine, but the database must be md files and GitHub storage."* Violations are persisted to:
+
+- `pro/compliance/violations.md` — dev repo (public, ships with Life OS)
+- `_meta/compliance/violations.md` — user second-brain (private, per-user)
+
+Both use the same format: `| Timestamp | Trigger | Type | Severity | Details | Resolved |`.
+
+**Escalation ladder** (implemented by `tools/stats.py` in v1.7, manually observed until then):
+- ≥3 same type in 30 days → hook reminder strictness upgrades
+- ≥5 same type in 30 days → retrospective briefing prepends `🚨 Compliance Watch`
+- ≥10 same type in 90 days → AUDITOR Compliance Patrol runs every Start Session
+
+### 🗂️ New Files
+
+- `scripts/lifeos-pre-prompt-guard.sh` — UserPromptSubmit hook (bash, chmod +x)
+- `.claude/settings.json` — hook registration for dev repo
+- `references/compliance-spec.md` — full specification: taxonomy, dual-repo strategy, write/read paths, escalation ladder, archival, resolution protocol, privacy
+- `pro/compliance/violations.md` — dev-repo live log (5 seed entries from COURT-START-001)
+- `pro/compliance/violations.example.md` — 10 example entries per class + grep recipes
+- `pro/compliance/2026-04-19-court-start-violation.md` — full incident archive (473 lines, 12 sections)
+- `evals/scenarios/start-session-compliance.md` — regression test for 6 COURT-START-001 failure modes
+
+### ✏️ Modified Files
+
+- `.claude/CLAUDE.md` — new HARD RULE section for Start Session triggers
+- `SKILL.md` — version 1.6.2a → 1.6.3, Pre-flight Compliance Check section inserted before Start Session routing
+- `pro/agents/retrospective.md` — Subagent Self-Check block before Execution Steps
+- `pro/agents/auditor.md` — Mode 3 (Compliance Patrol) with 7-class taxonomy + detection checks
+
+### 🔄 Resolution Protocol
+
+Violations transition `false → partial → true` through three gates:
+- **Gate 1** (`false → partial`): underlying fix shipped (version cited in Details field)
+- **Gate 2** (`partial → true`): eval regression passes + 30 days elapsed + no recurrence (cite version + eval-id + observed-date)
+
+COURT-START-001's 4 incident entries move to `partial` with this release. Transition to `true` requires `evals/scenarios/start-session-compliance.md` pass + 30-day observation window.
+
+### Migration
+
+No user action required for existing installations. On next Start Session after upgrade:
+- Hook registers (dev repo only, via `.claude/settings.json`)
+- Pre-flight line becomes mandatory
+- AUDITOR runs Compliance Patrol after first retrospective Mode 0
+- violations.md is auto-created if missing (empty table)
+
+User second-brains that want the dual-repo violations log should add the hook block to their own `.claude/settings.json` per `references/compliance-spec.md`.
+
+---
+
 ## [1.6.2a] - 2026-04-19 · Notion Sync Returns to Orchestrator
 
 > The archiver subagent reported "Notion MCP not connected" because Notion MCP tools are environment-specific and unavailable inside subagents. Notion sync is now split out of the archiver and executed by the orchestrator (main context) which has MCP access.

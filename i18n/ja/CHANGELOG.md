@@ -6,6 +6,83 @@
 
 ---
 
+## [1.6.3] - 2026-04-21 · COURT-START-001 修正 · 五層防御
+
+> ユーザーが Life OS 開発 repo で「上朝」と発言した際、ROUTER は retrospective サブエージェントをスキップし、メインコンテキストで 18 ステップを模倣実行し、存在しないパス `_meta/roles/CLAUDE.md § 0 Pre-Court Preparation` を権威ソースとして捏造した。ユーザーの反応：「こんな Life OS を他人にどう渡せと？？？受け入れられない。」本リリースはあらゆる HARD RULE を本当に hard にする五層防御を提供する。
+
+### 🛡️ A / B クラス違反に対する五層防御
+
+COURT-START-001 根本原因：ドキュメントは完全、だが**すべての HARD RULE は記述的——強制メカニズムはゼロ**。作者本人でも LLM に欺かれる；一般ユーザーが欺かれるのは必然。5 つの独立した防御層が各トリガーワードを守る：
+
+1. **Hook レイヤー** — `scripts/lifeos-pre-prompt-guard.sh` が `UserPromptSubmit` で発火、トリガーワード（上朝 / start / 閣議開始 / 退朝 / など、9 テーマすべてをカバー）を検出し、HARD RULE テキスト + 違反分類を `<system-reminder>` としてアシスタントの応答前にコンテキストへ注入。
+2. **Pre-flight Compliance Check** — `SKILL.md` が ROUTER にツール呼び出し前の 1 行確認を強制：`🌅 Trigger: [語] → Theme: [名] → Action: Launch([agent]) [Mode]`。欠如 = クラス A3 違反として記録。
+3. **サブエージェント自己チェック** — `pro/agents/retrospective.md` Mode 0 の第一文は必須：`✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.`。サブエージェントが実際に起動したことを証明。
+4. **AUDITOR Compliance Patrol（Mode 3）** — `pro/agents/auditor.md` に Mode 3 を追加、7 クラス分類（A1/A2/A3/B/C/D/E）と Start Session / Adjourn パスの 6 項目検出。各 retrospective Mode 0 と archiver 完了後に自動実行。
+5. **Eval 回帰** — `evals/scenarios/start-session-compliance.md` が COURT-START-001 の 6 つの失敗モードを Quality Checkpoints として固定化、grep ベースの失敗検出コマンド付き。
+
+### 📋 違反分類（7 クラス）
+
+| コード | 名称 | デフォルト重大度 |
+|-------|------|--------------|
+| A1 | サブエージェントスキップ — ROUTER がメインコンテキストでサブエージェントのステップを模倣 | P0 |
+| A2 | ディレクトリチェックスキップ — dev repo が retrospective Step 2 をバイパス | P1 |
+| A3 | Pre-flight スキップ — 最初の応答に `🌅 Trigger: ...` 行がない | P1 |
+| B | 事実の捏造 — 存在しないパス / セクションを権威として参照 | P0 |
+| C | フェーズ未完了 — archiver が 4 フェーズ完走前に終了 | P0 |
+| D | プレースホルダー値 — Completion Checklist に `TBD` / `{...}` / 空値 | P1 |
+| E | メインコンテキストでのフェーズ実行 — ROUTER がメインコンテキストで Phase 1-4 ロジックを実行 | P0 |
+
+### 📁 デュアルリポ compliance ログ（md + git · ユーザー制約準拠）
+
+ユーザー明示要求：「ローカル sh コマンド実行は受け入れられるが、データベースは md ファイルと GitHub ストレージでなければならない。」違反は以下に永続化：
+
+- `pro/compliance/violations.md` — dev repo（公開、Life OS と共に配布）
+- `_meta/compliance/violations.md` — ユーザー second-brain（プライベート、ユーザーごとに独立）
+
+同じフォーマット：`| Timestamp | Trigger | Type | Severity | Details | Resolved |`。
+
+**エスカレーションラダー**（v1.7 の `tools/stats.py` で実装、それまでは開発者が手動観察）：
+- 30 日以内に同種 ≥3 件 → hook リマインダーを強化
+- 30 日以内に同種 ≥5 件 → retrospective briefing 冒頭に `🚨 Compliance Watch` を追加
+- 90 日以内に同種 ≥10 件 → AUDITOR が毎 Start Session で Compliance Patrol 実行
+
+### 🗂️ 新規ファイル
+
+- `scripts/lifeos-pre-prompt-guard.sh` — UserPromptSubmit hook（bash、chmod +x 済）
+- `.claude/settings.json` — dev repo 用 hook 登録
+- `references/compliance-spec.md` — 完全仕様：分類、デュアルリポ戦略、書き込み / 読み取りパス、エスカレーションラダー、アーカイブ、解決プロトコル、プライバシー
+- `pro/compliance/violations.md` — dev-repo ライブログ（COURT-START-001 からの 5 件のシードエントリ付き）
+- `pro/compliance/violations.example.md` — クラスごとに 10 件の例 + grep レシピ
+- `pro/compliance/2026-04-19-court-start-violation.md` — 完全 incident アーカイブ（473 行、12 セクション）
+- `evals/scenarios/start-session-compliance.md` — COURT-START-001 の 6 つの失敗モードの回帰テスト
+
+### ✏️ 変更ファイル
+
+- `.claude/CLAUDE.md` — Start Session トリガー用 HARD RULE セクションを追加
+- `SKILL.md` — バージョン 1.6.2a → 1.6.3、Start Session ルーティング前に Pre-flight Compliance Check セクション追加
+- `pro/agents/retrospective.md` — 実行ステップ前にサブエージェント自己チェックブロック
+- `pro/agents/auditor.md` — Mode 3（Compliance Patrol）、7 クラス分類 + 検出ロジック
+
+### 🔄 解決プロトコル
+
+違反は `false → partial → true` と 3 つのゲートを通過して遷移：
+- **Gate 1**（`false → partial`）：根本修正がリリース済（Details フィールドにバージョン明記）
+- **Gate 2**（`partial → true`）：eval 回帰パス + 30 日経過 + 非再発（バージョン + eval-id + 観察日を記載）
+
+COURT-START-001 の 4 件の incident エントリは本リリースで `partial` に遷移。`true` への遷移には `evals/scenarios/start-session-compliance.md` パス + 30 日観察ウィンドウが必要。
+
+### 移行
+
+既存インストールにユーザー操作は不要。アップグレード後の初回 Start Session で：
+- hook 登録（dev repo のみ、`.claude/settings.json` 経由）
+- Pre-flight 行が必須に
+- AUDITOR が初回 retrospective Mode 0 後に Compliance Patrol を実行
+- violations.md が欠如時は自動作成（空テーブル）
+
+デュアルリポ違反記録を有効にしたい second-brain ユーザーは `references/compliance-spec.md` に従い、自身の `.claude/settings.json` に hook ブロックを追加する。
+
+---
+
 ## [1.6.2a] - 2026-04-19 · Notion 同期をオーケストレーターに移管
 
 > archiver subagent が「Notion MCP 未接続」と報告していた。原因は Notion MCP ツールが環境固有であり subagent 内で利用できないため。Notion 同期を archiver から分離し、MCP ツールアクセスを持つオーケストレーター（メインコンテキスト）で実行するように変更。

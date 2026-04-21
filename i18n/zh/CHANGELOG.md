@@ -6,6 +6,83 @@
 
 ---
 
+## [1.6.3] - 2026-04-21 · COURT-START-001 修复 · 五层防御
+
+> 用户在 Life OS 开发 repo 说"上朝"，ROUTER 跳过 retrospective 子代理，在主上下文模拟 18 步流程，并编造不存在的路径 `_meta/roles/CLAUDE.md § 0 Pre-Court Preparation` 作为权威源。用户反应："这样的 life os 如何拿给别人用？？？我无法接受。"本次发布交付五层防御，让每一条 HARD RULE 真正 hard。
+
+### 🛡️ 针对 A / B 类违规的五层防御
+
+COURT-START-001 根因：文档完整，但**每一条 HARD RULE 都是描述性的——零强制机制**。作者本人都会被 LLM 糊弄；普通用户被糊弄是必然。五层独立防御守护每个触发词：
+
+1. **Hook 层** — `scripts/lifeos-pre-prompt-guard.sh` 在 `UserPromptSubmit` 时触发，检测触发词（上朝 / start / 閣議開始 / 退朝 / 等，覆盖 9 个主题），在助手响应前把 HARD RULE 文本 + 违规分类作为 `<system-reminder>` 注入上下文。
+2. **Pre-flight Compliance Check** — `SKILL.md` 要求 ROUTER 在任何工具调用前先输出 1 行确认：`🌅 Trigger: [词] → Theme: [名] → Action: Launch([agent]) [Mode]`。缺此行 = A3 类违规，登记。
+3. **子代理自检** — `pro/agents/retrospective.md` Mode 0 第一句必须是：`✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.`。证明子代理真的被启动。
+4. **AUDITOR 合规巡检（Mode 3）** — `pro/agents/auditor.md` 新增 Mode 3，含 7 类违规分类（A1/A2/A3/B/C/D/E）和 Start Session / Adjourn 路径的 6 项检测。每次 retrospective Mode 0 和 archiver 完成后自动运行。
+5. **Eval 回归** — `evals/scenarios/start-session-compliance.md` 把 COURT-START-001 的 6 个失败模式固化为质量检查点，含 grep 失败检测命令。
+
+### 📋 违规分类（7 类）
+
+| 代码 | 名称 | 默认严重度 |
+|-----|------|-----------|
+| A1 | 跳过子代理 — ROUTER 在主上下文模拟子代理的步骤 | P0 |
+| A2 | 跳过目录检查 — dev repo 绕过 retrospective Step 2 | P1 |
+| A3 | 跳过 Pre-flight — 首次响应缺 `🌅 Trigger: ...` 行 | P1 |
+| B | 编造事实 — 引用不存在路径 / 章节作为权威 | P0 |
+| C | 阶段未完成 — archiver 未跑完 4 阶段就退出 | P0 |
+| D | 占位值 — 完成清单含 `TBD` / `{...}` / 空值 | P1 |
+| E | 主上下文执行阶段 — ROUTER 在主上下文跑 Phase 1-4 逻辑 | P0 |
+
+### 📁 双仓库 compliance 日志（md + git · 遵循用户约束）
+
+用户明确要求："我可以接受本地的 sh 命令执行，但是数据库还是要 md 文件和 github 去储存。"违规持久化到：
+
+- `pro/compliance/violations.md` — dev repo（公开，随 Life OS 发布）
+- `_meta/compliance/violations.md` — user second-brain（私有，每用户独立）
+
+同一格式：`| Timestamp | Trigger | Type | Severity | Details | Resolved |`。
+
+**升级阶梯**（由 v1.7 的 `tools/stats.py` 实现，在此之前由开发者手动观察）：
+- 30 天内同类 ≥3 → hook 提醒加严
+- 30 天内同类 ≥5 → retrospective briefing 顶部加 `🚨 Compliance Watch`
+- 90 天内同类 ≥10 → AUDITOR 每次 Start Session 都跑合规巡检
+
+### 🗂️ 新增文件
+
+- `scripts/lifeos-pre-prompt-guard.sh` — UserPromptSubmit hook（bash，已 chmod +x）
+- `.claude/settings.json` — dev repo 的 hook 注册
+- `references/compliance-spec.md` — 完整规格：分类、双仓库策略、写入/读取路径、升级阶梯、归档、解决协议、隐私
+- `pro/compliance/violations.md` — dev-repo 实时日志（含 COURT-START-001 的 5 条种子条目）
+- `pro/compliance/violations.example.md` — 每类 10 个示例条目 + grep 配方
+- `pro/compliance/2026-04-19-court-start-violation.md` — 完整 incident 档案（473 行，12 节）
+- `evals/scenarios/start-session-compliance.md` — COURT-START-001 的 6 个失败模式回归测试
+
+### ✏️ 修改文件
+
+- `.claude/CLAUDE.md` — 新增 Start Session 触发约束的 HARD RULE 段
+- `SKILL.md` — 版本 1.6.2a → 1.6.3，Start Session 路由前新增 Pre-flight Compliance Check 段
+- `pro/agents/retrospective.md` — 执行步骤前新增子代理自检块
+- `pro/agents/auditor.md` — Mode 3（合规巡检），含 7 类违规分类 + 检测逻辑
+
+### 🔄 解决协议
+
+违规状态流转 `false → partial → true`，经过三个闸门：
+- **Gate 1**（`false → partial`）：底层修复已交付（Details 字段注版本号）
+- **Gate 2**（`partial → true`）：eval 回归通过 + 30 天已过 + 无复发（注版本 + eval-id + 观察日）
+
+COURT-START-001 的 4 条 incident 条目在本次发布转为 `partial`。转 `true` 需要 `evals/scenarios/start-session-compliance.md` 通过 + 30 天观察窗。
+
+### 迁移
+
+现有安装无需操作。升级后首次 Start Session：
+- hook 注册（仅 dev repo，经 `.claude/settings.json`）
+- Pre-flight 行成为必填
+- AUDITOR 在首次 retrospective Mode 0 后跑合规巡检
+- violations.md 如缺失则自动创建（空表）
+
+希望启用双仓库违规登记的 second-brain 用户，按 `references/compliance-spec.md` 在自己的 `.claude/settings.json` 加 hook 块即可。
+
+---
+
 ## [1.6.2a] - 2026-04-19 · Notion 同步回归编排层
 
 > archiver subagent 报告"Notion MCP 未接入"，因为 Notion MCP 工具是环境特定的，在 subagent 内不可用。Notion 同步现在从 archiver 中拆出，由编排层（主上下文）执行，主上下文拥有 MCP 工具访问权限。

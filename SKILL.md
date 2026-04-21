@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.6.2a"
+version: "1.6.3"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -115,6 +115,33 @@ Trigger words are theme-dependent. Each theme file defines its own triggers. Com
 ## Trigger Execution Templates (HARD RULE)
 
 Certain triggers have fixed execution templates. ROUTER must follow these verbatim.
+
+### Pre-flight Compliance Check (v1.6.3, HARD RULE)
+
+**Before launching any subagent for Start Session / Review / Adjourn / Debate, ROUTER MUST output a single Pre-flight confirmation line as the very first thing in the response — before any tool call:**
+
+```
+🌅 Trigger: [word] → Theme: [name or auto] → Action: Launch([agent]) [Mode]
+```
+
+Examples:
+
+- `🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0`
+- `📝 Trigger: 退朝 → Action: Launch(archiver) subagent (4 phases end-to-end)`
+- `🌅 Trigger: review → Action: Launch(retrospective) Mode 2`
+- `🏛️ Trigger: 朝堂议政 → Action: Launch(council) for 3-round debate`
+
+**Missing this line = Class A3 process violation.** The AUDITOR Compliance Patrol (Mode 3) will detect the absence and append an entry to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). Format specification: `references/compliance-spec.md`.
+
+This one-line check is the orchestrator-level gate in the v1.6.3 five-layer defense against COURT-START-001 (2026-04-19). The other four layers:
+
+1. Runtime hook: `scripts/lifeos-pre-prompt-guard.sh` (injects reminder from `.claude/settings.json`)
+2. This Pre-flight check (you are reading it)
+3. Subagent self-check: first output of `retrospective` / `archiver` subagent verifies it is running as a real subagent, not main-context simulation
+4. AUDITOR Compliance Patrol (Mode 3) post-hoc audit
+5. Regression test: `evals/scenarios/start-session-compliance.md`
+
+**Rationale:** COURT-START-001 proved that ROUTER can silently skip subagent launch if no visible enforcement gate exists. The 1-line check is the minimum visible proof that ROUTER read the trigger correctly and is about to launch — not simulate, not fabricate, not improvise.
 
 ### Start Session
 User says Start Session trigger → ROUTER output:

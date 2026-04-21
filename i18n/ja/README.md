@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.2a-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.3-purple.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -78,21 +78,21 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 ---
 
-## v1.6.2 の新機能
+## v1.6.3 の新機能
 
-**4 本の概念的な柱**：
-- **🛡️ 退朝フローは部分スキップ不可に。** 3 層防御（文言強化 + ステートマシン + 起動テンプレート）で、4 フェーズのアーカイブフローを確実に完走させる。
-- **📚 Wiki が自動書き込みに。** 「どの候補を保存しますか？」という確認は廃止。ARCHIVER が 6 つの厳格な基準 + ゼロプライバシーフィルターを通過したエントリを自動書き込み。ファイルを削除すれば廃止；「最近の wiki を取り消し」でロールバック。
-- **🔮 SOUL が継続的に自動書き込み。** 内閣参与が意思決定ごとに SOUL を更新。≥2 証拠点が蓄積すると、新次元が低信頼度（0.3）で自動作成される。「SHOULD BE」フィールドはあなたが書き込めるよう空白のまま。
-- **💤 DREAM に 10 個の自動トリガーアクション。** REM が 10 の具体パターン（古いコミットメント、価値のドリフト、決定疲労、繰り返し決定など 6 つ）を検出し、自動で対処する。フラグは次のブリーフィングに表示される。
+**信頼ガード——HARD RULE 違反への五層防御**。テストで、著者本人が Life OS 開発 repo で「上朝」と発言した際、LLM は retrospective サブエージェントをスキップし、メインコンテキストで 18 ステップを模倣し、存在しないパスを権威ソースとして捏造した。ドキュメントだけでは何も強制されない——すべての HARD RULE は記述的、強制メカニズムはゼロ。v1.6.3 は五層独立防御を提供し、すべてのトリガーワードが実サブエージェントを確実に起動するようにする：
 
-**4 つのエンジニアリング的詳細化**（詳細仕様を提供）：
-- **10 個の DREAM トリガーすべてにハード閾値 + ソフトシグナル。** 各トリガーは定量的ルール + LLM による定性的手掛かりのオプション（ソフトモードは AUDITOR レビュー必須）。例：決定疲労 = 「24 時間以内に 5 件以上の決定、後半平均スコア ≤ 前半 - 2」；古いコミットメント = 「『X をする』正規表現一致 + 30 日間行動なし」。
-- **トレンド矢印のための SOUL スナップショット。** セッション終了時に `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` をダンプ。RETROSPECTIVE は最新スナップショットを読み、↗↘→ 矢印（±0.05 信頼度閾値）と特殊状態：🌟 コアに昇格、⚠️ コアから降格、💤 休眠、❗ 競合ゾーンを計算。
-- **REVIEWER SOUL 3 層参照戦略。** Tier 1（信頼度 ≥ 0.7）= コア次元すべて参照；Tier 2（0.3-0.7）= 意味的に最も関連する 3 件；Tier 3（<0.3）= カウントのみ、表に出さない。Tier 1 への挑戦 → ⚠️ SOUL CONFLICT 半否決警告をレポート冒頭に。
-- **🧭 SOUL ヘルスレポートをブリーフィング冒頭の固定位置に。** 毎回のセッションブリーフィングは、あなたの現在プロファイル（トレンド矢印付き）、入力待ちの新次元、競合警告、休眠次元から始まる。
+1. **UserPromptSubmit hook**（`scripts/lifeos-pre-prompt-guard.sh`）— 9 テーマすべての 上朝 / start / 閣議開始 / 退朝 などを検出、応答前に HARD RULE リマインダーをモデルのコンテキストへ注入
+2. **Pre-flight Compliance Check** — ROUTER は任意のツール呼び出し前に `🌅 Trigger: [語] → Theme: [名] → Action: Launch([agent]) [Mode]` を出力必須、欠如 = 違反記録
+3. **サブエージェント自己チェック** — retrospective Mode 0 の最初の文がサブエージェントが実際に起動したことを証明（メインコンテキスト模倣ではない）
+4. **AUDITOR Compliance Patrol（Mode 3）** — 7 クラス違反分類（A1 サブエージェントスキップ、A2 ディレクトリチェックスキップ、A3 Pre-flight スキップ、B 事実捏造、C フェーズ未完了、D プレースホルダー値、E メインコンテキストフェーズ実行）、各セッション開始とアーカイブ後に実行
+5. **Eval 回帰** — `evals/scenarios/start-session-compliance.md` が COURT-START-001 の 6 つの失敗モードを固定化
 
-完全なリストは [CHANGELOG](../../CHANGELOG.md) を参照。
+**デュアルリポ違反ログ**（md + git、ユーザーのストレージ制約に準拠）：違反は `pro/compliance/violations.md`（dev repo、公開）と `_meta/compliance/violations.md`（ユーザー second-brain、プライベート）に永続化。エスカレーションラダー：30 日以内に同種 ≥3 → hook リマインダー強化；≥5 → briefing 冒頭に `🚨 Compliance Watch`；90 日以内に ≥10 → AUDITOR が毎セッション巡検。
+
+**v1.6.2 の機能も引き続き利用可能**：退朝フロー部分スキップ不可 · Wiki 自動書き込み · SOUL 継続自動書き込み · DREAM 10 自動トリガー · SOUL トレンド矢印 · REVIEWER SOUL 3 層戦略 · ブリーフィング冒頭の SOUL ヘルスレポート。
+
+完全なリストと元の COURT-START-001 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
 
 ---
 
@@ -416,7 +416,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 > **非対応**：ChatGPT、Gemini Web、その他のシングルコンテキストチャットインターフェース。Life OS は真の情報隔離を持つ16の独立した subagent を必要とする——単一のチャットウィンドウでは実現できない。
 
-ストレージバックエンドの設定を含む詳細は **[インストールガイド全文](../../docs/installation.md)** を参照。
+ストレージバックエンドの設定を含む詳細は **[インストールガイド全文](./docs/installation.md)** を参照。
 
 ---
 

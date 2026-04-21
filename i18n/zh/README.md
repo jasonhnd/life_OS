@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.6.2a-purple.svg)](../../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.3-purple.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -75,21 +75,21 @@ Life OS 装进你的 AI 终端（Claude Code、Gemini CLI 或 Codex CLI），把
 
 ---
 
-## v1.6.2 新特性
+## v1.6.3 新特性
 
-**四根概念支柱**：
-- **🛡️ 退朝流程无法被绕过。** 三层防御（措辞加固 + 状态机 + 启动模板）确保 4 阶段归档流程不会被部分跳过。
-- **📚 Wiki 自动写入。** 不再弹"要保存哪些候选？"问题。起居郎自动写入通过 6 项严格标准 + 零隐私过滤器的 wiki 条目。删除任何文件即废弃；说"撤销最近 wiki"即可回滚。
-- **🔮 SOUL 持续自动写入。** 谏官在每次决策后更新 SOUL。当 ≥2 个证据点积累时，新维度以低置信度（0.3）自动创建。"SHOULD BE"字段留空给你自己填。
-- **💤 DREAM 获得 10 个自动触发行动。** REM 现在检测并对 10 种具体模式采取行动：陈旧承诺、价值漂移、决策疲劳、重复决策等 6 种。标志会浮现在下次简报里。
+**信任守卫——五层防御 HARD RULE 违规**。测试中，作者本人在 Life OS 开发 repo 说"上朝"，LLM 跳过 retrospective 子代理，在主上下文模拟 18 步流程，并编造不存在的路径作为权威源。文档不会自动强制——每一条 HARD RULE 都是描述性的，零强制机制。v1.6.3 交付五层独立防御，让每个触发词真正启动实际的子代理：
 
-**四项工程细化**（详细规范已交付）：
-- **10 个 DREAM 触发器全部配硬阈值 + 软信号。** 每个触发器有定量规则 + LLM 定性线索选项（软模式需 AUDITOR 审核）。例：决策疲劳 = "24 小时内 ≥5 决策，后半段平均分 ≤ 前半段 -2"；陈旧承诺 = "'我会 X'正则匹配 + 30 天无行动"。
-- **SOUL 快照实现趋势箭头。** 每次会话结束在 `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` 导出快照。RETROSPECTIVE 读取最新快照计算 ↗↘→ 箭头（±0.05 置信度阈值），加上特殊状态：🌟 新晋核心、⚠️ 从核心降级、💤 休眠、❗ 冲突区。
-- **REVIEWER SOUL 3 层引用策略。** Tier 1（置信度 ≥ 0.7）= 全部引用核心维度；Tier 2（0.3-0.7）= 语义最相关前 3；Tier 3（<0.3）= 仅计数，不露面。决策挑战 Tier 1 → ⚠️ SOUL CONFLICT 半否决警告置于报告顶部。
-- **SOUL 健康报告固定在简报顶部。** 每次上朝简报都以你的当前画像（含趋势箭头）、待输入新维度、冲突警告、休眠维度开始。
+1. **UserPromptSubmit hook**（`scripts/lifeos-pre-prompt-guard.sh`）——检测 上朝 / start / 閣議開始 / 退朝 等 9 个主题的触发词，在模型响应前把 HARD RULE 提醒注入上下文
+2. **Pre-flight Compliance Check** — ROUTER 在任何工具调用前必须输出 `🌅 Trigger: [词] → Theme: [名] → Action: Launch([agent]) [Mode]`，缺此行 = 登记违规
+3. **子代理自检** — retrospective Mode 0 第一行证明子代理真的被启动（而非主上下文模拟）
+4. **AUDITOR 合规巡检（Mode 3）** — 7 类违规分类（A1 跳过子代理、A2 跳过目录检查、A3 跳过 Pre-flight、B 编造事实、C 阶段未完成、D 占位值、E 主上下文执行阶段），每次 Session 启动和归档后运行
+5. **Eval 回归** — `evals/scenarios/start-session-compliance.md` 固化 COURT-START-001 的 6 个失败模式
 
-完整列表见 [CHANGELOG](../../CHANGELOG.md)。
+**双仓库违规日志**（md + git，遵循用户存储约束）：违规持久化到 `pro/compliance/violations.md`（dev repo，公开）和 `_meta/compliance/violations.md`（user second-brain，私有）。升级阶梯：30 天内同类 ≥3 → hook 提醒加严；≥5 → briefing 顶部加 `🚨 Compliance Watch`；90 天内 ≥10 → AUDITOR 每次 Session 巡检。
+
+**v1.6.2 依然可用**：退朝流程无法被绕过 · Wiki 自动写入 · SOUL 持续自动写入 · DREAM 10 个自动触发 · SOUL 趋势箭头 · REVIEWER 3 层 SOUL 策略 · 简报顶部 SOUL 健康报告。
+
+完整列表及原始 COURT-START-001 事件档案见 [CHANGELOG](./CHANGELOG.md)。
 
 ---
 
@@ -413,7 +413,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 > **不支持**：ChatGPT、Gemini 网页版，以及任何单上下文聊天界面。Life OS 需要 16 个信息隔离的独立 subagent——单个聊天窗口做不到。
 
-完整的安装指南（包括存储后端配置），参见 **[完整安装指南](../../docs/installation.md)**。
+完整的安装指南（包括存储后端配置），参见 **[完整安装指南](./docs/installation.md)**。
 
 ---
 
