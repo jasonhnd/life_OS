@@ -44,6 +44,13 @@ export = [
     "markdown-it-py>=3.0",
     "genanki>=0.13",
 ]
+# Research fetcher — used by tools/research.py (v1.7 Sprint 4,
+# per references/tools-spec.md §6.4). httpx for HTTP, markdownify
+# for HTML→md conversion. robots.txt enforced via stdlib urllib.
+research = [
+    "httpx>=0.27",
+    "markdownify>=0.11",
+]
 
 # CLI entry point — dispatches to tools/{command}.py based on first arg.
 # See tools/cli.py for available subcommands.
