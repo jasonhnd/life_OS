@@ -16,6 +16,7 @@ All tests mock httpx + urllib.robotparser — no real network.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -153,13 +154,14 @@ class TestUserAgent:
     def test_user_agent_set(
         self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
     ):
+        # Default backend is ddg JSON (verified by TestBackends below).
         search_url = (
-            "https://html.duckduckgo.com/html/?q=foo"
+            "https://duckduckgo.com/?q=foo&format=json&no_html=1"
         )
         fake_client = _install_fake_httpx(
             monkeypatch,
             {
-                search_url: (200, "<html><body>result</body></html>"),
+                search_url: (200, '{"RelatedTopics": []}'),
                 "https://example.com/robots.txt": (404, ""),
             },
         )
@@ -207,7 +209,11 @@ class TestRobots:
         from tools.research import run_research
 
         result = run_research(
-            query="foo", depth=1, max_pages=5, root=brain_root
+            query="foo",
+            depth=1,
+            max_pages=5,
+            root=brain_root,
+            backend="ddg-html",
         )
         # The fetched_urls list should not contain the blocked URL
         assert "https://example.com/blocked" not in result.fetched_urls
@@ -238,7 +244,11 @@ class TestDepth:
         from tools.research import run_research
 
         result = run_research(
-            query="foo", depth=0, max_pages=5, root=brain_root
+            query="foo",
+            depth=0,
+            max_pages=5,
+            root=brain_root,
+            backend="ddg-html",
         )
         # Only the search URL should be fetched.
         assert result.fetched_urls == [search_url]
@@ -267,7 +277,11 @@ class TestDepth:
         from tools.research import run_research
 
         result = run_research(
-            query="foo", depth=1, max_pages=5, root=brain_root
+            query="foo",
+            depth=1,
+            max_pages=5,
+            root=brain_root,
+            backend="ddg-html",
         )
         assert "https://ex.com/a" in result.fetched_urls
         assert "https://ex.com/b" in result.fetched_urls
@@ -294,7 +308,11 @@ class TestDepth:
         from tools.research import run_research
 
         result = run_research(
-            query="foo", depth=2, max_pages=5, root=brain_root
+            query="foo",
+            depth=2,
+            max_pages=5,
+            root=brain_root,
+            backend="ddg-html",
         )
         assert "https://ex.com/b" in result.fetched_urls
 
@@ -317,7 +335,11 @@ class TestDepth:
         from tools.research import run_research
 
         result = run_research(
-            query="foo", depth=1, max_pages=3, root=brain_root
+            query="foo",
+            depth=1,
+            max_pages=3,
+            root=brain_root,
+            backend="ddg-html",
         )
         # max-pages caps total fetches (search + pages <= max_pages)
         assert len(result.fetched_urls) <= 3
@@ -330,11 +352,14 @@ class TestOutput:
     def test_output_path_in_inbox(
         self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
     ):
-        search_url = "https://html.duckduckgo.com/html/?q=foo"
+        # Use default ddg (JSON API) backend.
+        search_url = (
+            "https://duckduckgo.com/?q=foo+bar&format=json&no_html=1"
+        )
         _install_fake_httpx(
             monkeypatch,
             {
-                search_url: (200, "<html><body>ok</body></html>"),
+                search_url: (200, '{"RelatedTopics": []}'),
                 "https://ex.com/robots.txt": (404, ""),
             },
         )
@@ -355,10 +380,12 @@ class TestOutput:
     def test_output_contains_yaml_frontmatter(
         self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
     ):
-        search_url = "https://html.duckduckgo.com/html/?q=hello"
+        search_url = (
+            "https://duckduckgo.com/?q=hello&format=json&no_html=1"
+        )
         _install_fake_httpx(
             monkeypatch,
-            {search_url: (200, "<html><body>ok</body></html>"),
+            {search_url: (200, '{"RelatedTopics": []}'),
              "https://ex.com/robots.txt": (404, "")},
         )
         _install_fake_markdownify(monkeypatch)
@@ -409,6 +436,8 @@ class TestFailure:
                 "5",
                 "--root",
                 str(brain_root),
+                "--backend",
+                "ddg-html",
             ]
         )
         assert rc == 1
@@ -421,7 +450,9 @@ class TestFailure:
     def test_total_search_failure_exits_one_with_incomplete(
         self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
     ):
-        search_url = "https://html.duckduckgo.com/html/?q=foo"
+        search_url = (
+            "https://duckduckgo.com/?q=foo&format=json&no_html=1"
+        )
         _install_fake_httpx(
             monkeypatch,
             {
@@ -454,11 +485,14 @@ class TestCLI:
     def test_main_success_exit_zero(
         self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
     ):
-        search_url = "https://html.duckduckgo.com/html/?q=foo"
+        # Default backend = ddg JSON API.
+        search_url = (
+            "https://duckduckgo.com/?q=foo&format=json&no_html=1"
+        )
         _install_fake_httpx(
             monkeypatch,
             {
-                search_url: (200, "<html><body>ok</body></html>"),
+                search_url: (200, '{"RelatedTopics": []}'),
                 "https://ex.com/robots.txt": (404, ""),
             },
         )
@@ -480,3 +514,124 @@ class TestCLI:
         args = parser.parse_args(["foo"])
         assert args.depth == 1
         assert args.max_pages == 10
+
+
+# ─── Backend selection ──────────────────────────────────────────────────────
+
+
+class TestBackends:
+    def test_default_backend_is_ddg_json(
+        self, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Default backend is the DDG JSON Instant Answer endpoint."""
+        from tools import research
+
+        parser = research._build_parser()
+        args = parser.parse_args(["foo"])
+        assert args.backend == "ddg"
+        template = research._BACKENDS[args.backend]
+        assert template.startswith("https://duckduckgo.com/?q=")
+        assert "format=json" in template
+
+    def test_backend_choices_include_fallbacks(self):
+        """Registry exposes html + lite fallbacks for when ddg JSON fails."""
+        from tools.research import _BACKENDS
+
+        assert "ddg" in _BACKENDS
+        assert "ddg-html" in _BACKENDS
+        assert "ddg-lite" in _BACKENDS
+
+    def test_unknown_backend_falls_back_to_default(
+        self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Unknown backend key silently falls back to the default URL."""
+        search_url = (
+            "https://duckduckgo.com/?q=foo&format=json&no_html=1"
+        )
+        _install_fake_httpx(
+            monkeypatch,
+            {
+                search_url: (200, '{"RelatedTopics": []}'),
+                "https://ex.com/robots.txt": (404, ""),
+            },
+        )
+        _install_fake_markdownify(monkeypatch)
+        from tools.research import run_research
+
+        result = run_research(
+            query="foo",
+            depth=0,
+            max_pages=5,
+            root=brain_root,
+            backend="does-not-exist",
+        )
+        # Falls back to default, so search_url should be the JSON endpoint
+        assert result.search_url == search_url
+
+    def test_robots_block_emits_backend_hint(
+        self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """When robots.txt blocks the search URL, the error message
+        should guide users to try another `--backend`."""
+        search_url = (
+            "https://duckduckgo.com/?q=foo&format=json&no_html=1"
+        )
+        _install_fake_httpx(
+            monkeypatch,
+            {
+                # robots.txt disallows everything on duckduckgo.com
+                "https://duckduckgo.com/robots.txt": (
+                    200,
+                    "User-agent: *\nDisallow: /\n",
+                ),
+                # search itself would return 200 but must be skipped
+                search_url: (200, '{"RelatedTopics": []}'),
+            },
+        )
+        _install_fake_markdownify(monkeypatch)
+        from tools.research import run_research
+
+        result = run_research(
+            query="foo",
+            depth=0,
+            max_pages=5,
+            root=brain_root,
+        )
+        assert result.incomplete is True
+        assert any("--backend" in err for err in result.errors)
+
+
+# ─── Integration smoke (opt-in, real network) ───────────────────────────────
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    os.environ.get("LIFEOS_INTEGRATION") != "1",
+    reason=(
+        "Online smoke test — hits real network. "
+        "Enable with LIFEOS_INTEGRATION=1 (or `pytest -m integration`)."
+    ),
+)
+def test_real_ddg_fetch_smoke(tmp_path: Path) -> None:
+    """Online smoke test: actually hit DuckDuckGo.
+
+    Skipped by default. Enable with:
+        LIFEOS_INTEGRATION=1 pytest tests/test_research.py -v
+
+    Exercises the full run_research stack (robots.txt fetch + search).
+    Robots may block; the test only asserts we write an output file
+    and exit cleanly without raising — not that content was fetched.
+    """
+    pytest.importorskip("httpx")
+    pytest.importorskip("markdownify")
+    brain_root = tmp_path / "brain"
+    (brain_root / "inbox").mkdir(parents=True)
+    from tools.research import run_research
+
+    result = run_research(
+        query="python",
+        depth=0,
+        max_pages=1,
+        root=brain_root,
+    )
+    assert result.output_path.exists()
