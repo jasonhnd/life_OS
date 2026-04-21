@@ -92,16 +92,16 @@ class TestCortexPackageExports:
             )
 
     def test_no_unexpected_extras(self):
-        """Top-level symbols (excluding _private) should match __all__ + builtins."""
+        """Top-level symbols (excluding _private + submodules) should match __all__."""
         import tools.lib.cortex as cortex_pkg
 
+        # Submodule names are accessible as attrs but not part of the public API
+        SUBMODULES = {"session_index", "concept", "snapshot", "extraction"}
         public_attrs = {
             name
             for name in dir(cortex_pkg)
-            if not name.startswith("_")
-            and name not in ("session_index", "concept", "snapshot")  # submodules
+            if not name.startswith("_") and name not in SUBMODULES
         }
-        # Every public attr should be in __all__
         unexpected = public_attrs - set(cortex_pkg.__all__)
         assert not unexpected, f"Public attrs not in __all__: {unexpected}"
 

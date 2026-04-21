@@ -29,6 +29,15 @@ from tools.lib.cortex.concept import (
     rebuild_concept_index,
     write_concept,
 )
+from tools.lib.cortex.extraction import (
+    count_candidate_frequencies,
+    deduplicate_aliases,
+    filter_by_min_frequency,
+    is_stopword,
+    normalize_name,
+    slug_from_name,
+    split_into_candidate_phrases,
+)
 from tools.lib.cortex.session_index import (
     compile_index,
     compile_index_line,
@@ -76,4 +85,12 @@ __all__ = [
     "should_delete",
     "snapshot_to_markdown",
     "write_snapshot",
+    # Extraction helpers (non-LLM)
+    "count_candidate_frequencies",
+    "deduplicate_aliases",
+    "filter_by_min_frequency",
+    "is_stopword",
+    "normalize_name",
+    "slug_from_name",
+    "split_into_candidate_phrases",
 ]
