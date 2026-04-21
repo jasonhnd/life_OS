@@ -6,6 +6,65 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [Unreleased] — Post-v1.7.0-alpha follow-ups (2026-04-21 same-day)
+
+> 13 commits shipped after v1.7.0-alpha to close TBDs from the alpha CHANGELOG and add tooling/test infrastructure. Will roll into v1.7.0 stable release.
+
+### 🔧 New tooling
+
+- `tools/cli.py` — unified subcommand dispatcher; `pyproject.toml` activates `life-os-tool` console script
+- `tools/backup.py` — snapshot rotation (30d archive, 90d delete) + violations log archival to quarterly files
+- `scripts/lifeos-compliance-check.sh` — `check_adjourn()` + `check_cortex()` implementations (closing the placeholder from alpha)
+- `tools/lib/cortex/__init__.py` — package-level exports of all 22 helper symbols
+
+### 📋 New eval scenarios
+
+- `evals/scenarios/adjourn-compliance.md` — Class C/D/E + A3 detection
+- `evals/scenarios/cortex-retrieval.md` — CX1-CX7 detection + degradation paths
+
+### ✅ Test suite expansion
+
+- `tests/test_backup.py` — 19 tests (snapshot rotation, violations archival, path resolution)
+- `tests/test_cli.py` — 8 tests (help / unknown / dispatch / argv preservation)
+- `tests/test_compliance_check.py` — 11 subprocess-based tests for the bash compliance script
+- `tests/test_integration.py` — 7 end-to-end integration tests (full Cortex pipeline with fixtures)
+
+**Total tests now: 122, all pass in 0.68s combined.**
+
+### 🚀 CI
+
+- `.github/workflows/test.yml` — pytest matrix (Python 3.11/3.12) + bash syntax + smoke tests for hooks
+
+### 📚 Architecture documentation
+
+- `references/cortex-architecture.md` — end-to-end data flow (Adjourn → Compile → Read paths), info isolation matrix, failure cascade, cost profile, compliance map
+
+### 🔌 Wiring polish
+
+- `pro/CLAUDE.md` Information Isolation table extended for all 6 v1.7 subagents (was: only hippocampus + GWT) + narrator-validator chain note in Step 0.5
+- `pro/agents/archiver.md` adds explicit "Phase 2 Mid-Step — SOUL Snapshot" with both Python helper + direct write paths
+
+### 🐛 Bug fixes
+
+- `tools/cli.py` `_print_usage(stream=sys.stdout)` default eval bug — fixed to None+resolve-at-call so pytest capsys works
+- `scripts/lifeos-compliance-check.sh` `set -e` + `grep -c` → silent kill; added `|| true` guards
+- `scripts/lifeos-compliance-check.sh` `\s` regex (GNU-only) → POSIX `[[:space:]]` for portability
+
+### Files Touched (post-alpha commits)
+
+```
+b1bf474 feat: tools/cli.py dispatcher + check_cortex() + pyproject scripts entry
+4fa8db9 feat: check_adjourn() implementation + cortex-retrieval eval scenario
+81c96ec feat: v1.7.0-alpha follow-up — backup.py + adjourn eval + CI workflow
+2fecaa9 test: end-to-end integration tests for Cortex pipeline (7 tests)
+72c942c feat: tools.lib.cortex package exports + Info Isolation table + archiver snapshot step
+eb477a5 feat: tests/test_cli + test_compliance_check + cortex-architecture doc
+```
+
+(Plus the 1ce61d1 v1.7.0-alpha release commit itself.)
+
+---
+
 ## [1.7.0-alpha] - 2026-04-21 · Cortex Pre-Router Cognitive Layer
 
 > First Layer-2 architectural upgrade in Life OS history. Adds cross-session memory, concept graph, and identity signals as inputs to every decision workflow. 19 commits today brought v1.7 from spec drafts to functional completeness.
