@@ -1,0 +1,70 @@
+[project]
+name = "life-os-tools"
+version = "0.1.0"
+description = "Life OS Layer 4 tools — local maintenance automation for second-brain markdown files. Optional addon to the Claude Code skill."
+readme = "tools/README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Jason", email = "mildreins@gmail.com" }
+]
+keywords = ["life-os", "second-brain", "markdown", "claude-code"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business",
+]
+
+# Runtime dependencies kept minimal per tools-spec.md §2:
+# pure stdlib + PyYAML for YAML frontmatter parsing.
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]
+
+# CLI entry point — dispatches to tools/{command}.py based on first arg.
+# Implementation lands in v1.7 Phase 2.
+# [project.scripts]
+# life-os-tool = "tools.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jasonhnd/life_OS"
+Documentation = "https://github.com/jasonhnd/life_OS/blob/main/references/tools-spec.md"
+Repository = "https://github.com/jasonhnd/life_OS"
+Issues = "https://github.com/jasonhnd/life_OS/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tools"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "PTH"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "-v --tb=short"
