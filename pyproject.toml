@@ -33,9 +33,9 @@ dev = [
 ]
 
 # CLI entry point — dispatches to tools/{command}.py based on first arg.
-# Implementation lands in v1.7 Phase 2.
-# [project.scripts]
-# life-os-tool = "tools.cli:main"
+# See tools/cli.py for available subcommands.
+[project.scripts]
+life-os-tool = "tools.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/jasonhnd/life_OS"

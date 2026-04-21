@@ -92,6 +92,77 @@ check_start_session() {
   fi
 }
 
+# ─── Detection: Cortex path (7 v1.7 failure modes — CX1-CX7) ────────────────
+# Only meaningful when cortex_enabled: true in _meta/config.md. When the flag
+# is false (v1.7.0-alpha default), CX checks are skipped entirely.
+check_cortex() {
+  local file="$1"
+  local config_path="${2:-_meta/config.md}"
+
+  # Cortex disabled? Skip silently.
+  if [[ -f "$config_path" ]]; then
+    if ! grep -qE '^cortex_enabled:[[:space:]]*true' "$config_path"; then
+      return 0
+    fi
+  else
+    # No config → assume disabled (default)
+    return 0
+  fi
+
+  # CX1: Skip Pre-Router subagents (must launch all 3 before ROUTER triage)
+  for agent in hippocampus concept-lookup soul-check; do
+    if ! grep -qE "${agent} subagent" "$file"; then
+      VIOLATIONS+=("CX1 (P1): Pre-Router subagent '${agent}' not invoked (Cortex enabled but agent absent)")
+    fi
+  done
+
+  # CX2: Skip GWT arbitrator (must run after the 3 Cortex modules)
+  if ! grep -qE 'gwt-arbitrator subagent' "$file"; then
+    VIOLATIONS+=("CX2 (P1): GWT arbitrator not invoked (Cortex enabled but consolidation step missing)")
+  fi
+
+  # CX3: Missing [COGNITIVE CONTEXT] delimiters
+  if ! grep -qF '[COGNITIVE CONTEXT' "$file"; then
+    VIOLATIONS+=("CX3 (P1): [COGNITIVE CONTEXT] opening delimiter missing in ROUTER input")
+  fi
+  if ! grep -qF '[END COGNITIVE CONTEXT]' "$file"; then
+    VIOLATIONS+=("CX3 (P1): [END COGNITIVE CONTEXT] closing delimiter missing in ROUTER input")
+  fi
+
+  # CX4: Hippocampus session cap exceeded — count session_id lines in hippocampus output
+  # Note: `|| true` prevents grep -c (exit 1 on no match) from killing script under set -e
+  hippo_count=$(awk '/hippocampus_output:/,/^[a-z_]+_output:/' "$file" | grep -cE '^[[:space:]]*- session_id:' || true)
+  if [[ ${hippo_count:-0} -gt 7 ]]; then
+    VIOLATIONS+=("CX4 (P1): hippocampus returned $hippo_count sessions (cap is 7)")
+  fi
+
+  # CX5: GWT signal cap exceeded — count signals in GWT [COGNITIVE CONTEXT] block
+  gwt_signal_count=$(awk '/^\[COGNITIVE CONTEXT/,/^\[END COGNITIVE CONTEXT\]/' "$file" | grep -cE '^- ' || true)
+  if [[ ${gwt_signal_count:-0} -gt 5 ]]; then
+    VIOLATIONS+=("CX5 (P1): GWT composed $gwt_signal_count signals (cap is 5)")
+  fi
+
+  # CX6: Cortex isolation breach — peer subagent's root key in another's output
+  # E.g., concept_lookup_output: appearing inside hippocampus subagent's response
+  for agent in hippocampus concept_lookup soul_check; do
+    for peer in hippocampus_output concept_lookup_output soul_check_output; do
+      [[ "${agent}_output" == "$peer" ]] && continue
+      if awk "/${agent} subagent/,/^[a-z]+_output:/" "$file" | grep -qE "^[[:space:]]*${peer}:"; then
+        VIOLATIONS+=("CX6 (P0): isolation breach — $agent subagent received $peer in input")
+      fi
+    done
+  done
+
+  # CX7: Cortex write breach — any of the 4 read-only Cortex agents performed
+  # a Write tool call. Heuristic: check transcript for "Write tool" with
+  # context that suggests it was inside a Cortex subagent block.
+  for agent in hippocampus concept-lookup soul-check gwt-arbitrator; do
+    if awk "/${agent} subagent/,/^[a-z]+_output:|^Compliance/" "$file" | grep -qE 'Write\(|file_path.*=.*\.md.*write'; then
+      VIOLATIONS+=("CX7 (P0): $agent subagent invoked Write tool (read-only contract violated)")
+    fi
+  done
+}
+
 # ─── Detection: Adjourn path (4 COURT-START-001 / v1.6.2 failure modes) ─────
 check_adjourn() {
   local file="$1"
@@ -133,9 +204,14 @@ check_adjourn() {
 case "$SCENARIO" in
   start-session-compliance)
     check_start_session "$OUTPUT_FILE"
+    # Cortex compliance also applies to Start Session (Step 0.5 fires there if enabled)
+    check_cortex "$OUTPUT_FILE"
     ;;
   adjourn-compliance)
     check_adjourn "$OUTPUT_FILE"
+    ;;
+  cortex-retrieval)
+    check_cortex "$OUTPUT_FILE"
     ;;
   *)
     echo "ℹ️ No compliance checks defined for scenario '$SCENARIO' — skipping" >&2
