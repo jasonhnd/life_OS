@@ -1,20 +1,26 @@
 #!/bin/bash
 # Life OS Eval Runner
 # 用 claude -p 批量跑测试场景，输出保存到 evals/outputs/
+#
+# v1.6.3c (2026-04-21): adds Layer 5 compliance auto-detection. After each
+# scenario, if scripts/lifeos-compliance-check.sh exists and the scenario has
+# a defined check, runs it and tracks separately from scenario exit-code pass/fail.
 
 set -e
 
 EVAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 SCENARIOS_DIR="$EVAL_DIR/scenarios"
 OUTPUTS_DIR="$EVAL_DIR/outputs"
+COMPLIANCE_SCRIPT="$EVAL_DIR/../scripts/lifeos-compliance-check.sh"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 FAIL_COUNT=0
 PASS_COUNT=0
+COMPLIANCE_FAIL_COUNT=0
 
 mkdir -p "$OUTPUTS_DIR"
 
 # 如果指定了场景名，只跑那个（路径安全：只取 basename，防止目录遍历）
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
     SAFE_NAME="$(basename "$1" .md)"
     CANDIDATE="$SCENARIOS_DIR/${SAFE_NAME}.md"
     if [ ! -f "$CANDIDATE" ]; then
@@ -31,6 +37,11 @@ fi
 echo "=== Life OS Eval Runner ==="
 echo "时间: $TIMESTAMP"
 echo "场景数: ${#SCENARIOS[@]}"
+if [ -x "$COMPLIANCE_SCRIPT" ]; then
+    echo "Compliance check: 启用 ($COMPLIANCE_SCRIPT)"
+else
+    echo "Compliance check: 禁用 (脚本不存在或不可执行: $COMPLIANCE_SCRIPT)"
+fi
 echo ""
 
 RESULTS=()
@@ -66,22 +77,58 @@ for scenario_file in "${SCENARIOS[@]}"; do
         > "$output_file" 2>"${output_file}.stderr" || EXIT_CODE=$?
 
     if [ $EXIT_CODE -eq 0 ]; then
-        echo "   ✅ 通过 (exit 0)"
-        RESULTS+=("PASS $scenario_name")
-        PASS_COUNT=$((PASS_COUNT + 1))
+        echo "   ✅ exit 0"
+        SCENARIO_RESULT="PASS"
     else
-        echo "   ❌ 失败 (exit $EXIT_CODE)"
+        echo "   ❌ exit $EXIT_CODE"
         # 追加 stderr 到输出文件末尾，便于审查
         if [ -s "${output_file}.stderr" ]; then
             echo "" >> "$output_file"
             echo "--- STDERR (exit code $EXIT_CODE) ---" >> "$output_file"
             cat "${output_file}.stderr" >> "$output_file"
         fi
-        RESULTS+=("FAIL $scenario_name (exit $EXIT_CODE)")
+        SCENARIO_RESULT="FAIL (exit $EXIT_CODE)"
+    fi
+    rm -f "${output_file}.stderr"
+
+    # ─── v1.6.3c: Layer 5 compliance auto-detection ──────────────────────────
+    COMPLIANCE_RESULT=""
+    if [ -x "$COMPLIANCE_SCRIPT" ]; then
+        echo "" >> "$output_file"
+        echo "--- Compliance Check ($(date -Iseconds)) ---" >> "$output_file"
+
+        if COMPLIANCE_OUT=$(bash "$COMPLIANCE_SCRIPT" "$output_file" "$scenario_name" 2>&1); then
+            echo "   ✅ compliance check passed"
+            echo "$COMPLIANCE_OUT" >> "$output_file"
+            COMPLIANCE_RESULT="compliance:pass"
+        else
+            CC_EXIT=$?
+            if [ "$CC_EXIT" -eq 1 ]; then
+                echo "   🚫 compliance check FAILED"
+                echo "$COMPLIANCE_OUT" | sed 's/^/      /'
+                echo "$COMPLIANCE_OUT" >> "$output_file"
+                COMPLIANCE_FAIL_COUNT=$((COMPLIANCE_FAIL_COUNT + 1))
+                COMPLIANCE_RESULT="compliance:FAIL"
+            else
+                echo "   ⚠️ compliance check error (exit $CC_EXIT)"
+                echo "$COMPLIANCE_OUT" >> "$output_file"
+                COMPLIANCE_RESULT="compliance:error"
+            fi
+        fi
+    fi
+
+    # Aggregate scenario + compliance into one result line
+    if [ "$SCENARIO_RESULT" = "PASS" ] && [ "$COMPLIANCE_RESULT" = "compliance:FAIL" ]; then
+        RESULTS+=("FAIL $scenario_name (exit 0 but compliance violations)")
+        FAIL_COUNT=$((FAIL_COUNT + 1))
+    elif [ "$SCENARIO_RESULT" = "PASS" ]; then
+        RESULTS+=("PASS $scenario_name${COMPLIANCE_RESULT:+ ($COMPLIANCE_RESULT)}")
+        PASS_COUNT=$((PASS_COUNT + 1))
+    else
+        RESULTS+=("FAIL $scenario_name ($SCENARIO_RESULT${COMPLIANCE_RESULT:+ + $COMPLIANCE_RESULT})")
         FAIL_COUNT=$((FAIL_COUNT + 1))
     fi
-    # 清理临时 stderr 文件
-    rm -f "${output_file}.stderr"
+
     echo ""
 done
 
@@ -91,11 +138,15 @@ for r in "${RESULTS[@]}"; do
 done
 echo ""
 echo "通过: $PASS_COUNT / 失败: $FAIL_COUNT / 总计: ${#SCENARIOS[@]}"
+if [ "$COMPLIANCE_FAIL_COUNT" -gt 0 ]; then
+    echo "Compliance violations: $COMPLIANCE_FAIL_COUNT scenarios"
+    echo "Append violations to pro/compliance/violations.md per references/compliance-spec.md"
+fi
 echo "输出目录: $OUTPUTS_DIR"
 echo ""
 echo "下一步: 对照 rubrics/ 中的评分标准，人工评审输出质量"
 
-# 有失败场景时以非零退出码退出
+# 有失败场景或合规违规时以非零退出码退出
 if [ $FAIL_COUNT -gt 0 ]; then
     exit 1
 fi
