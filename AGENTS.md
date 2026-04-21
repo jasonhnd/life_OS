@@ -46,13 +46,13 @@
 
 ### Step 7.5 · Narrator + Narrator-Validator（v1.7 Cortex Phase 2）· OPTIONAL
 
-当 Step 0.5 已激活 Cortex，在 REVIEWER Final Review（step 6）之后、ROUTER Summary Report（step 7）展示之前，orchestrator **可以**启动 Narrator 层对 Summary Report 的**实质性论断**（substantive claims）包裹 `signal_id` 引用。这是为了防止 Gazzaniga 式的"左脑解释者"虚构（confabulation）。
+当 Step 0.5 已激活 Cortex，在 REVIEWER Final Review（step 6）之后、ROUTER Summary Report（step 7）展示之前，orchestrator **可以**触发 **ROUTER Step 7.5（narrator mode）**——一个 ROUTER-internal narrator composition 步骤（**不是**独立 subagent；见 `pro/compliance/2026-04-21-narrator-spec-violation.md`），对 Summary Report 的**实质性论断**（substantive claims）包裹 `signal_id` 引用。这是为了防止 Gazzaniga 式的"左脑解释者"虚构（confabulation）。
 
 **语义合同**：
-1. 启动 `narrator`，传入 Draft Summary Report + GWT 输出的 `[COGNITIVE CONTEXT]` 信号存储
-2. narrator 对每条实质性论断挂接 `signal_id` 引用（连接性/修辞性文字免引用）
-3. 启动 `narrator-validator`（Sonnet-tier，比 Opus 便宜），读 narrator 输出 + 信号存储，核验每条引用是否指向真实信号且论断与信号语义一致
-4. 如 validator 失败 → 反馈给 narrator 重写，最多 2 次重写
+1. ROUTER 进入 Step 7.5（narrator mode），`Read` 模板 `pro/agents/narrator.md`（ROUTER-internal composition template，**不**通过 Task spawn），传入 Draft Summary Report + GWT 输出的 `[COGNITIVE CONTEXT]` 信号存储
+2. ROUTER（narrator mode）对每条实质性论断挂接 `signal_id` 引用（连接性/修辞性文字免引用）
+3. 启动 `narrator-validator` 子代理（spec-compliant standalone Sonnet subagent，比 Opus 便宜），读 narrator mode 输出 + 信号存储，核验每条引用是否指向真实信号且论断与信号语义一致
+4. 如 validator 失败 → 反馈给 ROUTER Step 7.5 重写，最多 2 次重写
 5. 2 次重写仍失败 → 非阻塞降级到 v1.6.3 未包裹的 Summary Report，并记录到 `_meta/eval-history/narrator-{date}.md`
 
 **引用格式**：见 `references/narrator-spec.md §4`。
@@ -72,7 +72,7 @@
 | **CONCEPT-LOOKUP** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | 其他 Cortex 输出（hippocampus, soul-check）、概念全文（仅 INDEX 扫描 + 选择性 top file 阅读） |
 | **SOUL-CHECK** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | 其他 Cortex 输出（hippocampus, concept-lookup）、最近一份以外的 snapshot（旧 snapshot 是 RETROSPECTIVE 的职责） |
 | **GWT-ARBITRATOR** (v1.7) | hippocampus_output + concept_lookup_output + soul_check_output + current_user_message | ROUTER reasoning、原始会话内容、agent thought processes |
-| **NARRATOR** (v1.7 Phase 2) | Draft Summary Report + cognitive_context (来自 GWT 的 signals) | 其他 agent 的 thought processes、`SOUL.md` 原文、`wiki/` 原始文件 |
+| **NARRATOR** (v1.7 Phase 2, ROUTER @ Step 7.5 narrator mode — **不是**独立 subagent；见 `pro/compliance/2026-04-21-narrator-spec-violation.md`) | Draft Summary Report + cognitive_context (来自 GWT 的 signals) | 其他 agent 的 thought processes、`SOUL.md` 原文、`wiki/` 原始文件 |
 | **NARRATOR-VALIDATOR** (v1.7 Phase 2.5) | narrator_output + cognitive_context（与 narrator 相同输入） | 输入以外的任何内容 |
 | ROUTER | User message + RETROSPECTIVE 的 Pre-Session Preparation + `_meta/STRATEGIC-MAP.md`（已编译）+ Cortex 激活时的 `[COGNITIVE CONTEXT]` 块 | — |
 | PLANNER | Subject + background + user message + 本会话绑定项目的 strategic 上下文（仅 flows，不含完整 map） | ROUTER reasoning、完整 strategic map |
