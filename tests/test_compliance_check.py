@@ -14,13 +14,19 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPT = _REPO_ROOT / "scripts" / "lifeos-compliance-check.sh"
 
 
-def _run(output_file: Path, scenario: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
-    """Invoke the compliance check script and return CompletedProcess."""
+def _run(output_file: Path, scenario: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
+    """Invoke the compliance check script and return CompletedProcess.
+
+    Forces UTF-8 decoding of stdout/stderr so emoji and CJK characters emitted
+    by the bash script do not crash the default Windows cp932 codec.
+    """
     return subprocess.run(
         ["bash", str(_SCRIPT), str(output_file), scenario],
         cwd=cwd or _REPO_ROOT,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
 
 

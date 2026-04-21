@@ -23,10 +23,12 @@ _NOTICE = (
 )
 
 
-def main(argv: list[str]) -> int:
+def main(argv: list[str] | None = None) -> int:
     """Print the unimplemented notice and exit 0.
 
-    ``argv`` is accepted but ignored; the tool has no flags.
+    ``argv`` is accepted but ignored; the tool has no flags. Default-None
+    signature matches the other v1.7 tools so ``tools/cli.py`` can dispatch
+    uniformly.
     """
     del argv  # explicitly unused
     print(_NOTICE)
