@@ -49,8 +49,8 @@ Hippocampus does **not**:
 
 **Execution budget**:
 
-- Soft timeout: **5 seconds** — at this point, GWT arbitrator may proceed with partial results
-- Hard timeout: **15 seconds** — at this point, hippocampus must return whatever it has and terminate
+- Soft timeout: **5 seconds** — the upper bound GWT arbitrator waits before proceeding with partial results. This does NOT force hippocampus to return; hippocampus may keep running until hard timeout. Any result arriving between 5s and 15s is logged to the session trace for post-hoc review but is NOT injected into the current session's ROUTER input (GWT already consolidated and handed off).
+- Hard timeout: **15 seconds** — hippocampus must return whatever it has and terminate. Results returned between 5s–15s enter the trace only.
 
 **Not triggered**:
 
@@ -245,6 +245,8 @@ User's actual message: {original_message}
 | Wave 2 concept lookup | 1-2s | Opus judges edge relevance |
 | Wave 3 extension | 1s | Narrower scope |
 | **Total target** | **<7 seconds** | Well under 15s hard timeout |
+
+**Note on timeout semantics**: the <7s total is the **normal-case target** — the budget the pipeline is designed to meet on a typical invocation. The 5s soft / 15s hard bounds from §2 describe **tail behavior**: the soft bound is when GWT stops waiting (not when hippocampus stops running), and the hard bound is the absolute ceiling at which hippocampus terminates regardless. Any run longer than 5s still completes and logs to the session trace, but its output does not re-enter the current ROUTER cycle.
 
 **Scalability note**: at 2000+ sessions, INDEX.md grows toward 2MB. Consider paginating by month (`INDEX-2026-04.md`) and reading only the last 6 months by default in that regime. Phase 1 does not implement pagination.
 
