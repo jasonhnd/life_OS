@@ -80,6 +80,62 @@ If ALL 6 pass → auto-write to `_meta/outbox/{session-id}/wiki/{domain}/{topic}
 
 ---
 
+## Phase 2 Mid-Step — Concept Extraction + Hebbian Update (v1.7 Cortex Phase 1.5)
+
+Before writing the SessionSummary (next section), populate the Cortex concept graph from this session's content. This is what makes hippocampus retrieval valuable beyond keyword match — the concept graph encodes which entities/ideas/patterns were active and how they connect.
+
+**When**: after wiki/SOUL auto-write, before SessionSummary write.
+
+### Step A — Extract concept candidates
+
+Scan ALL session materials (Summary Report, AUDITOR + ADVISOR reports, conversation summary) for concept candidates. A concept candidate is a noun phrase or named entity that:
+
+1. **Is referenced ≥ 2 times in this session** (single-mention things are too transient)
+2. **Has identity beyond this session** — likely useful in future sessions
+3. **Is not a person** (people are PEOPLE domain entities, not concepts)
+4. **Is not a value or trait** (values go to SOUL)
+5. **Is not a procedure** (procedures go to method library)
+
+Concept categories per `references/concept-spec.md` §Domain partitions: `finance / startup / personal / technical / method / relationship / health / legal`. Pick the best fit (or create a new domain dir if none match).
+
+### Step B — Match against existing concepts
+
+For each candidate, Glob `_meta/concepts/{domain}/*.md` and Grep for the candidate's name + aliases. Three outcomes:
+
+- **Exact match**: candidate already exists as a concept. Add to `concepts_activated` list, increment its `activation_count` and update `last_activated`.
+- **Partial match**: candidate is similar to existing concept (canonical_name overlap, alias match). Decide via LLM judgment: same concept (treat as exact match) OR alias to add (update existing concept's `aliases` field) OR distinct concept (treat as new).
+- **No match**: candidate is genuinely new. Add to `concepts_discovered` list, write new file at `_meta/concepts/{domain}/{concept_id}.md` with `status: tentative`.
+
+### Step C — Apply Hebbian update
+
+For every pair of concepts co-activated in this session (any 2 concepts both in `concepts_activated ∪ concepts_discovered`), increment the synapse edge weight:
+
+- If edge `A → B` exists in A's `outgoing_edges`: `weight += 1`, update `last_co_activated`
+- If edge missing: create with `weight: 1, last_co_activated: <session end timestamp>`
+
+Bidirectional: also update `B → A`. (Synapses are symmetric in v1.7.)
+
+Use `tools/lib/cortex/concept.hebbian_update()` if Python tools available. Fallback: manually edit each concept file's frontmatter.
+
+### Step D — Promote concepts when they hit thresholds
+
+Per `references/concept-spec.md` lifecycle:
+
+- `tentative → confirmed`: when activation_count ≥ 5 AND ≥ 3 distinct sessions reference
+- `confirmed → canonical`: when activation_count ≥ 15 AND ≥ 8 distinct sessions reference
+
+Promotion is one-directional under normal use (demotion possible via the three-tier undo mechanism).
+
+### Step E — Regenerate SYNAPSES-INDEX.md
+
+After all concept writes, regenerate `_meta/concepts/SYNAPSES-INDEX.md` (reverse edge index) by calling `tools/lib/cortex/concept.compile_synapses_index()`.
+
+**Both INDEX.md and SYNAPSES-INDEX.md are compiled artifacts — never hand-edited**.
+
+Report in Completion Checklist: "🧬 Concept extraction: N activated (M new), K Hebbian updates, P promotions ({tentative→confirmed} / {confirmed→canonical})".
+
+---
+
 ## Phase 2 Final Step — Write SessionSummary (v1.7 Cortex Phase 1)
 
 After all Phase 2 outputs are produced (wiki auto-write, SOUL auto-write, concept extraction + Hebbian update, method-candidate detection, SYNAPSES-INDEX regeneration, SOUL snapshot dump), write the structured **SessionSummary file** that the hippocampus subagent will retrieve at future Start Sessions.
