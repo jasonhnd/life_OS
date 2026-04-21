@@ -25,8 +25,10 @@ When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` ex
 **3 parallel subagents** (each independent, information-isolated from each other):
 
 1. `hippocampus` — cross-session memory retrieval via 3-wave spreading activation over `_meta/sessions/INDEX.md` and the concept graph. Reads only its dedicated inputs. See `pro/agents/hippocampus.md`.
-2. `concept-lookup` (TBD — Cortex Phase 1.5) — direct concept matches via `_meta/concepts/INDEX.md`. Until implemented, orchestrator passes `null` for this slot.
+2. `concept-lookup` (v1.7 Phase 1.5) — direct concept-graph match via `_meta/concepts/INDEX.md`, returns top 5-10 concepts directly mentioned/implied by current message. See `pro/agents/concept-lookup.md`.
 3. `soul-check` (TBD — reuses RETROSPECTIVE's SOUL Health Report) — relevant SOUL dimensions. Until standalone implementation, orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
+
+After GWT arbitrator returns `[COGNITIVE CONTEXT]`, orchestrator MAY also launch `narrator` (v1.7 Phase 2) AFTER REVIEWER Final Review (between step 6 and step 7) to wrap Summary Report substantive claims with `signal_id` citations from the cognitive context. Narrator failure is non-blocking — falls back to v1.6.3 unwrapped Summary Report. See `pro/agents/narrator.md`.
 
 After all 3 return (with 5s soft timeout, 15s hard timeout per individual subagent), launch `gwt-arbitrator` with the consolidated outputs. See `pro/agents/gwt-arbitrator.md`.
 
