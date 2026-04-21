@@ -19,6 +19,35 @@ COMPLIANCE_FAIL_COUNT=0
 
 mkdir -p "$OUTPUTS_DIR"
 
+# ─── claude CLI availability gate ────────────────────────────────────────────
+# If the claude CLI is not on PATH (common on Windows Git Bash, minimal CI
+# runners, or any host without the Anthropic Claude Code CLI installed), skip
+# all scenarios gracefully with exit 0 instead of cascading `exit 127` for
+# every scenario. `LIFEOS_EVAL_SKIP_CLAUDE=1` forces skip even when claude is
+# installed — use this from CI when you want to short-circuit the eval step.
+if [ "${LIFEOS_EVAL_SKIP_CLAUDE:-0}" = "1" ]; then
+    echo ""
+    echo "⏭  LIFEOS_EVAL_SKIP_CLAUDE=1 set — skipping all eval scenarios."
+    echo ""
+    echo "=== 结果汇总 ==="
+    echo "通过: 0 / 失败: 0 / 跳过: 0 / 总计: 0 (forced skip via env)"
+    echo ""
+    exit 0
+fi
+if ! command -v claude >/dev/null 2>&1; then
+    echo ""
+    echo "⏭  claude CLI not found on PATH — skipping all eval scenarios."
+    echo "    This is expected on Windows Git Bash or any env without the"
+    echo "    Anthropic Claude Code CLI installed."
+    echo "    Install: https://claude.com/code or re-run on a host with \`claude\`."
+    echo "    Override from CI: set LIFEOS_EVAL_SKIP_CLAUDE=1 to silence."
+    echo ""
+    echo "=== 结果汇总 ==="
+    echo "通过: 0 / 失败: 0 / 跳过: 0 / 总计: 0 (claude CLI missing)"
+    echo ""
+    exit 0
+fi
+
 # 如果指定了场景名，只跑那个（路径安全：只取 basename，防止目录遍历）
 if [ -n "${1:-}" ]; then
     SAFE_NAME="$(basename "$1" .md)"
