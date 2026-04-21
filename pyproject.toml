@@ -31,6 +31,11 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.10",
 ]
+# Notion REST API wrapper — used by tools/lib/notion.py + tools/sync_notion.py
+# (v1.7 Sprint 2, per references/tools-spec.md §6.11).
+notion = [
+    "notion-client>=2.2",
+]
 
 # CLI entry point — dispatches to tools/{command}.py based on first arg.
 # See tools/cli.py for available subcommands.
