@@ -18,6 +18,38 @@ When the user sends the first message, launch simultaneously:
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
+### 0.5. Pre-Router Cognitive Layer (Cortex Phase 1, v1.7) — OPTIONAL
+
+When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` exists in the bound second-brain, the orchestrator MAY launch the Pre-Router Cognitive Layer to produce annotated input for ROUTER. Activation is per-session (controlled by `_meta/config.md` `cortex_enabled: true|false`); default is **opt-out** for v1.7 (off until explicitly enabled).
+
+**3 parallel subagents** (each independent, information-isolated from each other):
+
+1. `hippocampus` — cross-session memory retrieval via 3-wave spreading activation over `_meta/sessions/INDEX.md` and the concept graph. Reads only its dedicated inputs. See `pro/agents/hippocampus.md`.
+2. `concept-lookup` (TBD — Cortex Phase 1.5) — direct concept matches via `_meta/concepts/INDEX.md`. Until implemented, orchestrator passes `null` for this slot.
+3. `soul-check` (TBD — reuses RETROSPECTIVE's SOUL Health Report) — relevant SOUL dimensions. Until standalone implementation, orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
+
+After all 3 return (with 5s soft timeout, 15s hard timeout per individual subagent), launch `gwt-arbitrator` with the consolidated outputs. See `pro/agents/gwt-arbitrator.md`.
+
+**GWT arbitrator output** is a `[COGNITIVE CONTEXT]` Markdown block. Orchestrator **prepends** it to the user message before ROUTER sees it:
+
+```
+[COGNITIVE CONTEXT — reference only, not user input]
+{annotations from GWT}
+[END COGNITIVE CONTEXT]
+
+{original user message}
+```
+
+**ROUTER behaviour**: ROUTER parses the `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters to separate advisory content from real user input. The cognitive context is **advisory, not authoritative** — ROUTER may discard it if the user explicitly says "ignore history" or similar.
+
+**Failure modes** (all degrade to v1.6.3 behaviour):
+- INDEX missing or empty → skip Step 0.5 entirely, ROUTER receives raw message
+- Any subagent times out → its slot becomes `null`, GWT proceeds with available signals
+- GWT timeout → orchestrator emits empty `[COGNITIVE CONTEXT]` block, ROUTER receives original message
+- `cortex_enabled: false` in config → skip Step 0.5
+
+**Cost**: ~$0.05-0.10 per invocation (Opus token usage). Worth it on substantive decisions; wasteful on trivial chat. The opt-out default reflects this — users enable Cortex when they have ≥30 sessions of accumulated history.
+
 ### 1. ROUTER Triage
 
 The ROUTER takes the context prepared by the RETROSPECTIVE agent and assesses the user's needs:
@@ -300,7 +332,9 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 |------|----------|------------------|
 | RETROSPECTIVE agent | User message (housekeeping), `_meta/strategic-lines.md` + all project strategic fields | No restrictions |
 | ARCHIVER agent | Summary Report + reports + session conversation summary, all project strategic fields | Other agents' thought processes |
-| ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `_meta/STRATEGIC-MAP.md` (compiled) | — |
+| **HIPPOCAMPUS** (v1.7) | current_user_message + extracted_subject + current_project + current_theme + recent_inbox_items + current_strategic_lines | **Other Cortex outputs** (concept-lookup, soul-check), **SOUL.md full body**, prior session transcripts (only summaries via INDEX), other agents' thought processes |
+| **GWT-ARBITRATOR** (v1.7) | hippocampus_output + concept_lookup_output + soul_check_output + current_user_message | ROUTER reasoning, raw session content, agent thought processes |
+| ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `_meta/STRATEGIC-MAP.md` (compiled) + `[COGNITIVE CONTEXT]` block from GWT (when Cortex enabled) | — |
 | PLANNER | Subject + background + user message + bound project's strategic context (flows only, not full map) | ROUTER's reasoning, full strategic map |
 | REVIEWER | Planning document or Six Domains reports + flow graph relevant to current decision | Thought processes, full strategic map |
 | DISPATCHER | Approved planning document | Thought processes |
