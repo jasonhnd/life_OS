@@ -42,7 +42,11 @@ _COMMANDS: dict[str, tuple[str, str]] = {
 }
 
 
-def _print_usage(stream=sys.stdout) -> None:
+def _print_usage(stream=None) -> None:
+    # Resolve sys.stdout at call time, not definition time, so pytest capsys
+    # (which patches sys.stdout) captures the output correctly.
+    if stream is None:
+        stream = sys.stdout
     print("Usage: life-os-tool <command> [args]", file=stream)
     print("", file=stream)
     print("Available commands:", file=stream)
@@ -70,7 +74,7 @@ def main() -> int:
     if command not in _COMMANDS:
         print(f"❌ Unknown command: {command}", file=sys.stderr)
         print("", file=sys.stderr)
-        _print_usage(sys.stderr)
+        _print_usage(stream=sys.stderr)
         return 2
 
     module_path, _desc = _COMMANDS[command]
