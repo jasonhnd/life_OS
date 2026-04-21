@@ -78,6 +78,58 @@ If ALL 6 pass → auto-write to `_meta/outbox/{session-id}/wiki/{domain}/{topic}
 
 **No user confirmation needed**. Report in Completion Checklist: "Auto-wrote N wiki entries, discarded M candidates (reasons: ...)"
 
+---
+
+## Phase 2 Final Step — Write SessionSummary (v1.7 Cortex Phase 1)
+
+After all Phase 2 outputs are produced (wiki auto-write, SOUL auto-write, concept extraction + Hebbian update, method-candidate detection, SYNAPSES-INDEX regeneration, SOUL snapshot dump), write the structured **SessionSummary file** that the hippocampus subagent will retrieve at future Start Sessions.
+
+**Target path**: `_meta/outbox/{session_id}/sessions/{session_id}.md`
+(Outbox merge during next Start Session moves it to canonical `_meta/sessions/{session_id}.md`.)
+
+**Schema**: `references/session-index-spec.md` §3 (full YAML frontmatter spec). Required frontmatter fields: `session_id`, `date`, `started_at`, `ended_at`, `duration_minutes`, `platform`, `theme`, `project`, `workflow`, `subject`, `overall_score`, `veto_count`, `council_triggered`, `compliance_violations`. Optional list fields populated from this session: `domains_activated`, `domain_scores`, `soul_dimensions_touched`, `wiki_written`, `methods_used`, `methods_discovered`, `concepts_activated`, `concepts_discovered`, `dream_triggers`, `keywords` (max 10), `action_items`.
+
+**Body**: four sections per spec §3 — `## Subject` (paragraph, max 500 chars), `## Key Decisions` (1-3 bullets), `## Outcome` (paragraph including overall rating, max 400 chars), `## Notable Signals` (bullets — narrator-flagged items, cross-session patterns, unresolved tensions). NO raw message quotes. NO PII (apply Phase 2 privacy filter). NO thinking-process dumps.
+
+**Two implementation paths** (use whichever is available):
+
+1. **Python helper (preferred when `tools/lib/cortex/session_index.py` is installed)**:
+
+```bash
+# Via Bash tool, after computing all field values from Phase 2 outputs:
+python3 -c "
+from datetime import date, datetime
+from pathlib import Path
+from tools.lib.second_brain import SessionSummary, ActionItem
+from tools.lib.cortex.session_index import write_session_summary
+
+summary = SessionSummary(
+    session_id='{session_id}', date=date.fromisoformat('{date}'),
+    started_at=datetime.fromisoformat('{started_at}'),
+    ended_at=datetime.fromisoformat('{ended_at}'),
+    duration_minutes={duration}, platform='{platform}', theme='{theme}',
+    project='{project}', workflow='{workflow}', subject='{subject}',
+    overall_score={score}, veto_count={veto_count},
+    council_triggered={council}, compliance_violations={violations},
+    domains_activated={domains}, keywords={keywords},
+    body='''{body}''',
+)
+print(write_session_summary(summary, Path('_meta/outbox')))
+"
+```
+
+2. **Direct write fallback (when Python tools unavailable)**:
+
+Use the Write tool to construct the markdown manually. Schema lives in `references/session-index-spec.md` §3. Paths and body sections as above.
+
+**Both paths produce the same output file**. Add `sessions/{session_id}.md` to the manifest count for atomic git commit alongside other outbox artifacts.
+
+**Failure modes** (per spec §5): if `date` command fails → halt Phase 1 with clear error. If outbox dir write fails → log to `_meta/sync-log.md`, omit session from INDEX. If frontmatter fields incomplete → fill required fields with sentinels (`overall_score: null`, empty arrays) and proceed; retrospective parser handles `null` scores as `n/a`.
+
+**Immutability**: once written, the SessionSummary file is never re-edited. Corrections go to a separate `corrections/{session_id}.md` note.
+
+Report in Completion Checklist: "📚 SessionSummary written: `_meta/outbox/{session_id}/sessions/{session_id}.md` (N concepts activated, M wiki entries, K keywords)".
+
 **Nothing extractable** → skip silently, report "Wiki: 0 entries auto-written this session"
 
 **SOUL Auto-Write (no user confirmation)**:
