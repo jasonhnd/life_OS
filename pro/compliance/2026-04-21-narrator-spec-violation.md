@@ -2,7 +2,7 @@
 incident_id: NARRATOR-SPEC-001
 date: 2026-04-21
 severity: P2 · spec-code inconsistency
-status: deferred-to-P5
+status: resolved-2026-04-22
 affects: pro/agents/narrator.md
 ---
 
@@ -104,3 +104,13 @@ Scanning `pro/agents/` surfaced two additional files **not in `v1.7-spec-map.md 
 - `pro/agents/soul-check.md` — spec labels it "TBD — reuses RETROSPECTIVE's SOUL Health Report" until standalone implementation. Standalone file exists anyway. Worth confirming whether standalone implementation was intended or if this is a drift.
 
 These are NOT the subject of this incident. Separate audit entries may be warranted in P5.
+
+## 2026-04-22 resolution: Option C applied
+
+Per Round 2 R2.1, Option C was chosen and executed:
+- `pro/agents/narrator.md` marked with "ROUTER-INTERNAL TEMPLATE" admonition at top
+- Frontmatter revised to prevent Task-tool spawn
+- `pro/{CLAUDE,GEMINI,AGENTS}.md` + root `AGENTS.md` reworded to "ROUTER Step 7.5 (narrator mode)" (narrator-validator subagent references untouched)
+- Spec files unchanged (narrator-spec.md §6 already authoritative)
+
+Status: **resolved-2026-04-22**
