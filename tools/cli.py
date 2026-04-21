@@ -39,6 +39,10 @@ _COMMANDS: dict[str, tuple[str, str]] = {
         "Recompile _meta/concepts/INDEX.md + SYNAPSES-INDEX.md",
     ),
     "backup": ("tools.backup", "Rotate snapshots + archive old violations"),
+    "extract": (
+        "tools.extract",
+        "Concept candidate extraction from text (frequency + slug helpers)",
+    ),
 }
 
 

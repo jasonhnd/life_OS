@@ -145,7 +145,33 @@ Scan ALL session materials (Summary Report, AUDITOR + ADVISOR reports, conversat
 4. **Is not a value or trait** (values go to SOUL)
 5. **Is not a procedure** (procedures go to method library)
 
-Concept categories per `references/concept-spec.md` §Domain partitions: `finance / startup / personal / technical / method / relationship / health / legal`. Pick the best fit (or create a new domain dir if none match).
+**Use `tools/lib/cortex/extraction.py` helpers when Python tools available** (deterministic + cheap, no LLM tokens needed for the boring parts):
+
+```bash
+python3 -c "
+from tools.lib.cortex.extraction import (
+    count_candidate_frequencies, filter_by_min_frequency, slug_from_name
+)
+
+# Step A.1: count occurrences across session materials
+session_text = open('/path/to/concatenated/session/materials.txt').read()
+counts = count_candidate_frequencies(session_text)
+
+# Step A.2: filter by criterion 1 (≥ 2 mentions)
+filtered = filter_by_min_frequency(counts, min_count=2)
+
+# Step A.3: print candidates for LLM judgment in Step B
+for phrase, count in filtered.most_common(20):
+    print(f'  {count}× {phrase} → slug: {slug_from_name(phrase)}')
+"
+```
+
+Then apply LLM judgment (this part stays in archiver prompt, not Python) for criteria 2-5:
+- Identity beyond session? (LLM judges)
+- Person / value / procedure? (LLM filters out)
+- Best domain fit? (LLM categorises into `finance / startup / personal / technical / method / relationship / health / legal`)
+
+Concept categories per `references/concept-spec.md` §Domain partitions. Pick best fit, or create new domain dir if none match.
 
 ### Step B — Match against existing concepts
 
