@@ -125,7 +125,6 @@ class TestSessionSummaryIO:
 class TestCompileIndexLine:
     def test_well_formed_frontmatter(self):
         s = _make_summary(score=8.7, keywords=["cortex", "phase-1"])
-        path = Path("/tmp/test.md")
         path_text = session_summary_to_markdown(s)
         parsed = parse_frontmatter(path_text)
         line = compile_index_line(parsed)

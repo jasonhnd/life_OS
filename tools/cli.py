@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Unified CLI dispatcher — `life-os-tool {command} [args]`.
+"""Unified CLI dispatcher - `life-os-tool {command} [args]`.
 
 Routes subcommands to the appropriate tools/*.py module. Per
 references/tools-spec.md §2 single-binary entry point.
 
 Available commands:
-    stats                 — escalation ladder analytics for violations.md
-    rebuild-session-index — recompile _meta/sessions/INDEX.md
-    rebuild-concept-index — recompile _meta/concepts/INDEX.md + SYNAPSES-INDEX.md
-    backup                — rotate snapshots + archive old violations
-    list                  — list all available commands
+    stats                 - escalation ladder analytics for violations.md
+    rebuild-session-index - recompile _meta/sessions/INDEX.md
+    rebuild-concept-index - recompile _meta/concepts/INDEX.md + SYNAPSES-INDEX.md
+    backup                - rotate snapshots + archive old violations
+    list                  - list all available commands
 
 Usage:
     uv run life-os-tool {command} [args]
@@ -20,23 +20,32 @@ Each subcommand forwards remaining args to its module's argparse.
 
 from __future__ import annotations
 
+import contextlib
 import importlib
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+# Force UTF-8 on stdout/stderr so descriptions containing emoji / arrows / CJK
+# characters do not crash on Windows JP locale (cp932 default encoder).
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        with contextlib.suppress(OSError, ValueError):
+            _stream.reconfigure(encoding="utf-8")
+
 
 # Map CLI command -> Python module path
 _COMMANDS: dict[str, tuple[str, str]] = {
-    "stats": ("tools.stats", "Compliance violations escalation ladder analytics"),
+    # v1.6.x legacy tools (still supported)
+    "stats": ("tools.stats", "Usage + quality statistics + compliance escalation ladder"),
     "rebuild-session-index": (
         "tools.rebuild_session_index",
-        "Recompile _meta/sessions/INDEX.md",
+        "Recompile _meta/sessions/INDEX.md (legacy; prefer `reindex --sessions`)",
     ),
     "rebuild-concept-index": (
         "tools.rebuild_concept_index",
-        "Recompile _meta/concepts/INDEX.md + SYNAPSES-INDEX.md",
+        "Recompile _meta/concepts/INDEX.md + SYNAPSES-INDEX.md (legacy; prefer `reindex --concepts`)",
     ),
     "backup": ("tools.backup", "Rotate snapshots + archive old violations"),
     "extract": (
@@ -45,7 +54,51 @@ _COMMANDS: dict[str, tuple[str, str]] = {
     ),
     "seed-concepts": (
         "tools.seed_concepts",
-        "Bootstrap concept graph from existing second-brain content (wiki + decisions + journal)",
+        "Bootstrap concept graph from existing second-brain content",
+    ),
+    # v1.7 core maintenance (S3)
+    "reindex": (
+        "tools.reindex",
+        "Unified compile of sessions + concepts INDEX.md (replaces rebuild-*-index)",
+    ),
+    "reconcile": (
+        "tools.reconcile",
+        "Integrity check: orphan files / broken wikilinks / missing frontmatter / schema",
+    ),
+    # v1.7 user-invoked tools (S4)
+    "search": (
+        "tools.search",
+        "Cross-session grep + metadata ranking (no semantic search; see hippocampus)",
+    ),
+    "daily-briefing": (
+        "tools.daily_briefing",
+        "Today's briefing: SOUL core / DREAM 30d / active projects / inbox / eval history",
+    ),
+    "research": (
+        "tools.research",
+        "Web fetch → inbox/ with markdownify + robots.txt respect (no LLM summary)",
+    ),
+    # v1.7 export + sync (S5)
+    "export": (
+        "tools.export",
+        "Format conversion: pdf (pandoc) / html / json / anki (.apkg)",
+    ),
+    "sync-notion": (
+        "tools.sync_notion",
+        "Notion fallback sync when archiver Phase 4 MCP failed",
+    ),
+    "embed": (
+        "tools.embed",
+        "Placeholder (out of scope for v1.7 per user decision #3) - prints notice + exit 0",
+    ),
+    # v1.7 one-time tools (S6)
+    "migrate": (
+        "tools.migrate",
+        "One-time v1.6.2a → v1.7 schema backfill (3-month window)",
+    ),
+    "seed": (
+        "tools.seed",
+        "New-user bootstrap: create empty-but-valid second-brain + git init",
     ),
 }
 
