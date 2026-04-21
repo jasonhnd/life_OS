@@ -6,7 +6,7 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
-## [Unreleased] — Post-v1.7.0-alpha follow-ups (2026-04-21 same-day)
+## [1.7.0-alpha.2] - 2026-04-21 · Post-v1.7.0-alpha follow-ups bundle
 
 > 13 commits shipped after v1.7.0-alpha to close TBDs from the alpha CHANGELOG and add tooling/test infrastructure. Will roll into v1.7.0 stable release.
 
@@ -14,8 +14,10 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 - `tools/cli.py` — unified subcommand dispatcher; `pyproject.toml` activates `life-os-tool` console script
 - `tools/backup.py` — snapshot rotation (30d archive, 90d delete) + violations log archival to quarterly files
+- `tools/extract.py` — concept candidate extraction CLI (frequency counter + slug generator)
+- `tools/lib/cortex/extraction.py` — non-LLM helpers (normalize_name, slug_from_name, is_stopword, count_frequencies, deduplicate_aliases) — handles deterministic parts of archiver Phase 2 Step A so LLM doesn't burn tokens on counting
 - `scripts/lifeos-compliance-check.sh` — `check_adjourn()` + `check_cortex()` implementations (closing the placeholder from alpha)
-- `tools/lib/cortex/__init__.py` — package-level exports of all 22 helper symbols
+- `tools/lib/cortex/__init__.py` — package-level exports of all 29 helper symbols
 
 ### 📋 New eval scenarios
 
@@ -28,8 +30,10 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 - `tests/test_cli.py` — 8 tests (help / unknown / dispatch / argv preservation)
 - `tests/test_compliance_check.py` — 11 subprocess-based tests for the bash compliance script
 - `tests/test_integration.py` — 7 end-to-end integration tests (full Cortex pipeline with fixtures)
+- `tests/test_package_imports.py` — 7 tests (cortex + second_brain package import surfaces, regression guard for __all__ drift)
+- `tests/test_extraction.py` — 44 tests (normalize, slug, stopwords (EN/ZH/JA), phrase split, frequency, dedup)
 
-**Total tests now: 122, all pass in 0.68s combined.**
+**Total tests now: 173, all pass in 0.83s combined.**
 
 ### 🚀 CI
 

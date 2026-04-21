@@ -6,7 +6,7 @@
 
 ---
 
-## [Unreleased] — v1.7.0-alpha 后续跟进（2026-04-21 同日）
+## [1.7.0-alpha.2] - 2026-04-21 · v1.7.0-alpha 后续跟进打包
 
 > v1.7.0-alpha tag 之后 13 个 commit，关闭 alpha CHANGELOG 的 TBD + 加工具/测试基础设施。将合入 v1.7.0 稳定版。
 
