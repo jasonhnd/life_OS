@@ -42,7 +42,24 @@ _USER_AGENT = "LifeOS-research/1.7 (+local-tool)"
 _DEFAULT_DEPTH = 1
 _DEFAULT_MAX_PAGES = 10
 _SLUG_HASH_LEN = 8
-_SEARCH_URL_TEMPLATE = "https://html.duckduckgo.com/html/?q={query}"
+
+# Search-backend registry. Each entry maps a backend key to a URL template
+# whose single ``{query}`` placeholder receives the url-encoded query.
+#
+# Note on robots.txt (verified 2026-04-21): DuckDuckGo's public robots.txt
+# disallows ``/html``, ``/lite``, and ``/*?`` (search URLs) on both
+# ``duckduckgo.com`` and its API subdomains. The DDG JSON API at
+# ``https://duckduckgo.com/?q=...&format=json`` is less aggressively
+# blocked in practice but still listed. Since we respect robots.txt, DDG
+# runs may legitimately fail — when that happens we emit a helpful
+# ``--backend`` hint rather than a silent skip.
+_BACKENDS: dict[str, str] = {
+    "ddg": "https://duckduckgo.com/?q={query}&format=json&no_html=1",
+    "ddg-html": "https://html.duckduckgo.com/html/?q={query}",
+    "ddg-lite": "https://lite.duckduckgo.com/lite/?q={query}",
+}
+_DEFAULT_BACKEND = "ddg"
+_SEARCH_URL_TEMPLATE = _BACKENDS[_DEFAULT_BACKEND]
 
 # DuckDuckGo result-link class marker. This is resilient to reasonable UI
 # tweaks but we still degrade gracefully: if no matches are found we fall
@@ -187,17 +204,22 @@ def run_research(
     depth: int,
     max_pages: int,
     root: Path,
+    backend: str = _DEFAULT_BACKEND,
 ) -> ResearchResult:
     """Execute a research run and write the inbox note.
 
     Returns a ``ResearchResult`` describing what was fetched, what failed,
     and where the output landed. Always writes an output file; callers
     decide whether to exit 0 or 1 based on ``ResearchResult.incomplete``.
+
+    ``backend`` selects a search endpoint from ``_BACKENDS`` (default
+    ``ddg``). Unknown backends fall back to the default with a warning.
     """
     import httpx  # type: ignore[import-not-found]
     import markdownify  # type: ignore[import-not-found]
 
-    search_url = _SEARCH_URL_TEMPLATE.format(query=_encode_query(query))
+    template = _BACKENDS.get(backend, _SEARCH_URL_TEMPLATE)
+    search_url = template.format(query=_encode_query(query))
     slug = _make_slug(query)
     today = datetime.now().date()
     output_path = root / "inbox" / f"research-{today.isoformat()}-{slug}.md"
@@ -218,7 +240,12 @@ def run_research(
 
         # Layer 0: search page
         if not robots.allowed(search_url):
-            result.errors.append(f"robots.txt blocks {search_url}")
+            result.errors.append(
+                f"robots.txt blocks {search_url}; "
+                "this backend is disallowed — try another "
+                "`--backend` (e.g. ddg-lite, ddg-html) or point "
+                "at a self-hosted SearXNG instance."
+            )
             result.incomplete = True
         else:
             body = _fetch_text(client, search_url)
@@ -384,6 +411,17 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Second-brain root (default: CWD)",
     )
+    parser.add_argument(
+        "--backend",
+        choices=sorted(_BACKENDS.keys()),
+        default=_DEFAULT_BACKEND,
+        help=(
+            "Search backend. Defaults to 'ddg' (JSON Instant Answer "
+            "endpoint). Fallbacks: ddg-html, ddg-lite. Note: all DDG "
+            "endpoints are robots.txt-restricted — runs that exit 1 with "
+            "a 'blocked by robots' warning are expected, not bugs."
+        ),
+    )
     return parser
 
 
@@ -398,6 +436,7 @@ def main(argv: list[str] | None = None) -> int:
             depth=max(0, args.depth),
             max_pages=max(1, args.max_pages),
             root=root,
+            backend=args.backend,
         )
     except ImportError as exc:
         print(
