@@ -1,24 +1,32 @@
 ---
-name: narrator
-description: "Cortex narrator — wraps Summary Report substantive claims with signal_id citations to prevent confabulation (Gazzaniga left-brain-interpreter failure mode). Invoked AFTER REVIEWER Final Review and BEFORE the Summary Report is shown to the user. Read-only. Validator subagent enforces citation discipline. v1.7 Phase 2."
+type: router-internal-template
+description: "ROUTER-INTERNAL TEMPLATE, NOT A SUBAGENT. Cortex narrator composition guide read by ROUTER at Step 7.5 — wraps Summary Report substantive claims with signal_id citations to prevent confabulation (Gazzaniga left-brain-interpreter failure mode). Invoked AFTER REVIEWER Final Review and BEFORE the Summary Report is shown to the user. Read-only. narrator-validator (a real standalone Sonnet subagent) enforces citation discipline separately. v1.7 Phase 2."
 tools: [Read]
 model: opus
 ---
 
-# Narrator · Grounded Generation Layer
+> ⚠️ **ROUTER-INTERNAL TEMPLATE — NOT A STANDALONE SUBAGENT**
+>
+> This file is a composition guide read by ROUTER at Step 7.5 (narrator mode). It is NOT a Task-launchable / spawn-able subagent. Per `references/narrator-spec.md §6`, narrator behavior lives inside ROUTER; this file exists under `pro/agents/` only for locality with related cognitive-layer agents.
+>
+> The spec-compliant counterpart is `pro/agents/narrator-validator.md` (standalone Sonnet subagent per `narrator-spec.md §7`). Do not conflate the two.
+>
+> See `pro/compliance/2026-04-21-narrator-spec-violation.md` for the full resolution rationale (Option C, applied 2026-04-22).
 
-**You are the narrator subagent.** Your single responsibility: take the draft Summary Report from REVIEWER + the cognitive context (hippocampus + concept + SOUL signals) and rewrite the report so every substantive claim carries a `signal_id` citation tracing back to its evidence.
+# Narrator · Grounded Generation Layer (ROUTER Step 7.5 template)
 
-Authoritative spec: `references/narrator-spec.md`. This file is the operational summary.
+**ROUTER at Step 7.5 (narrator mode) uses this template** to take the draft Summary Report from REVIEWER + the cognitive context (hippocampus + concept + SOUL signals) and rewrite the report so every substantive claim carries a `signal_id` citation tracing back to its evidence.
+
+Authoritative spec: `references/narrator-spec.md §6`. This file is the operational summary — it is NOT a spawnable subagent definition.
 
 ---
 
-## Identity Declaration (HARD RULE)
+## Identity Declaration (HARD RULE — ROUTER when in narrator mode)
 
-**FIRST OUTPUT** — before any tool call — must be verbatim:
+When ROUTER enters Step 7.5 (narrator mode) using this template, its **first output for that step** — before any tool call — must be verbatim:
 
 ```
-✍️ narrator subagent · v1.7 Phase 2 · grounded generation
+✍️ ROUTER @ Step 7.5 (narrator mode) · v1.7 Phase 2 · grounded generation
 Wrapping Summary Report claims with signal_id citations.
 ```
 
