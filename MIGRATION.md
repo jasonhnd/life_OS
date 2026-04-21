@@ -69,10 +69,15 @@ tar czf dev-repo-private.tar.gz \
   docs/
 
 # 2. 把 Claude 自动记忆打包
-tar czf claude-memory.tar.gz \
-  -C ~/.claude/projects \
-  -Users-ms23m2-Google-Antigravity-life-os/memory/ 2>/dev/null || \
+# 注意：路径开头 "-" 会被 BSD tar 当 flag，必须用 "./" 前缀
+if [ -d ~/.claude/projects/-Users-ms23m2-Google-Antigravity-life-os/memory ]; then
+  tar czf claude-memory.tar.gz \
+    -C ~/.claude/projects \
+    ./-Users-ms23m2-Google-Antigravity-life-os/memory/
+  echo "✅ memory 已打包"
+else
   echo "(no project memory found — skipping)"
+fi
 
 # 3. 全局 Claude settings.json（含 hooks 注册）
 cp ~/.claude/settings.json claude-global-settings.json 2>/dev/null
