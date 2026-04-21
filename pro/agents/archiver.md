@@ -80,6 +80,55 @@ If ALL 6 pass → auto-write to `_meta/outbox/{session-id}/wiki/{domain}/{topic}
 
 ---
 
+## Phase 2 Mid-Step — SOUL Snapshot (v1.6.2 + v1.7 placement clarification)
+
+After SOUL auto-write completes (incremented evidence/challenges + new dimensions written at confidence 0.3), dump a SOUL snapshot. This is **immutable metadata** that RETROSPECTIVE Mode 0 reads at next Start Session to compute trend arrows (↗↘→) in the SOUL Health Report.
+
+**Target path**: `_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`
+- timestamp from real `date` command (HARD RULE per v1.4.4b — no fabrication)
+- if file already exists for that timestamp, write fails (immutability per `references/snapshot-spec.md`)
+
+**Schema**: per `references/snapshot-spec.md` §YAML Frontmatter Schema. Required fields: `snapshot_id`, `captured_at`, `session_id`, `previous_snapshot`, `dimensions[]`. Each dimension: `name`, `confidence`, `evidence_count`, `challenges`, `tier`. Only confidence > 0.2 dimensions included (dormant excluded — keeps snapshots small).
+
+**Implementation paths**:
+
+1. **Python helper** (when `tools/lib/cortex/snapshot.py` available):
+   ```bash
+   python3 -c "
+   from datetime import datetime
+   from pathlib import Path
+   from tools.lib.second_brain import SoulSnapshot, SnapshotDimension
+   from tools.lib.cortex.snapshot import write_snapshot
+
+   snap = SoulSnapshot(
+       snapshot_id='{YYYY-MM-DD-HHMM}',
+       captured_at=datetime.fromisoformat('{captured_at}'),
+       session_id='{session_id}',
+       previous_snapshot='{prev_id_or_None}',
+       dimensions=[
+           SnapshotDimension(name=..., confidence=..., evidence_count=...,
+                             challenges=..., tier=...),
+           ...
+       ],
+   )
+   write_snapshot(snap, Path('_meta/snapshots/soul'))
+   "
+   ```
+
+2. **Direct write fallback** (when Python tools unavailable):
+   Use Write tool with markdown content matching spec §YAML Frontmatter Schema.
+
+**Tier mapping** is derived at capture time from confidence (NOT stored separately in SOUL.md): core ≥ 0.7 / secondary ≥ 0.3 / emerging ≥ 0.2 / dormant < 0.2. Use `SnapshotDimension.derive_tier()` if available.
+
+**Failure modes**:
+- `date` command unavailable → halt with error
+- File exists (duplicate snapshot ID, e.g., two adjourns within same minute) → skip snapshot for this session, log to `_meta/sync-log.md`
+- Disk write fails → log + continue; trend computation degrades for one session
+
+Report in Completion Checklist: "📸 SOUL snapshot: `_meta/snapshots/soul/{snapshot_id}.md` ({N} dimensions captured)".
+
+---
+
 ## Phase 2 Mid-Step — Concept Extraction + Hebbian Update (v1.7 Cortex Phase 1.5)
 
 Before writing the SessionSummary (next section), populate the Cortex concept graph from this session's content. This is what makes hippocampus retrieval valuable beyond keyword match — the concept graph encodes which entities/ideas/patterns were active and how they connect.

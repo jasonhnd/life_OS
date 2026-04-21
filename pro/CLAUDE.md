@@ -30,6 +30,8 @@ When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` ex
 
 After GWT arbitrator returns `[COGNITIVE CONTEXT]`, orchestrator MAY also launch `narrator` (v1.7 Phase 2) AFTER REVIEWER Final Review (between step 6 and step 7) to wrap Summary Report substantive claims with `signal_id` citations from the cognitive context. Narrator failure is non-blocking — falls back to v1.6.3 unwrapped Summary Report. See `pro/agents/narrator.md`.
 
+When narrator runs, orchestrator chains `narrator-validator` (Sonnet-tier — cheaper than Opus) to audit citation discipline. Validator failures trigger up to 2 rewrite cycles; after 2 failed rewrites, fall back to v1.6.3 unwrapped report and log to `_meta/eval-history/narrator-{date}.md`. See `pro/agents/narrator-validator.md`.
+
 After all 3 return (with 5s soft timeout, 15s hard timeout per individual subagent), launch `gwt-arbitrator` with the consolidated outputs. See `pro/agents/gwt-arbitrator.md`.
 
 **GWT arbitrator output** is a `[COGNITIVE CONTEXT]` Markdown block. Orchestrator **prepends** it to the user message before ROUTER sees it:
@@ -335,7 +337,11 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 | RETROSPECTIVE agent | User message (housekeeping), `_meta/strategic-lines.md` + all project strategic fields | No restrictions |
 | ARCHIVER agent | Summary Report + reports + session conversation summary, all project strategic fields | Other agents' thought processes |
 | **HIPPOCAMPUS** (v1.7) | current_user_message + extracted_subject + current_project + current_theme + recent_inbox_items + current_strategic_lines | **Other Cortex outputs** (concept-lookup, soul-check), **SOUL.md full body**, prior session transcripts (only summaries via INDEX), other agents' thought processes |
+| **CONCEPT-LOOKUP** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | **Other Cortex outputs** (hippocampus, soul-check), raw concept body content (only INDEX scan + selective top file reads), other agents' thought processes |
+| **SOUL-CHECK** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | **Other Cortex outputs** (hippocampus, concept-lookup), snapshots beyond the most recent (older snapshots are RETROSPECTIVE's job), other agents' thought processes |
 | **GWT-ARBITRATOR** (v1.7) | hippocampus_output + concept_lookup_output + soul_check_output + current_user_message | ROUTER reasoning, raw session content, agent thought processes |
+| **NARRATOR** (v1.7 Phase 2) | Draft Summary Report + cognitive_context (signals from GWT) | Other agents' thought processes, raw SOUL.md body, raw wiki/ files |
+| **NARRATOR-VALIDATOR** (v1.7 Phase 2.5) | narrator_output + cognitive_context (same as narrator received) | Anything outside its input |
 | ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `_meta/STRATEGIC-MAP.md` (compiled) + `[COGNITIVE CONTEXT]` block from GWT (when Cortex enabled) | — |
 | PLANNER | Subject + background + user message + bound project's strategic context (flows only, not full map) | ROUTER's reasoning, full strategic map |
 | REVIEWER | Planning document or Six Domains reports + flow graph relevant to current decision | Thought processes, full strategic map |
