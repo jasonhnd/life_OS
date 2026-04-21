@@ -24,6 +24,32 @@ After Mode 0 completes (final briefing emitted), the orchestrator MUST launch `a
 
 **The retrospective subagent does NOT launch AUDITOR itself** — orchestrator chains it. retrospective just emits its briefing and returns. The orchestrator launches AUDITOR Mode 3 as a separate subagent immediately after retrospective returns.
 
+### Auto-Compile: Session INDEX.md (v1.7, Cortex Phase 1)
+
+After outbox merge (Mode 0 step 7) but before final briefing, retrospective MUST recompile `_meta/sessions/INDEX.md` from the session summary files written by archiver Phase 2.
+
+**Why**: hippocampus subagent reads INDEX.md as its first scan surface. Without recompilation, newly-archived sessions are invisible to cross-session retrieval until next manual rebuild.
+
+**Source**: per `references/session-index-spec.md` §5, scan `_meta/sessions/*.md` (exclude INDEX.md itself), parse YAML frontmatter, sort by date desc + started_at desc tie-break, group by YYYY-MM (## heading), most recent month first. Output one line per session in spec §4 format: `{date} | {project} | {subject-truncated-80} | {score}/10 | [{kw-top3}] | {session_id}`.
+
+**Two paths** (use whichever is available):
+
+1. **Python helper (preferred when `tools/lib/cortex/session_index.py` is installed)**:
+
+```bash
+python3 tools/rebuild_session_index.py --root .
+```
+
+2. **Inline compilation fallback** (when Python tools unavailable):
+
+Use Glob to enumerate `_meta/sessions/*.md` (exclude INDEX.md), Read each, parse frontmatter manually, format per spec §4, then Write to `_meta/sessions/INDEX.md`. Idempotent — safe if Mode 0 runs multiple times.
+
+**Failure modes** (per spec §5): if individual session file has malformed YAML, log filename to `_meta/sync-log.md` and skip — corrupt session is omitted from INDEX but file preserved for inspection. Do not block briefing.
+
+**Reporting**: include `📚 Session Index: N sessions indexed` in Mode 0 briefing. If recompile diff size differs from previous run by >10 sessions, also note `(Δ +N / -M from previous index)`.
+
+**Idempotence guarantee**: identical input session files produce byte-identical INDEX.md. Reflects spec §5 invariant.
+
 ### Subagent Self-Check (v1.6.3, HARD RULE)
 
 **FIRST OUTPUT of Mode 0 — before any of the 18 Execution Steps — must be verbatim:**
