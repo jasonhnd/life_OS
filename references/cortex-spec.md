@@ -58,7 +58,7 @@ Every user message triggers a hippocampus subagent (not on-demand, but always-on
 
 Output: top 5-7 relevant historical sessions as a memory signal, emitted to the GWT arbitrator.
 
-Implementation relies on a two-stage scan: ripgrep filters `_meta/sessions/INDEX.md` (a compiled flat file of one-line session summaries) down to candidate sessions within milliseconds; the subagent then reads only the matched summaries (typically 15-20 lines) and returns the final top 5-7. At 1000 sessions × 200 characters per summary the full index is roughly 600KB — trivial to scan.
+Implementation relies on a two-stage scan: ripgrep filters `_meta/sessions/INDEX.md` (a compiled flat file of one-line session summaries) down to candidate sessions within milliseconds; the subagent then reads only the matched summaries (typically 15-20 lines) and returns the final top 5-7. At 1000 sessions × 200 characters per summary (≈600 bytes per UTF-8 encoded CJK summary, ≈200 bytes per ASCII-only summary) the full index is roughly 200KB–600KB depending on content language — trivial to scan in either case.
 
 Full spec: `references/hippocampus-spec.md`.
 
@@ -531,7 +531,7 @@ Is the candidate about the user's identity, values, preferences, or red lines?
             ├── YES → Concept
             │         (≥2 activations + ≥2 independent evidence points;
             │          lands in _meta/concepts/_tentative/ until promotion;
-            │          forbidden: individual people — SOUL handles those)
+            │          individuals → skip, OR route to SOUL (privacy filter))
             │
             └── NO → Is it a FACTUAL conclusion about the world?
                 ├── YES → Wiki
@@ -554,7 +554,7 @@ Is the candidate about the user's identity, values, preferences, or red lines?
 | "Iterative document refinement works best when each round has one focus" | Method | Procedural how-to |
 | "Governance concerns should weigh 30% in cross-border product decisions" | Wiki | Declarative conclusion |
 | "Finance and Execution agents disagreed by 4 points last session" | Discard | Single-session observation, not cross-session reusable |
-| "User's specific family member A's preferences" | Discard (or SOUL with privacy filter) | Personal data; concepts forbidden; SOUL's privacy filter decides |
+| "User's specific family member A's preferences" | Skip (or SOUL with privacy filter) | Individuals do not route to Concept; SOUL's privacy filter decides whether SOUL takes them or they are dropped |
 
 ### Ambiguous cases
 
@@ -600,7 +600,7 @@ Cortex MUST NOT do any of the following:
 
 ## Version & Migration
 
-Cortex is introduced in **v1.7**. The brainstorm divided its rollout into four internal stages (A through D), but they all land within v1.7 — not across v1.8 / v1.9 / v2.0. The version number is unified.
+Cortex is introduced in **v1.7**. The brainstorm divided its rollout into four internal stages (A through D), with the first stage (A) further subdivided into three phases (A1/A2/A3), but they all land within v1.7 — not across v1.8 / v1.9 / v2.0. The version number is unified.
 
 v1.7 internal stages:
 
@@ -613,7 +613,7 @@ v1.7 internal stages:
 
 All four stages ship inside v1.7. The staging is internal sequencing, not incremental releases. The reason the stages exist at all is that each stage is a natural checkpoint for the ones that follow: stage B cannot function usefully until stage A has produced enough concept and session data; stage C's narrator cannot validate against signals that stage B did not produce; stage D refines what stages B and C have shown to work. Stages are natural dependency gates — not external release points.
 
-Internally, stage A is split into A1 (data structures land), A2 (migrate.py backfill), A3 (seed.py bootstrap); A2 and A3 may run in parallel once A1 lands. Stage B lands after A. Stages C and D may run in parallel once B is stable. The full internal sequence is A1 → (A2+A3 parallel) → B → (C+D parallel), and everything still ships as v1.7.
+Stage A subdivides into three phases: A1 (data structures land), A2 (migrate.py backfill), A3 (seed.py bootstrap); A2 and A3 may run in parallel once A1 lands. Stages B, C, D remain single-phase. The full internal sequence is A1 → (A2+A3 parallel) → B → (C+D parallel), and everything still ships as v1.7.
 
 AUDITOR tracks post-ship quality through `eval-history` entries (`references/eval-history-spec.md`). Quality regressions surface as eval-history patterns; module-level scope changes happen through normal spec revision, not through pre-committed numeric thresholds.
 
