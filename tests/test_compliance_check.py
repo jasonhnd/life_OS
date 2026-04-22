@@ -7,11 +7,31 @@ asserts on exit code + stdout/stderr.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCRIPT = _REPO_ROOT / "scripts" / "lifeos-compliance-check.sh"
+_BASH_CANDIDATES = (
+    "bash",
+    "bash.exe",
+    r"C:\Program Files\Git\bin\bash.exe",
+    r"C:\Program Files\Git\usr\bin\bash.exe",
+    r"C:\Windows\System32\bash.exe",
+)
+
+
+def _find_bash() -> str:
+    """Resolve a usable bash executable on Windows test runners."""
+    for candidate in _BASH_CANDIDATES:
+        resolved = shutil.which(candidate) or (candidate if Path(candidate).exists() else None)
+        if resolved:
+            return resolved
+    raise FileNotFoundError("No bash executable found for compliance-check subprocess tests.")
+
+
+_BASH = _find_bash()
 
 
 def _run(output_file: Path, scenario: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -21,7 +41,7 @@ def _run(output_file: Path, scenario: str, cwd: Path | None = None) -> subproces
     by the bash script do not crash the default Windows cp932 codec.
     """
     return subprocess.run(
-        ["bash", str(_SCRIPT), str(output_file), scenario],
+        [_BASH, str(_SCRIPT), str(output_file), scenario],
         cwd=cwd or _REPO_ROOT,
         capture_output=True,
         text=True,
