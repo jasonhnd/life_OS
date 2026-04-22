@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from tools.lib.second_brain import (
     Concept,
@@ -37,9 +38,9 @@ __all__ = [
 # ─── Concept IO ──────────────────────────────────────────────────────────────
 
 
-def _concept_to_frontmatter(c: Concept) -> dict:
+def _concept_to_frontmatter(c: Concept) -> dict[str, Any]:
     """Convert Concept dataclass to YAML-serialisable frontmatter dict."""
-    fm: dict = {
+    fm: dict[str, Any] = {
         "concept_id": c.concept_id,
         "canonical_name": c.canonical_name,
         "domain": c.domain,
@@ -66,7 +67,7 @@ def _concept_to_frontmatter(c: Concept) -> dict:
             for e in c.outgoing_edges
         ]
     if c.provenance.source_sessions or c.provenance.discovered_at:
-        prov: dict = {}
+        prov: dict[str, Any] = {}
         if c.provenance.source_sessions:
             prov["source_sessions"] = c.provenance.source_sessions
         if c.provenance.discovered_at:
