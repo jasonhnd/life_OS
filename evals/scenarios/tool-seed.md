@@ -1,3 +1,25 @@
+---
+scenario: tool-seed
+type: tool-invocation
+tool: seed
+requires_claude: false
+# R4.5 machine-eval fields — target path must NOT exist yet (seed creates it).
+# --no-git lets this run in environments where git isn't configured.
+setup_script: |
+  # Target dir must NOT exist — seed will create it fresh.
+  mkdir -p {tmp_dir}
+invocation: "python3 -m tools.seed --path {tmp_dir}/newbrain --no-git"
+expected_exit_code: 0
+expected_stdout_contains: []
+# seed.py logs to stderr (tools/seed.py:_configure_logging).
+expected_stderr_contains:
+  - "Seeded"
+expected_files:
+  - "{tmp_dir}/newbrain/SOUL.md"
+  - "{tmp_dir}/newbrain/.life-os.toml"
+  - "{tmp_dir}/newbrain/.gitignore"
+---
+
 # Tool Scenario · seed
 
 **Contract**: references/tools-spec.md §6.10 · New-user second-brain bootstrap.

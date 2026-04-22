@@ -1,3 +1,26 @@
+---
+scenario: tool-daily_briefing
+type: tool-invocation
+tool: daily_briefing
+requires_claude: false
+# R4.5 machine-eval fields
+setup_script: |
+  mkdir -p {tmp_dir}/_meta/sessions {tmp_dir}/_meta/dreams {tmp_dir}/_meta/projects {tmp_dir}/_meta/eval-history {tmp_dir}/inbox
+env:
+  PYTHONIOENCODING: "utf-8"
+invocation: "python3 -m tools.daily_briefing --root {tmp_dir}"
+expected_exit_code: 0
+expected_stdout_contains:
+  - "Today's Briefing"
+  - "SOUL Core"
+  - "Recent DREAMs"
+  - "Active Projects"
+  - "Inbox"
+  - "Eval History"
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · daily_briefing
 
 **Contract**: references/tools-spec.md §6.5 · Today's briefing — 5-section markdown snapshot from SOUL / DREAM / projects / inbox / eval history.

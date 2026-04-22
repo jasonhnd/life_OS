@@ -1,3 +1,19 @@
+---
+scenario: tool-search
+type: tool-invocation
+tool: search
+requires_claude: false
+# R4.5 machine-eval fields — empty sessions dir: "no matches" + exit 0 (spec 6.8).
+setup_script: |
+  mkdir -p {tmp_dir}/_meta/sessions
+invocation: "python3 -m tools.search 'nonexistent-term' --root {tmp_dir}"
+expected_exit_code: 0
+expected_stdout_contains:
+  - "no matches"
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · search
 
 **Contract**: references/tools-spec.md §6.8 · Cross-session grep + metadata-weighted ranking (no LLM, no embeddings).

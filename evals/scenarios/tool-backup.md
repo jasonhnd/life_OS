@@ -1,3 +1,19 @@
+---
+scenario: tool-backup
+type: tool-invocation
+tool: backup
+requires_claude: false
+# R4.5 machine-eval fields
+setup_script: |
+  mkdir -p {tmp_dir}/_meta/snapshots/soul
+invocation: "python3 -m tools.backup --dry-run --root {tmp_dir}"
+expected_exit_code: 0
+expected_stdout_contains:
+  - "dry-run"
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · backup
 
 **Contract**: references/tools-spec.md §6.6 + references/snapshot-spec.md + references/compliance-spec.md · Snapshot rotation + violations archive.

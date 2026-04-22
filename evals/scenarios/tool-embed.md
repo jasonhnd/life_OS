@@ -1,3 +1,24 @@
+---
+scenario: tool-embed
+type: tool-invocation
+tool: embed
+requires_claude: false
+# R4.5 machine-eval fields
+setup_script: |
+  # embed.py is argv-ignoring; no fixture needed.
+  mkdir -p {tmp_dir}
+invocation: "python3 -m tools.embed"
+expected_exit_code: 0
+expected_stdout_contains:
+  - "not implemented"
+  - "out of scope"
+  - "v1.7"
+  - "hippocampus"
+  - "search.py"
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · embed
 
 **Contract**: references/tools-spec.md §6.12 · Placeholder stub — semantic embeddings are OUT of scope for v1.7 (user decision #3).

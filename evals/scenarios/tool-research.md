@@ -1,3 +1,23 @@
+---
+scenario: tool-research
+type: tool-invocation
+tool: research
+requires_claude: false
+# R4.5 machine-eval fields.
+# Runner MUST skip when httpx or markdownify is unavailable — research is a
+# network-optional tool and we do not want CI in offline Git-Bash to fail here.
+skip_if_missing_python_module:
+  - httpx
+  - markdownify
+setup_script: |
+  mkdir -p {tmp_dir}/inbox/research
+invocation: "python3 -m tools.research 'test query' --max-pages 0 --root {tmp_dir}"
+expected_exit_code: 0
+expected_stdout_contains: []
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · research
 
 **Contract**: references/tools-spec.md §6.4 · Background web fetch → inbox with markdownify + robots.txt enforcement.
