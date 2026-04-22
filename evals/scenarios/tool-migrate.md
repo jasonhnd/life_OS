@@ -1,3 +1,18 @@
+---
+scenario: tool-migrate
+type: tool-invocation
+tool: migrate
+requires_claude: false
+# R4.5 machine-eval fields — empty journal => no-op migration, exit 0.
+setup_script: |
+  mkdir -p {tmp_dir}/_meta/journal
+invocation: "python3 -m tools.migrate --from v1.6.2a --to v1.7 --dry-run --root {tmp_dir}"
+expected_exit_code: 0
+expected_stdout_contains: []
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · migrate
 
 **Contract**: references/tools-spec.md §6.7 · v1.6.2a → v1.7 one-shot schema backfill (3-month window).

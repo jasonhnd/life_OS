@@ -1,3 +1,21 @@
+---
+scenario: tool-reindex
+type: tool-invocation
+tool: reindex
+requires_claude: false
+# R4.5 machine-eval fields
+setup_script: |
+  mkdir -p {tmp_dir}/_meta/sessions {tmp_dir}/_meta/concepts
+invocation: "python3 -m tools.reindex --all --root {tmp_dir} --verbose"
+expected_exit_code: 0
+expected_stdout_contains: []
+expected_stderr_contains: []
+expected_files:
+  - "{tmp_dir}/_meta/sessions/INDEX.md"
+  - "{tmp_dir}/_meta/concepts/INDEX.md"
+  - "{tmp_dir}/_meta/concepts/SYNAPSES-INDEX.md"
+---
+
 # Tool Scenario · reindex
 
 **Contract**: references/tools-spec.md §6.1 · Unified session + concept INDEX.md rebuild.
