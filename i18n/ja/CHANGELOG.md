@@ -8,7 +8,7 @@
 
 ## [1.7.0] - 2026-04-22 · Cortex 認知層 · 正式リリース
 
-> Cortex が alpha から卒業し GA 正式リリース。`v1.7.0-alpha.2` 後の 22 commits で残存 TBD をクローズ:5 つの shell hook のランタイム強制 + 共通 `_lib.sh`、`life-os-tool` CLI に統合された 10 個の Python ツール、3 個の共有 Python ライブラリ、三言語ユーザーガイド、CLAUDE / GEMINI / AGENTS 3 ホストに同期した Step 0.5 / Step 7.5 契約、そして既存の v1.6.2a second-brain をすべて保護する移行パス。
+> Cortex が alpha から卒業し GA 正式リリース。`v1.7.0-alpha.2` 後の 65 commits で残存 TBD をクローズ:5 つの shell hook のランタイム強制 + 共通 `_lib.sh`、`life-os-tool` CLI に統合された 10 個の Python ツール、3 個の共有 Python ライブラリ、`docs/` 公開ドキュメント群、三言語の認知レイヤー文書、CLAUDE / GEMINI / AGENTS 3 ホストに同期した Step 0.5 / Step 7.5 契約、そして既存の v1.6.2a second-brain をすべて保護する移行パス。
 
 ### ✨ ハイライト
 
@@ -63,9 +63,9 @@
 
 ### i18n
 
-- `i18n/zh/references/cortex-spec.md` + `i18n/ja/references/cortex-spec.md` — freeze 済み Cortex spec の中日全訳
-- `i18n/zh/references/hippocampus-spec.md` + `i18n/ja/references/hippocampus-spec.md` — hippocampus spec の中日全訳
-- `i18n/ja/README.md` — トピックブロック順を EN / ZH README と整合
+- `i18n/{zh,ja}/references/{concept,cortex,eval-history,gwt,hippocampus,hooks,method-library,narrator,session-index,snapshot,tools}-spec.md` — 凍結済み v1.7 仕様 11 本の中日訳
+- `i18n/{zh,ja}/docs/getting-started/what-is-life-os.md` + `i18n/{zh,ja}/docs/user-guide/cortex/*.md` — ローカライズ済み導入ページ + 6 本の Cortex ユーザーガイド
+- `README.md` + `i18n/{zh,ja}/README.md` — 3 言語でテーマ順、言語スイッチャー、意思決定サンプル表現を整合
 
 ### インフラストラクチャ
 
@@ -87,9 +87,13 @@
   - `backup/pro/compliance/2026-04-19-court-start-violation.md` — アーカイブ済 (解決済、学びを L1/L2 hook に吸収)
   - Narrator-spec 違反 — **決議保留** (次回 Compliance Patrol で追跡)
 
-### 変更ファイル (alpha.2 以降の commits)
+### 変更ファイル (抜粋,alpha.2 以降の commits)
 
 ```
+65b0d57 docs(i18n): publish zh/ja v1.7 specs and Cortex guide translations
+170ca07 docs: publish v1.7 public docs trees (exclude plugin-system drafts)
+8e47d61 docs(release): path docs/→devdocs/ in 8 specs + CHANGELOG SHA rewrite + tri-lingual sync
+91b7896 chore(tests): remove unused pytest import in seed_concepts cleanup
 fdf8748 chore(cli/tests): wire 10 v1.7 tools, fix Windows encoding, and track compliance dossiers
 1b41f85 feat(tools): add seed.py + tests
 9159e38 feat(tools): add migrate.py + tests
@@ -114,7 +118,7 @@ efa339d feat(lib): add tools/lib/config.py + tests
 a503301 feat(hooks): add pre-prompt-guard.sh
 ```
 
-(このほか `tools/seed_concepts.py` + テンプレート、`MIGRATION.md`、`Makefile`、三言語 CHANGELOG 3 件の同期。)
+(このほか `tools/seed_concepts.py` + テンプレート、`MIGRATION.md`、`Makefile`、後続の spec/docs 公開コミット、三言語 CHANGELOG 3 件の同期。)
 
 ---
 

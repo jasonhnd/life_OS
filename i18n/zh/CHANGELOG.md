@@ -8,7 +8,7 @@
 
 ## [1.7.0] - 2026-04-22 · Cortex 认知层 · 正式发布
 
-> Cortex 从 alpha 毕业,正式上线 GA。`v1.7.0-alpha.2` 之后 22 个 commits 关闭了剩余 TBD:5 个 shell hook 的完整运行时强制 + 共享 `_lib.sh`、10 个 Python 工具统一收敛到 `life-os-tool` CLI、3 个共享 Python 库、三语用户指南、Step 0.5 / Step 7.5 契约同步到 CLAUDE / GEMINI / AGENTS 三个 host,以及一条保留每个现有 v1.6.2a second-brain 的迁移路径。
+> Cortex 从 alpha 毕业,正式上线 GA。`v1.7.0-alpha.2` 之后 65 个 commits 关闭了剩余 TBD:5 个 shell hook 的完整运行时强制 + 共享 `_lib.sh`、10 个 Python 工具统一收敛到 `life-os-tool` CLI、3 个共享 Python 库、`docs/` 公共文档树发布、三语认知层文档、Step 0.5 / Step 7.5 契约同步到 CLAUDE / GEMINI / AGENTS 三个 host,以及一条保留每个现有 v1.6.2a second-brain 的迁移路径。
 
 ### ✨ 亮点
 
@@ -63,9 +63,9 @@
 
 ### i18n
 
-- `i18n/zh/references/cortex-spec.md` + `i18n/ja/references/cortex-spec.md` — 已 freeze 的 Cortex spec 的中日全译
-- `i18n/zh/references/hippocampus-spec.md` + `i18n/ja/references/hippocampus-spec.md` — hippocampus spec 的中日全译
-- `i18n/ja/README.md` — 主题块顺序对齐 EN / ZH README
+- `i18n/{zh,ja}/references/{concept,cortex,eval-history,gwt,hippocampus,hooks,method-library,narrator,session-index,snapshot,tools}-spec.md` — 11 份已冻结 v1.7 spec 的中日译本
+- `i18n/{zh,ja}/docs/getting-started/what-is-life-os.md` + `i18n/{zh,ja}/docs/user-guide/cortex/*.md` — 本地化入门页 + 6 篇 Cortex 用户指南
+- `README.md` + `i18n/{zh,ja}/README.md` — 三语主题块顺序、语言切换器与决策示例文案已对齐
 
 ### 基础设施
 
@@ -87,9 +87,13 @@
   - `backup/pro/compliance/2026-04-19-court-start-violation.md` — 已归档(已解决,经验吸收进 L1/L2 hook)
   - Narrator-spec 违规 — **待决议**(下一轮 Compliance Patrol 追踪)
 
-### 涉及文件(alpha.2 之后的 commits)
+### 涉及文件(节选,alpha.2 之后的 commits)
 
 ```
+65b0d57 docs(i18n): publish zh/ja v1.7 specs and Cortex guide translations
+170ca07 docs: publish v1.7 public docs trees (exclude plugin-system drafts)
+8e47d61 docs(release): path docs/→devdocs/ in 8 specs + CHANGELOG SHA rewrite + tri-lingual sync
+91b7896 chore(tests): remove unused pytest import in seed_concepts cleanup
 fdf8748 chore(cli/tests): wire 10 v1.7 tools, fix Windows encoding, and track compliance dossiers
 1b41f85 feat(tools): add seed.py + tests
 9159e38 feat(tools): add migrate.py + tests
@@ -114,7 +118,7 @@ efa339d feat(lib): add tools/lib/config.py + tests
 a503301 feat(hooks): add pre-prompt-guard.sh
 ```
 
-(另有 `tools/seed_concepts.py` + 模板、`MIGRATION.md`、`Makefile`、三语 CHANGELOG 三份同步。)
+(另有 `tools/seed_concepts.py` + 模板、`MIGRATION.md`、`Makefile`、后续 spec/docs 发布 commits、三语 CHANGELOG 三份同步。)
 
 ---
 

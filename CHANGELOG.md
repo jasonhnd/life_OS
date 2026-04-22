@@ -8,7 +8,7 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ## [1.7.0] - 2026-04-22 · Cortex Cognitive Layer · General Availability
 
-> Cortex graduates from alpha to GA. 22 commits after `v1.7.0-alpha.2` closed the remaining TBDs: the full shell-hook runtime (5 hooks + shared library), 10 Python tools wired under a single `life-os-tool` CLI, 3 shared Python libraries, a trilingual user guide for the cognitive layer, Step 0.5 / Step 7.5 contract synced across CLAUDE / GEMINI / AGENTS hosts, and a migration path that preserves every existing v1.6.2a second-brain.
+> Cortex graduates from alpha to GA. 65 commits after `v1.7.0-alpha.2` closed the remaining TBDs: the full shell-hook runtime (5 hooks + shared library), 10 Python tools wired under a single `life-os-tool` CLI, 3 shared Python libraries, public docs publication under `docs/`, trilingual cognitive-layer docs, Step 0.5 / Step 7.5 contract synced across CLAUDE / GEMINI / AGENTS hosts, and a migration path that preserves every existing v1.6.2a second-brain.
 
 ### ✨ Highlights
 
@@ -63,9 +63,9 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ### i18n
 
-- `i18n/zh/references/cortex-spec.md` + `i18n/ja/references/cortex-spec.md` — full Chinese/Japanese translations of the frozen Cortex spec
-- `i18n/zh/references/hippocampus-spec.md` + `i18n/ja/references/hippocampus-spec.md` — full Chinese/Japanese translations of the hippocampus spec
-- `i18n/ja/README.md` — topic-block order aligned with EN / ZH README
+- `i18n/{zh,ja}/references/{concept,cortex,eval-history,gwt,hippocampus,hooks,method-library,narrator,session-index,snapshot,tools}-spec.md` — Chinese/Japanese translations for the 11 frozen v1.7 specs
+- `i18n/{zh,ja}/docs/getting-started/what-is-life-os.md` + `i18n/{zh,ja}/docs/user-guide/cortex/*.md` — localized onboarding plus 6 Cortex user guides
+- `README.md` + `i18n/{zh,ja}/README.md` — topic-block order, language switcher, and decision-table wording aligned across all three languages
 
 ### Infrastructure
 
@@ -87,9 +87,13 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
   - `backup/pro/compliance/2026-04-19-court-start-violation.md` — archived (resolved, lesson absorbed into L1/L2 hooks)
   - Narrator-spec violation — **pending resolution** (tracked in next Compliance Patrol cycle)
 
-### Files Touched (post-alpha.2 commits)
+### Selected Files Touched (post-alpha.2 commits)
 
 ```
+65b0d57 docs(i18n): publish zh/ja v1.7 specs and Cortex guide translations
+170ca07 docs: publish v1.7 public docs trees (exclude plugin-system drafts)
+8e47d61 docs(release): path docs/→devdocs/ in 8 specs + CHANGELOG SHA rewrite + tri-lingual sync
+91b7896 chore(tests): remove unused pytest import in seed_concepts cleanup
 fdf8748 chore(cli/tests): wire 10 v1.7 tools, fix Windows encoding, and track compliance dossiers
 1b41f85 feat(tools): add seed.py + tests
 9159e38 feat(tools): add migrate.py + tests
@@ -114,7 +118,7 @@ efa339d feat(lib): add tools/lib/config.py + tests
 a503301 feat(hooks): add pre-prompt-guard.sh
 ```
 
-(Plus `tools/seed_concepts.py` + templates, `MIGRATION.md`, `Makefile`, 3 trilingual CHANGELOG syncs.)
+(Plus `tools/seed_concepts.py` + templates, `MIGRATION.md`, `Makefile`, additional spec/docs publication commits, and 3 trilingual CHANGELOG syncs.)
 
 ---
 
