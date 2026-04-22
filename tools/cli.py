@@ -24,6 +24,7 @@ import contextlib
 import importlib
 import sys
 from pathlib import Path
+from typing import TextIO
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -103,7 +104,7 @@ _COMMANDS: dict[str, tuple[str, str]] = {
 }
 
 
-def _print_usage(stream=None) -> None:
+def _print_usage(stream: TextIO | None = None) -> None:
     # Resolve sys.stdout at call time, not definition time, so pytest capsys
     # (which patches sys.stdout) captures the output correctly.
     if stream is None:
