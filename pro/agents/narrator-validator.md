@@ -143,7 +143,9 @@ After **2 failed rewrites**:
 
 ## Performance Budget
 
-Total target: **<3 seconds** (Sonnet is fast).
+Aligned with `references/narrator-spec.md §11` (R3.1, commit `04e3498`).
+
+Total target: **<3 seconds** (Sonnet is fast). Hard `hard_timeout_ms: 8000` is the **per-cycle** cap from narrator-spec §11 (cumulative 21s budget across up to 3 retries is enforced by the orchestrator, not the validator).
 
 | Step | Target |
 |------|--------|

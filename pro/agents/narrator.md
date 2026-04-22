@@ -68,7 +68,7 @@ narrator_input:
     invocation_id: string
     timestamp: ISO 8601
     soft_timeout_ms: 5000
-    hard_timeout_ms: 12000
+    hard_timeout_ms: 8000                   # per-cycle cap from narrator-spec §11 (cumulative cap 21s handled by orchestrator)
 ```
 
 ---
@@ -135,7 +135,11 @@ Do NOT return YAML. The output IS the new Summary Report — it goes directly to
 
 ## Performance Budget
 
-Total target: **<5 seconds** (well under 12s hard timeout).
+Aligned with `references/narrator-spec.md §11` (R3.1, commit `04e3498`).
+
+Total target for a **single narrator pass**: **<5 seconds** (first-pass budget 2–5s per spec §11).
+
+Hard per-cycle cap: **8 seconds** per narrator + validator regenerate-and-revalidate cycle. Cumulative budget across up to 3 retries: **21 seconds (max) / 18 seconds (typical)** — orchestrator tracks cumulative wall-clock and triggers fallback when **either** threshold fires.
 
 | Step | Target |
 |------|--------|
@@ -157,7 +161,7 @@ Degrade gracefully.
 | All cognitive signals invalid/empty | Return draft unchanged |
 | LLM rewrite fails | Return draft unchanged, log to eval-history |
 | Self-check finds invalid citations | One rewrite attempt; if fails, return draft unchanged + log |
-| Hard timeout (>12s) | Return draft unchanged |
+| Per-cycle timeout (>8s) or cumulative timeout (>21s) | Return draft unchanged (per narrator-spec §11 dual-trigger fallback) |
 
 The narrator is **additive** — failure does not block the Summary Report from reaching the user. v1.6.3 behaviour (unwrapped report) is the always-safe fallback.
 
