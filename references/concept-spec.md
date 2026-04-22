@@ -230,7 +230,7 @@ Hebbian updates are idempotent within a single session — re-running the pass p
 
 ## Spreading Activation Rules
 
-Used by the `hippocampus` subagent at the Pre-Router Cognitive Layer (Step 0.5, see `docs/architecture/cortex-integration.md` §4). Spreading activation produces the list of concepts the system considers "warm" for the current message.
+Used by the `hippocampus` subagent at the Pre-Router Cognitive Layer (Step 0.5, see `devdocs/architecture/cortex-integration.md` §4). Spreading activation produces the list of concepts the system considers "warm" for the current message.
 
 ```
 Wave 1 — Direct match
@@ -390,4 +390,4 @@ All roles check if `_meta/concepts/INDEX.md` exists before referencing it. If it
 - `references/eval-history-spec.md` — AUDITOR's `cognitive_annotation_quality` consumes concept-graph signals
 - `pro/agents/archiver.md` — Phase 2 owns Hebbian update, decay pass, SYNAPSES-INDEX regeneration, tentative writes
 - `pro/agents/retrospective.md` — Mode 0 regenerates `INDEX.md` and flags dormant concepts
-- `docs/architecture/cortex-integration.md` — Step 0.5 Pre-Router Cognitive Layer context
+- `devdocs/architecture/cortex-integration.md` — Step 0.5 Pre-Router Cognitive Layer context

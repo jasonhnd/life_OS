@@ -9,8 +9,8 @@ related:
   - references/hippocampus-spec.md
   - references/concept-spec.md
   - references/soul-spec.md
-  - docs/brainstorm/2026-04-19-cortex-architecture.md
-  - docs/architecture/cortex-integration.md
+  - devdocs/brainstorm/2026-04-19-cortex-architecture.md
+  - devdocs/architecture/cortex-integration.md
 ---
 
 # GWT Arbitrator Spec
@@ -316,8 +316,8 @@ AUDITOR surfaces low-scoring sessions for review. If annotation quality trends d
 - `references/hippocampus-spec.md` — signal source: cross-session retrieval
 - `references/concept-spec.md` — signal source: concept store and synapse graph
 - `references/soul-spec.md` — SOUL tier definitions and confidence bands
-- `docs/brainstorm/2026-04-19-cortex-architecture.md` — design rationale (§3 schema, §4 salience debate)
-- `docs/architecture/cortex-integration.md` — how the arbitrator plugs into the 11-step workflow at Step 0.5
+- `devdocs/brainstorm/2026-04-19-cortex-architecture.md` — design rationale (§3 schema, §4 salience debate)
+- `devdocs/architecture/cortex-integration.md` — how the arbitrator plugs into the 11-step workflow at Step 0.5
 
 ---
 

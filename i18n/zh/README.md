@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.0--alpha.2-orange.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -30,20 +30,20 @@ Life OS 装进你的 AI 终端（Claude Code、Gemini CLI 或 Codex CLI），把
 ```
 🎨 选择你的主题：
 
-  English
-   a) 🏛️ Roman Republic — 执政官、保民官、元老院
-   b) 🇺🇸 US Government — 白宫幕僚长、司法部长、GAO
-   c) 🏢 Corporate — CEO、General Counsel、CFO
+中文:
+a) 🏛️ 三省六部 — 丞相、中书省、门下省
+b) 🇨🇳 中国政府 — 国务院总理、发改委、人大常委会
+c) 🏢 公司部门 — 总经理、战略规划部、法务合规部
 
-  中文
-   d) 🏛️ 三省六部 — 丞相、中书省、门下省
-   e) 🇨🇳 中国政府 — 国务院总理、发改委、人大常委会
-   f) 🏢 公司部门 — 总经理、战略规划部、法务合规部
+English:
+d) 🏛️ Roman Republic — 执政官、保民官、元老院
+e) 🇺🇸 US Government — 白宫幕僚长、司法部长、GAO
+f) 🏢 C-Suite — CEO、General Counsel、CFO
 
-  日本語
-   g) 🏛️ 明治政府 — 内閣総理大臣、参議、枢密院
-   h) 🏛️ 霞が関 — 内閣官房長官、内閣法制局、財務省
-   i) 🏢 企業 — 社長室、経営企画部、法務部
+日本語:
+g) 🏛️ 明治政府 — 内閣総理大臣、参議、枢密院
+h) 🏛️ 霞が関 — 内閣官房長官、内閣法制局、財務省
+i) 🏢 企業 — 社長室、経営企画部、法務部
 
 输入 a-i
 ```
@@ -53,16 +53,16 @@ Life OS 装进你的 AI 终端（Claude Code、Gemini CLI 或 Codex CLI），把
 ```
   三省六部                  霞が関                    C-Suite
   ─────────                ─────────                ─────────
-  📜 中书省 起草方案         📜 内閣府 drafts plan      📜 VP Strategy drafts plan
-  🔍 门下省 封驳：           🔍 内閣法制局 vetoes:       🔍 General Counsel vetoes:
+  📜 中书省 起草方案         📜 内閣府 起案             📜 VP Strategy drafts plan
+  🔍 门下省 封驳：           🔍 内閣法制局 差し戻し：     🔍 General Counsel vetoes:
      "财务跑道未解决"          "財務的余裕が不明"          "Runway not addressed"
 
   💰 户部  5/10            💰 財務省  5/10            💰 CFO  5/10
   ⚔️ 兵部  6/10            ⚔️ 防衛省  6/10            ⚔️ VP Ops  6/10
   ⚖️ 刑部  4/10            ⚖️ 法務省  4/10            ⚖️ CCO  4/10
 
-  🔱 御史台 审查             🔱 会計検査院 audits       🔱 Internal Audit audits
-  💬 谏官 追问你             💬 内閣参与 challenges you  💬 Exec Coach challenges you
+  🔱 御史台 审核             🔱 会計検査院 監査           🔱 Internal Audit audits
+  💬 谏官 追问你             💬 内閣参与が問い返す      💬 Exec Coach challenges you
 
   📋 奏折: 5.8/10          📋 閣議決定書: 5.8/10       📋 Executive Brief: 5.8/10
 ```
@@ -75,47 +75,19 @@ Life OS 装进你的 AI 终端（Claude Code、Gemini CLI 或 Codex CLI），把
 
 ---
 
-## v1.7.0-alpha 新特性 — Cortex 路由前认知层
+## v1.7 新特性
 
-**Life OS 历史上第一次 Layer 2 架构升级**。v1.7 之前，系统只在会话边界访问长期记忆。在边界之间，所有决策都靠当前对话——16 个子代理的制衡很强，但共享的认知底座是空的。v1.7 加入**路由前认知层**，把跨会话记忆、概念图、SOUL 信号注入每一次决策工作流。
+**Cortex 认知层 · 正式发布**
 
-### 6 个新子代理
+- 5 个新 Cortex 能力：跨会话记忆（hippocampus）、信号仲裁（GWT）、带引用生成（narrator）、概念图谱、SOUL 维度检测
+- 5 个 runtime hook 强制 HARD RULE（防 COURT-START-001 同类违规）
+- 10 个 Python 工具 + 3 个 lib（reindex / reconcile / stats / research / daily_briefing / export / sync_notion / seed / migrate / search / embed）
+- 6 个 Cortex 用户指南 + v1.7-migration 用户体验章节
+- cortex-spec + hippocampus-spec 中日译本
 
-| 代理 | 职责 |
-|------|------|
-| `hippocampus` | 跨会话记忆检索 · 3 波扩散激活（每个 message 检索 5-7 个相关历史会话）|
-| `concept-lookup` | 概念图直接匹配（当前 message 触及的前 5-10 个概念）|
-| `soul-check` | SOUL 维度信号（对齐 / 冲突 / 休眠重激活）|
-| `gwt-arbitrator` | Global Workspace Theory 信号整合 · top-5 信号合成 `[COGNITIVE CONTEXT]` 给 ROUTER |
-| `narrator` | 用 `[source:signal_id]` 引用包装 Summary Report 实质性主张（反 confabulation）|
-| `narrator-validator` | Sonnet 层引用纪律审计 |
+升级：`uv run life-os-tool migrate`（详见 [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md)）
 
-### 概念图 — markdown，无数据库
-
-概念是 `_meta/concepts/{domain}/{concept_id}.md` 下的 markdown 文件。突触边活在 concept frontmatter 中。共激活按 Hebbian 规则加权（+1）。3 层生命周期（`tentative → confirmed → canonical`）。4 层 permanence（`identity / skill / fact / transient`）决定衰减曲线。
-
-### Phase 1 实施完成度
-
-- ✅ 6 个子代理全部实现（~900 行 markdown 契约）
-- ✅ Python 数据层：`tools/lib/second_brain.py` + `tools/lib/cortex/`（~1500 行，纯 stdlib + pyyaml）
-- ✅ 4 个 CLI 工具：`rebuild_session_index.py`、`rebuild_concept_index.py`、`stats.py`、`setup-hooks.sh`
-- ✅ 77 个 pytest 测试覆盖所有 Python 模块
-- ✅ Archiver Phase 2 接线完成（SessionSummary 写入 + 概念提取 + Hebbian 更新）
-- ✅ Retrospective Mode 0 接线完成（INDEX.md 编译）
-- ✅ Orchestrator Step 0.5（Pre-Router）接线完成
-- ✅ AUDITOR Mode 3 扩展加 7 项 Cortex 合规检测（CX1-CX7）
-
-### 默认 OFF（按需启用）
-
-Cortex 在 v1.7.0-alpha 默认禁用。用户通过 `_meta/config.md` 加 `cortex_enabled: true` 启用。建议在 second-brain 累积 ≥30 个 sessions 后启用（否则检索无内容可浮现）。成本：~$0.05-0.25/turn（Opus tokens 跨 Pre-Router 子代理）。
-
-### v1.6.3 五层防御依然可用
-
-L1 hook · L2 Pre-flight · L3 子代理自检 · L4 AUDITOR Compliance Patrol · L5 eval auto-detection。全部已接线并生产验证。
-
-> **Alpha 警告**：生产验证待办。请在有显著历史的 use repo 启用 cortex_enabled 测试。问题报到 GitHub。
-
-完整 v1.7 commit 链（19 个）和 COURT-START-001 v1.6.3 事件档案见 [CHANGELOG](./CHANGELOG.md)。
+完整 v1.7 commit 链和 COURT-START-001 v1.6.3 事件档案见 [CHANGELOG](./CHANGELOG.md)。
 
 ---
 

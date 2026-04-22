@@ -14,7 +14,7 @@ Life OS maintains three distinct memory layers:
 
 Methods are **reusable workflows** — procedural patterns that apply across decisions. They sit adjacent to wiki (both are cross-project knowledge) but differ in shape: wiki answers factual questions, methods describe sequences of action.
 
-Inspired by Hermes Skills (see `docs/research/2026-04-19-hermes-analysis.md`) but adapted for Life OS's decision-engine context. Hermes skills encode tool-use procedures; Life OS methods encode decision-making procedures.
+Inspired by Hermes Skills (see `devdocs/research/2026-04-19-hermes-analysis.md`) but adapted for Life OS's decision-engine context. Hermes skills encode tool-use procedures; Life OS methods encode decision-making procedures.
 
 ---
 
@@ -390,7 +390,7 @@ All roles check if `_meta/methods/INDEX.md` exists before referencing it. If it 
 - `references/hippocampus-spec.md` — past-session retrieval feeding the cross-session echo heuristic
 - `pro/agents/archiver.md` — writes method candidates (Phase 2)
 - `pro/agents/dispatcher.md` — injects methods into domain briefs
-- `docs/research/2026-04-19-hermes-analysis.md` — source of the Hermes inspiration
+- `devdocs/research/2026-04-19-hermes-analysis.md` — source of the Hermes inspiration
 
 ---
 

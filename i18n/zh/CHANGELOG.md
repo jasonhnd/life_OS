@@ -6,6 +6,118 @@
 
 ---
 
+## [1.7.0] - 2026-04-22 · Cortex 认知层 · 正式发布
+
+> Cortex 从 alpha 毕业,正式上线 GA。`v1.7.0-alpha.2` 之后 22 个 commits 关闭了剩余 TBD:5 个 shell hook 的完整运行时强制 + 共享 `_lib.sh`、10 个 Python 工具统一收敛到 `life-os-tool` CLI、3 个共享 Python 库、三语用户指南、Step 0.5 / Step 7.5 契约同步到 CLAUDE / GEMINI / AGENTS 三个 host,以及一条保留每个现有 v1.6.2a second-brain 的迁移路径。
+
+### ✨ 亮点
+
+- **Cortex 路由前认知层转 GA** — 不再是 alpha 选装;完整契约 + 确定性降级
+- **5 个 shell hook 运行时强制** — pre-prompt-guard / pre-write-scan / pre-read-allowlist / post-response-verify / stop-session-verify,共享 `_lib.sh`
+- **10 个 Python 工具统一收敛到 `life-os-tool`** — reindex / reconcile / stats / research / daily-briefing / backup / migrate / search / export / seed(+ embed 占位 + sync-notion)
+- **3 个 Python 库** — `tools/lib/{config, llm, notion}` 作为所有工具的共享底座
+- **三语用户指南落地** — 6 个新 Cortex 指南(EN)+ cortex-spec / hippocampus-spec 的中日翻译
+- **host 无关 orchestration 契约** — Step 0.5(路由前认知)+ Step 7.5(Narrator 校验)已在 CLAUDE.md / GEMINI.md / AGENTS.md(root + `pro/`)成为规范
+
+### 功能
+
+- **Cortex 子代理(路由前认知层)** — hippocampus 3 波会话检索 · GWT top-5 信号 salience 仲裁 · 概念图匹配 + 突触查找 · SOUL 维度冲突检测 · Narrator 引用包装 · Narrator-Validator 审计(Sonnet 层)
+- **Shell hooks(5 个强制点 + 共享库)**
+  - `pre-prompt-guard.sh` — UserPromptSubmit 时机的 Class B/C 策略 + Cortex 启用门禁
+  - `pre-write-scan.sh` — 阻断对 `second-brain/wiki/**` 等受保护面的注入
+  - `pre-read-allowlist.sh` — SSH/密钥黑名单 + cwd 白名单
+  - `post-response-verify.sh` — 校验 `[COGNITIVE CONTEXT]` 分隔符 + adjourn checklist
+  - `stop-session-verify.sh` — session 结束合规兜网(Adjourn Phase 4 在位、narrator 引用纪律)
+  - `scripts/hooks/_lib.sh` — 5 个 hook 共用辅助函数(路径解析、JSON 读取、日志)
+- **Python 工具(10 个交付 + 1 占位 + 1 Notion sync = `life-os-tool` 下 12 个)**
+  - `reindex` — 一次性重建 session INDEX + concept INDEX + SYNAPSES
+  - `reconcile` — 检测 SOUL / Wiki / Strategic-Map 与 session summaries 的漂移
+  - `stats` — 违规升级阶梯 + `--period / --since / --output` 分析
+  - `research` — deep-research 脚手架(Exa 做 web/code/company)
+  - `daily_briefing` — 从 INDEX / STATUS / SOUL top-5 生成晨报
+  - `backup` — 30d 归档 / 90d 删除轮转 + 违规日志季度归档
+  - `migrate` — v1.6.2a → v1.7 迁移执行器(3 个月 backfill 窗口)
+  - `search` — 子串 + 概念 slug 跨 second-brain 检索
+  - `export` — 把 second-brain 序列化为可移植 bundle
+  - `seed` — 从用户模板引导空 second-brain
+  - `embed` — 占位(显式 no-op,符合 v1.7 决策 "不做向量 DB")
+  - `sync_notion` — Notion 双向镜像(走 `tools/lib/notion.py`)
+- **Python 库** — `tools/lib/config.py`(env + pyproject 解析)· `tools/lib/llm.py`(带重试 + token 记账的 LLM 调用封装)· `tools/lib/notion.py`(Notion API 客户端)
+- **编排** — Step 0.5(路由前认知层)和 Step 7.5(Narrator 校验)同步入 CLAUDE.md、GEMINI.md、AGENTS.md(root 和 `pro/` 两级);契约从此 host 无关
+- **引导工具** — `tools/seed_concepts.py` + 3 个面向用户的 second-brain bootstrap 模板;11 个测试
+
+### 文档
+
+- **6 个新 Cortex 用户指南** 落在 `docs/user-guide/cortex/`
+  - `overview.md` — "Cortex 是什么" 入口
+  - `hippocampus-recall.md` — 3 波 session 检索的工作方式
+  - `concept-graph-and-methods.md` — 概念节点晋升 + 方法库信号
+  - `narrator-citations.md` — 如何阅读和 trace `[S:][D:][SOUL:]` 引用
+  - `gwt-arbitration.md` — salience 公式 + 为什么某信号进入 top-5
+  - `auditor-eval-history.md` — eval-history 自反馈闭环
+- `docs/guides/v1.7-migration.md` — 新增 "升级后的第一周:日常体验对标" 节
+- `devdocs/architecture/cortex-integration.md` — 标记为 **deprecated**,对齐 spec freeze(真理源迁移到 `references/cortex-spec.md`)
+- `docs/architecture/system-overview.md` — 更新 `_meta/` 分片路径 + Step 0.5 / Step 7.5 编排图
+- `docs/getting-started/what-is-life-os.md` — Cortex 正式被列为第二大脑、决策引擎之外的第三根支柱
+- `MIGRATION.md` — 开发机切换手册(修复了以 dash 开头路径的 tar 语法 bug)
+
+### i18n
+
+- `i18n/zh/references/cortex-spec.md` + `i18n/ja/references/cortex-spec.md` — 已 freeze 的 Cortex spec 的中日全译
+- `i18n/zh/references/hippocampus-spec.md` + `i18n/ja/references/hippocampus-spec.md` — hippocampus spec 的中日全译
+- `i18n/ja/README.md` — 主题块顺序对齐 EN / ZH README
+
+### 基础设施
+
+- **CI** — pytest 测试套件 **184 → 400(+216)**;ruff 告警 **50+ → 0**;bash 语法检查 **11/11** 绿
+- **Makefile** — 常用开发命令(test / lint / format / build-docs)收敛
+- `UV_LINK_MODE=copy` 写入 `~/.bashrc`,解决 `uv sync` 时 Dropbox 硬链接冲突
+- `.github/workflows/test.yml` pytest 矩阵扩展,覆盖 10 个新工具模块 + 3 个新库模块
+- `evals/scenarios/hook-compliance/` 下 8 个新 hook 合规场景(01-start-compliant-launch 到 08-arbitrary-prompt-silent)
+
+### 破坏性变更 / 迁移
+
+- 从 **v1.6.2a → v1.7.0** 的用户必须跑 `uv run life-os-tool migrate` — 迁移工具会把最近 3 个月的 journal / snapshot 数据回填到新的 `_meta/cortex/` 分片布局
+- 在 v1.7.0 里,Cortex **新装默认启用**(相对 v1.7.0-alpha 的默认关闭翻转);现有 second-brain 沿用各自原有的 `cortex_enabled` 设置
+- 完整迁移流程:`docs/guides/v1.7-migration.md`
+
+### 合规
+
+- Cortex GA 运行过程抓到 **2 个事件档案**
+  - `backup/pro/compliance/2026-04-19-court-start-violation.md` — 已归档(已解决,经验吸收进 L1/L2 hook)
+  - Narrator-spec 违规 — **待决议**(下一轮 Compliance Patrol 追踪)
+
+### 涉及文件(alpha.2 之后的 commits)
+
+```
+fdf8748 chore(cli/tests): wire 10 v1.7 tools, fix Windows encoding, and track compliance dossiers
+1b41f85 feat(tools): add seed.py + tests
+9159e38 feat(tools): add migrate.py + tests
+f2d5a1d feat(tools): add research.py + tests
+b33f7dd feat(tools): extend stats.py aggregates and add sync_notion.py
+7240446 feat(tools): add daily_briefing.py + tests
+d2d43d8 feat(tools): add export.py + tests
+b7e7335 feat(tools): add reconcile.py + tests
+f8a26c6 feat(tools): embed.py placeholder + search.py (S5+S4 parallel-sprint merge)
+032bdc7 feat(tools): add reindex.py + tests
+2b7226f test(hooks): add 8 hook-compliance eval scenarios
+0e5128b chore(hooks): extend setup-hooks.sh for v1.7 all 5 hooks
+63e923e feat(hooks): add pre-read-allowlist.sh
+5ff0d32 feat(hooks+lib): stop-session-verify.sh + Notion lib + pyproject (S1+S2 parallel-sprint merge)
+4a2590f docs(orchestration): update root AGENTS.md with host-agnostic Step 0.5/7.5 contract
+4ae2a65 feat(hooks): add pre-write-scan.sh
+bf7f87e docs(orchestration): sync Step 0.5/7.5 to pro/AGENTS.md
+877c629 feat(lib): add tools/lib/llm.py + tests
+efa339d feat(lib): add tools/lib/config.py + tests
+1414677 feat(hooks): add post-response-verify.sh
+7c1fd3a docs(orchestration): sync Step 0.5/7.5 to GEMINI.md
+a503301 feat(hooks): add pre-prompt-guard.sh
+```
+
+(另有 `tools/seed_concepts.py` + 模板、`MIGRATION.md`、`Makefile`、三语 CHANGELOG 三份同步。)
+
+---
+
 ## [1.7.0-alpha.2] - 2026-04-21 · v1.7.0-alpha 后续跟进打包
 
 > 📚 **完整概览**：参见 [`references/v1.7-shipping-report-2026-04-21.md`](../../references/v1.7-shipping-report-2026-04-21.md) — 单页叙事文档，涵盖 v1.6.3 COURT-START-001 修复 + v1.7 Cortex 两条线。推荐作为"今天发了什么？"的起点。
@@ -51,6 +163,19 @@
 - `tools/cli.py` `_print_usage(stream=sys.stdout)` 默认值求值时机 bug
 - `scripts/lifeos-compliance-check.sh` `set -e` + `grep -c` 静默退出 bug
 - 正则 `\s` (GNU only) → POSIX `[[:space:]]` 可移植性
+
+### 涉及文件(alpha 之后的 commits)
+
+```
+b1bf474 feat: tools/cli.py dispatcher + check_cortex() + pyproject scripts entry
+4fa8db9 feat: check_adjourn() implementation + cortex-retrieval eval scenario
+81c96ec feat: v1.7.0-alpha follow-up — backup.py + adjourn eval + CI workflow
+2fecaa9 test: end-to-end integration tests for Cortex pipeline (7 tests)
+72c942c feat: tools.lib.cortex package exports + Info Isolation table + archiver snapshot step
+eb477a5 feat: tests/test_cli + test_compliance_check + cortex-architecture doc
+```
+
+（另加 1ce61d1 v1.7.0-alpha 发布 commit 本身。）
 
 ---
 
@@ -147,6 +272,17 @@ echo "cortex_enabled: true" >> _meta/config.md
 | CX7 | Cortex write breach | P0 |
 
 `cortex_enabled: false` 时跳过所有 CX 检测。
+
+### 📁 涉及文件（19 个 commits）
+
+Specs：`references/{cortex,hippocampus,gwt,concept,snapshot,session-index,narrator,hooks,tools,eval-history,method-library}-spec.md` + 8 个既有 references 修改。
+子代理：`pro/agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`。
+接线：`pro/CLAUDE.md`、`pro/agents/{archiver,retrospective,auditor}.md`。
+工具：`tools/lib/{second_brain.py,cortex/*}`、`tools/{stats,rebuild_session_index,rebuild_concept_index}.py`。
+项目：`pyproject.toml`、`.python-version`、`tools/README.md`。
+测试：`tests/{__init__,test_second_brain,test_session_index,test_concept_and_snapshot,test_stats}.py`。
+Hooks：`scripts/lifeos-compliance-check.sh`（v1.6.3 链的 L5 闭环）。
+文档：3 个 README + 3 个 CHANGELOG（本 commit）。
 
 ### 🚧 已知限制 / 待办
 
