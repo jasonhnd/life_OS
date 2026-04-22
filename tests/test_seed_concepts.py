@@ -6,12 +6,9 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from tools.seed_concepts import collect_text, main
-
 
 # ─── collect_text ───────────────────────────────────────────────────────────
 
