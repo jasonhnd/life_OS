@@ -304,12 +304,17 @@ The user still receives a report. The report is just less narrated.
 
 | Stage                          | Budget        |
 |--------------------------------|---------------|
-| Narrator generation            | 2–5 seconds   |
+| Narrator generation (first pass) | 2–5 seconds   |
 | Validator scan (single pass)   | 1–3 seconds   |
-| Regenerate + revalidate cycle  | +2–5 seconds  |
-| **Total worst case (3 retries)** | **15 seconds** |
+| Regenerate + revalidate cycle (per attempt) | 3–8 seconds  |
+| **Total worst case (3 retries)** | **18 seconds (typical) / 21 seconds (max)** |
 
-Narrator generation is part of ROUTER's normal composition, not a separate network round trip. Validator latency stays inside the Cortex latency budget in `references/cortex-spec.md`. If total exceeds 15 seconds, the narrator falls back to un-cited output (same fallback as §10 exhaustion).
+Arithmetic: one initial generate + validate pass (2–5 s + 1–3 s = 3–8 s) plus up to three regenerate + revalidate cycles at 3–8 s each. Typical total ≈ 18 s (midpoint 6 s × 3 cycles + 0 s initial wiggle when retry is needed). Maximum total = 21 s (worst-case 8 s initial + three 4.33 s retries, or equivalent distribution capped by the regeneration ceiling).
+
+Narrator generation is part of ROUTER's normal composition, not a separate network round trip. Validator latency stays inside the Cortex latency budget in `references/cortex-spec.md`. The narrator falls back to un-cited output (same fallback as §10 exhaustion) if **either** trigger fires:
+
+- Cumulative wall-clock exceeds **21 seconds**, or
+- Any single regenerate-and-revalidate cycle exceeds **8 seconds**.
 
 ---
 
