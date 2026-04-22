@@ -106,15 +106,15 @@ The LLM receives the signal content and the current user message, and is asked t
 
 ### 5.4 importance
 
-Tier names match `references/soul-spec.md` §Tiered Reference by Confidence and `references/snapshot-spec.md` §Tier Mapping.
+Tier names match `references/soul-spec.md` §Tiered Reference by Confidence and `references/snapshot-spec.md` §Tier Mapping. All confidence bands use half-open intervals `[a, b)` — the lower bound is inclusive and the upper bound is exclusive. Boundary values always belong to the **upper** tier (e.g., confidence exactly 0.3 is `secondary`, not `emerging`; confidence exactly 0.7 is `core`, not `secondary`).
 
 | Value | Condition |
 |-------|-----------|
-| 1.0 | SOUL `core` dimension (confidence ≥ 0.7) |
-| 0.7 | SOUL `secondary` dimension (0.3 ≤ confidence < 0.7) |
+| 1.0 | SOUL `core` dimension (confidence ∈ `[0.7, 1.0]`) |
+| 0.7 | SOUL `secondary` dimension (confidence ∈ `[0.3, 0.7)`) |
 | 0.5 | relates to a critical-path project (tagged in concept metadata) |
-| 0.3 | SOUL `emerging` dimension (0.2 ≤ confidence < 0.3) |
-| 0.2 | general context with no identity or project tie (or `dormant` dimension < 0.2, included only for context) |
+| 0.3 | SOUL `emerging` dimension (confidence ∈ `[0.2, 0.3)`) |
+| 0.2 | general context with no identity or project tie (or `dormant` dimension with confidence ∈ `[0.0, 0.2)`, included only for context) |
 
 When multiple conditions apply, use the **highest** matching value.
 
@@ -213,7 +213,7 @@ To prevent annotation noise:
 - If the **total signal count is 0** after scoring, emit an **empty marker** — not the full framing text. ROUTER sees only `User's actual message: …`.
 - If **all signals have salience < 0.3**, emit `(no high-salience signals)` as a single-line marker and skip the category blocks.
 - If a **SOUL CONFLICT** is present but there are no relevant past decisions, still emit the SOUL block (the conflict is load-bearing on its own).
-- **Hard caps per category:** max 5 related decisions, max 5 active concepts, max 5 SOUL dimensions. These are additional to the overall top-5 cap in §7 — if the overall cap is 5 and all 5 happen to be SOUL dimensions, the output has 5 in that block and zero in the others.
+- **Per-category caps:** max 5 related decisions, max 5 active concepts, max 5 SOUL dimensions. Per-category caps are **local maxima per block**, not additional slots beyond the §7 global top-5. The §7 global top-5 is the hard ceiling and is always enforced first. In practice: when per-category cap is reached before the global top-5 budget is exhausted, the remaining global slots stay free; when the global top-5 fills first, the per-category cap is superseded. The example of "5 SOUL dimensions fill the output" simply means all 5 global slots happened to score highest within a single category.
 
 ---
 
