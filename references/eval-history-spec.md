@@ -16,7 +16,7 @@ Individual AUDITOR reports already grade each session's agent performance, but t
 
 The inspiration is Hermes's RL training loop: Hermes compresses agent trajectories into training signal, then fine-tunes the model. Life OS cannot fine-tune its hosts (Claude, Gemini, Codex), but it can fine-tune its *rules* — by writing quality signal to disk and making RETROSPECTIVE surface it next session. The signal changes system behaviour through human attention, not gradient descent.
 
-This is also the direct answer to Hermes Lesson 5 in `docs/research/2026-04-19-hermes-analysis.md`: self-evaluation must feed back into the system, not merely accumulate as one-off reports.
+This is also the direct answer to Hermes Lesson 5 in `devdocs/research/2026-04-19-hermes-analysis.md`: self-evaluation must feed back into the system, not merely accumulate as one-off reports.
 
 ---
 
@@ -334,4 +334,4 @@ These are prohibited. RETROSPECTIVE and `tools/reconcile.py` flag them when dete
 - `references/wiki-spec.md` — `wiki_extraction_quality` (§5.8) grades ARCHIVER Phase 2 wiki candidates
 - `pro/agents/auditor.md` — sole writer of eval-history entries (end of Step 8)
 - `pro/agents/retrospective.md` — Mode 0 reader for systemic pattern detection (last 10 files)
-- `docs/research/2026-04-19-hermes-analysis.md` — Hermes Lesson 5 (self-evaluation must feed back) motivates this spec
+- `devdocs/research/2026-04-19-hermes-analysis.md` — Hermes Lesson 5 (self-evaluation must feed back) motivates this spec

@@ -9,11 +9,11 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.0--alpha.2-orange.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.0-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
-🌍 [中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
+🌍 [English](README.md) · [中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
 
 </div>
 
@@ -30,20 +30,20 @@ When you first start a session, you pick a theme:
 ```
 🎨 Choose your theme:
 
- 中文:
- a) 🏛️ 三省六部 — Tang Dynasty governance (Chinese classical)
- b) 🇨🇳 中国政府 — Modern Chinese government
- c) 🏢 公司部门 — Corporate departments (Chinese)
+English:
+a) 🏛️ Roman Republic — Consul, Tribune, Senate
+b) 🇺🇸 US Government — Chief of Staff, Attorney General, GAO
+c) 🏢 C-Suite — CEO, General Counsel, CFO
 
- 日本語:
- d) 🏛️ 明治政府 — Meiji-era governance (Japanese historical)
- e) 🏛️ 霞が関 — Japanese central government (Kasumigaseki)
- f) 🏢 企業 — Corporate structure (Japanese)
+中文:
+d) 🏛️ 三省六部 — 丞相、中书省、门下省
+e) 🇨🇳 中国政府 — 国务院总理、发改委、人大常委会
+f) 🏢 公司部门 — 总经理、战略规划部、法务合规部
 
- English:
- g) 🏛️ Roman Republic — Classical Roman governance
- h) 🇺🇸 US Government — American federal government
- i) 🏢 C-Suite — Corporate executive structure
+日本語:
+g) 🏛️ 明治政府 — 内閣総理大臣、参議、枢密院
+h) 🏛️ 霞が関 — 内閣官房長官、内閣法制局、財務省
+i) 🏢 企業 — 社長室、経営企画部、法務部
 
 Type a-i
 ```
@@ -53,17 +53,16 @@ Here is the same decision — "Should I leave my job?" — through all three:
 ```
   三省六部                  霞が関                    C-Suite
   ─────────                ─────────                ─────────
-  📜 中书省 drafts plan     📜 内閣府 drafts plan      📜 VP Strategy drafts plan
-  🔍 门下省 vetoes:         🔍 内閣法制局 vetoes:       🔍 General Counsel vetoes:
-     "Financial runway        "財務的余裕が不明"          "Runway not addressed"
-      not addressed"
+  📜 中书省 起草方案         📜 内閣府 起案             📜 VP Strategy drafts plan
+  🔍 门下省 封驳：           🔍 内閣法制局 差し戻し：     🔍 General Counsel vetoes:
+     "财务跑道未解决"          "財務的余裕が不明"          "Runway not addressed"
 
   💰 户部  5/10            💰 財務省  5/10            💰 CFO  5/10
   ⚔️ 兵部  6/10            ⚔️ 防衛省  6/10            ⚔️ VP Ops  6/10
   ⚖️ 刑部  4/10            ⚖️ 法務省  4/10            ⚖️ CCO  4/10
 
-  🔱 御史台 audits          🔱 会計検査院 audits       🔱 Internal Audit audits
-  💬 谏官 challenges you    💬 内閣参与 challenges you  💬 Exec Coach challenges you
+  🔱 御史台 审核             🔱 会計検査院 監査           🔱 Internal Audit audits
+  💬 谏官 追问你             💬 内閣参与が問い返す      💬 Exec Coach challenges you
 
   📋 奏折: 5.8/10          📋 閣議決定書: 5.8/10       📋 Executive Brief: 5.8/10
 ```
@@ -80,47 +79,19 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 
 ---
 
-## What's new in v1.7.0-alpha — Cortex Pre-Router Cognitive Layer
+## What's New in v1.7
 
-**The first Layer-2 architectural upgrade in Life OS history.** Before v1.7, the system touched long-term memory only at session boundaries. Between those points, decisions were made from the current conversation alone — the 16-subagent checks-and-balances was strong, but the cognitive substrate was empty. v1.7 adds a **Pre-Router Cognitive Layer** that loads cross-session memory, concept graphs, and SOUL signals into every decision workflow.
+**Cortex Cognitive Layer — GA release**
 
-### 6 new subagents
+- 5 new Cortex capabilities: cross-session memory (hippocampus), signal arbitration (GWT), cited generation (narrator), concept graph, SOUL dimension detection
+- 5 runtime hooks enforcing HARD RULEs (prevents COURT-START-001 class of violations)
+- 10 Python tools + 3 libs (reindex / reconcile / stats / research / daily_briefing / export / sync_notion / seed / migrate / search / embed)
+- 6 Cortex user-guides + v1.7-migration UX chapter
+- cortex-spec + hippocampus-spec translated to Chinese and Japanese
 
-| Agent | Role |
-|-------|------|
-| `hippocampus` | Cross-session memory retrieval via 3-wave spreading activation (5-7 relevant past sessions per message) |
-| `concept-lookup` | Direct concept-graph match (top 5-10 concepts touched by current message) |
-| `soul-check` | SOUL dimension signals (alignment / conflict / dormant reactivation) |
-| `gwt-arbitrator` | Global Workspace Theory consolidation — top-5 signals composed into `[COGNITIVE CONTEXT]` for ROUTER |
-| `narrator` | Wraps Summary Report substantive claims with `[source:signal_id]` citations (anti-confabulation) |
-| `narrator-validator` | Sonnet-tier audit of narrator's citation discipline |
+Upgrade: `uv run life-os-tool migrate` (see [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md))
 
-### Concept graph — markdown, no database
-
-Concepts are markdown files under `_meta/concepts/{domain}/{concept_id}.md`. Synapse edges live in concept frontmatter. Co-activation increases edge weight by +1 (Hebbian). Three lifecycle tiers (`tentative` → `confirmed` → `canonical`). Four permanence tiers (`identity` / `skill` / `fact` / `transient`) determine decay curves.
-
-### Phase 1 implementation status
-
-- ✅ All 6 subagents implemented (~900 lines markdown contracts)
-- ✅ Python data layer: `tools/lib/second_brain.py` + `tools/lib/cortex/` (~1500 lines, pure stdlib + pyyaml)
-- ✅ 4 CLI tools: `rebuild_session_index.py`, `rebuild_concept_index.py`, `stats.py`, `setup-hooks.sh`
-- ✅ 77 pytest tests covering all Python modules
-- ✅ Archiver Phase 2 wired (SessionSummary write + concept extraction + Hebbian)
-- ✅ Retrospective Mode 0 wired (INDEX.md compilation)
-- ✅ Orchestrator Step 0.5 (Pre-Router) wired
-- ✅ AUDITOR Mode 3 extended with 7 Cortex compliance checks (CX1-CX7)
-
-### Default OFF (opt-in)
-
-Cortex is disabled by default in v1.7.0-alpha. Users opt in by setting `cortex_enabled: true` in `_meta/config.md`. Recommended once a second-brain has accumulated ≥30 sessions (otherwise retrieval has nothing to surface). Cost: ~$0.05-0.25/turn (Opus tokens across the Pre-Router subagents).
-
-### Still current from v1.6.3 (five-layer compliance defense)
-
-L1 hook · L2 Pre-flight · L3 subagent self-check · L4 AUDITOR Compliance Patrol · L5 eval auto-detection. All wired and production-verified.
-
-> **Alpha caveat**: production validation pending. Use cortex_enabled in a use repo with significant history to test. Report issues in GitHub.
-
-See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain (19 commits) and the COURT-START-001 v1.6.3 incident archive.
+See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain and the COURT-START-001 v1.6.3 incident archive.
 
 ---
 
@@ -661,13 +632,13 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 ```
 themes/
 ├── zh-classical.md      # 🏛️ 三省六部 — Tang Dynasty (Chinese historical)
-├── zh-government.md     # 🇨🇳 中国政府 — Modern Chinese government
-├── zh-corporate.md      # 🏢 公司部门 — Corporate departments (Chinese)
+├── zh-gov.md            # 🇨🇳 中国政府 — Modern Chinese government
+├── zh-corp.md           # 🏢 公司部门 — Corporate departments (Chinese)
 ├── ja-meiji.md          # 🏛️ 明治政府 — Meiji-era governance (Japanese historical)
 ├── ja-kasumigaseki.md   # 🏛️ 霞が関 — Central Government (Japanese modern)
-├── ja-corporate.md      # 🏢 企業 — Corporate structure (Japanese)
+├── ja-corp.md           # 🏢 企業 — Corporate structure (Japanese)
 ├── en-roman.md          # 🏛️ Roman Republic — Classical Roman governance (English historical)
-├── en-government.md     # 🇺🇸 US Government — American federal government
+├── en-usgov.md          # 🇺🇸 US Government — American federal government
 └── en-csuite.md         # 🏢 C-Suite — Corporate Executive (English)
 ```
 

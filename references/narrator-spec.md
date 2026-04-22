@@ -10,8 +10,8 @@ related:
   - references/hippocampus-spec.md
   - references/gwt-spec.md
   - references/eval-history-spec.md
-  - docs/brainstorm/2026-04-19-cortex-architecture.md
-  - docs/architecture/cortex-integration.md
+  - devdocs/brainstorm/2026-04-19-cortex-architecture.md
+  - devdocs/architecture/cortex-integration.md
   - pro/agents/router.md
   - pro/CLAUDE.md
 ---

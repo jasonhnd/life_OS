@@ -6,6 +6,118 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.0] - 2026-04-22 · Cortex Cognitive Layer · General Availability
+
+> Cortex graduates from alpha to GA. 22 commits after `v1.7.0-alpha.2` closed the remaining TBDs: the full shell-hook runtime (5 hooks + shared library), 10 Python tools wired under a single `life-os-tool` CLI, 3 shared Python libraries, a trilingual user guide for the cognitive layer, Step 0.5 / Step 7.5 contract synced across CLAUDE / GEMINI / AGENTS hosts, and a migration path that preserves every existing v1.6.2a second-brain.
+
+### ✨ Highlights
+
+- **Cortex Pre-Router Cognitive Layer goes GA** — no longer opt-in-alpha; full contract with deterministic degradation
+- **5 shell hooks enforced at runtime** — pre-prompt guard, pre-write scan, pre-read allowlist, post-response verify, stop-session verify; shared `_lib.sh`
+- **10 Python tools unified under `life-os-tool`** — reindex / reconcile / stats / research / daily-briefing / backup / migrate / search / export / seed (+ embed placeholder + sync-notion)
+- **3 Python libraries** — `tools/lib/{config, llm, notion}` as the shared surface for every tool
+- **Trilingual user guide shipped** — 6 new Cortex guides (EN) + Chinese/Japanese cortex-spec and hippocampus-spec translations
+- **Host-agnostic orchestration contract** — Step 0.5 (Pre-Router Cognitive) + Step 7.5 (Narrator validation) now normative in CLAUDE.md / GEMINI.md / AGENTS.md (root + `pro/`)
+
+### Features
+
+- **Cortex subagents (Pre-Router Cognitive Layer)** — hippocampus 3-wave session retrieval · GWT salience arbitration on top-5 signals · concept graph lookup with synapse matching · SOUL-dimension conflict check · Narrator citation wrapping · Narrator-Validator audit (Sonnet-tier)
+- **Shell hooks (5 enforcement points + shared library)**
+  - `pre-prompt-guard.sh` — UserPromptSubmit-time class-B/C policy and Cortex enablement gating
+  - `pre-write-scan.sh` — block injection into `second-brain/wiki/**` and other protected surfaces
+  - `pre-read-allowlist.sh` — SSH/secret denylist + cwd allowlist enforcement
+  - `post-response-verify.sh` — verify `[COGNITIVE CONTEXT]` delimiters + adjourn checklist
+  - `stop-session-verify.sh` — end-of-session compliance net (adjourn Phase 4 presence, narrator citation discipline)
+  - `scripts/hooks/_lib.sh` — shared helpers (path resolution, JSON read, logging) reused by all five
+- **Python tools (10 shipped + 1 placeholder + 1 Notion sync = 12 under `life-os-tool`)**
+  - `reindex` — rebuild session INDEX + concept INDEX + SYNAPSES in one pass
+  - `reconcile` — detect drift between SOUL/Wiki/Strategic-Map and session summaries
+  - `stats` — violations escalation ladder + `--period / --since / --output` analytics
+  - `research` — deep-research scaffold (web/code/company via Exa)
+  - `daily_briefing` — morning briefing generator pulling from INDEX + STATUS + SOUL top-5
+  - `backup` — 30d archive / 90d delete rotation + quarterly violations archival
+  - `migrate` — v1.6.2a → v1.7 migration runner (3-month backfill window)
+  - `search` — substring + concept-slug search across second-brain
+  - `export` — serialize second-brain into portable bundle
+  - `seed` — bootstrap empty second-brain from user templates
+  - `embed` — placeholder (explicit no-op, per v1.7 decision "no vector DB")
+  - `sync_notion` — two-way Notion mirror (via `tools/lib/notion.py`)
+- **Python libraries** — `tools/lib/config.py` (env + pyproject resolution) · `tools/lib/llm.py` (LLM call wrapper with retries + token accounting) · `tools/lib/notion.py` (Notion API client)
+- **Orchestration** — Step 0.5 (Pre-Router Cognitive Layer) and Step 7.5 (Narrator validation) synchronized into CLAUDE.md, GEMINI.md, and AGENTS.md at both root and `pro/` levels; contract is now host-agnostic
+- **Bootstrap tooling** — `tools/seed_concepts.py` + 3 user-facing templates for second-brain bootstrap; 11 tests
+
+### Documentation
+
+- **6 new Cortex user guides** under `docs/user-guide/cortex/`
+  - `overview.md` — the "what is Cortex" entry point
+  - `hippocampus-recall.md` — how 3-wave session retrieval works
+  - `concept-graph-and-methods.md` — concept node promotion + method-library signals
+  - `narrator-citations.md` — reading and trace-ing `[S:][D:][SOUL:]` citations
+  - `gwt-arbitration.md` — salience formula and why a signal made it to top-5
+  - `auditor-eval-history.md` — eval-history self-feedback loop
+- `docs/guides/v1.7-migration.md` — "第一周日常体验对标" section added for post-upgrade week-one pacing
+- `devdocs/architecture/cortex-integration.md` — marked **deprecated**, aligned with spec freeze (source of truth is now `references/cortex-spec.md`)
+- `docs/architecture/system-overview.md` — `_meta/` shard paths + Step 0.5 / Step 7.5 orchestration diagram updated
+- `docs/getting-started/what-is-life-os.md` — Cortex now named as the third pillar alongside Second Brain and Decision Engine
+- `MIGRATION.md` — dev-machine handoff guide (tar syntax fix for paths starting with dash)
+
+### i18n
+
+- `i18n/zh/references/cortex-spec.md` + `i18n/ja/references/cortex-spec.md` — full Chinese/Japanese translations of the frozen Cortex spec
+- `i18n/zh/references/hippocampus-spec.md` + `i18n/ja/references/hippocampus-spec.md` — full Chinese/Japanese translations of the hippocampus spec
+- `i18n/ja/README.md` — topic-block order aligned with EN / ZH README
+
+### Infrastructure
+
+- **CI** — pytest suite grew **184 → 400 (+216 tests)**; ruff warnings **50+ → 0**; bash syntax check **11/11** green
+- **Makefile** — common dev commands (test / lint / format / build-docs) consolidated
+- `UV_LINK_MODE=copy` written into `~/.bashrc` to resolve Dropbox hardlink conflicts during `uv sync`
+- `.github/workflows/test.yml` pytest matrix extended with the 10 new tool modules + 3 new library modules
+- 8 new hook-compliance eval scenarios under `evals/scenarios/hook-compliance/` (01-start-compliant-launch through 08-arbitrary-prompt-silent)
+
+### Breaking / Migration
+
+- Users on **v1.6.2a → v1.7.0** must run `uv run life-os-tool migrate` — the migration tool backfills the past 3 months of journal / snapshot data into the new `_meta/cortex/` shard layout
+- Cortex defaults to **enabled on new installs** in v1.7.0 (flip from v1.7.0-alpha's opt-in default); existing second-brains keep whatever `cortex_enabled` setting they had
+- Full migration procedure: `docs/guides/v1.7-migration.md`
+
+### Compliance
+
+- **2 incident dossiers** captured during the Cortex GA run
+  - `backup/pro/compliance/2026-04-19-court-start-violation.md` — archived (resolved, lesson absorbed into L1/L2 hooks)
+  - Narrator-spec violation — **pending resolution** (tracked in next Compliance Patrol cycle)
+
+### Files Touched (post-alpha.2 commits)
+
+```
+fdf8748 chore(cli/tests): wire 10 v1.7 tools, fix Windows encoding, and track compliance dossiers
+1b41f85 feat(tools): add seed.py + tests
+9159e38 feat(tools): add migrate.py + tests
+f2d5a1d feat(tools): add research.py + tests
+b33f7dd feat(tools): extend stats.py aggregates and add sync_notion.py
+7240446 feat(tools): add daily_briefing.py + tests
+d2d43d8 feat(tools): add export.py + tests
+b7e7335 feat(tools): add reconcile.py + tests
+f8a26c6 feat(tools): embed.py placeholder + search.py (S5+S4 parallel-sprint merge)
+032bdc7 feat(tools): add reindex.py + tests
+2b7226f test(hooks): add 8 hook-compliance eval scenarios
+0e5128b chore(hooks): extend setup-hooks.sh for v1.7 all 5 hooks
+63e923e feat(hooks): add pre-read-allowlist.sh
+5ff0d32 feat(hooks+lib): stop-session-verify.sh + Notion lib + pyproject (S1+S2 parallel-sprint merge)
+4a2590f docs(orchestration): update root AGENTS.md with host-agnostic Step 0.5/7.5 contract
+4ae2a65 feat(hooks): add pre-write-scan.sh
+bf7f87e docs(orchestration): sync Step 0.5/7.5 to pro/AGENTS.md
+877c629 feat(lib): add tools/lib/llm.py + tests
+efa339d feat(lib): add tools/lib/config.py + tests
+1414677 feat(hooks): add post-response-verify.sh
+7c1fd3a docs(orchestration): sync Step 0.5/7.5 to GEMINI.md
+a503301 feat(hooks): add pre-prompt-guard.sh
+```
+
+(Plus `tools/seed_concepts.py` + templates, `MIGRATION.md`, `Makefile`, 3 trilingual CHANGELOG syncs.)
+
+---
+
 ## [1.7.0-alpha.2] - 2026-04-21 · Post-v1.7.0-alpha follow-ups bundle
 
 > 📚 **Comprehensive overview**: see [`references/v1.7-shipping-report-2026-04-21.md`](references/v1.7-shipping-report-2026-04-21.md) for the full single-page narrative covering both the v1.6.3 COURT-START-001 fix line AND the v1.7 Cortex line in one document. Recommended starting point if you're returning to the repo and want to know "what shipped today".

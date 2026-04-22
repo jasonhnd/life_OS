@@ -4,7 +4,7 @@ Session index is the data source for Cortex's hippocampus (cross-session retriev
 
 ## 1. Purpose
 
-The session index exists so the hippocampus subagent can perform per-message cross-session retrieval without a vector database, SQLite, or any non-markdown runtime. Per `docs/architecture/cortex-integration.md` §3.1, retrieval is LLM-driven over a compiled plaintext index — fast to scan, cheap to regenerate, fully markdown-first.
+The session index exists so the hippocampus subagent can perform per-message cross-session retrieval without a vector database, SQLite, or any non-markdown runtime. Per `devdocs/architecture/cortex-integration.md` §3.1, retrieval is LLM-driven over a compiled plaintext index — fast to scan, cheap to regenerate, fully markdown-first.
 
 Two artifacts carry the load:
 
@@ -221,7 +221,7 @@ The retrospective compiles — never writes per-session files. Extends the exist
 
 ## 6. Read Flow (Hippocampus)
 
-The hippocampus subagent consumes the session index. Per `docs/architecture/cortex-integration.md` §3.1 and the three-wave activation model:
+The hippocampus subagent consumes the session index. Per `devdocs/architecture/cortex-integration.md` §3.1 and the three-wave activation model:
 
 ```
 1. Hippocampus receives the user's current subject (from Step 0.5)
@@ -244,7 +244,7 @@ The hippocampus subagent consumes the session index. Per `docs/architecture/cort
 
 The performance math (see §8) confirms this scales well into the thousands of sessions before sharding is needed.
 
-**Failure fallback**: if the hippocampus cannot read `INDEX.md` (file missing, corrupted, empty), it returns an empty signal to the GWT arbitrator with `confidence: 0` and the workflow degrades to v1.6.2a behavior — ROUTER sees raw user message without cross-session annotation. This matches the Cortex degradation policy in `docs/architecture/cortex-integration.md` §5 Phase 1 kill-switch design.
+**Failure fallback**: if the hippocampus cannot read `INDEX.md` (file missing, corrupted, empty), it returns an empty signal to the GWT arbitrator with `confidence: 0` and the workflow degrades to v1.6.2a behavior — ROUTER sees raw user message without cross-session annotation. This matches the Cortex degradation policy in `devdocs/architecture/cortex-integration.md` §5 Phase 1 kill-switch design.
 
 ## 7. Keyword Extraction Rules
 
@@ -420,7 +420,7 @@ Quick reference for common operations:
 - `references/concept-spec.md` — concept storage under `_meta/concepts/`, which the hippocampus consults alongside the session index
 - `references/hippocampus-spec.md` — the consumer of this artifact; defines three-wave activation
 - `references/gwt-spec.md` — the GWT arbitrator that receives hippocampus output
-- `docs/architecture/cortex-integration.md` §3.1 — architectural context and scan-cost estimates
+- `devdocs/architecture/cortex-integration.md` §3.1 — architectural context and scan-cost estimates
 - `docs/architecture/markdown-first.md` §2 and §4 — performance baseline and file-layout rules
 - `pro/agents/archiver.md` — writer of `{session_id}.md`, Phase 1 scope
 - `pro/agents/retrospective.md` — compiler of `INDEX.md`, Mode 0 Start Session responsibility

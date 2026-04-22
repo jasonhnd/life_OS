@@ -3,10 +3,10 @@ title: "Life OS 系统总览"
 scope: 架构权威文档
 audience: 作者本人 + 后续 CC / Gemini / Codex session
 status: authoritative
-last_updated: 2026-04-20
+last_updated: 2026-04-22
 related:
   - docs/architecture/markdown-first.md
-  - docs/brainstorm/2026-04-19-cortex-architecture.md
+  - devdocs/brainstorm/2026-04-19-cortex-architecture.md
   - SKILL.md
   - pro/CLAUDE.md
 ---
@@ -32,7 +32,7 @@ related:
 │ Layer 2 · Skill 层（核心逻辑）                                 │
 │   SKILL.md · pro/CLAUDE.md / GEMINI.md / AGENTS.md            │
 │   pro/agents/*.md (16 个) · themes/*.md (9 个)                │
-│   Cortex 升级：Pre-Router 认知前置层（v1.7 计划）              │
+│   Cortex 增量：Pre-Router 认知前置层（v1.7 GA）                │
 ├──────────────────────────────────────────────────────────────┤
 │ Layer 1 · 数据层 / Second Brain（真理源）                      │
 │   markdown + YAML frontmatter                                 │
@@ -76,7 +76,7 @@ second-brain/
     └── snapshots/soul/         ← SOUL 快照（按分钟）
 ```
 
-### Cortex 新增目录（v1.7 计划）
+### Cortex 新增目录（v1.7 增量）
 
 路径模板与 `references/cortex-spec.md` §Data Structures 和 §Cortex Runtime Files 对齐。session 按 `{platform}-{ts}` 单文件落，concept 按 domain 分片。
 
@@ -133,7 +133,7 @@ _meta/
 
 **职责**：所有"智能"都在这层编码。模型无关、纯 markdown。
 
-### 当前稳定版（v1.6.2a）
+### v1.6.2a 稳定核心
 
 | 文件/目录 | 作用 |
 |----------|------|
@@ -183,9 +183,9 @@ Adjourn（ARCHIVER 4 phases）→ Notion Sync
 
 详细状态机见 `pro/CLAUDE.md`。
 
-### Cortex 升级（v1.7 计划）
+### v1.7 Cortex 增量（GA）
 
-Cortex **不是新一层**。是 Layer 2 的架构升级——v1.7 在现有 16 agent 之前增加一个 **Pre-Router 认知前置层**（Step 0.5），并扩展 ARCHIVER Phase 2：
+Cortex **不是新一层**。它是在 v1.6.2a 稳定核心之上叠加的 Layer 2 增量：在现有 16 agent 之前增加 **Pre-Router 认知前置层**（Step 0.5），并扩展 ARCHIVER Phase 2：
 
 ```
 User message
@@ -211,9 +211,9 @@ Annotated input → ROUTER（原 16 agent 流程不变）
   - session summary 写入 _meta/sessions/{platform}-{ts}.md
 ```
 
-当前 v1.6.2a 的 ROUTER 直接收用户原 message；v1.7 Cortex 升级后 ROUTER 收的是"带记忆标注 + signal citation 的输入"。concept extraction 和 Hebbian 不在 Pre-Router，属于 ARCHIVER Phase 2 在 adjourn 单次调用内完成的独立机制（spec §Step 10）。
+从架构边界看，v1.6.2a 的 ROUTER / 16-agent 主干保持不变；v1.7 的增量把 ROUTER 输入升级为"带记忆标注 + signal citation 的输入"。concept extraction 和 Hebbian 不在 Pre-Router，属于 ARCHIVER Phase 2 在 adjourn 单次调用内完成的独立机制（spec §Step 10）。
 
-详见 `docs/brainstorm/2026-04-19-cortex-architecture.md`。v1.7 spec：`references/cortex-spec.md`。
+详见 `devdocs/brainstorm/2026-04-19-cortex-architecture.md`。v1.7 spec：`references/cortex-spec.md`。
 
 ---
 
@@ -230,7 +230,7 @@ Annotated input → ROUTER（原 16 agent 流程不变）
 | `scripts/setup-hooks.sh` | 一键安装全部 hook 到 `~/.claude/settings.json` |
 | `scripts/lifeos-version-check.sh` | Start Session 时校验本地 version 和 remote 是否对齐 |
 
-### v1.7 计划
+### v1.7 runtime 扩展
 
 | Hook 类型 | 脚本名 | 作用 |
 |----------|-------|------|
@@ -308,7 +308,7 @@ tools/
 | **决策引擎**（16 agent 工作流） | Layer 2 | — |
 | **认知执行智能体**（Cortex + runtime + 自动化） | Layer 2 (Cortex) + Layer 3 (Hook) + Layer 4 (Python) | Layer 1（新增 concepts / sessions / methods / cortex / eval-history / audit / ambiguous_corrections 7 个目录） |
 
-第二大脑和决策引擎是 **v1.6.2a 已交付** 的能力。认知执行智能体是 **v1.7 计划** 的演化方向。
+第二大脑和决策引擎是 **v1.6.2a 稳定核心**。认知执行智能体是叠加其上的 **v1.7 Cortex 增量**。
 
 ---
 
@@ -428,11 +428,11 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 | 文档 | 内容 | 状态 |
 |------|------|------|
 | `docs/architecture/markdown-first.md` | markdown 作为真理源的哲学详解、frontmatter 规范、派生物重建规则、Hermes 对照 | ✅ 已写 |
-| `docs/architecture/cortex-integration.md` | Cortex 认知升级如何融入 Layer 2 | ✅ 已写 |
+| `devdocs/architecture/cortex-integration.md` | Cortex 认知升级如何融入 Layer 2 | ✅ 已写 |
 | `docs/architecture/execution-layer.md` | Layer 3 Shell Hook + Layer 4 Python 工具的完整规格 | ✅ 已写 |
 | `docs/architecture/roadmap.md` | v1.6.2a → v1.7 的版本推进计划 | ✅ 已写 |
-| `docs/research/2026-04-20-storage-decision.md` | 存储决策的完整 ADR（为什么选 markdown、哪些方案被否决） | ✅ 已写 |
-| `docs/brainstorm/2026-04-19-cortex-architecture.md` | Cortex 架构的完整思考轨迹（辩论、re-frame、共识） | ✅ 已写 |
+| `devdocs/research/2026-04-20-storage-decision.md` | 存储决策的完整 ADR（为什么选 markdown、哪些方案被否决） | ✅ 已写 |
+| `devdocs/brainstorm/2026-04-19-cortex-architecture.md` | Cortex 架构的完整思考轨迹（辩论、re-frame、共识） | ✅ 已写 |
 
 ---
 
@@ -452,4 +452,4 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 
 ---
 
-**最后更新**：2026-04-20，v1.6.2a 稳定版 + v1.7 Cortex 设计中。
+**最后更新**：2026-04-22，本文按“v1.6.2a 稳定核心 + v1.7 Cortex 增量（GA）”边界整理。
