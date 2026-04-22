@@ -1,3 +1,19 @@
+---
+scenario: tool-stats
+type: tool-invocation
+tool: stats
+requires_claude: false
+# R4.5 machine-eval fields — empty root => "no data in window" + exit 0.
+setup_script: |
+  mkdir -p {tmp_dir}/_meta/sessions
+invocation: "python3 -m tools.stats --root {tmp_dir}"
+expected_exit_code: 0
+expected_stdout_contains:
+  - "no data"
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · stats
 
 **Contract**: references/tools-spec.md §6.3 · Compliance violation escalation ladder + usage/quality aggregates.

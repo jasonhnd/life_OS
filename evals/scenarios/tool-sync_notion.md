@@ -1,3 +1,21 @@
+---
+scenario: tool-sync_notion
+type: tool-invocation
+tool: sync_notion
+requires_claude: false
+# R4.5 machine-eval fields — empty root / no token => "nothing to sync" + exit 0.
+setup_script: |
+  mkdir -p {tmp_dir}/_meta
+env:
+  NOTION_TOKEN: ""
+invocation: "python3 -m tools.sync_notion --root {tmp_dir} --verbose"
+expected_exit_code: 0
+expected_stdout_contains:
+  - "nothing to sync"
+expected_stderr_contains: []
+expected_files: []
+---
+
 # Tool Scenario · sync_notion
 
 **Contract**: references/tools-spec.md §6.11 · Notion fallback sync when archiver Phase 4 MCP failed.

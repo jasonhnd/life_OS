@@ -1,3 +1,19 @@
+---
+scenario: tool-reconcile
+type: tool-invocation
+tool: reconcile
+requires_claude: false
+# R4.5 machine-eval fields — clean empty tree => exit 0, report written.
+setup_script: |
+  mkdir -p {tmp_dir}/_meta/sessions {tmp_dir}/wiki {tmp_dir}/_meta/methods
+invocation: "python3 -m tools.reconcile --root {tmp_dir}"
+expected_exit_code: 0
+expected_stdout_contains: []
+expected_stderr_contains: []
+expected_files_glob:
+  - "{tmp_dir}/_meta/reconcile-report-*.md"
+---
+
 # Tool Scenario · reconcile
 
 **Contract**: references/tools-spec.md §6.2 · Integrity checker (orphans, broken wikilinks, missing frontmatter, schema).

@@ -1,3 +1,36 @@
+---
+scenario: tool-export
+type: tool-invocation
+tool: export
+requires_claude: false
+# R4.5 machine-eval fields — pick JSON sub-scenario (stdlib only, no external deps).
+# PDF / HTML / Anki require optional deps (pandoc / markdown-it-py / genanki);
+# runner skips those via skip_if_missing when the dep is unavailable.
+setup_script: |
+  mkdir -p {tmp_dir}/wiki {tmp_dir}/exports
+  cat > {tmp_dir}/wiki/sample-one.md <<'EOF'
+  ---
+  title: Sample page one
+  ---
+  # Body
+  Paragraph one.
+  EOF
+  cat > {tmp_dir}/wiki/sample-two.md <<'EOF'
+  ---
+  title: Sample page two
+  ---
+  # Body
+  Paragraph two.
+  EOF
+invocation: "python3 -m tools.export --format json --scope {tmp_dir}/wiki --output-dir {tmp_dir}/exports"
+expected_exit_code: 0
+expected_stdout_contains: []
+expected_stderr_contains: []
+# The exact filename includes today's date; runner matches by prefix glob
+expected_files_glob:
+  - "{tmp_dir}/exports/wiki-*.json"
+---
+
 # Tool Scenario · export
 
 **Contract**: references/tools-spec.md §6.9 · Format conversion (pdf / html / json / anki).
