@@ -175,7 +175,7 @@ def split_into_candidate_phrases(text: str) -> list[str]:
     return [m.lower() for m in matches if not is_stopword(m)]
 
 
-def count_candidate_frequencies(text: str) -> Counter:
+def count_candidate_frequencies(text: str) -> Counter[str]:
     """Count occurrences of candidate noun phrases in `text`.
 
     Returns a Counter keyed by normalized phrase.
@@ -185,8 +185,8 @@ def count_candidate_frequencies(text: str) -> Counter:
 
 
 def filter_by_min_frequency(
-    counts: Counter, min_count: int = 2
-) -> Counter:
+    counts: Counter[str], min_count: int = 2
+) -> Counter[str]:
     """Keep only candidates appearing at least `min_count` times.
 
     Per archiver Phase 2 Step A criterion: "Is referenced ≥ 2 times in this session".
