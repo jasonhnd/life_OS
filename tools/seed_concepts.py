@@ -38,7 +38,6 @@ from tools.lib.cortex.extraction import (  # noqa: E402
 )
 from tools.lib.second_brain import Concept, ConceptProvenance  # noqa: E402
 
-
 _SCAN_DIRS = [
     "wiki",
     "decisions",
