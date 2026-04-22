@@ -190,7 +190,7 @@ SOUL snapshots are small immutable metadata dumps written at session close. RETR
 **Authoritative source**: `references/snapshot-spec.md`. That spec defines:
 
 - File format, YAML schema (`captured_at`, `snapshot_id`, `session_id`, `previous_snapshot`, `dimensions[]`)
-- 4-tier mapping derived at capture time: `core` (≥0.7) / `secondary` (0.3-0.7) / `emerging` (0.2-0.3) / `dormant` (excluded, <0.2)
+- 4-tier mapping derived at capture time using half-open intervals `[a, b)` (boundary values belong to the upper tier): `core` (`[0.7, 1.0]`) / `secondary` (`[0.3, 0.7)`) / `emerging` (`[0.2, 0.3)`) / `dormant` (`[0.0, 0.2)`, excluded from snapshot)
 - Delta rules for trend arrows and tier-transition badges
 - Archive policy (active 30d → archive 30-90d → delete >90d)
 - Invariants (one snapshot per session, metadata only, immutable after write, real timestamps)
@@ -275,12 +275,14 @@ second-brain/
 
 REVIEWER references SOUL in every decision (HARD RULE). To prevent noise when SOUL has many dimensions, a 4-tier strategy applies. Tier names are aligned with `references/snapshot-spec.md` (§YAML Frontmatter Schema `tier` field) so one vocabulary carries through both the live reference model and the historical snapshot format.
 
+All confidence bands use half-open intervals `[a, b)` — the lower bound is inclusive and the upper bound is exclusive. Boundary values always belong to the **upper** tier (e.g., confidence exactly 0.3 is `secondary`, not `emerging`; confidence exactly 0.7 is `core`, not `secondary`).
+
 | Tier | Confidence | Reference strategy | Limit |
 |------|-----------|-------------------|-------|
-| **core** · Core Identity | ≥ 0.7 | Reference ALL | No upper limit |
-| **secondary** · Active Values | 0.3 – 0.7 | Reference top N semantically relevant | Max 3 |
-| **emerging** · Emerging | 0.2 – 0.3 | Count only, don't surface (ADVISOR tracks in Delta) | 0 |
-| **dormant** | < 0.2 | Retained in history (SOUL.md) but excluded from active reference and from snapshots | — |
+| **core** · Core Identity | `[0.7, 1.0]` | Reference ALL | No upper limit |
+| **secondary** · Active Values | `[0.3, 0.7)` | Reference top N semantically relevant | Max 3 |
+| **emerging** · Emerging | `[0.2, 0.3)` | Count only, don't surface (ADVISOR tracks in Delta) | 0 |
+| **dormant** | `[0.0, 0.2)` | Retained in history (SOUL.md) but excluded from active reference and from snapshots | — |
 
 Legacy references to "Tier 1 / 2 / 3" in earlier specs map to `core / secondary / emerging` respectively; `dormant` is new in v1.7 and reuses snapshot-spec's name for dimensions below the active floor.
 
