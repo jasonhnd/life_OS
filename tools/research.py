@@ -418,8 +418,8 @@ def run_research(
     ``backend`` selects a search engine from ``_BACKENDS`` (default
     ``searxng``). Unknown backend keys silently fall back to the default.
     """
-    import httpx  # type: ignore[import-not-found]
-    import markdownify  # type: ignore[import-not-found]
+    import httpx
+    import markdownify
 
     spec = _BACKENDS.get(backend, _BACKENDS[_DEFAULT_BACKEND])
     search_url = spec.build_url(query)
@@ -437,7 +437,7 @@ def run_research(
     )
 
     fetched_bodies: dict[str, str] = {}
-    remaining = max(1, max_pages)
+    remaining = max(0, max_pages)
 
     # Backend-level precheck — lets us fail loudly on missing creds
     # BEFORE opening an httpx client.
@@ -456,26 +456,28 @@ def run_research(
             user_agent=user_agent,
         )
 
-        # Layer 0: search page
-        if not robots.allowed(search_url):
-            result.errors.append(
-                f"robots.txt blocks {search_url}; "
-                "this backend is disallowed — try another "
-                "`--backend` (searxng / brave). DDG endpoints are "
-                "known-blocked as of 2026-04-21."
-            )
-            result.incomplete = True
-        else:
-            body = _fetch_text(
-                client, search_url, headers=spec.request_headers()
-            )
-            if body is None:
-                result.errors.append(f"fetch failed: {search_url}")
+        # `--max-pages 0` is a valid no-op per the tool contract.
+        if remaining > 0:
+            # Layer 0: search page
+            if not robots.allowed(search_url):
+                result.errors.append(
+                    f"robots.txt blocks {search_url}; "
+                    "this backend is disallowed — try another "
+                    "`--backend` (searxng / brave). DDG endpoints are "
+                    "known-blocked as of 2026-04-21."
+                )
                 result.incomplete = True
             else:
-                fetched_bodies[search_url] = body
-                result.fetched_urls.append(search_url)
-                remaining -= 1
+                body = _fetch_text(
+                    client, search_url, headers=spec.request_headers()
+                )
+                if body is None:
+                    result.errors.append(f"fetch failed: {search_url}")
+                    result.incomplete = True
+                else:
+                    fetched_bodies[search_url] = body
+                    result.fetched_urls.append(search_url)
+                    remaining -= 1
 
         if depth >= 1 and remaining > 0 and search_url in fetched_bodies:
             layer1_urls = spec.parse_result_urls(fetched_bodies[search_url])
@@ -671,7 +673,7 @@ def main(argv: list[str] | None = None) -> int:
         result = run_research(
             query=args.query,
             depth=max(0, args.depth),
-            max_pages=max(1, args.max_pages),
+            max_pages=max(0, args.max_pages),
             root=root,
             backend=args.backend,
         )

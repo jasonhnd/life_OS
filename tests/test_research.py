@@ -258,6 +258,24 @@ class TestDepth:
         assert result.fetched_urls == [search_url]
         assert result.incomplete is False
 
+    def test_max_pages_zero_is_valid_no_op(
+        self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        _install_fake_httpx(monkeypatch, {})
+        _install_fake_markdownify(monkeypatch)
+        from tools.research import run_research
+
+        result = run_research(
+            query="foo",
+            depth=1,
+            max_pages=0,
+            root=brain_root,
+            backend="ddg-html",
+        )
+        assert result.fetched_urls == []
+        assert result.incomplete is False
+        assert result.output_path.exists()
+
     def test_depth_one_fetches_each_top_result(
         self, brain_root: Path, monkeypatch: pytest.MonkeyPatch
     ):

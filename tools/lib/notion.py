@@ -95,7 +95,7 @@ def _load_notion_client() -> tuple[Any, Any]:
     Returns ``(Client, errors_module)``.
     """
     try:
-        from notion_client import Client  # type: ignore[import-not-found]
+        from notion_client import Client
         from notion_client import errors as notion_errors
     except ModuleNotFoundError as exc:
         raise NotionError(
