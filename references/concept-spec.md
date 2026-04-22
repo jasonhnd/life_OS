@@ -51,6 +51,7 @@ Domains are the top-level thematic slots for concepts. Minimum set (aligned with
 - `relationship/` — organisations and non-individual relational entities
 - `health/` — health, fitness, medical concepts
 - `legal/` — legal frameworks, compliance, regulatory concepts
+- `writing/` — writing craft, document-refinement methodologies, editorial patterns
 
 Users may add new domain directories as their second-brain grows. There is no schema-enforced whitelist — the archiver creates the directory on first concept assignment.
 
@@ -124,7 +125,7 @@ Body content (markdown, optional but encouraged)...
 2. 📈 Reinforcement — each session activation increments activation_count, updates last_activated, reinforces edges
 3. ✅ Promotion — tentative → confirmed (≥3 independent sessions) → canonical (user-pin OR ≥10 independent sessions)
 4. 📉 Decay — archiver runs the decay pass at every Adjourn (user decision #10)
-5. 💤 Retirement — activation_count hits 0 + canonical status → move to _meta/concepts/_archive/
+5. 💤 Retirement — last_activated > 90 days + all outgoing edges weight < 1.0 + permanence ≠ identity → move to _meta/concepts/_archive/ (activation_count preserved, never decremented)
 6. ↩️ Undo — user says "undo recent concept" or deletes the file manually
 ```
 
@@ -133,8 +134,17 @@ Body content (markdown, optional but encouraged)...
 `archiver` Phase 2 (runs at session Adjourn, after wiki / SOUL auto-write):
 
 1. Scan session frames for recurring noun phrases, entity mentions, method names
-2. For each candidate that appears ≥2 times **and** has ≥2 independent evidence points → create file in `_meta/concepts/_tentative/{domain}/{concept_id}.md`
-3. Evidence points under threshold → discard, log in `decay-log.md` for later audit
+2. For each candidate, apply **ALL 6 creation criteria**:
+   1. **Frequency ≥ 2 mentions** in the session (single-mention things are too transient)
+   2. **≥ 2 independent evidence points** (distinct frames, distinct reports, or distinct decisions — not the same sentence quoted twice)
+   3. **Identity beyond this session** — the candidate is likely reusable in future sessions (LLM judgment)
+   4. **Not a person, value, trait, or procedure** — people belong to SOUL/user-patterns; values/traits belong to SOUL; procedures belong to the method library
+   5. **Privacy filter clears** — strips names (unless public figures), specific amounts/accounts/IDs, family/friend references, traceable date+location combinations. If stripping leaves the candidate meaningless → discard (it was a personal note, not a reusable concept)
+   6. **Domain routing succeeds** — LLM picks one of the domains listed in §File Location Domain partitions (or creates a new domain directory). A candidate that cannot be routed to any domain is not yet a concept
+3. All 6 pass → create file in `_meta/concepts/_tentative/{domain}/{concept_id}.md`
+4. Any criterion fails → discard, log in `decay-log.md` for later audit
+
+> Implementations: `pro/agents/archiver.md` §Phase 2 Mid-Step (Concept Extraction + Hebbian Update) and `tools/migrate.py` use the same 6-criteria enumeration. When this spec changes, those must be updated in lock-step.
 
 ### Promotion
 
@@ -167,10 +177,19 @@ Edge weights decay alongside concept dormancy. When `weight ≤ 0`, the edge is 
 
 ### Retirement
 
-A canonical concept whose `activation_count` has been driven to 0 through prolonged dormancy is moved to `_meta/concepts/_archive/{domain}/{concept_id}.md`. Archived concepts are:
+Retirement is driven by **dormancy + edge-weight collapse**, not by decrementing `activation_count`. The `activation_count` field remains **monotonically non-decreasing** for the concept's entire active life (see §Reinforcement); retirement is a lifecycle transition triggered by different signals:
+
+1. **Dormancy threshold** — `last_activated` is older than **90 days** (no session has re-activated the concept in that window), AND
+2. **Edge-weight collapse** — every edge in `outgoing_edges` has `weight < 1.0` after the current Adjourn's decay pass (i.e., the concept has become disconnected from the live graph), AND
+3. **Permanence tier is not `identity`** — identity-tier concepts never retire (see §5 Decay table)
+
+When all three conditions hold, the concept is moved to `_meta/concepts/_archive/{domain}/{concept_id}.md` on the next Adjourn pass. Archived concepts are:
 - Still in git history (no data loss)
 - Ignored by the hippocampus at activation time
 - Visible to the AUDITOR during patrols
+- `activation_count` preserved at its final monotonic value (for historical audit)
+
+A future re-activation (same subject surfaces again) restores the concept from `_archive/` back to `{domain}/` and continues incrementing `activation_count` from where it left off.
 
 ### Undo
 
