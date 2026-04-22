@@ -28,6 +28,7 @@ import shutil
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -99,7 +100,7 @@ def rotate_violations(
     archive_root: Path,
     dry_run: bool = False,
     now: datetime | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Move violation rows older than 90 days to quarterly archive files.
 
     Returns dict with keys:
@@ -239,7 +240,7 @@ def main() -> int:
 
     if do_violations:
         v_path, a_root = resolve_violations_paths(args.root)
-        if v_path is None:
+        if v_path is None or a_root is None:
             print("📋 Violations: no log file found, skipping")
         else:
             result = rotate_violations(v_path, a_root, dry_run=args.dry_run)
