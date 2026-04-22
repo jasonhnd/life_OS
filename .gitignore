@@ -5,8 +5,18 @@
 evals/outputs/
 .DS_Store
 
-# Local documentation (not published to GitHub)
-docs/
+# Local documentation (not published to GitHub by default)
+# Uses glob form `docs/*` + `!docs/architecture/` + `docs/architecture/*` chain
+# so the targeted whitelist below actually works (git won't re-include a file
+# under an ignored parent directory — the intermediate un-ignore is required).
+docs/*
+!docs/architecture/
+docs/architecture/*
+# Whitelist: v1.7 architecture docs that ARE part of the release deliverable
+# (navigated by v1.7-spec-map §1 reading order, referenced by CHANGELOG).
+# Other docs/ content stays local-only until separately promoted.
+!docs/architecture/v1.7-spec-map.md
+!docs/architecture/system-overview.md
 
 # Compliance incident archives (contain sanitized but sensitive context)
 pro/compliance/*.md
