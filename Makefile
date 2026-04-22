@@ -1,22 +1,24 @@
 # Life OS · Common dev commands
 # Tab-indented (POSIX make requires tabs, not spaces).
 
-.PHONY: help test test-fast test-verbose lint lint-fix bash-check stats install update docs-check ci
+.PHONY: help test test-fast test-verbose test-integration lint lint-fix bash-check stats install update docs-check ci ci-integration
 
 help: ## Show this help message
 	@echo "Life OS · dev commands"
 	@echo ""
 	@echo "Common tasks:"
-	@echo "  make test          Run pytest suite"
-	@echo "  make test-fast     Run pytest, fail fast on first error"
-	@echo "  make test-verbose  Run pytest with verbose output"
-	@echo "  make lint          Run ruff lint check"
-	@echo "  make lint-fix      Run ruff lint check + auto-fix"
-	@echo "  make bash-check    Bash syntax check on scripts"
-	@echo "  make stats         Show compliance stats from violations.md"
-	@echo "  make install       Install Python deps via uv"
-	@echo "  make update        Update Python deps via uv"
-	@echo "  make ci            Full CI suite: install + lint + test + bash-check"
+	@echo "  make test             Run pytest suite (integration tests skipped by default)"
+	@echo "  make test-fast        Run pytest, fail fast on first error"
+	@echo "  make test-verbose     Run pytest with verbose output"
+	@echo "  make test-integration Run only @pytest.mark.integration tests (network / external services)"
+	@echo "  make lint             Run ruff lint check"
+	@echo "  make lint-fix         Run ruff lint check + auto-fix"
+	@echo "  make bash-check       Bash syntax check on scripts"
+	@echo "  make stats            Show compliance stats from violations.md"
+	@echo "  make install          Install Python deps via uv"
+	@echo "  make update           Update Python deps via uv"
+	@echo "  make ci               Full CI suite: install + lint + test + bash-check"
+	@echo "  make ci-integration   Integration CI: install + lint + test-integration + bash-check"
 	@echo ""
 	@echo "Tools:"
 	@echo "  python3 tools/cli.py list              Show all life-os-tool commands"
@@ -35,6 +37,9 @@ test-fast: ## Run pytest, stop on first failure
 
 test-verbose: ## Run pytest with -v
 	python3 -m pytest tests/ -v
+
+test-integration: ## Run only @pytest.mark.integration tests (opt-in; requires LIFEOS_INTEGRATION=1 for real external calls)
+	python3 -m pytest tests/ -m integration
 
 lint: ## Run ruff lint check
 	python3 -m ruff check tools/ tests/
@@ -60,3 +65,6 @@ update: ## Update Python deps via uv
 
 ci: install lint test bash-check ## Full CI suite (mirrors .github/workflows/test.yml)
 	@echo "✅ CI suite passed"
+
+ci-integration: install lint test-integration bash-check ## Integration CI (mirrors .github/workflows/integration.yml)
+	@echo "✅ Integration CI suite passed"
