@@ -1,0 +1,66 @@
+name: Integration Tests
+
+# Integration tests exercise real external services (Brave Search, SearXNG,
+# DuckDuckGo). They are gated behind the `integration` pytest marker and the
+# LIFEOS_INTEGRATION=1 env var. Running weekly keeps drift detectable without
+# adding flakiness or API-quota pressure to the per-PR `Tests` workflow
+# (.github/workflows/test.yml), which continues to run `-m "not integration"`.
+#
+# Trigger:
+#   - workflow_dispatch: on-demand from the Actions tab
+#   - schedule: Monday 06:00 UTC (low-traffic weekly cadence)
+#
+# Required secrets (optional — tests that need a missing key will skip, not fail):
+#   - BRAVE_API_KEY: https://api.search.brave.com/
+#   - SEARXNG_URL:   a public or self-hosted SearXNG JSON endpoint
+#
+# See references/tools-spec.md §6.4 and tests/test_research.py (3 tests marked
+# @pytest.mark.integration — DDG, Brave, SearXNG smoke fetches).
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"  # Monday 06:00 UTC
+
+jobs:
+  integration:
+    name: integration (${{ matrix.os }} · Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies (dev + research extras)
+        run: |
+          uv sync --extra dev --extra research
+
+      - name: Run integration tests
+        env:
+          LIFEOS_INTEGRATION: "1"
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          SEARXNG_URL: ${{ secrets.SEARXNG_URL }}
+        run: |
+          uv run pytest tests/ -m integration -v --tb=short
+
+      - name: Integration failure diagnostic
+        if: failure()
+        run: |
+          echo "::warning::Integration test failure — common causes:"
+          echo "  - Secret not configured: set BRAVE_API_KEY / SEARXNG_URL in repo Settings → Secrets → Actions"
+          echo "  - Upstream outage: Brave Search / SearXNG instance / DuckDuckGo rate-limit or 5xx"
+          echo "  - Schema drift: vendor changed response format (see tools/research.py parser)"
+          echo "  - Network egress: runner blocked from external endpoint"

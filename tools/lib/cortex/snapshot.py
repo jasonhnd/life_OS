@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 from tools.lib.second_brain import (
     SnapshotDimension,
@@ -35,9 +36,9 @@ __all__ = [
 # ─── SoulSnapshot IO ─────────────────────────────────────────────────────────
 
 
-def _snapshot_to_frontmatter(snap: SoulSnapshot) -> dict:
+def _snapshot_to_frontmatter(snap: SoulSnapshot) -> dict[str, Any]:
     """Convert SoulSnapshot dataclass to YAML-serialisable frontmatter dict."""
-    fm: dict = {
+    fm: dict[str, Any] = {
         "snapshot_id": snap.snapshot_id,
         "captured_at": snap.captured_at.isoformat(),
         "session_id": snap.session_id,
