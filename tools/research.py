@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Background web fetch into inbox — v1.7 Sprint 4.
+"""Background web fetch into inbox — v1.7 Sprint 4 / R3.5.
 
 Contract: references/tools-spec.md §6.4.
 
   - ``httpx.get`` + ``markdownify`` conversion
-  - ``urllib.robotparser`` enforces robots.txt
-  - user-agent ``LifeOS-research/1.7 (+local-tool)``
+  - ``urllib.robotparser`` enforces robots.txt (spec §6.4 hard requirement)
+  - user-agent ``LifeOS-research/1.7 (+local-tool; backend=<name>)``
   - ``--depth`` N controls link-following (0=search page only,
     1=each top result, 2=one more layer of outbound links)
   - ``--max-pages`` hard cap on total fetches (default 10)
@@ -15,6 +15,18 @@ Contract: references/tools-spec.md §6.4.
     exits 1. Empty/search-only runs exit 0.
   - NO LLM summarization (user decision #16).
 
+Backends (``--backend``):
+  - ``searxng`` (default) — points at the SEARXNG_URL env instance,
+    falling back to ``https://searx.be``. JSON response.
+  - ``brave`` — api.search.brave.com. Requires BRAVE_API_KEY env var
+    (if missing, explicitly selecting brave produces a clear error;
+    other backends are unaffected).
+  - ``ddg`` / ``ddg-html`` / ``ddg-lite`` — DuckDuckGo endpoints.
+    **Demoted to manual fallback on 2026-04-21** because their
+    robots.txt now disallows every relevant path for all user-agents.
+    Kept for users running behind a permissive proxy or an older
+    mirror. Not recommended.
+
 Dependencies (optional-dep group ``research``): ``httpx``, ``markdownify``.
 Imports are lazy so tests can inject mock modules via ``sys.modules``.
 """
@@ -23,6 +35,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
+import os
 import re
 import sys
 import unicodedata
@@ -38,28 +52,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # ─── Constants ──────────────────────────────────────────────────────────────
 
-_USER_AGENT = "LifeOS-research/1.7 (+local-tool)"
+_UA_BASE = "LifeOS-research/1.7 (+local-tool"
 _DEFAULT_DEPTH = 1
 _DEFAULT_MAX_PAGES = 10
 _SLUG_HASH_LEN = 8
 
-# Search-backend registry. Each entry maps a backend key to a URL template
-# whose single ``{query}`` placeholder receives the url-encoded query.
-#
-# Note on robots.txt (verified 2026-04-21): DuckDuckGo's public robots.txt
-# disallows ``/html``, ``/lite``, and ``/*?`` (search URLs) on both
-# ``duckduckgo.com`` and its API subdomains. The DDG JSON API at
-# ``https://duckduckgo.com/?q=...&format=json`` is less aggressively
-# blocked in practice but still listed. Since we respect robots.txt, DDG
-# runs may legitimately fail — when that happens we emit a helpful
-# ``--backend`` hint rather than a silent skip.
-_BACKENDS: dict[str, str] = {
-    "ddg": "https://duckduckgo.com/?q={query}&format=json&no_html=1",
-    "ddg-html": "https://html.duckduckgo.com/html/?q={query}",
-    "ddg-lite": "https://lite.duckduckgo.com/lite/?q={query}",
-}
-_DEFAULT_BACKEND = "ddg"
-_SEARCH_URL_TEMPLATE = _BACKENDS[_DEFAULT_BACKEND]
+# SearXNG default public instance when SEARXNG_URL env is unset. Users
+# should self-host or pin a trusted mirror for real workloads.
+_SEARXNG_DEFAULT_INSTANCE = "https://searx.be"
 
 # DuckDuckGo result-link class marker. This is resilient to reasonable UI
 # tweaks but we still degrade gracefully: if no matches are found we fall
@@ -90,6 +90,28 @@ class ResearchResult:
     errors: list[str] = field(default_factory=list)
 
 
+@dataclass(frozen=True)
+class BackendSpec:
+    """Describes a search backend.
+
+    Each backend exposes the same 4 hooks so the main driver stays
+    backend-agnostic:
+
+    - ``build_url(query)`` returns the search URL to GET.
+    - ``request_headers()`` returns extra headers (API keys etc.).
+    - ``parse_result_urls(body)`` extracts layer-1 URLs from the search
+      response (JSON for searxng/brave, HTML for ddg*).
+    - ``precheck()`` returns an error string if the backend can't run
+      (e.g. missing API key), or ``None`` on success.
+    """
+
+    name: str
+    build_url: Callable[[str], str]
+    request_headers: Callable[[], dict[str, str]]
+    parse_result_urls: Callable[[str], list[str]]
+    precheck: Callable[[], str | None]
+
+
 # ─── Slug generation ────────────────────────────────────────────────────────
 
 
@@ -107,14 +129,195 @@ def _make_slug(query: str) -> str:
     return hashlib.sha1(query.encode("utf-8")).hexdigest()[:_SLUG_HASH_LEN]
 
 
+# ─── User-agent ─────────────────────────────────────────────────────────────
+
+
+def _user_agent(backend_name: str) -> str:
+    """Build the UA string for a given backend, for server-side provenance."""
+    return f"{_UA_BASE}; backend={backend_name})"
+
+
+# ─── Backend: SearXNG ───────────────────────────────────────────────────────
+
+
+def _searxng_base_url() -> str:
+    """Return the SearXNG instance URL (env override → default)."""
+    raw = os.environ.get("SEARXNG_URL", "").strip()
+    return raw.rstrip("/") if raw else _SEARXNG_DEFAULT_INSTANCE
+
+
+def _searxng_build_url(query: str) -> str:
+    return f"{_searxng_base_url()}/search?q={_encode_query(query)}&format=json"
+
+
+def _searxng_headers() -> dict[str, str]:
+    # Content is JSON; prefer it explicitly.
+    return {"Accept": "application/json"}
+
+
+def _searxng_parse(body: str) -> list[str]:
+    """Extract ``results[*].url`` from a SearXNG JSON response."""
+    urls: list[str] = []
+    try:
+        payload = json.loads(body)
+    except (ValueError, TypeError):
+        return urls
+    results = payload.get("results") if isinstance(payload, dict) else None
+    if not isinstance(results, list):
+        return urls
+    for row in results:
+        if not isinstance(row, dict):
+            continue
+        url = row.get("url")
+        if isinstance(url, str) and url.startswith(("http://", "https://")):
+            urls.append(url)
+    return urls
+
+
+def _searxng_precheck() -> str | None:
+    # SearXNG has no required credentials; always runnable.
+    return None
+
+
+# ─── Backend: Brave Search API ──────────────────────────────────────────────
+
+
+_BRAVE_SEARCH_URL = "https://api.search.brave.com/res/v1/web/search"
+
+
+def _brave_build_url(query: str) -> str:
+    return f"{_BRAVE_SEARCH_URL}?q={_encode_query(query)}"
+
+
+def _brave_headers() -> dict[str, str]:
+    key = os.environ.get("BRAVE_API_KEY", "")
+    headers: dict[str, str] = {"Accept": "application/json"}
+    if key:
+        headers["X-Subscription-Token"] = key
+    return headers
+
+
+def _brave_parse(body: str) -> list[str]:
+    """Extract ``web.results[*].url`` from a Brave API JSON response."""
+    urls: list[str] = []
+    try:
+        payload = json.loads(body)
+    except (ValueError, TypeError):
+        return urls
+    web = payload.get("web") if isinstance(payload, dict) else None
+    if not isinstance(web, dict):
+        return urls
+    results = web.get("results")
+    if not isinstance(results, list):
+        return urls
+    for row in results:
+        if not isinstance(row, dict):
+            continue
+        url = row.get("url")
+        if isinstance(url, str) and url.startswith(("http://", "https://")):
+            urls.append(url)
+    return urls
+
+
+def _brave_precheck() -> str | None:
+    if not os.environ.get("BRAVE_API_KEY", "").strip():
+        return (
+            "BRAVE_API_KEY env var is required for --backend brave. "
+            "Sign up at https://brave.com/search/api/ (free tier: 2000 "
+            "queries/month) and export the key."
+        )
+    return None
+
+
+# ─── Backend: DuckDuckGo (demoted, kept as manual fallback) ─────────────────
+
+
+_DDG_TEMPLATES: dict[str, str] = {
+    "ddg": "https://duckduckgo.com/?q={query}&format=json&no_html=1",
+    "ddg-html": "https://html.duckduckgo.com/html/?q={query}",
+    "ddg-lite": "https://lite.duckduckgo.com/lite/?q={query}",
+}
+
+
+def _ddg_build_url_factory(key: str) -> Callable[[str], str]:
+    tpl = _DDG_TEMPLATES[key]
+
+    def _build(query: str) -> str:
+        return tpl.format(query=_encode_query(query))
+
+    return _build
+
+
+def _ddg_headers() -> dict[str, str]:
+    return {}
+
+
+def _ddg_parse(body: str) -> list[str]:
+    """Extract primary result URLs from a DuckDuckGo HTML page.
+
+    The JSON Instant Answer endpoint does not return a result list,
+    so depth>=1 runs against ``ddg`` typically fetch only the search
+    page. ``ddg-html`` / ``ddg-lite`` still expose classic link markup.
+    """
+    urls = [_unescape(u) for u in _RESULT_LINK_RE.findall(body)]
+    if urls:
+        return urls
+    return [_unescape(u) for u in _GENERIC_LINK_RE.findall(body)]
+
+
+def _ddg_precheck() -> str | None:
+    return None
+
+
+# ─── Backend registry ───────────────────────────────────────────────────────
+
+
+def _build_backend_registry() -> dict[str, BackendSpec]:
+    registry: dict[str, BackendSpec] = {
+        "searxng": BackendSpec(
+            name="searxng",
+            build_url=_searxng_build_url,
+            request_headers=_searxng_headers,
+            parse_result_urls=_searxng_parse,
+            precheck=_searxng_precheck,
+        ),
+        "brave": BackendSpec(
+            name="brave",
+            build_url=_brave_build_url,
+            request_headers=_brave_headers,
+            parse_result_urls=_brave_parse,
+            precheck=_brave_precheck,
+        ),
+    }
+    for ddg_key in _DDG_TEMPLATES:
+        registry[ddg_key] = BackendSpec(
+            name=ddg_key,
+            build_url=_ddg_build_url_factory(ddg_key),
+            request_headers=_ddg_headers,
+            parse_result_urls=_ddg_parse,
+            precheck=_ddg_precheck,
+        )
+    return registry
+
+
+_BACKENDS: dict[str, BackendSpec] = _build_backend_registry()
+_DEFAULT_BACKEND = "searxng"
+
+
 # ─── robots.txt ─────────────────────────────────────────────────────────────
 
 
 class _RobotsCache:
     """Per-run cache of parsed robots.txt rules keyed by (scheme, netloc)."""
 
-    def __init__(self, fetch_text: Callable[[str], str | None]) -> None:
+    def __init__(
+        self,
+        fetch_text: Callable[[str], str | None],
+        *,
+        user_agent: str,
+    ) -> None:
         self._fetch_text = fetch_text
+        self._user_agent = user_agent
         self._cache: dict[str, RobotFileParser | None] = {}
 
     def allowed(self, url: str) -> bool:
@@ -129,7 +332,7 @@ class _RobotsCache:
             self._cache[host_key] = parser
         if parser is None:
             return True  # absent/errored robots.txt → assume allowed
-        return parser.can_fetch(_USER_AGENT, url)
+        return parser.can_fetch(self._user_agent, url)
 
     def _load(self, host_key: str) -> RobotFileParser | None:
         robots_url = f"{host_key}/robots.txt"
@@ -144,18 +347,27 @@ class _RobotsCache:
 # ─── HTTP fetch layer (lazy import) ─────────────────────────────────────────
 
 
-def _open_client(httpx_mod: Any) -> Any:
+def _open_client(httpx_mod: Any, *, user_agent: str) -> Any:
     return httpx_mod.Client(
-        headers={"User-Agent": _USER_AGENT},
+        headers={"User-Agent": user_agent},
         timeout=10.0,
         follow_redirects=True,
     )
 
 
-def _fetch_text(client: Any, url: str) -> str | None:
+def _fetch_text(
+    client: Any,
+    url: str,
+    *,
+    headers: dict[str, str] | None = None,
+) -> str | None:
     """Return body text for a URL, or None on any error."""
     try:
-        resp = client.get(url)
+        resp = (
+            client.get(url, headers=headers)
+            if headers
+            else client.get(url)
+        )
     except Exception:  # noqa: BLE001
         return None
     try:
@@ -167,15 +379,6 @@ def _fetch_text(client: Any, url: str) -> str | None:
 
 
 # ─── HTML link extraction ───────────────────────────────────────────────────
-
-
-def _extract_result_urls(html: str) -> list[str]:
-    """Extract primary result URLs from a DuckDuckGo HTML page."""
-    urls = [_unescape(u) for u in _RESULT_LINK_RE.findall(html)]
-    if urls:
-        return urls
-    # Fallback: any absolute <a href>
-    return [_unescape(u) for u in _GENERIC_LINK_RE.findall(html)]
 
 
 def _extract_outbound_urls(html: str, base_host: str | None = None) -> list[str]:
@@ -212,14 +415,15 @@ def run_research(
     and where the output landed. Always writes an output file; callers
     decide whether to exit 0 or 1 based on ``ResearchResult.incomplete``.
 
-    ``backend`` selects a search endpoint from ``_BACKENDS`` (default
-    ``ddg``). Unknown backends fall back to the default with a warning.
+    ``backend`` selects a search engine from ``_BACKENDS`` (default
+    ``searxng``). Unknown backend keys silently fall back to the default.
     """
     import httpx  # type: ignore[import-not-found]
     import markdownify  # type: ignore[import-not-found]
 
-    template = _BACKENDS.get(backend, _SEARCH_URL_TEMPLATE)
-    search_url = template.format(query=_encode_query(query))
+    spec = _BACKENDS.get(backend, _BACKENDS[_DEFAULT_BACKEND])
+    search_url = spec.build_url(query)
+    user_agent = _user_agent(spec.name)
     slug = _make_slug(query)
     today = datetime.now().date()
     output_path = root / "inbox" / f"research-{today.isoformat()}-{slug}.md"
@@ -235,20 +439,36 @@ def run_research(
     fetched_bodies: dict[str, str] = {}
     remaining = max(1, max_pages)
 
-    with _open_client(httpx) as client:
-        robots = _RobotsCache(lambda url: _fetch_text(client, url))
+    # Backend-level precheck — lets us fail loudly on missing creds
+    # BEFORE opening an httpx client.
+    precheck_error = spec.precheck()
+    if precheck_error is not None:
+        result.errors.append(precheck_error)
+        result.incomplete = True
+        _write_output(
+            output_path, fetched_bodies, markdownify, query, depth, result, slug
+        )
+        return result
+
+    with _open_client(httpx, user_agent=user_agent) as client:
+        robots = _RobotsCache(
+            lambda url: _fetch_text(client, url),
+            user_agent=user_agent,
+        )
 
         # Layer 0: search page
         if not robots.allowed(search_url):
             result.errors.append(
                 f"robots.txt blocks {search_url}; "
                 "this backend is disallowed — try another "
-                "`--backend` (e.g. ddg-lite, ddg-html) or point "
-                "at a self-hosted SearXNG instance."
+                "`--backend` (searxng / brave). DDG endpoints are "
+                "known-blocked as of 2026-04-21."
             )
             result.incomplete = True
         else:
-            body = _fetch_text(client, search_url)
+            body = _fetch_text(
+                client, search_url, headers=spec.request_headers()
+            )
             if body is None:
                 result.errors.append(f"fetch failed: {search_url}")
                 result.incomplete = True
@@ -258,7 +478,7 @@ def run_research(
                 remaining -= 1
 
         if depth >= 1 and remaining > 0 and search_url in fetched_bodies:
-            layer1_urls = _extract_result_urls(fetched_bodies[search_url])
+            layer1_urls = spec.parse_result_urls(fetched_bodies[search_url])
             layer1_bodies = _fetch_layer(
                 client,
                 robots,
@@ -283,8 +503,23 @@ def run_research(
                 )
                 fetched_bodies.update(layer2_bodies)
 
-    # Compose output
-    md_body = _render_body(fetched_bodies, markdownify, query)
+    _write_output(
+        output_path, fetched_bodies, markdownify, query, depth, result, slug
+    )
+    return result
+
+
+def _write_output(
+    output_path: Path,
+    fetched_bodies: dict[str, str],
+    markdownify_mod: Any,
+    query: str,
+    depth: int,
+    result: ResearchResult,
+    slug: str,
+) -> None:
+    """Write the research markdown file (frontmatter + body)."""
+    md_body = _render_body(fetched_bodies, markdownify_mod, query)
     frontmatter = _render_frontmatter(
         query=query,
         depth=depth,
@@ -293,7 +528,6 @@ def run_research(
         slug=slug,
     )
     output_path.write_text(frontmatter + md_body, encoding="utf-8")
-    return result
 
 
 def _fetch_layer(
@@ -388,7 +622,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="research",
         description=(
             "Background web fetch into inbox/ "
-            "(references/tools-spec.md §6.4). "
+            "(references/tools-spec.md section 6.4). "
             "Respects robots.txt. No LLM summarization."
         ),
     )
@@ -416,10 +650,13 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=sorted(_BACKENDS.keys()),
         default=_DEFAULT_BACKEND,
         help=(
-            "Search backend. Defaults to 'ddg' (JSON Instant Answer "
-            "endpoint). Fallbacks: ddg-html, ddg-lite. Note: all DDG "
-            "endpoints are robots.txt-restricted — runs that exit 1 with "
-            "a 'blocked by robots' warning are expected, not bugs."
+            "Search backend. Defaults to 'searxng' (JSON; instance "
+            "controlled by SEARXNG_URL env, else https://searx.be). "
+            "'brave' uses api.search.brave.com and requires "
+            "BRAVE_API_KEY env (free tier: 2000 queries/month). "
+            "DDG variants (ddg / ddg-html / ddg-lite): not recommended -- "
+            "DuckDuckGo's robots.txt blocks all endpoints as of "
+            "2026-04-21; kept only as a manual fallback."
         ),
     )
     return parser
