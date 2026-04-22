@@ -52,9 +52,8 @@ jobs:
       fail-fast: false
       matrix:
         # windows-latest (Windows Server) ships Git for Windows which
-        # includes a bash (MSYS2). Most of our hook tests are portable,
-        # but a few use GNU-specific tools (od flags, mktemp defaults);
-        # those are gated on runner.os != 'Windows' below.
+        # includes a bash (MSYS2). All hook tests are verified portable
+        # on MSYS bash 5.x and run on every runner (R3.6, v1.7).
         os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
@@ -66,17 +65,16 @@ jobs:
 
       - name: Check bash syntax (all runners)
         run: |
-          for script in scripts/*.sh scripts/hooks/*.sh evals/run-eval.sh; do
+          for script in scripts/*.sh scripts/hooks/*.sh evals/run-eval.sh tests/hooks/test_*.sh; do
             if [ -f "$script" ]; then
               echo "Checking $script..."
               bash -n "$script"
             fi
           done
 
-      - name: Run hook test suite (Linux + macOS only)
-        if: runner.os != 'Windows'
+      - name: Run hook test suite (all runners)
         run: |
-          chmod +x tests/hooks/*.sh
+          chmod +x tests/hooks/*.sh || true
           failed=0
           for s in tests/hooks/test_*.sh; do
             echo "── $s ──"
@@ -86,27 +84,10 @@ jobs:
           done
           exit $failed
 
-      - name: Run hook test suite (Windows, portable subset)
-        if: runner.os == 'Windows'
-        run: |
-          # Windows Git Bash ships MSYS coreutils. Some tests relying on
-          # GNU-specific tools (od -An -tx1, /dev/stdin in subshells) may
-          # behave differently; the jq-free setup-hooks test is known
-          # portable. Add others here as they're verified on Windows.
-          failed=0
-          for s in tests/hooks/test_setup_hooks.sh; do
-            echo "── $s ──"
-            if ! bash "$s"; then
-              failed=1
-            fi
-          done
-          exit $failed
-
-      - name: Verify hook script regex (Linux + macOS only)
-        if: runner.os != 'Windows'
+      - name: Verify hook script regex (all runners)
         run: |
           # Smoke test: hook should detect '上朝' as trigger
-          chmod +x scripts/lifeos-pre-prompt-guard.sh
+          chmod +x scripts/lifeos-pre-prompt-guard.sh || true
           OUTPUT=$(echo '{"prompt":"上朝"}' | bash scripts/lifeos-pre-prompt-guard.sh)
           echo "$OUTPUT" | grep -q "HARD RULE" || (echo "❌ Hook did not inject reminder for '上朝'" && exit 1)
           # Long pasted content should NOT trigger
@@ -118,16 +99,15 @@ jobs:
           fi
           echo "✅ Hook regex OK"
 
-      - name: Verify compliance check (Linux + macOS only)
-        if: runner.os != 'Windows'
+      - name: Verify compliance check (all runners)
         run: |
-          chmod +x scripts/lifeos-compliance-check.sh
+          chmod +x scripts/lifeos-compliance-check.sh || true
           # Synthetic clean output should pass
-          mkdir -p /tmp/cc-test
-          cat > /tmp/cc-test/clean.md <<'EOF'
+          tmpdir=$(mktemp -d)
+          cat > "$tmpdir/clean.md" <<'EOF'
           🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0
           ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation)
           a) 连接到 second-brain
           b) 开发模式
           EOF
-          cd / && bash $GITHUB_WORKSPACE/scripts/lifeos-compliance-check.sh /tmp/cc-test/clean.md start-session-compliance
+          bash scripts/lifeos-compliance-check.sh "$tmpdir/clean.md" start-session-compliance
