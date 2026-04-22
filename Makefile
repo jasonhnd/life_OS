@@ -1,7 +1,7 @@
 # Life OS · Common dev commands
 # Tab-indented (POSIX make requires tabs, not spaces).
 
-.PHONY: help test test-fast test-verbose test-integration lint lint-fix bash-check stats install update docs-check ci ci-integration
+.PHONY: help test test-fast test-verbose test-integration lint lint-fix bash-check stats install update docs-check ci ci-integration eval-tools
 
 help: ## Show this help message
 	@echo "Life OS · dev commands"
@@ -68,3 +68,6 @@ ci: install lint test bash-check ## Full CI suite (mirrors .github/workflows/tes
 
 ci-integration: install lint test-integration bash-check ## Integration CI (mirrors .github/workflows/integration.yml)
 	@echo "✅ Integration CI suite passed"
+
+eval-tools: ## Run R4.5 machine-verifiable tool scenario runner (not in default `ci`)
+	bash evals/run-tool-eval.sh
