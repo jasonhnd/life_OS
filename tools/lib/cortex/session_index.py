@@ -14,6 +14,7 @@ from __future__ import annotations
 from datetime import date as DateType  # noqa: N812 — intentional alias to avoid shadowing
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from tools.lib.second_brain import (
     ParsedMarkdown,
@@ -46,9 +47,9 @@ def truncate_subject(subject: str, max_len: int = _SUBJECT_TRUNCATE_LEN) -> str:
     return subject[:max_len].rstrip() + "…"
 
 
-def _summary_to_frontmatter(summary: SessionSummary) -> dict:
+def _summary_to_frontmatter(summary: SessionSummary) -> dict[str, Any]:
     """Convert SessionSummary dataclass to a YAML-serializable frontmatter dict."""
-    fm: dict = {
+    fm: dict[str, Any] = {
         "session_id": summary.session_id,
         "date": summary.date.isoformat(),
         "started_at": summary.started_at.isoformat(),
