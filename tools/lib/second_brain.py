@@ -33,7 +33,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, ClassVar
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 # ─── Frontmatter parsing ────────────────────────────────────────────────────
 
