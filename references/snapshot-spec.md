@@ -75,14 +75,16 @@ dimensions:
 
 ### Tier Mapping
 
-Tiers are derived at capture time, not stored separately in SOUL.md:
+Tiers are derived at capture time, not stored separately in SOUL.md.
+
+All confidence bands use half-open intervals `[a, b)` — the lower bound is inclusive and the upper bound is exclusive. Boundary values always belong to the **upper** tier (e.g., confidence exactly 0.3 is `secondary`, not `emerging`; confidence exactly 0.7 is `core`, not `secondary`). This matches `references/soul-spec.md` §Tiered Reference by Confidence and `references/gwt-spec.md` §5.4.
 
 | Tier | Confidence range |
 |------|------------------|
-| `core` | ≥ 0.7 |
-| `secondary` | 0.3 – 0.7 |
-| `emerging` | 0.2 – 0.3 |
-| `dormant` | < 0.2 (excluded from snapshot) |
+| `core` | `[0.7, 1.0]` |
+| `secondary` | `[0.3, 0.7)` |
+| `emerging` | `[0.2, 0.3)` |
+| `dormant` | `[0.0, 0.2)` (excluded from snapshot) |
 
 Snapshots deliberately omit `dormant` dimensions to keep files small. The absence of a dimension in a snapshot is meaningful — it's how the trend algorithm detects retirement or demotion.
 
