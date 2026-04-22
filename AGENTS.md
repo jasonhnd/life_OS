@@ -55,6 +55,8 @@
 4. 如 validator 失败 → 反馈给 ROUTER Step 7.5 重写，最多 2 次重写
 5. 2 次重写仍失败 → 非阻塞降级到 v1.6.3 未包裹的 Summary Report，并记录到 `_meta/eval-history/narrator-{date}.md`
 
+**预算（依据 `references/narrator-spec.md §11`，R3.1 commit `04e3498`）**：narrator + validator 循环的**累积**挂钟时间超过 **21 秒**，或**单次** regenerate-and-revalidate 循环超过 **8 秒** → 任一触发即降级（典型总时 ≈ 18 秒）。
+
 **引用格式**：见 `references/narrator-spec.md §4`。
 
 **Host 实现**：
