@@ -144,6 +144,9 @@ Scan ALL session materials (Summary Report, AUDITOR + ADVISOR reports, conversat
 3. **Is not a person** (people are PEOPLE domain entities, not concepts)
 4. **Is not a value or trait** (values go to SOUL)
 5. **Is not a procedure** (procedures go to method library)
+6. **Privacy Filter clears** (LLM pass per user decision #5) — strips names (unless public figures), specific amounts/accounts/IDs, family/friend references, traceable date+location combinations. If stripping leaves the candidate meaningless → discard (it was a personal note, not a reusable concept)
+
+> See `references/concept-spec.md` §Creation + `references/wiki-spec.md` §Privacy Filter for full criteria details.
 
 **Use `tools/lib/cortex/extraction.py` helpers when Python tools available** (deterministic + cheap, no LLM tokens needed for the boring parts):
 
@@ -166,9 +169,10 @@ for phrase, count in filtered.most_common(20):
 "
 ```
 
-Then apply LLM judgment (this part stays in archiver prompt, not Python) for criteria 2-5:
+Then apply LLM judgment (this part stays in archiver prompt, not Python) for criteria 2-6:
 - Identity beyond session? (LLM judges)
 - Person / value / procedure? (LLM filters out)
+- Privacy Filter clears? (LLM strips PII; if stripping leaves candidate meaningless → discard)
 - Best domain fit? (LLM categorises into `finance / startup / personal / technical / method / relationship / health / legal`)
 
 Concept categories per `references/concept-spec.md` §Domain partitions. Pick best fit, or create new domain dir if none match.
