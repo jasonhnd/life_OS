@@ -87,4 +87,11 @@ warn_unused_configs = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
-addopts = "-v --tb=short"
+# Default excludes integration tests (network / external services). Override
+# with `pytest -m integration` or the dedicated `Integration Tests` workflow
+# (.github/workflows/integration.yml). Existing CI (.github/workflows/test.yml)
+# also passes `-m "not integration"` explicitly — both layers agree.
+addopts = "-v --tb=short -m \"not integration\""
+markers = [
+    "integration: end-to-end tests requiring network / file-system side-effects / external services (skipped by default; run via `pytest -m integration` or the Integration Tests CI workflow).",
+]
