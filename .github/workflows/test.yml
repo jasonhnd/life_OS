@@ -35,10 +35,14 @@ jobs:
         run: |
           uv run pytest tests/ -v --tb=short -m "not integration"
 
-      - name: Run mypy (type check)
+      - name: Mypy strict on tools/
+        # Gate added R4.4 (v1.7): see references/tools-spec.md §10 coverage invariant.
+        # R3.8 closed 14 → 0 errors across 28 source files; this gate prevents regression.
+        # Runs ubuntu + 3.12 only — mypy results are OS-independent; pinning Python
+        # version avoids cross-version typing module drift and saves 5× CI time.
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
         run: |
-          uv run mypy tools/ --ignore-missing-imports
-        continue-on-error: true  # type errors are warnings, not blockers in alpha
+          uv run mypy --strict tools/
 
       - name: Run ruff (lint)
         run: |
