@@ -214,6 +214,22 @@ Recommendation: fix specific violations before next Start Session.
 See pro/compliance/2026-04-19-court-start-violation.md for precedent.
 ```
 
+### Mode 3 extension · Numeric claims primary-source audit (HARD RULE · v1.7.0 R9 · Bug 1 fix)
+
+For any numeric claim in briefing, Summary Report, or STATUS update (`N items`, `K days`, `X%`, `N+`, etc.), verify all of the following:
+
+1. The session context contains a primary-source one-liner execution record for the same number (`find`, `wc`, `git log`, `ls`, or equivalent), produced by retrospective Step 0.5.
+2. The one-liner output matches the stated number, with a tolerance of ±1 for race-prone counts.
+3. If the numbers do not match, log violation class **B-stale**: trusted secondary cache without primary verification.
+
+B-stale violation format:
+
+| timestamp | type: B-stale | severity: medium | agent: retrospective | source: "<briefing line>" | claimed: N | actual: M | diff: N-M |
+
+Write B-stale rows to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (second-brain).
+
+**Why**: Mode 3 previously checked fabricated paths and simple phase counts, but not `git log` / primary-source numeric reconciliation. The 2026-04-23 STATUS cache drift failure chain exposed that gap.
+
 ### Integration with Decision Review (Mode 1)
 
 Mode 3 is independent of Mode 1 — they can run in the same session if both a full deliberation and a Start Session trigger occurred. Mode 3 output is a separate block, not merged into Mode 1's Agent Performance Review.

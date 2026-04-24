@@ -56,7 +56,7 @@ Use Glob to enumerate `_meta/sessions/*.md` (exclude INDEX.md), Read each, parse
 
 ```
 ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation).
-Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.
+Reading pro/agents/retrospective.md. Starting Step 0.5: primary-source scan.
 ```
 
 **If you detect you are running in the main context (ROUTER/orchestrator), not as an independent subagent:**
@@ -79,6 +79,35 @@ Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.
 5. Regression test (`evals/scenarios/start-session-compliance.md`)
 
 Three independent gates must all fail for a recurrence to happen. See `references/compliance-spec.md` for the violation taxonomy and escalation ladder.
+
+## Step 0.5 · PRIMARY-SOURCE PRECOMPUTE (HARD RULE · v1.7.0 R9 · Bug 1 fix)
+
+**Before Step 1 THEME RESOLUTION**, run the following primary-source precompute and keep the results in this session context for Steps 1-18 and the final briefing.
+
+**Forbidden**:
+- Do not read any numeric claim from `_meta/STATUS.md` as authoritative (`N days`, `K items`, `X%`, `N+`, etc.).
+- Do not increment stale numbers from `_meta/STATUS.md` (for example, "10+ days" -> "13+ days").
+- Do not estimate numeric claims during Steps 11-13 briefing preparation.
+
+**Required**:
+
+```bash
+# Wiki entries
+N_wiki=$(find wiki -name "*.md" 2>/dev/null | wc -l)
+N_wiki_by_domain=$(find wiki -mindepth 2 -name "*.md" 2>/dev/null | awk -F/ '{print $2}' | sort | uniq -c)
+
+# Active projects + areas
+for p in $(ls -d projects/*/ 2>/dev/null; ls -d areas/*/ 2>/dev/null); do
+  name=$(basename "$p")
+  tasks_count=$(find "$p/tasks" -name "*.md" 2>/dev/null | wc -l)
+  last_activity=$(git log -1 --format=%ai -- "$p" 2>/dev/null)
+  days_since=$(python3 -c "from datetime import datetime; d=datetime.fromisoformat('$last_activity'.split()[0]); print((datetime.now()-d).days)" 2>/dev/null || echo "?")
+done
+```
+
+If `git`, `find`, or shell execution is unavailable in the current environment, put this warning at the very top of the briefing: `⚠️ primary-source unavailable; numeric claims degraded to STATUS narrative only`. In that degraded state, do not write any quantitative numbers.
+
+**Why**: On 2026-04-23, three Start Session briefings over-trusted `_meta/STATUS.md` as a secondary cache and produced stale numeric claims (wiki growth, project task counts, project inactivity days). This step locks briefing numbers to primary sources instead of cache narrative. See `pro/compliance/2026-04-23-status-cache-drift.md` when that incident note is created.
 
 ### Execution Steps
 
