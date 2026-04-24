@@ -18,6 +18,7 @@
 - **3 個の Python ライブラリ** — `tools/lib/{config, llm, notion}` がすべてのツールの共通基盤
 - **三言語ユーザーガイド出荷** — 6 つの新 Cortex ガイド (EN) + cortex-spec / hippocampus-spec の中日翻訳
 - **ホスト非依存オーケストレーション契約** — Step 0.5 (プリルーター認知) + Step 7.5 (Narrator 検証) が CLAUDE.md / GEMINI.md / AGENTS.md (root + `pro/`) で規範化
+- **Life OS agents を Claude Code ネイティブ subagents として登録** — install 時に 22 個の `pro/agents/*.md` 定義から Task-spawnable な 21 個の `~/.claude/agents/lifeos-*.md` wrapper を生成し、ROUTER-internal の narrator template は除外するため、`Task(lifeos-retrospective)` が `general-purpose` に fallback しなくなる
 
 ### 機能
 

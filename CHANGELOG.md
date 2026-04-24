@@ -18,6 +18,7 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 - **3 Python libraries** — `tools/lib/{config, llm, notion}` as the shared surface for every tool
 - **Trilingual user guide shipped** — 6 new Cortex guides (EN) + Chinese/Japanese cortex-spec and hippocampus-spec translations
 - **Host-agnostic orchestration contract** — Step 0.5 (Pre-Router Cognitive) + Step 7.5 (Narrator validation) now normative in CLAUDE.md / GEMINI.md / AGENTS.md (root + `pro/`)
+- **Life OS agents register as native Claude Code subagents** — install writes 21 Task-spawnable `~/.claude/agents/lifeos-*.md` wrappers from the 22 `pro/agents/*.md` definitions, skipping the ROUTER-internal narrator template so `Task(lifeos-retrospective)` no longer falls back to `general-purpose`
 
 ### Features
 
