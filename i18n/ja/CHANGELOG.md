@@ -6,6 +6,61 @@
 
 ---
 
+## [1.7.1-code-r1] - 2026-04-24 · 1.7.1 Code Round 1 · Skill Observability CLI
+
+> v1.7.1 Skill Observability の最初の実装ラウンドです。`[1.7.1-design]` を引き継ぎ、`[1.7.0]` のリリース範囲は変更せず、`SKILL.md` も bump しません。
+
+### Core Tooling
+
+- **Scanner**: `tools/lib/skills_scanner.py` がインストール済み skills を発見し、local metadata を正規化します。
+- **Upstream**: `tools/lib/skills_upstream.py` が cache/live upstream 状態を解決し、offline-aware degradation に対応します。
+- **Skills CLI**: `tools/skills.py` が `list`、`check`、`info`、`stale` を markdown/json 出力で実装します。
+- **CLI registration**: `tools/cli.py` が `life-os-tool skills ...` を unified dispatcher に接続します。
+
+### Fixtures And Tests
+
+- **Fixture script**: `evals/fixtures/skills-test-setup.sh` が再現可能な installed-skill samples を作成します。
+- **Tests**: `tests/test_skills*.py` が scanner、upstream comparison、CLI rendering、exit semantics をカバーします。
+- **Dev dependency**: `pyproject.toml` が upstream tests 用 dev extras に `requests>=2.31` を追加します。
+- **Eval runner**: `evals/run-tool-eval.sh` が `tool-skills` scenario を fixture setup/teardown に接続します。
+
+### Automation And Gates
+
+- **Retrospective briefing**: `pro/agents/retrospective.md` は shallow active/update/stale skill counts のみ追加します。
+- **Makefile/CI**: `make skills-eval` と `.github/workflows/test.yml` が tool-skills eval path を実行します。
+- **Mypy gate**: CI は tool code の strict typing gate として `uv run mypy --strict tools/` を実行します。
+- **P1/P2 polish**: offline/cache parity、stale exits、shadowed-plugin reporting、UTF-8 output cleanup が入りました。
+
+---
+
+## [1.7.1-design] - 2026-04-24 · 1.7.1 Docs Round 1 · Skill Observability
+
+> Skill Observability 方針のドキュメント専用デザイン記録です。この項目は v1.7.0 のリリース変更ではなく、Cortex GA の挙動も変更しません。
+
+### 範囲
+
+- **方針ロック**: Round 6 plugin-dispatch drafts は **DEAD**。v1.7.1 は dispatch ではなく observability に進みます。
+- **観測重点**: インストール済み skills の一覧、upstream 版の確認、update/stale awareness、trigger hints の表示。
+- **権威**: `references/skills-spec.md` が契約を所有し、companion docs はユーザー向け体験を説明します。
+- **実装範囲なし**: code、tests、hooks、workflows、Makefile、`pyproject`、`SKILL.md`、`pro/agents` の変更は要求しません。
+
+### ロック済み CLI
+
+- `life-os-tool skills list` - インストール済み skills の inventory。
+- `life-os-tool skills check` - オンライン時は upstream 比較、`--offline` では local/cache 状態。
+- `life-os-tool skills info <name>` - 1 つの skill の metadata card と trigger hints。
+- `life-os-tool skills stale` - stale-only 一覧。共通フラグ `--format {markdown,json}` は固定。
+
+### Round Map
+
+- Round 名: **1.7.1 Docs Round 1**。IDs: `D1.0`-`D1.13` と `D1.audit`。
+- この changelog 項目は docs design round の三言語 aligned release-note marker です。
+- Boundary: ROUTER dispatch、role assignment、task delegation rule、dispatch override には接続しません。
+- Cortex boundary: Step 0.5 signals、GWT、narrator citations、SOUL snapshots、concept graph writes、session-index artifacts には接続しません。
+- Safety boundary: skill の自動 install/update/removal、hidden network writes、stale-status reinterpretation は行いません。
+
+---
+
 ## [1.7.0] - 2026-04-22 · Cortex 認知層 · 正式リリース
 
 > Cortex が alpha から卒業し GA 正式リリース。`v1.7.0-alpha.2` 後の 65 commits で残存 TBD をクローズ:5 つの shell hook のランタイム強制 + 共通 `_lib.sh`、`life-os-tool` CLI に統合された 10 個の Python ツール、3 個の共有 Python ライブラリ、`docs/` 公開ドキュメント群、三言語の認知レイヤー文書、CLAUDE / GEMINI / AGENTS 3 ホストに同期した Step 0.5 / Step 7.5 契約、そして既存の v1.6.2a second-brain をすべて保護する移行パス。

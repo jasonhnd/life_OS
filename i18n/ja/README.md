@@ -36,7 +36,7 @@ c) 🏢 企業 — 社長室、経営企画部、法務部
 中文:
 d) 🏛️ 三省六部 — 丞相、中书省、门下省
 e) 🇨🇳 中国政府 — 国务院总理、发改委、人大常委会
-f) 🏢 公司部门 — 総経理、戦略企画部、法務コンプライアンス部
+f) 🏢 企業 — 社長室、経営企画部、法務部
 
 English:
 g) 🏛️ Roman Republic — Consul, Tribune, Senate
@@ -90,6 +90,30 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 アップグレード：`uv run life-os-tool migrate`（詳細は [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md)）
 
 v1.7 の全 commit チェーンと COURT-START-001 v1.6.3 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
+
+---
+
+## 1.7.1 Code Round 1 Preview: Skill Observability
+
+v1.7.1 では、インストール済み Life OS skills 可観測性の最初のコードラウンドをプレビューします。
+
+- `life-os-tool skills list` でインストール済み skills を一覧表示
+- `life-os-tool skills check` で upstream/cache 状態を確認
+- `life-os-tool skills info <name>` で 1 つの skill の詳細を確認
+- `life-os-tool skills stale` で stale skills を表示
+- scanner/upstream libraries を CLI、tests、eval fixtures で共有
+- fixture-backed pytest で list/check/info/stale 動作をカバー
+- tool-skills eval を Makefile と CI に接続
+- `mypy --strict tools/` を typing gate として維持
+- ROUTER / Cortex dispatch integration なしで shallow briefing counts を表示
+
+Example:
+
+```bash
+life-os-tool skills list
+```
+
+この preview は `[1.7.0]` release scope を変更せず、`SKILL.md` も bump しません。
 
 ---
 

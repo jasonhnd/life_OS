@@ -91,6 +91,30 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 ---
 
+## 1.7.1 Code Round 1 预览：Skill Observability
+
+v1.7.1 现在预览已安装 Life OS skills 可观测性的第一轮代码实现。
+
+- 用 `life-os-tool skills list` 列出已安装 skills
+- 用 `life-os-tool skills check` 检查上游/缓存状态
+- 用 `life-os-tool skills info <name>` 查看单个 skill
+- 用 `life-os-tool skills stale` 显示 stale skills
+- 复用 scanner/upstream 库，服务 CLI、测试与 eval fixtures
+- 用 fixture-backed pytest 覆盖 list/check/info/stale 行为
+- 将 tool-skills eval 接入 Makefile 与 CI
+- 保持 `mypy --strict tools/` 作为类型检查 gate
+- 暴露浅层 briefing 计数，不接入 ROUTER 或 Cortex dispatch
+
+示例：
+
+```bash
+life-os-tool skills list
+```
+
+本预览不改变 `[1.7.0]` 发布范围，也不提升 `SKILL.md` 版本。
+
+---
+
 ## v1.6.3 新特性
 
 **信任守卫——五层防御 HARD RULE 违规**。测试中，作者本人在 Life OS 开发 repo 说"上朝"，LLM 跳过 retrospective 子代理，在主上下文模拟 18 步流程，并编造不存在的路径作为权威源。文档不会自动强制——每一条 HARD RULE 都是描述性的，零强制机制。v1.6.3 交付五层独立防御，让每个触发词真正启动实际的子代理：

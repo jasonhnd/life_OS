@@ -592,6 +592,47 @@ Invoking this tool prints this notice and exits 0.
 """
 ```
 
+### 6.13 Skill Observability
+
+Inspect installed skills and report local metadata, freshness, and trigger
+hints without requiring any LLM call.
+
+Detailed semantics: see `references/skills-spec.md`.
+
+```bash
+life-os-tool skills list
+life-os-tool skills check
+life-os-tool skills info <name>
+life-os-tool skills stale
+```
+
+- **Common args**: all commands accept `--format {markdown,json}` and
+  `--offline`.
+- **Default format**: `--format {markdown,json}` defaults to `markdown`.
+- **Offline mode**: `--offline` never touches the network and reports
+  only locally installed metadata plus cached upstream data if present.
+- **Cache path**: `~/.cache/life-os/skills-upstream.json`.
+- **Timeout**: 5s per skill. Graceful upstream failure marks
+  `❓ check failed` and does not exit `3`; exit `3` is reserved for data
+  source corrupt/unparseable.
+- **Output columns**:
+  `name | version | installed-at | source | upstream-latest | status | triggers-hint`
+- **`triggers-hint`**: comma-separated first 3 trigger strings, e.g.
+  `"start, 上朝, begin"`.
+- **Exit codes**:
+  - `0` ok/no update
+  - `1` update available
+  - `2` stale (>90 days)
+  - `3` data source corrupt/unparseable
+- **Aggregate exit priority**: `3 > 2 > 1 > 0`.
+
+Examples:
+
+```bash
+life-os-tool skills list --format markdown --offline
+life-os-tool skills info start-session --format json
+```
+
 ---
 
 ## 7 · Dependencies

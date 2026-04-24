@@ -6,6 +6,61 @@
 
 ---
 
+## [1.7.1-code-r1] - 2026-04-24 · 1.7.1 Code Round 1 · Skill Observability CLI
+
+> v1.7.1 Skill Observability 的第一轮代码实现。本条承接 `[1.7.1-design]`，不改变 `[1.7.0]` 发布范围，也不提升 `SKILL.md` 版本。
+
+### 核心工具
+
+- **Scanner**：`tools/lib/skills_scanner.py` 发现已安装 skills，并规范化本地 metadata。
+- **Upstream**：`tools/lib/skills_upstream.py` 解析缓存/在线 upstream 状态，并支持离线降级。
+- **Skills CLI**：`tools/skills.py` 实现 `list`、`check`、`info`、`stale`，输出 markdown/json。
+- **CLI registration**：`tools/cli.py` 将 `life-os-tool skills ...` 接入统一 dispatcher。
+
+### Fixtures And Tests
+
+- **Fixture script**：`evals/fixtures/skills-test-setup.sh` 创建可复现的已安装 skill 样本。
+- **Tests**：`tests/test_skills*.py` 覆盖 scanner、upstream 比对、CLI 渲染与 exit semantics。
+- **Dev dependency**：`pyproject.toml` 将 `requests>=2.31` 加入 upstream tests 使用的 dev extras。
+- **Eval runner**：`evals/run-tool-eval.sh` 将 `tool-skills` 场景接入 fixture setup/teardown。
+
+### Automation And Gates
+
+- **Retrospective briefing**：`pro/agents/retrospective.md` 仅新增浅层 active/update/stale skill 计数。
+- **Makefile/CI**：`make skills-eval` 与 `.github/workflows/test.yml` 运行 tool-skills eval 路径。
+- **Mypy gate**：CI 现在运行 `uv run mypy --strict tools/`，作为 tool code 的严格类型 gate。
+- **P1/P2 polish**：offline/cache parity、stale exits、shadowed-plugin reporting、UTF-8 output cleanup 已落地。
+
+---
+
+## [1.7.1-design] - 2026-04-24 · 1.7.1 Docs Round 1 · Skill Observability
+
+> Skill Observability 方向的纯文档设计记录。本条不是 v1.7.0 发布变更，也不改变 Cortex GA 行为。
+
+### 范围
+
+- **方向锁定**：Round 6 plugin-dispatch 草案已 **DEAD**；v1.7.1 转向 observability，而不是 dispatch。
+- **观测重点**：列出已安装 skills；检查 upstream 版本；提示 update/stale 状态；展示 trigger hints。
+- **权威来源**：`references/skills-spec.md` 拥有合同；companion docs 解释面向用户的体验。
+- **无实现范围**：不要求代码、测试、hooks、workflows、Makefile、`pyproject`、`SKILL.md` 或 `pro/agents` 变更。
+
+### 锁定 CLI
+
+- `life-os-tool skills list` - 已安装 skills 清单。
+- `life-os-tool skills check` - 在线时比较 upstream；用 `--offline` 查看本地/缓存状态。
+- `life-os-tool skills info <name>` - 单个 skill 的 metadata card 与 trigger hints。
+- `life-os-tool skills stale` - stale-only 列表；通用参数 `--format {markdown,json}` 锁定。
+
+### Round Map
+
+- Round 名称：**1.7.1 Docs Round 1**；IDs：`D1.0`-`D1.13` 加 `D1.audit`。
+- 本 changelog 条目是 docs design round 的三语对齐 release-note marker。
+- 边界：不接入 ROUTER dispatch、角色分配、任务委派规则或 dispatch override。
+- Cortex 边界：无 Step 0.5 signals、GWT、narrator citations、SOUL snapshots、concept graph writes 或 session-index artifacts。
+- 安全边界：不自动安装/更新/移除 skill；不做 hidden network writes；不重新解释 stale 状态。
+
+---
+
 ## [1.7.0] - 2026-04-22 · Cortex 认知层 · 正式发布
 
 > Cortex 从 alpha 毕业,正式上线 GA。`v1.7.0-alpha.2` 之后 65 个 commits 关闭了剩余 TBD:5 个 shell hook 的完整运行时强制 + 共享 `_lib.sh`、10 个 Python 工具统一收敛到 `life-os-tool` CLI、3 个共享 Python 库、`docs/` 公共文档树发布、三语认知层文档、Step 0.5 / Step 7.5 契约同步到 CLAUDE / GEMINI / AGENTS 三个 host,以及一条保留每个现有 v1.6.2a second-brain 的迁移路径。

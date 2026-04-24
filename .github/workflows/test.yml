@@ -44,6 +44,17 @@ jobs:
         run: |
           uv run mypy --strict tools/
 
+      - name: Run skills tool eval
+        # Tool evals are OS-independent; run once on the same canonical lane as
+        # mypy while relying on the eval runner for scenario-level skips.
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        run: |
+          if ! command -v bash >/dev/null 2>&1; then
+            echo "bash not found; skipping tool-skills eval"
+            exit 0
+          fi
+          bash evals/run-tool-eval.sh tool-skills
+
       - name: Run ruff (lint)
         run: |
           uv run ruff check tools/ tests/

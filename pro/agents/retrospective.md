@@ -267,6 +267,12 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 12. Read _meta/STATUS.md + _meta/lint-state.md
     - If lint-state >4h since last run → trigger AUDITOR lightweight patrol
 
+12.1 SKILL OBSERVABILITY (v1.7.1, shallow briefing only)
+    - Consult `life-os-tool skills list --format json` for local skill inventory telemetry.
+    - Count active, update-available, and stale skills using the status and shadowing semantics in `references/skills-spec.md`.
+    - Failure is non-blocking: if the command is unavailable, exits nonzero, returns malformed JSON, or cannot be consulted in the host environment, do not block the session, do not trigger recovery handlers, and do not fabricate counts.
+    - Observability only: skill status must not affect ROUTER task selection, Cortex, narrator wrapping, or any execution path.
+
 13. ReadProjectContext(bound project) — index.md + decisions + tasks + journal
 
 14. Global overview — list all Project + Area titles + status
@@ -323,6 +329,8 @@ Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and
   [If WebFetch failed: ⚠️ v[local] (remote check failed — verify manually at github.com/jasonhnd/life_OS)]
 - Project Status: [summary]
 - Behavior Profile: [loaded / not established]
+- 🧰 Skills: N active · M update · K stale
+  [If skills command failed/unavailable: 🧰 Skills: unavailable (non-blocking)]
 
 🌅 Session Briefing
 
@@ -430,6 +438,7 @@ The session briefing is ready. What would you like to focus on?
 
 ```
 1. Platform detection + version check (same as Mode 0 step 8)
+1.5 Skill Observability (v1.7.1, shallow briefing only): consult `life-os-tool skills list --format json`; count active/update/stale per `references/skills-spec.md`; if unavailable or failed, do not block the session and do not fabricate counts.
 2. Read _meta/config.md → backend list + last sync
 3. Multi-backend sync (if multiple backends configured, same logic as Mode 0 step 6)
 4. Outbox merge (if unmerged sessions found, same logic as Mode 0 step 7)
@@ -462,6 +471,8 @@ Prepare with whatever data you can access. Note what you cannot:
 - Global Overview: [N total projects: A(active) B(active) C(on hold)...]
 - Strategic Map: [N lines / not configured]
 - Notion Inbox: [N new messages / empty / not connected]
+- 🧰 Skills: N active · M update · K stale
+  [If skills command failed/unavailable: 🧰 Skills: unavailable (non-blocking)]
 ```
 
 ---

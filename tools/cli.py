@@ -101,6 +101,10 @@ _COMMANDS: dict[str, tuple[str, str]] = {
         "tools.seed",
         "New-user bootstrap: create empty-but-valid second-brain + git init",
     ),
+    "skills": (
+        "tools.skills",
+        "Installed skills inventory + upstream/stale observability",
+    ),
 }
 
 

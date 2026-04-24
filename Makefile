@@ -1,7 +1,7 @@
 # Life OS · Common dev commands
 # Tab-indented (POSIX make requires tabs, not spaces).
 
-.PHONY: help test test-fast test-verbose test-integration lint lint-fix bash-check stats install update docs-check ci ci-integration eval-tools
+.PHONY: help test test-fast test-verbose test-integration lint lint-fix bash-check stats install update docs-check ci ci-integration eval-tools skills-eval
 
 help: ## Show this help message
 	@echo "Life OS · dev commands"
@@ -19,6 +19,7 @@ help: ## Show this help message
 	@echo "  make update           Update Python deps via uv"
 	@echo "  make ci               Full CI suite: install + lint + test + bash-check"
 	@echo "  make ci-integration   Integration CI: install + lint + test-integration + bash-check"
+	@echo "  make skills-eval      Run the tool-skills machine eval"
 	@echo ""
 	@echo "Tools:"
 	@echo "  python3 tools/cli.py list              Show all life-os-tool commands"
@@ -71,3 +72,10 @@ ci-integration: install lint test-integration bash-check ## Integration CI (mirr
 
 eval-tools: ## Run R4.5 machine-verifiable tool scenario runner (not in default `ci`)
 	bash evals/run-tool-eval.sh
+
+skills-eval: ## Run the tool-skills machine eval
+	@if command -v bash >/dev/null 2>&1; then \
+		bash evals/run-tool-eval.sh tool-skills; \
+	else \
+		echo "bash not found; skipping tool-skills eval"; \
+	fi

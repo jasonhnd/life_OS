@@ -32,6 +32,7 @@ export PYTHONIOENCODING=utf-8
 EVAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$EVAL_DIR/.." && pwd)"
 SCENARIOS_DIR="$EVAL_DIR/scenarios"
+SKILLS_FIXTURE_SCRIPT="$EVAL_DIR/fixtures/skills-test-setup.sh"
 
 PASS=0
 FAIL=0
@@ -129,6 +130,10 @@ invocation = fm.get("invocation", "") or ""
 print(f"SETUP_B64={b64(setup_script)}")
 print(f"INVOCATION_B64={b64(invocation)}")
 print(f"EXPECTED_EXIT_CODE={int(fm.get('expected_exit_code', 0))}")
+requires_claude = fm.get("requires_claude", False)
+if isinstance(requires_claude, str):
+    requires_claude = requires_claude.strip().lower() in {"1", "true", "yes", "on"}
+print(f"REQUIRES_CLAUDE={1 if requires_claude else 0}")
 print(f"STDOUT_CONTAINS_JSON={b64(json.dumps(fm.get('expected_stdout_contains', []) or []))}")
 print(f"STDERR_CONTAINS_JSON={b64(json.dumps(fm.get('expected_stderr_contains', []) or []))}")
 print(f"EXPECTED_FILES_JSON={b64(json.dumps(fm.get('expected_files', []) or []))}")
@@ -181,6 +186,30 @@ check_python_module() {
     "$PYTHON" -c "import $1" >/dev/null 2>&1
 }
 
+shell_quote() {
+    VALUE_TO_QUOTE="$1" "$PYTHON" -c "import os, shlex; print(shlex.quote(os.environ['VALUE_TO_QUOTE']))"
+}
+
+write_life_os_tool_shim() {
+    local bin_dir="$1"
+    local shim="$bin_dir/life-os-tool"
+
+    mkdir -p "$bin_dir"
+    {
+        printf '#!/usr/bin/env bash\n'
+        printf 'exec %q -m tools.cli "$@"\n' "$PYTHON"
+    } > "$shim"
+    chmod +x "$shim"
+}
+
+missing_claude_output() {
+    grep -E -q '(^|[[:space:]])claude: (command not found|not found|No such file or directory)' <<< "$1"
+}
+
+missing_claude_file() {
+    grep -E -q '(^|[[:space:]])claude: (command not found|not found|No such file or directory)' "$1"
+}
+
 # ─── Per-scenario runner ────────────────────────────────────────────────────
 
 run_scenario() {
@@ -216,7 +245,7 @@ run_scenario() {
         return
     fi
 
-    local SETUP_B64="" INVOCATION_B64="" EXPECTED_EXIT_CODE=0
+    local SETUP_B64="" INVOCATION_B64="" EXPECTED_EXIT_CODE=0 REQUIRES_CLAUDE=0
     local STDOUT_CONTAINS_JSON="" STDERR_CONTAINS_JSON=""
     local EXPECTED_FILES_JSON="" EXPECTED_FILES_GLOB_JSON=""
     local SKIP_MODULES_JSON="" SKIP_BINARIES_JSON="" ENV_JSON=""
@@ -253,6 +282,13 @@ run_scenario() {
         return
     fi
 
+    if [ "$REQUIRES_CLAUDE" -eq 1 ] && ! command -v claude >/dev/null 2>&1; then
+        echo "   SKIP (missing claude CLI)"
+        RESULTS+=("SKIP $name (missing claude CLI)")
+        SKIP=$((SKIP + 1))
+        return
+    fi
+
     local TMP_DIR
     TMP_DIR="$(mktemp -d -t lifeos-tooleval-XXXXXX 2>/dev/null || mktemp -d)"
 
@@ -260,6 +296,14 @@ run_scenario() {
     SETUP_SCRIPT="$(substitute_tmpdir "$(b64decode "$SETUP_B64")" "$TMP_DIR")"
     INVOCATION="$(substitute_tmpdir "$(b64decode "$INVOCATION_B64")" "$TMP_DIR")"
     INVOCATION_EXEC="$(rewrite_python3 "$INVOCATION")"
+
+    local tool_bin_dir="$TMP_DIR/.bin"
+    write_life_os_tool_shim "$tool_bin_dir"
+
+    local fixture_env_file="$TMP_DIR/skills-fixture.env"
+    if [ "$name" = "tool-skills" ] && [ -f "$SKILLS_FIXTURE_SCRIPT" ]; then
+        SETUP_SCRIPT="bash $(shell_quote "$SKILLS_FIXTURE_SCRIPT") --root $(shell_quote "$TMP_DIR")"
+    fi
 
     local ENV_EXPORTS=""
     ENV_EXPORTS="$(ENV_JSON_B64="$ENV_JSON" "$PYTHON" -c "
@@ -278,10 +322,20 @@ for k, v in data.items():
     if [ -n "$SETUP_SCRIPT" ]; then
         setup_block+=$'\n'"$SETUP_SCRIPT"
     fi
+    if [ "$name" = "tool-skills" ] && [ -f "$SKILLS_FIXTURE_SCRIPT" ]; then
+        setup_block+=$'\n'"test -f $(shell_quote "$fixture_env_file")"
+    fi
 
     local setup_out setup_rc=0
     setup_out="$(bash -c "$setup_block" 2>&1)" || setup_rc=$?
     if [ "$setup_rc" -ne 0 ]; then
+        if [ "$setup_rc" -eq 127 ] && missing_claude_output "$setup_out"; then
+            echo "   SKIP (missing claude CLI)"
+            RESULTS+=("SKIP $name (missing claude CLI)")
+            SKIP=$((SKIP + 1))
+            rm -rf "$TMP_DIR"
+            return
+        fi
         echo "   ❌ FAIL (setup_script exit $setup_rc)"
         if [ -n "$setup_out" ]; then
             echo "$setup_out" | head -10 | sed 's/^/      /'
@@ -296,8 +350,15 @@ for k, v in data.items():
     local invoke_block="set +e"
     invoke_block+=$'\n'"export PYTHONIOENCODING=utf-8"
     invoke_block+=$'\n'"export PYTHONPATH=\"$REPO_ROOT\""
+    # Keep the POSIX /tmp path intact under Git Bash. Passing this through the
+    # Python-based shell_quote helper can trigger MSYS path conversion into a
+    # C:/... string, whose drive-colon breaks PATH lookup for the shim.
+    invoke_block+=$'\n'"export PATH=\"$tool_bin_dir:\$PATH\""
     if [ -n "$ENV_EXPORTS" ]; then
         invoke_block+=$'\n'"$ENV_EXPORTS"
+    fi
+    if [ -f "$fixture_env_file" ]; then
+        invoke_block+=$'\n'". $(shell_quote "$fixture_env_file")"
     fi
     invoke_block+=$'\n'"cd \"$REPO_ROOT\""
     invoke_block+=$'\n'"$INVOCATION_EXEC"
@@ -308,6 +369,14 @@ for k, v in data.items():
 
     bash -c "$invoke_block" > "$stdout_file" 2> "$stderr_file"
     actual_rc=$?
+
+    if [ "$actual_rc" -eq 127 ] && missing_claude_file "$stderr_file"; then
+        echo "   SKIP (missing claude CLI)"
+        RESULTS+=("SKIP $name (missing claude CLI)")
+        SKIP=$((SKIP + 1))
+        rm -rf "$TMP_DIR"
+        return
+    fi
 
     local assertions_failed=""
 
@@ -374,9 +443,25 @@ for k, v in data.items():
 # ─── Main ───────────────────────────────────────────────────────────────────
 
 shopt -s nullglob
-SCENARIOS=("$SCENARIOS_DIR"/tool-*.md)
-if [ -f "$SCENARIOS_DIR/native-subagent-registration.md" ]; then
-    SCENARIOS+=("$SCENARIOS_DIR/native-subagent-registration.md")
+if [ "$#" -gt 0 ]; then
+    SCENARIOS=()
+    for requested in "$@"; do
+        if [ -f "$requested" ]; then
+            SCENARIOS+=("$requested")
+        elif [ -f "$SCENARIOS_DIR/$requested.md" ]; then
+            SCENARIOS+=("$SCENARIOS_DIR/$requested.md")
+        elif [ -f "$SCENARIOS_DIR/tool-$requested.md" ]; then
+            SCENARIOS+=("$SCENARIOS_DIR/tool-$requested.md")
+        else
+            echo "❌ scenario not found: $requested"
+            exit 2
+        fi
+    done
+else
+    SCENARIOS=("$SCENARIOS_DIR"/tool-*.md)
+    if [ -f "$SCENARIOS_DIR/native-subagent-registration.md" ]; then
+        SCENARIOS+=("$SCENARIOS_DIR/native-subagent-registration.md")
+    fi
 fi
 shopt -u nullglob
 

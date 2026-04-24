@@ -95,6 +95,30 @@ See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain and the COURT-START
 
 ---
 
+## 1.7.1 Code Round 1 Preview: Skill Observability
+
+v1.7.1 now previews the first code round for installed Life OS skill observability.
+
+- List installed skills with `life-os-tool skills list`
+- Check upstream/cache status with `life-os-tool skills check`
+- Inspect one skill with `life-os-tool skills info <name>`
+- Show stale skills with `life-os-tool skills stale`
+- Share scanner/upstream libraries across CLI, tests, and eval fixtures
+- Run fixture-backed pytest coverage for list/check/info/stale behavior
+- Hook the tool-skills eval into Makefile and CI
+- Keep `mypy --strict tools/` as the typing gate
+- Surface shallow briefing counts without ROUTER or Cortex dispatch integration
+
+Example:
+
+```bash
+life-os-tool skills list
+```
+
+This preview does not change the `[1.7.0]` release scope or bump `SKILL.md`.
+
+---
+
 ## What's new in v1.6.3
 
 **Trust guard — five-layer defense against HARD RULE violations.** In testing, the author said "上朝" in the Life OS dev repo and the LLM bypassed the retrospective subagent, simulated 18 steps inline, and fabricated non-existent paths as authority. Documentation alone doesn't enforce anything — every HARD RULE was descriptive, with zero real enforcement. v1.6.3 ships five independent layers so every trigger word actually launches a real subagent:

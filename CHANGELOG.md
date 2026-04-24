@@ -6,6 +6,61 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.1-code-r1] - 2026-04-24 · 1.7.1 Code Round 1 · Skill Observability CLI
+
+> First implementation round for v1.7.1 Skill Observability. This follows `[1.7.1-design]`, does not change the `[1.7.0]` release scope, and does not bump `SKILL.md`.
+
+### Core Tooling
+
+- **Scanner**: `tools/lib/skills_scanner.py` discovers installed skills and normalizes local metadata.
+- **Upstream**: `tools/lib/skills_upstream.py` resolves cache/live upstream status with offline-aware degradation.
+- **Skills CLI**: `tools/skills.py` implements `list`, `check`, `info`, and `stale` with markdown/json output.
+- **CLI registration**: `tools/cli.py` routes `life-os-tool skills ...` through the unified dispatcher.
+
+### Fixtures And Tests
+
+- **Fixture script**: `evals/fixtures/skills-test-setup.sh` creates reproducible installed-skill samples.
+- **Tests**: `tests/test_skills*.py` covers scanner, upstream comparison, CLI rendering, and exit semantics.
+- **Dev dependency**: `pyproject.toml` adds `requests>=2.31` to the dev extras used by upstream tests.
+- **Eval runner**: `evals/run-tool-eval.sh` hooks the `tool-skills` scenario into fixture setup and teardown.
+
+### Automation And Gates
+
+- **Retrospective briefing**: `pro/agents/retrospective.md` adds shallow active/update/stale skill counts only.
+- **Makefile/CI**: `make skills-eval` and `.github/workflows/test.yml` run the tool-skills eval path.
+- **Mypy gate**: CI now runs `uv run mypy --strict tools/` as the strict typing gate for tool code.
+- **P1/P2 polish**: offline/cache parity, stale exits, shadowed-plugin reporting, and UTF-8 output cleanup landed.
+
+---
+
+## [1.7.1-design] - 2026-04-24 · 1.7.1 Docs Round 1 · Skill Observability
+
+> Docs-only design record for the Skill Observability direction. This is not a v1.7.0 release change and does not modify Cortex GA behavior.
+
+### Scope
+
+- **Direction locked**: Round 6 plugin-dispatch drafts are **DEAD**; v1.7.1 moves to observability, not dispatch.
+- **Observability focus**: list installed skills; check upstream versions; surface update/stale awareness; show trigger hints.
+- **Authority**: `references/skills-spec.md` owns the contract; companion docs explain the user-facing experience.
+- **No implementation scope**: no code, tests, hooks, workflows, Makefile, `pyproject`, `SKILL.md`, or `pro/agents` changes.
+
+### Locked CLI
+
+- `life-os-tool skills list` - installed skills inventory.
+- `life-os-tool skills check` - upstream comparison when online; local/cache status with `--offline`.
+- `life-os-tool skills info <name>` - single-skill metadata card and trigger hints.
+- `life-os-tool skills stale` - stale-only list; common flag `--format {markdown,json}` is locked.
+
+### Round Map
+
+- Round name: **1.7.1 Docs Round 1**; IDs: `D1.0`-`D1.13` plus `D1.audit`.
+- This changelog entry is the aligned release-note marker for the docs design round.
+- Boundary: no ROUTER dispatch, role assignment, task delegation rule, or dispatch override.
+- Cortex boundary: no Step 0.5 signals, GWT, narrator citations, SOUL snapshots, concept graph writes, or session-index artifacts.
+- Safety boundary: no automatic skill install/update/removal, hidden network writes, or stale-status reinterpretation.
+
+---
+
 ## [1.7.0] - 2026-04-22 · Cortex Cognitive Layer · General Availability
 
 > Cortex graduates from alpha to GA. 65 commits after `v1.7.0-alpha.2` closed the remaining TBDs: the full shell-hook runtime (5 hooks + shared library), 10 Python tools wired under a single `life-os-tool` CLI, 3 shared Python libraries, public docs publication under `docs/`, trilingual cognitive-layer docs, Step 0.5 / Step 7.5 contract synced across CLAUDE / GEMINI / AGENTS hosts, and a migration path that preserves every existing v1.6.2a second-brain.
