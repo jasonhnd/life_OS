@@ -18,6 +18,7 @@
 - **3 个 Python 库** — `tools/lib/{config, llm, notion}` 作为所有工具的共享底座
 - **三语用户指南落地** — 6 个新 Cortex 指南(EN)+ cortex-spec / hippocampus-spec 的中日翻译
 - **host 无关 orchestration 契约** — Step 0.5(路由前认知)+ Step 7.5(Narrator 校验)已在 CLAUDE.md / GEMINI.md / AGENTS.md(root + `pro/`)成为规范
+- **Life OS agents 注册为 Claude Code 原生 subagents** — install 会从 22 个 `pro/agents/*.md` 定义生成 21 个可被 Task 调用的 `~/.claude/agents/lifeos-*.md` wrapper，跳过 ROUTER-internal 的 narrator 模板，确保 `Task(lifeos-retrospective)` 不再 fallback 到 `general-purpose`
 
 ### 功能
 

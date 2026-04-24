@@ -429,6 +429,14 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 ```
 セッション開始時に1日1回、更新を自動チェックする。
 
+### Task から直接呼べる subagent
+
+`bash scripts/setup-hooks.sh` を実行すると、life_OS は Task から呼べる agents を `~/.claude/agents/lifeos-*.md` に自動登録する。これにより Claude Code は `Task(lifeos-retrospective)` や `Task(lifeos-archiver)` を一級の対象として認識し、`general-purpose` へ fallback しなくなる。
+
+`lifeos-` prefix は他の skill の agents との衝突を避けるためのもの。Wrapper は skill 内の `pro/agents/*.md` の canonical 定義を指すため、skill を更新して setup を再実行すれば agent の挙動も更新される。リポジトリには 22 個の agent 定義ファイルがあり、そのうち 21 個が Task-spawnable wrapper として登録され、`narrator.md` は ROUTER-internal のまま残る。
+
+アンインストール：`bash scripts/unregister-claude-agents.sh`。
+
 **手動更新**：任意のセッションで「アップデート」と言うだけ。
 
 > **非対応**：ChatGPT、Gemini Web、その他のシングルコンテキストチャットインターフェース。Life OS は真の情報隔離を持つ16の独立した subagent を必要とする——単一のチャットウィンドウでは実現できない。

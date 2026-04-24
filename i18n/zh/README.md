@@ -427,6 +427,14 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 ```
 每天你启动会话时自动检查一次更新。
 
+### 可被 Task 直接调用的 subagent
+
+执行 `bash scripts/setup-hooks.sh` 后，life_OS 会把可被 Task 调用的 agents 自动注册到 `~/.claude/agents/lifeos-*.md`。Claude Code 随后会把 `Task(lifeos-retrospective)`、`Task(lifeos-archiver)` 等调用识别为一等目标，而不是 fallback 到 `general-purpose`。
+
+`lifeos-` 前缀用于避免和其他 skill 的 agents 撞名。Wrapper 指向 skill 内 `pro/agents/*.md` 的权威定义，所以更新 skill 后重新运行 setup 即可刷新 agent 行为。仓库内共有 22 个 agent 定义文件；其中 21 个会注册为 Task-spawnable wrapper，`narrator.md` 保持 ROUTER-internal。
+
+卸载：`bash scripts/unregister-claude-agents.sh`。
+
 **手动更新**：在任何会话里说一句"更新"就行。
 
 > **不支持**：ChatGPT、Gemini 网页版，以及任何单上下文聊天界面。Life OS 需要 16 个信息隔离的独立 subagent——单个聊天窗口做不到。

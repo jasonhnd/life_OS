@@ -98,6 +98,8 @@ All display names, emoji, tone, and output titles come from the active theme fil
 
 Each role is defined in `pro/agents/*.md`. Orchestration protocol: `pro/CLAUDE.md`.
 
+> **v1.7.0+ native registration**: `scripts/register-claude-agents.sh` writes `lifeos-*` wrappers under `~/.claude/agents/` for Claude Code's native `Task()` discovery. There are 22 `pro/agents/*.md` definition files; 21 are Task-spawnable wrappers and `narrator.md` remains ROUTER-internal. ROUTER should call targets such as `Task(lifeos-retrospective)` so Claude Code launches the real subagent instead of `general-purpose`.
+
 ## Trigger Words
 
 Trigger words are theme-dependent. Each theme file defines its own triggers. Common English triggers always work:
