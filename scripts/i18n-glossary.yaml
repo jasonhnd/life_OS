@@ -1,0 +1,38 @@
+# Terms in this glossary must be preserved exactly by scripts/translate-i18n.py.
+terms:
+  ADVISOR:
+    zh: ADVISOR
+    ja: ADVISOR
+  Cortex:
+    zh: Cortex
+    ja: Cortex
+  GWT:
+    zh: GWT
+    ja: GWT
+  Hippocampus:
+    zh: Hippocampus
+    ja: Hippocampus
+  Life OS:
+    zh: Life OS
+    ja: Life OS
+  Narrator:
+    zh: Narrator
+    ja: Narrator
+  RETROSPECTIVE:
+    zh: RETROSPECTIVE
+    ja: RETROSPECTIVE
+  ROUTER:
+    zh: ROUTER
+    ja: ROUTER
+  SKILL:
+    zh: SKILL
+    ja: SKILL
+  Second Brain:
+    zh: Second Brain
+    ja: Second Brain
+  Skill Observability:
+    zh: Skill Observability
+    ja: Skill Observability
+  三省六部:
+    zh: 三省六部
+    ja: 三省六部

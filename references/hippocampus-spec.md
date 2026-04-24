@@ -347,3 +347,27 @@ Explicit don'ts — violations are process errors, AUDITOR flags them.
 ---
 
 **Document status**: Active spec for v1.7 Cortex Phase 1. Changes require explicit version bump and update to `pro/agents/hippocampus.md`, `references/cortex-spec.md`, and three-language CHANGELOG entries per project HARD RULE.
+
+---
+
+## §Design Rationale
+
+- Hippocampus exists because Life OS remembers distilled session outcomes, not raw message trajectories. Its job is to reactivate relevant prior decisions and patterns without replaying full historical transcripts.
+- `_meta/sessions/INDEX.md` is the first retrieval surface because one-line session summaries are cheap to scan, human-readable, and rebuildable from local markdown. Full session files are read only after shortlist selection.
+- v1.7 deliberately uses metadata, grep, and LLM judgment instead of embeddings or a vector database. This keeps markdown as the source of truth and avoids introducing a second memory substrate before personal-scale limits require it.
+- Retrieval is framed as bounded spreading activation: Wave 1 finds direct semantic matches, Wave 2 follows strong concept neighbors, and Wave 3 permits a small number of weaker but potentially useful associations.
+- The strict caps on retrieved sessions protect downstream arbitration. GWT needs a compact signal set, not an exhaustive history dump.
+- Hippocampus is read-only because memory mutation belongs at the ARCHIVER Phase 2 boundary. Pre-router retrieval must remain an independent signal source, isolated from concept lookup, SOUL check, and ROUTER reasoning.
+- Cost and latency tradeoffs favor the markdown-first design at v1.7 scale. Architecture notes expect INDEX scans to remain acceptable for thousands of sessions, with sharding or cache layers considered only after explicit scale triggers.
+- TBD: deeper cognitive-science rationale for the "hippocampus" name is not fully documented in the reviewed architecture sources; recover it from archived architecture records if a future spec revision needs more than the operational analogy.
+
+## §Migration
+
+- Create or preserve `_meta/sessions/` and compile `_meta/sessions/INDEX.md` before enabling hippocampus. The index is the Wave 1 entry point.
+- Backfill recent session summaries instead of importing raw transcripts. Use the project-wide v1.7 backfill scope where applicable: the last 3 months of journal/session history.
+- Each migrated session summary should include enough frontmatter for retrieval and concept expansion, especially `session_id`, date/project metadata, and concept activation or discovery fields when available.
+- After bulk import, rebuild indexes with the local tools path (`tools/reindex.py` or the v1.7 reindex command exposed through the CLI). Treat generated indexes as rebuildable artifacts, not hand-authored truth.
+- Keep embedding and vector search disabled in v1.7. `embed.py` is a placeholder/future path; it must not become a required hippocampus dependency.
+- Revisit retrieval storage only when scale triggers fire, such as `INDEX.md` exceeding roughly 5000 rows, sustained high token cost, p95 hippocampus latency above the documented budget, or product/multi-user requirements.
+- If scaling is needed, shard session indexes by time first. Any SQLite, FTS, embedding, or cache layer must remain rebuildable from markdown and must not replace markdown as source of truth.
+- Do not sync hippocampus runtime data to Notion. Cortex artifacts stay local; migration of development environments may restore hooks, tools, skills, and tests, but it does not change the session-memory source of truth.

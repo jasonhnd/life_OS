@@ -139,6 +139,28 @@ See [CHANGELOG](CHANGELOG.md) for the full list and the original COURT-START-001
 
 ---
 
+<a id="cost-token-estimate"></a>
+
+## Cost / Token Estimate
+
+Life OS cost scales with the route: direct handling is light, express analysis activates only the needed domains, and full deliberation adds planning, review, dispatch, final review, audit, and 3-6 domain reports. Claude Pro/Max users are not billed per token; the dollar figures below are API-style estimates and may drift as model pricing changes. See [docs/token-estimation.md](docs/token-estimation.md) for the full breakdown.
+
+| Typical scenario | Ministries/domains | Tokens | Est. cost |
+|------------------|--------------------|--------|-----------|
+| ROUTER handles directly | 0 | ~1k | ~$0.02 |
+| Express analysis | 1-2 | ~18k | ~$0.43 |
+| Major purchase | 3 | ~22k | ~$0.55 |
+| Investment / health / learning | 4 | ~27k | ~$0.68 |
+| Career transition / relocation | 6 | ~38k | ~$1.00 |
+| All six + veto | 6 + veto | ~43k | ~$1.20 |
+| All six + veto + council debate | 6 + veto + debate | ~55k | ~$1.75 |
+| Morning court review | session start | ~2k | ~$0.04 |
+| Hanlin Academy conversation (5 turns) | conversation | ~8k | ~$0.18 |
+
+Long source material, extra veto cycles, or longer conversations increase usage. To save tokens, let the ROUTER handle simple matters directly and use express analysis when you need expertise without a full decision process.
+
+---
+
 ## How it works
 
 Life OS rests on five pillars. The **decision engine** is the core — everything else grows from it.
@@ -300,6 +322,37 @@ You can use one, two, or all three. Multi-backend: writes go to all selected bac
 **Parallel sessions**: Work on project-alpha in one terminal window, project-beta in another. Each session writes to its own outbox directory. The next time you start a session, everything merges cleanly — no conflicts, no locks.
 
 **First-run setup**: On your very first session, the system detects that no second-brain exists and walks you through creating one — choose your backend(s), and the full directory structure is created automatically.
+
+**How the Second Brain operates**
+
+| Layer | Role |
+|-------|------|
+| GitHub / disk second-brain | Source of truth; complete records you own as Markdown files. |
+| Notion memory | Lightweight mobile workspace: inbox, current status, active topics, and todo board. |
+| Life OS session | Bridge between both sides; reads the full brain and decides what syncs outward. |
+
+**Data channels**
+
+```text
+Mobile: Claude.ai -> Notion inbox
+Desktop: Life OS -> GitHub / disk second-brain + Notion sync
+Session close: archive -> DREAM extraction -> external sync
+```
+
+**Write rules**
+
+- File writes and git commits are the sync boundary; pure chat does not mutate Markdown or Notion.
+- Session start pulls inbox, status, and project context; session close archives decisions, tasks, and logs before DREAM and sync.
+- Projects are endpoint-bound work in `projects/{name}/`; areas are ongoing responsibilities in `areas/{name}/`.
+- Completed projects can move to `archive/`, while DREAM-extracted reusable conclusions stay in `wiki/`.
+- `SOUL.md` stores values, principles, decision tendencies, and behavioral patterns for REVIEWER, ADVISOR, and STRATEGIST.
+- `_meta/STATUS.md` is the global status snapshot; `_meta/STRATEGIC-MAP.md` links projects, strategic lines, and dependencies.
+- `_meta/journal/` stores briefings, audit/remonstrator reports, and session-close logs; `_meta/outbox/` stages per-session sync outputs.
+- Project decisions go to `projects/{project}/decisions/`; cross-domain decisions go to `_meta/decisions/`.
+- Action items go to project or area `tasks/`; project research goes to `projects/{project}/research/`.
+- Notion keeps only the active working set: inbox items, current status mirror, 5-10 active topic pages, and mobile todos.
+- Code stays in project repos; thinking about the code stays in the second-brain repo.
+- Without a data layer, Life OS still runs, but persistence, cross-session memory, mobile capture, and strategic history are unavailable.
 
 ---
 
@@ -472,6 +525,30 @@ Life OS installs in one command. It requires a **Pro Mode** terminal — that me
 | **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` |
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
+
+### Quick install checklist
+
+Claude Code:
+```bash
+/install-skill https://github.com/jasonhnd/life_OS
+```
+
+Gemini CLI, Antigravity, or Codex CLI:
+```bash
+npx skills add jasonhnd/life_OS
+```
+
+1. Open the Pro Mode terminal for your platform.
+2. Run the matching command above and wait for the success message.
+3. Claude Code installs the full Life OS skill and prepares all 16 roles.
+4. Gemini CLI and Antigravity load `pro/GEMINI.md` automatically after install.
+5. Codex CLI loads `pro/AGENTS.md` automatically after install.
+6. Start a new session and choose a theme when prompted.
+7. On first run, Life OS creates or connects your second-brain storage.
+8. Test with a real decision such as "Help me analyze whether I should buy a MacBook."
+9. Decision requests should escalate into the Three Departments and Six Ministries flow.
+10. Translation or simple chat should stay on the direct ROUTER path.
+11. For storage backend setup, troubleshooting, and updates, use the full guide.
 
 On first start, you pick your theme. The system auto-detects your language and recommends a match, but the choice is always yours. You can switch at any time by saying "switch theme."
 

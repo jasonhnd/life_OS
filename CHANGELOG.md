@@ -6,6 +6,68 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## Migration Notes
+
+> Essential v1.6 to v1.7 migration checklist, condensed from `MIGRATION.md`. Use this when moving a Life OS dev environment or upgrading an existing second-brain to the v1.7 Cortex layout.
+
+### 1. Scope And Safety
+
+- Treat git-tracked code, local Claude configuration, Claude memory, and second-brain data as separate migration surfaces.
+- Preserve existing `[1.7.0]` and `[1.7.1]` release notes as historical records; migration notes live outside release entries.
+- Push any local commits from the old machine first with `git log origin/main..HEAD`, then migrate from a clean branch state.
+- Do not commit migration packages, private `.claude/` settings, Claude memory, SSH keys, or personal second-brain data.
+- Existing second-brains keep their current `cortex_enabled` setting; new v1.7 installs can enable Cortex by default.
+
+### 2. What Git Already Provides
+
+- A fresh `git clone` includes `tools/`, `scripts/`, `tests/`, `pro/`, `themes/`, `evals/`, and `references/`.
+- The clone includes the authoritative specs: `SKILL.md`, `pro/CLAUDE.md`, `pro/GEMINI.md`, `pro/AGENTS.md`, and `references/*.md`.
+- The clone includes i18n docs under `i18n/zh/` and `i18n/ja/`, including localized README and changelog files.
+- The clone includes project configuration: `pyproject.toml`, `.python-version`, `Makefile`, and `.github/workflows/test.yml`.
+- The clone includes public compliance files such as `pro/compliance/violations.md` and `violations.example.md`.
+
+### 3. Back Up Local-Only Files
+
+- From the old machine, create `~/life-os-migration` as the handoff folder.
+- Archive gitignored dev-repo files: `.claude/CLAUDE.md`, `.claude/settings.json`, optional `.claude/settings.local.json`, private compliance dossiers, and local `docs/`.
+- Archive Claude project memory from `~/.claude/projects/.../memory/`; if the directory name starts with `-`, tar it with a `./` prefix.
+- Copy `~/.claude/settings.json` to `claude-global-settings.json` so hook registrations can be reviewed or merged later.
+- Transfer the migration folder with AirDrop, iCloud Drive, USB, or `scp -r ~/life-os-migration/ new-machine:~/`.
+
+### 4. Prepare The New Machine
+
+- Install required system dependencies: Python 3.11+, `jq`, `bash`, `git`, GitHub authentication, and Claude Code CLI.
+- Optionally install `uv`, `ruff`, `pytest`, and `pyyaml` for local tooling, tests, and lint.
+- Clone the repo, then verify recent commits and tags with `git log --oneline | head` and `git tag --list --sort=-v:refname | head`.
+- Unpack the private dev-repo archive into the new clone only if those files are needed for local Claude enforcement.
+- If the username or checkout path changed, rename the Claude memory directory to match the new `~/.claude/projects/-Users-...` path.
+
+### 5. Restore Life OS Runtime
+
+- Install the latest `life_OS` skill through Claude Code with `/install-skill https://github.com/jasonhnd/life_OS`, or copy the clone to `~/.claude/skills/life_OS`.
+- Run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to deploy hook scripts and register SessionStart/UserPromptSubmit hooks.
+- Review `claude-global-settings.json` before merging custom global settings into the new `~/.claude/settings.json`.
+- If `jq` is missing, install it before rerunning `setup-hooks.sh`; the script depends on it.
+- Confirm `.claude/CLAUDE.md`, `.claude/settings.json`, restored docs, and private compliance files exist only where intended.
+
+### 6. Upgrade Second-Brain Data To v1.7
+
+- Install Python dependencies with `uv sync --extra dev` when available, or with `python3.11 -m pip install --user pyyaml pytest ruff`.
+- Run `uv run life-os-tool migrate` for v1.6.2a/v1.6.x second-brains moving to v1.7.
+- The migration backfills roughly the last 3 months of journal and snapshot data into the new `_meta/cortex/` shard layout.
+- Run `life-os-tool reindex`, `life-os-tool reconcile`, or their `tools/cli.py` equivalents if session indexes or concept indexes need rebuilding.
+- Keep the second-brain and dev repo distinct; the dev repo normally has no `_meta/config.md`, so Cortex settings are read from the use repo.
+
+### 7. Verification Checklist
+
+- Run `make test`; the v1.7 baseline expects the full pytest suite to pass.
+- Run `make bash-check` and `make lint` to catch hook syntax or formatting regressions.
+- Smoke-test CLI commands with `python3 tools/cli.py list` and `python3 tools/cli.py stats`.
+- Test hook triggering with a Start Session phrase such as `上朝`, then test a long non-trigger prompt to confirm no false positive.
+- Finish with `git status` and a live Claude Code session to confirm the ROUTER, RETROSPECTIVE subagent, and Compliance Patrol activate correctly.
+
+---
+
 ## [1.7.1-code-r1] - 2026-04-24 · 1.7.1 Code Round 1 · Skill Observability CLI
 
 > First implementation round for v1.7.1 Skill Observability. This follows `[1.7.1-design]`, does not change the `[1.7.0]` release scope, and does not bump `SKILL.md`.

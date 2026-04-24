@@ -353,7 +353,7 @@ landed in the mid-band rather than the high band. Max 30 lines.}
 Every Cortex component is a Claude Code subagent defined in `pro/agents/*.md`. The execution rules are the same as the existing 16 subagents.
 
 - **No external API calls** — all LLM work happens inside the current Claude Code session. No Anthropic API key, no Claude API proxy, no OpenAI SDK.
-- **No database** — the storage-decision ADR (`docs/architecture/markdown-first.md`) is authoritative. Markdown is the source of truth. SQLite and any other database are out of scope.
+- **No database** — the markdown-first storage contract (`references/data-layer.md` §Single Source of Truth Rules) is authoritative. Markdown is the source of truth. SQLite and any other database are out of scope.
 - **No separate background jobs** — no cron, no daemons, no scheduled workers. Data updates happen inside ARCHIVER Phase 2 writes.
 - **No external secrets** — no environment variables beyond what Claude Code already provides. No Vercel, no GitHub Actions, no CI/CD pipelines.
 - **Concept decay runs every adjourn** — not on a timer. The adjourn flow is the canonical maintenance window.
@@ -656,7 +656,7 @@ The following specifications are deliberately left to be resolved during impleme
 
 - Overall architecture discussion → `devdocs/brainstorm/2026-04-19-cortex-architecture.md`
 - Integration bridge document → `devdocs/architecture/cortex-integration.md`
-- Markdown-first ADR → `docs/architecture/markdown-first.md`
+- Markdown-first storage contract → `references/data-layer.md` §Single Source of Truth Rules
 - Hippocampus mechanism → `references/hippocampus-spec.md`
 - GWT arbitrator mechanism → `references/gwt-spec.md`
 - Narrator layer mechanism → `references/narrator-spec.md`
@@ -669,3 +669,19 @@ The following specifications are deliberately left to be resolved during impleme
 - SOUL mechanism → `references/soul-spec.md`
 - Wiki mechanism → `references/wiki-spec.md`
 - DREAM mechanism → `references/dream-spec.md`
+
+## §Design Rationale
+
+- Cortex is a Layer 2 increment, not a new platform layer. It upgrades ROUTER input with advisory cognitive context while preserving the v1.6.2a 16-agent workflow.
+- The four core mechanisms address separate failure modes: hippocampus for cross-session recall, concept graph for reinforcement, GWT for salience selection, and narrator/validator for grounded summary claims.
+- Markdown remains the source of truth. Cortex `_meta/` files are local, human-readable, and rebuildable; databases, embeddings, and cloud services are optional accelerators, not authority.
+- Step 0.5 and Step 7.5 are bounded guardrails. They enrich or ground ROUTER output, but they do not replace ROUTER, REVIEWER, ARCHIVER, or information-isolation contracts.
+- Cortex data stays local and does not round-trip through Notion; Notion receives only session summaries and decision records through the existing sync boundary.
+
+## §Migration
+
+- Preserve v1.6.2a compatibility first: the existing ROUTER, 16-agent flow, themes, storage adapters, and markdown source files continue to work when Cortex is disabled.
+- Roll out in internal dependency order: Stage A lays data, hook, and tool foundations; Stage B activates pre-router signals; Stage C adds narrator and undo; Stage D completes local execution and method-library loops.
+- Keep Cortex opt-out by default until `_meta/config.md` explicitly enables `cortex_enabled: true`; cold-start users should receive minimal cognitive context rather than blocked sessions.
+- Use `_meta/cortex/bootstrap-status.md` as the canonical migration status file; older migration-log naming is deprecated.
+- Backfill local markdown only: session summaries, concept candidates, SOUL snapshots, eval history, and methods remain rebuildable under `_meta/` and are not synced to Notion.

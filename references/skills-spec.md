@@ -330,3 +330,37 @@ Until a later spec explicitly supersedes this document, Life OS hosts must treat
 - `SKILL.md` - root Life OS behavior source; this spec does not modify runtime skill loading
 
 **END**
+
+## §Design Rationale
+
+Skill Observability exists because Life OS can be extended by locally installed skills and plugin-provided companion tools, but those extensions should remain visible to the user instead of silently becoming part of the decision workflow. The archived companion-tools guidance treats external skills and tools as optional helpers around Life OS, not as replacements for ROUTER, Cortex, the 16-agent workflow, or the markdown-first source of truth.
+
+The design therefore keeps observability additive. It answers inventory and hygiene questions: what is installed, where it came from, whether an upstream version appears newer, whether local metadata is stale, and which trigger hints may help a human recognize intended usage. These facts are useful in Start Session briefings, environment checks, migrations, and machine setup, but they must not mutate task selection, memory, or agent semantics.
+
+The `triggers-hint` field is intentionally a hint, not a routing table. Archived user-facing docs describe it as a way to help users understand when a skill might be relevant; the spec keeps ROUTER and Cortex uninvolved so that skill metadata cannot become an implicit planning or memory substrate.
+
+Skill status is also advisory by design. Update availability and stale metadata are hygiene signals that help users decide whether to reinstall, inspect, or ignore a skill. The system must not auto-update, auto-disable, or auto-remediate skills from these signals because local skills may be personal, experimental, pinned for compatibility, or intentionally offline.
+
+The source-priority rule preserves predictable local control. A directly installed `skills://<id>` record wins over a plugin-provided record with the same id because explicit local installation is the clearest user intent. Shadowed plugin telemetry remains visible so the user can diagnose duplicates without expanding the active-skill set.
+
+The cross-platform boundary follows the archived multi-platform architecture: shared skill and agent definitions should remain host-agnostic where possible, while host-specific behavior belongs in `pro/CLAUDE.md`, `pro/GEMINI.md`, and `pro/AGENTS.md`. Skill Observability may report local installation state on any host, but it must not introduce host-specific subagents or reinterpret platform orchestration.
+
+## §Migration
+
+When migrating older companion-tool documentation into the v1.7.1 spec set, keep product guidance and normative contract separate. User-facing recommendations for tools such as visual-design skills, document-conversion CLIs, or memory plugins belong in user-guide or companion-tool docs; `references/skills-spec.md` should retain only the Skill Observability contract and its integration boundaries.
+
+`devdocs/human-docs-archive/2026-04-24/MIGRATION.md` Step 7 is useful historical evidence for local skill setup, especially the `~/.claude/skills/life_OS` installation path and reinstall flow. Treat those details as environment setup guidance, not as a cross-platform normative requirement. Claude-only install commands must not be generalized into Gemini or Codex behavior unless the relevant host orchestration file defines that behavior.
+
+Migration from older docs should preserve these boundaries:
+
+- No automatic skill updates.
+- No ROUTER dispatch based on skill status.
+- No Cortex reads or writes.
+- No narrator wrapping.
+- No failure-handler or recovery-chain integration.
+- No new subagent semantics.
+- No change to the fixed output columns, status vocabulary, exit codes, source priority, shadowing rule, or upstream endpoint list.
+
+If an older doc describes a companion tool as useful for a Life OS task, migrate that description as advisory user guidance rather than as a requirement that the tool be installed. If an older doc describes a skill inventory or health check, map it to the four Skill Observability commands and the single retrospective briefing line defined above.
+
+If future migration work needs richer origin context than the archived companion-tools and migration docs provide, use `devdocs/human-docs-archive/2026-04-24/docs/architecture/` as the historical architecture record, while keeping `references/*.md` authoritative for current contracts.

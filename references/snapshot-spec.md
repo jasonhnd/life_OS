@@ -241,3 +241,23 @@ These are forbidden by spec:
 - `references/eval-history-spec.md` — AUDITOR's `soul_reference_quality` dimension consumes snapshot-derived trend signals
 - `pro/agents/archiver.md` — Phase 2 Step 3 owns snapshot writes
 - `pro/agents/retrospective.md` — Mode 0 owns snapshot reads for the Health Report
+
+## §Design Rationale
+
+SOUL snapshots exist because identity state is temporal. `SOUL.md` remains the current authoritative self-model, while `_meta/snapshots/soul/` records enough metadata to see whether a dimension is strengthening, weakening, newly emerging, or going dormant across sessions.
+
+This keeps the SOUL Health Report grounded in observed movement rather than static assertions. RETROSPECTIVE can compare two frozen metadata states and produce trend arrows without replaying full SOUL history, maintaining a separate state machine, or duplicating sensitive SOUL body content.
+
+Snapshots are markdown-first Cortex artifacts: small, local, append-only files that can be inspected by humans, rebuilt or audited with git history, and kept outside Notion sync. Their immutability makes confidence changes visible after the fact; corrections belong in `SOUL.md` and appear naturally in the next snapshot.
+
+The ARCHIVER/RETROSPECTIVE boundary preserves information flow. ARCHIVER writes snapshots at adjourn after SOUL updates have settled; RETROSPECTIVE reads only the recent active snapshots at Start Session and exposes the derived Health Report to the rest of the workflow.
+
+## §Migration
+
+For v1.6.2a second-brains, preserve the existing `_meta/snapshots/soul/` mechanism and continue writing new snapshots in the v1.7 schema. Existing snapshot history remains useful for trend continuity even when older files use earlier frontmatter names.
+
+If no snapshot history exists, bootstrap the first snapshot from the current `SOUL.md` rather than reconstructing deep identity history. The first Start Session after bootstrap should use first-snapshot behavior; trend arrows become meaningful after the next captured session.
+
+When migration tooling backfills from `_meta/journal/`, synthetic snapshots must be limited to the normal migration window, marked with `provenance: synthetic`, and logged to `_meta/cortex/bootstrap-status.md`. Synthetic files support audit and continuity, but they must not rewrite `SOUL.md` or replace natural snapshots.
+
+Retention follows the existing snapshot archive policy: keep recent snapshots hot, archive older snapshots by age, and rely on git history for long-range audit. Snapshot reads stay in RETROSPECTIVE, and snapshot writes stay at the adjourn/ARCHIVER boundary.

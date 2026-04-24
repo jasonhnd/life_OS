@@ -137,6 +137,28 @@ life-os-tool skills list
 
 ---
 
+<a id="cost-token-estimate"></a>
+
+## コスト / トークン見積もり
+
+Life OS の消費量は主にルートで決まります。ROUTER の直接処理が最も軽く、Express analysis は必要な領域だけを起動し、フル審議は起案、審査、派遣、最終審査、監査、そして 3-6 領域のレポートを含みます。Claude Pro/Max サブスクは通常 token 単位課金ではありません。下表のドル額は API 利用を想定した目安で、モデル価格により変わります。詳細は [docs/token-estimation.md](../../docs/token-estimation.md) を参照してください。
+
+| 典型シナリオ | 省庁/領域 | トークン | 推定コスト |
+|--------------|-----------|----------|------------|
+| ROUTER 直接処理 | 0 | ~1k | ~$0.02 |
+| Express analysis | 1-2 | ~18k | ~$0.43 |
+| 大きな購入判断 | 3 | ~22k | ~$0.55 |
+| 投資 / 健康 / 学習 | 4 | ~27k | ~$0.68 |
+| 転職 / 移住 | 6 | ~38k | ~$1.00 |
+| 全 6 領域 + Veto | 6 + veto | ~43k | ~$1.20 |
+| 全 6 領域 + Veto + 評議討論 | 6 + veto + debate | ~55k | ~$1.75 |
+| 朝のレビュー | セッション開始 | ~2k | ~$0.04 |
+| 翰林院の深い対話（5 ターン） | 対話 | ~8k | ~$0.18 |
+
+長い資料、追加の veto サイクル、長い対話は使用量を増やします。トークンを節約するには、単純な用件は ROUTER に直接処理させ、完全な意思決定プロセスが不要な専門分析では Express analysis を使います。
+
+---
+
 ## 仕組み
 
 Life OS は五つの柱で構成される。**意思決定エンジン**が中核で、残りはすべてそこから派生する。
@@ -268,6 +290,37 @@ second-brain/
 **並列セッション**：一つのターミナルウィンドウで project-alpha、別のウィンドウで project-beta を作業する。各セッションが独自の outbox に書き込む。次に閣議を開始したとき、すべてがきれいにマージされる——コンフリクトもロックもない。
 
 初回起動時、セカンドブレインのディレクトリ構造は自動的に作成される。
+
+**セカンドブレインの動作境界**
+
+| レイヤー | 役割 |
+|----------|------|
+| GitHub / ローカル second-brain | 正本。あなたが所有する完全な Markdown 記録を保存する。 |
+| Notion memory | 軽量な作業記憶。スマホ inbox、現在状態、アクティブトピック、Todo Board を扱う。 |
+| Life OS セッション | 両側を橋渡しする。完全な脳を読み、どの状態をモバイルへ同期するかを決める。 |
+
+**データチャネル**
+
+```text
+スマホ：Claude.ai -> Notion inbox
+デスクトップ：Life OS -> GitHub / ローカル second-brain + Notion 同期
+閣議終了：archive -> DREAM 抽出 -> 外部同期
+```
+
+**書き込みルール**
+
+- ファイル書き込みと git commit が同期境界。純粋な会話だけでは Markdown も Notion も更新しない。
+- セッション開始時に inbox、状態、プロジェクト文脈を取り込み、終了時に決定・タスク・ログをアーカイブしてから DREAM と同期を行う。
+- プロジェクトは終点のある仕事で `projects/{name}/` に置く。エリアは継続責任で `areas/{name}/` に置く。
+- 完了したプロジェクトは `archive/` に移せるが、DREAM が抽出した再利用可能な結論は `wiki/` に残る。
+- `SOUL.md` は価値観、原則、意思決定傾向、行動パターンを保存し、REVIEWER、ADVISOR、STRATEGIST が個別化に使う。
+- `_meta/STATUS.md` は全体ステータスのスナップショット。`_meta/STRATEGIC-MAP.md` はプロジェクト、戦略ライン、依存関係をつなぐ。
+- `_meta/journal/` には開始ブリーフィング、監査/諫言レポート、終了ログを保存する。`_meta/outbox/` は各セッションの同期待ち出力を置く。
+- プロジェクト決定は `projects/{project}/decisions/`、横断的な重大決定は `_meta/decisions/` に入る。
+- アクション項目はプロジェクトまたはエリアの `tasks/`、プロジェクト調査は `projects/{project}/research/` に入る。
+- Notion にはアクティブな作業セットだけを置く：inbox、現在状態ミラー、5-10個のトピックページ、モバイル Todo Board。
+- コードは各プロジェクトリポジトリに残し、そのプロジェクトについての思考・決定・タスクは second-brain リポジトリに残す。
+- データレイヤーを設定しなくても Life OS は動くが、永続化、クロスセッション記憶、スマホ捕獲、長期戦略履歴は使えない。
 
 ---
 
@@ -444,6 +497,30 @@ Life OS は1コマンドでインストールできる。**Pro Mode** ターミ�
 | **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` |
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
+
+### クイックインストールチェックリスト
+
+Claude Code:
+```bash
+/install-skill https://github.com/jasonhnd/life_OS
+```
+
+Gemini CLI、Antigravity、Codex CLI:
+```bash
+npx skills add jasonhnd/life_OS
+```
+
+1. 対応するプラットフォームの Pro Mode ターミナルを開く。
+2. 上の該当コマンドを実行し、成功メッセージを待つ。
+3. Claude Code では完全な Life OS skill が入り、16 の役割が準備される。
+4. Gemini CLI と Antigravity はインストール後に `pro/GEMINI.md` を自動ロードする。
+5. Codex CLI はインストール後に `pro/AGENTS.md` を自動ロードする。
+6. 新しいセッションを開始し、促されたらテーマを選ぶ。
+7. 初回実行時は、Life OS が second-brain ストレージを作成または接続する。
+8. 「MacBook を買うべきか分析して」など、実際の意思決定でテストする。
+9. 意思決定の依頼は三省六部フローへエスカレーションされる。
+10. 翻訳や通常の雑談は ROUTER の直接処理に留まる。
+11. ストレージバックエンド、トラブルシューティング、更新の詳細はインストールガイド全文へ。
 
 初回起動時にテーマを選ぶ。システムが言語を自動検出して最適なテーマを提案するが、選択はつねにあなた次第だ。いつでも「テーマ切り替え」と言えば変更できる。
 

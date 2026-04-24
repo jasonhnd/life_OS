@@ -22,7 +22,7 @@ This spec defines the five hooks required for v1.7, their contracts, their regex
 
 **Claude Code only (v1.7).** The hook system described here exists natively in Anthropic's Claude Code CLI. Gemini CLI and Codex CLI do not expose an equivalent hook surface in v1.7 — they fall back to prompt-level enforcement (SKILL.md HARD RULE statements) without the runtime backstop.
 
-When Gemini / Codex publish compatible hook specs, the same five scripts can be registered there. Until then, Life OS on non-Claude-Code hosts gets only Layer 1 (documentation) and Layer 2 (subagent isolation). This is documented in `docs/architecture/execution-layer.md`.
+When Gemini / Codex publish compatible hook specs, the same five scripts can be registered there. Until then, Life OS on non-Claude-Code hosts gets only Layer 1 (documentation) and Layer 2 (subagent isolation). This is documented in `references/hooks-spec.md` §Platform Support and `references/tools-spec.md` §Design Rationale.
 
 ---
 
@@ -400,10 +400,34 @@ Each scenario is a markdown file with input, expected hook output, and expected 
 - `references/tools-spec.md` — Python Layer 4 tools (`stats.py`, `backup.py`, `reconcile.py`) that complement hooks
 - `references/cortex-spec.md` — overall Cortex architecture; hooks protect its markdown-first invariants
 - `pro/compliance/2026-04-19-court-start-violation.md` — the founding incident that justified this spec
-- `docs/architecture/execution-layer.md` — full Layer 3 (hooks) + Layer 4 (Python tools) architecture
+- `references/tools-spec.md` — Layer 4 Python tools architecture and design rationale
 - `scripts/setup-hooks.sh` — v1.6.2 installer template that v1.7's extended installer inherits from
 - `scripts/lifeos-version-check.sh` — v1.6.2's only hook; reference for "pre-flight, idempotent, atomic" pattern
 
 The `violations.md` data model is defined in §7 of this spec (format, columns, escalation ladder); it is NOT defined in cortex-spec.
 
 **END**
+
+## §Design Rationale
+
+Layer 3 exists because Layer 1 documentation and Layer 2 subagent contracts are necessary but not sufficient. The COURT-START-001 incident showed that an orchestrator can read a HARD RULE, affirm it, and still execute the protected workflow in main context. Hooks make the most safety-critical rules mechanical: trigger injection, tool-call validation, write scanning, read-path protection, and end-of-session checklist verification run outside the LLM's reasoning loop.
+
+Hooks are a backstop, not a replacement for Pro Mode. The authoritative behavior still lives in `SKILL.md`, `pro/{CLAUDE,GEMINI,AGENTS}.md`, and `pro/agents/*.md`; hooks only enforce selected runtime invariants where the host exposes a suitable surface. This preserves the 16-agent workflow and information isolation model while reducing the chance that a skipped subagent, fabricated path, or salami-sliced correction becomes invisible.
+
+The hook set is intentionally small and local. Bash + `jq` keeps Layer 3 fast, inspectable, and independent of the Python toolchain. Anything requiring indexing, statistics, archival rotation, scheduled execution, or richer reports belongs to Layer 4 tools, not shell hooks. This split keeps hooks suitable for every relevant prompt/tool boundary and avoids turning runtime guardrails into a second application runtime.
+
+Compliance logs use a dual-path model because Life OS runs in two different contexts. Development-repo violations belong under `pro/compliance/`; user second-brain violations belong under `_meta/compliance/`. Neither path writes product state to `~/.claude/`, preserving the markdown + git audit trail and keeping local host configuration separate from Life OS state.
+
+Platform support is deliberately asymmetric in v1.7. Claude Code has a native hook API and therefore receives the full Layer 3 backstop. Gemini CLI and Codex CLI retain the same Layer 1 and Layer 2 contracts, but degrade to prompt-level enforcement until they expose compatible hook surfaces. The five hook contracts are written so they can be registered on those hosts later without changing the semantic rules.
+
+## §Migration
+
+Migration from the v1.6.2 hook baseline is additive. Preserve the existing version-check hook and extend `setup-hooks.sh` to register the five v1.7 hooks idempotently and atomically. Installation must keep the v1.6.2 pre-flight pattern: verify `jq`, validate `settings.json`, verify hook scripts exist and are executable, write through a temporary file, and make repeated installs a no-op.
+
+Compliance state must migrate away from host-local storage. Development-repo incidents and rolling violations use `pro/compliance/`; second-brain runtime violations use `_meta/compliance/`. Do not store product compliance history in `~/.claude/`. If neither repo marker is present, hooks should skip logging rather than create directories in unrelated workspaces.
+
+Hook verification should include both trigger and non-trigger smoke tests. A trigger prompt such as `荳頑悃` must cause the prompt guard to emit a HARD RULE reminder; a long arbitrary prompt must not emit a false reminder. Write-scan, read-denylist, post-response, and stop-session scenarios should be replayable without relying on LLM judgment, matching the archived migration guidance that hook behavior is testable independently of model drift.
+
+Cross-platform migration is a staged degradation, not a fork. Claude Code installs Layer 3 hooks now. Gemini CLI and Codex CLI keep the same HARD RULE text in their orchestration files and should be upgraded to the same five hook contracts only when their host APIs can support equivalent `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, and `Stop` boundaries.
+
+Historical architecture and migration rationale lives in `devdocs/human-docs-archive/2026-04-24/docs/architecture/`, especially `execution-layer.md`, `hard-rules-catalog.md`, `workflow-state-machine.md`, `security-boundaries.md`, and `multi-platform-orchestration.md`; archived machine setup and hook verification details live in `devdocs/human-docs-archive/2026-04-24/MIGRATION.md`.

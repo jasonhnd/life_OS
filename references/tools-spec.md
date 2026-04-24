@@ -4,7 +4,7 @@
 > truly hard; Python tools make the system run on its own. This document is the
 > authoritative contract for every tool in `tools/`.
 >
-> Reference: `docs/architecture/execution-layer.md` (design rationale),
+> Reference: `references/tools-spec.md` §Design Rationale,
 > `references/data-model.md` (types tools manipulate),
 > `references/adapter-github.md` (file format on disk).
 
@@ -853,8 +853,8 @@ Forbidden, in order of severity:
 
 ## 13 · Related Specs
 
-- `docs/architecture/execution-layer.md` — design rationale for Layer 3
-  (hooks) and Layer 4 (these tools). Read this first.
+- `references/hooks-spec.md` — design rationale for Layer 3
+  (hooks), paired with this spec's §Design Rationale for Layer 4.
 - `references/hooks-spec.md` — shell hook contracts. Hooks are
   trigger-time enforcement; tools are batch maintenance.
 - `references/data-model.md` — typed data shapes (Decision, Task,
@@ -869,3 +869,58 @@ Forbidden, in order of severity:
 ---
 
 **END**
+
+## §Design Rationale
+
+Layer 4 exists because Life OS has maintenance work that should not wait
+for an interactive session: rebuilding indexes, checking schema health,
+generating briefings, backing up markdown, and preparing migration
+reports. These jobs are deterministic I/O and aggregation tasks, not
+places for new LLM reasoning.
+
+Python tools are therefore optional clerks. They read and write the
+second-brain's markdown/YAML files, compile derived views, validate
+structure, and produce reports. They do not replace ROUTER, REVIEWER,
+ARCHIVER, or any other Layer 2 authority, and they do not make Life OS a
+Python runtime.
+
+The markdown-first rule is the architectural boundary. Databases,
+embeddings, remote schedulers, and SaaS workers may be future derived
+indexes or execution environments, but they are not v1.7 sources of
+truth. In v1.7, `search.py` uses metadata plus grep-style ranking, while
+`embed.py` remains an explicit placeholder so users do not infer an
+embedding-provider dependency.
+
+Local-first execution keeps the operational model small: tools can be
+run manually, through `uv run life-os-tool ...`, or through a user's
+chosen local scheduler. Network access remains exceptional and
+tool-specific. This avoids permanent secret management, always-on
+agents, remote cron state, and cross-device write conflicts while still
+allowing the system to "move on its own" between sessions.
+
+## §Migration
+
+The v1.6.2a -> v1.7 migration path is additive. Install the Python
+runtime with Python 3.11+ and `uv`, then run tools through the unified
+CLI or their module entry points. Users who skip Python retain the full
+interactive decision engine; they only lose the optional maintenance
+clerks.
+
+`migrate.py` is the one-time schema/layout helper. It must back up first,
+be idempotent, and record what it changed before rewriting user
+second-brain files. Canonical Cortex bootstrap state belongs under
+`_meta/cortex/bootstrap-status.md`; legacy migration-log naming is
+historical unless a specific migration needs an audit artifact.
+
+v1.7 migration must preserve the existing markdown source of truth:
+backfill indexes and frontmatter from existing files, do not import raw
+conversation transcripts into a database, and do not sync Cortex runtime
+artifacts to Notion as authoritative state. Notion remains a transport or
+mirror, never the primary store.
+
+Development verification may use the archived migration checklist
+(`make test`, `make bash-check`, `make lint`, and CLI smoke checks), but
+those commands are project-maintainer validation, not a required user
+workflow. Historical rationale for the execution/tool architecture lives
+under `devdocs/human-docs-archive/2026-04-24/docs/architecture/`, with
+`devdocs/human-docs-archive/2026-04-24/MIGRATION.md` providing environment setup context.

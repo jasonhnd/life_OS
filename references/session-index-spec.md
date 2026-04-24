@@ -239,7 +239,7 @@ The hippocampus subagent consumes the session index. Per `devdocs/architecture/c
 **What this architecture deliberately does not use** (user decision #3 from the cortex brainstorm):
 
 - **No embeddings** — semantic similarity is LLM-judged, not vector-computed. This avoids embedding-model drift, embedding-provider lock-in, and the need to re-embed on every schema change.
-- **No FTS5 or any database** — markdown-first HARD RULE (see `docs/architecture/markdown-first.md`). All retrieval substrate is plaintext and git-versioned.
+- **No FTS5 or any database** — markdown-first HARD RULE (see `references/data-layer.md` §Single Source of Truth Rules). All retrieval substrate is plaintext and git-versioned.
 - **No background indexing daemon** — index compiles at Start Session only; reads are per-message but limited to markdown I/O. No cron, no watchdog, no long-running process.
 
 The performance math (see §8) confirms this scales well into the thousands of sessions before sharding is needed.
@@ -260,7 +260,7 @@ Keywords are the hippocampus's Wave 1 filter. The archiver Phase 1 selects up to
 
 ## 8. Scale Limits
 
-Performance is load-bearing for this design — the hippocampus runs on every user message. The scale budget matches `docs/architecture/markdown-first.md` §2:
+Performance is load-bearing for this design — the hippocampus runs on every user message. The scale budget is part of the current `references/hippocampus-spec.md` and `references/cortex-spec.md` design rationale:
 
 | Session count | INDEX.md size  | LLM scan time | Decision                                       |
 |---------------|----------------|---------------|------------------------------------------------|
@@ -421,6 +421,29 @@ Quick reference for common operations:
 - `references/hippocampus-spec.md` — the consumer of this artifact; defines three-wave activation
 - `references/gwt-spec.md` — the GWT arbitrator that receives hippocampus output
 - `devdocs/architecture/cortex-integration.md` §3.1 — architectural context and scan-cost estimates
-- `docs/architecture/markdown-first.md` §2 and §4 — performance baseline and file-layout rules
+- `references/data-layer.md` §Single Source of Truth Rules — markdown-first storage and file-layout rules
 - `pro/agents/archiver.md` — writer of `{session_id}.md`, Phase 1 scope
 - `pro/agents/retrospective.md` — compiler of `INDEX.md`, Mode 0 Start Session responsibility
+
+## §Design Rationale
+
+This note records historical rationale from archived architecture docs. It does not override the normative contract above.
+
+- Session index is the markdown-first alternative to storing raw conversations in SQLite, vector DBs, or any other database as source of truth. Life OS remembers distilled session outcomes, not full message trajectories.
+- The two-tier design keeps recall cheap: `INDEX.md` gives hippocampus a one-line-per-session scan surface, and full `{session_id}.md` summaries are read only after shortlist. This preserves cross-session memory without replaying old conversations.
+- The artifact belongs in Layer 1 (`_meta/sessions/`) because it is user-owned local markdown. Notion may hold mobile-friendly views, but Cortex recall data stays local and rebuildable.
+- Writer/compiler separation is intentional. Archiver writes immutable session summaries after Phase 2 outputs exist; retrospective or `reindex.py` compiles `INDEX.md` at Start Session. This avoids concurrent archive races and makes the index disposable.
+- v1.7 freezes retrieval on LLM judgment plus metadata/grep. Archived roadmap text discussed embeddings as a possible optimization, but the locked v1.7 decision is no embeddings, no vector DBs; any future database or embedding layer must be a rebuildable cache, not truth.
+- The scale target is personal-use friendly: archived architecture docs treat thousands of sessions as acceptable for markdown scanning, with sharding or cache discussion only when `INDEX.md` approaches the high-thousands scale.
+
+## §Migration
+
+This note captures migration intent. The operational contract remains in §9 and `references/tools-spec.md`.
+
+- Add `_meta/sessions/` as an additive v1.7 directory. Do not modify existing `SOUL.md`, `wiki/`, `projects/`, or `_meta/journal/` as part of session-index backfill.
+- Backfill only the last 3 months of `_meta/journal/` into best-effort session summaries. Older journals remain available as historical records but are not synthesized into hippocampus recall by default.
+- Use `{platform}-{YYYYMMDD}-{HHMM}` session IDs. Live sessions must use the real `date` command per the archiver rule; migrated entries may derive timestamps from journal metadata or file mtime, defaulting platform to `claude` if unknown.
+- After backfill, compile `_meta/sessions/INDEX.md` with `tools/migrate.py`, `tools/reindex.py`, or RETROSPECTIVE Mode 0. Treat `INDEX.md` as generated: spot-check it, then regenerate rather than hand-edit.
+- Record v1.7 bootstrap or migration status in `_meta/cortex/bootstrap-status.md` when the broader migration tooling is available. The old `_meta/migration-log-*` pattern is historical.
+- Migration is idempotent: reruns may overwrite synthesized summaries or compiled indexes with the same IDs, but must not duplicate sessions or delete old journals.
+- `devdocs/human-docs-archive/2026-04-24/MIGRATION.md` is a development-environment migration guide (clone, hooks, Python deps, verification). Use it for install/verification context only; it is not a session schema authority.

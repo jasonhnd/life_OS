@@ -4,6 +4,7 @@
 # Eval outputs (generated, not tracked)
 evals/outputs/
 .DS_Store
+**/.DS_Store
 
 # Internal development docs (author-only, not published)
 # docs/ is public by default (tracked); devdocs/ holds brainstorms,

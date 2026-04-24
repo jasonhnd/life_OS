@@ -6,6 +6,68 @@
 
 ---
 
+## Migration Notes
+
+> 从 `MIGRATION.md` 浓缩出的 v1.6 到 v1.7 核心迁移清单。适用于搬迁 Life OS 开发环境，或把既有 second-brain 升级到 v1.7 Cortex 布局。
+
+### 1. 范围与安全
+
+- 把 git 追踪代码、本地 Claude 配置、Claude memory、second-brain 数据视为四个独立迁移面。
+- 保留既有 `[1.7.0]` 和 `[1.7.1]` 发布记录作为历史事实；迁移说明放在 release entries 之外。
+- 旧机器先用 `git log origin/main..HEAD` 检查并 push 本地 commits，再从干净分支状态迁移。
+- 不要提交迁移包、私有 `.claude/` 设置、Claude memory、SSH keys 或个人 second-brain 数据。
+- 既有 second-brain 保留原本的 `cortex_enabled` 设置；v1.7 新安装可以默认启用 Cortex。
+
+### 2. Git 已包含的内容
+
+- 全新 `git clone` 已包含 `tools/`、`scripts/`、`tests/`、`pro/`、`themes/`、`evals/`、`references/`。
+- clone 已包含权威规格：`SKILL.md`、`pro/CLAUDE.md`、`pro/GEMINI.md`、`pro/AGENTS.md`、`references/*.md`。
+- clone 已包含 `i18n/zh/` 与 `i18n/ja/` 下的本地化文档，包括 README 与 CHANGELOG。
+- clone 已包含项目配置：`pyproject.toml`、`.python-version`、`Makefile`、`.github/workflows/test.yml`。
+- clone 已包含公开合规文件，例如 `pro/compliance/violations.md` 与 `violations.example.md`。
+
+### 3. 备份本地专属文件
+
+- 在旧机器创建 `~/life-os-migration` 作为交接目录。
+- 打包 gitignored 的 dev-repo 文件：`.claude/CLAUDE.md`、`.claude/settings.json`、可选 `.claude/settings.local.json`、私有合规档案与本地 `docs/`。
+- 打包 Claude project memory：`~/.claude/projects/.../memory/`；如果目录名以 `-` 开头，tar 时要加 `./` 前缀。
+- 将 `~/.claude/settings.json` 复制为 `claude-global-settings.json`，方便之后审阅或 merge hook 注册。
+- 用 AirDrop、iCloud Drive、USB，或 `scp -r ~/life-os-migration/ new-machine:~/` 传输迁移目录。
+
+### 4. 准备新机器
+
+- 安装必需系统依赖：Python 3.11+、`jq`、`bash`、`git`、GitHub 认证与 Claude Code CLI。
+- 可选安装 `uv`、`ruff`、`pytest`、`pyyaml`，用于本地工具、测试与 lint。
+- clone 仓库后，用 `git log --oneline | head` 与 `git tag --list --sort=-v:refname | head` 验证 commits 和 tags。
+- 只有在需要本地 Claude 强制规则时，才把私有 dev-repo archive 解包进新 clone。
+- 如果用户名或 checkout 路径改变，重命名 Claude memory 目录以匹配新的 `~/.claude/projects/-Users-...` 路径。
+
+### 5. 恢复 Life OS 运行时
+
+- 在 Claude Code 中用 `/install-skill https://github.com/jasonhnd/life_OS` 安装最新 `life_OS` skill，或把 clone 复制到 `~/.claude/skills/life_OS`。
+- 运行 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`，部署 hook scripts 并注册 SessionStart/UserPromptSubmit hooks。
+- 合并自定义全局设置前，先审阅 `claude-global-settings.json`，再改新的 `~/.claude/settings.json`。
+- 如果缺少 `jq`，先安装再重新运行 `setup-hooks.sh`；该脚本依赖 `jq`。
+- 确认 `.claude/CLAUDE.md`、`.claude/settings.json`、恢复的 docs 与私有合规文件只存在于预期位置。
+
+### 6. 将 Second-Brain 数据升级到 v1.7
+
+- 可用 `uv sync --extra dev` 安装 Python 依赖；或用 `python3.11 -m pip install --user pyyaml pytest ruff`。
+- 对从 v1.6.2a/v1.6.x 升到 v1.7 的 second-brain，运行 `uv run life-os-tool migrate`。
+- 迁移会把最近约 3 个月的 journal 与 snapshot 数据 backfill 到新的 `_meta/cortex/` 分片布局。
+- 如果 session index 或 concept index 需要重建，运行 `life-os-tool reindex`、`life-os-tool reconcile`，或对应的 `tools/cli.py` 命令。
+- 保持 second-brain 与 dev repo 分离；dev repo 通常没有 `_meta/config.md`，Cortex 设置来自 use repo。
+
+### 7. 验证清单
+
+- 运行 `make test`；v1.7 基线预期完整 pytest suite 通过。
+- 运行 `make bash-check` 与 `make lint`，捕获 hook 语法或格式回归。
+- 用 `python3 tools/cli.py list` 和 `python3 tools/cli.py stats` 做 CLI smoke test。
+- 用 `上朝` 等 Start Session 触发词测试 hook，再用长的非触发 prompt 确认不会误报。
+- 最后运行 `git status`，并开一次 Claude Code 实战 session，确认 ROUTER、RETROSPECTIVE subagent 与 Compliance Patrol 正常激活。
+
+---
+
 ## [1.7.1-code-r1] - 2026-04-24 · 1.7.1 Code Round 1 · Skill Observability CLI
 
 > v1.7.1 Skill Observability 的第一轮代码实现。本条承接 `[1.7.1-design]`，不改变 `[1.7.0]` 发布范围，也不提升 `SKILL.md` 版本。

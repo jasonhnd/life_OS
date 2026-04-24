@@ -404,3 +404,29 @@ All roles check if `_meta/methods/INDEX.md` exists before referencing it. If it 
 - Methods are never auto-deleted — only auto-archived after 12 months dormant
 - Major revisions require user confirmation
 - Methods use the same confidence formula as SOUL and wiki
+
+---
+
+## §Design Rationale
+
+Method Library exists because Life OS needs procedural memory, not only declarative memory. Wiki stores facts about the world, SOUL stores identity and preference signals, and concepts store associative nodes; methods store reusable "how to act" patterns that can be applied across decisions without forcing agents to re-derive an execution approach each time.
+
+The library is a v1.7 core deliverable, not a post-v1.7 extension. Architecture notes place `_meta/methods/` beside sessions, concepts, snapshots, and eval history as part of the Cortex markdown-first memory layer. This keeps methods local, inspectable, rebuildable, and separate from Notion transport.
+
+Auto-capture belongs at the ARCHIVER Phase 2 boundary because procedural patterns are easiest to identify after a session has produced an observable workflow. The system may draft tentative candidates from repeated workflows, but it must not treat those drafts as canonical user knowledge until the confirmation workflow promotes them. This keeps useful repetition from being lost while preventing one-off or project-specific tactics from hardening into system behavior.
+
+DISPATCHER is the primary runtime consumer because methods are execution guidance. When a confirmed or canonical method applies, DISPATCHER can pass the known method into domain briefs so domains apply a validated pattern rather than starting from a blank slate. ROUTER, PLANNER, REVIEWER, AUDITOR, RETROSPECTIVE, ARCHIVER, and DREAM may inspect method metadata, but the central value loop is: observe repeated workflow -> draft tentative method -> user confirms -> DISPATCHER reuses.
+
+The conservative promotion ladder is deliberate. Concepts may become useful through repeated activation, but methods instruct action and therefore require stronger user control. `tentative -> confirmed` is never automatic; `confirmed -> canonical` can be automatic only after repeated successful use and recent absence of challenges.
+
+## §Migration
+
+v1.6.x second-brains have no method library. Migration creates the new `_meta/methods/` structure with `INDEX.md`, `_tentative/`, `_archive/`, and domain partitions, then seeds only tentative candidates when source evidence is clear. If no reliable repeated workflow evidence exists, migration should leave the library empty rather than invent methods.
+
+Backfill should scan recent session history and journal material for repeated procedural language such as "approach", "pattern", "framework", "process", "flow", or equivalent user-language markers. Candidate extraction must remain conservative: repeated cross-session evidence is required, and project-specific tactics stay in project files rather than `_meta/methods/`.
+
+Migration must write backfilled methods to `_meta/methods/_tentative/{method_id}.md` with `status: tentative`, low initial confidence, source session provenance, and no dispatcher eligibility. The next Start Session should surface those candidates through RETROSPECTIVE for confirm / reject / edit / skip handling.
+
+Do not sync method artifacts to Notion during migration. Method files are local markdown Cortex artifacts under `_meta/`, aligned with the markdown-first v1.7 migration model.
+
+Historical source records for this rationale and migration path live under `devdocs/human-docs-archive/2026-04-24/docs/architecture/`, with additional user-facing migration and concept/method guidance under `devdocs/human-docs-archive/2026-04-24/docs/guides/` and `devdocs/human-docs-archive/2026-04-24/docs/user-guide/cortex/`.

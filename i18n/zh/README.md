@@ -135,6 +135,28 @@ life-os-tool skills list
 
 ---
 
+<a id="cost-token-estimate"></a>
+
+## 成本 / Token 估算
+
+Life OS 的消耗主要取决于路径：ROUTER 直接处理最轻；快速分析只启动必要领域；完整审议会增加起草、审查、派遣、终审、审计，以及 3-6 个领域报告。Claude Pro/Max 订阅用户通常不按 token 计费；下表美元金额是 API 风格估算，可能随模型价格变化。完整拆解见 [docs/token-estimation.md](../../docs/token-estimation.md)。
+
+| 典型场景 | 部门/领域 | Token | 估算成本 |
+|----------|-----------|-------|----------|
+| ROUTER 直接处理 | 0 | ~1k | ~$0.02 |
+| 快速分析 | 1-2 | ~18k | ~$0.43 |
+| 大额购买 | 3 | ~22k | ~$0.55 |
+| 投资 / 健康 / 学习 | 4 | ~27k | ~$0.68 |
+| 转职 / 搬迁 | 6 | ~38k | ~$1.00 |
+| 六领域 + Veto | 6 + veto | ~43k | ~$1.20 |
+| 六领域 + Veto + 议事厅辩论 | 6 + veto + debate | ~55k | ~$1.75 |
+| 晨间回顾 | 会话开始 | ~2k | ~$0.04 |
+| 翰林院深度对话（5 轮） | 对话 | ~8k | ~$0.18 |
+
+长材料、额外 veto 轮次或更长对话都会增加用量。节省 token 的原则是：简单事项让 ROUTER 直接处理；只需要专业分析而不需要完整决策流程时，使用快速分析。
+
+---
+
 ## 它怎么工作
 
 Life OS 由五根支柱撑起来。**决策引擎**是核心——其余一切从它生长出来。
@@ -267,6 +289,37 @@ second-brain/
 **多窗口并行**：一个终端窗口处理项目 A，另一个处理项目 B。每个会话写入自己的 outbox。下次开朝时全部干净合并——不冲突、不加锁。
 
 首次运行时，系统自动创建完整的目录结构。
+
+**第二大脑的运行边界**
+
+| 层 | 职责 |
+|----|------|
+| GitHub / 本地 second-brain | 权威源；保存你拥有的完整 Markdown 记录。 |
+| Notion memory | 轻量工作记忆；承接手机 inbox、当前状态、活跃主题页和待办看板。 |
+| Life OS 会话 | 桥接两侧；读取完整大脑，决定哪些状态同步到移动端。 |
+
+**数据通道**
+
+```text
+手机：Claude.ai -> Notion inbox
+桌面：Life OS -> GitHub / 本地 second-brain + Notion 同步
+退朝：archive -> DREAM 提取 -> 外部同步
+```
+
+**写入规则**
+
+- 文件写入和 git commit 是同步边界；纯聊天不会改写 Markdown 或 Notion。
+- 开朝时拉取 inbox、状态和项目上下文；退朝时归档决策、任务、日志，再执行 DREAM 和同步。
+- 项目是有终点的事情，保存到 `projects/{name}/`；领域是持续责任，保存到 `areas/{name}/`。
+- 项目结束后可以整体移入 `archive/`；可复用结论由 DREAM 留在 `wiki/`，继续服务未来项目。
+- `SOUL.md` 保存价值观、原则、决策倾向和行为模式，供 REVIEWER、ADVISOR、STRATEGIST 个性化引用。
+- `_meta/STATUS.md` 是全局状态快照；`_meta/STRATEGIC-MAP.md` 连接项目、战略线和相互依赖。
+- `_meta/journal/` 保存开朝简报、审计/谏官报告和退朝日志；`_meta/outbox/` 暂存每个会话的待同步输出。
+- 项目决策写入 `projects/{project}/decisions/`；跨领域重大决策写入 `_meta/decisions/`。
+- 行动项写入项目或领域的 `tasks/`；项目研究写入 `projects/{project}/research/`。
+- Notion 只保留活跃工作集：inbox、当前状态镜像、5-10 个活跃主题页和移动待办板。
+- 代码仍在各自项目仓库；关于项目的思考、决策和任务留在 second-brain 仓库。
+- 如果未配置数据层，Life OS 仍能运行，但不会拥有持久化、跨会话记忆、手机捕获和长期战略历史。
 
 ---
 
@@ -438,6 +491,30 @@ Life OS 预配置了人们真正面对的决策：
 | **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` |
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
+
+### 快速安装检查表
+
+Claude Code：
+```bash
+/install-skill https://github.com/jasonhnd/life_OS
+```
+
+Gemini CLI、Antigravity 或 Codex CLI：
+```bash
+npx skills add jasonhnd/life_OS
+```
+
+1. 打开对应平台的 Pro Mode 终端。
+2. 运行上方匹配的命令，并等待成功提示。
+3. Claude Code 会安装完整 Life OS skill，并准备好 16 个角色。
+4. Gemini CLI 和 Antigravity 安装后会自动加载 `pro/GEMINI.md`。
+5. Codex CLI 安装后会自动加载 `pro/AGENTS.md`。
+6. 开启新会话，并在提示时选择主题。
+7. 第一次运行时，Life OS 会创建或连接你的 second-brain 存储。
+8. 用真实决策测试，例如“帮我分析要不要买 MacBook”。
+9. 决策类请求应升级进入三省六部流程。
+10. 翻译或普通聊天应留在 ROUTER 直接处理路径。
+11. 存储后端、故障排查和更新细节见完整安装指南。
 
 首次启动时你选主题。系统会自动检测你的语言并推荐匹配的主题，但选择权永远在你。随时可以说"切换主题"来更换。
 

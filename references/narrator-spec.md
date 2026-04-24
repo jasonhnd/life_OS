@@ -503,3 +503,47 @@ Trace requests must return in < 2 seconds (stricter than the narrator budget bec
 ---
 
 **Spec status**: draft for v1.7. Finalized once narrator validator subagent ships and first week of `citation_groundedness` data is reviewed. Trace UX (§17) requires integration testing with real session data; format may adjust based on user feedback during v1.7 alpha.
+
+---
+
+## §Design Rationale
+
+Narrator exists because Cortex adds memory and salience signals to a system that already produces fluent final explanations. Without a grounding layer, those explanations can become Gazzaniga-style left-brain confabulation: coherent, plausible, and unsupported. The design therefore treats every substantive claim as a statement that must be traceable to an actual session signal.
+
+The `signal_id` requirement is intentionally narrower than "cite everything." Substantive claims carry citations because they affect user belief or decision-making. Connective text stays uncited because citing transitions, framing, and rephrasing would make the Summary Report harder to read without improving truthfulness.
+
+Narrator composition stays inside ROUTER because ROUTER owns user-facing output and already has responsibility for the Summary Report. Splitting narration into a separate agent would duplicate context and blur ownership. The independent check is the `narrator-validator`, which reviews citations against the signal registry without becoming another author of the final recommendation.
+
+The signal registry is the contract between Cortex retrieval/arbitration and final prose. Hippocampus, concept lookup, SOUL checks, domain reports, and known premises may produce signals; narrator may only cite those signals, never invent post-hoc evidence. This keeps Step 7.5 grounded in data that existed before the final explanation was written.
+
+Trace is hidden by default to preserve normal UX. Users can ask for the signal behind a claim when they need auditability, but routine reports stay readable. This matches the product goal: make groundedness inspectable without turning every decision report into a debug log.
+
+Validation uses a Claude Code Sonnet subagent rather than an external Haiku/API call to preserve the v1.7 boundary: no extra API keys, no separate vendor dependency, no remote intelligence path, and minimal marginal cost. The validator is a local/session-contained guardrail, not a new platform dependency.
+
+Failure is non-blocking but auditable. If validation cannot pass within retry or time budgets, Life OS ships the raw Summary Report rather than blocking the user, then records the incident for AUDITOR/eval-history review. This follows the broader v1.7 stance: quality is monitored continuously through eval-history instead of enforced through brittle kill criteria.
+
+Architecture documents are rationale and orientation only. If this section appears to conflict with a normative rule above or another `references/*.md` spec, the owning spec section wins.
+
+## §Migration
+
+Narrator migration should happen only after Step 0.5/GWT can provide a usable signal registry. If the registry is absent, empty, or disabled through Cortex configuration, Step 7.5 degrades to pass-through/raw Summary Report behavior rather than inventing citations.
+
+Implementation migration has four pieces:
+
+- Extend ROUTER so it can perform Step 7.5 composition after it has a draft Summary Report and before the report ships to the user.
+- Add or verify `pro/agents/narrator-validator.md` as the only new narrator-related subagent.
+- Update `pro/CLAUDE.md`, `pro/GEMINI.md`, and `pro/AGENTS.md` so host orchestration inserts Step 7.5 consistently, with host-specific degradation where hooks/backstops are unavailable.
+- Ensure signal-producing paths register stable IDs before narrator runs: Step 0.5 signals, domain score signals, COUNCIL signals, and known-premise wiki/pattern references.
+
+User-data migration does not rewrite historical decisions just to add citations. `tools/migrate.py` backfills the session/concept structures that hippocampus and concept lookup need; narrator citations begin accumulating on new v1.7 sessions. `_meta/eval-history/` also starts fresh unless meaningful prior AUDITOR records already exist.
+
+Upgrade UX should set expectations clearly:
+
+- Full Deliberation gains Step 7.5 narrator validation.
+- Express and direct-handle paths may skip narrator or validate only the signal classes actually present.
+- Trace remains on request; normal reports do not show full debug trails.
+- Validation failure falls back to raw Summary Report after bounded retries/timeouts and logs an eval-history incident.
+
+Verification should include at least one Full Deliberation scenario with supported citations, one unsupported-claim scenario that forces removal or rewrite, and one fallback scenario with an empty or missing registry. AUDITOR metrics should track `citation_groundedness` and `regeneration_count`; broader eval runs should also watch cognitive annotation quality so grounded narration does not mask weak retrieval.
+
+Archived source note: `devdocs/human-docs-archive/2026-04-24/docs/guides/v1.7-migration.md` contains the user-facing Step 7.5 migration behavior. `devdocs/human-docs-archive/2026-04-24/MIGRATION.md` is a development-environment migration guide and only indirectly supports narrator rollout by documenting that `references/*.md`, `pro/`, `tools/`, `scripts/`, and verification commands are part of the transferable dev environment.

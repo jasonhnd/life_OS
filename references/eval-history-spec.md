@@ -335,3 +335,29 @@ These are prohibited. RETROSPECTIVE and `tools/reconcile.py` flag them when dete
 - `pro/agents/auditor.md` — sole writer of eval-history entries (end of Step 8)
 - `pro/agents/retrospective.md` — Mode 0 reader for systemic pattern detection (last 10 files)
 - `devdocs/research/2026-04-19-hermes-analysis.md` — Hermes Lesson 5 (self-evaluation must feed back) motivates this spec
+
+---
+
+## §Design Rationale
+
+Eval history exists because Life OS behavior is not only code behavior. The system's quality depends on prompt discipline, subagent isolation, reviewer veto quality, archiver completion, grounded citations, and the absence of face-saving scores. Those failure modes cannot be fully captured by unit tests or shell return codes; they require AUDITOR to record structured judgment after real workflows.
+
+The archived eval docs frame scenarios and rubrics as regression tools for behavior quality, not benchmark score chasing. A scenario should expose a concrete failure mode, and its rubric should make that failure observable: information isolation leaks, shallow REVIEWER approvals, all-7 domain scoring, missing action ownership, ROUTER over-escalation, or ARCHIVER wiki extraction errors. Eval history carries the same principle into live sessions by preserving AUDITOR's findings as a longitudinal signal.
+
+AUDITOR trend records replace rigid kill criteria. v1.7 deliberately avoids pre-committed numeric thresholds that automatically remove or disable Cortex modules. Instead, `cognitive_annotation_quality`, `citation_groundedness`, and the existing process dimensions surface degradation to RETROSPECTIVE and the user. The decision to revise, disable, or retune a mechanism remains a normal Life OS governance decision, informed by repeated evidence rather than one-off panic.
+
+The markdown-first rationale is also important: eval history is small, local, human-readable, and auditable. `_meta/eval-history/` gives RETROSPECTIVE a cheap first-pass scan target while keeping `evals/outputs/` as separate local run artifacts. This separation prevents ad-hoc eval runner transcripts from becoming canonical quality memory, and prevents canonical session-quality records from being treated as disposable test output.
+
+The v1.7 additions extend the old workflow-quality lens to Cortex-specific risks. `cognitive_annotation_quality` asks whether hippocampus/GWT context actually helped the session; `citation_groundedness` asks whether narrator claims stayed attached to real signals. Together they monitor the two places where Cortex can quietly become harmful: irrelevant memory injection and confident ungrounded explanation.
+
+## §Migration
+
+The archived merge sources for this spec are under `devdocs/human-docs-archive/2026-04-24/docs/evals/`, plus architecture notes on markdown-first storage, roadmap risk, and Layer 4 tools. Historical architecture context remains under `devdocs/human-docs-archive/2026-04-24/docs/architecture/`.
+
+For user second-brains upgrading to v1.7, create `_meta/eval-history/` as an empty canonical history directory. Do not import `evals/outputs/`; those files are local regression-run artifacts and may contain raw model output, stderr context, or scenario-specific noise that is not equivalent to AUDITOR's session evaluation schema.
+
+Backfill only meaningful recent AUDITOR records when they already exist in a structured enough form to preserve the required fields without invention. Otherwise, start fresh. Pre-v1.7 journal prose and historical session notes remain historical evidence, but they should not be transformed into scored eval entries unless AUDITOR can ground every required score and violation record.
+
+During migration, add the v1.7 score dimensions for `cognitive_annotation_quality` and `citation_groundedness` even if the first entries mark them as not observed. This keeps the schema forward-compatible from day one and lets RETROSPECTIVE begin trend detection as soon as Cortex sessions accumulate.
+
+Weekly or systemic scans may be wired into RETROSPECTIVE Mode 0 or `daily_briefing.py` as non-blocking alerts. Migration should not make eval-history checks a hard session gate: failed reads, missing early history, or too few samples should degrade to "no systemic warning yet", not block Start Session.

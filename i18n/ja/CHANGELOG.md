@@ -6,6 +6,68 @@
 
 ---
 
+## Migration Notes
+
+> `MIGRATION.md` から要点を抜き出した v1.6 から v1.7 への移行チェックリストです。Life OS 開発環境の移動、または既存 second-brain の v1.7 Cortex レイアウトへのアップグレードに使います。
+
+### 1. 範囲と安全
+
+- git 管理コード、ローカル Claude 設定、Claude memory、second-brain データを別々の移行面として扱います。
+- 既存の `[1.7.0]` と `[1.7.1]` リリースノートは履歴として保持し、移行ノートは release entries の外に置きます。
+- 旧マシンでは `git log origin/main..HEAD` で未 push commits を確認し、push してから clean な状態で移行します。
+- migration package、private `.claude/` settings、Claude memory、SSH keys、個人 second-brain data は commit しません。
+- 既存 second-brain は現在の `cortex_enabled` 設定を維持します。v1.7 新規インストールでは Cortex をデフォルト有効にできます。
+
+### 2. Git に含まれるもの
+
+- 新しい `git clone` には `tools/`、`scripts/`、`tests/`、`pro/`、`themes/`、`evals/`、`references/` が含まれます。
+- clone には authoritative specs として `SKILL.md`、`pro/CLAUDE.md`、`pro/GEMINI.md`、`pro/AGENTS.md`、`references/*.md` が含まれます。
+- clone には `i18n/zh/` と `i18n/ja/` の localized docs が含まれ、README と CHANGELOG も入っています。
+- clone には project config として `pyproject.toml`、`.python-version`、`Makefile`、`.github/workflows/test.yml` が含まれます。
+- clone には public compliance files として `pro/compliance/violations.md` と `violations.example.md` などが含まれます。
+
+### 3. ローカル専用ファイルをバックアップ
+
+- 旧マシンで handoff folder として `~/life-os-migration` を作成します。
+- gitignored dev-repo files を archive します: `.claude/CLAUDE.md`、`.claude/settings.json`、任意の `.claude/settings.local.json`、private compliance dossiers、local `docs/`。
+- Claude project memory を `~/.claude/projects/.../memory/` から archive します。directory name が `-` で始まる場合、tar では `./` prefix を付けます。
+- `~/.claude/settings.json` を `claude-global-settings.json` としてコピーし、後で hook registrations を review または merge できるようにします。
+- AirDrop、iCloud Drive、USB、または `scp -r ~/life-os-migration/ new-machine:~/` で migration folder を転送します。
+
+### 4. 新マシンを準備
+
+- Required dependencies として Python 3.11+、`jq`、`bash`、`git`、GitHub authentication、Claude Code CLI をインストールします。
+- Optional dependencies として `uv`、`ruff`、`pytest`、`pyyaml` を入れると、local tooling、tests、lint に使えます。
+- repo を clone したら、`git log --oneline | head` と `git tag --list --sort=-v:refname | head` で recent commits と tags を確認します。
+- private dev-repo archive は、local Claude enforcement が必要な場合だけ新しい clone に展開します。
+- username または checkout path が変わった場合、Claude memory directory を新しい `~/.claude/projects/-Users-...` path に合わせて rename します。
+
+### 5. Life OS Runtime を復元
+
+- Claude Code で `/install-skill https://github.com/jasonhnd/life_OS` を実行して最新 `life_OS` skill を入れるか、clone を `~/.claude/skills/life_OS` にコピーします。
+- `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を実行し、hook scripts を deploy して SessionStart/UserPromptSubmit hooks を登録します。
+- custom global settings を merge する前に `claude-global-settings.json` を review し、新しい `~/.claude/settings.json` に反映します。
+- `jq` がない場合は先に install し、それから `setup-hooks.sh` を再実行します。この script は `jq` に依存します。
+- `.claude/CLAUDE.md`、`.claude/settings.json`、復元した docs、private compliance files が意図した場所だけにあることを確認します。
+
+### 6. Second-Brain データを v1.7 にアップグレード
+
+- Python dependencies は `uv sync --extra dev` で入れます。ない場合は `python3.11 -m pip install --user pyyaml pytest ruff` を使います。
+- v1.6.2a/v1.6.x second-brains を v1.7 に移す場合は `uv run life-os-tool migrate` を実行します。
+- migration は直近約 3 か月の journal と snapshot data を新しい `_meta/cortex/` shard layout に backfill します。
+- session index または concept index の再構築が必要なら、`life-os-tool reindex`、`life-os-tool reconcile`、または対応する `tools/cli.py` command を実行します。
+- second-brain と dev repo は分けて扱います。dev repo には通常 `_meta/config.md` がないため、Cortex settings は use repo から読みます。
+
+### 7. 検証チェックリスト
+
+- `make test` を実行します。v1.7 baseline では full pytest suite の pass を期待します。
+- `make bash-check` と `make lint` を実行し、hook syntax や formatting regression を検出します。
+- `python3 tools/cli.py list` と `python3 tools/cli.py stats` で CLI smoke test を行います。
+- `上朝` などの Start Session phrase で hook trigger を確認し、長い non-trigger prompt で false positive がないことを確認します。
+- 最後に `git status` と live Claude Code session で、ROUTER、RETROSPECTIVE subagent、Compliance Patrol が正しく起動することを確認します。
+
+---
+
 ## [1.7.1-code-r1] - 2026-04-24 · 1.7.1 Code Round 1 · Skill Observability CLI
 
 > v1.7.1 Skill Observability の最初の実装ラウンドです。`[1.7.1-design]` を引き継ぎ、`[1.7.0]` のリリース範囲は変更せず、`SKILL.md` も bump しません。

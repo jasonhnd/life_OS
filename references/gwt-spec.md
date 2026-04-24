@@ -322,3 +322,25 @@ AUDITOR surfaces low-scoring sessions for review. If annotation quality trends d
 ---
 
 **Document status:** pre-implementation spec, v1.7. Behaviors encoded here are normative. Deviations require updating this spec before the code.
+
+## §Design Rationale
+
+GWT is the pre-router choke point for Cortex. Hippocampus, concept lookup, and SOUL check run independently, but ROUTER should not receive three raw reports; it should receive a small broadcast of the signals most likely to change triage.
+
+The design follows the Global Workspace model used in the archived Cortex notes: specialized modules emit candidate signals, a salience competition selects the few that reach the shared workspace, and the selected set is broadcast as advisory context. This preserves the v1.6.x decision workflow by improving ROUTER input quality, not by replacing ROUTER authority.
+
+Salience is source-neutral on purpose. A SOUL conflict can win when identity alignment is at stake, a memory can win when a prior decision is highly relevant, and a newer concept can win when novelty or urgency makes it more actionable. This avoids hard-coded source priority and keeps each upstream agent information-isolated.
+
+The arbitrator is read-only because Step 0.5 is a live turn path. It should rank, suppress, and format signals, not mutate concepts, sessions, snapshots, or SOUL. Persistent learning remains an ARCHIVER Phase 2 responsibility.
+
+## §Migration
+
+Introduce GWT only after the three Step 0.5 signal sources are present or stubbed: `hippocampus`, `concept-lookup`, and `soul-check`. Until then, keep the v1.6.3/raw-ROUTER path as the fallback.
+
+Wire the host protocols in `pro/CLAUDE.md`, `pro/GEMINI.md`, and `pro/AGENTS.md` so the GWT block is prepended before ROUTER input and the real user message remains separable from advisor context. Do not move dynamic cognitive context into system prompts.
+
+Keep migration opt-out and degradation intact: if `_meta/config.md` has `cortex_enabled: false`, if `_meta/sessions/INDEX.md` is missing or empty, or if the arbitrator times out, emit an empty or partial valid block and continue normal ROUTER flow.
+
+No existing user data is rewritten for GWT. Migration creates or refreshes the supporting Cortex artifacts used by upstream signal agents, records bootstrap state at `_meta/cortex/bootstrap-status.md`, and treats `devdocs/human-docs-archive/2026-04-24/MIGRATION.md` as development-environment guidance rather than a GWT data migration contract.
+
+TBD archive pointer: if future maintainers need a fuller theory narrative than this spec's salience model, use `backup/docs/brainstorm/2026-04-19-cortex-architecture.md` and `backup/docs/architecture/cortex-integration.md`; architecture docs remain non-authoritative if they diverge from `references/gwt-spec.md`.

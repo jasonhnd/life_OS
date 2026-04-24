@@ -391,3 +391,28 @@ All roles check if `_meta/concepts/INDEX.md` exists before referencing it. If it
 - `pro/agents/archiver.md` — Phase 2 owns Hebbian update, decay pass, SYNAPSES-INDEX regeneration, tentative writes
 - `pro/agents/retrospective.md` — Mode 0 regenerates `INDEX.md` and flags dormant concepts
 - `devdocs/architecture/cortex-integration.md` — Step 0.5 Pre-Router Cognitive Layer context
+
+---
+
+## §Design Rationale
+
+This section is explanatory context. The normative contract remains in the sections above.
+
+- The concept graph is Cortex's synaptic layer: concept files are nodes, YAML `outgoing_edges` are weighted associations, and Hebbian reinforcement records which ideas repeatedly co-activate across sessions.
+- Markdown remains the source of truth. `INDEX.md` and `SYNAPSES-INDEX.md` are compiled conveniences, not canonical stores, so the graph stays inspectable, git-friendly, and rebuildable without SQLite, vector databases, or Notion.
+- The graph is local-only because concepts can encode sensitive personal patterns even after summarization. Notion may support capture and mirrors elsewhere in Life OS, but concept state stays under `_meta/`.
+- Concept lookup is read-only during Step 0.5. Creation, reinforcement, decay, retirement, and reverse-index rebuilds belong to ARCHIVER Phase 2 after the session has produced evidence.
+- Concepts intentionally exclude people, identity claims, and procedures. People and traits belong in SOUL or user-patterns; procedures belong in the method library; concepts hold reusable non-personal ideas and associations.
+- Privacy filtering and conservative creation criteria prevent transient or sensitive facts from ossifying into memory. A candidate that cannot survive redaction should not become a concept.
+- Decay, archive, and undo are part of the design, not cleanup extras. They prevent a wrong merge or stale association from becoming a one-way corruption of future cognition.
+
+## §Migration
+
+- Pre-v1.7 trees have no concept graph. Migration creates `_meta/concepts/`, domain partitions, `_tentative/`, `_archive/`, `INDEX.md`, and `SYNAPSES-INDEX.md`.
+- Run concept backfill through the same criteria as ARCHIVER Phase 2: last 3 months of `_meta/journal/`, at least two independent evidence points, successful domain routing, and the privacy filter.
+- Backfill should be conservative. Prefer tentative concepts when confidence is limited, avoid raw private details, and leave older material untouched unless a later user-approved migration expands scope.
+- Initial `activation_count`, status, and synapse weights come from independent-session co-occurrence, with caps defined above. Re-running migration must be idempotent.
+- `SYNAPSES-INDEX.md` and `INDEX.md` are regenerated after import; do not hand-author them during migration.
+- Log completion to `_meta/cortex/bootstrap-status.md`. Historical `migration-log-*` naming is deprecated.
+- Ambiguous user corrections should move to `_meta/ambiguous_corrections/` only when confidence requires later confirmation.
+- `devdocs/human-docs-archive/2026-04-24/MIGRATION.md` is development-environment migration guidance, not a Cortex data-schema source. Use it for setup and verification context such as `uv`, hooks, `make test`, `make bash-check`, `make lint`, and CLI smoke checks.
