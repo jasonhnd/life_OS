@@ -65,6 +65,12 @@ V17_PRE_READ_DEST="$HOOKS_SUBDIR/pre-read-allowlist.sh"
 
 # ─── Uninstall mode ─────────────────────────────────────────────────────────
 uninstall_all() {
+  local unregister_script="$SOURCE_DIR/unregister-claude-agents.sh"
+  if [ -f "$unregister_script" ]; then
+    echo "Removing Life OS native subagent wrappers..."
+    bash "$unregister_script"
+  fi
+
   if [ ! -f "$SETTINGS" ]; then
     echo "ℹ️ $SETTINGS not found — nothing to uninstall"
     exit 0
@@ -237,6 +243,13 @@ register_hook "PostToolUse" "$HOOK_POST_RESPONSE_ID" "Task|Bash|Write|Edit" \
 register_hook "Stop" "$HOOK_STOP_ID" "*" \
   "$V17_STOP_DEST" 10 \
   "v1.7 · On adjourn, verify all 4 archiver phases logged"
+
+REGISTER_SCRIPT="$SOURCE_DIR/register-claude-agents.sh"
+if [ -f "$REGISTER_SCRIPT" ]; then
+  echo ""
+  echo "📋 Registering life_OS agents as Claude Code subagents..."
+  bash "$REGISTER_SCRIPT"
+fi
 
 echo ""
 echo "🏛️ Setup complete. Life OS v1.7 hooks active:"
