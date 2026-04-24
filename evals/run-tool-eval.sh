@@ -1,7 +1,8 @@
 #!/bin/bash
 # Life OS · Tool Eval Runner (R4.5)
 #
-# Machine-verifiable runner for tool-*.md scenarios under evals/scenarios/.
+# Machine-verifiable runner for tool-*.md scenarios under evals/scenarios/,
+# plus install-verification scenarios that exercise tool-adjacent scripts.
 # Unlike run-eval.sh (which exercises claude -p on full routing scenarios),
 # this runner invokes the underlying Python tools directly and asserts on
 # exit code, stdout substrings, and created files.
@@ -374,6 +375,9 @@ for k, v in data.items():
 
 shopt -s nullglob
 SCENARIOS=("$SCENARIOS_DIR"/tool-*.md)
+if [ -f "$SCENARIOS_DIR/native-subagent-registration.md" ]; then
+    SCENARIOS+=("$SCENARIOS_DIR/native-subagent-registration.md")
+fi
 shopt -u nullglob
 
 if [ ${#SCENARIOS[@]} -eq 0 ]; then
