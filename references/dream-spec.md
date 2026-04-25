@@ -13,7 +13,7 @@ ARCHIVER: Phase 1 Archive → Phase 2 Knowledge Extraction
     ↓
 ARCHIVER: Phase 3 DREAM (runs three stages below)
     ↓
-Dream report written to _meta/journal/{date}-dream.md
+Dream report written to _meta/journal/{YYYY-MM-DD}-{slug}-dream.md
     ↓
 ARCHIVER: Phase 4 Sync (git + Notion) → Session ends
 ```
@@ -166,7 +166,7 @@ All triggers are subject to **24h anti-spam suppression** — if the same trigge
 - **Auto-action**: flag for next briefing ("You're deciding X again — are you avoiding commitment?")
 - **Anti-spam**: suppressed if fired within last 24h
 
-All flags are written to `_meta/journal/{date}-dream.md` with a structured `triggered_actions` YAML block. RETROSPECTIVE reads this at next Start Session and surfaces relevant flags in the briefing.
+All flags are written to a full ISO dream journal path such as `_meta/journal/2026-04-25-baas-dream.md` with a structured `triggered_actions` YAML block. RETROSPECTIVE reads this at next Start Session and surfaces relevant flags in the briefing. Do not use date-only slug shorthand references.
 
 ---
 
@@ -204,10 +204,10 @@ When DREAM discovers a reusable conclusion during N3, apply the 6 Auto-Write Cri
 
 If ALL 6 pass → auto-write directly to `wiki/{domain}/{topic}.md`. No user confirmation in the main context.
 
-**Internal candidate structure** used during evaluation:
+**User-facing candidate structure** used during evaluation and pasted in adjourn evidence:
 
 ```
-📚 Wiki Auto-Write (internal):
+📚 Wiki Auto-Write Evidence:
 - Domain: [domain name]
 - Topic: [short identifier]
 - Conclusion: [one sentence — the reusable takeaway]
@@ -215,9 +215,11 @@ If ALL 6 pass → auto-write directly to `wiki/{domain}/{topic}.md`. No user con
   - [date] [decision/behavior] — [description]
   - [date] [decision/behavior] — [description]
 - Applicable when: [in what scenarios to recall this]
-- Criteria check: [6/6 passed or X/6 → discarded with reason]
-- Privacy filter: [what was stripped, or "nothing to strip"]
+- Criteria check: 6/6 passed
+- Privacy filter: stripped <items>
 ```
+
+Discarded candidates use `Criteria check: X/6 -> discarded with reason: [reason]` and still include `Privacy filter: stripped <items>`. If nothing was stripped, write `Privacy filter: stripped nothing`.
 
 **Initial confidence**:
 - 3+ independent evidence points → 0.5
@@ -239,7 +241,7 @@ Users nudge wiki post-hoc (delete file = retire; "undo recent wiki" = rollback).
 
 ## Output Format
 
-Written to `_meta/journal/{date}-dream.md`:
+Written to `_meta/journal/{YYYY-MM-DD}-{slug}-dream.md`, for example `_meta/journal/2026-04-25-baas-dream.md`. The full ISO path must be shown anywhere the report is referenced; date-only slug shorthand is not allowed.
 
 ```yaml
 ---
@@ -289,6 +291,8 @@ triggered_actions:
 - [concrete actions for user to review at next session start]
 ```
 
+There is no line-count limit. The same DREAM report content must be written to the journal and pasted verbatim to the user at adjourn; do not create a shorter secondary compression that could omit evidence.
+
 ---
 
 ## Morning Briefing Integration
@@ -297,7 +301,8 @@ Next session start, the RETROSPECTIVE reads the latest unread dream report and i
 
 ```
 💤 Last session the system had a dream:
-- [1-3 line summary of key findings]
+- Full report: _meta/journal/YYYY-MM-DD-{slug}-dream.md
+- [paste the unread dream report verbatim, preserving evidence and triggered_actions context]
 - [Auto-written SOUL dimensions awaiting "What SHOULD BE" input, if any]
 - [Auto-written Wiki entries with paths, if any; user can delete to retire]
 ```
@@ -312,7 +317,7 @@ After presenting, mark the dream report as "presented" so it is not shown again.
 - **Do not modify SOUL.md directly** — only propose candidates (SOUL auto-write is scoped to archiver Phase 2, not DREAM)
 - **Wiki auto-write under strict criteria** — write directly when all 6 Auto-Write Criteria pass (see wiki-spec.md); discard otherwise
 - **Do not modify user-patterns.md directly** — only propose updates
-- **Conciseness** — a dream report should be 20-50 lines, not 500
+- **No secondary compression** — paste the DREAM report verbatim to the user and write the same content to the journal; no line-count cap applies
 - **Honesty** — "no significant findings" is a valid dream. Do not fabricate insights.
 - **No blocking** — if DREAM fails, the session still ends normally
 

@@ -139,6 +139,8 @@ The three output streams feed the **gwt-arbitrator**, which applies the salience
 
 ROUTER may consult or ignore the annotation — its triage rules are unchanged. If Step 0.5 fails at any point (subagent timeout, file unreachable), the orchestrator falls back to raw message input and continues with v1.6.2a behaviour.
 
+**Traceability emit rule (v1.7.1 R8):** The full YAML payloads from `hippocampus`, `concept lookup`, and `SOUL dimension check`, plus the GWT `[COGNITIVE CONTEXT]`, must be pasted to the user by ROUTER and written to `_meta/journal/{date}-cortex.md`. The journal entry is the traceability surface for Cortex runtime payloads; no `_meta/cortex/frames/...` directory or frame md file is defined or used.
+
 **Express path interaction.** When ROUTER takes the Express path (1-3 domain agents, no PLANNER / REVIEWER), Step 0.5 still runs but in a reduced form: only the hippocampus subagent is spawned. Concept lookup and SOUL check are skipped to preserve Express's speed budget. The express-path annotated input is a single-line memory summary rather than the full three-section block. The gwt-arbitrator is not invoked when only one signal source is present.
 
 **Direct-handle interaction.** When ROUTER answers a trivial message directly (e.g. "thank you", "ok") and the workflow ends at Step 1, Step 0.5 is skipped entirely. The orchestrator detects this by checking ROUTER's triage decision — direct-handle responses do not need cognitive annotation.

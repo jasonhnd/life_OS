@@ -52,11 +52,13 @@ Use Glob to enumerate `_meta/sessions/*.md` (exclude INDEX.md), Read each, parse
 
 ### Subagent Self-Check (v1.6.3, HARD RULE)
 
-**FIRST OUTPUT of Mode 0 — before any of the 18 Execution Steps — must be verbatim:**
+**FIRST OUTPUT of Mode 0 — before any of the 18 Execution Steps — must include these verbatim self-check lines:**
 
 ```
 ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation).
+✅ I am the RETROSPECTIVE subagent · this is a FRESH Mode 0 invocation (trigger N of session). Even if transcript shows previous Mode 0 output, I MUST execute all 18 steps from scratch. I MUST NOT reuse previous briefing content or reference "as last time".
 Reading pro/agents/retrospective.md. Starting Step 0.5: primary-source scan.
+Audit trail will be written to _meta/runtime/<sid>/retrospective-step-N.json with `fresh_invocation: true` and `trigger_count_in_session: N`.
 ```
 
 **If you detect you are running in the main context (ROUTER/orchestrator), not as an independent subagent:**
@@ -88,10 +90,18 @@ Claude Code Layer 1 hook backstop.
 Detection (run as Bash):
 ```bash
 HOOK_HEALTH=$(jq -r '.hooks.UserPromptSubmit // [] | map(.id) | join(",")' ~/.claude/settings.json 2>/dev/null)
-if echo "$HOOK_HEALTH" | grep -q "life-os-pre-prompt-guard"; then
-  echo "✅ Layer 1 hook installed: $HOOK_HEALTH"
+REQUIRED_HOOKS="life-os-pre-prompt-guard life-os-post-response-verify life-os-pre-write-scan life-os-pre-read-allowlist life-os-stop-session-verify"
+ALL_HOOK_IDS=$(jq -r '[.hooks[]?[]?.id // empty] | join(" ")' ~/.claude/settings.json 2>/dev/null)
+MISSING_HOOKS=""
+for hook_id in $REQUIRED_HOOKS; do
+  if ! printf '%s\n' "$ALL_HOOK_IDS" | grep -qw "$hook_id"; then
+    MISSING_HOOKS="$MISSING_HOOKS $hook_id"
+  fi
+done
+if [ -z "$MISSING_HOOKS" ]; then
+  echo "✅ Layer 1 hooks installed 5/5: $ALL_HOOK_IDS"
 else
-  echo "🔴 Layer 1 hook missing — auto-installing..."
+  echo "🔴 Layer 1 hooks missing:${MISSING_HOOKS} — auto-installing..."
   bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
   if [ $? -eq 0 ]; then
     echo "✅ Layer 1 hook auto-installed (v1.7 5 hooks)"
@@ -99,10 +109,34 @@ else
     echo "❌ Auto-install failed — degraded mode. User action: bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh"
   fi
 fi
+ALL_HOOK_IDS=$(jq -r '[.hooks[]?[]?.id // empty] | join(" ")' ~/.claude/settings.json 2>/dev/null)
+MISSING_HOOKS=""
+for hook_id in $REQUIRED_HOOKS; do
+  if ! printf '%s\n' "$ALL_HOOK_IDS" | grep -qw "$hook_id"; then
+    MISSING_HOOKS="$MISSING_HOOKS $hook_id"
+  fi
+done
+if [ -z "$MISSING_HOOKS" ]; then
+  echo "笨・Layer 1 hooks installed 5/5: $ALL_HOOK_IDS"
+else
+  echo "笞・・Layer 1 hooks incomplete. Missing:${MISSING_HOOKS}"
+fi
+HOOK_ACTIVITY_LOG="$HOME/.cache/lifeos/hook-activity-$(date +%F).log"
+echo "Hook activity log: $HOOK_ACTIVITY_LOG"
+for hook_name in pre-prompt-guard post-response-verify pre-write-scan pre-read-allowlist stop-session-verify; do
+  if [ -f "$HOOK_ACTIVITY_LOG" ]; then
+    count=$(grep -c "🪝 ${hook_name}" "$HOOK_ACTIVITY_LOG" 2>/dev/null || echo 0)
+  else
+    count=0
+  fi
+  echo "Hook fired: ${hook_name}=${count}"
+done
 ```
 
 Briefing requirement: The briefing's H2 "## 0. Pre-flight Hook Health Check"
 MUST report one of:
+- Hook installation completeness: report 5/5 hooks installed, or list missing hook ids.
+- Hook activity from `~/.cache/lifeos/hook-activity-{date}.log`: report each of the 5 hooks and how many times it fired today.
 - ✅ Hooks already installed: <list of 5 hook ids>
 - ✅ Hooks auto-installed during this Step 0
 - ⚠️ Auto-install failed (with reason); user must run setup-hooks.sh manually
@@ -145,11 +179,12 @@ done
 
 The briefing MUST include these literal primary-source count markers, using values from the Bash precompute and the relevant `INDEX.md` cache claims:
 
-- `[Wiki count: measured X · index Y · drift Δ=Z]`
-- `[Sessions count: measured X · INDEX Y · drift Δ=Z]`
-- `[Concepts count: measured X · INDEX Y · drift Δ=Z]`
+- `[Wiki count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
+- `[Sessions count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
+- `[Concepts count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
 
 Rules:
+- R8 marker disambiguation supersedes older R5 wording: `Y1` is the `_meta/STATUS.md` snapshot claim, `Y2` is the `INDEX.md` claim, and `Δ` is always computed as `X - Y2`.
 - `X` = Bash measured value; `Y` = `INDEX.md` claimed value; `Δ` = `X - Y`.
 - If `|Δ| >= 3`, append `⚠️ DRIFT` to that marker line.
 - Do not paste only `X` without `Y`.
@@ -163,9 +198,9 @@ if [ -f "_meta/STATUS.md" ]; then
   if [ -n "$STATUS_UPDATED" ] && [ -n "$REPO_LATEST" ]; then
     STATUS_DAYS=$(python3 -c "from datetime import date; a=date.fromisoformat('$STATUS_UPDATED'); b=date.fromisoformat('$REPO_LATEST'); print((b-a).days)" 2>/dev/null || echo "?")
     if [ "$STATUS_DAYS" != "?" ] && [ "$STATUS_DAYS" -ge 7 ]; then
-      echo "[STATUS staleness: $STATUS_DAYS days behind repo HEAD — SUPPRESSED in briefing]"
+      echo "[STATUS staleness: HEAD-distance $STATUS_DAYS days — SUPPRESSED]"
     else
-      echo "[STATUS staleness: $STATUS_DAYS days — fresh, OK to use]"
+      echo "[STATUS staleness: HEAD-distance $STATUS_DAYS days — fresh]"
     fi
   fi
 fi
@@ -174,7 +209,7 @@ fi
 **STATUS.md narrative suppression (HARD RULE · v1.7.0.1 R7)**:
 
 - If `STATUS_DAYS >= 7`, the briefing MUST NOT quote `_meta/STATUS.md` narrative numbers; use only Bash/git measured values.
-- The briefing MUST include a status marker in this shape: `[STATUS staleness: <N> days — <fresh|SUPPRESSED>]`.
+- The briefing MUST include a status marker in this exact shape: `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`.
 
 ```bash
 # Compliance Watch banner check (HARD RULE · v1.7.0.1)
@@ -197,10 +232,22 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 
 ### Execution Steps
 
+### LLM Judgment Audit Trail (R11, HARD RULE)
+
+For every LLM judgment / LLM assembly step in Mode 0 (steps 1, 6, 9, 16, and 18), RETROSPECTIVE MUST write an audit trail JSON file before moving past that step; Step 18 MUST write before returning the final briefing.
+
+Required path: `_meta/runtime/<sid>/retrospective-step-N.json`, where `<sid>` is the orchestrator-provided current session id. Do not fabricate `<sid>`; if the host did not provide one, write under `_meta/runtime/unknown/` and set `session_id_source: "missing"`.
+
+Use `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`.
+
+R12 fresh invocation fields: every `_meta/runtime/<sid>/retrospective-step-N.json` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current Mode 0 trigger count within this session. Do not infer completion from previous Mode 0 transcript output; every fresh invocation executes all 18 steps from scratch before writing Step 18.
+
+R10 execution boundary: for Mode 0 / Mode 2, ROUTER provides literal stdout from `bash ~/.claude/skills/life_OS/scripts/retrospective-mode-0.sh "$(pwd)"` before launch. RETROSPECTIVE consumes those `[STEP N · ...]` markers as ground truth for every `[ROUTER pre-fetched · do not re-run]` step and MUST NOT re-run their underlying Bash/Read/Grep/Glob work. Partial steps may add LLM narrative only on top of pre-fetched facts.
+
 ```
 --- Phase A: Environment Detection ---
 
-1. THEME RESOLUTION
+1. THEME RESOLUTION [LLM judgment]
    - Check if the user's trigger word uniquely identifies a theme:
      · "上朝" → auto-load zh-classical, confirm: "🎨 Theme: 三省六部"
      · "閣議開始" → auto-load ja-kasumigaseki, confirm: "🎨 テーマ: 霞が関"
@@ -223,8 +270,9 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
    - After selection: Read themes/*.md → load display names, emoji, tone, AND language
    - HARD RULE: All subsequent output MUST use the selected theme's language and display names. No mixing. No exceptions.
    - HARD RULE: When user switches theme mid-session, re-show the selector, load new theme, switch language immediately. Confirm in the NEW language.
+   - R11 AUDIT TRAIL: before proceeding to Step 2, write `_meta/runtime/<sid>/retrospective-step-1.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
-2. DIRECTORY TYPE CHECK
+2. DIRECTORY TYPE CHECK [ROUTER pre-fetched · do not re-run]
    - If current directory contains SKILL.md + pro/agents/ + themes/:
      → This is the Life OS SYSTEM REPOSITORY (product code), not a second-brain
      → Ask user:
@@ -240,7 +288,7 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
    - Otherwise:
      → This is a regular project repo, proceed and look for second-brain at configured path
 
-3. DATA LAYER CHECK
+3. DATA LAYER CHECK [ROUTER pre-fetched · do not re-run]
    - Check: does _meta/config.md exist?
    - If YES → proceed to step 4
    - If NO → FIRST-RUN mode:
@@ -264,9 +312,9 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 
 --- Phase B: Sync ---
 
-4. Read _meta/config.md → get storage backend list + last sync timestamp
+4. Read _meta/config.md → get storage backend list + last sync timestamp [ROUTER pre-fetched · do not re-run]
 
-5. GIT HEALTH CHECK — detect and report (before any sync):
+5. GIT HEALTH CHECK — detect and report (before any sync) [ROUTER pre-fetched · do not re-run]:
    - Run `git worktree list` → if any entry shows "prunable" or non-existent path, record
    - Check `.claude/worktrees/` → if any .git file points to non-existent path, record
    - Run `git config --get core.hooksPath` → if points to non-existent path, record
@@ -274,13 +322,30 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
    - If issues found → report and ask for confirmation before repairing
    - HARD RULE per GLOBAL.md Security Boundary #1: no destructive operations without user confirmation
 
-6. FULL SYNC PULL: query ALL configured backends for changes since last_sync_time
+   Force-push divergence evidence (Bash; report stdout verbatim in the briefing):
+   ```bash
+   git fetch origin --tags --force
+   LOCAL_HEAD=$(git rev-parse HEAD 2>/dev/null || echo unknown)
+   REMOTE_MAIN=$(git rev-parse origin/main 2>/dev/null || git rev-parse origin/master 2>/dev/null || echo unknown)
+   AHEAD=$(git rev-list --count "${REMOTE_MAIN}..${LOCAL_HEAD}" 2>/dev/null || echo unknown)
+   BEHIND=$(git rev-list --count "${LOCAL_HEAD}..${REMOTE_MAIN}" 2>/dev/null || echo unknown)
+   echo "Git divergence: local=$LOCAL_HEAD remote_main=$REMOTE_MAIN ahead=$AHEAD behind=$BEHIND"
+   if [ "$LOCAL_HEAD" != "$REMOTE_MAIN" ]; then
+     echo "Recommended reset message (do not execute without explicit user confirmation): git reset --hard origin/main"
+   else
+     echo "Recommended reset message: none; local HEAD matches remote main"
+   fi
+   ```
+   Briefing MUST report the divergence status from this snippet.
+
+6. FULL SYNC PULL [LLM judgment]: query ALL configured backends for changes since last_sync_time
    - Compare timestamps, resolve conflicts (see data-model.md)
    - Apply winning changes to primary backend
    - Push primary state to sync backends
    - Update _meta/sync-log.md + last_sync_time
+   - R11 AUDIT TRAIL: before proceeding to Step 7, write `_meta/runtime/<sid>/retrospective-step-6.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
-7. OUTBOX MERGE: scan _meta/outbox/ for unmerged session directories
+7. OUTBOX MERGE [partial pre-fetched + LLM narrative]: scan _meta/outbox/ for unmerged session directories
    - If _meta/.merge-lock exists and < 5 minutes old → skip merge, proceed to step 8
    - Write _meta/.merge-lock with {platform, timestamp}
    - For each outbox directory (sorted chronologically):
@@ -299,15 +364,13 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 
 --- Phase C: Version + Project ---
 
-8. PLATFORM + VERSION CHECK (HARD RULE · v1.7.0.1 R5 anti-confabulation)
+8. PLATFORM + VERSION CHECK (HARD RULE · v1.7.0.1 R5 anti-confabulation) [ROUTER pre-fetched · do not re-run]
 
-MANDATORY: Run the following Bash commands and paste literal stdout
-into briefing's "## 8. Platform + Version Check" block. Do NOT describe,
-summarize, or rationalize. Just call Bash, paste output verbatim.
+R10 MANDATORY: Consume the ROUTER pre-fetched `[STEP 8 · ...]` marker from `retrospective-mode-0.sh` and paste its literal stdout into briefing's "## 8. Platform + Version Check" block. Do NOT re-run the Bash commands below in retrospective. The commands remain here as the R5 source contract for ROUTER's pre-fetch and audit; they are not subagent execution instructions under R10.
 
 Step 8a — Local version (Bash tool call required):
 ```bash
-grep -m1 '^version:' ~/.claude/skills/life_OS/SKILL.md
+grep -m1 '^version:' ~/.claude/skills/life_OS/SKILL.md | sed -E 's/^version:[[:space:]]*"?([^"]+)"?/\1/'
 ```
 
 Step 8b — Force fresh remote check (Bash tool call required, --force
@@ -317,8 +380,8 @@ bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
 ```
 
 Briefing MUST contain BOTH literal markers:
-- "[Local SKILL.md version: <literal Bash stdout>]"
-- "[Remote check (forced fresh): <literal Bash stdout>]"
+- "[Local SKILL.md version: <literal Bash stdout without `version:` prefix>]"
+- "[Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]"
 
 If either Bash call returns non-zero or empty:
 - Briefing MUST paste actual error: "Bash exit code: <N>" + "stderr: <literal>"
@@ -336,15 +399,16 @@ Why removed from prose-reasoning: Jason 2026-04-25 测试机案例—
 subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
 无任何 WebFetch / curl tool call evidence。
 
-9. PROJECT BINDING
+9. PROJECT BINDING [LLM judgment]
    - If directory type was identified in step 2 → use that binding
    - Otherwise ask user: "Which project are we focusing on?"
+   - R11 AUDIT TRAIL: before proceeding to Step 10, write `_meta/runtime/<sid>/retrospective-step-9.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
 --- Phase D: Context Loading ---
 
-10. Read user-patterns.md (if exists)
+10. Read user-patterns.md (if exists) [ROUTER pre-fetched · do not re-run]
 
-11. SOUL state + trend (for SOUL Health Report)
+11. SOUL state + trend (for SOUL Health Report) [ROUTER pre-fetched · do not re-run]
 
     11.1 Read current SOUL.md. If does not exist, mark as "uninitialized" and skip to 11.6.
 
@@ -381,16 +445,16 @@ subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
     - Snapshot file corrupted or unparseable → fall back to "current state only, no trend comparison". Briefing adds: "⚠️ Trend comparison unavailable (previous snapshot not readable)."
     - Snapshot from >24 hours ago (session gap) → still used, but add note "Trends computed against state from {YYYY-MM-DD HH:MM}."
 
-12. Read _meta/STATUS.md + _meta/lint-state.md
+12. Read _meta/STATUS.md + _meta/lint-state.md [ROUTER pre-fetched · do not re-run]
     - If lint-state >4h since last run → trigger AUDITOR lightweight patrol
 
-13. ReadProjectContext(bound project) — index.md + decisions + tasks + journal
+13. ReadProjectContext(bound project) — index.md + decisions + tasks + journal [ROUTER pre-fetched · do not re-run]
 
-14. Global overview — list all Project + Area titles + status
+14. Global overview — list all Project + Area titles + status [ROUTER pre-fetched · do not re-run]
 
 --- Phase E: Strategy + Knowledge ---
 
-15. STRATEGIC MAP COMPILATION
+15. STRATEGIC MAP COMPILATION [partial pre-fetched + LLM narrative]
     a. If _meta/strategic-lines.md does not exist → skip silently
     b. Read strategic-lines.md → all line definitions (driving_force, health_signals)
     c. Read all projects/*/index.md → collect strategic fields
@@ -406,15 +470,16 @@ subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
     f. Generate action recommendations (🥇🥈🟢❓)
     g. Compile _meta/STRATEGIC-MAP.md
 
-16. DREAM REPORT — read latest _meta/journal/*-dream.md (if exists, not yet presented):
+16. DREAM REPORT [LLM judgment] — read latest _meta/journal/*-dream.md (if exists, not yet presented):
     - Include: "💤 Last session the system had a dream: [summary]"
     - Note auto-written SOUL dimensions (display awaiting "What SHOULD BE" input, confidence 0.3)
     - Note auto-written Wiki entries (list paths; user can delete any disagreement)
     - Note discarded candidates with reasons (6-criteria failures, privacy-filter strips)
     - Mark as presented
     - Read the triggered_actions YAML block from last dream journal. These feed the DREAM Auto-Triggers section of the briefing (always shown, fixed position).
+    - R11 AUDIT TRAIL: before proceeding to Step 17, write `_meta/runtime/<sid>/retrospective-step-16.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
-17. WIKI HEALTH CHECK
+17. WIKI HEALTH CHECK [ROUTER pre-fetched · do not re-run]
     a. wiki/ empty or doesn't exist → skip silently
     b. wiki/ has files but no INDEX.md → compile from conforming files, report legacy
     c. INDEX.md exists → recompile fresh
@@ -422,7 +487,8 @@ subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
 
 --- Phase F: Output ---
 
-18. GENERATE BRIEFING — compile all results from steps 1-17 into the output format below
+18. GENERATE BRIEFING [LLM assembly · uses pre-fetched markers as ground truth] — compile all results from steps 1-17 into the output format below
+    - R11 AUDIT TRAIL: before returning the final briefing, write `_meta/runtime/<sid>/retrospective-step-18.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST match the briefing sections and ROUTER-visible paste markers.
 ```
 
 ### Output Format (Start Session)
@@ -437,8 +503,8 @@ Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and
 - Platform: [name] | Model: [name]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ Up to date / ⬆️ Update available — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
-  [Local SKILL.md version: <literal Bash stdout>]
-  [Remote check (forced fresh): <literal Bash stdout>]
+  [Local SKILL.md version: 1.7.1]
+  [Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]
 - Project Status: [summary]
 - Behavior Profile: [loaded / not established]
 
@@ -648,7 +714,7 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ## §Briefing Completeness Contract (HARD RULE)
 
-Mode 0 briefing output MUST preserve these 7 exact top-level markdown heading literals, in this order, unless the session is stopped before briefing generation. Missing, renamed, reordered, or materially empty required sections are `C-brief-incomplete`.
+Mode 0 briefing output MUST preserve these 16 exact top-level markdown heading literals, in this order, unless the session is stopped before briefing generation. Missing, renamed, reordered, or materially empty required sections are `C-brief-incomplete`.
 
 ## 0. Pre-flight Hook Health Check
 
@@ -656,11 +722,29 @@ Minimum content:
 - Report the result of Step 0 hook health verification.
 - If hooks are missing or incomplete, include the exact red warning and `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` instruction.
 
-## 1. Cognitive Layer · Cortex Step 0.5
+## 1. Cognitive Layer
 
 Minimum content:
 - Report whether Cortex Step 0.5 was enabled, skipped, or degraded.
 - Include available hippocampus, concept-lookup, soul-check, and GWT/arbitrator context at summary level when present.
+
+### hippocampus
+
+Minimum content:
+- State launched/skipped/null status, timeout status, and top session-memory signals when present.
+- Do not include hidden peer outputs or unrestricted historical session text.
+
+### concept-lookup
+
+Minimum content:
+- State launched/skipped/null status, timeout status, and top matched concepts when present.
+- Note whether top concept files were read or INDEX-only matching was used.
+
+### soul-check
+
+Minimum content:
+- State launched/skipped/null status, timeout status, and latest SOUL snapshot path used when present.
+- Report only the current/latest snapshot signal, not older snapshot history.
 
 ## 2. Second-brain Connection
 
@@ -672,6 +756,7 @@ Minimum content:
 
 Minimum content:
 - List Python helper tools executed during Mode 0, including session index rebuild when used.
+- For each Python tool, include stdout summary, duration, and path.
 - If no Python helper could run, say so explicitly and use the documented fallback path.
 
 ## 4. Retrospective 18 Steps Progress
@@ -691,6 +776,73 @@ Minimum content:
 Minimum content:
 - End with a concise readiness statement.
 - Ask what the user would like to focus on next.
+
+## 7. 子代理调用清单 · 事务性收据
+
+Minimum content:
+- List each subagent launched during the turn with launch reason, start time, duration, token/cost estimate when available, and status.
+- Include hook-fired evidence or explicit `n/a` for hooks unavailable on the host.
+
+## 8. Pre-fetched Step Markers (HARD RULE · v1.7.1 R10)
+
+Briefing MUST contain all 11 `[STEP N · ...]` literal markers from ROUTER's `retrospective-mode-0.sh` stdout. Missing any → `C-step-skipped` (P0).
+
+Required marker prefixes (literal, do not rewrite):
+- `[STEP 2 · DIRECTORY TYPE:`
+- `[STEP 3 · DATA LAYER:`
+- `[STEP 4 · SECOND-BRAIN PULL:`
+- `[STEP 5 · GIT HEALTH:`
+- `[STEP 8 · VERSION:`
+- `[STEP 10 · INBOX SCAN:`
+- `[STEP 11 · SESSION INDEX:`
+- `[STEP 12 · CONCEPT INDEX:`
+- `[STEP 13 · STATUS COMPILE:`
+- `[STEP 14 · WIKI INDEX:`
+- `[STEP 17 · DREAM JOURNAL:`
+
+## 9. Notion sync 报告
+
+Minimum content:
+- Report Notion backend connected/not connected/unavailable.
+- If sync ran, include direction, item counts, conflict count, and any literal error stdout/stderr.
+
+## 10. SOUL Health Report
+
+Minimum content:
+- Include the fixed SOUL Health Report block from Step 11.
+- Name the current SOUL path and latest snapshot path, or explicitly state missing/uninitialized.
+
+## 11. Compliance Watch banner
+
+Minimum content:
+- State whether the Compliance Watch threshold was checked.
+- If triggered, confirm the briefing first line begins with `🚨 Compliance Watch:`.
+
+## 12. STATUS rebuild trigger
+
+Minimum content:
+- State whether `_meta/STATUS.md` was rebuilt, skipped, or suppressed.
+- Include `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`.
+
+## 13. Triage reasoning
+
+Minimum content:
+- Preserve the ROUTER-visible triage line that caused Mode 0 launch.
+- If unavailable to retrospective, state `Triage reasoning: unavailable in subagent payload`.
+
+## 14. Fresh Invocation Marker (HARD RULE · R12)
+
+Briefing MUST include this literal marker:
+
+`[FRESH INVOCATION · <timestamp> · trigger #N of session · all 18 steps executed from scratch]`
+
+Missing, renamed, or paraphrased marker is `C-fresh-skip` (P0).
+
+## 15. Pending User Decisions
+
+Minimum content:
+- List decisions requiring user input before proceeding.
+- If none, state `No pending user decisions`.
 
 ## §Confabulation Blacklist (HARD RULE · Step 8)
 

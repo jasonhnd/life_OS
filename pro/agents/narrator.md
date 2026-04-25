@@ -121,7 +121,7 @@ After narrator returns, a `narrator-validator` subagent (Sonnet-tier — no sepa
 
 If validator fails: emit error, narrator gets one rewrite chance. After two failed rewrites, fall back to v1.6.3 unwrapped Summary Report and log to `_meta/eval-history/narrator-{date}.md`.
 
-Validator subagent definition: TBD — Phase 2.5. For Phase 2 launch, narrator self-checks its own output.
+Validator subagent definition: `pro/agents/narrator-validator.md` (Phase 2.5, shipped in v1.7.0). The validator is chained automatically at ROUTER Step 7.5 (narrator mode); narrator no longer self-checks.
 
 ---
 

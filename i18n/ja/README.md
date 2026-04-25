@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.0.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -74,6 +74,12 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.7.1 の新機能
+
+v1.7.1 は、透明性と証拠の扱いを強化するリリースです。token 使用量をより明確に示し、どの作業が実行、スキップ、またはエスカレーションされたのかをユーザーが確認できるようにしました。ROUTER はサブエージェント出力を圧縮せず、そのまま貼り付ける必要があります。AUDITOR の確認はさらにプログラム的になり、27 件の強化は hook 活動、i18n ドリフト、Cortex 出力、GWT の明示化、DREAM の完全出力、force push 対応、マーカーの曖昧性解消、markdown frame 解決などをまとめています。R10 アーキテクチャ転換：18 個の retrospective ステップのうち 11 個を LLM から ROUTER Bash へ移しました。LLM のコンプライアンスギャップは、spec ルールの追加ではなくプログラム置換で閉じました。R11 は runtime audit trail ファイルを追加し、AUDITOR が subagent 横断で直接検証できるようにして、agent reasoning を露出せずに情報隔離のボトルネックを破ります。R12：すべての「上朝」は fresh invocation です。LLM は前回の briefing を再利用できず、禁止フレーズ、length collapse、fresh marker 欠落はいずれも P0 の C-fresh-skip を発火します。
 
 ---
 

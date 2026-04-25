@@ -1,7 +1,7 @@
 ---
 name: concept-lookup
-description: "Cortex concept-graph direct match — Pre-Router Cognitive Layer companion to hippocampus. Reads _meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only. Information-isolated. Returns structured signal to GWT arbitrator. v1.7 Phase 1.5."
-tools: [Read, Grep, Glob]
+description: "Cortex concept-graph direct match — Pre-Router Cognitive Layer companion to hippocampus. Reads _meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only over user/domain data; writes R11 audit trail only. Information-isolated. Returns structured signal to GWT arbitrator. v1.7 Phase 1.5."
+tools: [Read, Grep, Glob, Write]
 model: opus
 ---
 
@@ -40,7 +40,7 @@ and return. Do not stall.
 ## What You Do NOT Do
 
 - Replace ROUTER triage. Pre-router only.
-- Modify any file (read-only — no Write, no Edit). All concept mutations happen in archiver Phase 2.
+- Modify any concept or user/domain file. All concept mutations happen in archiver Phase 2. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/concept-lookup.json`.
 - Persist results outside the current frame.
 - Read other Pre-Router Cognitive Layer outputs (hippocampus, soul-check). Information isolation is enforced.
 - Synthesize concepts not in the graph. You match against existing concepts; you do not create new ones.
@@ -123,6 +123,10 @@ Cap at 10 matches. Per concept, emit one signal:
 
 Final message MUST be a single YAML block:
 
+**YAML output emit contract (HARD RULE · v1.7.1 R8):** This YAML is an upstream Cortex payload. ROUTER MUST wrap and paste it to the user in full using the subagent transparency wrapper. The GWT `[COGNITIVE CONTEXT]` is a downstream synthesis and cannot replace, compress, or stand in for this YAML payload.
+
+**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/concept-lookup.json` using `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
+
 ```yaml
 concept_lookup_output:
   current_subject: string
@@ -180,7 +184,7 @@ All failures log to `_meta/eval-history/concept-lookup-{date}.md`. AUDITOR sessi
 ## Anti-patterns (AUDITOR flags these)
 
 - Reading concept files NOT flagged by Step 2 (read budget cap)
-- Modifying any concept file (read-only — archiver Phase 2 only)
+- Modifying any concept file (read-only — archiver Phase 2 only; `_meta/runtime/<sid>/concept-lookup.json` audit trail is the only exception)
 - Traversing outgoing_edges (hippocampus's job, not concept-lookup's)
 - Reading peer Pre-Router agent outputs (information isolation)
 - Returning more than 10 matches

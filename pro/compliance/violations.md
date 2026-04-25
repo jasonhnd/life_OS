@@ -19,7 +19,9 @@
 | 2026-04-19T23:17+09:00 | 全面巡检 | A1 | P1 | Main context directly launched 6 domain agents (御史台/户部/礼部/吏部/刑部) instead of letting retrospective trigger AUDITOR Patrol internally. However context clarified: user had pasted output from another second-brain session; actual tool calls belonged to that session not this one — downgraded to P1 misattribution. | true (clarified T09: user paste from use repo, not this session's tool calls) |
 | 2026-04-21T13:42+09:00 | 上朝 | F | P2 | Hook fired on user pasting v1.6.3 production-verification transcript containing "上朝" mid-content. Real user intent: "看一下下面的用户反馈". Assistant correctly identified paste context and refused to launch retrospective. | true (mitigated by v1.6.3a · scripts/lifeos-pre-prompt-guard.sh adds first-line + length checks: prompt ≤ 500 chars AND first line ≤ 100 chars) |
 
-## Type Legend
+## Type Legend (16+ classes)
+
+Canonical active classes: A1, A2, A3, B, B-fabricate-fact, B-fabricate-toolcall, B-source-drift, B-source-stale, B-stale, C, C-brief-incomplete, C-banner-missing, C-output-suppressed, C-translation-drift, C-toctou-frame-md, D, E, F, CX1, CX2, CX3, CX4, CX5, CX6, CX7.
 
 - **A1** · Skip subagent — ROUTER simulated subagent's steps in main context instead of launching Task()
 - **A2** · Skip directory check — In dev repo, bypassed retrospective Step 2 DIRECTORY TYPE CHECK
@@ -64,3 +66,4 @@ An entry transitions to `Resolved: true` when all three conditions hold:
 3. No recurrence in 30 days after fix ship
 
 `partial` = fix shipped, awaiting eval regression verification or 30-day observation window.
+| 2026-04-25T21:52:47+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |

@@ -1,7 +1,7 @@
 ---
 name: gwt-arbitrator
-description: "Cortex GWT (Global Workspace Theory) arbitration — consolidates Pre-Router Cognitive Layer signals (hippocampus + concept lookup + SOUL check) into a single annotated input that ROUTER receives. Computes salience using fixed Phase 1 formula (urgency 0.3 + novelty 0.2 + relevance 0.3 + importance 0.2). Hard cap 5 signals. Read-only. Single invocation per session turn. Emits [COGNITIVE CONTEXT] block prepended to user message. v1.7 Phase 1."
-tools: [Read]
+description: "Cortex GWT (Global Workspace Theory) arbitration — consolidates Pre-Router Cognitive Layer signals (hippocampus + concept lookup + SOUL check) into a single annotated input that ROUTER receives. Computes salience using fixed Phase 1 formula (urgency 0.3 + novelty 0.2 + relevance 0.3 + importance 0.2). Hard cap 5 signals. Read-only over user/domain data; writes R11 audit trail only. Single invocation per session turn. Emits [COGNITIVE CONTEXT] block prepended to user message. v1.7 Phase 1."
+tools: [Read, Write]
 model: opus
 ---
 
@@ -33,7 +33,7 @@ If you detect you are running in the main context (not via Task), abort with:
 ## What You Do NOT Do
 
 - Loop or re-fire mid-turn (single invocation only)
-- Write to any file (read-only — no Write, no Edit)
+- Write to any user/domain file. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/gwt-arbitrator.json`.
 - Invent signals not in upstream input (every output item must trace to a specific input signal)
 - Introspect signal payloads to derive new signals (treat each signal as opaque beyond `signal_type`, `source`, `payload`, scoring components)
 - Override hard caps (5 signals max, 0.3 per-signal floor)
@@ -56,9 +56,10 @@ gwt_input:
     timestamp:             ISO 8601
     soft_timeout_ms:       5000
     hard_timeout_ms:       10000
+    frame_md_path:         string | null  # attempted GWT frame write path, if applicable
 ```
 
-**Missing sources are tolerated**. A first-ever session may have no hippocampus output (empty INDEX). A user without concept graph may have no concept_lookup. Proceed with whatever signals are available; if all three are null, emit empty `[COGNITIVE CONTEXT]` block and return.
+**Missing sources are tolerated**. A first-ever session may have no hippocampus output (empty INDEX). A user without concept graph may have no concept_lookup. Proceed with whatever signals are available; if all three are null, emit `[COGNITIVE CONTEXT]` with only `degradation_summary` and return.
 
 ---
 
@@ -164,19 +165,43 @@ SOUL signals:
 Pattern observations:
 - {if inconsistent precedent detected: "Inconsistent precedent — past decisions point opposite directions on similar subject"}
 
+degradation_summary:
+- hippocampus: {ok | null | timeout | failed: <reason>}
+- concept-lookup: {ok | null | timeout | failed: <reason>}
+- soul-check: {ok | null | timeout | failed: <reason>}
+- frame_md_path: {written: <path> | not written: <reason>}
+
 [END COGNITIVE CONTEXT]
 ```
 
 **Composition rules**:
 - Omit any subsection with zero signals (don't emit empty `Related past decisions:` block)
+- Do not omit `degradation_summary`; it is always present so ROUTER can see partial-context risk.
 - Each line ≤ 120 chars
 - ROUTER may parse `[COGNITIVE CONTEXT]` and `[END COGNITIVE CONTEXT]` as literal delimiters to separate advisory content from real user input
-- Emit `[COGNITIVE CONTEXT]\n[END COGNITIVE CONTEXT]\n` (empty) when no signals survive scoring
+- When no signals survive scoring, emit only the required `degradation_summary` between the delimiters.
 
 **Placement rationale** (DO NOT change without consultation per hippocampus-spec §7):
 - Cognitive context goes in **user message**, not system prompt (system prompts are cached; volatile context busts cache)
 - ROUTER may ignore the context (e.g., user explicitly says "ignore history, reconsider from scratch")
 - Annotation is **advisory, not authoritative**
+
+### Optional YAML Output Contract
+
+If the orchestrator requests machine-readable arbitration output, emit this YAML after the Markdown context block. It must carry the same degradation facts as the user-visible block.
+
+**Audit trail emit contract (R11, HARD RULE):** Before returning the Markdown context block (and optional YAML), write `_meta/runtime/<sid>/gwt-arbitrator.json` using `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. `output_summary` MUST match the selected signals and `degradation_summary` emitted in `[COGNITIVE CONTEXT]`. This audit file is the only persistent write allowed.
+
+```yaml
+gwt_output:
+  degraded: true|false
+  selected_signals: []
+  degradation_summary:
+    hippocampus: ok|null|timeout|failed: <reason>
+    concept_lookup: ok|null|timeout|failed: <reason>
+    soul_check: ok|null|timeout|failed: <reason>
+    frame_md_path: written: <path>|not written: <reason>
+```
 
 ---
 
@@ -186,20 +211,20 @@ Degrade gracefully — never block the workflow.
 
 | Failure | Behavior |
 |---------|----------|
-| All upstream sources null | Emit empty `[COGNITIVE CONTEXT]` block, return |
+| All upstream sources null | Emit `[COGNITIVE CONTEXT]` with only `degradation_summary`, return |
 | One/two upstream sources null | Proceed with available signals |
 | LLM judgment fails on relevance | Fallback to keyword overlap (deterministic) |
 | Score components missing on a signal | Skip that signal, log to debug trace |
 | Hard timeout (>10s) | Emit partial output with whatever signals scored, mark `degraded: true` in trace |
 
-All degradation is silent to ROUTER — the `[COGNITIVE CONTEXT]` block format itself never carries error noise. Failures log to `_meta/eval-history/gwt-{date}.md` for AUDITOR session-end review.
+Degradation is visible to ROUTER through `degradation_summary` inside `[COGNITIVE CONTEXT]`. Keep it concise and factual; do not dump stack traces or raw payloads. If the frame markdown file was not written, the `frame_md_path` item MUST say `not written: <reason>`. Failures may also be logged to `_meta/eval-history/gwt-{date}.md` by the orchestrator for AUDITOR session-end review.
 
 ---
 
 ## Anti-patterns (AUDITOR flags these)
 
 - Looping or re-firing mid-turn (single invocation HARD RULE)
-- Writing to any persistent store (read-only contract)
+- Writing to any persistent store (read-only contract; `_meta/runtime/<sid>/gwt-arbitrator.json` audit trail is the only exception)
 - Inventing signals not in input (every output item must trace to input signal)
 - Overriding the 5-signal cap or 0.3 floor (information overload prevention)
 - Modifying the salience formula coefficients (v1.7 fixed)

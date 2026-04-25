@@ -63,7 +63,7 @@ When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` ex
 
 1. `hippocampus` — cross-session memory retrieval via 3-wave spreading activation over `_meta/sessions/INDEX.md` and the concept graph. Reads only its dedicated inputs. See `pro/agents/hippocampus.md`.
 2. `concept-lookup` (v1.7 Phase 1.5) — direct concept-graph match via `_meta/concepts/INDEX.md`, returns top 5-10 concepts directly mentioned/implied by current message. See `pro/agents/concept-lookup.md`.
-3. `soul-check` (TBD — reuses RETROSPECTIVE's SOUL Health Report) — relevant SOUL dimensions. Until standalone implementation, orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
+3. `soul-check` — relevant SOUL dimensions via the current SOUL Health Report. The orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
 
 After GWT arbitrator returns `[COGNITIVE CONTEXT]`, the orchestrator MAY also trigger **ROUTER Step 7.5 (narrator mode)** — a ROUTER-internal narrator composition step (NOT a standalone subagent; see `pro/compliance/2026-04-21-narrator-spec-violation.md`) that runs AFTER REVIEWER Final Review (between step 6 and step 7) to wrap Summary Report substantive claims with `signal_id` citations from the cognitive context. Narrator-mode failure is non-blocking — falls back to v1.6.3 unwrapped Summary Report. The composition template lives at `pro/agents/narrator.md` (ROUTER-internal template, NOT spawnable via Task).
 

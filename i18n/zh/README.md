@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.0.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -72,6 +72,12 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.7.1 新特性
+
+v1.7.1 是一次面向透明度和证据链的加固版本。系统会更明确地呈现 token 使用情况，让用户看见哪些工作被执行、跳过或升级，以及原因。ROUTER 必须原样粘贴子代理输出，不再压缩报告，从而保留完整的审阅轨迹。AUDITOR 的检查进一步程序化，本次发布把 27 项加固集中在 hook 活动、i18n 漂移、Cortex 输出、GWT 明确性、DREAM 完整输出、force push 处理、标记消歧和 markdown frame 解析等方面。R10 架构转向：18 个 retrospective 步骤中的 11 个已从 LLM 移到 ROUTER Bash。LLM 合规缺口不是靠更多 spec 规则关闭，而是靠程序替代关闭。R11 增加 runtime audit trail 文件，让 AUDITOR 能跨 subagent 直接校验，打破信息隔离带来的验证瓶颈，同时不暴露 agent reasoning。R12：每次“上朝”都是 fresh invocation：LLM 不得复用上一份 briefing；禁用短语、长度坍缩、缺少 fresh marker 都会触发 P0 级 C-fresh-skip。
 
 ---
 

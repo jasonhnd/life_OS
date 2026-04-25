@@ -205,7 +205,7 @@ Two undo paths:
 Runs inside `archiver` Phase 2, immediately after wiki/SOUL auto-write and before SYNAPSES-INDEX regeneration.
 
 ```
-1. Extract the set of concepts activated in the session (from frame md files)
+1. Extract the set of concepts activated in the session from the full Cortex payloads pasted to the user and written to `_meta/journal/{date}-cortex.md`
 2. For each ordered pair (A, B) that co-occurred in at least one frame:
      - Find or create edge A → B in A's outgoing_edges
      - Find or create edge B → A in B's outgoing_edges

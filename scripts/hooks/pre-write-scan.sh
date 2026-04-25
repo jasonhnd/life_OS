@@ -26,6 +26,18 @@ HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=/dev/null
 source "$HOOK_DIR/_lib.sh"
 
+ACTIVITY_DIR="$HOME/.cache/lifeos"
+ACTIVITY_LOG="$ACTIVITY_DIR/hook-activity-$(date +%F).log"
+ACTIVITY_PATH="unknown"
+ACTIVITY_VERDICT="pass"
+emit_activity() {
+  local line="🪝 pre-write-scan: path=${ACTIVITY_PATH} verdict=${ACTIVITY_VERDICT}"
+  mkdir -p "$ACTIVITY_DIR" 2>/dev/null || true
+  printf '%s\n' "$line"
+  printf '%s %s\n' "$(date -Iseconds 2>/dev/null || date '+%Y-%m-%dT%H:%M:%S%z')" "$line" >> "$ACTIVITY_LOG" 2>/dev/null || true
+}
+trap emit_activity EXIT
+
 INPUT="$(cat)"
 [ -z "$INPUT" ] && exit 0
 
@@ -68,6 +80,7 @@ else
 fi
 
 # Missing file_path = can't determine scope, pass through.
+ACTIVITY_PATH="${FILE_PATH:-unknown}"
 [ -z "$FILE_PATH" ] && exit 0
 [ -z "$CONTENT" ] && exit 0
 
@@ -141,6 +154,7 @@ fi
 
 # ─── Clean → pass ──────────────────────────────────────────────────────────
 if [ -z "$MATCH_ID" ]; then
+  ACTIVITY_VERDICT="pass"
   exit 0
 fi
 
@@ -157,6 +171,7 @@ esac
 lib_log_violation "CLASS_D" "critical" "unknown" \
   "pattern=$MATCH_ID name=$MATCH_NAME scope=$CAT tool=$TOOL_NAME" \
   "pre-write-scan"
+ACTIVITY_VERDICT="block"
 
 cat >&1 <<EOF
 <system-reminder>

@@ -283,3 +283,113 @@ Input: subagent provides the measured marker, and the value matches the Bash
 measurement.
 
 Expected: ROUTER passes the fact through.
+
+### Test: Retrospective Completeness Markers (R10)
+
+`lifeos-compliance-check.sh retrospective-completeness` checks that the
+retrospective briefing includes all 11 required step markers.
+
+#### Negative case: missing session index marker
+
+Input: retrospective briefing contains the other 10 required markers but omits
+`[STEP 11 · SESSION INDEX:]`.
+
+Expected: `lifeos-compliance-check.sh retrospective-completeness` exits 1 and
+maps to `C-step-skipped`.
+
+#### Positive case: all 11 markers present
+
+Input: retrospective briefing contains all 11 required markers:
+
+```text
+[STEP 2 · DIRECTORY TYPE:
+[STEP 3 · DATA LAYER:
+[STEP 4 · SECOND-BRAIN PULL:
+[STEP 5 · GIT HEALTH:
+[STEP 8 · VERSION:
+[STEP 10 · INBOX SCAN:
+[STEP 11 · SESSION INDEX:
+[STEP 12 · CONCEPT INDEX:
+[STEP 13 · STATUS COMPILE:
+[STEP 14 · WIKI INDEX:
+[STEP 17 · DREAM JOURNAL:
+```
+
+Expected: `lifeos-compliance-check.sh retrospective-completeness` exits 0 with
+`PASS: all 11 markers present`.
+
+### Test: R11 Runtime Audit Trail File Channel (v1.7.1)
+
+R11 verifies AUDITOR reads retrospective evidence from runtime JSON files
+(`_meta/runtime/<session_id>/...`) instead of relying only on the ROUTER paste.
+The Start Session path requires exactly these 5 trail files:
+
+- `_meta/runtime/<session_id>/retrospective-step-1.json`
+- `_meta/runtime/<session_id>/retrospective-step-2.json`
+- `_meta/runtime/<session_id>/retrospective-step-3.json`
+- `_meta/runtime/<session_id>/retrospective-step-4.json`
+- `_meta/runtime/<session_id>/retrospective-step-5.json`
+
+Each trail file must include `input_summary`, `output_summary`, and `tokens`;
+the AUDITOR compares `output_summary` against the ROUTER-visible paste.
+
+#### R11 negative case 1: missing first retrospective trail
+
+Input: `_meta/runtime/<session_id>/retrospective-step-1.json` is absent.
+
+Expected: AUDITOR logs `C-no-audit-trail`.
+
+#### R11 negative case 2: incomplete trail schema
+
+Input: a retrospective trail file exists but omits the `tokens` field.
+
+Expected: AUDITOR logs `C-trail-incomplete`.
+
+#### R11 negative case 3: ROUTER paste mismatches trail output
+
+Input: trail `output_summary` says `theme=zh-classical`, but the ROUTER paste
+says `theme=ja-kasumigaseki`.
+
+Expected: AUDITOR logs `B-trail-mismatch`.
+
+#### R11 positive case: complete matching retrospective trails
+
+Input: all 5 retrospective trail files are present, schema-valid, include
+`tokens`, and their `output_summary` values match the ROUTER paste.
+
+Expected: AUDITOR returns `PASS` for the R11 audit trail file channel.
+
+### Test: Fresh invocation enforced (v1.7.1 R12)
+
+R12 verifies every Start Session trigger is a fresh full invocation. A second
+`上朝` trigger in the same transcript cannot reuse the prior briefing, measured
+counts, or audit conclusions.
+
+#### R12 negative case 1: second trigger reuses previous briefing
+
+Input: transcript contains 2 `上朝` triggers. The second response says
+`如上次所述 wiki 59 entries` with no changed measurement or rerun evidence.
+
+Expected: AUDITOR logs `C-fresh-skip` (P0).
+
+#### R12 negative case 2: length collapse against first run
+
+Input: transcript contains 2 `上朝` triggers. The first Start Session response
+is about 5000 chars; the second response is about 200 chars and omits the full
+execution.
+
+Expected: AUDITOR logs `C-fresh-skip` (P0) for length collapse.
+
+#### R12 negative case 3: missing fresh_invocation marker in trigger 2 trail
+
+Input: trigger 2 audit trail exists but omits the `fresh_invocation` field.
+
+Expected: AUDITOR logs `C-fresh-skip` (P0) and `C-trail-incomplete`.
+
+#### R12 positive case: both triggers are fresh full runs
+
+Input: transcript contains 2 `上朝` triggers. Both responses include all 18
+steps, all 11 retrospective completeness markers, and audit trail JSON with
+`fresh_invocation:true` plus `trigger_count_in_session`.
+
+Expected: PASS.
