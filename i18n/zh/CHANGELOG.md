@@ -6,6 +6,53 @@
 
 ---
 
+## [1.7.1] - 2026-04-25 - 版本、i18n 与 hard-rule 索引
+
+> 本补丁把 27 项加固合并为一次发布，重点覆盖透明度、编排证据、hook 可靠性、i18n 漂移控制和合规索引。
+
+### 新增
+
+- **Token 透明度**：briefing 和编排说明现在会展示与 token 相关的执行、跳过和升级原因，不再用泛化摘要遮蔽成本判断。
+- **Hard-rule 索引**：`references/hard-rules-index.md` 记录当前权威 HARD RULE 来源和每个 host 的 marker 计数，README 不再写死过期数字。
+- **Pre-commit i18n 漂移守卫**：`.git/hooks/pre-commit` 执行 `bash scripts/lifeos-compliance-check.sh i18n-sync`，在本地提交前阻断翻译漂移。
+- **v1.7.1 发布说明**：英文、中文和日文 README / CHANGELOG 现在按 Added / Fixed / Migration 对齐覆盖本次加固。
+
+### 修复
+
+- **ROUTER 输出保真**：ROUTER 必须原样粘贴子代理报告，不得压缩或静默摘要，并且继续隔离 triage reasoning，避免泄露给下游代理。
+- **AUDITOR 证据路径**：AUDITOR 加固优先使用程序化检查、Bash stdout 证据、来源计数 marker、版本/路径校验和 briefing-completeness 分类，减少同源 LLM 判断。
+- **Hook 可靠性**：hook 活动可见性、hook health check、stop-hook 行为和 marker 消歧都已收紧，缺失或歧义 backstop 更容易被发现。
+- **Cortex 与 DREAM 展示**：Cortex context emit、显式 GWT 仲裁、frame markdown resolution 和 DREAM full-output display 的契约更清晰。
+- **Git 安全与 force push 处理**：force push 场景会升级处理，不再被普通化；发布文档避免暗示不安全恢复动作。
+- **i18n 审计清理**：本地化 README / CHANGELOG 已对齐，降低明显混用语言的发布说明泄漏。
+
+**R9 修复(根因):**
+- stop-session-verify.sh ADJOURN_RE: 从全文 grep 改为只看末尾 50 行。消除 dev session 讨论 archiver/adjourn spec 内容时的 false-positive (旧版全文 grep 匹配 transcript 任何位置的 "adjourn"/"退朝"/"dismiss" 字面)。不再推迟到 v1.7.2 — v1.7.1 内修复。
+
+**R10 架构转向（真正关闭“5 项 skip”问题）:**
+- retrospective Mode 0：18 个步骤中已有 11 个改为由 ROUTER 通过 scripts/retrospective-mode-0.sh 预取（Bash literal stdout，LLM 无法跳过）。步骤 2/3/4/5/8/10/11/12/13/14/17 是确定性的。LLM 只处理步骤 1/6/9/16/18（需要判断）。
+- 新违规类别 C-step-skipped（P0）：briefing 中缺失任意一个 11 个 [STEP N · ...] marker。
+- 对 LLM 合规上限的结构性回答 — spec 规则无法强制 LLM 行为；程序化 Bash 输出不能被跳过。
+
+**R11 Audit Trail 文件通道:**
+- 每个 subagent 现在都会把运行时审计轨迹写入 `_meta/runtime/<session_id>/<subagent>-<step>.json`；AUDITOR 通过 channel 1 程序化读取这些文件，而不是信任 ROUTER 的 LLM 粘贴 channel 2。
+- 新增 3 个违规类别：`C-no-audit-trail`、`C-trail-incomplete`、`B-trail-mismatch`。
+- 新增辅助脚本与规范：`scripts/lib/audit-trail.sh`、`scripts/archiver-phase-prefetch.sh`、`references/audit-trail-spec.md`；Step 10a Notion sync 现在自动执行，不再询问用户。
+
+**R12 fresh invocation 合同：**
+- 每次 `上朝` / `退朝` 触发都必须重新完整执行；LLM 不得复用上一份 briefing 或退朝报告。
+- `retrospective-mode-0.sh` 发现已有 `index_rebuild_state` 数据时按 `rebuild=force` 处理，缓存的 index 状态不能成为跳过 Start Session 重建的理由。
+- 新增 P0 违规类：`C-fresh-skip`；禁用短语、长度坍缩、缺少 fresh marker 都纳入 fresh-invocation 场景覆盖。
+- Runtime audit trail JSON 新增 `fresh_invocation:true` 与 `trigger_count_in_session`。
+
+### 迁移
+
+1. 安装或保留 `.git/hooks/pre-commit`，确保本地提交前运行 `i18n-sync`。
+2. 修改发布文档后运行 `bash scripts/lifeos-compliance-check.sh i18n-sync`。
+3. 使用 `references/hard-rules-index.md` 查看当前 HARD RULE 计数；不需要迁移 second-brain 数据。
+
+---
+
 ## [1.7.0.1] - 2026-04-25 · Briefing Contract + Hook Self-check + Cortex Config
 
 > 本补丁收紧 v1.7 GA 合同：最终 briefing 现在有固定必需区块，Mode 0 会先自检 hook 安装状态，Cortex 统一通过 `_meta/config.md` 显式 opt-in。
@@ -120,7 +167,7 @@
 
 - Cortex GA 运行过程抓到 **2 个事件档案**
   - `backup/pro/compliance/2026-04-19-court-start-violation.md` — 已归档(已解决,经验吸收进 L1/L2 hook)
-  - Narrator-spec 违规 — **待决议**(下一轮 Compliance Patrol 追踪)
+  - Narrator-spec 违规 — **已于 2026-04-22 解决**(已吸收到 Step 7.5 narrator-validator 契约)
 
 ### 涉及文件(节选,alpha.2 之后的 commits)
 

@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.7.0.1"
+version: "1.7.1"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -153,6 +153,24 @@ bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
 
 ROUTER includes the literal stdout in the launch payload to `retrospective` as: "Ground truth (ROUTER pre-fetched): <stdout>". The subagent MUST use this ground truth in Step 8 instead of attempting its own remote check. This eliminates the confabulation surface: subagent has no opening to fabricate failure reasons. If Bash returns non-zero, ROUTER passes the literal error to subagent, who pastes it into briefing. Still no fabrication allowed.
 
+**ROUTER retrospective pre-fetch (HARD RULE · v1.7.1 R10):**
+Before launching retrospective subagent (Mode 0 / Mode 2), ROUTER MUST first run:
+
+```bash
+bash ~/.claude/skills/life_OS/scripts/retrospective-mode-0.sh "$(pwd)"
+```
+
+Paste literal stdout containing 11 `[STEP N · ...]` markers into subagent launch payload AND user-visible briefing wrap. Retrospective MUST NOT re-run steps 2/3/4/5/8/10/11/12/13/14/17; it consumes pre-fetched values. Subagent handles only LLM judgment steps 1/6/9/16/18. Steps 7/15 are partial.
+
+**Triage reasoning visibility (HARD RULE · v1.7.1 R8):**
+After trigger detection and before launching any subagent, ROUTER MUST output one plain-language line to the user:
+
+```
+Triage reasoning: 我看到 X 所以选 Y
+```
+
+`X` is the observed trigger/signal, and `Y` is the selected route or subagent. Information Isolation hides ROUTER's triage reasoning from PLANNER and downstream deliberation agents; it does **not** hide this line from the user. The user must see why a subagent is being launched before the launch occurs.
+
 **ROUTER fact-check on subagent output (HARD RULE · v1.7.0.1):**
 After retrospective/archiver subagent returns briefing, BEFORE showing to user, ROUTER MUST run these verifications:
 
@@ -162,9 +180,88 @@ After retrospective/archiver subagent returns briefing, BEFORE showing to user, 
 
 3. Remote version claims: grep briefing for "[Remote check (forced fresh):" marker. Missing -> ROUTER reruns lifeos-version-check.sh --force as sanity check.
 
+4. Status freshness claims: grep briefing for the literal marker `[STATUS staleness:` and verify it uses `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`. Missing or old-format marker -> ROUTER refuses to show the briefing until the subagent reruns the status freshness check or explicitly marks STATUS unavailable.
+
+5. Compliance Watch claims: if Compliance Watch is triggered, line 1 of the briefing MUST contain `🚨 Compliance Watch:`. Missing line-1 marker -> ROUTER reruns or blocks the briefing.
+
+6. SOUL snapshot claims: for every SOUL snapshot path mentioned, ROUTER calls Bash `test -f <path>`. Non-existent snapshot paths -> ROUTER strikes the line + inserts `[⚠️ SOUL snapshot not found]`.
+
+7. Transparency wrapper count: before showing any briefing or report, ROUTER counts completed subagent calls and verifies the same number of U+2501 heavy-line wrappers (`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`) are present in the user-visible output. Missing wrappers -> ROUTER must paste the missing subagent output in full before any summary.
+
+Additional wrapper verification: the count check above is specifically the subagent heavy-line wrapper count verification; one completed subagent call requires one visible wrapper pair around that subagent's full output.
+
 This is the third defense layer (after subagent self-check + AUDITOR Mode 3). Even if both upstream fail, ROUTER fact-check catches before user sees confabulated content.
 
+**Subagent transparency wrapper (HARD RULE · v1.7.1 R8):**
+Every launched subagent output MUST be pasted to the user in full. ROUTER may not replace it with a summary, including for `retrospective`, `AUDITOR`, `hippocampus`, `concept-lookup`, `soul-check`, `gwt-arbitrator`, `archiver`, six domains, strategist delegates, narrator-validator, or any Task-launched agent.
+
+Use this exact wrapper for each returned subagent output:
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 子代理输出 · {subagent_name}
+tokens: input={input_tokens} output={output_tokens} total={total_tokens} ({usage_source})
+duration: {duration_seconds}s
+est_cost: ${estimated_cost_usd} (Opus 4.7 input $15/Mtok output $75/Mtok; estimated, ±15%)
+
+{verbatim_subagent_output}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Token priority/fallback: use Task result token usage when available. If unavailable, estimate output tokens from pasted characters: English `chars/4`; Chinese/Japanese `chars/2.5`; mixed text uses the dominant language. If input token usage is unavailable, estimate from the prompt payload using the same rule. Cost formula: `input_tokens * 15 / 1_000_000 + output_tokens * 75 / 1_000_000`. When any estimate is used, set `{usage_source}` to `estimated, ±15%`; otherwise set it to `Task usage`.
+
+After all subagent calls for the turn have been pasted, ROUTER MUST include this H2 receipt before any optional summary:
+
+```markdown
+## 子代理调用清单 · 事务性收据
+
+| # | subagent | launch_reason | started_at | duration | input_tokens | output_tokens | est_cost | status |
+|---|----------|---------------|------------|----------|--------------|---------------|----------|--------|
+| 1 | {name} | {why launched} | {ISO 8601} | {seconds}s | {n} | {n} | ${cost} | completed |
+
+Hooks fired table:
+
+| Hook | Fired? | Evidence |
+|------|--------|----------|
+| UserPromptSubmit / pre-prompt guard | yes/no/n/a | {literal evidence or reason} |
+| SessionStart / setup hook | yes/no/n/a | {literal evidence or reason} |
+| Compliance Patrol | yes/no/n/a | {literal evidence or reason} |
+```
+
+ROUTER may add an optional final summary only after the full pasted outputs and receipt. The summary must be last, Chinese `<=200` characters, and cannot replace or contradict any subagent text.
+
 **Rationale:** COURT-START-001 proved that ROUTER can silently skip subagent launch if no visible enforcement gate exists. The 1-line check is the minimum visible proof that ROUTER read the trigger correctly and is about to launch — not simulate, not fabricate, not improvise.
+
+### Subagent Audit Trail Contract (HARD RULE · v1.7.1 R11)
+
+Every launched subagent MUST write a structured audit trail file before returning to ROUTER:
+
+```text
+_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json
+```
+
+Required fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls[]`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
+
+The audit trail is Channel 1 (file system evidence). It deliberately breaks the Channel 2 bottleneck where ROUTER's LLM-visible subagent output can be compressed, omitted, or constrained by information isolation. ROUTER still shows subagent output in full, but AUDITOR must use the Channel 1 files as independent ground truth.
+
+AUDITOR reads `_meta/runtime/<session_id>/*.json` during Compliance Patrol / Mode 3 and verifies existence, schema completeness, and consistency with the visible workflow record. Violation mapping:
+- Missing audit trail file -> `C-no-audit-trail`
+- Required field missing, empty, wrong type, or invalid timestamp -> `C-trail-incomplete`
+- Trail content contradicts ROUTER receipt, visible wrapper, launch reason, file writes, or handoff status -> `B-trail-mismatch`
+
+See `references/audit-trail-spec.md` for the full schema and validation rules.
+
+### Fresh Invocation Contract (HARD RULE · v1.7.1 R12)
+
+Every `上朝` / Start Session / `退朝` / Adjourn trigger MUST result in complete fresh execution of retrospective Mode 0 (18 steps) or archiver (4 phases). ROUTER MUST NOT reuse previous briefing content, inject previous briefing hints, or allow phrases like "as last time" / "unchanged" / "see above". New invocation receives clean payload. Subagent first action is fresh self-check.
+
+Forbidden phrases (any occurrence -> `C-fresh-skip` P0):
+- 如上次所述 / 参考上次 / 见上次 briefing
+- previously reported / as before / unchanged from last
+- skip step N (already done earlier)
+- see Mode 0 output above
+
+Audit trail JSON MUST include `fresh_invocation: true` and `trigger_count_in_session: <N>`.
 
 ### Start Session
 User says Start Session trigger → ROUTER output:

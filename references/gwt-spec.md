@@ -303,7 +303,7 @@ AUDITOR surfaces low-scoring sessions for review. If annotation quality trends d
 
 - **Do not invent signals.** Every signal in the output must have a named source and an upstream payload.
 - **Do not rank by SOUL tiers alone.** Importance is one of four salience components. An `emerging` signal with high urgency and high novelty can legitimately outrank a `core` signal with low urgency.
-- **Do not include raw subagent output** in the annotation. Consolidate to concept references and short summaries. Full payloads stay in the frame md for traceability.
+- **Do not include raw subagent output** in the annotation. Consolidate to concept references and short summaries. Full payloads must still be pasted to the user and written to `_meta/journal/{date}-cortex.md` for traceability; no frame md is used.
 - **Do not modify the system prompt.** All dynamic content lives in the user role message (see §12).
 - **Do not exceed 5 signals per category**, or 5 signals overall. Information overload is a failure mode, not a feature.
 - **Do not call hippocampus or concept lookup from inside the arbitrator.** Upstream subagents are the source of truth; the arbitrator is a pure consumer.

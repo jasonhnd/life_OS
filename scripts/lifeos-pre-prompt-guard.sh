@@ -10,7 +10,7 @@
 #   - Running archiver phases in main context (Class E)
 #
 # Created: 2026-04-21 (v1.6.3, COURT-START-001 fix)
-# Installed by: scripts/setup-hooks.sh (TBD) or manual .claude/settings.json
+# Installed by: scripts/setup-hooks.sh or manual .claude/settings.json
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail

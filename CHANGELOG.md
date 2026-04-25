@@ -6,6 +6,53 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.1] - 2026-04-25 - Version, i18n, and hardening index
+
+> Patch release grouping 27 hardening fixes across transparency, orchestration evidence, hook reliability, i18n drift control, and compliance indexing.
+
+### Added
+
+- **Token transparency**: briefings and orchestration notes now surface token-sensitive decisions, skipped work, and escalation reasons instead of hiding them behind generic summaries.
+- **Hard-rules index**: `references/hard-rules-index.md` records the current authoritative HARD RULE sources and per-host marker count so README no longer carries a stale number.
+- **Pre-commit i18n drift guard**: `.git/hooks/pre-commit` runs `bash scripts/lifeos-compliance-check.sh i18n-sync` and blocks commits when localized release docs drift.
+- **v1.7.1 release notes**: English, Chinese, and Japanese README / CHANGELOG files now share aligned Added / Fixed / Migration coverage for the hardening pass.
+
+### Fixed
+
+- **ROUTER output fidelity**: ROUTER must paste subagent reports literally, with no compression or silent summarization, and must keep triage reasoning isolated from downstream agents.
+- **AUDITOR evidence path**: AUDITOR hardening favors programmatic checks, Bash stdout evidence, source-count markers, version/path verification, and briefing-completeness classes over same-source LLM judgment.
+- **Hook reliability**: hook activity visibility, hook health checks, stop-hook behavior, and marker disambiguation were tightened so missing or ambiguous backstops are easier to detect.
+- **Cortex and DREAM display**: Cortex context emission, explicit GWT arbitration, frame markdown resolution, and DREAM full-output display now have clearer contracts.
+- **Git safety and force-push handling**: force-push situations are escalated instead of normalized, and release docs avoid implying unsafe recovery actions.
+- **i18n audit cleanup**: localized README / CHANGELOG updates were aligned to prevent obvious mixed-language release-note leaks.
+
+**R9 fix (root cause):**
+- stop-session-verify.sh ADJOURN_RE: switched from full-transcript grep to last-50-lines-only. Eliminates false-positive when dev sessions discuss archiver/adjourn spec content (the original full-text grep matched any literal "adjourn"/"退朝"/"dismiss" anywhere in transcript). No longer deferred to v1.7.2 — fixed in v1.7.1.
+
+**R10 architectural shift (truly closes "5 项 skip" issue):**
+- retrospective Mode 0: 11 of 18 steps now ROUTER-pre-fetched via scripts/retrospective-mode-0.sh (Bash literal stdout, LLM cannot skip). Steps 2/3/4/5/8/10/11/12/13/14/17 are deterministic. LLM only handles steps 1/6/9/16/18 (judgment-required).
+- New violation class C-step-skipped (P0): missing any of 11 [STEP N · ...] markers in briefing.
+- Structural answer to LLM compliance ceiling — spec rules cannot enforce LLM behavior; programmatic Bash output cannot be skipped.
+
+**R11 audit trail file channel:**
+- Every subagent now writes runtime audit trails to `_meta/runtime/<session_id>/<subagent>-<step>.json`; AUDITOR reads those files programmatically through channel 1 instead of trusting ROUTER's LLM paste channel 2.
+- New violation classes: `C-no-audit-trail`, `C-trail-incomplete`, and `B-trail-mismatch`.
+- New helpers/spec: `scripts/lib/audit-trail.sh`, `scripts/archiver-phase-prefetch.sh`, and `references/audit-trail-spec.md`; Step 10a Notion sync now runs automatically with no user ask.
+
+**R12 fresh invocation contract:**
+- Every `上朝` / `退朝` trigger now requires a fresh full execution; the LLM cannot reuse a previous briefing or adjourn report.
+- `retrospective-mode-0.sh` treats existing `index_rebuild_state` data as `rebuild=force`, so cached index state cannot justify skipping a Start Session rebuild.
+- New P0 violation class: `C-fresh-skip`; forbidden phrases, length collapse, and missing fresh markers are covered by fresh-invocation scenario coverage.
+- Runtime audit trail JSON now includes `fresh_invocation:true` and `trigger_count_in_session`.
+
+### Migration
+
+1. Install or keep `.git/hooks/pre-commit` so `i18n-sync` runs before local commits.
+2. Run `bash scripts/lifeos-compliance-check.sh i18n-sync` after editing release docs.
+3. Use `references/hard-rules-index.md` for the current HARD RULE count; no second-brain data migration is required.
+
+---
+
 ## [1.7.0.1] - 2026-04-25 · Briefing Contract + Hook Self-check + Cortex Config
 
 > Patch release tightening the v1.7 GA contract: final briefings now have fixed required sections, hook installation is self-checked before Mode 0, and Cortex activation is consistently opt-in through `_meta/config.md`.
@@ -120,7 +167,7 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 - **2 incident dossiers** captured during the Cortex GA run
   - `backup/pro/compliance/2026-04-19-court-start-violation.md` — archived (resolved, lesson absorbed into L1/L2 hooks)
-  - Narrator-spec violation — **pending resolution** (tracked in next Compliance Patrol cycle)
+  - Narrator-spec violation — **resolved 2026-04-22** (absorbed into the Step 7.5 narrator-validator contract)
 
 ### Selected Files Touched (post-alpha.2 commits)
 

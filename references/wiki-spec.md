@@ -57,6 +57,8 @@ Every candidate conclusion must pass ALL 6 criteria before being auto-written. O
 - Strip traceable date+location combinations
 - If stripping these leaves the conclusion meaningless → discard (it wasn't really reusable, it was a personal note dressed up as knowledge)
 
+**User-facing evidence paste** — every evaluated candidate must be visible in the ARCHIVER adjourn report, not only used internally. Passing candidates must show `Criteria check: 6/6 passed`; discarded candidates must show `Criteria check: X/6 -> discarded with reason: [reason]`. Every candidate must show `Privacy filter: stripped <items>`; use `Privacy filter: stripped nothing` if nothing was removed.
+
 ---
 
 ## User Nudges (post-write)
@@ -199,10 +201,10 @@ Each line ≤ 80 characters. The entire INDEX is typically 20-100 lines — very
 
 ## Wiki Candidate Format
 
-When archiver or DREAM discovers knowledge worth recording AND all 6 Auto-Write Criteria pass, the entry is written directly (no candidate confirmation). The internal candidate structure used for evaluation:
+When archiver or DREAM discovers knowledge worth recording, every evaluated candidate is pasted to the user in the adjourn report. If all 6 Auto-Write Criteria pass, the entry is written directly (no candidate confirmation). This structure is a user-facing contract, not an internal-only scratchpad:
 
 ```
-📚 Wiki Auto-Write (internal):
+📚 Wiki Auto-Write Evidence:
 - Domain: [domain name]
 - Topic: [short identifier]
 - Conclusion: [one sentence — the reusable takeaway]
@@ -210,9 +212,18 @@ When archiver or DREAM discovers knowledge worth recording AND all 6 Auto-Write 
   - [date] [decision/behavior] — [description]
   - [date] [decision/behavior] — [description]
 - Applicable when: [in what scenarios to recall this]
-- Criteria check: [6/6 passed or X/6 → discarded with reason]
-- Privacy filter: [what was stripped, or "nothing to strip"]
+- Criteria check: 6/6 passed
+- Privacy filter: stripped <items>
 ```
+
+Discarded candidates use the same structure, but the final lines MUST be:
+
+```
+- Criteria check: X/6 -> discarded with reason: [which criteria failed and why]
+- Privacy filter: stripped <items>
+```
+
+If nothing was stripped, write `Privacy filter: stripped nothing`. Do not omit the privacy line.
 
 If all 6 criteria pass → write directly to `wiki/{domain}/{topic}.md`. Otherwise → discard with reason logged in Completion Checklist.
 

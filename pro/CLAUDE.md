@@ -26,13 +26,15 @@ When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` ex
 
 1. `hippocampus` — cross-session memory retrieval via 3-wave spreading activation over `_meta/sessions/INDEX.md` and the concept graph. Reads only its dedicated inputs. See `pro/agents/hippocampus.md`.
 2. `concept-lookup` (v1.7 Phase 1.5) — direct concept-graph match via `_meta/concepts/INDEX.md`, returns top 5-10 concepts directly mentioned/implied by current message. See `pro/agents/concept-lookup.md`.
-3. `soul-check` (TBD — reuses RETROSPECTIVE's SOUL Health Report) — relevant SOUL dimensions. Until standalone implementation, orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
+3. `soul-check` — relevant SOUL dimensions via the current SOUL Health Report. The orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
 
 After GWT arbitrator returns `[COGNITIVE CONTEXT]`, the orchestrator MAY also trigger **ROUTER Step 7.5 (narrator mode)** — a ROUTER-internal narrator composition step (NOT a standalone subagent; see `pro/compliance/2026-04-21-narrator-spec-violation.md`) that runs AFTER REVIEWER Final Review (between step 6 and step 7) to wrap Summary Report substantive claims with `signal_id` citations from the cognitive context. Narrator-mode failure is non-blocking — falls back to v1.6.3 unwrapped Summary Report. The composition template lives at `pro/agents/narrator.md` (ROUTER-internal template, NOT spawnable via Task).
 
 When ROUTER Step 7.5 (narrator mode) runs, the orchestrator chains the `narrator-validator` subagent (a real standalone Sonnet subagent — cheaper than Opus) to audit citation discipline. Validator failures trigger up to 2 rewrite cycles inside ROUTER Step 7.5; after 2 failed rewrites, fall back to v1.6.3 unwrapped report and log to `_meta/eval-history/narrator-{date}.md`. See `pro/agents/narrator-validator.md`. **Budget (per `references/narrator-spec.md §11`)**: fallback fires when cumulative wall-clock across narrator + validator cycles exceeds **21 seconds**, OR any single regenerate-and-revalidate cycle exceeds **8 seconds** (typical total ≈ 18s).
 
 After all 3 return (with 5s soft timeout, 15s hard timeout per individual subagent), launch `gwt-arbitrator` with the consolidated outputs. See `pro/agents/gwt-arbitrator.md`.
+
+**Cortex upstream emit contract (HARD RULE · v1.7.1 R8):** `hippocampus`, `concept-lookup`, and `soul-check` each emit a YAML payload. ROUTER MUST paste each upstream YAML payload in full using the subagent transparency wrapper before showing the GWT `[COGNITIVE CONTEXT]`. The GWT output cannot replace, compress, or stand in for the upstream YAML.
 
 **GWT arbitrator output** is a `[COGNITIVE CONTEXT]` Markdown block. Orchestrator **prepends** it to the user message before ROUTER sees it:
 
@@ -176,6 +178,16 @@ ROUTER does not interject between phases. The subagent emits the Completion Chec
 
 The archiver subagent cannot access Notion MCP tools (they are environment-specific). After the archiver returns with its Completion Checklist, the **orchestrator (main context)** MUST execute Notion sync using the Notion MCP tools available in the session:
 
+**Step 10a no ask (HARD RULE):** The orchestrator MUST automatically execute Notion sync immediately after the archiver subagent returns. It MUST NOT ask the user for permission, pause for confirmation, defer sync to a later prompt, or stop between archiver return and Notion sync. Pausing or asking before executing Step 10a is a process violation.
+
+The orchestrator MUST write the Step 10a audit trail to:
+
+```text
+_meta/runtime/<sid>/notion-sync.json
+```
+
+This file records Notion sync attempt start/end times, tool availability, per-operation results, failures, and final checklist status using the audit trail schema in `references/audit-trail-spec.md`.
+
 ```
 a. 🧠 Current Status page: overwrite with latest STATUS.md content
 b. 📋 Todo Board: sync tasks from this session (new → create, completed → check off)
@@ -272,6 +284,49 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
 7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). The Mode 3 spec exists in `pro/agents/auditor.md` since v1.6.3 but no caller was wired — this rule fixes that gap. Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). All-pass output: `🔱 [theme: auditor] · ✅ Compliance Patrol passed`. Cannot be skipped. HARD RULE.
+
+8. **Subagent Audit Trail mandatory (rule #8)** — every launched subagent MUST write `_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json` before returning. AUDITOR Mode 3 verifies audit trail existence and schema against `references/audit-trail-spec.md`; missing, incomplete, or contradictory trails are violations. HARD RULE.
+
+9. **Fresh Invocation HARD RULE (R12, rule #9)** · every Start Session / Adjourn trigger MUST launch fresh full execution of retrospective Mode 0 (18 steps) or archiver (4 phases). No reuse, no 省步骤, no previous briefing references, and no phrases like "as last time" / "unchanged" / "see above". AUDITOR greps the transcript and audit trail for freshness violations; any violation is `C-fresh-skip` P0. HARD RULE.
+
+## Subagent Transparency Wrapper (HARD RULE · v1.7.1 R8)
+
+Every launched subagent output MUST be pasted to the user in full. This applies to `retrospective`, `AUDITOR`, `hippocampus`, `concept-lookup`, `soul-check`, `gwt-arbitrator`, `archiver`, six domains, strategist delegates, narrator-validator, and any Task-launched agent. Summary-only handoff is forbidden.
+
+Use this exact wrapper for each returned subagent output:
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 子代理输出 · {subagent_name}
+tokens: input={input_tokens} output={output_tokens} total={total_tokens} ({usage_source})
+duration: {duration_seconds}s
+est_cost: ${estimated_cost_usd} (Opus 4.7 input $15/Mtok output $75/Mtok; estimated, ±15%)
+
+{verbatim_subagent_output}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Token priority/fallback: use Task result token usage when available. If unavailable, estimate output tokens from pasted characters: English `chars/4`; Chinese/Japanese `chars/2.5`; mixed text uses the dominant language. If input token usage is unavailable, estimate from the prompt payload using the same rule. Cost formula: `input_tokens * 15 / 1_000_000 + output_tokens * 75 / 1_000_000`. When any estimate is used, set `{usage_source}` to `estimated, ±15%`; otherwise set it to `Task usage`.
+
+After all subagent calls for the turn have been pasted, ROUTER MUST include this H2 receipt before any optional summary:
+
+```markdown
+## 子代理调用清单 · 事务性收据
+
+| # | subagent | launch_reason | started_at | duration | input_tokens | output_tokens | est_cost | status |
+|---|----------|---------------|------------|----------|--------------|---------------|----------|--------|
+| 1 | {name} | {why launched} | {ISO 8601} | {seconds}s | {n} | {n} | ${cost} | completed |
+
+Hooks fired table:
+
+| Hook | Fired? | Evidence |
+|------|--------|----------|
+| UserPromptSubmit / pre-prompt guard | yes/no/n/a | {literal evidence or reason} |
+| SessionStart / setup hook | yes/no/n/a | {literal evidence or reason} |
+| Compliance Patrol | yes/no/n/a | {literal evidence or reason} |
+```
+
+ROUTER may add an optional final summary only after the full pasted outputs and receipt. The summary must be last, Chinese `<=200` characters, and cannot replace or contradict any subagent text.
 
 ## Workflow State Machine
 

@@ -26,6 +26,18 @@ HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=/dev/null
 source "$HOOK_DIR/_lib.sh"
 
+ACTIVITY_DIR="$HOME/.cache/lifeos"
+ACTIVITY_LOG="$ACTIVITY_DIR/hook-activity-$(date +%F).log"
+ACTIVITY_PATH="unknown"
+ACTIVITY_VERDICT="pass"
+emit_activity() {
+  local line="🪝 pre-read-allowlist: path=${ACTIVITY_PATH} verdict=${ACTIVITY_VERDICT}"
+  mkdir -p "$ACTIVITY_DIR" 2>/dev/null || true
+  printf '%s\n' "$line"
+  printf '%s %s\n' "$(date -Iseconds 2>/dev/null || date '+%Y-%m-%dT%H:%M:%S%z')" "$line" >> "$ACTIVITY_LOG" 2>/dev/null || true
+}
+trap emit_activity EXIT
+
 INPUT="$(cat 2>/dev/null || echo "")"
 [ -z "$INPUT" ] && exit 0
 
@@ -48,6 +60,7 @@ if [ -z "$FILE_PATH" ]; then
 fi
 
 [ -z "$FILE_PATH" ] && exit 0
+ACTIVITY_PATH="$FILE_PATH"
 
 # ─── Resolve to absolute ───────────────────────────────────────────────────
 # Expand ~ manually; realpath may not exist on MSYS / Alpine.
@@ -125,6 +138,7 @@ fi
 
 # ─── Clean → pass ─────────────────────────────────────────────────────────
 if [ -z "$DENY_MATCH" ]; then
+  ACTIVITY_VERDICT="pass"
   exit 0
 fi
 
@@ -132,6 +146,8 @@ fi
 lib_log_violation "CLASS_E" "high" "unknown" \
   "category=$DENY_MATCH path_seg=$(basename "$resolved")" \
   "pre-read-allowlist"
+ACTIVITY_PATH="$resolved"
+ACTIVITY_VERDICT="block"
 
 cat >&1 <<EOF
 <system-reminder>

@@ -32,6 +32,18 @@ HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=/dev/null
 source "$HOOK_DIR/_lib.sh"
 
+ACTIVITY_DIR="$HOME/.cache/lifeos"
+ACTIVITY_LOG="$ACTIVITY_DIR/hook-activity-$(date +%F).log"
+ACTIVITY_TRIGGER="none"
+ACTIVITY_REMINDER="no"
+emit_activity() {
+  local line="🪝 pre-prompt-guard fired: trigger=${ACTIVITY_TRIGGER} reminder=${ACTIVITY_REMINDER}"
+  mkdir -p "$ACTIVITY_DIR" 2>/dev/null || true
+  printf '%s\n' "$line"
+  printf '%s %s\n' "$(date -Iseconds 2>/dev/null || date '+%Y-%m-%dT%H:%M:%S%z')" "$line" >> "$ACTIVITY_LOG" 2>/dev/null || true
+}
+trap emit_activity EXIT
+
 # ─── Read stdin ─────────────────────────────────────────────────────────────
 INPUT="$(cat)"
 if [ -z "$INPUT" ]; then
@@ -62,6 +74,8 @@ CLASS="$(lib_classify_trigger "$FIRST_LINE")"
 if [ -z "$CLASS" ]; then
   exit 0
 fi
+ACTIVITY_TRIGGER="$CLASS"
+ACTIVITY_REMINDER="yes"
 
 # Extract the actual matched word for nicer messaging.
 case "$CLASS" in

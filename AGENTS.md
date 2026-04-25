@@ -26,7 +26,7 @@
 1. 并行启动 3 个独立的 subagent（互相信息隔离，严格按 Information Isolation 表接收输入）：
    - `hippocampus` — 跨会话记忆检索，基于 `_meta/sessions/INDEX.md` 和概念图做 3-wave spreading activation
    - `concept-lookup`（Phase 1.5）— 直接概念图匹配，返回 Top 5-10 相关概念
-   - `soul-check`（TBD — 过渡期复用 RETROSPECTIVE 的 SOUL Health Report）
+   - `soul-check` — 通过当前 SOUL Health Report 提供相关 SOUL 维度信号；orchestrator 把 RETROSPECTIVE housekeeping 输出的 SOUL Health block 传给它
 2. 3 个 subagent 返回后（5s soft / 15s hard 超时），启动 `gwt-arbitrator` 仲裁并合成 `[COGNITIVE CONTEXT]` 块
 3. Orchestrator 将 `[COGNITIVE CONTEXT]` 块**前置**到用户消息之上，再交给 ROUTER
 4. ROUTER 按分隔符识别"顾问信息"与"真实用户输入"；此 context 是**建议性**而非权威性的

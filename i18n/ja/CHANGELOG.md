@@ -6,6 +6,53 @@
 
 ---
 
+## [1.7.1] - 2026-04-25 - バージョン、i18n、hard-rule 索引
+
+> 透明性、オーケストレーション証拠、hook 信頼性、i18n ドリフト制御、コンプライアンス索引にまたがる 27 件の強化をまとめたパッチです。
+
+### 追加
+
+- **Token 透明性**：briefing とオーケストレーションメモで、token に関わる実行、スキップ、エスカレーション理由を明示し、一般的な要約で隠さないようにしました。
+- **Hard-rule 索引**：`references/hard-rules-index.md` に現在の権威ある HARD RULE ソースと host ごとの marker 数を記録し、README の古い固定数を外しました。
+- **Pre-commit i18n ドリフトガード**：`.git/hooks/pre-commit` が `bash scripts/lifeos-compliance-check.sh i18n-sync` を実行し、ローカル commit 前に翻訳ドリフトを止めます。
+- **v1.7.1 リリースノート**：英語、中国語、日本語の README / CHANGELOG で Added / Fixed / Migration の内容を揃えました。
+
+### 修正
+
+- **ROUTER 出力の忠実性**：ROUTER はサブエージェント報告をそのまま貼り付け、圧縮や無言の要約をせず、triage reasoning を下流エージェントから隔離します。
+- **AUDITOR 証拠経路**：AUDITOR は同じ LLM 判断に頼らず、プログラム的チェック、Bash stdout 証拠、source-count marker、version/path 検証、briefing-completeness 分類を優先します。
+- **Hook 信頼性**：hook activity の可視性、hook health check、stop-hook 動作、marker disambiguation を強化し、欠落や曖昧な backstop を見つけやすくしました。
+- **Cortex と DREAM 表示**：Cortex context emit、明示的な GWT arbitration、frame markdown resolution、DREAM full-output display の契約を明確化しました。
+- **Git 安全性と force push 対応**：force push 状況は通常化せずエスカレーションし、リリース文書も危険な復旧手順を示唆しないようにしました。
+- **i18n audit cleanup**：ローカライズ済み README / CHANGELOG を揃え、明らかな混在言語のリリースノート漏れを減らしました。
+
+**R9 修正(根本原因):**
+- stop-session-verify.sh ADJOURN_RE: 全文 grep から末尾 50 行のみに変更。dev session で archiver/adjourn 仕様を議論する際の false-positive を解消(旧版は transcript 任意位置の "adjourn"/"退朝"/"dismiss" 字面にマッチ)。v1.7.2 への持ち越しを廃止 — v1.7.1 内で修正完了。
+
+**R10 アーキテクチャ転換（「5 項目 skip」問題を本当に閉じる）:**
+- retrospective Mode 0：18 個のステップのうち 11 個を、scripts/retrospective-mode-0.sh 経由で ROUTER が事前取得するようにしました（Bash literal stdout のため、LLM はスキップできません）。ステップ 2/3/4/5/8/10/11/12/13/14/17 は決定的です。LLM が扱うのはステップ 1/6/9/16/18（判断が必要なもの）のみです。
+- 新しい違反クラス C-step-skipped（P0）：briefing 内で 11 個の [STEP N · ...] marker のいずれかが欠落している場合。
+- LLM compliance ceiling への構造的回答 — spec ルールでは LLM の振る舞いを強制できません。プログラム的な Bash 出力はスキップできません。
+
+**R11 Audit Trail ファイルチャネル:**
+- すべての subagent が実行時監査トレイルを `_meta/runtime/<session_id>/<subagent>-<step>.json` に書き出します。AUDITOR は ROUTER の LLM 貼り付け channel 2 を信頼するのではなく、channel 1 でこれらのファイルをプログラム的に読みます。
+- 新しい違反クラスを 3 つ追加しました：`C-no-audit-trail`、`C-trail-incomplete`、`B-trail-mismatch`。
+- 新しい補助スクリプトと仕様：`scripts/lib/audit-trail.sh`、`scripts/archiver-phase-prefetch.sh`、`references/audit-trail-spec.md`。Step 10a Notion sync はユーザー確認なしで自動実行されます。
+
+**R12 fresh invocation contract:**
+- すべての `上朝` / `退朝` トリガーは毎回フル実行が必要です。LLM は前回の briefing や adjourn report を再利用できません。
+- `retrospective-mode-0.sh` は既存の `index_rebuild_state` データを検出した場合 `rebuild=force` と扱い、キャッシュ済み index 状態による Start Session rebuild のスキップを許しません。
+- 新しい P0 違反クラス `C-fresh-skip` を追加しました。禁止フレーズ、length collapse、fresh marker 欠落は fresh-invocation scenario で検出します。
+- Runtime audit trail JSON に `fresh_invocation:true` と `trigger_count_in_session` を追加します。
+
+### 移行
+
+1. `.git/hooks/pre-commit` を導入または保持し、ローカル commit 前に `i18n-sync` を実行してください。
+2. リリース文書を編集した後は `bash scripts/lifeos-compliance-check.sh i18n-sync` を実行してください。
+3. 現在の HARD RULE 数は `references/hard-rules-index.md` を参照してください。second-brain データ移行は不要です。
+
+---
+
 ## [1.7.0.1] - 2026-04-25 · Briefing Contract + Hook Self-check + Cortex Config
 
 > v1.7 GA contract を締め直すパッチリリースです。最終 briefing は固定の必須セクションを持ち、Mode 0 の前に hook インストール状態を自己チェックし、Cortex の有効化は `_meta/config.md` による opt-in に統一されます。
@@ -120,7 +167,7 @@
 
 - Cortex GA 運用中に **2 件の事案ドシエ** を記録
   - `backup/pro/compliance/2026-04-19-court-start-violation.md` — アーカイブ済 (解決済、学びを L1/L2 hook に吸収)
-  - Narrator-spec 違反 — **決議保留** (次回 Compliance Patrol で追跡)
+  - Narrator-spec 違反 — **2026-04-22 解決済み** (Step 7.5 narrator-validator 契約へ反映)
 
 ### 変更ファイル (抜粋,alpha.2 以降の commits)
 

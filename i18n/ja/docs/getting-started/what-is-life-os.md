@@ -453,7 +453,7 @@ Hermes は実行力が強く認知が弱い; Life OS は認知が強く、実行
 
 ## なぜこれほど複雑なのか
 
-16 agents、9 themes、4 層アーキテクチャ、33 HARD RULEs、Cortex 前置、v1.7 の Hermes 級実行——見るたびに過剰エンジニアリングではと思います。
+16 agents、9 themes、4 層アーキテクチャ、数十の HARD RULEs（host ごとに集計、詳細は `references/hard-rules-index.md`）、Cortex 前置、v1.7 の Hermes 級実行——見るたびに過剰エンジニアリングではと思います。
 
 答えは: **コア原理は 3 つだけ**です。
 
@@ -468,7 +468,7 @@ Hermes は実行力が強く認知が弱い; Life OS は認知が強く、実行
 - **3 方向**(セカンドブレイン / 意思決定エンジン / 認知実行)は原理 1-3 を実行可能なサブシステムに分解
 - **4 層アーキテクチャ**は 3 方向をエンジニアリングに落とす階層視点
 - **Cortex + Hermes 級実行**は原理 3 の v1.7 GA での実装拡張——システムは「入退場のみで記憶」ではなく中間過程でも記憶を使える、「考えられる」だけでなく「能動的に行動できる」。これは原理 3 の「静的ストレージ」から「動的活性化」への延伸
-- **33 HARD RULEs** はこれら原理の具体操作上の硬い境界(intent clarification はスキップ不可、SOUL は引用必須で無視不可、Notion sync は silent fail 不可、Adjourn は途中退出不可、Privacy Filter は「人工審査」不可……)
+- **数十の HARD RULEs（host ごとに集計、詳細は `references/hard-rules-index.md`）** はこれら原理の具体操作上の硬い境界(intent clarification はスキップ不可、SOUL は引用必須で無視不可、Notion sync は silent fail 不可、Adjourn は途中退出不可、Privacy Filter は「人工審査」不可……)
 
 複雑度はこれら 3 コア原理の周りに**外向きに**育ったもので、**無から**積み上げたものではありません。システムを理解するのに 33 規則を覚える必要はなく、これら 3 原理を覚えれば、規則は原理から自然に導出されます。
 

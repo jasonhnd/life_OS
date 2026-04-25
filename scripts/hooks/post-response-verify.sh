@@ -26,12 +26,25 @@ HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=/dev/null
 source "$HOOK_DIR/_lib.sh"
 
+ACTIVITY_DIR="$HOME/.cache/lifeos"
+ACTIVITY_LOG="$ACTIVITY_DIR/hook-activity-$(date +%F).log"
+ACTIVITY_TOOL="unknown"
+ACTIVITY_VERDICT="pass"
+emit_activity() {
+  local line="🪝 post-response-verify: tool=${ACTIVITY_TOOL} verdict=${ACTIVITY_VERDICT}"
+  mkdir -p "$ACTIVITY_DIR" 2>/dev/null || true
+  printf '%s\n' "$line"
+  printf '%s %s\n' "$(date -Iseconds 2>/dev/null || date '+%Y-%m-%dT%H:%M:%S%z')" "$line" >> "$ACTIVITY_LOG" 2>/dev/null || true
+}
+trap emit_activity EXIT
+
 INPUT="$(cat)"
 if [ -z "$INPUT" ]; then
   exit 0
 fi
 
 TOOL_NAME="$(lib_json_field "$INPUT" tool_name)"
+ACTIVITY_TOOL="${TOOL_NAME:-unknown}"
 RECENT_MSG="$(lib_json_field "$INPUT" recent_user_message)"
 
 # No recent message = no trigger context = nothing to verify.
@@ -70,6 +83,7 @@ fi
 # Compliant: tool_name == Task AND subagent == expected
 # Violation otherwise (Bash/Write/Edit after trigger, or Task-wrong-subagent).
 if [ "$TOOL_NAME" = "Task" ] && [ "$SUBAGENT" = "$EXPECTED_AGENT" ]; then
+  ACTIVITY_VERDICT="pass"
   exit 0
 fi
 
@@ -80,6 +94,7 @@ if [ -n "$SUBAGENT" ]; then
 fi
 
 lib_log_violation "CLASS_A" "critical" "ROUTER" "$DETAIL" "post-response-verify"
+ACTIVITY_VERDICT="block"
 
 cat >&1 <<EOF
 <system-reminder>
