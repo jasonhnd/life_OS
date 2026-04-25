@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.0-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.0.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -72,6 +72,15 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.7.0.1 新特性
+
+反虚构加固阻止虚构的失败解释到达用户。
+
+补丁更新：最终 briefing contract 明确化，Mode 0 会自检 Claude Code hooks，Cortex 通过 `_meta/config.md` 保持 OFF / opt-in。Hook 自动安装关闭测试机部署闭环。
+面向源头可信度的 briefing 现在包含 PRIMARY-SOURCE 实测计数标记、STATUS.md 陈旧抑制、30d-≥3 Compliance Watch 自动横幅，以及 ROUTER 在展示前用 Bash 核查数字、版本、路径声明。
 
 ---
 

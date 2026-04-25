@@ -209,13 +209,13 @@ _meta/
 
 4 つの markdown アーティファクトが Cortex ランタイム状態を追跡します。いずれも source of truth ではありません — config(ユーザー編集可)またはコンパイル/ログアーティファクト(archiver が書き込む)のいずれかです。すべて `_meta/cortex/` 配下(最初の 3 つ)、または `_meta/ambiguous_corrections/` 配下(4 つ目)にあります。
 
-#### `_meta/cortex/config.md`
+#### `_meta/config.md`
 
 ユーザー編集可能なしきい値とスイッチ。hippocampus、gwt-arbitrator、narrator-validator、および減衰パスが読み取ります。欠落している場合、各 consumer はハードコードされたデフォルト(下記にインライン記載)にフォールバックします。
 
 ```yaml
 ---
-file: _meta/cortex/config.md
+file: _meta/config.md
 version: 1.7
 ---
 

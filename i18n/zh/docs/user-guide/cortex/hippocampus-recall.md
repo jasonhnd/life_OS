@@ -185,9 +185,9 @@ uv run tools/reindex.py
 
 ### 5. 调整阈值(谨慎)
 
-`_meta/cortex/config.md` 里:
+`_meta/config.md` 里:
 
-字段的权威定义见 `references/cortex-spec.md` §`_meta/cortex/config.md`；下面只列与 hippocampus recall 最相关的几个开关。
+字段的权威定义见 `references/cortex-spec.md` §`_meta/config.md`；下面只列与 hippocampus recall 最相关的几个开关。
 
 ```yaml
 top_k_signals: 5               # 最多播报几条信号到 ROUTER

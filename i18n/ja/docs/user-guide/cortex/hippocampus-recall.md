@@ -184,9 +184,9 @@ uv run tools/reindex.py
 
 ### 5. 閾値調整(慎重に)
 
-`_meta/cortex/config.md` 内:
+`_meta/config.md` 内:
 
-項目の権威定義は `references/cortex-spec.md` §`_meta/cortex/config.md` にあります。ここでは hippocampus recall に最も関係する設定だけを抜粋します。
+項目の権威定義は `references/cortex-spec.md` §`_meta/config.md` にあります。ここでは hippocampus recall に最も関係する設定だけを抜粋します。
 
 ```yaml
 top_k_signals: 5               # ROUTER にブロードキャストする最大シグナル数

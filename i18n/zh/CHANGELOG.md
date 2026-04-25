@@ -6,6 +6,40 @@
 
 ---
 
+## [1.7.0.1] - 2026-04-25 · Briefing Contract + Hook Self-check + Cortex Config
+
+> 本补丁收紧 v1.7 GA 合同：最终 briefing 现在有固定必需区块，Mode 0 会先自检 hook 安装状态，Cortex 统一通过 `_meta/config.md` 显式 opt-in。
+
+### 修复
+
+- **lifeos-version-check.sh cache 鲜度** — 新增 `--force` flag 和基于远端 SHA 的 cache 失效机制。同一天内远端发布新版本不再卡住。
+- **Briefing 完整性现在可测试** — Start Session 和 Adjourn 输出必须给出固定标题与具体值；缺失或占位内容会记录为 `C-brief-incomplete`。
+- **RETROSPECTIVE 不再假设 hooks 已安装** — Mode 0 先执行 pre-session hook health check；Claude Code hook backstop 缺失或不完整时，显示准确的 `setup-hooks.sh` 修复命令。
+- **Cortex config 路径统一** — 撤销 R1 误改的路径分裂 — Cortex 配置仍在 `_meta/config.md`(与 v1.7.0 已发布版本一致),`cortex_enabled: false` 默认 opt-in。
+- **Cortex 默认值明确** — config 缺失时降级为 `cortex_enabled: false`；用户显式启用前，Cortex 保持 OFF / opt-in。
+- **AUDITOR Mode 3 程序化检查** — AUDITOR 现在调用 Bash（`lifeos-compliance-check.sh` + `grep`），不再依赖 LLM 推理；消除同源虚构，避免 2026-04-25 testbed-machine「private repo」案例再次放行。
+
+### 新增
+
+- **反虚构加固** — Step 8 强制 Bash literal stdout 嵌入,ROUTER 预取 ground truth,AUDITOR Mode 3 扫描虚构短语黑名单 + 工具调用 evidence,新增 B-fabricate-toolcall 违规子类。关闭 2026-04-25 「private repo」虚构案。
+- **Briefing Completeness Contract** — RETROSPECTIVE 与 ARCHIVER 的最终报告现在定义固定位置的必需区块与最小 evidence 字段。
+- **Briefing 遗漏的 compliance taxonomy** — `C-brief-incomplete` 独立记录缺失标题、session/source metadata 与 escalation 行为，不与基础 Class C 混用。
+- **`briefing-completeness` compliance check** — `scripts/lifeos-compliance-check.sh` 现在可在回归中校验 retrospective / archiver briefing 标题。
+- **第一层 hook 自动安装** — retrospective Step 0 + archiver Phase 0 + ROUTER 触发词检测发现 hook 缺失时自动跑 `setup-hooks.sh`。`git pull` 后无需手动安装。
+- **PRIMARY-SOURCE PRECOMPUTE briefing 标记** — wiki/sessions/concepts 的实测计数现在必须以 `[Wiki count: measured X · index Y · drift Δ=Z]` 格式出现在 briefing 中。缺失 → `C-brief-incomplete`；|Δ|≥3 且没有 `⚠️ DRIFT` → `B-source-drift`。
+- **STATUS.md 陈旧检测** — retrospective Step 0.5 检查 STATUS last-updated 与 git HEAD 年龄；≥7 天 → briefing 中抑制 STATUS 叙述。新增 `B-source-stale` 类。
+- **30d-≥3 Compliance Watch 自动横幅** — retrospective 读取 `violations.md`，当阈值触发时自动在 briefing 第 1 行前置 `🚨 Compliance Watch: <class> (X/30d)`。缺失 → `C-banner-missing`。
+- **ROUTER 对 subagent 输出做事实核查** — `SKILL.md` 要求 ROUTER 在展示给用户前调用 Bash，验证 briefing 中的数字、版本、路径声明。这是 subagent self-check + AUDITOR Mode 3 之后的第三层防线。
+
+### 从 v1.7.0 迁移
+
+1. 检查曾经隐式启用 Cortex 的 second-brain，只在确实需要 Cortex 的工作区通过 `_meta/config.md` 保持启用。
+2. 对 opt-in 的工作区，在 `_meta/config.md` 写入 `cortex_enabled: true`；其他地方保持字段缺失或设为 `false`。
+3. 如果 Mode 0 报告 hook health warning，运行 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 重新安装 Claude Code hooks。
+4. 更新 Start Session / Adjourn eval baseline，加入固定 briefing 标题，并运行 `briefing-completeness`。
+
+---
+
 ## [1.7.0] - 2026-04-22 · Cortex 认知层 · 正式发布
 
 > Cortex 从 alpha 毕业,正式上线 GA。`v1.7.0-alpha.2` 之后 65 个 commits 关闭了剩余 TBD:5 个 shell hook 的完整运行时强制 + 共享 `_lib.sh`、10 个 Python 工具统一收敛到 `life-os-tool` CLI、3 个共享 Python 库、`docs/` 公共文档树发布、三语认知层文档、Step 0.5 / Step 7.5 契约同步到 CLAUDE / GEMINI / AGENTS 三个 host,以及一条保留每个现有 v1.6.2a second-brain 的迁移路径。

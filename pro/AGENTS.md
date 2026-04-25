@@ -57,7 +57,7 @@ After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" resul
 
 ### 0.5. Pre-Router Cognitive Layer (Cortex Phase 1, v1.7) — OPTIONAL
 
-When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` exists in the bound second-brain, the orchestrator MAY spawn the Pre-Router Cognitive Layer to produce annotated input for ROUTER. Activation is per-session (controlled by `_meta/config.md` `cortex_enabled: true|false`); default is **opt-out** for v1.7 (off until explicitly enabled).
+When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` exists in the bound second-brain, the orchestrator MAY spawn the Pre-Router Cognitive Layer to produce annotated input for ROUTER. Activation is per-session (controlled by `_meta/config.md` `cortex_enabled: true|false`); default is **OFF / opt-in** for v1.7 (off until explicitly enabled). Set `cortex_enabled: true` in `_meta/config.md` to enable.
 
 **3 parallel subagents** (each independent, information-isolated from each other):
 
@@ -87,9 +87,9 @@ After all 3 return (with 5s soft timeout, 15s hard timeout per individual subage
 - INDEX missing or empty → skip Step 0.5 entirely, ROUTER receives raw message
 - Any subagent times out → its slot becomes `null`, GWT proceeds with available signals
 - GWT timeout → orchestrator emits empty `[COGNITIVE CONTEXT]` block, ROUTER receives original message
-- `cortex_enabled: false` in config → skip Step 0.5
+- `cortex_enabled: false` in `_meta/config.md` → skip Step 0.5
 
-**Cost**: ~$0.05-0.10 per invocation. Worth it on substantive decisions; wasteful on trivial chat. The opt-out default reflects this — users enable Cortex when they have ≥30 sessions of accumulated history.
+**Cost**: ~$0.05-0.10 per invocation. Worth it on substantive decisions; wasteful on trivial chat. The OFF / opt-in default reflects this — users enable Cortex when they have ≥30 sessions of accumulated history.
 
 ### 1. ROUTER Triage
 

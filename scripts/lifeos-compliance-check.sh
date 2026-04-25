@@ -32,7 +32,7 @@ SCENARIO="${2:-}"
 
 if [[ -z "$OUTPUT_FILE" || -z "$SCENARIO" ]]; then
   echo "Usage: $0 <output_file> <scenario_name>" >&2
-  echo "  scenario_name: start-session-compliance | adjourn-compliance" >&2
+  echo "  scenario_name: start-session-compliance | adjourn-compliance | cortex-retrieval | briefing-completeness | primary-source-markers | status-staleness | banner-check" >&2
   exit 2
 fi
 
@@ -200,6 +200,122 @@ check_adjourn() {
   done
 }
 
+# ─── Detection: Briefing completeness (retrospective / adjourn visible headings) ───
+check_briefing_completeness() {
+  local file="$1"
+  local kind=""
+  local heading
+  local -a missing_headings=()
+
+  local -a retrospective_headings=(
+    "## 0. Pre-flight Hook Health Check"
+    "## 1. Cognitive Layer · Cortex Step 0.5"
+    "## 2. Second-brain Connection"
+    "## 3. Python Tools Executed"
+    "## 4. Retrospective 18 Steps Progress"
+    "## 5. AUDITOR Mode 3 Compliance Patrol"
+    "## 6. Ready for User"
+  )
+
+  local -a archiver_headings=(
+    "## Phase 1 · Outbox"
+    "## Phase 2 · Wiki Extraction"
+    "## Phase 3 · DREAM Triggers"
+    "## Phase 4 · Git Sync"
+    "## Completion Checklist"
+  )
+
+  if grep -qE 'Launch\(archiver\)|ARCHIVER subagent|Session Closed|Completion Checklist|Phase 4 Notion' "$file"; then
+    kind="archiver"
+  elif grep -qE 'Launch\(retrospective\)|RETROSPECTIVE subagent|Pre-Session Preparation|Session Briefing' "$file"; then
+    kind="retrospective"
+  else
+    missing_headings+=("briefing type marker (retrospective or archiver)")
+  fi
+
+  if [[ "$kind" == "retrospective" ]]; then
+    for heading in "${retrospective_headings[@]}"; do
+      if ! grep -qF -- "$heading" "$file"; then
+        missing_headings+=("$heading")
+      fi
+    done
+  elif [[ "$kind" == "archiver" ]]; then
+    for heading in "${archiver_headings[@]}"; do
+      if ! grep -qF -- "$heading" "$file"; then
+        missing_headings+=("$heading")
+      fi
+    done
+  fi
+
+  if [[ ${#missing_headings[@]} -gt 0 ]]; then
+    echo "FAIL: C-brief-incomplete — missing headings:"
+    for heading in "${missing_headings[@]}"; do
+      echo "  - $heading"
+    done
+    exit 1
+  fi
+
+  echo "PASS: C-brief-complete — ${kind} headings present"
+  exit 0
+}
+
+check_primary_source_markers() {
+  local briefing_file="$1"
+  local marker
+  local -a required=(
+    "[Wiki count: measured"
+    "[Sessions count: measured"
+    "[Concepts count: measured"
+  )
+
+  for marker in "${required[@]}"; do
+    if ! grep -qF -- "$marker" "$briefing_file"; then
+      echo "FAIL: missing $marker"
+      exit 1
+    fi
+  done
+
+  echo "PASS"
+  exit 0
+}
+
+check_status_staleness() {
+  local briefing_file="$1"
+
+  if ! grep -qF "[STATUS staleness:" "$briefing_file"; then
+    echo "FAIL: missing [STATUS staleness:] marker"
+    exit 1
+  fi
+
+  echo "PASS"
+  exit 0
+}
+
+check_banner() {
+  local briefing_file="$1"
+  local violations_file="${2:-pro/compliance/violations.md}"
+  local cutoff
+  local b_count
+  local banner_line
+
+  cutoff=$(python3 -c "from datetime import date,timedelta; print((date.today()-timedelta(days=30)).isoformat())")
+  b_count=$(grep -E "^\| 20[0-9]{2}-[0-9]{2}-[0-9]{2}.* \| B" "$violations_file" 2>/dev/null | awk -F '|' -v c="$cutoff" '{gsub(/ /,"",$2); d=substr($2,1,10); if (d>=c) print}' | wc -l)
+  banner_line=$(head -1 "$briefing_file")
+
+  if [[ "$b_count" -ge 3 ]]; then
+    if echo "$banner_line" | grep -q "Compliance Watch"; then
+      echo "PASS: B_COUNT=$b_count, banner present"
+      exit 0
+    else
+      echo "FAIL: B_COUNT=$b_count but no banner on line 1"
+      exit 1
+    fi
+  fi
+
+  echo "PASS: B_COUNT=$b_count (<3, no banner needed)"
+  exit 0
+}
+
 # ─── Dispatch ────────────────────────────────────────────────────────────────
 case "$SCENARIO" in
   start-session-compliance)
@@ -212,6 +328,18 @@ case "$SCENARIO" in
     ;;
   cortex-retrieval)
     check_cortex "$OUTPUT_FILE"
+    ;;
+  briefing-completeness)
+    check_briefing_completeness "$OUTPUT_FILE"
+    ;;
+  primary-source-markers)
+    check_primary_source_markers "$OUTPUT_FILE"
+    ;;
+  status-staleness)
+    check_status_staleness "$OUTPUT_FILE"
+    ;;
+  banner-check)
+    check_banner "$OUTPUT_FILE" "${3:-pro/compliance/violations.md}"
     ;;
   *)
     echo "ℹ️ No compliance checks defined for scenario '$SCENARIO' — skipping" >&2
