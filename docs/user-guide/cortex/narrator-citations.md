@@ -332,7 +332,7 @@ Narrator 和 Validator 之间**没有用户标志**可以关闭。原因:
 - 安全模型: 用户想关掉 Validator 的动机 99% 是"我不喜欢看方括号"——这不应该威胁 Cortex 的事实守门
 - 如果你真的不喜欢方括号,解法是前一条(一次性拿 un-cited 版本),不是永久关 Validator
 
-**唯一的永久关闭**: 编辑 `_meta/cortex/config.md`,`narrator_validator_enabled: false`。这会让 Narrator 输出的 citation **不被验证**——你仍然看到方括号,但它们可能是错的。**不推荐**。
+**唯一的永久关闭**: 编辑 `_meta/config.md`,`narrator_validator_enabled: false`。这会让 Narrator 输出的 citation **不被验证**——你仍然看到方括号,但它们可能是错的。**不推荐**。
 
 ---
 
@@ -430,7 +430,7 @@ grep -r "regeneration_count" _meta/eval-history/ | tail -20
 
 - **一次性**: `给我一版不带 citation 的奏折`——ROUTER 返回 Step 7 原始输出
 - **永久关闭引用显示但保留验证**: v1.7 不支持(方括号是 citation 的物理载体,没有就无法 trace)
-- **永久关闭整个机制**: `_meta/cortex/config.md` 里 `narrator_validator_enabled: false`。**不推荐**——这相当于拿掉防编造的结构性保证
+- **永久关闭整个机制**: `_meta/config.md` 里 `narrator_validator_enabled: false`。**不推荐**——这相当于拿掉防编造的结构性保证
 
 ### "Citation 里显示 `SOUL:X` 但我 SOUL.md 里没有这个维度"
 
@@ -438,7 +438,7 @@ grep -r "regeneration_count" _meta/eval-history/ | tail -20
 
 1. **版本号不匹配**: citation 形如 `SOUL:risk-tolerance-v3` 的 `-v3` 后缀是 dimension 的修订版号。如果你重写了 SOUL 维度但 version 没更新,引用指向的是**旧版本**。解决: 在维度被重写时手工 bump version 号,或让 SOUL 的自动写入机制生成 v4
 2. **registry stale**: signal registry 是 session-scoped 的,如果某次 session 的 registry 被写入磁盘但 SOUL 本身后续被改,trace 时会显示 "⚠️ signal no longer resolvable"——这是正常行为
-3. **前缀错误**: Narrator 不应该发明新前缀,但如果真的出现了非标准前缀(如 `SOULS:` 或 `soul:`),Validator 会标为 `format_error` 并触发重写。如果你还是看到了,说明 Validator 被绕过——检查 `_meta/cortex/config.md` 是否被关闭
+3. **前缀错误**: Narrator 不应该发明新前缀,但如果真的出现了非标准前缀(如 `SOULS:` 或 `soul:`),Validator 会标为 `format_error` 并触发重写。如果你还是看到了,说明 Validator 被绕过——检查 `_meta/config.md` 是否被关闭
 
 ---
 

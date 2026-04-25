@@ -230,6 +230,120 @@ Write B-stale rows to `pro/compliance/violations.md` (dev repo) or `_meta/compli
 
 **Why**: Mode 3 previously checked fabricated paths and simple phase counts, but not `git log` / primary-source numeric reconciliation. The 2026-04-23 STATUS cache drift failure chain exposed that gap.
 
+### Mode 3 · Additional Scan (v1.7.0.1): Briefing Completeness
+
+This scan is additive only. Existing A1/A2/A3/B/C/D/E/F detection remains unchanged.
+
+For each completed Start Session or Adjourn session, scan the emitted subagent output for the required H2 headings for the active path. Matching MUST be literal `grep -F` matching against the exact heading text. Do not infer completeness from narrative claims; the heading text must be present in the transcript.
+
+Retrospective required heading scan:
+
+- `## 0. Pre-flight Hook Health Check`
+- `## 1. Cognitive Layer · Cortex Step 0.5`
+- `## 2. Second-brain Connection`
+- `## 3. Python Tools Executed`
+- `## 4. Retrospective 18 Steps Progress`
+- `## 5. AUDITOR Mode 3 Compliance Patrol`
+- `## 6. Ready for User`
+
+Archiver required heading scan:
+
+- `## Phase 1 · Outbox`
+- `## Phase 2 · Wiki Extraction`
+- `## Phase 3 · DREAM Triggers`
+- `## Phase 4 · Git Sync`
+- `## Completion Checklist`
+
+If any required heading for the active path is missing, log violation class `C-brief-incomplete`. Use severity P1 unless the same omission also satisfies existing **C** incomplete-phase detection, in which case keep the existing **C** severity and log both classes if needed.
+
+Each `C-brief-incomplete` row MUST record:
+
+- `missing_headings`: exact missing heading text, comma-separated
+- `session_id`: actual session/session_id when present; otherwise `unknown`
+- `timestamp`: actual ISO-8601 observation timestamp
+- `source_agent`: `retrospective` or `archiver`
+
+Violation detail format:
+
+`missing_headings=[...] | session_id=... | timestamp=... | source_agent=...`
+
+Escalation thresholds for `C-brief-incomplete` follow the compliance escalation ladder:
+
+- `>=3 same type / 30 days`: hook reminder strictness upgrades.
+- `>=5 same type / 30 days`: retrospective Mode 0 briefing prepends `Compliance Watch: C-brief-incomplete`.
+- `>=10 same type / 90 days`: AUDITOR Compliance Patrol runs at every Start Session.
+- `same type >=3 with unresolved / any window`: block shipping new version until at least partial fix lands.
+
+### Mode 3 · Additional Scan (v1.7.0.1 R5): Tool-Call Evidence
+
+Per session, scan transcript for confabulation patterns:
+
+1. **Step 8 evidence markers**:
+   Briefing must contain both literal markers:
+   - `[Local SKILL.md version:`
+   - `[Remote check (forced fresh):`
+   Missing -> log `Class B-fabricate-toolcall` (P1).
+
+2. **Confabulation phrase blacklist** in subagent transcript:
+   For each phrase, verify the subagent transcript contains a corresponding tool call (`Bash` / `WebFetch`) with non-zero exit code OR HTTP error status.
+   Forbidden without evidence:
+   - private repo / private 仓库
+   - WebFetch 失败 / WebFetch failed
+   - 网络问题 / network unavailable
+   - 权限问题 / 401 / 403 without actual HTTP status
+   - curl 失败 without curl exit code
+
+   If phrase appears without matching tool-call evidence -> log `B-fabricate-toolcall`.
+
+3. **Numeric claim verification**:
+   - Briefing claims `wiki N entries` -> grep transcript for `find wiki -name '*.md' | wc -l` Bash call -> compare.
+   - Briefing claims `remote version vX.Y.Z` -> grep transcript for actual `curl`/`WebFetch` evidence.
+   Mismatched -> log `B-fabricate-fact` (existing class).
+
+Severity: `B-fabricate-toolcall` is P1 by default.
+
+30d threshold: `>=3/30d` B-class -> Compliance Watch banner on next briefing.
+
+### Mode 3 · Additional Scan (v1.7.0.1): Primary-Source Markers, STATUS Staleness, Compliance Watch Banner
+
+This scan is additive only. Preserve all R5 Tool-Call Evidence checks and all existing B-fabricate-toolcall behavior.
+
+Primary-source marker checks:
+
+1. Grep the emitted briefing for all three literal markers:
+   - `[Wiki count: measured`
+   - `[Sessions count: measured`
+   - `[Concepts count: measured`
+2. If any marker is missing, log `C-brief-incomplete`.
+3. For each marker, compare the measured value against the corresponding INDEX value. If `|delta| >= 3` and the marker line lacks literal `⚠️ DRIFT`, log `B-source-drift`.
+4. If the briefing rationalizes a `|delta| >= 3` mismatch as consistent instead of flagging drift, log `B-source-drift`.
+
+STATUS staleness checks:
+
+1. Grep the emitted briefing for literal marker `[STATUS staleness:`.
+2. If the marker is missing, log `C-brief-incomplete`.
+3. If `STATUS.md` is `>=7` days stale and the briefing quotes numeric claims from `STATUS.md`, log `B-source-stale`.
+4. Record the stale age, quoted numeric claim, and source path in the violation details.
+
+Compliance Watch banner check:
+
+1. Read the applicable `violations.md` and count unresolved B-class violations in the last 30 days.
+2. If `B_COUNT >= 3` and the briefing first line lacks literal prefix `🚨 Compliance Watch:`, log `C-banner-missing` with severity `P0`.
+3. Record `b_count_30d`, expected banner text, and the actual first line.
+
+### Mode 3 · Programmatic Verification (HARD RULE · v1.7.0.1)
+
+AUDITOR Mode 3 MUST call Bash and base verdicts on stdout and exit codes, NOT LLM reasoning, for the following checks:
+
+1. `bash scripts/lifeos-compliance-check.sh briefing-completeness`
+2. `bash scripts/lifeos-compliance-check.sh primary-source-markers`
+3. `bash scripts/lifeos-compliance-check.sh status-staleness`
+4. `bash scripts/lifeos-compliance-check.sh banner-check`
+5. `grep -F "[Wiki count: measured" <briefing>`
+6. `grep -F "[STATUS staleness:" <briefing>`
+
+Bash exit code is authoritative. If Bash fails because the script, briefing path, shell, or environment is unavailable, report degraded mode / environment issue and do not improvise check results.
+
 ### Integration with Decision Review (Mode 1)
 
 Mode 3 is independent of Mode 1 — they can run in the same session if both a full deliberation and a Start Session trigger occurred. Mode 3 output is a separate block, not merged into Mode 1's Agent Performance Review.

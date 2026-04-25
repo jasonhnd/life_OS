@@ -50,7 +50,7 @@ Cortex consists of four mechanisms. Each has its own spec file. This document is
 
 ### 1. Hippocampus — Real-time cross-session retrieval
 
-Every user message triggers a hippocampus subagent (not on-demand, but always-on). Three-wave spreading activation:
+When Cortex is enabled, every user message triggers a hippocampus subagent (not on-demand within an enabled session). Three-wave spreading activation:
 
 - Wave 1: direct match (keyword or concept_id hits)
 - Wave 2: strong connections (synapse weight ≥ 3)
@@ -202,22 +202,22 @@ Each mechanism's data format is defined in its own spec file. This document does
 
 ### Cortex Runtime Files (schemas)
 
-Four markdown artefacts track Cortex runtime state. None are source of truth — they are either config (user-editable) or compiled/log artefacts (archiver writes). All live under `_meta/cortex/` (the first three) or `_meta/ambiguous_corrections/` (the fourth).
+Four markdown artefacts track Cortex runtime state. None are source of truth — they are either config (user-editable) or compiled/log artefacts (archiver writes). The config field lives in `_meta/config.md`; compiled/log artefacts live under `_meta/cortex/` or `_meta/ambiguous_corrections/`.
 
-#### `_meta/cortex/config.md`
+#### `_meta/config.md` (cortex_enabled field)
 
-User-editable thresholds and switches. Read by hippocampus, gwt-arbitrator, narrator-validator, and the decay pass. If missing, every consumer falls back to hard-coded defaults (listed inline below).
+User-editable thresholds and switches. Read by hippocampus, gwt-arbitrator, narrator-validator, and the decay pass. The v1.7.0 GA contract is that the `cortex_enabled` field lives in `_meta/config.md`, with `false` as the default opt-in value. If missing, every consumer falls back to hard-coded defaults (listed inline below), including `cortex_enabled: false`. Set cortex_enabled: true in _meta/config.md to enable.
 
 ```yaml
 ---
-file: _meta/cortex/config.md
+file: _meta/config.md
 version: 1.7
 ---
 
 # Cortex Config
 
 ## Feature switches
-cortex_enabled: true              # master switch; false degrades to v1.6.2a behaviour
+cortex_enabled: false             # master switch; true enables Cortex; false degrades to v1.6.2a behaviour
 hippocampus_enabled: true
 gwt_arbitrator_enabled: true
 narrator_validator_enabled: true
@@ -647,7 +647,7 @@ The following specifications are deliberately left to be resolved during impleme
 - **Concept permanence classification heuristics** — ARCHIVER Phase 2 concept extraction uses heuristic rules at first activation. The boundary between skill and fact is fuzzy. Expect revision after 3 months of real usage.
 - **Narrator citation density** — per sentence vs per paragraph. Phase 2 begins with per-substantive-claim; granularity may coarsen if the output feels machine-stamped.
 - **Multi-device concurrency** — single device / distributed sync / active-lock — three options, one is chosen at Phase 1 launch.
-- **Frame trigger policy** — every user message triggers Step 0.5 in v1.7. External events (scheduled prompts, inbox arrivals) are out of scope for v1.7 frame triggers — only user messages trigger Step 0.5.
+- **Frame trigger policy** — when Cortex is enabled, every user message triggers Step 0.5 in v1.7. External events (scheduled prompts, inbox arrivals) are out of scope for v1.7 frame triggers — only user messages trigger Step 0.5.
 - **Cold-start behaviour** — new users with no journal history run Cortex in a degraded mode. The exact point at which Cortex transitions from cold-start to steady-state (number of sessions, number of concepts, or a heuristic) has not been chosen.
 
 ---

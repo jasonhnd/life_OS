@@ -330,7 +330,7 @@ uv run tools/reconcile.py
 
 - **本次 session 针对性关注**——警告已经说了"本次重点关注 X",跟着做
 - **改 agent spec**——比如系统说 REVIEWER 反复漏 dormant 维度,就编辑 `pro/agents/reviewer.md` 加一项 checklist
-- **改 cortex config**——比如系统说 hippocampus retrieval 质量低,`_meta/cortex/config.md` 里考虑调整 `top_k_signals` 或 `per_signal_floor`
+- **改 cortex config**——比如系统说 hippocampus retrieval 质量低,`_meta/config.md` 里考虑调整 `top_k_signals` 或 `per_signal_floor`
 - **手工反驳**——如果你不认同系统性模式检测(比如 narrator 失败率高但你觉得是暂时问题不是系统性的),在当前 session 里说"我认为这个检测是误报",AUDITOR 会记一笔,后续 pattern 仍会持续监控但降权
 
 ### 6. 清理被 pattern 升级到 user-patterns.md 的 behavior

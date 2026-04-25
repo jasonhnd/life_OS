@@ -209,13 +209,13 @@ _meta/
 
 四个 markdown artefact 跟踪 Cortex 运行时状态。它们都不是真实来源 —— 要么是配置（用户可编辑），要么是编译/日志 artefact（由 archiver 写入）。全部驻留在 `_meta/cortex/`（前三个）或 `_meta/ambiguous_corrections/`（第四个）。
 
-#### `_meta/cortex/config.md`
+#### `_meta/config.md`
 
 用户可编辑的阈值与开关。由 hippocampus、gwt-arbitrator、narrator-validator 以及衰减过程读取。如缺失，每个消费者回退到硬编码默认值（内联列在下方）。
 
 ```yaml
 ---
-file: _meta/cortex/config.md
+file: _meta/config.md
 version: 1.7
 ---
 

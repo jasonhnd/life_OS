@@ -80,6 +80,42 @@ Reading pro/agents/retrospective.md. Starting Step 0.5: primary-source scan.
 
 Three independent gates must all fail for a recurrence to happen. See `references/compliance-spec.md` for the violation taxonomy and escalation ladder.
 
+## Step 0 · Pre-Session Hook Auto-Install (HARD RULE)
+
+Before the existing 18 Execution Steps, verify and auto-install the
+Claude Code Layer 1 hook backstop.
+
+Detection (run as Bash):
+```bash
+HOOK_HEALTH=$(jq -r '.hooks.UserPromptSubmit // [] | map(.id) | join(",")' ~/.claude/settings.json 2>/dev/null)
+if echo "$HOOK_HEALTH" | grep -q "life-os-pre-prompt-guard"; then
+  echo "✅ Layer 1 hook installed: $HOOK_HEALTH"
+else
+  echo "🔴 Layer 1 hook missing — auto-installing..."
+  bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+  if [ $? -eq 0 ]; then
+    echo "✅ Layer 1 hook auto-installed (v1.7 5 hooks)"
+  else
+    echo "❌ Auto-install failed — degraded mode. User action: bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh"
+  fi
+fi
+```
+
+Briefing requirement: The briefing's H2 "## 0. Pre-flight Hook Health Check"
+MUST report one of:
+- ✅ Hooks already installed: <list of 5 hook ids>
+- ✅ Hooks auto-installed during this Step 0
+- ⚠️ Auto-install failed (with reason); user must run setup-hooks.sh manually
+
+Safety: setup-hooks.sh is idempotent and only modifies hook ids prefixed
+"life-os-" or "lifeos:". It does not touch the user's other hooks.
+Validated by source script L96 + L196.
+
+Why removed from manual-only: v1.7.0.1 closes the test-machine deployment
+gap — test-machine users will not remember to run the install script,
+and missing the install means the 5-layer defence's bottom layer is absent,
+which makes the rest of v1.7 ineffective.
+
 ## Step 0.5 · PRIMARY-SOURCE PRECOMPUTE (HARD RULE · v1.7.0 R9 · Bug 1 fix)
 
 **Before Step 1 THEME RESOLUTION**, run the following primary-source precompute and keep the results in this session context for Steps 1-18 and the final briefing.
@@ -104,6 +140,56 @@ for p in $(ls -d projects/*/ 2>/dev/null; ls -d areas/*/ 2>/dev/null); do
   days_since=$(python3 -c "from datetime import datetime; d=datetime.fromisoformat('$last_activity'.split()[0]); print((datetime.now()-d).days)" 2>/dev/null || echo "?")
 done
 ```
+
+**Briefing emission contract (HARD RULE · v1.7.0.1 R7)**:
+
+The briefing MUST include these literal primary-source count markers, using values from the Bash precompute and the relevant `INDEX.md` cache claims:
+
+- `[Wiki count: measured X · index Y · drift Δ=Z]`
+- `[Sessions count: measured X · INDEX Y · drift Δ=Z]`
+- `[Concepts count: measured X · INDEX Y · drift Δ=Z]`
+
+Rules:
+- `X` = Bash measured value; `Y` = `INDEX.md` claimed value; `Δ` = `X - Y`.
+- If `|Δ| >= 3`, append `⚠️ DRIFT` to that marker line.
+- Do not paste only `X` without `Y`.
+- Do not say `measured consistent` / `实测一致` without concrete numbers.
+
+```bash
+# STATUS.md staleness check (HARD RULE · v1.7.0.1)
+if [ -f "_meta/STATUS.md" ]; then
+  STATUS_UPDATED=$(grep -m1 'last_updated:' _meta/STATUS.md | awk '{print $2}' || echo "")
+  REPO_LATEST=$(git log -1 --format=%cs 2>/dev/null || echo "")
+  if [ -n "$STATUS_UPDATED" ] && [ -n "$REPO_LATEST" ]; then
+    STATUS_DAYS=$(python3 -c "from datetime import date; a=date.fromisoformat('$STATUS_UPDATED'); b=date.fromisoformat('$REPO_LATEST'); print((b-a).days)" 2>/dev/null || echo "?")
+    if [ "$STATUS_DAYS" != "?" ] && [ "$STATUS_DAYS" -ge 7 ]; then
+      echo "[STATUS staleness: $STATUS_DAYS days behind repo HEAD — SUPPRESSED in briefing]"
+    else
+      echo "[STATUS staleness: $STATUS_DAYS days — fresh, OK to use]"
+    fi
+  fi
+fi
+```
+
+**STATUS.md narrative suppression (HARD RULE · v1.7.0.1 R7)**:
+
+- If `STATUS_DAYS >= 7`, the briefing MUST NOT quote `_meta/STATUS.md` narrative numbers; use only Bash/git measured values.
+- The briefing MUST include a status marker in this shape: `[STATUS staleness: <N> days — <fresh|SUPPRESSED>]`.
+
+```bash
+# Compliance Watch banner check (HARD RULE · v1.7.0.1)
+if [ -f "pro/compliance/violations.md" ]; then
+  CUTOFF=$(date -d '30 days ago' +%Y-%m-%d 2>/dev/null || python3 -c "from datetime import date,timedelta; print((date.today()-timedelta(days=30)).isoformat())")
+  B_COUNT=$(grep -E "^\| 20[0-9]{2}-[0-9]{2}-[0-9]{2}.* \| B" pro/compliance/violations.md 2>/dev/null | awk -F '|' -v c="$CUTOFF" '$2 ~ /20[0-9]{2}-[0-9]{2}-[0-9]{2}/ {gsub(/ /,"",$2); date=substr($2,1,10); if (date >= c) print}' | wc -l)
+  if [ "$B_COUNT" -ge 3 ]; then
+    echo "🚨 Compliance Watch: B-class fabrication ($B_COUNT/30d) — prepend to briefing line 1"
+  fi
+fi
+```
+
+**Compliance Watch banner (HARD RULE · v1.7.0.1 R7)**:
+
+If `B_COUNT >= 3`, the briefing first line MUST be exactly in this shape: `🚨 Compliance Watch: B-class fabrication (X/30d) — 子代理 confabulation 模式累积`.
 
 If `git`, `find`, or shell execution is unavailable in the current environment, put this warning at the very top of the briefing: `⚠️ primary-source unavailable; numeric claims degraded to STATUS narrative only`. In that degraded state, do not write any quantitative numbers.
 
@@ -213,11 +299,42 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 
 --- Phase C: Version + Project ---
 
-8. PLATFORM + VERSION CHECK
-   - Read local version from SKILL.md front matter
-   - WebFetch remote version from GitHub
-   - Both MANDATORY in output format
-   - WebFetch fails → "⚠️ check failed"
+8. PLATFORM + VERSION CHECK (HARD RULE · v1.7.0.1 R5 anti-confabulation)
+
+MANDATORY: Run the following Bash commands and paste literal stdout
+into briefing's "## 8. Platform + Version Check" block. Do NOT describe,
+summarize, or rationalize. Just call Bash, paste output verbatim.
+
+Step 8a — Local version (Bash tool call required):
+```bash
+grep -m1 '^version:' ~/.claude/skills/life_OS/SKILL.md
+```
+
+Step 8b — Force fresh remote check (Bash tool call required, --force
+bypasses daily cache):
+```bash
+bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
+```
+
+Briefing MUST contain BOTH literal markers:
+- "[Local SKILL.md version: <literal Bash stdout>]"
+- "[Remote check (forced fresh): <literal Bash stdout>]"
+
+If either Bash call returns non-zero or empty:
+- Briefing MUST paste actual error: "Bash exit code: <N>" + "stderr: <literal>"
+- FORBIDDEN to write any of these without corresponding curl exit code in transcript:
+  "private repo", "WebFetch 失败", "WebFetch failed", "network unavailable",
+  "网络问题", "401/403/permission" without HTTP status evidence
+- Required failure format: "I tried [tool] with [args], got [literal error]"
+  or "I did not call [tool] for [reason]"
+
+AUDITOR Mode 3 will grep these markers AND scan for forbidden phrases
+without evidence. Missing markers → C-brief-incomplete. Forbidden phrase
+without tool-call evidence → B-fabricate-toolcall (P1).
+
+Why removed from prose-reasoning: Jason 2026-04-25 测试机案例—
+subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
+无任何 WebFetch / curl tool call evidence。
 
 9. PROJECT BINDING
    - If directory type was identified in step 2 → use that binding
@@ -320,7 +437,8 @@ Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and
 - Platform: [name] | Model: [name]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ Up to date / ⬆️ Update available — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
-  [If WebFetch failed: ⚠️ v[local] (remote check failed — verify manually at github.com/jasonhnd/life_OS)]
+  [Local SKILL.md version: <literal Bash stdout>]
+  [Remote check (forced fresh): <literal Bash stdout>]
 - Project Status: [summary]
 - Behavior Profile: [loaded / not established]
 
@@ -527,3 +645,67 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 - Monthly or longer reviews must include trend comparisons
 - Housekeeping Mode must be fast — do not perform deep analysis
 - Housekeeping Mode only reads deep data for the currently bound project; for other projects, only read index.md title and status
+
+## §Briefing Completeness Contract (HARD RULE)
+
+Mode 0 briefing output MUST preserve these 7 exact top-level markdown heading literals, in this order, unless the session is stopped before briefing generation. Missing, renamed, reordered, or materially empty required sections are `C-brief-incomplete`.
+
+## 0. Pre-flight Hook Health Check
+
+Minimum content:
+- Report the result of Step 0 hook health verification.
+- If hooks are missing or incomplete, include the exact red warning and `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` instruction.
+
+## 1. Cognitive Layer · Cortex Step 0.5
+
+Minimum content:
+- Report whether Cortex Step 0.5 was enabled, skipped, or degraded.
+- Include available hippocampus, concept-lookup, soul-check, and GWT/arbitrator context at summary level when present.
+
+## 2. Second-brain Connection
+
+Minimum content:
+- State the bound second-brain path or explain why the current directory is treated as the system repo, second-brain, or regular project repo.
+- Report storage backend and sync availability, including explicit unavailable/not connected notes.
+
+## 3. Python Tools Executed
+
+Minimum content:
+- List Python helper tools executed during Mode 0, including session index rebuild when used.
+- If no Python helper could run, say so explicitly and use the documented fallback path.
+
+## 4. Retrospective 18 Steps Progress
+
+Minimum content:
+- Summarize completion/degradation/skip status for the existing 18 Execution Steps.
+- Include key primary-source counts and avoid stale numeric claims from `_meta/STATUS.md`.
+
+## 5. AUDITOR Mode 3 Compliance Patrol
+
+Minimum content:
+- State that retrospective does not launch AUDITOR itself.
+- Remind that the orchestrator MUST launch `auditor` in Mode 3 immediately after Mode 0 returns.
+
+## 6. Ready for User
+
+Minimum content:
+- End with a concise readiness statement.
+- Ask what the user would like to focus on next.
+
+## §Confabulation Blacklist (HARD RULE · Step 8)
+
+The following phrase groups are forbidden in Step 8 failure reporting unless
+the briefing transcript includes corresponding tool-call evidence, including
+literal Bash stdout/stderr and curl exit code or HTTP status evidence:
+
+- `private repo` / `private 仓库`
+- `WebFetch 失败` / `WebFetch failed`
+- `网络问题` / `network unavailable`
+- `权限问题` / `401` / `403`
+- `curl 失败`
+
+B-fabricate-toolcall trigger rule: If Step 8 uses any blacklist phrase to
+explain local or remote version-check failure without corresponding literal
+tool output evidence in the transcript, AUDITOR Mode 3 MUST classify it as
+`B-fabricate-toolcall` (P1). Use only: "I tried [tool] with [args], got
+[literal error]" or "I did not call [tool] for [reason]".

@@ -335,7 +335,7 @@ uv run tools/reconcile.py
 
 - **本 session で標的関注**——警告が「本 session で X に重点関注」と言っている、従う
 - **agent spec を改変**——例えばシステムが REVIEWER が dormant 次元を繰り返し漏らすと言うなら、`pro/agents/reviewer.md` を編集して checklist 項目を追加
-- **cortex config を改変**——例えばシステムが hippocampus retrieval 品質が低いと言うなら、`_meta/cortex/config.md` で `top_k_signals` や `per_signal_floor` 調整を検討
+- **cortex config を改変**——例えばシステムが hippocampus retrieval 品質が低いと言うなら、`_meta/config.md` で `top_k_signals` や `per_signal_floor` 調整を検討
 - **手動反論**——システミックパターン検出に同意しない場合(例えば narrator 失敗率高いが暫定的問題でシステミックではないと思う)、現 session で「この検出は誤報と考える」と言う、AUDITOR が記録、後続 pattern 監視は継続だが重み下がる
 
 ### 6. パターンで user-patterns.md に昇格された behavior のクリーンアップ

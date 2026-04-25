@@ -24,6 +24,30 @@ Both trigger sources (user adjourn and auto-wrap-up) execute the same 4-phase fl
 
 ---
 
+## Phase 0 · Pre-Adjourn Hook Health Check (HARD RULE · v1.7.0.1)
+
+Same auto-install logic as retrospective Step 0. Run once before Phase 1.
+
+Detection (run as Bash):
+```bash
+STOP_HEALTH=$(jq -r '.hooks.Stop // [] | map(.id) | join(",")' ~/.claude/settings.json 2>/dev/null)
+if echo "$STOP_HEALTH" | grep -q "life-os-stop-session-verify"; then
+  echo "✅ Stop hook installed"
+else
+  echo "🔴 Stop hook missing — auto-installing..."
+  bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+  if [ $? -eq 0 ]; then
+    echo "✅ Hooks auto-installed during Phase 0"
+  else
+    echo "❌ Auto-install failed — adjourn proceeds without Stop hook backstop"
+  fi
+fi
+```
+
+Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", distinct from the 5 main phase headings — this is preflight only, does not break Adjourn Report Completeness Contract).
+
+---
+
 ## Phase 1 — Archive
 
 ```
@@ -521,3 +545,43 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 - Phase 4 git: {commit hash}
 - Phase 4 Notion: ⏳ deferred to orchestrator (archiver lacks MCP tools)
 ```
+
+---
+
+## §Adjourn Report Completeness Contract (HARD RULE)
+
+The final archiver adjourn report MUST be one contiguous output emitted after all four phases finish. It MUST contain the five exact headings below, in this order, with concrete non-placeholder values. If any heading is missing, empty, split across messages, or contains `TBD`, `{...}`, `pending (TBD)`, or a blank value, AUDITOR logs `Class C-brief-incomplete` and the adjourn is incomplete.
+
+## Phase 1 · Outbox
+
+Minimum output requirements:
+- Actual outbox path: `_meta/outbox/{actual-session-id}/`
+- Counts for archived decisions, tasks, journal entries, and manifest/index delta writes.
+- Confirmation that the session-id timestamp came from the real system clock.
+
+## Phase 2 · Wiki Extraction
+
+Minimum output requirements:
+- Wiki auto-written list or `0 this session`, plus discarded candidate count and reasons.
+- SOUL auto-written list or `0 this session`.
+- Concept extraction summary, SessionSummary path, SOUL snapshot path/status, strategic candidates, and `last_activity` updates.
+
+## Phase 3 · DREAM Triggers
+
+Minimum output requirements:
+- N1-N2, N3, and REM each reported with counts or `0`.
+- Triggered actions count/list or `none`.
+- Dream journal path, or explicit write failure with the sync-log path where it was recorded.
+
+## Phase 4 · Git Sync
+
+Minimum output requirements:
+- Git commit hash and push status, or explicit failure logged to `_meta/sync-log.md`.
+- Notion status must be `deferred to orchestrator`; archiver must not claim MCP sync execution.
+
+## Completion Checklist
+
+Minimum output requirements:
+- Emit the existing Completion Checklist immediately after the adjourn report.
+- Every required checklist item must have a concrete value; no `TBD`, blank value, literal `{...}`, or `pending (TBD)`.
+- Include Phase 1, Phase 2, Phase 3, Phase 4, and Notion handoff markers so AUDITOR can verify completeness.

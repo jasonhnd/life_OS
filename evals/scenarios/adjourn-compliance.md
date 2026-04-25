@@ -162,3 +162,61 @@ Manual inspection needed.
 - `references/concept-spec.md` — concept extraction algorithm
 - `pro/compliance/2026-04-19-court-start-violation.md` — original incident
 - `evals/scenarios/start-session-compliance.md` — companion scenario for Class A/B
+
+### Test: Adjourn Report Completeness (v1.7.0.1)
+
+`lifeos-compliance-check.sh briefing-completeness` checks the archiver report
+against this locked H2 array. These literals must match the script:
+
+- `## Phase 1 · Outbox`
+- `## Phase 2 · Wiki Extraction`
+- `## Phase 3 · DREAM Triggers`
+- `## Phase 4 · Git Sync`
+- `## Completion Checklist`
+
+#### Positive case: complete archiver report
+
+Input: archiver output contains an archiver type marker plus all 5 locked H2
+headings:
+
+```text
+ARCHIVER subagent
+## Phase 1 · Outbox
+## Phase 2 · Wiki Extraction
+## Phase 3 · DREAM Triggers
+## Phase 4 · Git Sync
+## Completion Checklist
+```
+
+Expected: `lifeos-compliance-check.sh briefing-completeness` exits 0 with
+`PASS: C-brief-complete`; the scenario should PASS.
+
+#### Negative case: missing multiple archiver headings
+
+Input: archiver output contains the type marker but omits multiple locked H2
+headings:
+
+```text
+ARCHIVER subagent
+## Phase 1 · Outbox
+## Phase 4 · Git Sync
+```
+
+Expected: `lifeos-compliance-check.sh briefing-completeness` exits 1 with
+`C-brief-incomplete`, and `missing_headings` lists all missing literal headings:
+
+```text
+missing_headings=(
+  "## Phase 2 · Wiki Extraction"
+  "## Phase 3 · DREAM Triggers"
+  "## Completion Checklist"
+)
+```
+
+#### Existing negative case: missing DREAM triggers heading
+
+Input: archiver output missing `## Phase 3 · DREAM Triggers`
+
+Expected: `lifeos-compliance-check.sh briefing-completeness` exits 1 with
+`C-brief-incomplete`, and `missing_headings` includes the literal heading
+`## Phase 3 · DREAM Triggers`.

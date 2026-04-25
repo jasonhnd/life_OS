@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.7.0"
+version: "1.7.0.1"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -142,6 +142,27 @@ This one-line check is the orchestrator-level gate in the v1.6.3 five-layer defe
 3. Subagent self-check: first output of `retrospective` / `archiver` subagent verifies it is running as a real subagent, not main-context simulation
 4. AUDITOR Compliance Patrol (Mode 3) post-hoc audit
 5. Regression test: `evals/scenarios/start-session-compliance.md`
+
+**ROUTER fallback (double-safety net):** After detecting a Start Session / Adjourn trigger word AND before launching `retrospective` / `archiver`, ROUTER MUST verify Layer 1 hook installation. If the `UserPromptSubmit` array does not contain `"life-os-pre-prompt-guard"`, ROUTER runs `setup-hooks.sh` inline before spawning the subagent. The downstream subagent's own Step 0 / Phase 0 will then see hooks already installed (idempotent) and proceed. Even if retrospective/archiver Step 0 is skipped, ROUTER catches it.
+
+**ROUTER ground-truth pre-fetch (v1.7.0.1 R5 anti-confabulation):** When Start Session / Review trigger word detected AND before launching `retrospective`, ROUTER MUST first call Bash to obtain ground truth for version check:
+
+```bash
+bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
+```
+
+ROUTER includes the literal stdout in the launch payload to `retrospective` as: "Ground truth (ROUTER pre-fetched): <stdout>". The subagent MUST use this ground truth in Step 8 instead of attempting its own remote check. This eliminates the confabulation surface: subagent has no opening to fabricate failure reasons. If Bash returns non-zero, ROUTER passes the literal error to subagent, who pastes it into briefing. Still no fabrication allowed.
+
+**ROUTER fact-check on subagent output (HARD RULE · v1.7.0.1):**
+After retrospective/archiver subagent returns briefing, BEFORE showing to user, ROUTER MUST run these verifications:
+
+1. Numeric claims (wiki N / sessions N / concepts N): grep briefing for "[Wiki count: measured" / "[Sessions count: measured" / "[Concepts count: measured" markers. Missing markers -> ROUTER refuses to show briefing until subagent reruns Step 0.5.
+
+2. Path claims: for each path mentioned as authority, ROUTER calls Bash `test -f <path>` to verify existence. Non-existent paths quoted as authority -> ROUTER strikes the line + inserts [⚠️ Path not found].
+
+3. Remote version claims: grep briefing for "[Remote check (forced fresh):" marker. Missing -> ROUTER reruns lifeos-version-check.sh --force as sanity check.
+
+This is the third defense layer (after subagent self-check + AUDITOR Mode 3). Even if both upstream fail, ROUTER fact-check catches before user sees confabulated content.
 
 **Rationale:** COURT-START-001 proved that ROUTER can silently skip subagent launch if no visible enforcement gate exists. The 1-line check is the minimum visible proof that ROUTER read the trigger correctly and is about to launch — not simulate, not fabricate, not improvise.
 

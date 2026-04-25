@@ -6,6 +6,40 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.0.1] - 2026-04-25 · Briefing Contract + Hook Self-check + Cortex Config
+
+> Patch release tightening the v1.7 GA contract: final briefings now have fixed required sections, hook installation is self-checked before Mode 0, and Cortex activation is consistently opt-in through `_meta/config.md`.
+
+### Fixed
+
+- **lifeos-version-check.sh cache freshness** — Added `--force` flag and remote SHA-based cache invalidation. Daily cache no longer goes stale within the same day if remote ships a new version.
+- **Briefing completeness is now testable** — Start Session and Adjourn outputs must emit fixed headings with concrete values, so missing or placeholder sections are logged as `C-brief-incomplete`.
+- **RETROSPECTIVE no longer assumes hooks are installed** — Mode 0 performs a pre-session hook health check and surfaces the exact `setup-hooks.sh` recovery command when the Claude Code hook backstop is missing or incomplete.
+- **Cortex config path is consistent** — Reverted R1's accidental path split — Cortex configuration stays in `_meta/config.md` as shipped in v1.7.0, with `cortex_enabled: false` as the opt-in default.
+- **Cortex default is unambiguous** — missing config now degrades to `cortex_enabled: false`; Cortex is OFF / opt-in until the user explicitly enables it.
+- **AUDITOR Mode 3 programmatic checks** — AUDITOR now calls Bash (`lifeos-compliance-check.sh` + `grep`) instead of LLM-reasoning, eliminating same-source confabulation that allowed the 2026-04-25 testbed-machine "private repo" case to pass through.
+
+### Added
+
+- **Anti-confabulation hardening** — Step 8 forces literal Bash stdout paste, ROUTER pre-fetches ground truth, AUDITOR Mode 3 scans for fabrication phrase blacklist + tool-call evidence, new B-fabricate-toolcall violation class. Closes the 2026-04-25 'private repo' confabulation case.
+- **Briefing Completeness Contract** — RETROSPECTIVE and ARCHIVER final reports now define required fixed-position sections and minimum evidence fields.
+- **Compliance taxonomy for briefing omissions** — `C-brief-incomplete` records missing headings, session/source metadata, and escalation behavior separately from base Class C.
+- **`briefing-completeness` compliance check** — `scripts/lifeos-compliance-check.sh` can now verify retrospective and archiver briefing headings in regression runs.
+- **Layer 1 hook auto-install** — retrospective Step 0 + archiver Phase 0 + ROUTER trigger detection now auto-run `setup-hooks.sh` when hooks are missing. No more manual install step required after `git pull`.
+- **PRIMARY-SOURCE PRECOMPUTE briefing markers** — wiki/sessions/concepts measured counts now MUST appear in briefing as `[Wiki count: measured X · index Y · drift Δ=Z]`. Missing → `C-brief-incomplete`; |Δ|≥3 without `⚠️ DRIFT` → `B-source-drift`.
+- **STATUS.md staleness detection** — retrospective Step 0.5 checks STATUS last-updated vs git HEAD age; ≥7 days → STATUS narrative suppressed in briefing. New `B-source-stale` class.
+- **30d-≥3 Compliance Watch auto-banner** — retrospective reads `violations.md`, auto-prepends `🚨 Compliance Watch: <class> (X/30d)` to briefing line 1 when threshold trips. Missing → `C-banner-missing`.
+- **ROUTER fact-check on subagent output** — `SKILL.md` mandates ROUTER call Bash to verify numeric/version/path claims in briefing before showing to user. Third defense layer after subagent self-check + AUDITOR Mode 3.
+
+### Migration from v1.7.0
+
+1. Review any second-brain that enabled Cortex implicitly and keep Cortex enabled only via `_meta/config.md` where Cortex should run.
+2. Add `cortex_enabled: true` to `_meta/config.md` for opt-in workspaces; leave the field absent or set `false` elsewhere.
+3. Reinstall Claude Code hooks with `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` if Mode 0 reports the hook health warning.
+4. Update Start Session / Adjourn eval baselines to include the fixed briefing headings and run `briefing-completeness`.
+
+---
+
 ## [1.7.0] - 2026-04-22 · Cortex Cognitive Layer · General Availability
 
 > Cortex graduates from alpha to GA. 65 commits after `v1.7.0-alpha.2` closed the remaining TBDs: the full shell-hook runtime (5 hooks + shared library), 10 Python tools wired under a single `life-os-tool` CLI, 3 shared Python libraries, public docs publication under `docs/`, trilingual cognitive-layer docs, Step 0.5 / Step 7.5 contract synced across CLAUDE / GEMINI / AGENTS hosts, and a migration path that preserves every existing v1.6.2a second-brain.

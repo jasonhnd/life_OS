@@ -70,6 +70,43 @@ Each violation is one row in a markdown table:
 | **E** | Main-context Phase execution | ROUTER executed archiver's Phase 1/2/3/4 logic in main context |
 | **F** | False positive | Hook fired on paste/quote content, not a real user trigger (v1.6.3a new). Default severity P2. Detected by assistant judgment when trigger word appears in paste indicators (long prompt, trigger not on first line, surrounded by quote/code-fence markers). Excluded from escalation ladder — high count = hook miscalibration, not user behavior. |
 
+### Class B-fabricate-toolcall (v1.7.0.1 R5+)
+
+- **Definition**: Subagent claims a tool call result (success or failure) without the corresponding tool call appearing in transcript.
+- **Detection**: AUDITOR Mode 3 scans for Step 8 evidence markers + confabulation phrase blacklist, cross-references with transcript tool call records.
+- **Logged fields**: `Type=B-fabricate-toolcall`; `Severity=P1`; `Details` must name the fabricated phrase + tool that was claimed missing. `missing_evidence: <fabricated phrase>`; `expected_tool: <Bash|WebFetch|...>`.
+- **Escalation**: Inherits Class B standard ladder (`>=3/30d` -> Compliance Watch).
+- **Why introduced**: 2026-04-25 Jason 测试机实测 retrospective subagent 虚构 "private repo" 借口掩盖 Step 8 未执行,触发 v1.7.0.1 R5 anti-confabulation patch.
+- **Confabulation phrase blacklist**: private repo / private 仓库; WebFetch 失败 / WebFetch failed; 网络问题 / network unavailable; 权限问题 / 401 / 403; curl 失败.
+
+### Class B-source-drift (v1.7.0.1+)
+
+- **Definition**: Primary-source measured count and INDEX count differ by `|delta| >= 3`, but the briefing omits literal `⚠️ DRIFT` or rationalizes the mismatch as consistent.
+- **Detection**: AUDITOR Mode 3 compares briefing primary-source markers (`[Wiki count: measured`, `[Sessions count: measured`, `[Concepts count: measured`) against corresponding INDEX values using Bash stdout.
+- **Logged fields**: `Type=B-source-drift`; `Severity=P1`; `measured: <number>`; `index: <number>`; `drift: <measured-index>`; `marker: <literal marker line>`; `Details` must include concrete grep/stdout evidence.
+- **Escalation**: Inherits Class B standard ladder (`>=3/30d` -> Compliance Watch).
+
+### Class B-source-stale (v1.7.0.1+)
+
+- **Definition**: `STATUS.md` is `>=7` days stale, but the briefing still quotes numeric claims from `STATUS.md`.
+- **Detection**: AUDITOR Mode 3 checks `[STATUS staleness:` marker and verifies whether stale STATUS-derived numeric claims appear in the briefing.
+- **Logged fields**: `Type=B-source-stale`; `Severity=P1`; `status_days: <integer>`; `quoted_claim: <numeric claim text>`; `source: <STATUS.md path or marker>`; `Details` must include concrete grep/stdout evidence.
+- **Escalation**: Inherits Class B standard ladder (`>=3/30d` -> Compliance Watch).
+
+### Class C-brief-incomplete (v1.7.0.1+)
+
+- **Definition**: Start Session reached final briefing output, but the briefing omitted one or more mandatory fixed-position sections or required evidence fields. This is a Class C subclass for incomplete briefing composition; it does not change base Class C semantics, which remain archiver incomplete-phase failures.
+- **Detection**: After `retrospective` Mode 0 returns, scan the transcript for the Start Session output contract using the locked literal heading arrays. Retrospective required H2s exactly: [`## 0. Pre-flight Hook Health Check`, `## 1. Cognitive Layer · Cortex Step 0.5`, `## 2. Second-brain Connection`, `## 3. Python Tools Executed`, `## 4. Retrospective 18 Steps Progress`, `## 5. AUDITOR Mode 3 Compliance Patrol`, `## 6. Ready for User`]. Archiver required H2s exactly: [`## Phase 1 · Outbox`, `## Phase 2 · Wiki Extraction`, `## Phase 3 · DREAM Triggers`, `## Phase 4 · Git Sync`, `## Completion Checklist`]. Log `C-brief-incomplete` when the briefing omits any locked literal heading, omits required evidence fields, or leaves a required block unavailable without explicitly marking it empty/unavailable.
+- **Logged fields**: `Type=C-brief-incomplete`; `Severity=P1`; `required_headings.retrospective: [`## 0. Pre-flight Hook Health Check`, `## 1. Cognitive Layer · Cortex Step 0.5`, `## 2. Second-brain Connection`, `## 3. Python Tools Executed`, `## 4. Retrospective 18 Steps Progress`, `## 5. AUDITOR Mode 3 Compliance Patrol`, `## 6. Ready for User`]`; `required_headings.archiver: [`## Phase 1 · Outbox`, `## Phase 2 · Wiki Extraction`, `## Phase 3 · DREAM Triggers`, `## Phase 4 · Git Sync`, `## Completion Checklist`]`; `missing_headings: <comma-separated list of missing literal headings>`; `Details` must include a concrete evidence marker (grep output, transcript quote, or tool-call ID) and state that the run reached final briefing output; `Resolved=false` until the briefing contract fix ships and passes regression.
+- **Escalation**: Inherits the Class C standard ladder as its own type (`C-brief-incomplete`). It does not count toward base `C` archiver-incomplete thresholds.
+
+### Class C-banner-missing (v1.7.0.1+)
+
+- **Definition**: The 30-day B-class threshold is tripped, but the briefing top lacks the required Compliance Watch banner.
+- **Detection**: AUDITOR Mode 3 reads the applicable `violations.md`, computes unresolved B-class count in the last 30 days, and checks the briefing first line for literal prefix `🚨 Compliance Watch:`.
+- **Logged fields**: `Type=C-banner-missing`; `Severity=P0`; `b_count_30d: <integer>`; `expected_banner: <literal expected banner>`; `actual_first_line: <briefing first line>`; `Details` must include concrete grep/stdout evidence.
+- **Escalation**: P0 until the banner rule is restored and regression passes.
+
 ### Severity Rubric
 
 - **P0** — Product-level bug. Unfixed → current version cannot ship. Same class as COURT-START-001 (2026-04-19).

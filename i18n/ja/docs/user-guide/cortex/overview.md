@@ -174,7 +174,7 @@ Step 0.5 の総予算は **< 7 秒**(hippocampus 5s ソフトタイムアウト 
 
 ### Cortex をオフにできますか?
 
-できます。`_meta/cortex/config.md` を編集し、`cortex_enabled: true` を `false` に変更、次の Start Session で v1.6.2a 動作に退化します。各サブ機能にも個別スイッチがあります: `hippocampus_enabled`、`gwt_arbitrator_enabled`、`narrator_validator_enabled`、`concept_extraction_enabled`。
+できます。`_meta/config.md` を編集し、`cortex_enabled: true` を `false` に変更、次の Start Session で v1.6.2a 動作に退化します。各サブ機能にも個別スイッチがあります: `hippocampus_enabled`、`gwt_arbitrator_enabled`、`narrator_validator_enabled`、`concept_extraction_enabled`。
 
 ただし**長期間オフにすることは推奨しません**——数回上朝するうちに、システムが「以前どう決めたか」に対する敏感度が顕著に向上するのを発見し、オフにすると逆に AI が退化したと感じるでしょう。
 
