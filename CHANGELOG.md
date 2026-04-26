@@ -6,6 +6,27 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.2.3] - 2026-04-26 - Retrospective skeleton ownership
+
+> Subagent D ownership patch. Scope limited to `pro/agents/retrospective.md`, `SKILL.md`, three README files, and three CHANGELOG files.
+
+### Changed
+
+- **RETROSPECTIVE ownership narrowed**: `pro/agents/retrospective.md` now states that ROUTER pre-renders roughly 80% of Mode 0 via Bash skeleton.
+- **Single LLM fill slot**: the subagent fills only `<!-- LLM_FILL: today_focus_and_pending_decisions -->` with about 5-15 lines for Today's Focus and Pending Decisions; ROUTER splices that block into the skeleton.
+- **Version markers**: `SKILL.md` and README badges now point to `1.7.2.3`.
+- **install_sha field for SHA gap fix**: `SKILL.md` frontmatter now carries `commit_sha` and `install_date` fields. `setup-hooks.sh` auto-writes them on git clone deployments. New `scripts/lib/sha-fallback.sh` provides 3-tier resolution: `SKILL.md` frontmatter → `.install-meta` JSON → `git rev-parse HEAD` → `unknown`. Closes `Local commit SHA: unknown` bug on install-skill deployments.
+- **SOUL/DREAM display restored (v1.6.x parity)**: `scripts/retrospective-briefing-skeleton.sh` now Bash-pastes full `SOUL.md` content and full latest `_meta/journal/*-dream.md` content verbatim in fenced markdown blocks. LLM only adds delta interpretation (confidence trend / today implications) on top, cannot compress structural SOUL/DREAM data. `pro/agents/retrospective.md` ## 2 / ## 3 spec updated to reflect new "Bash paste full content + LLM trend narrative" model. Reverses v1.7.2.1 over-subtraction that compressed SOUL Health to "changed dimensions only" and DREAM to "1-2 sentence digest".
+- **Adjourn 12 H2 → 6 H2 + LLM token budget (speed fix)**: `pro/agents/archiver.md` Adjourn Report Completeness Contract reduced from 12 H2 to 6 core H2 (Phase 0/1/2/3/4 + Completion Checklist). AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost folded as H3 sub-items under Completion Checklist. New "Phase 2/3 LLM Token Budget" HARD RULE: Phase 2 narrative ≤ 1500 tokens (combined wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity), Phase 3 narrative ≤ 800 tokens. Verbatim DREAM journal does not count toward budget (Bash paste). Speed target: archiver Adjourn 25 min → 10-12 min.
+- **archiver-briefing-skeleton.sh new (Bash skeleton for archiver)**: New `scripts/archiver-briefing-skeleton.sh` mirrors `retrospective-briefing-skeleton.sh` design — emits 6 H2 Adjourn Report framework with Bash-pasted Phase 0/1/4 + measured facts (outbox path / decision-task-journal counts / wiki-SOUL-DREAM stat / git status / Stop hook health). LLM only fills `<!-- LLM_FILL -->` placeholders for Phase 2/3 narrative + Completion Checklist values. Wired into `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Step 10 Adjourn Session block. Complementary to existing `archiver-phase-prefetch.sh` (R11 audit trail).
+- **Session Binding HARD RULE rewritten (product direction correction)**: `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Session Binding HARD RULE clarified: discussion scope ≠ data write scope. Session binding constrains data persistence (where decisions/wiki/SOUL get written) but NOT discussion topics. ROUTER engages directly with whatever the user raises (financial / strategic / interpersonal / cross-project / abstract). ROUTER MUST NOT deflect with "本窗口角色只做 X" / "请转到其他窗口" / "translate to planner trigger paste for another window" / "召唤翰林院 panel" without explicit user request. Reverses 13-round hardening accumulated effect of LLMs treating session binding as business-topic forbidden zone. Restores Life OS to its founding purpose as a decision thinking assistant.
+
+### Migration
+
+No second-brain migration required.
+
+---
+
 ## [1.7.2.1] - 2026-04-26 - Subtraction hotfix for report shape and theme aesthetics
 
 > Small subtraction-only hotfix: fewer visible rules, restored theme aesthetics, and fixed-position version markers. No new release line beyond v1.7.2.1.
