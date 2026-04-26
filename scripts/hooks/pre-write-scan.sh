@@ -18,11 +18,13 @@
 #
 # Contract
 #   references/hooks-spec.md §5.3 — 15 regex patterns + invisible Unicode
+#   Life OS v1.7.2 Wave 2.A — add Hermes dangerous-command pattern scan
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -u
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$HOOK_DIR/../.." && pwd)"
 # shellcheck source=/dev/null
 source "$HOOK_DIR/_lib.sh"
 
@@ -122,6 +124,53 @@ scan() {
   return 1
 }
 
+lifeos_python_bin() {
+  if command -v python3 >/dev/null 2>&1; then
+    echo python3
+  elif command -v python >/dev/null 2>&1; then
+    echo python
+  else
+    return 1
+  fi
+}
+
+scan_hermes_dangerous_patterns() {
+  local py repo_for_python result id name
+  py="$(lifeos_python_bin || true)"
+  [ -z "$py" ] && return 1
+
+  repo_for_python="$REPO_ROOT"
+  if command -v cygpath >/dev/null 2>&1; then
+    repo_for_python="$(cygpath -w "$REPO_ROOT" 2>/dev/null || printf '%s' "$REPO_ROOT")"
+  fi
+
+  result="$(printf '%s' "$CONTENT" | LIFEOS_REPO_ROOT="$repo_for_python" "$py" -c '
+import os
+import re
+import sys
+
+repo_root = os.environ.get("LIFEOS_REPO_ROOT", "")
+if repo_root and repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
+from tools import approval
+
+text = sys.stdin.read()
+normalized = approval._normalize_command_for_detection(text).lower()
+for index, (pattern, description) in enumerate(approval.DANGEROUS_PATTERNS, 1):
+    if re.search(pattern, normalized, re.IGNORECASE | re.DOTALL):
+        print(f"{index}\t{description}")
+        break
+' 2>/dev/null || true)"
+
+  [ -z "$result" ] && return 1
+  id="$(printf '%s' "$result" | awk -F '\t' 'NR==1 {print $1}')"
+  name="$(printf '%s' "$result" | cut -f2-)"
+  MATCH_ID="H${id}"
+  MATCH_NAME="hermes-dangerous-command:${name}"
+  return 0
+}
+
 # Ordered scan — stops at first hit.
 scan 1  "prompt-injection-ignore-instructions" i 'ignore[[:space:]]+(all[[:space:]]+)?(previous|above)[[:space:]]+(instructions|rules)|disregard[[:space:]]+(all[[:space:]]+|the[[:space:]]+)?system' \
   || scan 2  "prompt-injection-reveal-system" i '(reveal|output|print|show)[[:space:]]+(your|the)[[:space:]]+(system[[:space:]]+prompt|hidden[[:space:]]+instructions|initial[[:space:]]+prompt)' \
@@ -139,6 +188,10 @@ scan 1  "prompt-injection-ignore-instructions" i 'ignore[[:space:]]+(all[[:space
   || scan 14 "pii-credit-card"                 x '4[0-9]{12}([0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(011|5[0-9]{2})[0-9]{12}' \
   || scan 15 "pii-ssn"                         x '[0-9]{3}-[0-9]{2}-[0-9]{4}' \
   || true
+
+if [ -z "$MATCH_ID" ]; then
+  scan_hermes_dangerous_patterns || true
+fi
 
 # ─── Invisible Unicode scan (spec §5.3 bottom paragraph) ────────────────────
 # U+200B (e2 80 8b), U+200C (e2 80 8c), U+200D (e2 80 8d),
@@ -164,8 +217,8 @@ CAT="other"
 case "$FILE_PATH" in
   */SOUL.md|SOUL.md) CAT="SOUL" ;;
   */user-patterns.md|user-patterns.md) CAT="user-patterns" ;;
-  */wiki/*) CAT="wiki" ;;
-  */_meta/concepts/*) CAT="concepts" ;;
+  */wiki/*|wiki/*) CAT="wiki" ;;
+  */_meta/concepts/*|_meta/concepts/*) CAT="concepts" ;;
 esac
 
 lib_log_violation "CLASS_D" "critical" "unknown" \
@@ -181,12 +234,14 @@ Target: $FILE_PATH (scope: $CAT)
 Detection: pattern #$MATCH_ID ($MATCH_NAME)
 
 The ${TOOL_NAME} was blocked. Knowledge files (SOUL / wiki / concepts /
-user-patterns) must not contain injection payloads, secrets, or
-invisible Unicode. Logged to compliance path as CLASS_D (critical).
+user-patterns) must not contain injection payloads, dangerous command
+payloads, secrets, or invisible Unicode. Logged to compliance path as
+CLASS_D (critical).
 
 Fix:
 - If a secret leaked into content: redact and retry
 - If a prompt-injection quote: move to a non-knowledge file or sanitize
+- If a dangerous command quote: move to a non-knowledge file or sanitize
 - If invisible Unicode: strip before writing
 
 Spec: references/hooks-spec.md §5.3

@@ -11,6 +11,8 @@ model: opus
 
 Authoritative spec: `references/gwt-spec.md` (324 lines). This file is the operational summary subagent reads when launched.
 
+Tuning protocol: see `_meta/cortex/salience-tuning.md`.
+
 ---
 
 ## Identity Declaration (HARD RULE)

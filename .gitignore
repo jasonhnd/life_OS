@@ -32,3 +32,4 @@ __pycache__/
 
 # Local backup dir (from tools/backup.py tests)
 backup/
+_meta/

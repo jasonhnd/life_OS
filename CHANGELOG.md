@@ -6,6 +6,33 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.2] - 2026-04-26 - Hermes Local, Cortex always-on, and compression hardening
+
+> Patch release for the local execution surface, Cortex orchestration, and transparent compressed reporting.
+
+### Added
+
+- **Hermes Local naming and attribution**: `Hermes Local` is the user-facing label for Life OS local safeguards and automation, while internal/spec labels remain `execution layer`, `Layer 3`, and `Layer 4`; docs now attribute borrowed/forked local-tool components to `NousResearch/hermes-agent` under the MIT License.
+- **Hermes Local fork-module areas**: documented and attributed six borrowed/forked module areas: `tools/approval.py`, `tools/context_compressor.py` + `tools/manual_compression_feedback.py`, `tools/prompt_cache.py`, `tools/memory.py`, `tools/session_search.py`, and `tools/skill_manager.py`. The Life OS compressor module is `context_compressor`.
+- **Cron and MCP local automation**: added `scripts/setup-cron.sh` for idempotent local reindex / daily briefing / backup jobs, plus `tools/mcp_server.py` and `docs/architecture/mcp-server.md` for optional MCP stdio access to Life OS CLI tools.
+- **Method library and eval-history loop**: added method candidate extraction, method context injection, `_meta/eval-history/` writeback, and monthly self-review readback so repeated procedural and compliance signals close the loop.
+
+### Changed
+
+- **Cortex always-on orchestration**: when Cortex is enabled, Step 0.5 is attempted for every user message, including Start Session and direct-handle candidates; missing indexes trigger `tools/migrate.py` auto-bootstrap and degrade through `degradation_summary` instead of silently skipping.
+- **ROUTER paste compression**: replaced v1.7.1 full subagent paste duplication with compressed paste wrappers plus R11 audit-trail links; ROUTER uses `tools/context_compressor.py` semantics and preserves substantive claims, decisions, blockers, side effects, and evidence.
+- **Manual `/compress` trigger**: ROUTER now treats `/compress [focus]` as user-triggered context compression and returns feedback using `tools/manual_compression_feedback.py` semantics: message count, rough token estimates, and no-op notice.
+
+### Fixed
+
+- **Version check prefetch**: retrospective Mode 0 now consumes ROUTER's pre-fetched Step 8 marker, copies local/remote version details into Platform + Version Check, and runs the remote check with `lifeos-version-check.sh --force` so stale cache or subagent re-run behavior cannot hide release drift.
+
+### Migration
+
+No required second-brain migration. Optional: run `bash scripts/setup-cron.sh install` for local scheduled jobs and install `mcp` only if using the MCP stdio server.
+
+---
+
 ## [1.7.1] - 2026-04-25 - Version, i18n, and hardening index
 
 > Patch release grouping 27 hardening fixes across transparency, orchestration evidence, hook reliability, i18n drift control, and compliance indexing.

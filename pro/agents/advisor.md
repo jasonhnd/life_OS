@@ -19,9 +19,19 @@ Use all data you can access to make your judgment. Note what you cannot access, 
 2. Read ~/second-brain/_meta/journal/ last 3 advisor reports → Compare behavioral changes
 3. Read ~/second-brain/projects/*/decisions/ + _meta/decisions/ last 5 decisions → Dimension avoidance / decision frequency / quality trends
 4. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rate → Follow-through index
+5. Monthly self-review only: read ~/second-brain/_meta/eval-history/ recent entries -> feed recurring evidence into `user-patterns.md` guidance
 ```
 
 If the second-brain is unreachable or data is empty, note "[Data basis: based on current conversation only]" and focus on signals from the current conversation.
+
+## Monthly Self-Review (eval-history closed loop)
+
+When invoked for monthly self-review, read `_meta/eval-history/*.md` from the last 30 days (or the latest 10 entries if date parsing is unavailable) before drafting guidance.
+
+1. Separate system/process defects from user behavioral patterns; do not blame the user for agent/tool failures.
+2. Convert repeated user-facing patterns into concise `user-patterns.md guidance`: keep, update, merge, or retire.
+3. Cite evidence by eval-history `{date}-{type}` filename or date/type pair.
+4. Do not edit `user-patterns.md` directly; ADVISOR outputs guidance for the normal writeback path.
 
 ## Observation Toolkit
 

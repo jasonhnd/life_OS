@@ -40,7 +40,7 @@ Hippocampus does **not**:
 
 ## 2. Trigger
 
-**Frequency**: Every user message that enters ROUTER, after RETROSPECTIVE housekeeping completes.
+**Frequency**: Every Cortex-enabled user message that enters ROUTER, including Start Session triggers, after RETROSPECTIVE housekeeping completes when applicable.
 
 **Parallelism**: Runs in parallel with two other Pre-Router Cognitive Layer components:
 
@@ -52,9 +52,8 @@ Hippocampus does **not**:
 - Soft timeout: **5 seconds** — the upper bound GWT arbitrator waits before proceeding with partial results. This does NOT force hippocampus to return; hippocampus may keep running until hard timeout. Any result arriving between 5s and 15s is logged to the session trace for post-hoc review but is NOT injected into the current session's ROUTER input (GWT already consolidated and handed off).
 - Hard timeout: **15 seconds** — hippocampus must return whatever it has and terminate. Results returned between 5s–15s enter the trace only.
 
-**Not triggered**:
+**Skipped only when**:
 
-- Start Session invocations (RETROSPECTIVE Mode 0 already loads recent context)
 - Review Mode (no user decision pending)
 - When the orchestrator explicitly requests `--no-cortex` (degraded mode, for debugging)
 
@@ -266,7 +265,7 @@ Hippocampus must degrade gracefully — a failed retrieval should never block th
 
 | Failure | Behavior |
 |---------|----------|
-| `_meta/sessions/INDEX.md` does not exist | Run `tools/reindex.py` via Bash if available; otherwise return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` |
+| `_meta/sessions/INDEX.md` does not exist | Orchestrator runs `tools/migrate.py` to auto-bootstrap before Step 0.5. If hippocampus still sees a missing index, return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` and let GWT surface it through `degradation_summary`. |
 | INDEX.md exists but is empty (new second-brain) | Return empty `retrieved_sessions`, note "first session — no cross-session memory yet" |
 | LLM judgment call fails (API error, rate limit) | Fallback to pure keyword match on INDEX.md (no semantic scoring), set `degraded: true` |
 | Concept files missing for Wave 2 target | Skip that specific branch, continue Wave 2 with remaining branches |

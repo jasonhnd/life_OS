@@ -101,7 +101,7 @@ Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as th
 
 This is your primary mission — not a side step, but the reason you exist.
 
-R11 audit trail: before Phase 3 starts, write `_meta/runtime/<sid>/archiver-phase-2.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST cover wiki, SOUL, concept, SessionSummary, snapshot, strategic, and last_activity outputs.
+R11 audit trail: before Phase 3 starts, write `_meta/runtime/<sid>/archiver-phase-2.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST cover wiki, SOUL, method, concept, SessionSummary, snapshot, strategic, and last_activity outputs.
 
 Phase 2 produces **Session Candidates** — extracted from the current session only. Wiki and SOUL entries are **auto-written** inside this subagent based on strict criteria — no user confirmation in the main context.
 
@@ -158,6 +158,31 @@ Discarded candidates use the same structure, but the final lines MUST be:
 If nothing was stripped, write `Privacy filter: stripped nothing`. Do not omit the line.
 
 **No user confirmation needed**. Report in Completion Checklist: "Auto-wrote N wiki entries, discarded M candidates (reasons: ...)"
+
+---
+
+## Phase 2 Mid-Step - Method Candidate Extraction (v1.7.2)
+
+During Phase 2, scan the full session material for reusable procedural workflows before writing SessionSummary. This implements `references/method-library-spec.md`; if `_meta/methods/INDEX.md` is missing or empty, proceed with new-candidate detection only.
+
+**A method candidate qualifies only when all are true**:
+- 5+ sequential actions form a coherent reusable procedure.
+- The same pattern has cross-session echo in at least 2 past sessions, using hippocampus output or `_meta/sessions/INDEX.md`.
+- The user or workflow language indicates an approach, pattern, framework, process, flow, or way-of-working.
+- The pattern is cross-project, privacy-safe, and not merely a fact, value, project plan, or one-off tip.
+
+**Disqualify** candidates that appear in only one session, are project-specific, duplicate an existing canonical method, or fail the method privacy filter from `references/method-library-spec.md`.
+
+**Write/update rules**:
+1. Read `_meta/methods/INDEX.md` and existing method files when present.
+2. If the candidate duplicates an existing method, update that method's `evidence_count`, `last_used`, confidence, and embedded `## Evolution Log`; do not create a new file.
+3. If the candidate is new, write `_meta/methods/_tentative/{method_id}.md` with YAML frontmatter, markdown body, and an embedded `## Evolution Log`.
+4. New tentative defaults: `status: tentative`, `confidence: 0.3`, `times_used: 1`, `source_sessions: [current_session_id]`, `evidence_count: 1`, `challenges: 0`.
+5. Method files must follow the schema in `references/method-library-spec.md`: YAML frontmatter (`method_id`, `name`, `description`, `domain`, `status`, `confidence`, `times_used`, `last_used`, `applicable_when`, `not_applicable_when`, `source_sessions`, `evidence_count`, `challenges`, `related_concepts`, `related_methods`), then body sections `Summary`, `Steps`, `When to Use`, `When NOT to Use`, `Evolution Log`, `Warnings`, `Related`. The embedded `## Evolution Log` is the method's `evolution.log`.
+
+ARCHIVER never promotes a method out of `_tentative/`; confirmation happens in RETROSPECTIVE Start Session. Record `methods_discovered` and `methods_used` in SessionSummary frontmatter. Add any `_meta/methods/...` writes to Phase 4 git scope alongside the outbox.
+
+Report in Completion Checklist: "Method candidates: N new, M updated, K discarded (reasons: ...)".
 
 ---
 
@@ -555,7 +580,7 @@ R11 audit trail: before Phase 4 starts, write `_meta/runtime/<sid>/archiver-phas
 ## Phase 4 — Sync (git only; Notion handled by orchestrator)
 
 ```
-1. git add _meta/outbox/{session-id}/ → commit → push (ONLY the outbox directory)
+1. git add _meta/outbox/{session-id}/ plus any `_meta/methods/...` files written in Phase 2 → commit → push
 2. Update last_sync_time in _meta/config.md
 3. Any GitHub backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
 4. R11 audit trail: before returning the final Adjourn Report, write `_meta/runtime/<sid>/archiver-phase-4.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST cover git status, Notion handoff status, and the final report headings.
@@ -591,6 +616,7 @@ Session adjourned.
 - Do not attempt Notion sync — you lack MCP tools; the orchestrator handles it after you return
 - Session-close git commit is atomic — nothing can be missed
 - Do NOT write directly to projects/, _meta/STATUS.md, or user-patterns.md — all goes to outbox
+- `_meta/methods/_tentative/` writes are the method-library exception to the outbox-only rule; no other direct `_meta/` writes are allowed in Phase 2.
 
 ---
 
@@ -606,6 +632,7 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 - Phase 2 wiki auto-written: [{list} / 0 this session]
 - Phase 2 wiki discarded: [{count} with reasons / none]
 - Phase 2 SOUL auto-written: [{list} / 0 this session]
+- Phase 2 method candidates: [{new/updated/discarded list} / none]
 - Phase 2 strategic candidates: [{list} / none this session]
 - Phase 2 last_activity updated: [{projects touched}]
 - Phase 3 DREAM: [full journal path + verbatim report pasted / light sleep]
@@ -667,6 +694,13 @@ Minimum output requirements:
 
 Minimum output requirements:
 - Concept extraction summary: activated count, discovered count, Hebbian update count, promotions, and any discard reasons.
+
+### methods
+
+Minimum output requirements:
+- Method extraction summary: new tentative candidates, existing method updates, discarded candidates with reasons, and written paths under `_meta/methods/`.
+- For each candidate: method_id, domain, trigger evidence, cross-session echo source, privacy filter result, and status (`tentative`, `updated`, or `discarded`).
+- Confirm no method was promoted past `tentative` by ARCHIVER.
 
 ### SessionSummary
 

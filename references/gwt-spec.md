@@ -33,7 +33,7 @@ The arbitrator is the **choke point** that prevents information overload on ROUT
 
 ## 2. Trigger
 
-- Runs **after** all Pre-Router parallel subagents (hippocampus, concept lookup, SOUL dimension check) complete their work in the current session turn.
+- Runs **after** all Pre-Router parallel subagents (hippocampus, concept lookup, SOUL dimension check) complete their work for each Cortex-enabled user message, including Start Session triggers.
 - **Single invocation per session turn.** Never loops. Never re-fires mid-turn.
 - **Timeout budget:** 5 seconds soft target, 10 seconds hard ceiling.
 - If the hard ceiling is hit, the arbitrator emits a partial result using whatever signals it has already scored (see §13).
@@ -66,7 +66,7 @@ soul_check_output:       yaml  # relevant SOUL dimensions and their status
 current_user_message:    string
 ```
 
-Each upstream source produces a list of **signals** with a uniform envelope (see §5 for scoring and §6 for signal types). Missing sources are tolerated — a first-ever session may have no hippocampus output, and the arbitrator proceeds with what it has.
+Each upstream source produces a list of **signals** with a uniform envelope (see §5 for scoring and §6 for signal types). Missing sources are tolerated — a first-ever session may have no hippocampus output, and the arbitrator proceeds with what it has. If every source is null, emit `[COGNITIVE CONTEXT]` with only `degradation_summary`.
 
 ---
 
@@ -197,12 +197,18 @@ This decision challenges your "{dimension_name}" (confidence {X})
 💡 Pattern observations:
 - {any salience ≥ 0.8 signals not covered above}
 
+degradation_summary:
+- hippocampus: {ok | null | timeout | failed: <reason>}
+- concept-lookup: {ok | null | timeout | failed: <reason>}
+- soul-check: {ok | null | timeout | failed: <reason>}
+- frame_md_path: {written: <path> | not written: <reason>}
+
 [END COGNITIVE CONTEXT]
 
 User's actual message: {original}
 ```
 
-Each bullet must be emitted **only if** there is at least one signal of that category in the top-5. Empty categories collapse (see §9).
+Each signal bullet must be emitted **only if** there is at least one signal of that category in the top-5. Empty categories collapse (see §9). `degradation_summary` is always emitted so ROUTER can see partial-context risk.
 
 ---
 
@@ -210,7 +216,7 @@ Each bullet must be emitted **only if** there is at least one signal of that cat
 
 To prevent annotation noise:
 
-- If the **total signal count is 0** after scoring, emit an **empty marker** — not the full framing text. ROUTER sees only `User's actual message: …`.
+- If the **total signal count is 0** after scoring, emit only the required `degradation_summary` between `[COGNITIVE CONTEXT]` delimiters. ROUTER still receives the original user message after the context block.
 - If **all signals have salience < 0.3**, emit `(no high-salience signals)` as a single-line marker and skip the category blocks.
 - If a **SOUL CONFLICT** is present but there are no relevant past decisions, still emit the SOUL block (the conflict is load-bearing on its own).
 - **Per-category caps:** max 5 related decisions, max 5 active concepts, max 5 SOUL dimensions. Per-category caps are **local maxima per block**, not additional slots beyond the §7 global top-5. The §7 global top-5 is the hard ceiling and is always enforced first. In practice: when per-category cap is reached before the global top-5 budget is exhausted, the remaining global slots stay free; when the global top-5 fills first, the per-category cap is superseded. The example of "5 SOUL dimensions fill the output" simply means all 5 global slots happened to score highest within a single category.
@@ -263,13 +269,13 @@ ROUTER's triage rules do not change. It treats the COGNITIVE CONTEXT block as au
 
 | Failure | Behavior |
 |---------|----------|
-| **No Pre-Router inputs** (first-ever session) | Emit empty marker. ROUTER sees raw user message only. |
+| **No Pre-Router inputs** (first-ever session or bootstrap failure) | Emit `[COGNITIVE CONTEXT]` with only `degradation_summary`; ROUTER still receives the raw user message. |
 | **Single input source** (e.g., hippocampus returned nothing) | Proceed with whatever sources did return signals. |
 | **LLM judgment for relevance fails or times out** | Fall back to **keyword overlap** between signal payload and user message as the relevance score. |
 | **Arbitrator total timeout** (hard ceiling) | Emit partial output using the best-scored signals obtained so far, capped at top-5. Append a single line `(partial — timed out)` to the block. |
 | **Malformed signal from upstream** | Skip that signal. Do not crash. Log internally for AUDITOR review. |
 
-Graceful degradation is non-negotiable: the arbitrator failing **must not** block ROUTER. When in doubt, the orchestrator falls through to v1.6.2a behavior (raw user message straight into ROUTER).
+Graceful degradation is non-negotiable: the arbitrator failing **must not** block ROUTER. When in doubt, the orchestrator falls through to v1.6.2a behavior (raw user message straight into ROUTER) and exposes any partial-context risk through `degradation_summary` when a context block is emitted.
 
 ---
 
@@ -280,7 +286,7 @@ When multiple failures stack, apply them in this order:
 1. Missing sources → proceed with what exists.
 2. LLM relevance failure → keyword overlap fallback.
 3. Hard timeout → partial output.
-4. Catastrophic arbitrator failure → empty marker + fall-through to raw ROUTER behavior.
+4. Catastrophic arbitrator failure → `degradation_summary`-only context when possible + fall-through to raw ROUTER behavior.
 
 At every step, the output is still a valid annotation block (even if empty). ROUTER must never receive an ill-formed or half-closed block.
 

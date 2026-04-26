@@ -99,10 +99,10 @@ _meta/
 ├── snapshots/
 │   └── soul/                              ← SOUL 快照（v1.6.2 机制，Cortex 下保留）
 ├── eval-history/                          ← AUDITOR 评估历史
+├── config.md                              ← host 设置与 Cortex 阈值（用户可编辑）
 ├── audit/                                 ← 元认知审计（meta-cognitive audit）
 │   └── suspicious.md                      ← 滚动漂移候选名单（AUDITOR 每周写入，用户降级前确认）
 ├── cortex/                                ← Cortex runtime state
-│   ├── config.md                          ← 阈值与开关（用户可编辑）
 │   ├── bootstrap-status.md                ← 迁移状态（canonical，取代已废弃的 migration-log-*）
 │   └── decay-log.md                       ← 概念衰减日志（每次 adjourn 追加）
 ├── ambiguous_corrections/                 ← 中置信度用户纠正（0.5–0.85）待下次激活确认

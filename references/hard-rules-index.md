@@ -7,21 +7,29 @@ This index is the public pointer for non-overridable Life OS behavior. README fi
 - `SKILL.md`: universal system contract, theme-language rule, trigger templates, ROUTER fact-checking, session binding, pre-session display, adjourn behavior, and router code of conduct.
 - `pro/{CLAUDE,GEMINI,AGENTS}.md`: host-specific orchestration contracts. Use the file for the active host; do not add the three host copies together.
 - `pro/GLOBAL.md`: universal agent behavior, including research-process display and progress reporting.
+- `pro/agents/*.md`: role-local contracts that are enforced when the active host launches that role. These files are authoritative for the role, but are not added into the top-level per-host marker count below.
+
+## v1.7.2 Release Deltas
+
+- **Hermes Local / paste compression**: `SKILL.md` now treats every launched subagent output as a compressed paste plus an R11 audit trail link. The compressed paste must preserve substantive claims, decisions, blockers, user-facing requests, file writes, tool side effects, and quoted evidence needed for review; it cannot be replaced by an unsupported summary.
+- **Manual compression trigger**: `/compress [focus]` is part of the `SKILL.md` Trigger Execution Templates section. ROUTER must treat it as user-triggered context compression, prefer `tools/context_compressor.py` when available, and return concise feedback with before/after message and rough token estimates. `tools/context_compressor.py` and `tools/manual_compression_feedback.py` are part of the Hermes Local borrowed/forked surface.
+- **Cortex always-on scope**: v1.7.2 host contracts attempt Step 0.5 for every user message. This changes activation semantics but does not add a new top-level `HARD RULE` marker to the count below. `_meta/config.md` may hold thresholds and secondary switches; it is not an activation gate, and missing indexes trigger auto-bootstrap or graceful degradation rather than a config-gated skip.
 
 ## Current Count
 
-Current explicit HARD RULE marker count is counted per active host. Do not add host files together.
+Current explicit HARD RULE marker count is counted per active host, as of v1.7.2. Do not add host files together.
 
 | Host | Count | Breakdown |
 |------|-------|-----------|
-| Claude Code | 34 | `SKILL.md` 15 + `pro/CLAUDE.md` 17 + `pro/GLOBAL.md` 2 |
-| Gemini CLI / Antigravity | 33 | `SKILL.md` 15 + `pro/GEMINI.md` 16 + `pro/GLOBAL.md` 2 |
-| OpenAI Codex CLI | 33 | `SKILL.md` 15 + `pro/AGENTS.md` 16 + `pro/GLOBAL.md` 2 |
+| Claude Code | 40 | `SKILL.md` 18 + `pro/CLAUDE.md` 20 + `pro/GLOBAL.md` 2 |
+| Gemini CLI / Antigravity | 36 | `SKILL.md` 18 + `pro/GEMINI.md` 16 + `pro/GLOBAL.md` 2 |
+| OpenAI Codex CLI | 36 | `SKILL.md` 18 + `pro/AGENTS.md` 16 + `pro/GLOBAL.md` 2 |
 
-Count method: count explicit `HARD RULE` markers in `SKILL.md`, exactly one active host orchestration file, and `pro/GLOBAL.md`. Security boundaries in `pro/GLOBAL.md` remain inviolable even when not labeled with the literal phrase `HARD RULE`.
+Count method: count lines containing an explicit `HARD RULE` marker in `SKILL.md`, exactly one active host orchestration file, and `pro/GLOBAL.md`. Security boundaries in `pro/GLOBAL.md` remain inviolable even when not labeled with the literal phrase `HARD RULE`.
 
 ## Maintenance
 
 - Update this index whenever a HARD RULE marker is added, removed, or moved in an authoritative file.
 - Keep README language generic and link here instead of repeating the count.
 - If host files intentionally diverge, record the per-host delta here before changing release docs.
+- Do not count all three host orchestration files together. Do not count role-local `pro/agents/*.md` markers in the top-level per-host table unless this index is explicitly expanded to a full-corpus count.

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.2-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -18,6 +18,8 @@
 </div>
 
 ---
+
+> **Hermes Local** は、Life OS のローカル防護と自動化実行面に対するユーザー向け名称です。Layer 3 hooks と Layer 4 Python tools を指し、内部ラベルは引き続き `execution layer`、`Layer 3`、`Layer 4` のままです。一部のローカルツール設計は [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）から借用 / fork しています。
 
 ## ひとつのエンジン。九つの世界。選ぶのはあなた。
 
@@ -74,6 +76,12 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.7.2 の新機能
+
+v1.7.2 では、ローカル実行面をより分かりやすいユーザー向け物語として整理し、Hermes Local を Life OS がプロンプトの外側で防護と自動化を実行するための公開名称にしました。対象は Layer 3 hooks と Layer 4 Python tools で、内部仕様では引き続き `execution layer`、`Layer 3`、`Layer 4` という安定したラベルを使います。有効化済みのワークスペースでは、Cortex は常時稼働する認知経路として扱われ、各ユーザーメッセージにルーティング前の記憶、概念、SOUL 信号を付与し、索引やサブエージェントが使えない場合は決定論的に降格します。version-check hook はリモート SHA で日次キャッシュを失効させ、`--force` にも対応したため、同日内の新リリースが古いキャッシュに隠れなくなりました。Hermes 由来の prompt-cache と context-compression 補助ツールは速度を高め、大きな貼り付け transcript を扱いやすくします。圧縮はローカルのコンテキスト管理だけに使われ、完全な忠実性が必要なサブエージェント報告と監査証拠は引き続き原文のまま貼り付けます。
 
 ---
 

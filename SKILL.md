@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.7.1"
+version: "1.7.2"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -112,11 +112,18 @@ Trigger words are theme-dependent. Each theme file defines its own triggers. Com
 | **Quick Analysis** | "quick" / "quick analysis" | See active theme |
 | **Debate** | "debate" | See active theme |
 | **Update** | "update" | See active theme |
+| **Manual Compression** | "/compress [focus]" | User-triggered context compression; optional focus topic |
 | **Switch Theme** | "switch theme" | See active theme |
 
 ## Trigger Execution Templates (HARD RULE)
 
 Certain triggers have fixed execution templates. ROUTER must follow these verbatim.
+
+### Manual Compression (`/compress`) (v1.7.2)
+
+When the user says `/compress` or `/compress <focus>`, ROUTER treats it as a user manual compression trigger, not as a domain-analysis request. Compress earlier visible context using `tools/context_compressor.py` where available; if a focus is supplied, preserve information relevant to that focus more aggressively. Return concise feedback using `tools/manual_compression_feedback.py` semantics: message count before/after, rough token estimate before/after, and a no-op notice when nothing can be compressed.
+
+`tools/context_compressor.py` is vendored from Hermes v0.11, where `context_compressor` is the rename of `trajectory_compressor`.
 
 ### Pre-flight Compliance Check (v1.6.3, HARD RULE)
 
@@ -186,14 +193,16 @@ After retrospective/archiver subagent returns briefing, BEFORE showing to user, 
 
 6. SOUL snapshot claims: for every SOUL snapshot path mentioned, ROUTER calls Bash `test -f <path>`. Non-existent snapshot paths -> ROUTER strikes the line + inserts `[⚠️ SOUL snapshot not found]`.
 
-7. Transparency wrapper count: before showing any briefing or report, ROUTER counts completed subagent calls and verifies the same number of U+2501 heavy-line wrappers (`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`) are present in the user-visible output. Missing wrappers -> ROUTER must paste the missing subagent output in full before any summary.
+7. Transparency wrapper/link count: before showing any briefing or report, ROUTER counts completed subagent calls and verifies the same number of U+2501 heavy-line compressed paste wrappers (`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`) plus R11 audit trail file links are present in the user-visible output. Missing wrapper/link -> ROUTER must insert the missing compressed paste wrapper and verified audit trail path before any optional summary; ROUTER MUST NOT duplicate full subagent text solely to satisfy wrapper count.
 
-Additional wrapper verification: the count check above is specifically the subagent heavy-line wrapper count verification; one completed subagent call requires one visible wrapper pair around that subagent's full output.
+Additional wrapper verification: the count check above is specifically the subagent compressed paste wrapper count verification; one completed subagent call requires one visible wrapper pair plus one `_meta/runtime/<session_id>/...json` audit trail link.
 
 This is the third defense layer (after subagent self-check + AUDITOR Mode 3). Even if both upstream fail, ROUTER fact-check catches before user sees confabulated content.
 
-**Subagent transparency wrapper (HARD RULE · v1.7.1 R8):**
-Every launched subagent output MUST be pasted to the user in full. ROUTER may not replace it with a summary, including for `retrospective`, `AUDITOR`, `hippocampus`, `concept-lookup`, `soul-check`, `gwt-arbitrator`, `archiver`, six domains, strategist delegates, narrator-validator, or any Task-launched agent.
+**Subagent transparency wrapper (HARD RULE · v1.7.2 R8 + R11):**
+Every launched subagent output MUST be represented to the user as a compressed paste plus an R11 audit trail file link. ROUTER may not silently replace it with an unsupported summary, including for `retrospective`, `AUDITOR`, `hippocampus`, `concept-lookup`, `soul-check`, `gwt-arbitrator`, `archiver`, six domains, strategist delegates, narrator-validator, or any Task-launched agent.
+
+The compressed paste MUST preserve all substantive claims, conclusions, decisions, blockers, user-facing requests, file writes, tool side effects, and quoted evidence needed for review. Full verbatim paste is allowed only when the returned output is short enough to fit comfortably or when the user explicitly asks for full text. This replaces the v1.7.1 R8 heavy-wrapper full-text duplication rule while preserving transparency through R11 audit trails.
 
 Use this exact wrapper for each returned subagent output:
 
@@ -203,21 +212,24 @@ Use this exact wrapper for each returned subagent output:
 tokens: input={input_tokens} output={output_tokens} total={total_tokens} ({usage_source})
 duration: {duration_seconds}s
 est_cost: ${estimated_cost_usd} (Opus 4.7 input $15/Mtok output $75/Mtok; estimated, ±15%)
+audit_trail: {_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json}
+paste_mode: {compressed|verbatim}
+compression_source: tools/context_compressor.py (Hermes v0.11 rename of trajectory_compressor.py)
 
-{verbatim_subagent_output}
+{compressed_subagent_paste}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 Token priority/fallback: use Task result token usage when available. If unavailable, estimate output tokens from pasted characters: English `chars/4`; Chinese/Japanese `chars/2.5`; mixed text uses the dominant language. If input token usage is unavailable, estimate from the prompt payload using the same rule. Cost formula: `input_tokens * 15 / 1_000_000 + output_tokens * 75 / 1_000_000`. When any estimate is used, set `{usage_source}` to `estimated, ±15%`; otherwise set it to `Task usage`.
 
-After all subagent calls for the turn have been pasted, ROUTER MUST include this H2 receipt before any optional summary:
+After all subagent calls for the turn have been represented with compressed paste wrappers, ROUTER MUST include this H2 receipt before any optional summary:
 
 ```markdown
 ## 子代理调用清单 · 事务性收据
 
-| # | subagent | launch_reason | started_at | duration | input_tokens | output_tokens | est_cost | status |
-|---|----------|---------------|------------|----------|--------------|---------------|----------|--------|
-| 1 | {name} | {why launched} | {ISO 8601} | {seconds}s | {n} | {n} | ${cost} | completed |
+| # | subagent | launch_reason | started_at | duration | input_tokens | output_tokens | est_cost | audit_trail | paste_mode | status |
+|---|----------|---------------|------------|----------|--------------|---------------|----------|-------------|------------|--------|
+| 1 | {name} | {why launched} | {ISO 8601} | {seconds}s | {n} | {n} | ${cost} | {_meta/runtime/<session_id>/...json} | compressed | completed |
 
 Hooks fired table:
 
@@ -228,7 +240,7 @@ Hooks fired table:
 | Compliance Patrol | yes/no/n/a | {literal evidence or reason} |
 ```
 
-ROUTER may add an optional final summary only after the full pasted outputs and receipt. The summary must be last, Chinese `<=200` characters, and cannot replace or contradict any subagent text.
+ROUTER may add an optional final summary only after the compressed paste wrappers and receipt. The summary must be last, Chinese `<=200` characters, and cannot replace or contradict any subagent text or audit trail evidence.
 
 **Rationale:** COURT-START-001 proved that ROUTER can silently skip subagent launch if no visible enforcement gate exists. The 1-line check is the minimum visible proof that ROUTER read the trigger correctly and is about to launch — not simulate, not fabricate, not improvise.
 
@@ -242,7 +254,7 @@ _meta/runtime/<session_id>/<subagent>-<step_or_phase>.json
 
 Required fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls[]`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
 
-The audit trail is Channel 1 (file system evidence). It deliberately breaks the Channel 2 bottleneck where ROUTER's LLM-visible subagent output can be compressed, omitted, or constrained by information isolation. ROUTER still shows subagent output in full, but AUDITOR must use the Channel 1 files as independent ground truth.
+The audit trail is Channel 1 (file system evidence). It deliberately breaks the Channel 2 bottleneck where ROUTER's LLM-visible subagent output can be compressed, omitted, or constrained by information isolation. ROUTER shows a compressed paste plus the audit trail link, and AUDITOR must use the Channel 1 files as independent ground truth.
 
 AUDITOR reads `_meta/runtime/<session_id>/*.json` during Compliance Patrol / Mode 3 and verifies existence, schema completeness, and consistency with the visible workflow record. Violation mapping:
 - Missing audit trail file -> `C-no-audit-trail`

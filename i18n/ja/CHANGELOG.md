@@ -6,6 +6,33 @@
 
 ---
 
+## [1.7.2] - 2026-04-26 - Hermes Local、Cortex 常時化、圧縮強化
+
+> ローカル実行面、Cortex オーケストレーション、透明な圧縮レポートのためのパッチリリースです。
+
+### 追加
+
+- **Hermes Local 名称と帰属**：`Hermes Local` は Life OS のローカル防護と自動化に対するユーザー向け名称です。内部 / spec ラベルは引き続き `execution layer`、`Layer 3`、`Layer 4` のままです。docs は、借用 / fork したローカルツールコンポーネントを `NousResearch/hermes-agent`（MIT License）に帰属させるようになりました。
+- **Hermes Local fork モジュール領域**：6 つの借用 / fork モジュール領域を記録し帰属を明示しました：`tools/approval.py`、`tools/context_compressor.py` + `tools/manual_compression_feedback.py`、`tools/prompt_cache.py`、`tools/memory.py`、`tools/session_search.py`、`tools/skill_manager.py`。Life OS の compressor module 名は `context_compressor` です。
+- **cron と MCP ローカル自動化**：ローカルの reindex / daily briefing / backup 予定ジョブを冪等に設定する `scripts/setup-cron.sh` を追加しました。さらに `tools/mcp_server.py` と `docs/architecture/mcp-server.md` により、Life OS CLI tools への任意の MCP stdio 入口を追加しました。
+- **Method library と eval-history ループ**：method candidate extraction、method context injection、`_meta/eval-history/` writeback、monthly self-review readback を追加し、反復する手順シグナルとコンプライアンスシグナルを閉ループ化しました。
+
+### 変更
+
+- **Cortex 常時オーケストレーション**：Cortex が有効な場合、Step 0.5 は Start Session と direct-handle 候補を含むすべてのユーザーメッセージで試行されます。必要な index が欠けている場合は `tools/migrate.py` auto-bootstrap を実行し、静かに skip せず `degradation_summary` で degrade します。
+- **ROUTER paste compression**：v1.7.1 のサブエージェント全文重複貼り付けを、compressed paste wrappers + R11 audit-trail links に置き換えました。ROUTER は `tools/context_compressor.py` の semantics を使い、実質的な主張、決定、blocker、副作用、証拠を保持します。
+- **手動 `/compress` trigger**：ROUTER は `/compress [focus]` をユーザー起点の context compression として扱い、`tools/manual_compression_feedback.py` の semantics に従って message count、概算 token、no-op notice を返します。
+
+### 修正
+
+- **Version check prefetch**：retrospective Mode 0 は ROUTER が pre-fetch した Step 8 marker を消費し、local / remote version details を Platform + Version Check にコピーし、remote check を `lifeos-version-check.sh --force` で実行します。これにより stale cache や subagent re-run の挙動が release drift を隠せなくなりました。
+
+### 移行
+
+second-brain データ移行は不要です。任意で、ローカル予定ジョブには `bash scripts/setup-cron.sh install` を実行し、MCP stdio server を使う場合にのみ `mcp` をインストールしてください。
+
+---
+
 ## [1.7.1] - 2026-04-25 - バージョン、i18n、hard-rule 索引
 
 > 透明性、オーケストレーション証拠、hook 信頼性、i18n ドリフト制御、コンプライアンス索引にまたがる 27 件の強化をまとめたパッチです。
