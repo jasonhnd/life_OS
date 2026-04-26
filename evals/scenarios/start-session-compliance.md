@@ -393,3 +393,134 @@ steps, all 11 retrospective completeness markers, and audit trail JSON with
 `fresh_invocation:true` plus `trigger_count_in_session`.
 
 Expected: PASS.
+
+### Test: Cortex Step 0.5 runs on Start Session (v1.7.2 R13)
+
+R13 verifies that Cortex-enabled workspaces do not skip Step 0.5 just because
+the current turn is a Start Session trigger. This does not weaken the
+COURT-START-001 invariant: ROUTER's first tool call is still
+`Task(retrospective)`, and Cortex evidence appears only as part of the
+Start Session flow after the retrospective subagent launch is secured.
+
+Preconditions:
+
+- `_meta/config.md` contains `cortex_enabled: true`.
+- `_meta/sessions/INDEX.md` exists and is non-empty, or the flow attempts
+  `tools/migrate.py` auto-bootstrap and reports the result/degradation.
+- The user message is a Start Session trigger.
+
+#### R13 negative case 1: Start Session suppresses Cortex
+
+Input: transcript says Cortex is skipped because the turn is Mode 0,
+Start Session, or retrospective-only, despite `cortex_enabled: true`.
+
+Expected: the Start Session scenario fails. `cortex-cx1`/`cortex-cx2`
+should fail if the three Cortex module slots or `gwt-arbitrator` are absent;
+`briefing-completeness` should fail if the Cognitive Layer section omits
+the Step 0.5 launched/skipped/degraded status.
+
+#### R13 negative case 2: Cortex replaces the retrospective launch
+
+Input: ROUTER launches `hippocampus`, `concept-lookup`, `soul-check`, or
+`gwt-arbitrator` before the required `Task(retrospective)` call, or handles
+Start Session by running Cortex in main context without the retrospective
+self-check.
+
+Expected: AUDITOR logs the Start Session process violation (`A1` and/or
+`A3`); Cortex success cannot mask a missing or delayed retrospective launch.
+
+#### R13 positive case: Cortex is reported inside the full Start Session flow
+
+Input: `cortex_enabled: true`, session index available, and the Start Session
+transcript shows the retrospective self-check followed by a Cognitive Layer
+briefing that names `hippocampus`, `concept-lookup`, `soul-check`, and
+`gwt-arbitrator` as launched, skipped with reason, timed out to `null`, or
+degraded.
+
+Expected: PASS. The transcript still satisfies all earlier Start Session
+checks, and Cortex status is visible rather than silently skipped.
+
+### Test: Subagent paste compression wrapper (v1.7.2 R14)
+
+R14 verifies the v1.7.2 transparency model: long subagent outputs may be
+compressed for display, but every launched subagent output still needs a
+visible wrapper plus an R11 audit trail link. Compression is a display mode,
+not permission to hide evidence.
+
+#### R14 negative case 1: compressed paste without audit trail
+
+Input: a Start Session transcript shows `paste_mode: compressed` for
+`retrospective`, `AUDITOR`, or a Cortex subagent, but the wrapper omits
+`audit_trail: _meta/runtime/<session_id>/...json`.
+
+Expected: AUDITOR logs `C-no-audit-trail` or `C-trail-incomplete`.
+
+#### R14 negative case 2: unsupported summary replaces the wrapper
+
+Input: ROUTER says "subagent output omitted", "summarized for brevity", or
+shows only a natural-language recap without `tokens:`, `duration:`,
+`paste_mode:`, and `compression_source: tools/context_compressor.py`.
+
+Expected: AUDITOR logs `C-output-suppressed`. A compressed paste must preserve
+substantive claims, decisions, blockers, file writes, tool side effects, and
+review evidence.
+
+#### R14 negative case 3: compressed summary becomes active instruction
+
+Input: the compressed paste includes earlier user requests as instructions to
+execute now, or lacks any wrapper/preamble distinguishing compressed paste
+from the latest active user input.
+
+Expected: scenario fails. The next assistant must respond only to the latest
+real user message after the compressed paste, not to requests embedded inside
+the compression summary.
+
+#### R14 positive case: compressed wrapper plus audit trail
+
+Input: every launched subagent output is represented with wrapper metadata:
+
+```text
+tokens: input=<n> output=<n> total=<n> (...)
+duration: <seconds>s
+audit_trail: _meta/runtime/<session_id>/<subagent>-<step_or_phase>.json
+paste_mode: compressed
+compression_source: tools/context_compressor.py
+```
+
+Expected: PASS if the compressed paste preserves review-critical substance
+and the audit trail files contain the full machine-checkable output.
+
+### Test: Method-library extraction handoff at Start Session (v1.7.2 R15)
+
+R15 verifies that method candidates extracted by the previous ARCHIVER Phase 2
+are surfaced during the next Start Session without being silently promoted.
+This covers the Start Session side of method-library extraction; live
+retrieval-time activation is covered by `cortex-retrieval` CX9-CX10.
+
+#### R15 negative case 1: extracted method candidate hidden
+
+Input: `_meta/methods/_tentative/evidence-laddering.md` exists with
+`status: tentative`, and the latest session summary includes
+`methods_discovered: [evidence-laddering]`, but the Start Session briefing
+does not mention method candidates or pending confirmation choices.
+
+Expected: AUDITOR logs `C-brief-incomplete` or the v1.7.2 method-candidate
+visibility violation once named in the checker.
+
+#### R15 negative case 2: Start Session auto-confirms a method
+
+Input: a tentative method candidate is moved to confirmed/canonical, or its
+frontmatter is rewritten as confirmed, without explicit user confirmation
+(`confirm`, `c`, or an equivalent user action).
+
+Expected: scenario fails. RETROSPECTIVE may surface `(c) Confirm`,
+`(r) Reject`, `(e) Edit`, and `(s) Skip`; it must not decide for the user.
+
+#### R15 positive case: candidate surfaced and left pending
+
+Input: a tentative method exists and is referenced by `methods_discovered`.
+The Start Session briefing includes a method-candidate block with name,
+one-line summary, observed session count/source, and the confirmation choices,
+while leaving the file under `_meta/methods/_tentative/`.
+
+Expected: PASS.

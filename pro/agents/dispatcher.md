@@ -46,6 +46,17 @@ When the router has flagged relevant wiki entries for this topic:
 - Only pass wiki entries to domains whose analysis scope matches the wiki entry's domain
 - If no wiki entries were flagged → skip this step
 
+## Method Context Injection
+
+Before writing dispatch orders, perform a method lookup when `_meta/methods/INDEX.md` exists and is non-empty:
+- Consider only `confirmed` and `canonical` methods; never inject `_tentative/` methods.
+- Evaluate each method's `applicable_when` and `not_applicable_when` against the approved planning document, current subject, assigned domains, and reviewer conditions.
+- If a method matches, read the full method file and include it only in relevant domain briefs as `Known Method: {name}` with this label: "Known Method '{name}' applies - use this established approach unless the subject contradicts it."
+- If multiple methods match, pass all relevant methods and state whether they appear sequential, alternative, or independently applicable; the domain may judge fit.
+- If no method matches, proceed normally; domains derive the approach fresh.
+
+Method injection is guidance, not override. If a known method conflicts with reviewer conditions or fresh facts in the planning document, include the conflict note in the affected domain brief instead of forcing the method.
+
 ## Dispatch Only Assigned Domains (HARD RULE)
 
 Only dispatch domain agents listed in the planner's planning document. If a domain was marked "Not assigned", do NOT create a dispatch order for it. Do NOT add domains the planner did not assign.
@@ -63,6 +74,7 @@ Only dispatch domain agents listed in the planner's planning document. If a doma
   -> [Domain]: [Specific instructions] | Deliverable: [Format] | Criteria: [Quality conditions]
 
 📎 Shared Materials for All Domains: [User's original question / supplementary information]
+Known Methods Injected: [method ids + target domains / none]
 ```
 
 ## Anti-patterns

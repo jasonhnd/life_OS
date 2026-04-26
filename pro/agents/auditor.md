@@ -153,7 +153,7 @@ AUDITOR MUST verify the agent prompt audit trail for the current session.
 2. Read `_meta/runtime/<current_sid>/` files. Required files:
    - Retrospective Start Session: `retrospective-step-1.json`, `retrospective-step-6.json`, `retrospective-step-9.json`, `retrospective-step-16.json`, `retrospective-step-18.json`.
    - Archiver Adjourn: `archiver-phase-1.json`, `archiver-phase-2.json`, `archiver-phase-3.json`, `archiver-phase-4.json`.
-   - Cortex when enabled: `hippocampus.json`, `concept-lookup.json`, `soul-check.json`, `gwt-arbitrator.json`.
+   - Cortex v1.7.2 always-on path: `hippocampus.json`, `concept-lookup.json`, `soul-check.json`, `gwt-arbitrator.json` when Step 0.5 is attempted.
 3. Run Bash: `bash scripts/lifeos-compliance-check.sh trail-completeness <session_id>`. The Bash exit code is authoritative; do not improvise pass/fail if the command fails or is unavailable.
 4. Validate each JSON schema contains the locked R11/R12 fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
 5. Cross-check each `output_summary` against the ROUTER paste markers and required report headings in the transcript. For retrospective, compare against `[STEP N · ...]` markers and the final briefing sections. For archiver, compare against Phase 1-4 report headings and Notion handoff receipts. For Cortex, compare against the transparent YAML payload and GWT `[COGNITIVE CONTEXT]` block.
@@ -217,19 +217,19 @@ For each completed Adjourn session, scan transcript:
    - Phase 4: "git commit" / "git push"
    - Any → log E.
 
-### Detection checks (Cortex Phase 1 — when cortex_enabled in `_meta/config.md`)
+### Detection checks (Cortex Phase 1 — always-on in v1.7.2)
 
-For each session with Cortex active, scan transcript for Pre-Router orchestration compliance per `pro/CLAUDE.md` Step 0.5:
+For each session, scan transcript for Pre-Router orchestration compliance per `pro/CLAUDE.md` Step 0.5. Deprecated `cortex_enabled` values in `_meta/config.md` do not disable these checks.
 
 1. **CX1 check** — Did orchestrator launch hippocampus, concept-lookup (or null placeholder), and soul-check (or null placeholder) BEFORE ROUTER triage? Missing any → log CX1 (P1). Also collect filesystem evidence with Bash: `find _meta -name 'cortex*' -type f` and include stdout in the CX1 evidence note when `_meta/` exists.
 2. **CX2 check** — Did orchestrator launch gwt-arbitrator AFTER all 3 Cortex modules returned? Skipped → log CX2 (P1).
-3. **CX3 check** — Does ROUTER input contain `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters when Cortex enabled? Missing → log CX3 (P1) — orchestrator failed to prepend GWT output to user message.
+3. **CX3 check** — Does ROUTER input contain `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters after Step 0.5 is attempted? Missing → log CX3 (P1) — orchestrator failed to prepend GWT output to user message.
 4. **CX4 check** — Does hippocampus output respect 5-7 session cap? Exceeded → log CX4 (P1).
 5. **CX5 check** — Does GWT arbitrator output respect 5-signal cap? Exceeded → log CX5 (P1).
 6. **CX6 check** — Did any Cortex subagent (hippocampus, concept-lookup, soul-check) read peer outputs? Information isolation breach → log CX6 (P0).
 7. **CX7 check** — Did any Cortex subagent write outside its permitted `_meta/runtime/<sid>/...json` audit trail? User/domain data write contract violation → log CX7 (P0). R11 audit trail writes under `_meta/runtime/<sid>/` are allowed and must be verified by Audit Trail Verification instead.
 
-When `cortex_enabled: false` (default in v1.7), skip ALL CX checks — the user explicitly opted out.
+Do not skip CX checks because `cortex_enabled: false` appears in `_meta/config.md`; in v1.7.2 that field is deprecated and ignored for activation.
 
 ### Cortex violation taxonomy (added v1.7 Phase 1)
 
@@ -260,6 +260,16 @@ fi
 # Append row
 echo "| $(date -Iseconds) | $TRIGGER | $TYPE | $SEVERITY | $DETAILS | false |" >> "$LOG"
 ```
+
+### Eval History Writeback (v1.7.2)
+
+After completing Mode 1, Mode 2, or Mode 3, AUDITOR MUST write a concise closed-loop record to `_meta/eval-history/{date}-{type}.md` when an active second-brain `_meta/` directory is available.
+
+- `{date}` = local `YYYY-MM-DD`; if the file already exists, append a timestamped block instead of creating an alternate filename.
+- `{type}` = `decision-review`, `patrol-inspection`, or `compliance-patrol`.
+- Required fields: `timestamp`, `session_id` or `unknown`, `type`, `verdict`, `checks_run`, `findings`, `root_cause`, `next_follow_up`, and `resolved: false|partial|true`.
+- This is additive to `pro/compliance/violations.md` / `_meta/compliance/violations.md`; do not replace violation logging with eval-history.
+- If `_meta/` is unavailable, report `Eval-history writeback: skipped (no active second-brain _meta/)` in the AUDITOR output.
 
 ### Output (Compliance Patrol)
 

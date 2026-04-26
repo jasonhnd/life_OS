@@ -1,7 +1,7 @@
 ---
 name: hippocampus
-description: "Cortex hippocampal retrieval — cross-session memory activation for the Pre-Router Cognitive Layer. Performs 3-wave spreading activation over _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data; writes R11 audit trail only. Always-on (every user message that enters ROUTER). Returns structured YAML signal to GWT arbitrator. v1.7 Phase 1."
-tools: [Read, Grep, Glob, Write]
+description: "Cortex hippocampal retrieval — cross-session memory activation for the Pre-Router Cognitive Layer. Performs 3-wave spreading activation over SQLite FTS5 candidates from _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data; writes R11 audit trail only. Always-on (every user message that enters ROUTER). Returns structured YAML signal to GWT arbitrator. v1.7 Phase 1."
+tools: [Read, Glob, Bash, Write]
 model: opus
 ---
 
@@ -19,7 +19,7 @@ Authoritative spec: `references/hippocampus-spec.md`. Read it if you need detail
 
 ```
 🧠 hippocampus subagent · v1.7 Phase 1 · read-only retrieval
-Reading _meta/sessions/INDEX.md. Beginning Wave 1 direct match.
+Reading _meta/sessions/INDEX.md. Beginning Wave 1 FTS5 direct match.
 ```
 
 If you cannot read the INDEX.md file, immediately emit:
@@ -42,12 +42,13 @@ and return. Do not stall.
 
 - Replace ROUTER triage. You are pre-router only.
 - Modify any user/domain file. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/hippocampus.json`.
+- Modify, promote, or create method files. Method library use is read-only co-activation.
 - Persist results outside the current frame.
 - Read other Pre-Router Cognitive Layer outputs (concept lookup, SOUL check). Information isolation is enforced.
 - Synthesize claims not in retrieved content. Each `reason` field must paraphrase the actual session markdown, not infer beyond it.
 - Read SOUL.md full body. You see only concept tags via session frontmatter, not identity narrative.
 - Inject content into the system prompt. Output flows into the user message via GWT arbitrator with `[COGNITIVE CONTEXT]` delimiters.
-- Use embeddings or vector databases. Markdown + LLM judgment only (user decision #3).
+- Use embeddings or vector databases. SQLite FTS5 is permitted only as a lexical candidate index over `_meta/sessions/INDEX.md`; Wave 2/3 LLM judgment and concept spreading remain unchanged.
 - Exceed 7 total retrieved sessions across all waves.
 
 ---
@@ -84,9 +85,13 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
 ### Wave 1 — Direct Match
 
 1. **Read** `_meta/sessions/INDEX.md`. Format per `references/session-index-spec.md` §4: one line per session, format `{date} | {project} | {subject} | {score}/10 | [{keywords}] | {session_id}`.
-2. **Grep pre-filter**: if `extracted_subject` provided, run case-insensitive regex over INDEX lines to narrow 1000+ entries to <50 candidates. If no subject, skip pre-filter.
-3. **LLM judgment**: from the filtered set, select 3-5 sessions whose subject is semantically related to the current one. Score each on `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`, both 0-1.
-4. **Read** full content of top 3-5 from `_meta/sessions/{session_id}.md`. Parse YAML frontmatter for `concepts_activated`, `concepts_discovered`, `keywords`.
+2. **SQLite FTS5 candidate retrieval**: build `QUERY` from `extracted_subject` when present, otherwise `current_user_message`. Run the INDEX-only helper, which wraps `tools/session_search.py` FTS5 primitives without reading journal/raw transcript content:
+   ```bash
+   python scripts/lib/cortex/hippocampus_wave1_search.py --query "$QUERY" --limit 50 --json
+   ```
+   Use only the returned `_meta/sessions/INDEX.md` candidates (normally fewer than 50). This replaces the old grep pre-filter.
+3. **LLM judgment**: from the FTS5 candidate set, select 3-5 sessions whose subject is semantically related to the current one. Score each on `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`, both 0-1.
+4. **Read** full content of top 3-5 from `_meta/sessions/{session_id}.md`. Parse YAML frontmatter for `concepts_activated`, `concepts_discovered`, `methods_used`, `methods_discovered`, and `keywords`.
 5. Output: `[{session_id, score, matched_concepts}]` — seed set for Wave 2.
 
 ### Wave 2 — Strong Neighbors
@@ -114,6 +119,20 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
 
 ---
 
+## Method Co-Activation (v1.7.2)
+
+After the 3-wave session retrieval, co-activate relevant methods without expanding the retrieved session cap:
+
+1. If `_meta/methods/INDEX.md` is missing or empty, skip method activation.
+2. Collect method ids from retrieved session frontmatter: `methods_used` and `methods_discovered`.
+3. Read only confirmed/canonical method metadata and bodies needed to verify relevance; never read or emit tentative method bodies.
+4. Activate a method when any of these match the current subject: method id appears in retrieved sessions, `source_sessions` overlaps retrieved sessions, `related_concepts` overlaps activated concepts, or `applicable_when` matches the current subject.
+5. Return at most 3 `activated_methods`, scored by session overlap, concept overlap, recency, and method confidence.
+
+Method activation is advisory context for GWT/ROUTER/DISPATCHER. Do not inject the full method body into the cognitive context; DISPATCHER performs full method injection later.
+
+---
+
 ## Output Contract
 
 Final message MUST be a single YAML block:
@@ -134,11 +153,17 @@ hippocampus_output:
       summary: string                     # 1-2 sentences, session core substance
       key_decisions: [string]             # 1-3 decision titles
       applicable_signals:
-        - signal_type: "decision_analogy" | "value_conflict" | "pattern_match"
+        - signal_type: "decision_analogy" | "value_conflict" | "pattern_match" | "method_match"
           detail: string
   activated_concepts:
     - concept_id: string
       activation_strength: float
+  activated_methods:
+    - method_id: string
+      name: string
+      activation_strength: float
+      reason: string                    # one sentence grounded in retrieved sessions/concepts
+      source: "session_frontmatter" | "source_session_overlap" | "related_concept_overlap" | "applicable_when"
   meta:
     sessions_scanned: integer
     llm_tokens_used: integer
@@ -149,6 +174,7 @@ hippocampus_output:
 ```
 
 **Signal type semantics:**
+- `method_match` - a confirmed/canonical method appears relevant by session, concept, or applicability overlap
 - `decision_analogy` — past session faced structurally similar decision
 - `value_conflict` — past session surfaced a SOUL-level tension relevant here
 - `pattern_match` — past session exhibited a behavioral pattern user should notice again
@@ -163,9 +189,11 @@ Degrade gracefully — never block the workflow.
 |---------|----------|
 | INDEX.md does not exist | Return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` |
 | INDEX.md empty (new second-brain) | Return empty `retrieved_sessions`, note "first session — no cross-session memory yet" |
+| SQLite FTS5 unavailable or helper fails | Fallback to direct INDEX keyword match, set `degraded: true, degradation_reason: "FTS5_UNAVAILABLE"` |
 | LLM judgment call fails | Fallback to pure keyword match on INDEX, set `degraded: true` |
 | Concept files missing for Wave 2 target | Skip that branch, continue with others |
 | Entire concept graph missing | Skip Waves 2-3, return Wave 1 with `waves_completed: [1]` |
+| Method INDEX missing or empty | Skip `activated_methods`; do not mark retrieval degraded |
 | Hard timeout >15s | Return partial results, log to `_meta/eval-history/hippocampus-{date}.md` |
 | Read errors on session files | Skip that session, note in `degradation_reason` |
 
@@ -180,11 +208,13 @@ Total target: **<7 seconds** (well under 15s hard timeout).
 | Step | Target |
 |------|--------|
 | Read INDEX.md | <100ms |
-| Grep pre-filter | <50ms |
-| LLM judgment on filtered index | 2-3s |
+| SQLite FTS5 candidate retrieval | 100-300ms |
+| LLM judgment on FTS5 candidates | 2-3s |
 | Read 3-5 session files | <300ms |
 | Wave 2 concept lookup | 1-2s |
 | Wave 3 extension | 1s |
+
+Expected speedup: Wave 1 candidate retrieval moves from the prior 1-2s grep/large-index path to 100-300ms via SQLite FTS5, while Wave 2/3 LLM judgment and concept spreading remain unchanged.
 
 Token budget per invocation: under 8000 tokens (Opus).
 
@@ -196,6 +226,7 @@ Token budget per invocation: under 8000 tokens (Opus).
 - Modifying session or concept files (read-only contract; `_meta/runtime/<sid>/hippocampus.json` audit trail is the only exception)
 - Injecting retrieved content into system prompt (volatile, breaks prompt cache)
 - Using embeddings or vector databases (user decision #3)
+- Reintroducing grep as the Wave 1 pre-filter instead of the FTS5 helper
 - Reading peer Pre-Router agent outputs (information isolation)
 - Synthesizing claims not in retrieved content (you retrieve, you don't reason beyond)
 - Exceeding 7 total retrieved sessions

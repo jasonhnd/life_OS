@@ -50,7 +50,7 @@ Cortex consists of four mechanisms. Each has its own spec file. This document is
 
 ### 1. Hippocampus — Real-time cross-session retrieval
 
-When Cortex is enabled, every user message triggers a hippocampus subagent (not on-demand within an enabled session). Three-wave spreading activation:
+Cortex is always-on in v1.7.2, so every user message triggers a hippocampus subagent unless the workflow is degrading because required local artifacts or subagents are unavailable. Three-wave spreading activation:
 
 - Wave 1: direct match (keyword or concept_id hits)
 - Wave 2: strong connections (synapse weight ≥ 3)
@@ -121,7 +121,11 @@ Step 11:   STRATEGIST (optional) — unchanged
 
 ### Step 0.5 — Pre-Router Cognitive Layer
 
-Spawned immediately after Pre-Session Preparation, before ROUTER Triage. Three subagents run in parallel:
+In v1.7.2, Step 0.5 is attempted for every user message, including Start Session triggers. It runs after RETROSPECTIVE housekeeping / Pre-Session Preparation when those exist and before ROUTER Triage.
+
+Before spawning Cortex subagents, the orchestrator checks `_meta/sessions/INDEX.md`. If the index is missing or empty, the orchestrator runs `tools/migrate.py` to auto-bootstrap before Step 0.5. If bootstrap fails, the workflow does not block: ROUTER receives the original message, and any Cortex failure state is surfaced through the existing `degradation_summary` rules in `[COGNITIVE CONTEXT]`.
+
+Three subagents run in parallel:
 
 1. **hippocampus** — scans `_meta/sessions/INDEX.md`, returns top 5-7 memory signals
 2. **concept lookup** — scans `_meta/concepts/` for directly matched concept nodes
@@ -137,13 +141,13 @@ The three output streams feed the **gwt-arbitrator**, which applies the salience
 - SOUL context: [tier-1 dimensions + any conflict warnings]
 ```
 
-ROUTER may consult or ignore the annotation — its triage rules are unchanged. If Step 0.5 fails at any point (subagent timeout, file unreachable), the orchestrator falls back to raw message input and continues with v1.6.2a behaviour.
+ROUTER may consult or ignore the annotation — its triage rules are unchanged. If Step 0.5 fails at any point (bootstrap failure, subagent timeout, file unreachable), the orchestrator falls back to raw message input and records the partial/failure state through the existing `degradation_summary` rules.
 
 **Traceability emit rule (v1.7.1 R8):** The full YAML payloads from `hippocampus`, `concept lookup`, and `SOUL dimension check`, plus the GWT `[COGNITIVE CONTEXT]`, must be pasted to the user by ROUTER and written to `_meta/journal/{date}-cortex.md`. The journal entry is the traceability surface for Cortex runtime payloads; no `_meta/cortex/frames/...` directory or frame md file is defined or used.
 
 **Express path interaction.** When ROUTER takes the Express path (1-3 domain agents, no PLANNER / REVIEWER), Step 0.5 still runs but in a reduced form: only the hippocampus subagent is spawned. Concept lookup and SOUL check are skipped to preserve Express's speed budget. The express-path annotated input is a single-line memory summary rather than the full three-section block. The gwt-arbitrator is not invoked when only one signal source is present.
 
-**Direct-handle interaction.** When ROUTER answers a trivial message directly (e.g. "thank you", "ok") and the workflow ends at Step 1, Step 0.5 is skipped entirely. The orchestrator detects this by checking ROUTER's triage decision — direct-handle responses do not need cognitive annotation.
+**Direct-handle interaction.** Step 0.5 is still attempted before ROUTER sees a trivial message (e.g. "thank you", "ok"). If ROUTER then chooses a direct-handle response and the workflow ends at Step 1, ROUTER may ignore the cognitive context; no later Cortex narrator step is triggered.
 
 ### Step 7.5 — Narrator Validation (Phase 2 only)
 
@@ -188,8 +192,8 @@ _meta/
 ├── snapshots/
 │   └── soul/                            ← SOUL snapshots (v1.6.2, sustained)
 ├── eval-history/                        ← AUDITOR evaluation history
+├── config.md                            ← host settings and Cortex thresholds
 └── cortex/
-    ├── config.md                        ← thresholds and switches
     ├── bootstrap-status.md              ← migration state
     └── decay-log.md                     ← decay actions
 ```
@@ -204,11 +208,11 @@ Each mechanism's data format is defined in its own spec file. This document does
 
 ### Cortex Runtime Files (schemas)
 
-Four markdown artefacts track Cortex runtime state. None are source of truth — they are either config (user-editable) or compiled/log artefacts (archiver writes). The config field lives in `_meta/config.md`; compiled/log artefacts live under `_meta/cortex/` or `_meta/ambiguous_corrections/`.
+Markdown artefacts track Cortex runtime state. None are source of truth — they are either config (user-editable) or compiled/log artefacts (archiver writes). User-editable config lives in `_meta/config.md`; compiled/log artefacts live under `_meta/cortex/` or `_meta/ambiguous_corrections/`. No config file lives under `_meta/cortex/`.
 
-#### `_meta/config.md` (cortex_enabled field)
+#### `_meta/config.md` (Cortex thresholds and secondary switches)
 
-User-editable thresholds and switches. Read by hippocampus, gwt-arbitrator, narrator-validator, and the decay pass. The v1.7.0 GA contract is that the `cortex_enabled` field lives in `_meta/config.md`, with `false` as the default opt-in value. If missing, every consumer falls back to hard-coded defaults (listed inline below), including `cortex_enabled: false`. Set cortex_enabled: true in _meta/config.md to enable.
+User-editable thresholds and secondary switches. Read by hippocampus, gwt-arbitrator, narrator-validator, and the decay pass. In v1.7.2, Cortex activation is always-on at the orchestration layer; `cortex_enabled` is deprecated and MUST NOT be used as an activation gate. If the field is present for legacy workspaces, readers ignore it for activation and use the hard-coded defaults listed below for all other settings.
 
 ```yaml
 ---
@@ -219,7 +223,6 @@ version: 1.7
 # Cortex Config
 
 ## Feature switches
-cortex_enabled: false             # master switch; true enables Cortex; false degrades to v1.6.2a behaviour
 hippocampus_enabled: true
 gwt_arbitrator_enabled: true
 narrator_validator_enabled: true
@@ -287,7 +290,7 @@ warnings:
   - "4 journal entries missing platform metadata; defaulted to 'claude'"
 ```
 
-If this file is missing, retrospective Mode 0 warns "Cortex not bootstrapped — run `uv run tools/migrate.py`" at the top of the Start Session briefing. Cortex continues to work but with an empty graph (cold-start mode).
+If this file is missing, the orchestrator attempts auto-bootstrap with `tools/migrate.py` before Step 0.5. Retrospective Mode 0 may still surface "Cortex not bootstrapped — run `uv run tools/migrate.py`" in the Start Session briefing when bootstrap has not succeeded. If bootstrap fails, Cortex degrades through the existing `degradation_summary` path and the workflow continues with the original message.
 
 #### `_meta/cortex/decay-log.md`
 
@@ -633,9 +636,9 @@ Output:
   - _meta/snapshots/soul/**          (backfilled SOUL snapshots when possible)
 ```
 
-The migration script is invoked via Bash from Claude Code. It is idempotent — re-running it overwrites the compiled index without duplicating concepts. After migration, the user runs one session with Cortex enabled; if the annotated input feels correct, Cortex is promoted to steady state.
+The migration script is invoked via Bash from Claude Code. It is idempotent — re-running it overwrites the compiled index without duplicating concepts. The same script is invoked automatically before Step 0.5 when `_meta/sessions/INDEX.md` is missing or empty and Cortex is enabled. After migration, the user runs one session with Cortex enabled; if the annotated input feels correct, Cortex is promoted to steady state.
 
-If migration fails, the orchestrator falls back to raw message input and logs a warning. Users operate as in v1.6.2a until migration is retried.
+If migration fails, the orchestrator falls back to raw message input and logs the failure through the existing `degradation_summary` rules. Users operate as in v1.6.2a until migration is retried.
 
 Three-month scope is a deliberate default: older journals often contain outdated context (retired projects, demoted values, pre-SOUL decisions) that would pollute the concept graph. Users with richer histories can override the scope by passing `--since YYYY-MM-DD` to the migration script. First-time users with no journal history run Cortex in "cold start" mode — the annotated input is minimal until enough sessions accumulate; nothing blocks use of the system.
 
@@ -649,7 +652,7 @@ The following specifications are deliberately left to be resolved during impleme
 - **Concept permanence classification heuristics** — ARCHIVER Phase 2 concept extraction uses heuristic rules at first activation. The boundary between skill and fact is fuzzy. Expect revision after 3 months of real usage.
 - **Narrator citation density** — per sentence vs per paragraph. Phase 2 begins with per-substantive-claim; granularity may coarsen if the output feels machine-stamped.
 - **Multi-device concurrency** — single device / distributed sync / active-lock — three options, one is chosen at Phase 1 launch.
-- **Frame trigger policy** — when Cortex is enabled, every user message triggers Step 0.5 in v1.7. External events (scheduled prompts, inbox arrivals) are out of scope for v1.7 frame triggers — only user messages trigger Step 0.5.
+- **Frame trigger policy** — when Cortex is enabled, every user message triggers Step 0.5 in v1.7, including Start Session triggers. External events (scheduled prompts, inbox arrivals) are out of scope for v1.7 frame triggers — only user messages trigger Step 0.5.
 - **Cold-start behaviour** — new users with no journal history run Cortex in a degraded mode. The exact point at which Cortex transitions from cold-start to steady-state (number of sessions, number of concepts, or a heuristic) has not been chosen.
 
 ---

@@ -6,6 +6,33 @@
 
 ---
 
+## [1.7.2] - 2026-04-26 - Hermes Local、Cortex 常开与压缩加固
+
+> 面向本地执行面、Cortex 编排和透明压缩报告的补丁发布。
+
+### 新增
+
+- **Hermes Local 命名与归因**：`Hermes Local` 是 Life OS 本地防护与自动化的用户可见名称；内部 / spec 标签仍保持 `execution layer`、`Layer 3`、`Layer 4`；文档现在明确归因借鉴 / fork 自 `NousResearch/hermes-agent`（MIT License）的本地工具组件。
+- **Hermes Local fork 模块域**：记录并归因 6 个借鉴 / fork 的模块域：`tools/approval.py`、`tools/context_compressor.py` + `tools/manual_compression_feedback.py`、`tools/prompt_cache.py`、`tools/memory.py`、`tools/session_search.py`、`tools/skill_manager.py`。Life OS 压缩器模块名使用 `context_compressor`。
+- **cron 与 MCP 本地自动化**：新增 `scripts/setup-cron.sh`，用于幂等安装本地 reindex / daily briefing / backup 计划任务；新增 `tools/mcp_server.py` 和 `docs/architecture/mcp-server.md`，为 Life OS CLI 工具提供可选 MCP stdio 入口。
+- **Method library 与 eval-history 闭环**：新增 method candidate extraction、method context injection、`_meta/eval-history/` writeback 和 monthly self-review readback，让重复出现的方法信号与合规信号进入闭环。
+
+### 变更
+
+- **Cortex 常开编排**：当 Cortex 启用时，Step 0.5 会尝试覆盖每条用户消息，包括 Start Session 和 direct-handle 候选路径；索引缺失时触发 `tools/migrate.py` auto-bootstrap，并通过 `degradation_summary` 降级，而不是静默跳过。
+- **ROUTER 粘贴压缩**：用 compressed paste wrappers + R11 audit-trail links 替代 v1.7.1 的完整子代理输出重复粘贴；ROUTER 使用 `tools/context_compressor.py` 语义，并保留实质性论断、决策、阻塞项、副作用和证据。
+- **手动 `/compress` 触发器**：ROUTER 现在将 `/compress [focus]` 视为用户触发的上下文压缩，并按 `tools/manual_compression_feedback.py` 语义返回 message count、粗略 token 估算和 no-op 提示。
+
+### 修复
+
+- **版本检查预取**：retrospective Mode 0 现在消费 ROUTER 预取的 Step 8 marker，把本地 / 远端版本详情复制到 Platform + Version Check，并使用 `lifeos-version-check.sh --force` 执行远端检查，避免 stale cache 或子代理重跑行为掩盖版本漂移。
+
+### 迁移
+
+不需要 second-brain 数据迁移。可选：运行 `bash scripts/setup-cron.sh install` 安装本地计划任务；仅在使用 MCP stdio server 时安装 `mcp`。
+
+---
+
 ## [1.7.1] - 2026-04-25 - 版本、i18n 与 hard-rule 索引
 
 > 本补丁把 27 项加固合并为一次发布，重点覆盖透明度、编排证据、hook 可靠性、i18n 漂移控制和合规索引。

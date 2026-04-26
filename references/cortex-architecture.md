@@ -18,7 +18,7 @@ Cortex data has three lifecycle phases corresponding to where in a session it ge
 
 ---
 
-## 2. End-to-End Sequence (cortex_enabled=true)
+## 2. End-to-End Sequence (Cortex always-on in v1.7.2)
 
 ```
               ┌──────────────────────────────────────────────────┐
@@ -84,9 +84,9 @@ AUDITOR Mode 3 (auto): audits Mode 0 for 6 Start Session compliance checks
 
 User: "..."
      ↓
-orchestrator checks _meta/config.md cortex_enabled:
-  · false (default in v1.7.0-alpha) → skip Step 0.5, ROUTER receives raw message
-  · true → continue to Step 0.5 below
+orchestrator attempts Step 0.5 for every user message:
+  · missing/empty INDEX → auto-bootstrap, then continue if successful
+  · bootstrap/subagent failure → degrade through empty or partial context
      ↓
 Step 0.5 (Pre-Router Cognitive Layer) — 3 PARALLEL subagents:
 
@@ -165,7 +165,7 @@ narrator fails
 narrator-validator finds invalid citations
   ↓ degrade: 2 rewrite chances, then unwrapped report
 Cortex completely broken
-  ↓ degrade: cortex_enabled: false → identical to v1.6.3
+  ↓ degrade: raw ROUTER input for that turn (= v1.6.3 behaviour)
 ```
 
 The user always gets a Summary Report. Cortex enhances quality when it works; v1.6.3 baseline is the always-safe floor.
@@ -183,9 +183,7 @@ The user always gets a Summary Report. Cortex enhances quality when it works; v1
 | narrator + validator (Sonnet) | $0.02-0.04 (validator is cheap) |
 | **Total per Cortex turn** | **~$0.13-0.27** |
 
-Without Cortex (v1.6.3 baseline): ROUTER + planner + reviewer + 6 domains + auditor + advisor ≈ $0.50-1.50/decision. Cortex adds 15-25% overhead for cross-session context — judgment call per session whether worth it.
-
-**Default OFF** is the right call until users have ≥30 sessions of accumulated history.
+Without Cortex (v1.6.3 baseline): ROUTER + planner + reviewer + 6 domains + auditor + advisor ≈ $0.50-1.50/decision. Cortex adds 15-25% overhead for cross-session context. In v1.7.2 this is paid through the always-on Step 0.5 path; hosts control cost through Express/direct-handle reductions, timeouts, and graceful degradation rather than a config off-switch.
 
 ---
 
@@ -193,7 +191,7 @@ Without Cortex (v1.6.3 baseline): ROUTER + planner + reviewer + 6 domains + audi
 
 | Code | Detected by | When |
 |------|-------------|------|
-| CX1 | bash hook + AUDITOR Mode 3 | cortex_enabled=true, Pre-Router subagent missing in transcript |
+| CX1 | bash hook + AUDITOR Mode 3 | Pre-Router subagent missing in transcript |
 | CX2 | bash hook + AUDITOR Mode 3 | GWT arbitrator missing |
 | CX3 | bash hook + AUDITOR Mode 3 | [COGNITIVE CONTEXT] delimiters missing in ROUTER input |
 | CX4 | bash hook + AUDITOR Mode 3 | hippocampus retrieved > 7 sessions |
@@ -203,7 +201,7 @@ Without Cortex (v1.6.3 baseline): ROUTER + planner + reviewer + 6 domains + audi
 
 CX6 + CX7 are P0 (HARD RULE breaches). CX1-CX5 are P1 (process violations, system degrades to v1.6.3 behaviour but should be fixed).
 
-When `cortex_enabled: false`, all CX checks skip.
+Deprecated `cortex_enabled` values in `_meta/config.md` do not disable CX checks in v1.7.2.
 
 ---
 

@@ -164,19 +164,29 @@ git_ahead_behind() {
   printf '%s %s\n' "${ahead:-0}" "${behind:-0}"
 }
 
+local_skill_version() {
+  local skill_path=""
+  local version=""
+
+  for skill_path in "$SCRIPT_ROOT/SKILL.md" "$PWD_ROOT/SKILL.md"; do
+    if [[ -f "$skill_path" ]]; then
+      version="$(extract_yaml_value "version" "$skill_path" 2>/dev/null || printf 'unknown')"
+      [[ -n "$version" ]] || version="unknown"
+      printf '%s\n' "$version"
+      return
+    fi
+  done
+
+  printf 'unknown\n'
+}
+
 version_status() {
   local local_version="unknown"
   local remote_version="unknown"
   local status="skip"
-  local skill_path=""
   local remote_text=""
 
-  for skill_path in "$SCRIPT_ROOT/SKILL.md" "$PWD_ROOT/SKILL.md"; do
-    if [[ -f "$skill_path" ]]; then
-      local_version="$(extract_yaml_value "version" "$skill_path" 2>/dev/null || printf 'unknown')"
-      break
-    fi
-  done
+  local_version="$(local_skill_version)"
 
   if have curl; then
     remote_text="$(curl -fsSL --max-time 5 "https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md" 2>/dev/null || true)"
@@ -324,6 +334,16 @@ emit_retrospective_trail_marker "step-5" "GIT HEALTH" "git_root=$git_root; upstr
 version_line="$(version_status)"
 step_8_marker="[STEP 8 · VERSION: $version_line]"
 echo "$step_8_marker"
+step_8_local_version="$(local_skill_version)"
+echo "[Local SKILL.md version: $step_8_local_version]"
+step_8_remote_check_script="$SCRIPT_ROOT/scripts/lifeos-version-check.sh"
+printf '[Remote check (forced fresh):\n'
+if [[ -f "$step_8_remote_check_script" ]]; then
+  "${BASH:-bash}" "$step_8_remote_check_script" --force
+else
+  printf '[Life OS] version check script not found at %s\n' "$step_8_remote_check_script"
+fi
+printf ']\n'
 emit_retrospective_trail_marker "step-8" "VERSION" "script_root=$SCRIPT_ROOT; remote_check=best_effort" "$step_8_marker"
 
 inbox_path="$data_root/inbox"
@@ -337,6 +357,30 @@ sessions_count="0"
 if [[ -d "$sessions_dir" ]] && have find; then
   sessions_count="$(find "$sessions_dir" -maxdepth 1 -type f -name '*.md' ! -name 'INDEX.md' 2>/dev/null | wc -l | tr -d '[:space:]')"
 fi
+
+cortex_bootstrap_marker=""
+if [[ ! -f "$sessions_dir/INDEX.md" ]]; then
+  echo "[CORTEX BOOTSTRAP: triggering tools/migrate.py]"
+  migrate_tool="$SCRIPT_ROOT/tools/migrate.py"
+  if [[ ! -f "$migrate_tool" ]]; then
+    cortex_bootstrap_marker="[CORTEX BOOTSTRAP SKIP: tools/migrate.py not found]"
+  elif ! have python; then
+    cortex_bootstrap_marker="[CORTEX BOOTSTRAP SKIP: python unavailable]"
+  else
+    (cd "$SCRIPT_ROOT" 2>/dev/null && python tools/migrate.py --auto-bootstrap --root "$data_root")
+    migrate_status=$?
+    if [[ -f "$sessions_dir/INDEX.md" ]]; then
+      if [[ -d "$sessions_dir" ]] && have find; then
+        sessions_count="$(find "$sessions_dir" -maxdepth 1 -type f -name '*.md' ! -name 'INDEX.md' 2>/dev/null | wc -l | tr -d '[:space:]')"
+      fi
+      cortex_bootstrap_marker="[CORTEX BOOTSTRAP COMPLETE: $sessions_count sessions seeded]"
+    else
+      cortex_bootstrap_marker="[CORTEX BOOTSTRAP SKIP: tools/migrate.py exited $migrate_status without creating INDEX.md]"
+    fi
+  fi
+  echo "$cortex_bootstrap_marker"
+fi
+
 sessions_rebuild="$(index_rebuild_state "$sessions_dir" "$sessions_dir/INDEX.md" "$sessions_count")"
 step_11_marker="[STEP 11 · SESSION INDEX: $sessions_count sessions indexed | rebuild=$sessions_rebuild | fresh_invocation=true]"
 echo "$step_11_marker"

@@ -55,9 +55,9 @@ When the user sends the first message, spawn simultaneously:
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
-### 0.5. Pre-Router Cognitive Layer (Cortex Phase 1, v1.7) — OPTIONAL
+### 0.5. Pre-Router Cognitive Layer (Cortex Phase 1, v1.7.2) — ALWAYS-ON
 
-When the user sends a non-Start-Session message AND `_meta/sessions/INDEX.md` exists in the bound second-brain, the orchestrator MAY spawn the Pre-Router Cognitive Layer to produce annotated input for ROUTER. Activation is per-session (controlled by `_meta/config.md` `cortex_enabled: true|false`); default is **OFF / opt-in** for v1.7 (off until explicitly enabled). Set `cortex_enabled: true` in `_meta/config.md` to enable.
+For v1.7.2, the orchestrator spawns the Pre-Router Cognitive Layer for every user message, including Start Session triggers. `_meta/config.md` may hold thresholds and secondary switches, but `cortex_enabled` is deprecated and MUST NOT be used as an activation gate. Do not place Cortex config under `_meta/cortex/`; if `_meta/sessions/INDEX.md` is missing or empty, auto-bootstrap before Step 0.5 and degrade only if bootstrap or a Cortex component fails.
 
 **3 parallel subagents** (each independent, information-isolated from each other):
 
@@ -83,13 +83,13 @@ After all 3 return (with 5s soft timeout, 15s hard timeout per individual subage
 
 **ROUTER behaviour**: ROUTER parses the `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters to separate advisory content from real user input. The cognitive context is **advisory, not authoritative** — ROUTER may discard it if the user explicitly says "ignore history" or similar.
 
-**Failure modes** (all degrade to v1.6.3 behaviour):
-- INDEX missing or empty → skip Step 0.5 entirely, ROUTER receives raw message
+**Failure / bootstrap modes**:
+- INDEX missing or empty → ROUTER runs `tools/migrate.py` to auto-bootstrap before Step 0.5; if bootstrap fails, degrade to v1.6.3 behaviour and ROUTER receives raw message
 - Any subagent times out → its slot becomes `null`, GWT proceeds with available signals
 - GWT timeout → orchestrator emits empty `[COGNITIVE CONTEXT]` block, ROUTER receives original message
-- `cortex_enabled: false` in `_meta/config.md` → skip Step 0.5
+- Deprecated `cortex_enabled: false` in `_meta/config.md` → ignored for activation; Step 0.5 still runs
 
-**Cost**: ~$0.05-0.10 per invocation. Worth it on substantive decisions; wasteful on trivial chat. The OFF / opt-in default reflects this — users enable Cortex when they have ≥30 sessions of accumulated history.
+**Cost**: ~$0.05-0.10 per invocation. Cortex is always-on in v1.7.2; control cost by honoring Express/direct-handle reductions and degradation budgets, not by disabling Step 0.5.
 
 ### 1. ROUTER Triage
 

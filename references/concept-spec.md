@@ -328,7 +328,7 @@ Pre-v1.7 there is no concepts directory. Migration to v1.7 runs once, orchestrat
 7. Generate the first `SYNAPSES-INDEX.md` and `INDEX.md`
 8. Log the migration result to `_meta/cortex/bootstrap-status.md`
 
-Migration is idempotent — re-running it against an already-migrated tree produces no additional files.
+Migration is idempotent — re-running it against an already-migrated tree produces no additional files. The same script is also the Step 0.5 auto-bootstrap path when Cortex is enabled and required indexes are missing or empty.
 
 ---
 
@@ -347,7 +347,7 @@ These are forbidden by spec and must be rejected at write-time by the archiver:
 
 ## How Each Role Uses Concepts
 
-All roles check if `_meta/concepts/INDEX.md` exists before referencing it. If it does not exist or is empty, the role operates normally without concept input.
+All roles check if `_meta/concepts/INDEX.md` exists before referencing it. During Step 0.5, a missing or empty concept index is an auto-bootstrap precondition: the orchestrator runs `tools/migrate.py` before spawning Cortex subagents. If bootstrap fails, concept input is null and GWT records the condition through `degradation_summary`. Outside Step 0.5, roles operate normally without concept input.
 
 | Role | What they read | How they use it |
 |------|---------------|-----------------|

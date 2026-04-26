@@ -364,26 +364,28 @@ R10 execution boundary: for Mode 0 / Mode 2, ROUTER provides literal stdout from
 
 --- Phase C: Version + Project ---
 
-8. PLATFORM + VERSION CHECK (HARD RULE · v1.7.0.1 R5 anti-confabulation) [ROUTER pre-fetched · do not re-run]
+8. VERSION CHECK PREFETCH CONSUMPTION [ROUTER pre-fetched · do not re-run]
 
-R10 MANDATORY: Consume the ROUTER pre-fetched `[STEP 8 · ...]` marker from `retrospective-mode-0.sh` and paste its literal stdout into briefing's "## 8. Platform + Version Check" block. Do NOT re-run the Bash commands below in retrospective. The commands remain here as the R5 source contract for ROUTER's pre-fetch and audit; they are not subagent execution instructions under R10.
+Detail: Platform + Version Check (HARD RULE · v1.7.0.1 R5 anti-confabulation).
 
-Step 8a — Local version (Bash tool call required):
+R10 MANDATORY: Consume the ROUTER pre-fetched `[STEP 8 · ...]` marker from `retrospective-mode-0.sh`. Paste the raw marker in briefing's `## 8. Pre-fetched Step Markers` block, and copy its local/remote version details into briefing's `## 9. Platform + Version Check` block. Do NOT re-run the commands below in retrospective. The commands remain here only as the R5 source contract for ROUTER's pre-fetch and audit; they are not subagent execution instructions under R10/R12.
+
+Step 8a — Local version (ROUTER pre-fetch source command; do not run in RETROSPECTIVE):
 ```bash
 grep -m1 '^version:' ~/.claude/skills/life_OS/SKILL.md | sed -E 's/^version:[[:space:]]*"?([^"]+)"?/\1/'
 ```
 
-Step 8b — Force fresh remote check (Bash tool call required, --force
+Step 8b — Force fresh remote check (ROUTER pre-fetch source command; `--force`
 bypasses daily cache):
 ```bash
 bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
 ```
 
-Briefing MUST contain BOTH literal markers:
+Briefing `## 9. Platform + Version Check` MUST contain BOTH literal markers:
 - "[Local SKILL.md version: <literal Bash stdout without `version:` prefix>]"
 - "[Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]"
 
-If either Bash call returns non-zero or empty:
+If either ROUTER pre-fetched command result returns non-zero or empty:
 - Briefing MUST paste actual error: "Bash exit code: <N>" + "stderr: <literal>"
 - FORBIDDEN to write any of these without corresponding curl exit code in transcript:
   "private repo", "WebFetch 失败", "WebFetch failed", "network unavailable",
@@ -405,6 +407,12 @@ subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
    - R11 AUDIT TRAIL: before proceeding to Step 10, write `_meta/runtime/<sid>/retrospective-step-9.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
 --- Phase D: Context Loading ---
+
+Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
+    - If `_meta/eval-history/` exists, read the 10 most recent `*.md` entries by filename/date descending.
+    - Summarize each entry for the final briefing as `{date} | {type} | {verdict} | next_follow_up`.
+    - If the directory is missing or empty, record `Eval-history loop: no prior entries`.
+    - Read-only: RETROSPECTIVE must not modify `_meta/eval-history/`.
 
 10. Read user-patterns.md (if exists) [ROUTER pre-fetched · do not re-run]
 
@@ -714,7 +722,7 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ## §Briefing Completeness Contract (HARD RULE)
 
-Mode 0 briefing output MUST preserve these 16 exact top-level markdown heading literals, in this order, unless the session is stopped before briefing generation. Missing, renamed, reordered, or materially empty required sections are `C-brief-incomplete`.
+Mode 0 briefing output MUST preserve these 17 exact top-level markdown heading literals, in this order, unless the session is stopped before briefing generation. Missing, renamed, reordered, or materially empty required sections are `C-brief-incomplete`.
 
 ## 0. Pre-flight Hook Health Check
 
@@ -726,6 +734,7 @@ Minimum content:
 
 Minimum content:
 - Report whether Cortex Step 0.5 was enabled, skipped, or degraded.
+- Start Session path also runs Cortex Step 0.5; it is no longer skipped solely because the turn is Mode 0 / Start Session.
 - Include available hippocampus, concept-lookup, soul-check, and GWT/arbitrator context at summary level when present.
 
 ### hippocampus
@@ -770,6 +779,7 @@ Minimum content:
 Minimum content:
 - State that retrospective does not launch AUDITOR itself.
 - Remind that the orchestrator MUST launch `auditor` in Mode 3 immediately after Mode 0 returns.
+- Include `Eval-history loop:` with up to 10 recent `_meta/eval-history/*.md` entries from the Mode 0 eval-history pre-read, or `Eval-history loop: no prior entries`.
 
 ## 6. Ready for User
 
@@ -800,37 +810,45 @@ Required marker prefixes (literal, do not rewrite):
 - `[STEP 14 · WIKI INDEX:`
 - `[STEP 17 · DREAM JOURNAL:`
 
-## 9. Notion sync 报告
+## 9. Platform + Version Check
+
+Minimum content:
+- Include `[Local SKILL.md version: <literal Bash stdout without `version:` prefix>]`.
+- Include `[Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]`.
+- Values MUST come from ROUTER's pre-fetched `[STEP 8 · VERSION:` marker; RETROSPECTIVE consumes them and MUST NOT execute Bash/Read/Grep/Glob for Step 8 itself.
+- If the ROUTER pre-fetch reported a non-zero/empty local or remote result, paste the literal exit code, stdout, and stderr here.
+
+## 10. Notion sync 报告
 
 Minimum content:
 - Report Notion backend connected/not connected/unavailable.
 - If sync ran, include direction, item counts, conflict count, and any literal error stdout/stderr.
 
-## 10. SOUL Health Report
+## 11. SOUL Health Report
 
 Minimum content:
 - Include the fixed SOUL Health Report block from Step 11.
 - Name the current SOUL path and latest snapshot path, or explicitly state missing/uninitialized.
 
-## 11. Compliance Watch banner
+## 12. Compliance Watch banner
 
 Minimum content:
 - State whether the Compliance Watch threshold was checked.
 - If triggered, confirm the briefing first line begins with `🚨 Compliance Watch:`.
 
-## 12. STATUS rebuild trigger
+## 13. STATUS rebuild trigger
 
 Minimum content:
 - State whether `_meta/STATUS.md` was rebuilt, skipped, or suppressed.
 - Include `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`.
 
-## 13. Triage reasoning
+## 14. Triage reasoning
 
 Minimum content:
 - Preserve the ROUTER-visible triage line that caused Mode 0 launch.
 - If unavailable to retrospective, state `Triage reasoning: unavailable in subagent payload`.
 
-## 14. Fresh Invocation Marker (HARD RULE · R12)
+## 15. Fresh Invocation Marker (HARD RULE · R12)
 
 Briefing MUST include this literal marker:
 
@@ -838,7 +856,7 @@ Briefing MUST include this literal marker:
 
 Missing, renamed, or paraphrased marker is `C-fresh-skip` (P0).
 
-## 15. Pending User Decisions
+## 16. Pending User Decisions
 
 Minimum content:
 - List decisions requiring user input before proceeding.

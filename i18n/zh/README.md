@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.2-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -18,6 +18,8 @@
 </div>
 
 ---
+
+> **Hermes Local** 是 Life OS 本地防护与自动化执行面的用户可见名称：Layer 3 hooks + Layer 4 Python tools。内部标签仍保持 `execution layer`、`Layer 3`、`Layer 4`。部分本地工具模式借鉴 / fork 自 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）。
 
 ## 一套引擎，三种文化，你来选
 
@@ -72,6 +74,12 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.7.2 新特性
+
+v1.7.2 把本地执行面整理成更清晰的用户叙事：Hermes Local 现在是 Life OS 在提示词之外执行防护与自动化的公开名称。它覆盖 Layer 3 hooks 与 Layer 4 Python tools，而内部规格仍沿用 `execution layer`、`Layer 3`、`Layer 4` 这些稳定标签。对已启用的工作区，Cortex 现在作为常驻认知路径运行：每条用户消息都可以在路由前获得记忆、概念与 SOUL 信号，并在索引或子代理不可用时确定性降级。version-check hook 现在会用远端 SHA 让日缓存失效，并支持 `--force`，因此同一天发布的新版本不会再被旧缓存遮住。源自 Hermes 的 prompt-cache 与 context-compression 辅助工具提升速度，也让大段粘贴转录更容易控制。压缩只用于本地上下文管理；需要完整保真的子代理报告与审计证据仍保持原样粘贴。
 
 ---
 

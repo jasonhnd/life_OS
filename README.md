@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.1-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.2-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -18,6 +18,12 @@
 </div>
 
 ---
+
+> **Hermes Local** is the user-facing name for Life OS's local safeguards and
+> automation: Layer 3 hooks plus Layer 4 Python tools. Internal labels remain
+> `execution layer`, `Layer 3`, and `Layer 4`. Selected local-tool patterns are
+> borrowed/forked from [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+> under the MIT License.
 
 ## One engine. Nine worlds. Your call.
 
@@ -76,6 +82,12 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.7.2
+
+v1.7.2 turns the local execution surface into a clearer user story: Hermes Local is now the public name for the safeguards and automation that make Life OS enforceable outside the prompt. It covers Layer 3 hooks and Layer 4 Python tools, while internal specs keep the stable `execution layer`, `Layer 3`, and `Layer 4` labels. Cortex is now described as an always-on cognitive path for enabled workspaces: every user message can receive pre-router memory, concept, and SOUL signals, with graceful degradation when indexes or subagents are unavailable. The version-check hook now invalidates its daily cache against the remote SHA and supports `--force`, so same-day updates are no longer hidden by stale cache output. Hermes-derived prompt-cache and context-compression helpers improve speed and help large pasted transcripts stay manageable. Compression is only for local context management; subagent reports and audit evidence still stay literal where the workflow requires full fidelity.
 
 ---
 
