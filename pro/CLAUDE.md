@@ -34,7 +34,7 @@ When ROUTER Step 7.5 (narrator mode) runs, the orchestrator chains the `narrator
 
 After all 3 return (with 5s soft timeout, 15s hard timeout per individual subagent), launch `gwt-arbitrator` with the consolidated outputs. See `pro/agents/gwt-arbitrator.md`.
 
-**Cortex upstream emit contract (HARD RULE · v1.7.1 R8):** `hippocampus`, `concept-lookup`, and `soul-check` each emit a YAML payload. ROUTER MUST paste each upstream YAML payload in full using the subagent transparency wrapper before showing the GWT `[COGNITIVE CONTEXT]`. The GWT output cannot replace, compress, or stand in for the upstream YAML.
+**Cortex upstream emit contract (v1.7.2.1 display note):** `hippocampus`, `concept-lookup`, and `soul-check` each emit a YAML payload. ROUTER may let those outputs appear naturally in the transcript or use the optional Subagent Output Display wrapper for clarity before showing the GWT `[COGNITIVE CONTEXT]`. The GWT output should not be treated as proof that the upstream agents ran when auditing the workflow.
 
 **GWT arbitrator output** is a `[COGNITIVE CONTEXT]` Markdown block. Orchestrator **prepends** it to the user message before ROUTER sees it:
 
@@ -283,50 +283,29 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 4. **Pro environment forces real subagents** — must launch actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
 5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
-7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). The Mode 3 spec exists in `pro/agents/auditor.md` since v1.6.3 but no caller was wired — this rule fixes that gap. Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). All-pass output: `🔱 [theme: auditor] · ✅ Compliance Patrol passed`. Cannot be skipped. HARD RULE.
+7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b; v1.7.2.2 default silent) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). The Mode 3 spec exists in `pro/agents/auditor.md` since v1.6.3 but no caller was wired — this rule fixes that gap. Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E), runs exactly the five active Bash checks defined in `pro/agents/auditor.md`, and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). Default briefing output is silent except for the required one-line signals: all-pass after retrospective Mode 0 writes only `🔱 御史台 · 静默通过` into retrospective `## 5`; P0 writes violations and emits only `🚨 御史台 · P0 违规 N 条,详 violations.md`; P1+ writes violations with no briefing output. Detailed 30-day tracking is surfaced only by explicit `/audit`, never by an auto-prepended Compliance Watch banner. Cannot be skipped. HARD RULE.
 
 8. **Subagent Audit Trail mandatory (rule #8)** — every launched subagent MUST write `_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json` before returning. AUDITOR Mode 3 verifies audit trail existence and schema against `references/audit-trail-spec.md`; missing, incomplete, or contradictory trails are violations. HARD RULE.
 
 9. **Fresh Invocation HARD RULE (R12, rule #9)** · every Start Session / Adjourn trigger MUST launch fresh full execution of retrospective Mode 0 (18 steps) or archiver (4 phases). No reuse, no 省步骤, no previous briefing references, and no phrases like "as last time" / "unchanged" / "see above". AUDITOR greps the transcript and audit trail for freshness violations; any violation is `C-fresh-skip` P0. HARD RULE.
 
-## Subagent Transparency Wrapper (HARD RULE · v1.7.1 R8)
+## Subagent Output Display (Recommended · v1.7.2.1)
 
-Every launched subagent output MUST be pasted to the user in full. This applies to `retrospective`, `AUDITOR`, `hippocampus`, `concept-lookup`, `soul-check`, `gwt-arbitrator`, `archiver`, six domains, strategist delegates, narrator-validator, and any Task-launched agent. Summary-only handoff is forbidden.
+Subagent returns may appear naturally in the host transcript, or ROUTER may group them with a lightweight wrapper when it improves readability. Heavy-line wrappers, verbatim repaste, token/duration/cost receipts, and a separate transactional receipt are not compliance gates.
 
-Use this exact wrapper for each returned subagent output:
+When a wrapper helps clarity, ROUTER MAY use:
 
 ```text
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## 子代理输出 · {subagent_name}
-tokens: input={input_tokens} output={output_tokens} total={total_tokens} ({usage_source})
-duration: {duration_seconds}s
-est_cost: ${estimated_cost_usd} (Opus 4.7 input $15/Mtok output $75/Mtok; estimated, ±15%)
+## Subagent Output · {subagent_name}
+audit_trail: {_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
+duration: {duration_seconds}s (if available)
+cost: ${estimated_cost_usd} (if available or already estimated)
 
-{verbatim_subagent_output}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{subagent_output}
 ```
 
-Token priority/fallback: use Task result token usage when available. If unavailable, estimate output tokens from pasted characters: English `chars/4`; Chinese/Japanese `chars/2.5`; mixed text uses the dominant language. If input token usage is unavailable, estimate from the prompt payload using the same rule. Cost formula: `input_tokens * 15 / 1_000_000 + output_tokens * 75 / 1_000_000`. When any estimate is used, set `{usage_source}` to `estimated, ±15%`; otherwise set it to `Task usage`.
-
-After all subagent calls for the turn have been pasted, ROUTER MUST include this H2 receipt before any optional summary:
-
-```markdown
-## 子代理调用清单 · 事务性收据
-
-| # | subagent | launch_reason | started_at | duration | input_tokens | output_tokens | est_cost | status |
-|---|----------|---------------|------------|----------|--------------|---------------|----------|--------|
-| 1 | {name} | {why launched} | {ISO 8601} | {seconds}s | {n} | {n} | ${cost} | completed |
-
-Hooks fired table:
-
-| Hook | Fired? | Evidence |
-|------|--------|----------|
-| UserPromptSubmit / pre-prompt guard | yes/no/n/a | {literal evidence or reason} |
-| SessionStart / setup hook | yes/no/n/a | {literal evidence or reason} |
-| Compliance Patrol | yes/no/n/a | {literal evidence or reason} |
-```
-
-ROUTER may add an optional final summary only after the full pasted outputs and receipt. The summary must be last, Chinese `<=200` characters, and cannot replace or contradict any subagent text.
+Token, duration, and cost metadata are displayed only when the host/tool provides them or they were already computed for other reasons; do not estimate solely to populate a receipt. ROUTER may add a concise summary after visible subagent output if useful, provided it does not contradict the subagent result or audit trail evidence.
 
 ## Workflow State Machine
 

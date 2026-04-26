@@ -56,7 +56,7 @@ Use Glob to enumerate `_meta/sessions/*.md` (exclude INDEX.md), Read each, parse
 
 ```
 ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation).
-✅ I am the RETROSPECTIVE subagent · this is a FRESH Mode 0 invocation (trigger N of session). Even if transcript shows previous Mode 0 output, I MUST execute all 18 steps from scratch. I MUST NOT reuse previous briefing content or reference "as last time".
+✅ I am the RETROSPECTIVE subagent · this is a FRESH Mode 0 invocation (trigger N of session). Even if transcript shows previous Mode 0 output, I execute all 18 steps from scratch. Reuse-like phrases such as "as last time" are audit observation hints, not automatic violation triggers.
 Reading pro/agents/retrospective.md. Starting Step 0.5: primary-source scan.
 Audit trail will be written to _meta/runtime/<sid>/retrospective-step-N.json with `fresh_invocation: true` and `trigger_count_in_session: N`.
 ```
@@ -133,7 +133,7 @@ for hook_name in pre-prompt-guard post-response-verify pre-write-scan pre-read-a
 done
 ```
 
-Briefing requirement: The briefing's H2 "## 0. Pre-flight Hook Health Check"
+Briefing requirement: The briefing's H2 "## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + Cortex status, 3-5 lines max 10)"
 MUST report one of:
 - Hook installation completeness: report 5/5 hooks installed, or list missing hook ids.
 - Hook activity from `~/.cache/lifeos/hook-activity-{date}.log`: report each of the 5 hooks and how many times it fired today.
@@ -210,21 +210,6 @@ fi
 
 - If `STATUS_DAYS >= 7`, the briefing MUST NOT quote `_meta/STATUS.md` narrative numbers; use only Bash/git measured values.
 - The briefing MUST include a status marker in this exact shape: `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`.
-
-```bash
-# Compliance Watch banner check (HARD RULE · v1.7.0.1)
-if [ -f "pro/compliance/violations.md" ]; then
-  CUTOFF=$(date -d '30 days ago' +%Y-%m-%d 2>/dev/null || python3 -c "from datetime import date,timedelta; print((date.today()-timedelta(days=30)).isoformat())")
-  B_COUNT=$(grep -E "^\| 20[0-9]{2}-[0-9]{2}-[0-9]{2}.* \| B" pro/compliance/violations.md 2>/dev/null | awk -F '|' -v c="$CUTOFF" '$2 ~ /20[0-9]{2}-[0-9]{2}-[0-9]{2}/ {gsub(/ /,"",$2); date=substr($2,1,10); if (date >= c) print}' | wc -l)
-  if [ "$B_COUNT" -ge 3 ]; then
-    echo "🚨 Compliance Watch: B-class fabrication ($B_COUNT/30d) — prepend to briefing line 1"
-  fi
-fi
-```
-
-**Compliance Watch banner (HARD RULE · v1.7.0.1 R7)**:
-
-If `B_COUNT >= 3`, the briefing first line MUST be exactly in this shape: `🚨 Compliance Watch: B-class fabrication (X/30d) — 子代理 confabulation 模式累积`.
 
 If `git`, `find`, or shell execution is unavailable in the current environment, put this warning at the very top of the briefing: `⚠️ primary-source unavailable; numeric claims degraded to STATUS narrative only`. In that degraded state, do not write any quantitative numbers.
 
@@ -366,9 +351,9 @@ R10 execution boundary: for Mode 0 / Mode 2, ROUTER provides literal stdout from
 
 8. VERSION CHECK PREFETCH CONSUMPTION [ROUTER pre-fetched · do not re-run]
 
-Detail: Platform + Version Check (HARD RULE · v1.7.0.1 R5 anti-confabulation).
+Detail: Platform + Version Check (HARD RULE · v1.7.2.1 version-marker grounding).
 
-R10 MANDATORY: Consume the ROUTER pre-fetched `[STEP 8 · ...]` marker from `retrospective-mode-0.sh`. Paste the raw marker in briefing's `## 8. Pre-fetched Step Markers` block, and copy its local/remote version details into briefing's `## 9. Platform + Version Check` block. Do NOT re-run the commands below in retrospective. The commands remain here only as the R5 source contract for ROUTER's pre-fetch and audit; they are not subagent execution instructions under R10/R12.
+R10 execution boundary: Consume the ROUTER pre-fetched `[STEP 8 · ...]` marker from `retrospective-mode-0.sh` and copy its local/remote version details into briefing's `## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + Cortex status, 3-5 lines max 10)` block. Do NOT re-run the commands below in retrospective. The commands remain here only as the R5 source contract for ROUTER's pre-fetch and audit; they are not subagent execution instructions under R10/R12.
 
 Step 8a — Local version (ROUTER pre-fetch source command; do not run in RETROSPECTIVE):
 ```bash
@@ -381,21 +366,21 @@ bypasses daily cache):
 bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
 ```
 
-Briefing `## 9. Platform + Version Check` MUST contain BOTH literal markers:
+Briefing `## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + Cortex status, 3-5 lines max 10)` MUST contain BOTH literal markers:
 - "[Local SKILL.md version: <literal Bash stdout without `version:` prefix>]"
 - "[Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]"
 
 If either ROUTER pre-fetched command result returns non-zero or empty:
 - Briefing MUST paste actual error: "Bash exit code: <N>" + "stderr: <literal>"
-- FORBIDDEN to write any of these without corresponding curl exit code in transcript:
+- Treat these as observation patterns that should be backed by literal tool evidence, not as automatic violation-triggering phrases:
   "private repo", "WebFetch 失败", "WebFetch failed", "network unavailable",
   "网络问题", "401/403/permission" without HTTP status evidence
 - Required failure format: "I tried [tool] with [args], got [literal error]"
   or "I did not call [tool] for [reason]"
 
-AUDITOR Mode 3 will grep these markers AND scan for forbidden phrases
-without evidence. Missing markers → C-brief-incomplete. Forbidden phrase
-without tool-call evidence → B-fabricate-toolcall (P1).
+AUDITOR Mode 3 actively checks the version markers through `version-markers`.
+Phrase matches without nearby evidence are manual review hints only in
+v1.7.2.1; they do not trigger `B-fabricate-toolcall`.
 
 Why removed from prose-reasoning: Jason 2026-04-25 测试机案例—
 subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
@@ -511,7 +496,7 @@ Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and
 - Platform: [name] | Model: [name]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ Up to date / ⬆️ Update available — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
-  [Local SKILL.md version: 1.7.1]
+  [Local SKILL.md version: 1.7.2.1]
   [Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]
 - Project Status: [summary]
 - Behavior Profile: [loaded / not established]
@@ -722,151 +707,58 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 
 ## §Briefing Completeness Contract (HARD RULE)
 
-Mode 0 briefing output MUST preserve these 17 exact top-level markdown heading literals, in this order, unless the session is stopped before briefing generation. Missing, renamed, reordered, or materially empty required sections are `C-brief-incomplete`.
+Mode 0 briefing output MUST preserve these 6 core top-level markdown H2 headings, in this order, unless the session is stopped before briefing generation. `${RETRO_NAME}` is the active theme's display name for `retrospective`. Missing, renamed, reordered, or materially empty required core sections normalize to core compliance class `C`.
 
-## 0. Pre-flight Hook Health Check
+Product note: the briefing should be approximately 80% user second-brain content and 20% system/status content. Keep system mechanics compressed unless they block or materially affect the user's day.
 
-Minimum content:
-- Report the result of Step 0 hook health verification.
-- If hooks are missing or incomplete, include the exact red warning and `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` instruction.
-
-## 1. Cognitive Layer
+## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + Cortex status, 3-5 lines max 10)
 
 Minimum content:
-- Report whether Cortex Step 0.5 was enabled, skipped, or degraded.
-- Start Session path also runs Cortex Step 0.5; it is no longer skipped solely because the turn is Mode 0 / Start Session.
-- Include available hippocampus, concept-lookup, soul-check, and GWT/arbitrator context at summary level when present.
+- Keep this section to 3-5 lines when healthy and never exceed 10 lines.
+- Report Step 0 hook health as complete, incomplete, auto-installed, or failed; include manual setup instruction only when action is needed.
+- Include local and remote version markers from ROUTER's pre-fetched Step 8 result, plus literal failure stdout/stderr only when version checks failed.
+- Report Cortex Step 0.5 as enabled, skipped, or degraded, with summary status for hippocampus, concept-lookup, soul-check, and GWT/arbitrator when present.
 
-### hippocampus
-
-Minimum content:
-- State launched/skipped/null status, timeout status, and top session-memory signals when present.
-- Do not include hidden peer outputs or unrestricted historical session text.
-
-### concept-lookup
+## 1. 第二大脑同步状态 (Inbox N with first 5, Projects M active with first 5, 1-2 sentence health summary)
 
 Minimum content:
-- State launched/skipped/null status, timeout status, and top matched concepts when present.
-- Note whether top concept files were read or INDEX-only matching was used.
+- State the bound second-brain path and storage/sync availability only as needed to interpret the user data.
+- Report `Inbox: N` and list the first 5 inbox items by title/path/source when available; if empty, state `Inbox: 0`.
+- Report `Projects: M active` and list the first 5 active projects by name and status when available; if none, state `Projects: 0 active`.
+- Close with a 1-2 sentence health summary focused on second-brain freshness, backlog, drift, or sync risk.
 
-### soul-check
-
-Minimum content:
-- State launched/skipped/null status, timeout status, and latest SOUL snapshot path used when present.
-- Report only the current/latest snapshot signal, not older snapshot history.
-
-## 2. Second-brain Connection
+## 2. SOUL Health 报告 (changed dimensions only, confidence trend, new candidates)
 
 Minimum content:
-- State the bound second-brain path or explain why the current directory is treated as the system repo, second-brain, or regular project repo.
-- Report storage backend and sync availability, including explicit unavailable/not connected notes.
+- Show only SOUL dimensions changed since the latest snapshot; do not expand unchanged dimensions.
+- Include confidence trend for changed dimensions when available.
+- List new candidates awaiting user confirmation; if none exist, state that briefly.
 
-## 3. Python Tools Executed
-
-Minimum content:
-- List Python helper tools executed during Mode 0, including session index rebuild when used.
-- For each Python tool, include stdout summary, duration, and path.
-- If no Python helper could run, say so explicitly and use the documented fallback path.
-
-## 4. Retrospective 18 Steps Progress
+## 3. DREAM / 隔夜更新 (1-2 sentence digest or one-line none)
 
 Minimum content:
-- Summarize completion/degradation/skip status for the existing 18 Execution Steps.
-- Include key primary-source counts and avoid stale numeric claims from `_meta/STATUS.md`.
+- Provide a 1-2 sentence digest of overnight DREAM updates, including meaningful auto-written SOUL/Wiki/project implications.
+- If no new DREAM or overnight update exists, emit one concise none line.
 
-## 5. AUDITOR Mode 3 Compliance Patrol
-
-Minimum content:
-- State that retrospective does not launch AUDITOR itself.
-- Remind that the orchestrator MUST launch `auditor` in Mode 3 immediately after Mode 0 returns.
-- Include `Eval-history loop:` with up to 10 recent `_meta/eval-history/*.md` entries from the Mode 0 eval-history pre-read, or `Eval-history loop: no prior entries`.
-
-## 6. Ready for User
+## 4. Today's Focus + 待陛下圣裁 (1-3 recommended focus items + decisions)
 
 Minimum content:
-- End with a concise readiness statement.
-- Ask what the user would like to focus on next.
-
-## 7. 子代理调用清单 · 事务性收据
-
-Minimum content:
-- List each subagent launched during the turn with launch reason, start time, duration, token/cost estimate when available, and status.
-- Include hook-fired evidence or explicit `n/a` for hooks unavailable on the host.
-
-## 8. Pre-fetched Step Markers (HARD RULE · v1.7.1 R10)
-
-Briefing MUST contain all 11 `[STEP N · ...]` literal markers from ROUTER's `retrospective-mode-0.sh` stdout. Missing any → `C-step-skipped` (P0).
-
-Required marker prefixes (literal, do not rewrite):
-- `[STEP 2 · DIRECTORY TYPE:`
-- `[STEP 3 · DATA LAYER:`
-- `[STEP 4 · SECOND-BRAIN PULL:`
-- `[STEP 5 · GIT HEALTH:`
-- `[STEP 8 · VERSION:`
-- `[STEP 10 · INBOX SCAN:`
-- `[STEP 11 · SESSION INDEX:`
-- `[STEP 12 · CONCEPT INDEX:`
-- `[STEP 13 · STATUS COMPILE:`
-- `[STEP 14 · WIKI INDEX:`
-- `[STEP 17 · DREAM JOURNAL:`
-
-## 9. Platform + Version Check
-
-Minimum content:
-- Include `[Local SKILL.md version: <literal Bash stdout without `version:` prefix>]`.
-- Include `[Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]`.
-- Values MUST come from ROUTER's pre-fetched `[STEP 8 · VERSION:` marker; RETROSPECTIVE consumes them and MUST NOT execute Bash/Read/Grep/Glob for Step 8 itself.
-- If the ROUTER pre-fetch reported a non-zero/empty local or remote result, paste the literal exit code, stdout, and stderr here.
-
-## 10. Notion sync 报告
-
-Minimum content:
-- Report Notion backend connected/not connected/unavailable.
-- If sync ran, include direction, item counts, conflict count, and any literal error stdout/stderr.
-
-## 11. SOUL Health Report
-
-Minimum content:
-- Include the fixed SOUL Health Report block from Step 11.
-- Name the current SOUL path and latest snapshot path, or explicitly state missing/uninitialized.
-
-## 12. Compliance Watch banner
-
-Minimum content:
-- State whether the Compliance Watch threshold was checked.
-- If triggered, confirm the briefing first line begins with `🚨 Compliance Watch:`.
-
-## 13. STATUS rebuild trigger
-
-Minimum content:
-- State whether `_meta/STATUS.md` was rebuilt, skipped, or suppressed.
-- Include `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`.
-
-## 14. Triage reasoning
-
-Minimum content:
-- Preserve the ROUTER-visible triage line that caused Mode 0 launch.
-- If unavailable to retrospective, state `Triage reasoning: unavailable in subagent payload`.
-
-## 15. Fresh Invocation Marker (HARD RULE · R12)
-
-Briefing MUST include this literal marker:
-
-`[FRESH INVOCATION · <timestamp> · trigger #N of session · all 18 steps executed from scratch]`
-
-Missing, renamed, or paraphrased marker is `C-fresh-skip` (P0).
-
-## 16. Pending User Decisions
-
-Minimum content:
+- Recommend 1-3 focus items grounded in the second-brain state and explain why each matters today.
 - List decisions requiring user input before proceeding.
-- If none, state `No pending user decisions`.
+- If no decision is needed, state `No pending user decisions`.
+- End by asking what the user would like to focus on next.
 
-## §Confabulation Blacklist (HARD RULE · Step 8)
+## 5. 系统状态(默认静默) (only one-line P0 warning when P0; otherwise '御史台静默 · 系统健康')
 
-The following phrase groups are forbidden in Step 8 failure reporting unless
-the briefing transcript includes corresponding tool-call evidence, including
-literal Bash stdout/stderr and curl exit code or HTTP status evidence:
+Minimum content:
+- If a P0 system issue exists, emit exactly one warning line with the issue and required user action.
+- Otherwise emit exactly: `御史台静默 · 系统健康`.
+
+## §Confabulation Observation Patterns (Step 8)
+
+The following phrase groups are observation patterns for Step 8 failure
+reporting. Prefer literal Bash stdout/stderr and curl exit code or HTTP status
+evidence when using them, but phrase matches are hints only:
 
 - `private repo` / `private 仓库`
 - `WebFetch 失败` / `WebFetch failed`
@@ -874,8 +766,7 @@ literal Bash stdout/stderr and curl exit code or HTTP status evidence:
 - `权限问题` / `401` / `403`
 - `curl 失败`
 
-B-fabricate-toolcall trigger rule: If Step 8 uses any blacklist phrase to
-explain local or remote version-check failure without corresponding literal
-tool output evidence in the transcript, AUDITOR Mode 3 MUST classify it as
-`B-fabricate-toolcall` (P1). Use only: "I tried [tool] with [args], got
-[literal error]" or "I did not call [tool] for [reason]".
+Use only grounded failure formats: "I tried [tool] with [args], got [literal
+error]" or "I did not call [tool] for [reason]". AUDITOR Mode 3 v1.7.2.1 does
+not classify these phrases as `B-fabricate-toolcall`; that subclass is
+deprecated.

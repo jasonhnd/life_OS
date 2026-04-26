@@ -20,6 +20,9 @@ for _audit_trail_lib in "$SCRIPT_DIR/lib/audit-trail.sh" "$SCRIPT_ROOT/scripts/l
   fi
 done
 unset _audit_trail_lib
+if [[ -z "${LIFEOS_SESSION_ID:-}" ]]; then
+  export LIFEOS_SESSION_ID="$(date -u +%Y%m%dT%H%M%S)"
+fi
 
 usage() {
   cat <<'EOF'
@@ -184,6 +187,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -n "$requested_sid" ]]; then
+  export LIFEOS_SESSION_ID="$requested_sid"
   LIFEOS_AUDIT_SESSION_ID="$requested_sid"
 fi
 

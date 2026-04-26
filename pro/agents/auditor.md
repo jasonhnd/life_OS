@@ -89,7 +89,7 @@ Updated _meta/lint-state.md ✓
 
 ---
 
-## Mode 3: Compliance Patrol (v1.6.3, after Start Session / Adjourn triggers)
+## Mode 3: Compliance Patrol (v1.7.2.2 default silent, after Start Session / Adjourn triggers)
 
 Automatic post-hoc audit to detect HARD RULE violations introduced by COURT-START-001 (2026-04-19). Runs after `retrospective` Mode 0 or `archiver` completes. Writes violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). Specification: `references/compliance-spec.md`.
 
@@ -113,31 +113,50 @@ Automatic post-hoc audit to detect HARD RULE violations introduced by COURT-STAR
 | **D** | Placeholder value | P1 | Completion Checklist contained `TBD`, empty field, or literal `{...}` |
 | **E** | Main-context Phase execution | P0 | ROUTER executed archiver Phase 1/2/3/4 logic in main context |
 
-### Expanded violation taxonomy (R8)
+### Active v1.7.2.2 Mode 3 checks
 
-AUDITOR Mode 3 covers these active classes: A1, A2, A3, B, B-fabricate-fact, B-fabricate-toolcall, B-source-drift, B-source-stale, B-stale, B-trail-mismatch, C, C-step-skipped, C-brief-incomplete, C-fresh-skip, C-banner-missing, C-output-suppressed, C-translation-drift, C-toctou-frame-md, C-no-audit-trail, C-trail-incomplete, D, E, F, CX1, CX2, CX3, CX4, CX5, CX6, CX7.
+AUDITOR Mode 3 is intentionally narrow in v1.7.2.2. It logs only the 7 core classes above (A1/A2/A3/B/C/D/E) and calls only these five Bash scenarios. This check set is unchanged from v1.7.2.1; do not add new violation classes or checks:
 
-Default severities: A1/B/B-fabricate-fact/C/C-step-skipped/C-fresh-skip/C-banner-missing/C-output-suppressed/C-translation-drift/C-toctou-frame-md/C-no-audit-trail/C-trail-incomplete/E/CX6/CX7 are P0; A2/A3/B-fabricate-toolcall/B-source-drift/B-source-stale/B-stale/B-trail-mismatch/C-brief-incomplete/D/CX1/CX2/CX3/CX4/CX5 are P1; F is P2 and excluded from escalation.
+```bash
+bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> briefing-completeness
+bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> version-markers
+bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> subagent-launched
+bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> cortex-status
+bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> placeholder-check
+```
 
-### Mode 3 · Pre-fetched Step Verification (v1.7.1 R10)
+Core mapping:
+- `briefing-completeness` checks the six required retrospective H2 headings and maps omissions to core `C`.
+- `version-markers` checks Step 8 local/remote version evidence markers and maps missing/invalid markers to core `C` or `B`.
+- `subagent-launched` checks retrospective/archiver subagent launch or self-check evidence and maps failures to core `A1`.
+- `cortex-status` checks that a Start Session briefing states Cortex/Step 0.5 status and maps omissions to core `C`.
+- `placeholder-check` checks unresolved placeholders and maps failures to core `D`.
 
-AUDITOR MUST grep the briefing for all 11 literal retrospective pre-fetch markers:
+Bash exit code is authoritative. If Bash fails because the script, briefing path, shell, or environment is unavailable, report degraded mode / environment issue and do not improvise check results.
 
-- `[STEP 2 · DIRECTORY TYPE:`
-- `[STEP 3 · DATA LAYER:`
-- `[STEP 4 · SECOND-BRAIN PULL:`
-- `[STEP 5 · GIT HEALTH:`
-- `[STEP 8 · VERSION:`
-- `[STEP 10 · INBOX SCAN:`
-- `[STEP 11 · SESSION INDEX:`
-- `[STEP 12 · CONCEPT INDEX:`
-- `[STEP 13 · STATUS COMPILE:`
-- `[STEP 14 · WIKI INDEX:`
-- `[STEP 17 · DREAM JOURNAL:`
+### Deprecated expanded checks (R8/R11/R12; compatibility only)
 
-Missing any marker → log `C-step-skipped` (P0). Violation details MUST include `missing_markers` as a comma-separated list, `session_id`, and `agent=retrospective`.
+The following subclasses/scenarios remain in `scripts/lifeos-compliance-check.sh` for old evals and ad-hoc forensic review, but they are not active Mode 3 violation classes in v1.7.2.2: B-fabricate-fact, B-fabricate-toolcall, B-source-drift, B-source-stale, B-stale, B-trail-mismatch, C-step-skipped, C-brief-incomplete, C-fresh-skip, C-banner-missing, C-output-suppressed, C-translation-drift, C-toctou-frame-md, C-no-audit-trail, C-trail-incomplete, F, CX1, CX2, CX3, CX4, CX5, CX6, CX7.
 
-Use Bash:
+Historical subclass severities are deprecated and MUST NOT be used for active Mode 3 logging. Normalize any active finding to A1/A2/A3/B/C/D/E before writing `violations.md`.
+
+### Compatibility: Pre-fetched Step Verification (R10)
+
+AUDITOR no longer greps the final briefing for all 11 literal retrospective pre-fetch markers. Missing one of the old `[STEP N · ...]` marker lines in the briefing is not, by itself, `C-step-skipped`.
+
+AUDITOR still verifies that the final briefing preserves core grep markers derived from the pre-fetch/runtime evidence:
+
+- `[Local SKILL.md version:`
+- `[Remote check (forced fresh):`
+- `[Wiki count: measured`
+- `[Sessions count: measured`
+- `[Concepts count: measured`
+- `[STATUS staleness:`
+- `[FRESH INVOCATION`
+
+Missing core markers map through the existing scan that owns the marker; active Mode 3 findings are normalized to the core classes described above.
+
+Compatibility scenario retained for old evals:
 
 ```bash
 bash scripts/lifeos-compliance-check.sh retrospective-completeness <briefing>
@@ -145,9 +164,9 @@ bash scripts/lifeos-compliance-check.sh retrospective-completeness <briefing>
 
 Bash exit code is authoritative. If Bash fails because the script, briefing path, shell, or environment is unavailable, report degraded mode / environment issue and do not improvise check results.
 
-### Mode 3 · Audit Trail Verification (R11, HARD RULE)
+### Compatibility: Audit Trail Verification (R11)
 
-AUDITOR MUST verify the agent prompt audit trail for the current session.
+Compatibility scenario only. AUDITOR Mode 3 v1.7.2.2 does not call audit-trail checks by default; use them for old evals or forensic review when needed.
 
 1. Resolve `<current_sid>` from the transcript, transactional receipt, runtime path, or orchestrator payload. If multiple ids are present, use the one attached to the subagent under audit and record the source.
 2. Read `_meta/runtime/<current_sid>/` files. Required files:
@@ -159,16 +178,13 @@ AUDITOR MUST verify the agent prompt audit trail for the current session.
 5. Cross-check each `output_summary` against the ROUTER paste markers and required report headings in the transcript. For retrospective, compare against `[STEP N · ...]` markers and the final briefing sections. For archiver, compare against Phase 1-4 report headings and Notion handoff receipts. For Cortex, compare against the transparent YAML payload and GWT `[COGNITIVE CONTEXT]` block.
 6. Sum `tokens.input` and `tokens.output` across audit trails and compare with the `total tokens/cost` transactional receipt. If host telemetry is unavailable and the receipt says so explicitly, record degraded verification rather than mismatch.
 
-Violation mapping:
-- Missing required runtime directory or file → `C-no-audit-trail`.
-- Present but missing required entries/fields, invalid JSON, or failed `trail-completeness` check → `C-trail-incomplete`.
-- `output_summary` contradicts ROUTER paste markers, YAML payloads, required headings, Notion handoff receipts, or transactional token receipt → `B-trail-mismatch`.
+Historical mapping was `C-no-audit-trail`, `C-trail-incomplete`, and `B-trail-mismatch`. These subclasses are deprecated v1.7.2.2; normalize any active production finding to core `B` or `C`.
 
-### Mode 3 · Fresh Invocation Scan (HARD RULE · R12)
+### Compatibility: Fresh Invocation Scan (R12)
 
-When a transcript contains more than one Start Session trigger (`上朝`, `Start Session`, `begin court`, `开始`), each trigger MUST execute a fresh, full retrospective Mode 0 path. Reusing prior Mode 0 output from the same conversation is forbidden, even if the previous run completed successfully.
+When a transcript contains more than one Start Session trigger (`上朝`, `Start Session`, `begin court`, `开始`), each trigger should execute a fresh, full retrospective Mode 0 path. Reuse-like wording is an observation hint, not a violation-triggering blacklist.
 
-AUDITOR MUST run Bash and treat the exit code as authoritative:
+Compatibility scenario:
 
 ```bash
 bash scripts/lifeos-compliance-check.sh <transcript> fresh-invocation
@@ -184,17 +200,15 @@ Required checks:
 
 1. Count triggers with `(上朝|Start Session|begin court|开始)`.
 2. If trigger count is greater than 1, require `[FRESH INVOCATION` marker count to be greater than or equal to trigger count.
-3. Grep for forbidden reuse phrases: `如上次`, `参考上次`, `previously reported`, `as before`, `unchanged from last`, `see Mode 0 output above`, `skip step.*already done`.
+3. Observe reuse-like phrases as manual review hints: `如上次`, `参考上次`, `previously reported`, `as before`, `unchanged from last`, `see Mode 0 output above`, `skip step.*already done`.
 4. Compare output length: each trigger N output must be at least 80% of trigger 1 output length.
 5. Verify every current-session retrospective audit trail JSON step file includes `fresh_invocation: true` (serialized as `fresh_invocation:true` when minified).
 
-Violation mapping:
-- Missing `[FRESH INVOCATION` marker, forbidden reuse phrase, output length collapse below 80%, or missing `fresh_invocation:true` in any step file → `C-fresh-skip` (P0).
-- Details MUST include `trigger_count_in_session`, `reuse_evidence`, `expected_full_output_chars`, and `actual_chars` when available.
+Historical mapping was `C-fresh-skip`. This subclass is deprecated v1.7.2.2; do not log phrase matches as violations. If a fresh-run production issue must be logged, normalize it to core `C` and include phrase matches only as `reuse_wording_hints`.
 
-### Detection checks (Start Session path)
+### Legacy detection notes (Start Session path; not active Bash call list)
 
-For each completed Start Session session, scan transcript:
+Historically, Start Session scans looked for:
 
 1. **A3 check** — Does ROUTER's first response contain regex `🌅 Trigger: \S+ → .+ → Action: Launch\(\S+\)`? Absent → log A3.
 2. **A1 check** — After trigger word, is the first non-Read/Grep tool call `Task(retrospective)`? Or does main-context output contain Step 1-18 content (e.g., "THEME RESOLUTION executed", "Phase B Sync completed")? Simulated → log A1.
@@ -203,9 +217,9 @@ For each completed Start Session session, scan transcript:
 5. **B check (escape route fabrication)** — grep transcript for phrases like "轻量简报路径", "lightweight briefing path", "Pre-Court Preparation section". If any is referenced as existing in SKILL.md / pro/CLAUDE.md / .claude/CLAUDE.md → verify via grep; if not found → log B.
 6. **Self-check absence** — Does retrospective subagent output begin with `✅ I am the RETROSPECTIVE subagent`? Missing → log A1 (since absence implies not-really-subagent).
 
-### Detection checks (Adjourn path)
+### Legacy detection notes (Adjourn path; not active Bash call list)
 
-For each completed Adjourn session, scan transcript:
+Historically, Adjourn scans looked for:
 
 1. **A3 check** — Does ROUTER's first response contain `📝 Trigger: ... → Action: Launch(archiver)`? Absent → log A3.
 2. **C check** — Does archiver emit Completion Checklist with all 4 phases marked complete? Phase missing → log C.
@@ -217,9 +231,9 @@ For each completed Adjourn session, scan transcript:
    - Phase 4: "git commit" / "git push"
    - Any → log E.
 
-### Detection checks (Cortex Phase 1 — always-on in v1.7.2)
+### Compatibility: Detailed Cortex checks (deprecated v1.7.2.2)
 
-For each session, scan transcript for Pre-Router orchestration compliance per `pro/CLAUDE.md` Step 0.5. Deprecated `cortex_enabled` values in `_meta/config.md` do not disable these checks.
+Detailed CX1-CX7 checks remain available as compatibility scenarios, but active Mode 3 calls only `cortex-status` and normalizes any production finding to core `C`.
 
 1. **CX1 check** — Did orchestrator launch hippocampus, concept-lookup (or null placeholder), and soul-check (or null placeholder) BEFORE ROUTER triage? Missing any → log CX1 (P1). Also collect filesystem evidence with Bash: `find _meta -name 'cortex*' -type f` and include stdout in the CX1 evidence note when `_meta/` exists.
 2. **CX2 check** — Did orchestrator launch gwt-arbitrator AFTER all 3 Cortex modules returned? Skipped → log CX2 (P1).
@@ -229,9 +243,9 @@ For each session, scan transcript for Pre-Router orchestration compliance per `p
 6. **CX6 check** — Did any Cortex subagent (hippocampus, concept-lookup, soul-check) read peer outputs? Information isolation breach → log CX6 (P0).
 7. **CX7 check** — Did any Cortex subagent write outside its permitted `_meta/runtime/<sid>/...json` audit trail? User/domain data write contract violation → log CX7 (P0). R11 audit trail writes under `_meta/runtime/<sid>/` are allowed and must be verified by Audit Trail Verification instead.
 
-Do not skip CX checks because `cortex_enabled: false` appears in `_meta/config.md`; in v1.7.2 that field is deprecated and ignored for activation.
+Do not use CX1-CX7 as active violation classes in v1.7.2.2.
 
-### Cortex violation taxonomy (added v1.7 Phase 1)
+### Deprecated Cortex subclass legend (compatibility only)
 
 | Type | Name | Default Severity | Context |
 |------|------|------------------|---------|
@@ -269,78 +283,51 @@ After completing Mode 1, Mode 2, or Mode 3, AUDITOR MUST write a concise closed-
 - `{type}` = `decision-review`, `patrol-inspection`, or `compliance-patrol`.
 - Required fields: `timestamp`, `session_id` or `unknown`, `type`, `verdict`, `checks_run`, `findings`, `root_cause`, `next_follow_up`, and `resolved: false|partial|true`.
 - This is additive to `pro/compliance/violations.md` / `_meta/compliance/violations.md`; do not replace violation logging with eval-history.
-- If `_meta/` is unavailable, report `Eval-history writeback: skipped (no active second-brain _meta/)` in the AUDITOR output.
+- If `_meta/` is unavailable, report `Eval-history writeback: skipped (no active second-brain _meta/)` in Mode 1/2 AUDITOR output or explicit `/audit` detail. Do not break Mode 3 default silence solely to report eval-history writeback status.
 
-### Output (Compliance Patrol)
+### Output (Compliance Patrol · v1.7.2.2 default silent)
 
-**All checks passed:**
-```
-🔱 [theme: auditor] · Compliance Patrol (v1.6.3)
-✅ All 6 Start Session compliance checks passed
-(or)
-✅ All 4 Adjourn compliance checks passed
+Mode 3 remains mandatory and programmatic, but its default user-facing briefing output is silent except for the required one-line pass/P0 signals below. Run the five active Bash checks, write any detected violations to `violations.md`, and suppress the old detailed patrol briefing unless the user explicitly invokes `/audit`.
 
-No violations logged. Session adheres to v1.6.3 HARD RULES.
-```
+Default behavior:
 
-**Violations detected:**
-```
-🔱 [theme: auditor] · Compliance Patrol (v1.6.3)
+- **All five checks PASS after retrospective Mode 0**: write exactly one line into retrospective `## 5`: `🔱 御史台 · 静默通过`. Do not print a separate Compliance Patrol briefing. Do not append an empty row to `violations.md`.
+- **Any P0 finding**: write all violation rows to `violations.md`, then write exactly one line into retrospective `## 5` when that surface exists; otherwise output exactly one line: `🚨 御史台 · P0 违规 N 条,详 violations.md` where `N` is the P0 count. Do not include evidence, recommendations, or 30-day counts in the briefing line.
+- **Only P1+ findings, no P0**: write all violation rows to `violations.md` and emit no briefing output.
+- **Adjourn path with no retrospective `## 5` surface**: all-pass and P1-only outcomes stay silent; P0 uses the same one-line alert above.
 
-🚫 N violations detected:
-- A1 (P0): [one-sentence evidence]
-- B (P0): [one-sentence evidence, including fabricated path]
+Detailed rows, Bash stdout/stderr, escalation background, and 30-day trend counts are visible only for explicit `/audit`. `/audit` is a reporting surface, not a new check path; it must still use the same seven active classes and the same five Bash checks.
 
-Logged to pro/compliance/violations.md:
-| 2026-04-21T10:15+09:00 | 上朝 | A1 | P0 | [full details] | false |
-| 2026-04-21T10:15+09:00 | 上朝 | B | P0 | [full details] | false |
-
-Escalation status (from references/compliance-spec.md):
-- Type A1: 2 in last 30 days (below threshold)
-- Type B: 1 in last 30 days (below threshold)
-
-Recommendation: fix specific violations before next Start Session.
-See pro/compliance/2026-04-19-court-start-violation.md for precedent.
-```
-
-### Mode 3 extension · Numeric claims primary-source audit (HARD RULE · v1.7.0 R9 · Bug 1 fix)
+### Compatibility: Numeric claims primary-source audit (R9; deprecated active subclass)
 
 For any numeric claim in briefing, Summary Report, or STATUS update (`N items`, `K days`, `X%`, `N+`, etc.), verify all of the following:
 
 1. The session context contains a primary-source one-liner execution record for the same number (`find`, `wc`, `git log`, `ls`, or equivalent), produced by retrospective Step 0.5.
 2. The one-liner output matches the stated number, with a tolerance of ±1 for race-prone counts.
-3. If the numbers do not match, log violation class **B-stale**: trusted secondary cache without primary verification.
+3. If the numbers do not match, record an observation. If it must be logged in active Mode 3, normalize to core **B**.
 
 B-stale violation format:
 
 | timestamp | type: B-stale | severity: medium | agent: retrospective | source: "<briefing line>" | claimed: N | actual: M | diff: N-M |
 
-Write B-stale rows to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (second-brain).
+Do not write `B-stale` as an active v1.7.2.2 violation class; the historical row format remains here only for old incident review.
 
 **Why**: Mode 3 previously checked fabricated paths and simple phase counts, but not `git log` / primary-source numeric reconciliation. The 2026-04-23 STATUS cache drift failure chain exposed that gap.
 
-### Mode 3 · Additional Scan (v1.7.0.1): Briefing Completeness
+### Active check detail: briefing-completeness (v1.7.2.2)
 
-This scan is additive only. Existing A1/A2/A3/B/C/D/E/F detection remains unchanged.
+This is one of the five active Mode 3 Bash checks. Findings normalize to core `C`.
 
-For each completed Start Session or Adjourn session, scan the emitted subagent output for the required H2 headings for the active path. Matching MUST be literal `grep -F` matching against the exact heading text. Do not infer completeness from narrative claims; the heading text must be present in the transcript.
+For each completed Start Session or Adjourn session, scan the emitted subagent output for the required H2 headings for the active path. Retrospective heading 0 uses the active theme's `${RETRO_NAME}` slot; match it by the fixed suffix after the name. All other headings use literal `grep -F` matching against the exact heading text. Do not infer completeness from narrative claims; the heading text must be present in the transcript.
 
 Retrospective required heading scan:
 
-- `## 0. Pre-flight Hook Health Check`
-- `## 1. Cognitive Layer`
-- `## 2. Second-brain Connection`
-- `## 3. Python Tools Executed`
-- `## 4. Retrospective 18 Steps Progress`
-- `## 5. AUDITOR Mode 3 Compliance Patrol`
-- `## 6. Ready for User`
-- `## 7. 子代理调用清单 · 事务性收据`
-- `## 8. Notion sync 报告`
-- `## 9. SOUL Health Report`
-- `## 10. Compliance Watch banner`
-- `## 11. STATUS rebuild trigger`
-- `## 12. Triage reasoning`
-- `## 13. Pending User Decisions`
+- `## 0. ${RETRO_NAME} · 上朝准备(含 hook 健康 + 版本核查 + Cortex 状态)` (dynamic `${RETRO_NAME}`)
+- `## 1. 二脑同步状态`
+- `## 2. SOUL Health 报告`
+- `## 3. 18 步执行(自然输出,不强制 marker)`
+- `## 4. 御史台巡查(AUDITOR Mode 3)`
+- `## 5. 待陛下圣裁`
 
 Archiver required heading scan:
 
@@ -351,9 +338,9 @@ Archiver required heading scan:
 - `## Completion Checklist`
 - Archiver self-check evidence: `I am the ARCHIVER subagent`
 
-If any required heading for the active path is missing, log violation class `C-brief-incomplete`. Use severity P1 unless the same omission also satisfies existing **C** incomplete-phase detection, in which case keep the existing **C** severity and log both classes if needed.
+If any required heading for the active path is missing, log core class `C`. Do not log `C-brief-incomplete`; that subclass is deprecated v1.7.2.2.
 
-Each `C-brief-incomplete` row MUST record:
+Each core `C` row SHOULD record:
 
 - `missing_headings`: exact missing heading text, comma-separated
 - `session_id`: actual session/session_id when present; otherwise `unknown`
@@ -364,46 +351,43 @@ Violation detail format:
 
 `missing_headings=[...] | session_id=... | timestamp=... | source_agent=...`
 
-Escalation thresholds for `C-brief-incomplete` follow the compliance escalation ladder:
+Escalation thresholds follow the core `C` compliance escalation ladder:
 
 - `>=3 same type / 30 days`: hook reminder strictness upgrades.
-- `>=5 same type / 30 days`: retrospective Mode 0 briefing prepends `Compliance Watch: C-brief-incomplete`.
+- `>=5 same type / 30 days`: keep tracking in `violations.md` as background only; do not prepend a Compliance Watch banner.
 - `>=10 same type / 90 days`: AUDITOR Compliance Patrol runs at every Start Session.
 - `same type >=3 with unresolved / any window`: block shipping new version until at least partial fix lands.
 
-### Mode 3 · Additional Scan (v1.7.0.1 R5): Tool-Call Evidence
+### Compatibility: R5 Tool-call wording observations
 
-Per session, scan transcript for confabulation patterns:
+Compatibility scenario only. Active Mode 3 uses `version-markers`; confabulation wording patterns are manual review hints, not violation-triggering blacklists.
 
 1. **Step 8 evidence markers**:
    Briefing must contain both literal markers:
    - `[Local SKILL.md version: 1.7.1]` shape, with the numeric value only and no `version:` prefix
    - `[Remote check (forced fresh):` followed by complete stdout, unlimited and untruncated
-   Missing -> log `Class B-fabricate-toolcall` (P1).
+   Missing markers are handled by active `version-markers` and normalized to core `B` or `C`.
 
-2. **Confabulation phrase blacklist** in subagent transcript:
-   For each phrase, verify the subagent transcript contains a corresponding tool call (`Bash` / `WebFetch`) with non-zero exit code OR HTTP error status.
-   Forbidden without evidence:
+2. **Confabulation observation patterns** in subagent transcript:
+   These phrases are hints for manual review when they appear without corresponding tool-call evidence; they are not automatic violations.
    - private repo / private 仓库
    - WebFetch 失败 / WebFetch failed
    - 网络问题 / network unavailable
    - 权限问题 / 401 / 403 without actual HTTP status
    - curl 失败 without curl exit code
 
-   If phrase appears without matching tool-call evidence -> log `B-fabricate-toolcall`.
+   If a phrase appears without matching tool-call evidence, record an observation hint only.
 
 3. **Numeric claim verification**:
    - Briefing claims `wiki N entries` -> grep transcript for `find wiki -name '*.md' | wc -l` Bash call -> compare.
    - Briefing claims `remote version vX.Y.Z` -> grep transcript for actual `curl`/`WebFetch` evidence.
-   Mismatched -> log `B-fabricate-fact` (existing class).
+   Mismatched claims may be normalized to core `B` if actively logged.
 
-Severity: `B-fabricate-toolcall` is P1 by default.
+Historical subclass `B-fabricate-toolcall` is deprecated v1.7.2.2 and not active.
 
-30d threshold: `>=3/30d` B-class -> Compliance Watch banner on next briefing.
+### Compatibility: Primary-source markers, STATUS staleness, Compliance Watch banner
 
-### Mode 3 · Additional Scan (v1.7.0.1): Primary-Source Markers, STATUS Staleness, Compliance Watch Banner
-
-This scan is additive only. Preserve all R5 Tool-Call Evidence checks and all existing B-fabricate-toolcall behavior.
+Compatibility scenario only. These checks are retained in `lifeos-compliance-check.sh` for old evals and forensic review, but they are not in the active Mode 3 Bash call list.
 
 Primary-source marker checks:
 
@@ -413,61 +397,37 @@ R8 marker disambiguation: the canonical marker format is `[Wiki count: measured 
    - `[Wiki count: measured`
    - `[Sessions count: measured`
    - `[Concepts count: measured`
-2. If any marker is missing, log `C-brief-incomplete`.
-3. For each marker, compare the measured value against the corresponding INDEX value. If `|delta| >= 3` and the marker line lacks literal `⚠️ DRIFT`, log `B-source-drift`.
-4. If the briefing rationalizes a `|delta| >= 3` mismatch as consistent instead of flagging drift, log `B-source-drift`.
+2. If any marker is missing in active production review, normalize to core `C`.
+3. For each marker, compare the measured value against the corresponding INDEX value. Drift observations are hints unless normalized to core `B`.
+4. If the briefing rationalizes a `|delta| >= 3` mismatch as consistent instead of flagging drift, treat it as a core `B` candidate rather than `B-source-drift`.
 
 STATUS staleness checks:
 
 1. Grep the emitted briefing for literal marker `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`.
-2. If the marker is missing, log `C-brief-incomplete`.
-3. If `STATUS.md` is `>=7` days stale and the briefing quotes numeric claims from `STATUS.md`, log `B-source-stale`.
+2. If the marker is missing in active production review, normalize to core `C`.
+3. If `STATUS.md` is `>=7` days stale and the briefing quotes numeric claims from `STATUS.md`, treat it as a core `B` candidate rather than `B-source-stale`.
 4. Record the stale age, quoted numeric claim, and source path in the violation details.
 
 Compliance Watch banner check:
 
-R8 banner threshold override: count unresolved banner-triggering violations in the last 30 days, not only base `B`. Banner-triggering violations are any B-family class (`B`, `B-fabricate-fact`, `B-fabricate-toolcall`, `B-source-drift`, `B-source-stale`, `B-stale`) plus P0 classes `C-banner-missing`, `C-output-suppressed`, and `E`. Exclude class `F` false positives from this count. If `COUNT >= 3` and the briefing first line lacks `Compliance Watch`, log `C-banner-missing` (P0) with `count_30d`, expected banner text, and actual first line.
+Historical R8 banner threshold override is removed for v1.7.2.2 default operation. Keep 30-day tracking in `violations.md` as background metadata for `/audit`, but never require or auto-prepend a Compliance Watch banner to retrospective output. Missing banner text is not an active Mode 3 violation and must not be normalized to core `C`.
 
-1. Read the applicable `violations.md` and count unresolved B-class violations in the last 30 days.
-2. If `B_COUNT >= 3` and the briefing first line lacks literal prefix `🚨 Compliance Watch:`, log `C-banner-missing` with severity `P0`.
-3. Record `b_count_30d`, expected banner text, and the actual first line.
-
-### Mode 3 · Programmatic Verification (HARD RULE · v1.7.0.1)
+### Mode 3 · Programmatic Verification (HARD RULE · v1.7.2.2)
 
 AUDITOR Mode 3 MUST call Bash and base verdicts on stdout and exit codes, NOT LLM reasoning, for all active classes. The Bash exit code is authoritative; AUDITOR cannot reason verdicts alone.
 
-1. `bash scripts/lifeos-compliance-check.sh briefing-completeness`
-2. `bash scripts/lifeos-compliance-check.sh primary-source-markers`
-3. `bash scripts/lifeos-compliance-check.sh status-staleness`
-4. `bash scripts/lifeos-compliance-check.sh banner-check`
-5. `grep -F "[Wiki count: measured" <briefing>`
-6. `grep -F "[STATUS staleness:" <briefing>`
+Active Mode 3 call list: use only the five core Bash checks defined in
+`Active v1.7.2.2 Mode 3 checks`. Do not expand this
+list with deprecated compatibility scenarios during normal Start Session or
+Adjourn patrol.
 
 Bash exit code is authoritative. If Bash fails because the script, briefing path, shell, or environment is unavailable, report degraded mode / environment issue and do not improvise check results.
 
-R8 required Bash calls/check list:
+Deprecated compatibility scenarios retained for old evals / forensic review, but not active Mode 3:
 
-1. `bash scripts/lifeos-compliance-check.sh <transcript> subagent-launch` for A1 subagent-launch.
-2. `bash scripts/lifeos-compliance-check.sh <transcript> directory-check` for A2 directory-check.
-3. `bash scripts/lifeos-compliance-check.sh <transcript> preflight-check` for A3 preflight-check.
-4. `bash scripts/lifeos-compliance-check.sh <transcript> fabricate-path-check` for B fabricate-path-check and B-fabricate-fact evidence.
-5. `bash scripts/lifeos-compliance-check.sh <transcript> toolcall-evidence` for B-fabricate-toolcall toolcall-evidence.
-6. `bash scripts/lifeos-compliance-check.sh <briefing> source-drift` for B-source-drift source-drift.
-7. `bash scripts/lifeos-compliance-check.sh <briefing> source-stale` for B-source-stale source-stale.
-8. `bash scripts/lifeos-compliance-check.sh <briefing> numeric-stale` for B-stale numeric-stale.
-9. `bash scripts/lifeos-compliance-check.sh <briefing> briefing-completeness` for C and C-brief-incomplete briefing-completeness.
-10. `bash scripts/lifeos-compliance-check.sh <briefing> banner-check <violations.md>` for C-banner-missing banner-check.
-11. `bash scripts/lifeos-compliance-check.sh <briefing> output-completeness` for C-output-suppressed output-completeness.
-12. `bash scripts/lifeos-compliance-check.sh <spec-or-briefing> i18n-sync` for C-translation-drift i18n-sync.
-13. `bash scripts/lifeos-compliance-check.sh <transcript> frame-md-resolution` for C-toctou-frame-md frame-md-resolution.
-14. `bash scripts/lifeos-compliance-check.sh <transcript> placeholder-check` for D placeholder-check.
-15. `bash scripts/lifeos-compliance-check.sh <transcript> main-context-phase` for E main-context-phase.
-16. `bash scripts/lifeos-compliance-check.sh <transcript> false-positive-check` for F false-positive-check.
-17. `bash scripts/lifeos-compliance-check.sh <transcript> cortex-cx1` through `cortex-cx7` for CX1-CX7 Cortex checks, or `bash scripts/lifeos-compliance-check.sh <transcript> cortex-retrieval` for the combined Cortex suite.
-18. `bash scripts/lifeos-compliance-check.sh trail-completeness <session_id>` for R11 audit trail completeness.
-19. `bash scripts/lifeos-compliance-check.sh <transcript> fresh-invocation` for R12 fresh invocation completeness.
+`directory-check`, `preflight-check`, `fabricate-path-check`, `toolcall-evidence`, `source-drift`, `source-stale`, `numeric-stale`, `retrospective-completeness`, `banner-check`, `output-completeness`, `i18n-sync`, `frame-md-resolution`, `main-context-phase`, `false-positive-check`, `cortex-retrieval`, `cortex-cx1` through `cortex-cx7`, `trail-completeness`, and `fresh-invocation`.
 
-Convenience scenario names preserved for evals: `start-session-compliance`, `adjourn-compliance`, `cortex-retrieval`, `primary-source-markers`, `status-staleness`, and `fresh-invocation`.
+Convenience scenario names preserved for evals: `start-session-compliance`, `adjourn-compliance`, `cortex-retrieval`, `primary-source-markers`, `status-staleness`, and `fresh-invocation`. In v1.7.2.2, `start-session-compliance` and `adjourn-compliance` call only the five active core checks.
 
 ### Integration with Decision Review (Mode 1)
 
@@ -493,5 +453,6 @@ All five are declared in AUDITOR's `tools:` frontmatter.
 - Point out at least one area for improvement each time
 - In patrol mode, do not fabricate issues. If everything is clean, say so
 - Auto-fix only format/link issues, never content decisions
-- **Mode 3 specific**: if all checks pass, write the ✅ pass line — do NOT append an empty row to violations.md (empty rows are noise)
+- **Mode 3 specific**: if all checks pass after retrospective Mode 0, write only `🔱 御史台 · 静默通过` into retrospective `## 5` — do NOT append an empty row to violations.md (empty rows are noise)
+- **Mode 3 specific**: keep default output silent; only P0 gets the one-line alert, and only explicit `/audit` surfaces detailed findings or 30-day tracking.
 - **Mode 3 specific**: never mark an existing entry `Resolved: true` without citing version + eval + observation date. Partial progress = `partial`, not `true`.

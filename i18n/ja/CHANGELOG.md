@@ -6,6 +6,35 @@
 
 ---
 
+## [1.7.2.1] - 2026-04-26 - レポート形状とテーマ美観の引き算ホットフィックス
+
+> 引き算だけの小さなホットフィックスです。見えるルールを減らし、テーマの美しさを戻し、バージョンマーカー位置を固定します。v1.7.2.1 を超える新しいバージョン線は追加しません。
+
+### 変更
+
+- **テーマ美観を復元**：ユーザー向け briefing は、コンプライアンス足場に支配されず、現在のテーマの視覚言語へ戻ります。
+- **レポート表面を縮小**：ユーザーに見えるレポート形状を 17 個の H2 ブロックから 6 個へ減らし、過剰な儀式ではなく必要な流れを見せます。
+- **バージョンマーカーを固定**：バージョンマーカーは安定した予測可能な位置に置き、手動確認とスクリプト確認を容易にします。
+
+### 削除
+
+- **wrapper 必須要件を削除**：compressed paste wrappers は、ユーザー可視のレポート構造として必須ではなくなりました。
+- **ユーザーパスのルールを削減**：重複する表示ルールを取り除き、監査モデルを実行可能なまま保ちつつ、毎回の応答が手続き的に見えすぎないようにしました。
+
+### プロダクト重心の再調整（v1.7.2.2 notes）
+
+- **AUDITOR はデフォルトで静かに**：AUDITOR はデフォルトで静かなバックグラウンド検証へ移り、重大な blocker、escalation、またはユーザーが明示的に audit 結果を求めた場合だけ主経路に出ます。
+- **Compliance Watch の前置なし**：`Compliance Watch` signals はユーザー可視 briefing の 1 行目に prepend されず、audit / background channels に残ります。
+- **新しい H2 構造**：ユーザー向けレポートは新しい H2 構造を採用し、compliance scaffolding ではなく briefing の実質、決定、next actions、evidence を中心にします。
+- **trail `SESSION_ID` lock**：runtime audit trails は現在の `SESSION_ID` に lock され、trail evidence が現在の session に結びつき、別 session context へ drift しないようにします。
+- **second-brain を前景へ戻す**：system audit は意図的に background へ移り、ユーザーの second-brain content、priorities、working memory が foreground に戻ります。
+
+### 移行
+
+second-brain データ移行は不要です。
+
+---
+
 ## [1.7.2] - 2026-04-26 - Hermes Local、Cortex 常時化、圧縮強化
 
 > ローカル実行面、Cortex オーケストレーション、透明な圧縮レポートのためのパッチリリースです。

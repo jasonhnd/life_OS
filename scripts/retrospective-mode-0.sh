@@ -19,6 +19,9 @@ for _audit_trail_lib in "$SCRIPT_DIR/lib/audit-trail.sh" "$SCRIPT_ROOT/scripts/l
   fi
 done
 unset _audit_trail_lib
+if [[ -z "${LIFEOS_SESSION_ID:-}" ]]; then
+  export LIFEOS_SESSION_ID="$(date -u +%Y%m%dT%H%M%S)"
+fi
 
 have() {
   command -v "$1" >/dev/null 2>&1
@@ -135,6 +138,39 @@ extract_yaml_value() {
     || return 1
 }
 
+active_theme_from_config() {
+  local file="$1"
+  local theme=""
+
+  theme="$(extract_yaml_value "active_theme" "$file" 2>/dev/null || true)"
+  if [[ -z "$theme" ]]; then
+    theme="$(extract_yaml_value "theme" "$file" 2>/dev/null || true)"
+  fi
+  theme="$(printf '%s' "$theme" | tr -d '\r' | sed -E 's/[[:space:]]+#.*$//; s/^[[:space:]]+//; s/[[:space:]]+$//')"
+  theme="${theme#\"}"
+  theme="${theme%\"}"
+  theme="${theme#\'}"
+  theme="${theme%\'}"
+  [[ -n "$theme" ]] || theme="zh-classical"
+
+  printf '%s\n' "$theme"
+}
+
+retrospective_display_name() {
+  case "$1" in
+    zh-classical) printf '🌅 早朝官\n' ;;
+    zh-government|zh-gov) printf '🌅 国办晨会\n' ;;
+    zh-corporate|zh-corp) printf '🌅 晨会主持\n' ;;
+    ja-meiji) printf '🌅 朝議官\n' ;;
+    ja-kasumigaseki) printf '🌅 朝礼官\n' ;;
+    ja-corporate|ja-corp) printf '🌅 朝礼幹事\n' ;;
+    en-roman) printf '🌅 Auspex\n' ;;
+    en-usgov) printf '🌅 Morning Brief\n' ;;
+    en-csuite) printf '🌅 Standup Lead\n' ;;
+    *) printf '🌅 RETROSPECTIVE\n' ;;
+  esac
+}
+
 git_head() {
   local root="$1"
   if have git && git -C "$root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -238,8 +274,6 @@ latest_file() {
   find "$dir" -maxdepth 1 -type f -name "$pattern" 2>/dev/null | sort | tail -n 1 | sed 's#^\./##'
 }
 
-echo "[FRESH INVOCATION · $(date -Iseconds) · all 11 steps will run from scratch]"
-
 directory_type="regular_repo"
 if is_dev_repo "$PWD_ROOT"; then
   directory_type="dev_repo"
@@ -275,13 +309,22 @@ emit_retrospective_trail_marker() {
 config_path="$data_root/_meta/config.md"
 config_status="missing"
 [[ -f "$config_path" ]] && config_status="found"
+active_theme="$(active_theme_from_config "$config_path")"
+RETRO_NAME="$(retrospective_display_name "$active_theme")"
+
+emit_display_marker() {
+  local marker="$1"
+  printf '%s · %s\n' "$RETRO_NAME" "$marker"
+}
+
+echo "$RETRO_NAME · 上朝准备 · $(date -Iseconds)"
 
 step_2_marker="[STEP 2 · DIRECTORY TYPE: $directory_type]"
-echo "$step_2_marker"
+emit_display_marker "$step_2_marker"
 emit_retrospective_trail_marker "step-2" "DIRECTORY TYPE" "pwd_root=$PWD_ROOT; script_root=$SCRIPT_ROOT" "$step_2_marker"
 
 step_3_marker="[STEP 3 · DATA LAYER: $config_path: $config_status]"
-echo "$step_3_marker"
+emit_display_marker "$step_3_marker"
 emit_retrospective_trail_marker "step-3" "DATA LAYER" "data_root=$data_root; config_path=$config_path" "$step_3_marker"
 
 step4="skip no_second_brain"
@@ -307,7 +350,7 @@ else
   fi
 fi
 step_4_marker="[STEP 4 · SECOND-BRAIN PULL: $step4]"
-echo "$step_4_marker"
+emit_display_marker "$step_4_marker"
 emit_retrospective_trail_marker "step-4" "SECOND-BRAIN PULL" "second_brain_root=${second_brain_root:-none}; read_only=true" "$step_4_marker"
 
 git_root="$PWD_ROOT"
@@ -328,12 +371,13 @@ if [[ "${ahead:-0}" != "0" && "${behind:-0}" != "0" ]]; then
   diverged="true"
 fi
 step_5_marker="[STEP 5 · GIT HEALTH: HEAD=$head_hash · ahead=${ahead:-0} · behind=${behind:-0} · diverged=$diverged]"
-echo "$step_5_marker"
+emit_display_marker "$step_5_marker"
 emit_retrospective_trail_marker "step-5" "GIT HEALTH" "git_root=$git_root; upstream=${upstream:-none}" "$step_5_marker"
 
 version_line="$(version_status)"
 step_8_marker="[STEP 8 · VERSION: $version_line]"
-echo "$step_8_marker"
+echo "$RETRO_NAME · 步 8 · 版本核查"
+emit_display_marker "$step_8_marker"
 step_8_local_version="$(local_skill_version)"
 echo "[Local SKILL.md version: $step_8_local_version]"
 step_8_remote_check_script="$SCRIPT_ROOT/scripts/lifeos-version-check.sh"
@@ -349,7 +393,7 @@ emit_retrospective_trail_marker "step-8" "VERSION" "script_root=$SCRIPT_ROOT; re
 inbox_path="$data_root/inbox"
 inbox_count="$(count_paths "$inbox_path")"
 step_10_marker="[STEP 10 · INBOX SCAN: $inbox_count items at $inbox_path]"
-echo "$step_10_marker"
+emit_display_marker "$step_10_marker"
 emit_retrospective_trail_marker "step-10" "INBOX SCAN" "inbox_path=$inbox_path; primary_source=find" "$step_10_marker"
 
 sessions_dir="$data_root/_meta/sessions"
@@ -383,7 +427,7 @@ fi
 
 sessions_rebuild="$(index_rebuild_state "$sessions_dir" "$sessions_dir/INDEX.md" "$sessions_count")"
 step_11_marker="[STEP 11 · SESSION INDEX: $sessions_count sessions indexed | rebuild=$sessions_rebuild | fresh_invocation=true]"
-echo "$step_11_marker"
+emit_display_marker "$step_11_marker"
 emit_retrospective_trail_marker "step-11" "SESSION INDEX" "sessions_dir=$sessions_dir; index=$sessions_dir/INDEX.md" "$step_11_marker"
 
 concepts_dir="$data_root/_meta/concepts"
@@ -393,7 +437,7 @@ if [[ -d "$concepts_dir" ]] && have find; then
 fi
 concepts_rebuild="$(index_rebuild_state "$concepts_dir" "$concepts_dir/INDEX.md" "$concepts_count")"
 step_12_marker="[STEP 12 · CONCEPT INDEX: $concepts_count concepts indexed | rebuild=$concepts_rebuild | fresh_invocation=true]"
-echo "$step_12_marker"
+emit_display_marker "$step_12_marker"
 emit_retrospective_trail_marker "step-12" "CONCEPT INDEX" "concepts_dir=$concepts_dir; index=$concepts_dir/INDEX.md" "$step_12_marker"
 
 projects_count="$(count_paths "$data_root/projects" dirs)"
@@ -405,7 +449,7 @@ if [[ -f "$status_path" ]]; then
   last_updated="$(extract_yaml_value "last_updated" "$status_path" 2>/dev/null || extract_yaml_value "updated" "$status_path" 2>/dev/null || printf 'unknown')"
 fi
 step_13_marker="[STEP 13 · STATUS COMPILE: $domains_count domains tracked | last_updated=$last_updated]"
-echo "$step_13_marker"
+emit_display_marker "$step_13_marker"
 emit_retrospective_trail_marker "step-13" "STATUS COMPILE" "projects=$projects_count; areas=$areas_count; status_path=$status_path" "$step_13_marker"
 
 wiki_dir="$data_root/wiki"
@@ -415,7 +459,7 @@ if [[ -d "$wiki_dir" ]] && have find; then
 fi
 wiki_rebuild="$(index_rebuild_state "$wiki_dir" "$wiki_dir/INDEX.md" "$wiki_count")"
 step_14_marker="[STEP 14 · WIKI INDEX: $wiki_count entries | rebuild=$wiki_rebuild | fresh_invocation=true]"
-echo "$step_14_marker"
+emit_display_marker "$step_14_marker"
 emit_retrospective_trail_marker "step-14" "WIKI INDEX" "wiki_dir=$wiki_dir; index=$wiki_dir/INDEX.md" "$step_14_marker"
 
 journal_dir="$data_root/_meta/journal"
@@ -426,8 +470,8 @@ if [[ -d "$journal_dir" ]] && have find; then
   dream_latest="$(latest_file "$journal_dir" '*-dream.md')"
 fi
 step_17_marker="[STEP 17 · DREAM JOURNAL: $dream_count recent dreams | latest=$dream_latest]"
-echo "$step_17_marker"
+emit_display_marker "$step_17_marker"
 emit_retrospective_trail_marker "step-17" "DREAM JOURNAL" "journal_dir=$journal_dir; primary_source=find" "$step_17_marker"
 
-trail_sid="${AUDIT_TRAIL_SESSION_ID:-unknown}"
+trail_sid="${LIFEOS_SESSION_ID:-${AUDIT_TRAIL_SESSION_ID:-unknown}}"
 echo "[TRAIL INDEX: $retrospective_trail_count trails written to _meta/runtime/$trail_sid/]"
