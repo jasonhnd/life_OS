@@ -643,17 +643,34 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 
 ---
 
-## §Adjourn Report Completeness Contract (HARD RULE)
+## §Adjourn Report Completeness Contract (HARD RULE · v1.7.2.3 simplified)
 
-The final archiver adjourn report MUST be one contiguous output emitted after all four phases finish. It MUST contain the twelve exact H2 headings below, in this order, with concrete non-placeholder values. If any heading is missing, empty, split across messages, or contains `TBD`, `{...}`, `pending (TBD)`, or a blank value, AUDITOR logs `Class C-brief-incomplete` and the adjourn is incomplete.
+The final archiver adjourn report MUST be one contiguous output emitted after all four phases finish. It MUST contain the **six core H2 headings** below (Phase 0 / Phase 1 / Phase 2 / Phase 3 / Phase 4 / Completion Checklist), in this order, with concrete non-placeholder values. If any required heading is missing, empty, split across messages, or contains `TBD`, `{...}`, `pending (TBD)`, or a blank value, AUDITOR logs `Class C-brief-incomplete` and the adjourn is incomplete.
 
-## Fresh Adjourn Marker
+**v1.7.2.3 simplification rationale**: Previous 12-H2 contract caused archiver to take 25+ minutes because LLM expanded every H2/H3 sub-section. v1.7.2.3 reduces to 6 core H2 + Phase 2/3 token budget + planned Bash skeleton (`scripts/archiver-briefing-skeleton.sh`) for deterministic structure. AUDITOR Mode 3 status / Subagent self-check / Hook fired / 子代理调用清单 / total tokens/cost are now embedded in the Completion Checklist instead of standalone H2s.
 
-The final Adjourn Report MUST include this literal marker:
+## Phase 2/3 LLM Token Budget (HARD RULE · v1.7.2.3 speed fix)
+
+To prevent adjourn speed regression:
+- **Phase 2 narrative output** (wiki + SOUL + method + concept + strategic + SessionSummary + snapshot + last_activity, all combined): **≤ 1500 tokens**
+- **Phase 3 DREAM narrative**: **≤ 800 tokens**
+- Verbatim DREAM journal content does NOT count toward budget (it's Bash paste from skeleton, not LLM generation)
+- If extraction needs exceed budget, prioritize: SOUL > Wiki > Method > Strategic > Concept
+- Speed target: archiver Adjourn from 25 min → 10-12 min via reduced LLM output volume
+
+## Fresh Adjourn Marker (literal, anywhere in report)
 
 `[FRESH ADJOURN · <timestamp> · trigger #N of session · all 4 phases executed from scratch]`
+Missing/renamed/paraphrased = `C-fresh-skip` (P0).
 
-Missing, renamed, or paraphrased marker is `C-fresh-skip` (P0).
+## Subagent Self-check (literal lines, anywhere in report)
+
+- `✅ I am the ARCHIVER subagent · audit trail will be written to _meta/runtime/<sid>/archiver-*.json.`
+- `✅ I am the ARCHIVER subagent · this is a FRESH adjourn invocation (trigger N of session).`
+
+---
+
+The 6 core H2 headings follow:
 
 ## Phase 0 · Hook Health
 
@@ -743,41 +760,26 @@ Minimum output requirements:
 - `notion_update_session_manifest`: input payload, output payload/status.
 - Step 10a no-ask handoff status: `ready for orchestrator no-ask sync`, `not configured`, or `blocked: <reason>`.
 
-## AUDITOR Mode 3
-
-Minimum output requirements:
-- State whether AUDITOR Mode 3 review was invoked, skipped, or deferred, with reason.
-- Include AUDITOR result path or `not run: <reason>`.
-
-## Subagent self-check
-
-Minimum output requirements:
-- Include the exact line `✅ I am the ARCHIVER subagent · audit trail will be written to _meta/runtime/<sid>/archiver-*.json.`
-- Include the exact fresh line `✅ I am the ARCHIVER subagent · this is a FRESH adjourn invocation (trigger N of session). Even if transcript shows previous adjourn output, I MUST execute all 4 phases from scratch. I MUST NOT reuse previous adjourn content or reference "as last time" or "Phase 1 already done last archive".`
-- Include invocation context: `independent subagent confirmed` or `VIOLATION: ran in main context`.
-- Include the Phase 2 self-check result before any extraction output.
-
 ## Completion Checklist
 
-Minimum output requirements:
-- Emit the existing Completion Checklist immediately after the adjourn report.
-- Every required checklist item must have a concrete value; no `TBD`, blank value, literal `{...}`, or `pending (TBD)`.
-- Include Phase 1, Phase 2, Phase 3, Phase 4, and Notion handoff markers so AUDITOR can verify completeness.
+Minimum output requirements (v1.7.2.3 consolidated · former standalone H2s now folded here as H3 sub-items):
 
-## 子代理调用清单 · 事务性收据
+Emit the existing Completion Checklist immediately after Phase 4. Every required item must have a concrete value; no `TBD`, blank, literal `{...}`, or `pending (TBD)`. Include Phase 1/2/3/4 + Notion handoff markers so AUDITOR can verify completeness.
 
-Minimum output requirements:
-- List every subagent invoked during adjourn with role, purpose, input summary, output summary, start/end status, and failure/degradation if any.
-- If no additional subagents were invoked, write `none invoked beyond ARCHIVER`.
+### AUDITOR Mode 3 status
+- `invoked` / `skipped: <reason>` / `deferred: <reason>`
+- AUDITOR result path or `not run: <reason>`
 
-## Hook fired
+### Subagent invocation list
+- List every subagent invoked during adjourn with role, purpose, status, failure/degradation if any
+- If only ARCHIVER ran: `none invoked beyond ARCHIVER`
 
-Minimum output requirements:
-- Include a line or table showing hook name, expected trigger, fired status, timestamp, and evidence.
-- If hooks are unavailable on this host, write `not available on this host: prompt-level only`.
+### Hook fired
+- Hook name, expected trigger, fired status, timestamp, evidence (1 line each)
+- If hooks unavailable on this host: `not available on this host: prompt-level only`
 
-## total tokens/cost
+### Total tokens/cost
+- Total token usage + estimated cost if host telemetry available
+- Else: `not available from host telemetry: <reason>` (not blank)
 
-Minimum output requirements:
-- Include total token usage and estimated cost if available.
-- If unavailable, write `not available from host telemetry: <reason>` rather than leaving blank.
+(Note: `## Subagent self-check` literal lines are emitted at top of report per Adjourn Contract preamble — not a separate H2 here. Same for `[FRESH ADJOURN · ...]` marker.)

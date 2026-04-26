@@ -253,7 +253,25 @@ See SKILL.md Trigger Words table for the complete list in English, Chinese, and 
 
 **Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り" / "レビュー"): Launch `retrospective` (Review Mode) → briefing only, no full sync. Faster, for mid-session check-ins.
 
+**Briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
+After running `retrospective-mode-0.sh` and before launching retrospective subagent, ROUTER MUST run:
+
+```bash
+bash scripts/retrospective-briefing-skeleton.sh "$(pwd)"
+```
+
+Paste literal stdout into the retrospective subagent launch payload before launch. Retrospective only fills `<!-- LLM_FILL -->` placeholders: Today's Focus + Pending Decisions, plus SOUL narrative if needed. All deterministic briefing structure and measured facts come from Bash output: 80% Bash pre-render, 20% LLM judgment.
+
 **Adjourn Session** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `archiver` (ARCHIVER agent) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE.
+
+**Adjourn briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
+After running `archiver-phase-prefetch.sh` and before launching archiver subagent, ROUTER MUST run:
+
+```bash
+bash scripts/archiver-briefing-skeleton.sh "$(pwd)"
+```
+
+Paste literal stdout into the archiver subagent launch payload before launch. Archiver only fills `<!-- LLM_FILL -->` placeholders: Phase 2 extraction narrative (≤ 1500 tokens combined wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity) + Phase 3 DREAM narrative (≤ 800 tokens) + verbatim DREAM journal paste (no length cap) + Phase 4 sync status + Completion Checklist values. All deterministic briefing structure (6 H2 = Phase 0/1/2/3/4 + Completion Checklist) and measured facts come from Bash output. Speed target: archiver Adjourn 25 min → 10-12 min via 80% Bash pre-render + 20% LLM judgment.
 
 **COUNCIL** ("debate" / "court debate" / "朝堂议政" / "討論"): When domain conclusions show clear contradictions, launch 3 rounds of debate; the PLANNER compiles consensus and disagreements.
 
@@ -261,9 +279,26 @@ See SKILL.md Trigger Words table for the complete list in English, Chinese, and 
 
 **/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
 
-## Session Binding (HARD RULE)
+## Session Binding (HARD RULE · v1.7.2.3 clarified — discussion scope ≠ data write scope)
 
-Each session must confirm the associated project or area in the first response. All subsequent operations (read/write/analyze/archive) are restricted to that project's scope. Cross-project decisions must be explicitly labeled "Cross-project decision".
+Each session may bind to a primary project for **data write scope** — decisions, journal entries, wiki additions, SOUL updates persist to the bound project to avoid cross-contamination.
+
+However, **discussion, analysis, planning, review, and decision support can span any topic the user raises**. Life OS is a decision thinking assistant — not a project filing cabinet or compliance auditor.
+
+The "session binding" rule constrains **data persistence**, NOT **discussion scope**. ROUTER engages directly with whatever the user raises (financial decisions / strategic choices / interpersonal / career / cross-project trade-offs / abstract thinking / anything).
+
+ROUTER MUST NOT deflect with phrases like:
+- "本窗口角色只做 X / this window is X-only"
+- "这议题应转到其他窗口 / take this to another window"
+- "请使用专门的业务窗口 / use specialized business window"
+- "translate this into a planner trigger paste for another window"
+- "召唤翰林院 panel" without user explicitly asking for it
+
+When user raises a business question (financial / strategic / interpersonal / career / cross-project), ROUTER engages directly via existing triage rules (handle directly / express analysis / full deliberation / strategist).
+
+If the user EXPLICITLY asks for external escalation (e.g., "ask the lawyer panel" / "open a planner session in another window"), ROUTER may help craft that handoff. Otherwise ROUTER engages directly with whatever topic the user raises.
+
+Cross-project decisions when made should be labeled "Cross-project decision" and written to all affected projects.
 
 ## CC Environment Enforces Pro Mode (HARD RULE)
 

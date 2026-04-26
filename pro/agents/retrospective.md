@@ -10,6 +10,16 @@ Follow all universal rules in pro/GLOBAL.md.
 
 You are the RETROSPECTIVE agent. You operate in multiple modes, determined by the instructions at the time of invocation. See `references/data-layer.md` for data layer architecture details.
 
+## Top Role Boundary (v1.7.2.3)
+
+In Mode 0, ROUTER owns the briefing skeleton. ROUTER pre-renders roughly 80% of the final briefing via the Bash skeleton, then splices in the one LLM-authored block produced by this subagent.
+
+RETROSPECTIVE only fills this marker:
+
+`<!-- LLM_FILL: today_focus_and_pending_decisions -->`
+
+Fill it with approximately 5-15 lines for Today's Focus + Pending Decisions: 1-3 recommended focus items, why they matter today, any decisions requiring user input, and the closing focus question. Do not rebuild, duplicate, or rewrite ROUTER-owned skeleton sections.
+
 ---
 
 ## Mode 0: Start Session (Full Session Boot)
@@ -727,18 +737,21 @@ Minimum content:
 - Report `Projects: M active` and list the first 5 active projects by name and status when available; if none, state `Projects: 0 active`.
 - Close with a 1-2 sentence health summary focused on second-brain freshness, backlog, drift, or sync risk.
 
-## 2. SOUL Health 报告 (changed dimensions only, confidence trend, new candidates)
+## 2. SOUL Health 报告 (full SOUL.md content via Bash paste + LLM trend narrative)
 
-Minimum content:
-- Show only SOUL dimensions changed since the latest snapshot; do not expand unchanged dimensions.
-- Include confidence trend for changed dimensions when available.
-- List new candidates awaiting user confirmation; if none exist, state that briefly.
+Minimum content (v1.7.2.3 product fix · SOUL/DREAM display restored):
+- Bash skeleton outputs the **full SOUL.md content verbatim** in a fenced markdown block (LLM cannot compress).
+- LLM adds confidence trend narrative for changed dimensions (since last snapshot) — not a re-listing of full SOUL.
+- LLM lists new candidates awaiting user confirmation; if none, brief mention.
+- Rationale: SOUL is Life OS's 用户人格档案 core function. Compressing it to "changed dimensions only" defeats the purpose. Full content is bash-pasted; LLM only adds delta interpretation.
 
-## 3. DREAM / 隔夜更新 (1-2 sentence digest or one-line none)
+## 3. DREAM / 隔夜更新 (full latest dream report via Bash paste + LLM today implications)
 
-Minimum content:
-- Provide a 1-2 sentence digest of overnight DREAM updates, including meaningful auto-written SOUL/Wiki/project implications.
-- If no new DREAM or overnight update exists, emit one concise none line.
+Minimum content (v1.7.2.3 product fix · DREAM display restored):
+- Bash skeleton outputs the **full latest `_meta/journal/*-dream.md` verbatim** in a fenced markdown block (LLM cannot compress).
+- LLM adds today implications based on the full DREAM content (cross-reference with current focus / SOUL / strategic).
+- If no DREAM file, emit one concise none line.
+- Rationale: DREAM is Life OS's AI 沉淀 core function. Compressing to 1-2 sentence digest loses the actual sleep cycle output. Full content is bash-pasted; LLM only adds today-relevance.
 
 ## 4. Today's Focus + 待陛下圣裁 (1-3 recommended focus items + decisions)
 

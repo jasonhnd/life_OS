@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.2.1-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.2.3-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -82,6 +82,12 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.7.2.3
+
+v1.7.2.3 clarifies Mode 0 ownership for RETROSPECTIVE. ROUTER now owns the Bash-rendered briefing skeleton and pre-renders roughly 80% of the report, while the subagent contributes only the `<!-- LLM_FILL: today_focus_and_pending_decisions -->` block with a short Today's Focus and Pending Decisions section. ROUTER splices that block back into the skeleton, keeping the briefing grounded, compact, and easier to audit.
 
 ---
 

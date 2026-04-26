@@ -1,6 +1,8 @@
 ---
 name: life-os
-version: "1.7.2.1"
+version: "1.7.2.3"
+commit_sha: "PLACEHOLDER"
+install_date: "PLACEHOLDER"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
 ---
 
@@ -168,6 +170,15 @@ bash ~/.claude/skills/life_OS/scripts/retrospective-mode-0.sh "$(pwd)"
 ```
 
 Paste literal stdout containing 11 `[STEP N · ...]` markers into subagent launch payload AND user-visible briefing wrap. Retrospective MUST NOT re-run steps 2/3/4/5/8/10/11/12/13/14/17; it consumes pre-fetched values. Subagent handles only LLM judgment steps 1/6/9/16/18. Steps 7/15 are partial.
+
+**Briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
+After running `retrospective-mode-0.sh` and before launching retrospective subagent, ROUTER MUST run:
+
+```bash
+bash scripts/retrospective-briefing-skeleton.sh "$(pwd)"
+```
+
+Paste literal stdout into the retrospective subagent launch payload before launch. Retrospective only fills `<!-- LLM_FILL -->` placeholders: Today's Focus + Pending Decisions, plus SOUL narrative if needed. All deterministic briefing structure and measured facts come from Bash output: 80% Bash pre-render, 20% LLM judgment.
 
 **Triage reasoning visibility (HARD RULE · v1.7.1 R8):**
 After trigger detection and before launching any subagent, ROUTER MUST output one plain-language line to the user:

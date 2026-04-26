@@ -6,6 +6,27 @@
 
 ---
 
+## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE skeleton ownership
+
+> Subagent D ownership patch。対象は `pro/agents/retrospective.md`、`SKILL.md`、3つの README、3つの CHANGELOG のみです。
+
+### 変更
+
+- **RETROSPECTIVE の責務を縮小**: `pro/agents/retrospective.md` は、ROUTER が Bash skeleton で Mode 0 の約80%を事前レンダリングすることを明記しました。
+- **単一の LLM fill slot**: subagent は `<!-- LLM_FILL: today_focus_and_pending_decisions -->` だけを約5-15行で埋め、Today's Focus と Pending Decisions を書きます。ROUTER がそのブロックを skeleton に差し込みます。
+- **バージョン表記**: `SKILL.md` と README badges を `1.7.2.3` に更新しました。
+- **install_sha フィールドによる SHA gap 修正**: `SKILL.md` frontmatter に `commit_sha` と `install_date` フィールドを追加しました。`setup-hooks.sh` は git clone deployment 時にこれらを自動書き込みします。新しい `scripts/lib/sha-fallback.sh` は 3 段階の解決を提供します: `SKILL.md` frontmatter → `.install-meta` JSON → `git rev-parse HEAD` → `unknown`。install-skill deployment で発生する `Local commit SHA: unknown` bug を解消します。
+- **SOUL/DREAM 表示復活(v1.6.x 体験へ回帰)**: `scripts/retrospective-briefing-skeleton.sh` が `SOUL.md` 全文と最新 `_meta/journal/*-dream.md` 全文を Bash で fenced markdown block に逐字 paste するようになりました。LLM はその上に delta 解釈(confidence trend / today implications)のみを追加し、SOUL/DREAM の構造的内容を圧縮できません。`pro/agents/retrospective.md` ## 2 / ## 3 spec を「Bash paste 全文 + LLM 趨勢解釈」モデルへ更新。v1.7.2.1 の過剰減算(SOUL Health を「変化次元のみ」、DREAM を「1-2 文 digest」へ圧縮)の副作用を撤回。
+- **退朝 12 H2 → 6 H2 + LLM token budget(速度修正)**: `pro/agents/archiver.md` Adjourn Report Completeness Contract を 12 H2 から 6 コア H2(Phase 0/1/2/3/4 + Completion Checklist)へ縮小。AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost を Completion Checklist 配下の H3 サブ項目へ折り畳みました。新規「Phase 2/3 LLM Token Budget」HARD RULE: Phase 2 narrative ≤ 1500 tokens(wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity 合算)、Phase 3 narrative ≤ 800 tokens。verbatim DREAM journal は budget に含まない(Bash paste)。速度目標: archiver Adjourn 25 分 → 10-12 分。
+- **archiver-briefing-skeleton.sh 新規(archiver の Bash 骨格)**: 新 `scripts/archiver-briefing-skeleton.sh` は `retrospective-briefing-skeleton.sh` の設計を模倣 — 6 H2 Adjourn Report 骨格を出力し、Phase 0/1/4 + 計測事実(outbox path / decision-task-journal counts / wiki-SOUL-DREAM stat / git status / Stop hook health)を Bash paste します。LLM は `<!-- LLM_FILL -->` placeholder(Phase 2/3 narrative + Completion Checklist 値)のみを埋めます。`pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Step 10 Adjourn Session に配線済み。既存 `archiver-phase-prefetch.sh`(R11 audit trail)と相補的。
+- **Session Binding HARD RULE 書き直し(プロダクト方向修正)**: `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` の Session Binding HARD RULE を明確化: **discussion scope ≠ data write scope**。Session binding は**データ永続化**(decisions/wiki/SOUL がどのプロジェクトに書かれるか)を制約し、**議論話題**は制約しない。ROUTER はユーザーが提起したあらゆる議題(財務 / 戦略 / 対人 / クロスプロジェクト / 抽象)に直接対応する。ROUTER は明示的なユーザー要請がない限り「本窗口角色只做 X」/「请转到其他窗口」/「translate to planner trigger paste for another window」/「召唤翰林院 panel」の deflect 表現を禁止。13 ラウンドの hardening が累積させた「LLM が session binding を業務話題禁止区域と誤読する」副作用を撤回。Life OS を意思決定思考アシスタントの初心へ復元。
+
+### 移行
+
+second-brain の移行は不要です。
+
+---
+
 ## [1.7.2.1] - 2026-04-26 - レポート形状とテーマ美観の引き算ホットフィックス
 
 > 引き算だけの小さなホットフィックスです。見えるルールを減らし、テーマの美しさを戻し、バージョンマーカー位置を固定します。v1.7.2.1 を超える新しいバージョン線は追加しません。

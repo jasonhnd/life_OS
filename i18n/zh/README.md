@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.2.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.2.3-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -74,6 +74,12 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.7.2.3 新特性
+
+v1.7.2.3 明确 RETROSPECTIVE 的 Mode 0 职责边界：ROUTER 负责 Bash 预渲染的 briefing skeleton，先生成约 80% 的报告；subagent 只填写 `<!-- LLM_FILL: today_focus_and_pending_decisions -->` 这一处，用约 5-15 行输出 Today's Focus 与 Pending Decisions。随后 ROUTER 把该块拼回 skeleton，让 briefing 更稳定、精简、易审计。
 
 ---
 

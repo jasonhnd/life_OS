@@ -251,6 +251,60 @@ if [ -f "$REGISTER_SCRIPT" ]; then
   bash "$REGISTER_SCRIPT"
 fi
 
+write_install_sha() {
+  local source_root
+  source_root="$(cd "$SOURCE_DIR/.." && pwd)"
+  local skill_file="$source_root/SKILL.md"
+
+  if [ ! -f "$skill_file" ]; then
+    echo "SKILL.md not found at $skill_file; skipping install_sha write"
+    return 0
+  fi
+
+  if ! git -C "$source_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "$source_root is not a git worktree; skipping install_sha write"
+    return 0
+  fi
+
+  local commit_sha
+  if ! commit_sha="$(git -C "$source_root" rev-parse HEAD 2>/dev/null)"; then
+    echo "Could not read git HEAD from $source_root; skipping install_sha write"
+    return 0
+  fi
+  local install_date
+  install_date="$(date -I 2>/dev/null || date '+%Y-%m-%d')"
+
+  local -a sed_inplace
+  if sed --version >/dev/null 2>&1; then
+    sed_inplace=(sed -i -E)
+  else
+    sed_inplace=(sed -i '' -E)
+  fi
+
+  if grep -q '^commit_sha:' "$skill_file"; then
+    "${sed_inplace[@]}" "s|^commit_sha:.*|commit_sha: \"$commit_sha\"|" "$skill_file"
+  elif grep -q '^version:' "$skill_file"; then
+    "${sed_inplace[@]}" "/^version:/a\\
+commit_sha: \"$commit_sha\"
+" "$skill_file"
+  else
+    echo "No version: line found in $skill_file; skipping install_sha write"
+    return 0
+  fi
+
+  if grep -q '^install_date:' "$skill_file"; then
+    "${sed_inplace[@]}" "s|^install_date:.*|install_date: \"$install_date\"|" "$skill_file"
+  elif grep -q '^commit_sha:' "$skill_file"; then
+    "${sed_inplace[@]}" "/^commit_sha:/a\\
+install_date: \"$install_date\"
+" "$skill_file"
+  fi
+
+  echo "Recorded install commit_sha=${commit_sha:0:7} install_date=$install_date in $skill_file"
+}
+
+write_install_sha
+
 echo ""
 echo "🏛️ Setup complete. Life OS v1.7 hooks active:"
 echo "   · SessionStart      $VERSION_HOOK_ID"

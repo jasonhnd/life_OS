@@ -215,13 +215,13 @@ check_briefing_completeness() {
   local kind=""
   local heading
   local -a missing=()
-  local retrospective_heading_0='## 0. ${RETRO_NAME} · 上朝准备(含 hook 健康 + 版本核查 + Cortex 状态)'
+  local retrospective_heading_0='## 0. <display name> · 上朝准备'
   local -a retrospective_headings=(
-    "## 1. 二脑同步状态"
+    "## 1. 第二大脑同步状态"
     "## 2. SOUL Health 报告"
-    "## 3. 18 步执行(自然输出,不强制 marker)"
-    "## 4. 御史台巡查(AUDITOR Mode 3)"
-    "## 5. 待陛下圣裁"
+    "## 3. DREAM / 隔夜更新"
+    "## 4. Today's Focus + 待陛下圣裁"
+    "## 5. 系统状态"
   )
   local -a archiver_headings=(
     "## Phase 1"
@@ -233,14 +233,14 @@ check_briefing_completeness() {
 
   if has 'Launch\(archiver\)|ARCHIVER subagent|Completion Checklist|Session Closed'; then
     kind="archiver"
-  elif has 'Launch\(retrospective\)|RETROSPECTIVE subagent|Pre-Session Preparation|Session Briefing|上朝准备|二脑同步状态'; then
+  elif has 'Launch\(retrospective\)|RETROSPECTIVE subagent|Pre-Session Preparation|Session Briefing|上朝准备|第二大脑同步状态'; then
     kind="retrospective"
   else
     missing+=("briefing type marker")
   fi
 
   if [[ "$kind" == "retrospective" ]]; then
-    if ! has '^## 0\. .+ · 上朝准备\(含 hook 健康 \+ 版本核查 \+ Cortex 状态\)'; then
+    if ! has '^## 0\. .+ · 上朝准备'; then
       missing+=("$retrospective_heading_0")
     fi
     for heading in "${retrospective_headings[@]}"; do

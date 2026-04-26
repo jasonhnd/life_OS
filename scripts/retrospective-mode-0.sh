@@ -19,6 +19,14 @@ for _audit_trail_lib in "$SCRIPT_DIR/lib/audit-trail.sh" "$SCRIPT_ROOT/scripts/l
   fi
 done
 unset _audit_trail_lib
+
+for _sha_fallback_lib in "$SCRIPT_DIR/lib/sha-fallback.sh" "$SCRIPT_ROOT/scripts/lib/sha-fallback.sh"; do
+  if [[ -r "$_sha_fallback_lib" ]]; then
+    . "$_sha_fallback_lib" || true
+    break
+  fi
+done
+unset _sha_fallback_lib
 if [[ -z "${LIFEOS_SESSION_ID:-}" ]]; then
   export LIFEOS_SESSION_ID="$(date -u +%Y%m%dT%H%M%S)"
 fi
@@ -171,10 +179,39 @@ retrospective_display_name() {
   esac
 }
 
-git_head() {
+git_short_sha() {
   local root="$1"
+  local resolved_sha=""
+  if command -v resolve_lifeos_commit_sha >/dev/null 2>&1; then
+    resolved_sha="$(resolve_lifeos_commit_sha "$root" 2>/dev/null || true)"
+    if [[ -n "$resolved_sha" && "$resolved_sha" != "unknown" ]]; then
+      printf '%s\n' "${resolved_sha:0:7}"
+      return
+    fi
+  fi
   if have git && git -C "$root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     git -C "$root" rev-parse --short HEAD 2>/dev/null || printf 'unknown\n'
+  else
+    printf 'unknown\n'
+  fi
+}
+
+git_head() {
+  git_short_sha "$1"
+}
+
+git_commit_sha() {
+  local root="$1"
+  local resolved_sha=""
+  if command -v resolve_lifeos_commit_sha >/dev/null 2>&1; then
+    resolved_sha="$(resolve_lifeos_commit_sha "$root" 2>/dev/null || true)"
+    if [[ -n "$resolved_sha" && "$resolved_sha" != "unknown" ]]; then
+      printf '%s\n' "$resolved_sha"
+      return
+    fi
+  fi
+  if have git && git -C "$root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git -C "$root" rev-parse HEAD 2>/dev/null || printf 'unknown\n'
   else
     printf 'unknown\n'
   fi
@@ -214,6 +251,32 @@ local_skill_version() {
   done
 
   printf 'unknown\n'
+}
+
+remote_lifeos_commit_sha() {
+  local remote_json=""
+  local remote_sha=""
+
+  if have curl; then
+    remote_json="$(curl -fsSL --max-time 5 "https://api.github.com/repos/jasonhnd/life_OS/commits/main" 2>/dev/null || true)"
+  elif have wget; then
+    remote_json="$(wget -qO- --timeout=5 "https://api.github.com/repos/jasonhnd/life_OS/commits/main" 2>/dev/null || true)"
+  fi
+
+  if [[ -n "$remote_json" ]]; then
+    remote_sha="$(printf '%s\n' "$remote_json" \
+      | grep -m 1 -E '^[[:space:]]*"sha":[[:space:]]*"[0-9a-f]{40}"' \
+      | sed -E 's/.*"sha":[[:space:]]*"([0-9a-f]{40})".*/\1/' \
+      || true)"
+  fi
+
+  if [[ -z "$remote_sha" ]] && have git; then
+    remote_sha="$(git -c http.lowSpeedLimit=1 -c http.lowSpeedTime=5 ls-remote "https://github.com/jasonhnd/life_OS.git" "refs/heads/main" 2>/dev/null \
+      | sed -n -E '1s/[[:space:]].*$//p' \
+      || true)"
+  fi
+
+  [[ -n "$remote_sha" ]] && printf '%s\n' "$remote_sha" || printf 'unknown\n'
 }
 
 version_status() {
@@ -380,6 +443,13 @@ echo "$RETRO_NAME · 步 8 · 版本核查"
 emit_display_marker "$step_8_marker"
 step_8_local_version="$(local_skill_version)"
 echo "[Local SKILL.md version: $step_8_local_version]"
+step_8_local_commit_sha="$(git_commit_sha "$SCRIPT_ROOT")"
+step_8_remote_commit_sha="$(remote_lifeos_commit_sha)"
+echo "[Local commit SHA: $step_8_local_commit_sha]"
+echo "[Remote commit SHA: $step_8_remote_commit_sha]"
+if [[ "$step_8_local_commit_sha" != "unknown" && "$step_8_remote_commit_sha" != "unknown" && "$step_8_local_commit_sha" != "$step_8_remote_commit_sha" ]]; then
+  echo "[SHA GAP WARNING: local and remote commits differ. Guidance: git fetch origin main; inspect git log --oneline --left-right HEAD...origin/main; use git pull --ff-only to update safely; use git reset --hard origin/main only after backing up and only if you intend to discard local work.]"
+fi
 step_8_remote_check_script="$SCRIPT_ROOT/scripts/lifeos-version-check.sh"
 printf '[Remote check (forced fresh):\n'
 if [[ -f "$step_8_remote_check_script" ]]; then

@@ -6,6 +6,27 @@
 
 ---
 
+## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE 骨架所有权
+
+> Subagent D ownership patch。范围仅限 `pro/agents/retrospective.md`、`SKILL.md`、三份 README 和三份 CHANGELOG。
+
+### 变更
+
+- **收窄 RETROSPECTIVE 职责**：`pro/agents/retrospective.md` 现在说明 ROUTER 通过 Bash skeleton 预渲染 Mode 0 约 80% 内容。
+- **单一 LLM 填充槽**：subagent 只填 `<!-- LLM_FILL: today_focus_and_pending_decisions -->`，用约 5-15 行生成 Today's Focus + Pending Decisions；ROUTER 再把该块拼回 skeleton。
+- **版本标记**：`SKILL.md` 与 README badges 更新为 `1.7.2.3`。
+- **install_sha 字段补齐 SHA 缺口**：`SKILL.md` frontmatter 现在携带 `commit_sha` 和 `install_date` 字段。`setup-hooks.sh` 会在 git clone 部署时自动写入它们。新增的 `scripts/lib/sha-fallback.sh` 提供 3 层解析：`SKILL.md` frontmatter → `.install-meta` JSON → `git rev-parse HEAD` → `unknown`。关闭 install-skill 部署中的 `Local commit SHA: unknown` bug。
+- **SOUL/DREAM 显示恢复(回归 v1.6.x 体验)**：`scripts/retrospective-briefing-skeleton.sh` 现在用 Bash 完整 paste `SOUL.md` 全文 + 最新 `_meta/journal/*-dream.md` 全文到 fenced markdown block。LLM 只在上面加 delta 解读(confidence trend / today implications),不能压缩 SOUL/DREAM 结构内容。`pro/agents/retrospective.md` ## 2 / ## 3 spec 改为"Bash paste 全文 + LLM 趋势解读"模型。撤销 v1.7.2.1 过度减法把 SOUL Health 压缩到"仅变化维度" + DREAM 压缩到"1-2 句 digest"的副作用。
+- **退朝 12 H2 → 6 H2 + LLM token budget(速度修)**:`pro/agents/archiver.md` Adjourn Report Completeness Contract 从 12 H2 减到 6 核心 H2(Phase 0/1/2/3/4 + Completion Checklist)。AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost 折叠为 Completion Checklist 下的 H3 子项。新增"Phase 2/3 LLM Token Budget" HARD RULE:Phase 2 narrative ≤ 1500 tokens(合并 wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity),Phase 3 narrative ≤ 800 tokens。verbatim DREAM journal 不计入 budget(Bash paste)。速度目标:archiver Adjourn 25 分钟 → 10-12 分钟。
+- **archiver-briefing-skeleton.sh 新建(archiver 的 Bash 骨架)**:新 `scripts/archiver-briefing-skeleton.sh` 镜像 `retrospective-briefing-skeleton.sh` 设计 — 输出 6 H2 Adjourn Report 框架,Bash paste Phase 0/1/4 + 实测数据(outbox 路径 / decision-task-journal 计数 / wiki-SOUL-DREAM stat / git status / Stop hook 健康)。LLM 只填 `<!-- LLM_FILL -->` placeholder(Phase 2/3 narrative + Completion Checklist 值)。已 wire 进 `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Step 10 Adjourn Session 段。与现有 `archiver-phase-prefetch.sh`(R11 audit trail)互补。
+- **Session Binding HARD RULE 重写(产品方向修正)**:`pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Session Binding HARD RULE 澄清:**discussion scope ≠ data write scope**。Session binding 约束**数据持久化**(decisions/wiki/SOUL 写哪个项目),不约束**讨论话题**。ROUTER 直接处理用户提出的任何议题(财务 / 战略 / 人际 / 跨项目 / 抽象)。ROUTER 禁止 deflect 措辞 "本窗口角色只做 X" / "请转到其他窗口" / "translate to planner trigger paste for another window" / "召唤翰林院 panel" 除非用户明确要求。撤销 13 轮 hardening 累积的"LLM 把 session binding 误读为业务议题禁区"副作用。恢复 Life OS 决策思考助手的初心。
+
+### 迁移
+
+无需 second-brain 迁移。
+
+---
+
 ## [1.7.2.1] - 2026-04-26 - 报告形态与主题审美减法热修复
 
 > 只做减法的小型热修复：减少可见规则，恢复主题审美，并固定版本标记位置。不新增超过 v1.7.2.1 的版本线。
