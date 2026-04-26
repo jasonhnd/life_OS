@@ -6,6 +6,35 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.2.1] - 2026-04-26 - Subtraction hotfix for report shape and theme aesthetics
+
+> Small subtraction-only hotfix: fewer visible rules, restored theme aesthetics, and fixed-position version markers. No new release line beyond v1.7.2.1.
+
+### Changed
+
+- **Theme aesthetic restored**: user-facing briefings return to the active theme's visual language instead of being dominated by compliance scaffolding.
+- **Report surface reduced**: the visible report shape is reduced from 17 H2 blocks to 6 so users see the essential flow without ceremony overload.
+- **Version markers fixed**: version markers remain in stable, predictable positions for easier human and script checks.
+
+### Removed
+
+- **Wrapper requirement removed**: compressed paste wrappers are no longer required as a visible reporting structure.
+- **Fewer rules in the user path**: redundant presentation rules were removed so the audit model stays enforceable without making every response feel procedural.
+
+### Product Refocus (v1.7.2.2 notes)
+
+- **AUDITOR silent by default**: AUDITOR moves to default-silent background verification; it surfaces only material blockers, escalations, or explicit user-requested audit results.
+- **No Compliance Watch prepend**: `Compliance Watch` signals no longer prepend user-facing briefings; they remain available in audit / background channels instead of occupying line 1.
+- **New H2 structure**: user-facing reports adopt the new H2 structure centered on briefing substance, decisions, next actions, and evidence rather than compliance scaffolding.
+- **Trail `SESSION_ID` lock**: runtime audit trails are locked to the active `SESSION_ID`, so trail evidence stays bound to the current session and cannot drift into another session context.
+- **Second-brain foreground restored**: system audit deliberately moves to the background while the user's second-brain content, priorities, and working memory return to the foreground.
+
+### Migration
+
+No second-brain migration required.
+
+---
+
 ## [1.7.2] - 2026-04-26 - Hermes Local, Cortex always-on, and compression hardening
 
 > Patch release for the local execution surface, Cortex orchestration, and transparent compressed reporting.

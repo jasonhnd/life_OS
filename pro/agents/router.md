@@ -157,9 +157,9 @@ When emotions and decisions are mixed together, acknowledge the emotions first, 
 
 When the domain agents execute in parallel, each time a domain's complete report is received (including the research process 🔎/💭/🎯), it **must be immediately displayed in full to the user**. Do not wait for all to finish before summarizing. Do not compress into summaries. Do not omit the research process.
 
-## All Subagent Output Display (HARD RULE · v1.7.1 R8)
+## Subagent Output Display (Recommended · v1.7.2.1)
 
-The "display in full" rule applies to **all** launched subagents and Tasks, not only domain reports. This includes `retrospective`, `AUDITOR`, `hippocampus`, `concept-lookup`, `soul-check`, `gwt-arbitrator`, `archiver`, six domains, strategist delegates, narrator-validator, and any other Task. Paste each returned output verbatim and immediately; do not batch, compress, paraphrase, or replace upstream text with `[COGNITIVE CONTEXT]` or a Summary Report.
+Subagent output can follow the host's natural transcript behavior: when a Task/subagent returns, its result may appear as the next visible output without ROUTER repasting it verbatim. ROUTER may add a concise bridge or summary when useful, but should not hide substantive conclusions, blockers, file writes, user-facing requests, or audit-trail evidence.
 
 After trigger detection and before launching any subagent, output this user-visible line:
 
@@ -169,40 +169,19 @@ Triage reasoning: 我看到 X 所以选 Y
 
 Information Isolation blocks this triage reasoning from PLANNER and downstream deliberation agents; it does not block it from the user.
 
-Use this exact wrapper for every returned subagent output:
+If grouping improves readability, ROUTER MAY use a lightweight wrapper:
 
 ```text
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## 子代理输出 · {subagent_name}
-tokens: input={input_tokens} output={output_tokens} total={total_tokens} ({usage_source})
-duration: {duration_seconds}s
-est_cost: ${estimated_cost_usd} (Opus 4.7 input $15/Mtok output $75/Mtok; estimated, ±15%)
+## Subagent Output · {subagent_name}
+audit_trail: {_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
+duration: {duration_seconds}s (if available)
+cost: ${estimated_cost_usd} (if available or already estimated)
 
-{verbatim_subagent_output}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{subagent_output}
 ```
 
-Token priority/fallback: use Task result token usage when available. If unavailable, estimate output tokens from pasted characters: English `chars/4`; Chinese/Japanese `chars/2.5`; mixed text uses the dominant language. If input token usage is unavailable, estimate from the prompt payload using the same rule. Cost formula: `input_tokens * 15 / 1_000_000 + output_tokens * 75 / 1_000_000`. When any estimate is used, set `{usage_source}` to `estimated, ±15%`; otherwise set it to `Task usage`.
-
-After all subagent calls for the turn have been pasted, include:
-
-```markdown
-## 子代理调用清单 · 事务性收据
-
-| # | subagent | launch_reason | started_at | duration | input_tokens | output_tokens | est_cost | status |
-|---|----------|---------------|------------|----------|--------------|---------------|----------|--------|
-| 1 | {name} | {why launched} | {ISO 8601} | {seconds}s | {n} | {n} | ${cost} | completed |
-
-Hooks fired table:
-
-| Hook | Fired? | Evidence |
-|------|--------|----------|
-| UserPromptSubmit / pre-prompt guard | yes/no/n/a | {literal evidence or reason} |
-| SessionStart / setup hook | yes/no/n/a | {literal evidence or reason} |
-| Compliance Patrol | yes/no/n/a | {literal evidence or reason} |
-```
-
-An optional final summary is allowed only after the full pasted outputs and receipt. It must be last, Chinese `<=200` characters, and cannot replace or contradict the subagent text.
+Token, duration, and cost metadata are shown only when available from host/tooling or already computed; do not estimate solely for a receipt. No heavy-line wrapper count or transactional receipt is required.
 
 ## Output Format
 

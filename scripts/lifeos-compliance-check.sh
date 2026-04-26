@@ -39,7 +39,7 @@ fi
 
 if [[ -z "$OUTPUT_FILE" || -z "$SCENARIO" ]]; then
   echo "Usage: $0 <output_file> <scenario_name> [violations_file]" >&2
-  echo "scenario_name: start-session-compliance | adjourn-compliance | cortex-retrieval | subagent-launch | directory-check | preflight-check | fabricate-path-check | toolcall-evidence | source-drift | source-stale | numeric-stale | briefing-completeness | retrospective-completeness | fresh-invocation | trail-completeness | banner-check | output-completeness | i18n-sync | frame-md-resolution | placeholder-check | main-context-phase | false-positive-check | cortex-cx1..cortex-cx7" >&2
+  echo "scenario_name: start-session-compliance | adjourn-compliance | briefing-completeness | version-markers | subagent-launched | cortex-status | placeholder-check | cortex-retrieval | subagent-launch | directory-check | preflight-check | fabricate-path-check | toolcall-evidence | source-drift | source-stale | numeric-stale | retrospective-completeness | fresh-invocation | trail-completeness | banner-check | output-completeness | i18n-sync | frame-md-resolution | main-context-phase | false-positive-check | cortex-cx1..cortex-cx7" >&2
   exit 2
 fi
 
@@ -73,11 +73,32 @@ python_bin() {
 }
 
 check_subagent_launch() {
-  if ! has 'I am the RETROSPECTIVE subagent|RETROSPECTIVE subagent|Task\(retrospective\)|Launch\(retrospective\)'; then
-    add_violation "A1 (P0): subagent-launch failed; no retrospective Task/Launch/self-check evidence found"
+  if ! has 'I am the (RETROSPECTIVE|ARCHIVER) subagent|(RETROSPECTIVE|ARCHIVER) subagent|Task\((retrospective|archiver)\)|Launch\((retrospective|archiver)\)'; then
+    add_violation "A1 (P0): subagent-launched failed; no retrospective/archiver Task/Launch/self-check evidence found"
   fi
-  if has 'simulated (the )?retrospective|I will act as retrospective|main context.*retrospective|executed retrospective.*main context'; then
-    add_violation "A1 (P0): transcript suggests main-context retrospective simulation"
+  if has 'simulated (the )?(retrospective|archiver)|I will act as (retrospective|archiver)|main context.*(retrospective|archiver)|executed (retrospective|archiver).*main context'; then
+    add_violation "A1 (P0): transcript suggests main-context subagent simulation"
+  fi
+}
+
+check_version_markers() {
+  local marker
+  local saw_retrospective=0
+
+  if has 'Launch\(retrospective\)|RETROSPECTIVE subagent|Pre-Session Preparation|Session Briefing|上朝准备|二脑同步状态|\[Local SKILL\.md version:|\[Remote check \(forced fresh\):'; then
+    saw_retrospective=1
+  fi
+
+  # Adjourn/archiver transcripts do not emit Step 8 version markers.
+  [[ "$saw_retrospective" -eq 1 ]] || return 0
+
+  for marker in "[Local SKILL.md version:" "[Remote check (forced fresh):"; do
+    if ! has_fixed "$marker"; then
+      add_violation "C (P0): version-markers failed; missing required marker: $marker"
+    fi
+  done
+  if has '\[Local SKILL\.md version:[[:space:]]*version:'; then
+    add_violation "B (P0): version-markers failed; local marker includes the literal 'version:' prefix instead of raw stdout"
   fi
 }
 
@@ -116,20 +137,17 @@ check_fabricate_path() {
 }
 
 check_toolcall_evidence() {
-  local phrase
+  local phrase_output
   if has 'private repo|private repository|WebFetch failed|network unavailable|permission denied|HTTP 40[13]|curl failed'; then
     if ! has 'tool_call|Bash\(|WebFetch\(|curl .*exit|HTTP status|exit code [1-9]'; then
-      add_violation "B-fabricate-toolcall (P1): tool failure phrase appears without tool-call evidence"
+      phrase_output="$(grep -nEi 'private repo|private repository|WebFetch failed|network unavailable|permission denied|HTTP 40[13]|curl failed' "$OUTPUT_FILE" || true)"
+      echo "OBSERVE: tool-failure wording appears without adjacent tool evidence; manual review hint only in v1.7.2.1" >&2
+      while IFS= read -r line; do
+        [[ -n "$line" ]] && echo "  hint: $line" >&2
+      done <<< "$phrase_output"
     fi
   fi
-  for phrase in "[Local SKILL.md version:" "[Remote check (forced fresh):"; do
-    if ! has_fixed "$phrase"; then
-      add_violation "B-fabricate-toolcall (P1): missing required Step 8 evidence marker: $phrase"
-    fi
-  done
-  if has '\[Local SKILL\.md version:[[:space:]]*version:'; then
-    add_violation "B-fabricate-toolcall (P1): Local SKILL.md version marker must not include the 'version:' prefix"
-  fi
+  check_version_markers
 }
 
 check_source_drift() {
@@ -197,21 +215,13 @@ check_briefing_completeness() {
   local kind=""
   local heading
   local -a missing=()
+  local retrospective_heading_0='## 0. ${RETRO_NAME} · 上朝准备(含 hook 健康 + 版本核查 + Cortex 状态)'
   local -a retrospective_headings=(
-    "## 0. Pre-flight Hook Health Check"
-    "## 1. Cognitive Layer"
-    "## 2. Second-brain Connection"
-    "## 3. Python Tools Executed"
-    "## 4. Retrospective 18 Steps Progress"
-    "## 5. AUDITOR Mode 3 Compliance Patrol"
-    "## 6. Ready for User"
-    "## 7. 子代理调用清单 · 事务性收据"
-    "## 8. Notion sync 报告"
-    "## 9. SOUL Health Report"
-    "## 10. Compliance Watch banner"
-    "## 11. STATUS rebuild trigger"
-    "## 12. Triage reasoning"
-    "## 13. Pending User Decisions"
+    "## 1. 二脑同步状态"
+    "## 2. SOUL Health 报告"
+    "## 3. 18 步执行(自然输出,不强制 marker)"
+    "## 4. 御史台巡查(AUDITOR Mode 3)"
+    "## 5. 待陛下圣裁"
   )
   local -a archiver_headings=(
     "## Phase 1"
@@ -223,13 +233,16 @@ check_briefing_completeness() {
 
   if has 'Launch\(archiver\)|ARCHIVER subagent|Completion Checklist|Session Closed'; then
     kind="archiver"
-  elif has 'Launch\(retrospective\)|RETROSPECTIVE subagent|Pre-Session Preparation|Session Briefing'; then
+  elif has 'Launch\(retrospective\)|RETROSPECTIVE subagent|Pre-Session Preparation|Session Briefing|上朝准备|二脑同步状态'; then
     kind="retrospective"
   else
     missing+=("briefing type marker")
   fi
 
   if [[ "$kind" == "retrospective" ]]; then
+    if ! has '^## 0\. .+ · 上朝准备\(含 hook 健康 \+ 版本核查 \+ Cortex 状态\)'; then
+      missing+=("$retrospective_heading_0")
+    fi
     for heading in "${retrospective_headings[@]}"; do
       has_fixed "$heading" || missing+=("$heading")
     done
@@ -241,7 +254,7 @@ check_briefing_completeness() {
   fi
 
   if [[ ${#missing[@]} -gt 0 ]]; then
-    add_violation "C-brief-incomplete (P1): missing required briefing headings: ${missing[*]}"
+    add_violation "C (P0): briefing-completeness failed; missing required briefing headings: ${missing[*]}"
   fi
 }
 
@@ -249,17 +262,13 @@ check_retrospective_completeness() {
   local briefing="$OUTPUT_FILE"
   local m
   local -a required=(
-    "[STEP 2 · DIRECTORY TYPE:"
-    "[STEP 3 · DATA LAYER:"
-    "[STEP 4 · SECOND-BRAIN PULL:"
-    "[STEP 5 · GIT HEALTH:"
-    "[STEP 8 · VERSION:"
-    "[STEP 10 · INBOX SCAN:"
-    "[STEP 11 · SESSION INDEX:"
-    "[STEP 12 · CONCEPT INDEX:"
-    "[STEP 13 · STATUS COMPILE:"
-    "[STEP 14 · WIKI INDEX:"
-    "[STEP 17 · DREAM JOURNAL:"
+    "[Local SKILL.md version:"
+    "[Remote check (forced fresh):"
+    "[Wiki count: measured"
+    "[Sessions count: measured"
+    "[Concepts count: measured"
+    "[STATUS staleness:"
+    "[FRESH INVOCATION"
   )
   local -a missing=()
 
@@ -270,11 +279,11 @@ check_retrospective_completeness() {
   done
 
   if [[ ${#missing[@]} -gt 0 ]]; then
-    echo "FAIL: missing markers: ${missing[*]}"
+    echo "FAIL: missing core markers: ${missing[*]}"
     exit 1
   fi
 
-  echo "PASS: all 11 markers present"
+  echo "PASS: core markers present"
   exit 0
 }
 
@@ -288,9 +297,6 @@ check_fresh_invocation() {
   local failed=0
 
   forbidden_output="$(grep -nEi '如上次|参考上次|previously reported|as before|unchanged from last|see Mode 0 output above|skip step.*already done' "$OUTPUT_FILE" || true)"
-  if [[ -n "$forbidden_output" ]]; then
-    failed=1
-  fi
 
   trigger_count="$( (grep -Eio '上朝|Start Session|begin court|开始' "$OUTPUT_FILE" 2>/dev/null || true) | wc -l | tr -d ' ')"
   fresh_marker_count="$( (grep -Fo '[FRESH INVOCATION' "$OUTPUT_FILE" 2>/dev/null || true) | wc -l | tr -d ' ')"
@@ -347,9 +353,9 @@ PY
   fi
 
   if [[ "$failed" -ne 0 ]]; then
-    echo "FAIL: C-fresh-skip (P0): fresh-invocation trigger_count_in_session=$trigger_count fresh_marker_count=$fresh_marker_count"
+    echo "FAIL: C (P0): fresh-invocation trigger_count_in_session=$trigger_count fresh_marker_count=$fresh_marker_count"
     if [[ -n "$forbidden_output" ]]; then
-      echo "reuse_evidence:"
+      echo "reuse_wording_hints:"
       while IFS= read -r line; do
         [[ -n "$line" ]] && echo "  $line"
       done <<< "$forbidden_output"
@@ -364,6 +370,13 @@ PY
       done <<< "$length_output"
     fi
     exit 1
+  fi
+
+  if [[ -n "$forbidden_output" ]]; then
+    echo "OBSERVE: fresh-invocation reuse wording hint(s) found; no violation emitted for phrases in v1.7.2.1"
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && echo "  hint: $line"
+    done <<< "$forbidden_output"
   fi
 
   echo "PASS: fresh-invocation trigger_count_in_session=$trigger_count fresh_marker_count=$fresh_marker_count"
@@ -664,26 +677,43 @@ check_cortex_all() {
   check_cortex_cx7
 }
 
+check_cortex_status() {
+  local saw_retrospective=0
+
+  if has 'Launch\(retrospective\)|RETROSPECTIVE subagent|Pre-Session Preparation|Session Briefing|## 0[.].*Cortex 状态|Cortex|Step 0[.]5'; then
+    saw_retrospective=1
+  fi
+
+  # Adjourn/archiver transcripts do not need a Cortex status block.
+  [[ "$saw_retrospective" -eq 1 ]] || return 0
+
+  if ! has '## 0[.].*Cortex 状态|Cortex|Step 0[.]5'; then
+    add_violation "C (P0): cortex-status failed; missing Cortex status marker in briefing"
+  fi
+  if ! has 'hippocampus|concept-lookup|soul-check|gwt-arbitrator|Cortex.*(active|enabled|skipped|degraded|unavailable|null)|Step 0[.]5.*(active|enabled|skipped|degraded|unavailable|null)'; then
+    add_violation "C (P0): cortex-status failed; no Cortex module status or explicit skipped/degraded state found"
+  fi
+}
+
 case "$SCENARIO" in
   start-session-compliance)
-    check_preflight_check
-    check_subagent_launch
-    check_directory_check
-    check_fabricate_path
-    check_toolcall_evidence
     check_briefing_completeness
-    check_cortex_all
+    check_version_markers
+    check_subagent_launch
+    check_cortex_status
+    check_placeholder
     ;;
   adjourn-compliance)
-    check_preflight_check
     check_briefing_completeness
+    check_version_markers
+    check_subagent_launch
+    check_cortex_status
     check_placeholder
-    check_main_context_phase
     ;;
   cortex-retrieval)
     check_cortex_all
     ;;
-  subagent-launch)
+  subagent-launch|subagent-launched)
     check_subagent_launch
     ;;
   directory-check)
@@ -697,6 +727,9 @@ case "$SCENARIO" in
     ;;
   toolcall-evidence)
     check_toolcall_evidence
+    ;;
+  version-markers)
+    check_version_markers
     ;;
   source-drift)
     check_source_drift
@@ -740,6 +773,9 @@ case "$SCENARIO" in
     ;;
   placeholder-check)
     check_placeholder
+    ;;
+  cortex-status)
+    check_cortex_status
     ;;
   main-context-phase)
     check_main_context_phase

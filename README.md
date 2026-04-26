@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.2-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.2.1-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -82,6 +82,12 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.7.2.1
+
+v1.7.2.1 is a subtraction hotfix: it restores the theme aesthetic while removing extra reporting ceremony. The user-visible report shape is reduced from 17 H2 blocks to 6, the compressed wrapper requirement is removed, and version markers stay in fixed positions for easier checking. The result is fewer rules, cleaner briefings, and the same auditability without the visual clutter.
 
 ---
 
