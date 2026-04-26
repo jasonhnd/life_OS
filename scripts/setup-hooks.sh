@@ -163,6 +163,23 @@ copy_exec "$V17_PRE_WRITE_SOURCE"     "$V17_PRE_WRITE_DEST"
 copy_exec "$V17_STOP_SOURCE"          "$V17_STOP_DEST"
 copy_exec "$V17_PRE_READ_SOURCE"      "$V17_PRE_READ_DEST"
 
+# ─── Copy v1.7.3 slash commands → ~/.claude/commands ────────────────────────
+COMMANDS_DEST="$HOME/.claude/commands"
+COMMANDS_SOURCE="$SOURCE_DIR/commands"
+mkdir -p "$COMMANDS_DEST"
+echo ""
+echo "📁 Installing v1.7.3 slash commands → $COMMANDS_DEST"
+if [ -d "$COMMANDS_SOURCE" ]; then
+  for cmd in "$COMMANDS_SOURCE"/*.md; do
+    if [ -f "$cmd" ]; then
+      cp "$cmd" "$COMMANDS_DEST/"
+      echo "  ✅ /$(basename "$cmd" .md)"
+    fi
+  done
+else
+  echo "  ⚠️ $COMMANDS_SOURCE not found — skipping (older Life OS install layout)"
+fi
+
 # ─── Initialize settings.json if needed ─────────────────────────────────────
 if [ ! -f "$SETTINGS" ]; then
   echo '{"hooks":{}}' > "$SETTINGS"

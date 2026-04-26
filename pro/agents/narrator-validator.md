@@ -1,7 +1,7 @@
 ---
 name: narrator-validator
 description: "Cortex narrator citation validator — Sonnet-tier auditor that scans narrator output for citation discipline violations. Verifies every [source:signal_id] reference resolves to a real signal in the cognitive context input, no substantive claim is missing a citation, no citation is misapplied. v1.7 Phase 2.5."
-tools: [Read]
+tools: [Read, Bash, Write]
 model: sonnet
 ---
 
@@ -138,6 +138,16 @@ After **2 failed rewrites**:
 - Orchestrator falls back to v1.6.3 unwrapped Summary Report (the REVIEWER's draft, no citations)
 - Logs incident to `_meta/eval-history/narrator-{date}.md` with all 3 attempts captured
 - AUDITOR session-end review picks up persistent narrator failures and may flag the pattern
+
+---
+
+## Audit Trail (R11, HARD RULE — v1.7.3)
+
+**Before returning the YAML output**, write `_meta/runtime/<sid>/narrator-validator.json` using `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. This is the only persistent write allowed.
+
+Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, `audit_trail_version`. `output_summary` MUST mirror the `passed` flag and the three failure counts (`unresolved_citations`, `missing_citations`, `misapplied_citations`).
+
+Without this file, AUDITOR Mode 3 records a CLASS_C violation and the validator's run is treated as never having happened.
 
 ---
 

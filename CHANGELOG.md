@@ -6,6 +6,42 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.3] - 2026-04-26 - Cortex enforcement + slash commands wired + dead weight cleanup
+
+> The "make tools actually usable" release. Turns Cortex from declared-always-on into machine-enforced always-on, gives Hermes tools 4 user-facing slash commands, and removes one dead-weight module.
+
+### Added
+
+- **Cortex always-on enforcement (hook injection)**: `scripts/hooks/pre-prompt-guard.sh` now emits a `<system-reminder>` block (trigger=cortex) that forces ROUTER to launch all 5 Cortex subagents (hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator) in parallel before answering, whenever the prompt qualifies (length ≥ 80 chars OR decision keyword detected). Closes the silent-degradation gap found in v1.7.2 audit (0 `_meta/runtime/<sid>/cortex-*.json` audit trails across 17+ sessions). Skip rules: short conversational filler ("ok", "go on") bypasses Cortex.
+- **4 slash commands wired into Claude Code**: new `scripts/commands/{compress,search,memory,method}.md` source files; `scripts/setup-hooks.sh` now copies them to `~/.claude/commands/` during install. Commands:
+  - `/compress [focus]` — inline context compression with `_meta/compression/<sid>-compress-<ts>.md` archive (Claude does the compression; tools/manual_compression_feedback was DEAD).
+  - `/search <query>` — FTS5 cross-session search via `tools.session_search` CLI.
+  - `/memory emit|read|remove|path` — 24-48h short-term memory via `tools.memory` CLI.
+  - `/method create|update|list` — method library management via `tools.skill_manager` CLI (note: tool kept its historical name; functionally manages methods).
+
+### Changed
+
+- **narrator-validator audit trail HARD RULE**: `pro/agents/narrator-validator.md` frontmatter `tools` extended from `[Read]` to `[Read, Bash, Write]`; new "Audit Trail (R11, HARD RULE)" section added requiring `_meta/runtime/<sid>/narrator-validator.json` write before returning YAML output. Brings narrator-validator into compliance with pro/CLAUDE.md §0.5 audit trail contract that the other 4 Cortex agents already observe.
+- **Version markers**: `SKILL.md` frontmatter and 3 README badges updated to `1.7.3`.
+
+### Removed
+
+- **`tools/prompt_cache.py` deleted** (118 lines, 0 callers): Anthropic prompt-cache tooling has no value in Claude Code subscription mode (pricing is flat-rate, not per-token). Was dead weight from v1.7.2 Hermes fork.
+- **`docs/architecture/prompt-cache-strategy.md` deleted**: spec doc for the now-deleted module.
+- **`docs/architecture/hermes-local.md`**: removed prompt-cache references from `related:` frontmatter and module list.
+
+### Migration
+
+Re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to install the 4 new slash commands. No second-brain migration required. No CLI behaviour changes for `tools.session_search`, `tools.memory`, `tools.skill_manager`.
+
+### Known Gaps (deferred to v1.7.4)
+
+- `tools/approval.py` (964 lines, 47 dangerous-command patterns) is still NOT wired to PreToolUse(Bash) hook — patterns are dead until hook bridge is written.
+- `tools/mcp_server.py` (227 lines) and `docs/architecture/mcp-server.md` are also DEAD (no callers, no client connections), but kept this release to avoid wide doc churn (mcp_server is referenced from 5+ docs).
+- `tools/context_compressor.py` (1370 lines) and `tools/manual_compression_feedback.py` (51 lines) still unused at runtime; `/compress` does inline compression instead.
+
+---
+
 ## [1.7.2.3] - 2026-04-26 - Retrospective skeleton ownership
 
 > Subagent D ownership patch. Scope limited to `pro/agents/retrospective.md`, `SKILL.md`, three README files, and three CHANGELOG files.

@@ -6,6 +6,42 @@
 
 ---
 
+## [1.7.3] - 2026-04-26 - Cortex 强制启动 + slash 命令接入 + 死代码清理
+
+> "让工具真能用起来" release。把 Cortex 从「声明 always-on」变成「机器强制 always-on」，给 Hermes 工具接 4 个用户可见的 slash command，删掉一个死代码模块。
+
+### 新增
+
+- **Cortex always-on 强制启动 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` 现在输出 `<system-reminder>` 块（trigger=cortex），在 prompt 长度 ≥ 80 字符或含决策关键词时强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 audit 发现的静默降级问题（17+ session 0 个 `_meta/runtime/<sid>/cortex-*.json` audit trail）。短对话填充（"好"、"继续"）会跳过 Cortex。
+- **4 个 slash command 接入 Claude Code**：新增 `scripts/commands/{compress,search,memory,method}.md` 源文件；`scripts/setup-hooks.sh` 安装时复制到 `~/.claude/commands/`。命令：
+  - `/compress [focus]` — inline 上下文压缩，归档到 `_meta/compression/<sid>-compress-<ts>.md`（Claude 执行压缩；tools/manual_compression_feedback 是 DEAD）。
+  - `/search <query>` — 基于 `tools.session_search` CLI 的 FTS5 跨 session 搜索。
+  - `/memory emit|read|remove|path` — 基于 `tools.memory` CLI 的 24-48h 短期记忆。
+  - `/method create|update|list` — 基于 `tools.skill_manager` CLI 的方法论库管理（注：工具保留历史命名，功能上管理 method）。
+
+### 变更
+
+- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` frontmatter `tools` 从 `[Read]` 扩展到 `[Read, Bash, Write]`；新增 "Audit Trail (R11, HARD RULE)" section，要求返回 YAML 前必须写 `_meta/runtime/<sid>/narrator-validator.json`。让 narrator-validator 与其他 4 个 Cortex agent 在 pro/CLAUDE.md §0.5 audit trail 契约上对齐。
+- **版本标记**：`SKILL.md` frontmatter 和 3 份 README badge 更新到 `1.7.3`。
+
+### 删除
+
+- **`tools/prompt_cache.py` 删除**（118 行 0 调用）：Anthropic prompt-cache 工具在 Claude Code 包月场景下无意义（包月定价，不按 token）。是 v1.7.2 Hermes fork 的死代码。
+- **`docs/architecture/prompt-cache-strategy.md` 删除**：对应的 spec 文档。
+- **`docs/architecture/hermes-local.md`**：从 `related:` frontmatter 和模块列表中移除 prompt-cache 引用。
+
+### 迁移
+
+重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 安装 4 个新 slash command。无第二大脑迁移需求。`tools.session_search` / `tools.memory` / `tools.skill_manager` 的 CLI 行为不变。
+
+### 已知缺口（推迟到 v1.7.4）
+
+- `tools/approval.py`（964 行，47 个危险命令 pattern）仍未接入 PreToolUse(Bash) hook — patterns 在 hook 桥写好之前都是死的。
+- `tools/mcp_server.py`（227 行）和 `docs/architecture/mcp-server.md` 也是 DEAD（0 调用、0 client 连接），本版保留避免大量文档改动（mcp_server 被 5+ docs 引用）。
+- `tools/context_compressor.py`（1370 行）和 `tools/manual_compression_feedback.py`（51 行）运行时仍未使用；`/compress` 改用 inline 压缩。
+
+---
+
 ## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE 骨架所有权
 
 > Subagent D ownership patch。范围仅限 `pro/agents/retrospective.md`、`SKILL.md`、三份 README 和三份 CHANGELOG。

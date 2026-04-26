@@ -6,7 +6,6 @@ status: "normative naming note"
 last_updated: 2026-04-26
 related:
   - docs/architecture/execution-layer.md
-  - docs/architecture/prompt-cache-strategy.md
   - docs/architecture/mcp-server.md
   - tools/context_compressor.py
 ---
@@ -54,7 +53,6 @@ reintroducing the old `trajectory_compressor` filename as the public reference.
 - `tools/context_compressor.py` and
   `tools/manual_compression_feedback.py`: context compression primitives and
   user-facing compression summaries.
-- `tools/prompt_cache.py`: prompt-cache breakpoint strategy helpers.
 - `tools/memory.py`: bounded local memory with injection/exfiltration checks.
 - `tools/session_search.py`: SQLite FTS session search adapted for Life OS
   markdown sources.

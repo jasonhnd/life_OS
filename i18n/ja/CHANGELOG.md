@@ -6,6 +6,42 @@
 
 ---
 
+## [1.7.3] - 2026-04-26 - Cortex 強制起動 + slash コマンド接続 + デッドコード整理
+
+> 「ツールを実際に使える状態にする」リリース。Cortex を「宣言 always-on」から「強制 always-on」に変え、Hermes ツールにユーザー向けの 4 つの slash コマンドを接続し、デッドコード 1 モジュールを削除。
+
+### 追加
+
+- **Cortex always-on 強制起動 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` がプロンプト長 80 文字以上または決定キーワード検出時に `<system-reminder>` ブロック（trigger=cortex）を出力し、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制します。v1.7.2 audit が発見したサイレント degradation（17+ セッションで `_meta/runtime/<sid>/cortex-*.json` audit trail が 0）を修正。短い会話フィラー（「了解」「続けて」）は Cortex をスキップ。
+- **4 つの slash コマンドを Claude Code に接続**：新規 `scripts/commands/{compress,search,memory,method}.md` ソースファイル；`scripts/setup-hooks.sh` がインストール時に `~/.claude/commands/` にコピー。コマンド：
+  - `/compress [focus]` — インラインコンテキスト圧縮、`_meta/compression/<sid>-compress-<ts>.md` にアーカイブ（Claude が圧縮を実行；tools/manual_compression_feedback は DEAD）。
+  - `/search <query>` — `tools.session_search` CLI による FTS5 クロスセッション検索。
+  - `/memory emit|read|remove|path` — `tools.memory` CLI による 24-48h 短期記憶。
+  - `/method create|update|list` — `tools.skill_manager` CLI によるメソッドライブラリ管理（注：ツールは歴史的命名のまま、機能的にはメソッドを管理）。
+
+### 変更
+
+- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` の frontmatter `tools` を `[Read]` から `[Read, Bash, Write]` に拡張；新規 "Audit Trail (R11, HARD RULE)" セクション追加、YAML 返却前に `_meta/runtime/<sid>/narrator-validator.json` の書き込みを必須化。narrator-validator を他 4 つの Cortex agent と pro/CLAUDE.md §0.5 audit trail 契約で揃えます。
+- **バージョンマーカー**：`SKILL.md` frontmatter と 3 つの README badge を `1.7.3` に更新。
+
+### 削除
+
+- **`tools/prompt_cache.py` 削除**（118 行 0 caller）：Anthropic prompt-cache ツールは Claude Code サブスクリプション環境では無意味（フラットレート、トークン課金ではない）。v1.7.2 Hermes fork のデッドコード。
+- **`docs/architecture/prompt-cache-strategy.md` 削除**：対応する spec ドキュメント。
+- **`docs/architecture/hermes-local.md`**：`related:` frontmatter とモジュールリストから prompt-cache 参照を削除。
+
+### マイグレーション
+
+4 つの新しい slash コマンドをインストールするため `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行してください。第二の脳のマイグレーションは不要。`tools.session_search` / `tools.memory` / `tools.skill_manager` の CLI 動作は不変。
+
+### 既知のギャップ（v1.7.4 へ延期）
+
+- `tools/approval.py`（964 行、47 個の危険コマンドパターン）はまだ PreToolUse(Bash) hook に接続されていません — hook ブリッジが書かれるまでパターンはデッドです。
+- `tools/mcp_server.py`（227 行）と `docs/architecture/mcp-server.md` も DEAD（0 caller、0 client 接続）ですが、大量のドキュメント変更を避けるため本リリースでは保留（mcp_server は 5+ docs から参照されています）。
+- `tools/context_compressor.py`（1370 行）と `tools/manual_compression_feedback.py`（51 行）は実行時未使用のまま；`/compress` はインライン圧縮を使用。
+
+---
+
 ## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE skeleton ownership
 
 > Subagent D ownership patch。対象は `pro/agents/retrospective.md`、`SKILL.md`、3つの README、3つの CHANGELOG のみです。
