@@ -109,12 +109,25 @@ check_phase() {
     MISSING="${MISSING}${n} "
     return
   fi
-  # Placeholder check
+  # Placeholder check (v1.7.3.2: also detect unfilled LLM_FILL placeholders)
   case "$line" in
-    *TBD*|*tbd*|*"{...}"*|*placeholder*)
+    *TBD*|*tbd*|*"{...}"*|*placeholder*|*"<!-- LLM_FILL"*|*"LLM_FILL:"*)
       PLACEHOLDER="${PLACEHOLDER}${n} "
+      return
       ;;
   esac
+  # v1.7.3.2: also scan the section body (next ~30 lines after phase header)
+  # for unfilled LLM_FILL placeholders. If any are present in this phase's
+  # section, mark as placeholder-incomplete.
+  local body
+  body="$(printf '%s\n' "$ARCHIVER_TAIL" \
+    | awk -v phase_re="[Pp]hase[[:space:]]+$n([[:space:]:,.·—–-]|$)" '
+        $0 ~ phase_re { matched = NR }
+        matched && NR > matched && NR <= matched + 30 { print }
+      ')"
+  if printf '%s' "$body" | grep -qE 'LLM_FILL:|<!--[[:space:]]*LLM_FILL'; then
+    PLACEHOLDER="${PLACEHOLDER}${n} "
+  fi
 }
 
 check_phase 1 "Archive"

@@ -150,29 +150,38 @@ Launch `advisor`, passing in the Summary Report + user's original message. The A
 
 ### 10. ARCHIVER agent — Archive + Knowledge Extraction + DREAM (standalone) — HARD RULE
 
-**Mandatory launch template** (ROUTER output, in the active theme's language):
+**v1.7.3 carve-out**: Phase 2 (Knowledge Extraction) is now done by a dedicated `knowledge-extractor` subagent (`pro/agents/knowledge-extractor.md`). ROUTER MUST launch knowledge-extractor BEFORE archiver. Archiver Phase 2 reads the extraction reports and emits a single-paragraph summary instead of running the 7 sub-steps inline. This carve-out closes the v1.7.2 placeholder-violation root cause (archiver was overloaded).
+
+**Mandatory launch sequence** (ROUTER output, in the active theme's language):
 ```
+🧠 [theme: extractor display name] — Pre-launching knowledge-extractor (Phase 2 carve-out)...
+[Launch knowledge-extractor subagent — wait for YAML output]
 📝 [theme: archiver display name] — Starting archive flow (4 phases)...
-[Launch archiver subagent here]
+[Launch archiver subagent here, passing knowledge-extractor's extraction_dir + YAML]
 ```
 
-ROUTER output must match this template. Any deviation is a process violation, including:
-- "Let me first check what candidates to save" — NO, archiver does that internally
+ROUTER output must match this sequence. Any deviation is a process violation, including:
+- Skipping knowledge-extractor and asking archiver to do Phase 2 inline (regression to v1.7.2 behavior — only allowed as documented fallback when host lacks Task nesting)
+- "Let me first check what candidates to save" — NO, knowledge-extractor + archiver do that internally
 - "Tell me your decision, then I'll launch DREAM/sync" — NO, split flow is forbidden
-- Listing wiki/SOUL/strategic candidates in the main context — NO, that's Phase 2's job
+- Listing wiki/SOUL/strategic candidates in the main context — NO, that's knowledge-extractor's job
 - Performing any file move, git commit, or Notion write in the main context — NO
 
-Launch `archiver` as subagent, passing in:
+Launch `knowledge-extractor` first, passing in:
+- Summary Report + Session conversation summary (key topics from ROUTER, direct-handle conversations, express analysis results, STRATEGIST summaries — everything NOT captured in the Summary Report)
+- The session id (`<sid>`)
+
+After knowledge-extractor returns its YAML output, launch `archiver` as subagent, passing in:
 - Summary Report + AUDITOR report + ADVISOR report
-- **Session conversation summary**: key topics discussed by ROUTER (including direct-handle conversations, express analysis results, STRATEGIST summaries — everything NOT captured in the Summary Report)
+- knowledge-extractor's YAML output + extraction reports directory path (`_meta/runtime/<sid>/extraction/`)
 
-The ARCHIVER subagent handles ALL session-closing operations in 4 phases end-to-end in a single invocation:
-1. **Archive**: decisions/tasks/journal → outbox
-2. **Knowledge Extraction**: scan ALL session materials for wiki + SOUL + strategic candidates. Archiver auto-writes wiki and SOUL entries when strict criteria are met (6 wiki criteria + privacy filter; SOUL criteria + low initial confidence). Users nudge post-hoc by deletion ("undo recent wiki" rolls back).
-3. **DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
-4. **Sync**: git push + Notion sync (4 specific operations)
+The ARCHIVER subagent handles the remaining 4 phases end-to-end in a single invocation:
+1. **Phase 1 · Archive**: decisions/tasks/journal → outbox
+2. **Phase 2 · Knowledge Extraction Summary**: read `_meta/runtime/<sid>/extraction/*.md` from knowledge-extractor, emit single-paragraph summary in Adjourn Report (no inline 7 sub-steps in primary path)
+3. **Phase 3 · DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
+4. **Phase 4 · Sync**: git push + Notion sync (4 specific operations)
 
-ROUTER does not interject between phases. The subagent emits the Completion Checklist when done. See `pro/agents/archiver.md` for the full specification.
+ROUTER does not interject between phases. The subagent emits the Completion Checklist when done. See `pro/agents/archiver.md` (parent spec, includes legacy fallback) and `pro/agents/knowledge-extractor.md` (Phase 2 carve-out) for the full specifications.
 
 ### 10a. Notion Sync (orchestrator, after archiver returns) — HARD RULE
 
