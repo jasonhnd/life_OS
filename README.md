@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -82,6 +82,29 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.8.0 — Daily Cycle Hybridization
+
+v1.8.0 is Life OS's largest single release: it transforms lifeos from a **reactive chatbot** (must-be-driven-by-user) into a **hybrid OS** (reactive + autonomous). Three orthogonal session/process modes now coexist:
+
+- **Mode 1 · Business session** (your daily Claude Code chat). Long-lived: a session can span days/weeks. 上朝/退朝 are **optional soft triggers** (no longer mandatory daily cycle).
+- **Mode 2 · Monitor session** (`/monitor` slash command). Operations console for cron management, system health, action items. Does not engage business deliberation.
+- **Mode 3 · Cron autonomy** (background scheduler, no user). 10 cron jobs + 1 RunAtLoad fire on macOS launchd / Linux cron, write reports to `_meta/eval-history/`, send notifications to `_meta/inbox/notifications.md`.
+
+Highlights:
+
+- **10 scheduled jobs** (5 new in v1.8.0): reindex / daily-briefing / backup / **spec-compliance** / **wiki-decay** / **archiver-recovery** / **auditor-mode-2** / **advisor-monthly** / **eval-history-monthly** / **strategic-consistency**, plus boot-time **missed-cron-check**. Several activate spec promises (AUDITOR Mode 2 Patrol, monthly SOUL drift) that had **zero cron triggers** pre-v1.8.0.
+- **`/monitor` slash command** — new operations console mode. Reads cron output, lets you trigger cron manually, pause/resume schedules, walk through action items.
+- **`/run-cron <job>` slash command** — manually trigger any cron job from session.
+- **3 new hooks** — `session-start-inbox` (cron→session bridge: SessionStart hook injects recent cron activity as system-reminder), `pre-task-launch` (machine-enforces v1.7.3 carve-out: knowledge-extractor must run before archiver), `post-task-audit-trail` (immediate R11 trail check, not just session-end).
+- **4 new python tools** — `spec_compliance_report` (heuristic spec→evidence ratio), `wiki_decay` (stale entry detection), `cron_health_report` (cron success rate), `missed_cron_check` (Mac wake/boot catch-up).
+- **5 cron-driven Claude Code prompts** — `archiver-recovery` (auto-recover missed adjourns), `auditor-mode-2` (weekly Patrol Inspection), `advisor-monthly` (SOUL drift detection), `eval-history-monthly` (system performance summary), `strategic-consistency` (cross-project conflict detection).
+- **2 new spec docs** — `references/automation-spec.md` (3-layer architecture canonical) + `references/session-modes-spec.md` (Mode 1/2/3 detailed).
+- **New subagent** — `pro/agents/monitor.md` (Mode 2 role).
+
+Migration: re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` (registers 3 new hooks + installs 2 new slash commands) and `bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install` (installs 10 cron + 1 RunAtLoad). No second-brain data migration required. Existing v1.7.x sessions/wiki/SOUL fully compatible.
 
 ---
 

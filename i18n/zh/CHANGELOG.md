@@ -6,6 +6,64 @@
 
 ---
 
+## [1.8.0] - 2026-04-28 - Daily Cycle 混合化（cron + monitor + 软化上朝/退朝）
+
+> **Life OS 历史上最大的单次 release**。把 lifeos 从「反应式 chatbot」（必须由用户驱动）转变为「混合 OS」（reactive + autonomous）。三种正交模式并存：业务 session（长期持续）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。
+
+### 新增 · Session Modes（核心架构变化）
+
+- **Mode 1 · 业务 session**：长期持续，session 可跨天/周。**上朝/退朝降级为可选软触发**。
+- **Mode 2 · Monitor session**：`/monitor` slash command 进入运维控制台模式。
+- **Mode 3 · Cron 自治**：10 个调度 job + 1 个 RunAtLoad。
+
+### 新增 · Cron jobs（v1.8.0 新增 5 个，共 10 + 1 RunAtLoad）
+
+新增：spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency / missed-cron-check。**激活 v1.6.x 起承诺过但 0 次 cron 触发的多个 spec**。
+
+### 新增 · Slash commands（2 个）
+
+- `/monitor` — 进入 monitor 模式
+- `/run-cron <job>` — 手动触发
+
+### 新增 · Hooks（3 个）
+
+- `session-start-inbox` — cron→session 桥
+- `pre-task-launch` — 机器强制 v1.7.3 carve-out
+- `post-task-audit-trail` — 即时 R11 audit trail 检查
+
+### 新增 · Python tools（4 个）+ Cron prompts（5 个）+ Spec docs（2 个）+ 新 subagent
+
+- 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
+- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+- 2 specs: `references/{automation-spec,session-modes-spec}.md`
+- 1 subagent: `pro/agents/monitor.md`
+- 1 trigger script: `scripts/run-cron-now.sh`
+
+### 变更
+
+- **pro/CLAUDE.md** 新增 "Session Modes (v1.8.0)" section
+- **scripts/setup-cron.sh** 从 3 → 10 cron jobs + 1 RunAtLoad
+- **scripts/setup-hooks.sh** 注册 3 个新 hook
+- **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder 软化
+- **版本标记**：SKILL.md + 3 README badge → 1.8.0
+
+### 迁移
+
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install
+```
+
+无第二大脑数据迁移需求。v1.7.x 数据完全兼容。
+
+### Audit 结论（v1.8.0 final）
+
+v1.7.3 audit 发现的「spec 承诺但从未自动化」缺口现已 close。AUDITOR Mode 2 / ADVISOR monthly / eval-history monthly / strategic consistency / wiki decay / spec compliance / archiver recovery / boot catch-up 全部 ✅。
+
+用户反馈：「Hermes 和 cortex 的问题」→「为什么设计好了但没跑起来」→「不要 routines 也能实现」→「我不可能每天都开新 session」→「完整版必须一次性全部做完」。
+
+---
+
 ## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 强制启动 + 自动触发 + archiver Phase 2 拆分 + 4 个死代码模块删除
 
 > "让工具真能用起来" release window。三轮迭代全部 squash 进单一 v1.7.3 release：

@@ -6,6 +6,64 @@
 
 ---
 
+## [1.8.0] - 2026-04-28 - Daily Cycle ハイブリッド化（cron + monitor + 上朝/退朝のソフト化）
+
+> **Life OS 史上最大の単一リリース**。lifeos を「反応型 chatbot」から「ハイブリッド OS」（reactive + autonomous）へ変革。3 つの直交モードが並存：ビジネス session（長期持続）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。
+
+### 追加 · Session Modes（核心アーキテクチャ変更）
+
+- **Mode 1 · ビジネス session**：長期持続、数日〜数週間にまたがる。**上朝/退朝はオプショナルなソフトトリガー**。
+- **Mode 2 · Monitor session**：`/monitor` で運用コンソールモード。
+- **Mode 3 · Cron 自治**：10 cron job + 1 RunAtLoad。
+
+### 追加 · Cron jobs（v1.8.0 で 5 個追加、計 10 + 1 RunAtLoad）
+
+新規：spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency / missed-cron-check。**v1.6.x 以来 spec で約束しながら cron トリガーが 0 だった機能を起動**。
+
+### 追加 · Slash コマンド（2 個）
+
+- `/monitor` — monitor モード突入
+- `/run-cron <job>` — 手動トリガー
+
+### 追加 · Hooks（3 個）
+
+- `session-start-inbox` — cron→session ブリッジ
+- `pre-task-launch` — マシンレベルで v1.7.3 carve-out 強制
+- `post-task-audit-trail` — 即時 R11 audit trail チェック
+
+### 追加 · Python ツール（4）+ Cron プロンプト（5）+ Spec ドキュメント（2）+ 新 subagent
+
+- 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
+- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+- 2 specs: `references/{automation-spec,session-modes-spec}.md`
+- 1 subagent: `pro/agents/monitor.md`
+- 1 trigger script: `scripts/run-cron-now.sh`
+
+### 変更
+
+- **pro/CLAUDE.md** 新規 "Session Modes (v1.8.0)" section
+- **scripts/setup-cron.sh** 3 → 10 cron jobs + 1 RunAtLoad
+- **scripts/setup-hooks.sh** 3 つの新 hook 登録
+- **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder ソフト化
+- **バージョンマーカー**：SKILL.md + 3 README badge → 1.8.0
+
+### マイグレーション
+
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install
+```
+
+第二の脳のデータマイグレーション不要。v1.7.x データは完全互換。
+
+### Audit 結論（v1.8.0 final）
+
+v1.7.3 audit が発見した「spec で約束したが自動化されていない」ギャップが close。AUDITOR Mode 2 / ADVISOR monthly / eval-history monthly / strategic consistency / wiki decay / spec compliance / archiver recovery / boot catch-up すべて ✅。
+
+ユーザーフィードバック：「Hermes 和 cortex 的问题」→「为什么设计好了但没跑起来」→「不要 routines 也能实现」→「我不可能每天都开新 session」→「完整版必须一次性全部做完」。
+
+---
+
 ## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 強制起動 + 自動トリガー + archiver Phase 2 切り出し + デッドコード 4 モジュール削除
 
 > 「ツールを実際に使える状態にする」release window。3 ラウンドの反復を全て単一 v1.7.3 リリースに squash：
