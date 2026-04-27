@@ -6,6 +6,81 @@
 
 ---
 
+## [1.8.0] - 2026-04-28 - Daily Cycle ハイブリッド化（cron + monitor + 上朝/退朝のソフト化）
+
+> **Life OS 史上最大の単一リリース**。lifeos を「反応型 chatbot」から「ハイブリッド OS」（reactive + autonomous）へ変革。3 つの直交モードが並存：ビジネス session（長期持続）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。
+
+### 追加 · Session Modes（核心アーキテクチャ変更）
+
+- **Mode 1 · ビジネス session**：長期持続、数日〜数週間にまたがる。**上朝/退朝はオプショナルなソフトトリガー**。
+- **Mode 2 · Monitor session**：`/monitor` で運用コンソールモード。
+- **Mode 3 · Cron 自治**：10 cron job + 1 RunAtLoad。
+
+### 追加 · Cron jobs（v1.8.0 で 5 個追加、計 10 + 1 RunAtLoad）
+
+新規：spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency / missed-cron-check。**v1.6.x 以来 spec で約束しながら cron トリガーが 0 だった機能を起動**。
+
+### 追加 · Slash コマンド（2 個）
+
+- `/monitor` — monitor モード突入
+- `/run-cron <job>` — 手動トリガー
+
+### 追加 · Hooks（3 個）
+
+- `session-start-inbox` — cron→session ブリッジ
+- `pre-task-launch` — マシンレベルで v1.7.3 carve-out 強制
+- `post-task-audit-trail` — 即時 R11 audit trail チェック
+
+### 追加 · Python ツール（4）+ Cron プロンプト（5）+ Spec ドキュメント（2）+ 新 subagent
+
+- 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
+- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+- 2 specs: `references/{automation-spec,session-modes-spec}.md`
+- 1 subagent: `pro/agents/monitor.md`
+- 1 trigger script: `scripts/run-cron-now.sh`
+
+### 変更
+
+- **pro/CLAUDE.md** 新規 "Session Modes (v1.8.0)" section
+- **scripts/setup-cron.sh** 3 → 10 cron jobs + 1 RunAtLoad
+- **scripts/setup-hooks.sh** 3 つの新 hook 登録
+- **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder ソフト化
+- **バージョンマーカー**：SKILL.md + 3 README badge → 1.8.0
+
+### リリース後修正（v1.8.0 に取り込み — バージョンは据え置き、「全 bug は本バージョンに属する」方針）
+
+- **R-1.8.0-001 · `scripts/setup-hooks.sh`**：9 個の変数宣言が欠落（3× `HOOK_*_ID`、3× `V18_*_SOURCE`、3× `V18_*_DEST`）。`copy_exec` / `register_hook` で参照されているのに未定義で、setup が "未定义变量 V18_SESSION_START_INBOX_SOURCE" でエラー。line 52-54、66-68、80-82 に宣言を追加。
+- **R-1.8.0-002 · `scripts/run-cron-now.sh`**：bash 4+ の `declare -A` 連想配列を使用。macOS は bash 3.2.57（GPLv2 で凍結）が標準のため、Mac でスクリプトが 100% 失敗。JOBS テーブルを `case` ベースの `job_spec()` 関数 + 別の `JOB_NAMES` リストに書き直し。データルートも `$LIFEOS_DATA_ROOT`（env）→ `$PWD`（cwd）→ 明確なエラーで失敗するように変更。
+- **R-1.8.0-003 · `scripts/setup-cron.sh`**：致命的な root 混同バグ。`REPO_ROOT` が `tools/cli.py` 検索（正しい：skill ソース）と生成コマンド内の `cd` + `--root .`（誤り：ユーザーの second-brain repo であるべき）の両方に使われていました。結果：11 個の cron job すべてが空の skill ディレクトリをスキャンし、「0 sessions / 0 SOUL / 0 projects」と報告。独立した `DATA_ROOT`（`$LIFEOS_DATA_ROOT` または `$PWD` から）を導入し、`repo_command{,_pymod,_prompt}`（python：`--root "$DATA_ROOT"`、prompt：`cd "$DATA_ROOT"`）と、6 つの `print_launchd_plist*` ジェネレーター全て（`<key>WorkingDirectory</key>` は `$DATA_ROOT` から取得）に貫通。`main()` に `require_data_root()` 早期チェックを追加し、実行可能なエラーメッセージを出すようにしました。
+- **R-1.8.0-004 · `tools/spec_compliance_report.py`**：root 検証 guard が `(root / "SKILL.md").is_file()` で Life OS root を判定していましたが、`SKILL.md` は skill ソースにのみ存在し、ユーザーの second-brain repo にはありません。インストールごとに "no SKILL.md" でエラー終了していました。`(root / "_meta").is_dir()` に変更し、本来のデータ root マーカーに合わせました。
+- **R-1.8.0-005 · `tools/wiki_decay.py`**：R-1.8.0-004 と同じ `SKILL.md`-vs-`_meta/` ミスマッチバグ。同様に修正。
+- **`tools/missed_cron_check.py`**（R-1.8.0-004 と一緒に先行修正）：line 134 に同じ `SKILL.md`-vs-`_meta/` バグパターン。次回 macOS 再起動時に RunAtLoad plist 経由で発火する見込み。R-1.8.0-004 の同じ修正を予防的に適用。
+- **R-1.8.0-006 · `scripts/setup-cron.sh` · `repo_command_prompt`**：cron が起動した `claude -p` session に事前承認された Write 権限がなく、prompt ベースの全 job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）が分析後に Write tool 権限プロンプトでブロック — 誰も承認しないため 5-15 分でタイムアウト。結果：exit 0 だが**何も書かれない** — 100% データロス。生成される `claude -p` コマンドに `--dangerously-skip-permissions` フラグを追加。安全境界は `cd "$DATA_ROOT"`（second-brain 外に出られない）+ prompt ファイルが `scripts/prompts/` でバージョン管理されていることで担保。
+- **R-1.8.0-007 · `tools/missed_cron_check.py` · `trigger_recovery`**：`data_root/scripts/` 配下で `run-cron-now.sh` を探していたが、R-1.8.0-003 修正後の `data_root` はユーザーの second-brain — そこに `scripts/` はない。以前 v1.8.0 をインストールした Mac では、`data_root/scripts/` に R-1.8.0-002 修正前の古い `run-cron-now.sh`（`declare -A` を含む）が残っており、上流が patch されていてもそちらが呼ばれて "declare -A: invalid option" でクラッシュ。`Path(__file__).resolve().parent.parent / "scripts" / "run-cron-now.sh"` でパス解決するよう修正し、**常に現在の上流版**を呼び出すように。`LIFEOS_DATA_ROOT` を subprocess env で渡してスクリプトにデータ root を伝えます。
+- **R-1.8.0-008 · `scripts/setup-cron.sh` · PATH 拡張**：launchd が起動する shell の PATH（`~/.local/bin:/opt/homebrew/bin:/usr/local/bin:...`）には Claude Code の典型的なインストール先（`~/.claude/local`、`~/.bun/bin`、`~/.npm-global/bin`、`~/.volta/bin`）が含まれておらず、`command -v claude` が false を返して `archiver-recovery`（および全 prompt job）が "claude CLI not found" で失敗。3 つのコマンドビルダー（`repo_command`、`repo_command_pymod`、`repo_command_prompt`）の PATH export 行にこれら 4 つのインストール先を追加。
+- **`tools/seed.py`**：`META_GITKEEP_DIRS` から `_meta/inbox`、`_meta/runtime`、3 つの `_meta/eval-history/` サブディレクトリ（`cron-runs`、`auditor-patrol`、`recovery`）が欠落していました。`tools/seed.py` で seed された新しい second-brain repo に、v1.8.0 の cron prompt と `session-start-inbox` hook が書き込むディレクトリが存在していませんでした。同時に `_meta/inbox/notifications.md` のヘッダーも初期化し、cron→session bridge が初日から書き込み先を持つようにしました。
+- **`scripts/setup-cron.sh`**（seed.py 修正の対）：`bootstrap_repo_dirs()` ヘルパーを追加し、`main` から `ensure_repo` の後に呼び出します。本修正以前に seed された**既存の** second-brain repo に対して、同じディレクトリと notifications.md ヘッダーを冪等に補完します。今は `$REPO_ROOT/_meta` ではなく `$DATA_ROOT/_meta` を keyed off（R-1.8.0-003 整理）。
+
+### マイグレーション
+
+```bash
+# あなたの second-brain repo（_meta/、SOUL.md、wiki/ がある所）の中で実行：
+cd /path/to/your/second-brain
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install
+# cd できない場合：LIFEOS_DATA_ROOT=/path/to/second-brain bash ... install
+```
+
+第二の脳のデータマイグレーション不要。v1.7.x データは完全互換。`$PWD`（または `$LIFEOS_DATA_ROOT`）に `_meta/` がない場合、install は明確なメッセージでエラー終了します — 設定ミスは静かに間違った root をスキャンするのではなく、明確に失敗します。`bootstrap_repo_dirs` は冪等 — 既にディレクトリがある repo での再実行も安全。macOS で再インストール後：`launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && launchctl load ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` で新しい `WorkingDirectory` と `--root` を反映。
+
+### Audit 結論（v1.8.0 final）
+
+v1.7.3 audit が発見した「spec で約束したが自動化されていない」ギャップが close。AUDITOR Mode 2 / ADVISOR monthly / eval-history monthly / strategic consistency / wiki decay / spec compliance / archiver recovery / boot catch-up すべて ✅。
+
+ユーザーフィードバック：「Hermes 和 cortex 的问题」→「为什么设计好了但没跑起来」→「不要 routines 也能实现」→「我不可能每天都开新 session」→「完整版必须一次性全部做完」。
+
+---
+
 ## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 強制起動 + 自動トリガー + archiver Phase 2 切り出し + デッドコード 4 モジュール削除
 
 > 「ツールを実際に使える状態にする」release window。3 ラウンドの反復を全て単一 v1.7.3 リリースに squash：

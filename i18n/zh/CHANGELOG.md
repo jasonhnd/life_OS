@@ -6,6 +6,81 @@
 
 ---
 
+## [1.8.0] - 2026-04-28 - Daily Cycle 混合化（cron + monitor + 软化上朝/退朝）
+
+> **Life OS 历史上最大的单次 release**。把 lifeos 从「反应式 chatbot」（必须由用户驱动）转变为「混合 OS」（reactive + autonomous）。三种正交模式并存：业务 session（长期持续）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。
+
+### 新增 · Session Modes（核心架构变化）
+
+- **Mode 1 · 业务 session**：长期持续，session 可跨天/周。**上朝/退朝降级为可选软触发**。
+- **Mode 2 · Monitor session**：`/monitor` slash command 进入运维控制台模式。
+- **Mode 3 · Cron 自治**：10 个调度 job + 1 个 RunAtLoad。
+
+### 新增 · Cron jobs（v1.8.0 新增 5 个，共 10 + 1 RunAtLoad）
+
+新增：spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency / missed-cron-check。**激活 v1.6.x 起承诺过但 0 次 cron 触发的多个 spec**。
+
+### 新增 · Slash commands（2 个）
+
+- `/monitor` — 进入 monitor 模式
+- `/run-cron <job>` — 手动触发
+
+### 新增 · Hooks（3 个）
+
+- `session-start-inbox` — cron→session 桥
+- `pre-task-launch` — 机器强制 v1.7.3 carve-out
+- `post-task-audit-trail` — 即时 R11 audit trail 检查
+
+### 新增 · Python tools（4 个）+ Cron prompts（5 个）+ Spec docs（2 个）+ 新 subagent
+
+- 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
+- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+- 2 specs: `references/{automation-spec,session-modes-spec}.md`
+- 1 subagent: `pro/agents/monitor.md`
+- 1 trigger script: `scripts/run-cron-now.sh`
+
+### 变更
+
+- **pro/CLAUDE.md** 新增 "Session Modes (v1.8.0)" section
+- **scripts/setup-cron.sh** 从 3 → 10 cron jobs + 1 RunAtLoad
+- **scripts/setup-hooks.sh** 注册 3 个新 hook
+- **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder 软化
+- **版本标记**：SKILL.md + 3 README badge → 1.8.0
+
+### 发布后修复（折回 v1.8.0 — 版本号不变，按"所有 bug 都属于这个版本"原则）
+
+- **R-1.8.0-001 · `scripts/setup-hooks.sh`**：缺失 9 个变量声明（3× `HOOK_*_ID`、3× `V18_*_SOURCE`、3× `V18_*_DEST`），被 `copy_exec` / `register_hook` 引用却从未定义。setup 报错"未定义变量 V18_SESSION_START_INBOX_SOURCE"。已在 line 52-54、66-68、80-82 补齐声明。
+- **R-1.8.0-002 · `scripts/run-cron-now.sh`**：使用了 bash 4+ 的 `declare -A` 关联数组。macOS 自带 bash 3.2.57（GPLv2 永远停在那一版），脚本在 Mac 上 100% 失败。改写 JOBS 表为基于 `case` 的 `job_spec()` 查找函数 + 独立的 `JOB_NAMES` 列表。同时把 data root 改成 `$LIFEOS_DATA_ROOT`（环境变量）→ `$PWD`（cwd）→ 失败并清晰报错。
+- **R-1.8.0-003 · `scripts/setup-cron.sh`**：灾难性的 root 混淆 bug。`REPO_ROOT` 同时被用于查找 `tools/cli.py`（正确：skill 源码）和生成命令里的 `cd` + `--root .`（错误：应该是用户的 second-brain repo）。结果：所有 11 个 cron job 扫描的是空的 skill 目录，全部报告"0 sessions / 0 SOUL / 0 projects"。引入独立的 `DATA_ROOT`（来自 `$LIFEOS_DATA_ROOT` 或 `$PWD`），并贯穿到 `repo_command{,_pymod,_prompt}`（python：`--root "$DATA_ROOT"`；prompt：`cd "$DATA_ROOT"`），以及全部 6 个 `print_launchd_plist*` 生成器（`<key>WorkingDirectory</key>` 现在来自 `$DATA_ROOT`）。在 `main()` 中加入 `require_data_root()` 早期检查，给出可执行的报错信息。
+- **R-1.8.0-004 · `tools/spec_compliance_report.py`**：root 校验 guard 检查 `(root / "SKILL.md").is_file()` 来识别 Life OS root，但 `SKILL.md` 只存在于 skill 源码 — 不在用户 second-brain repo 里。每次安装都会报"no SKILL.md"中断。改为 `(root / "_meta").is_dir()`，匹配真正的数据 root 标记。
+- **R-1.8.0-005 · `tools/wiki_decay.py`**：与 R-1.8.0-004 同样的 `SKILL.md`-vs-`_meta/` 不匹配 bug。同样修法。
+- **`tools/missed_cron_check.py`**（与 R-1.8.0-004 一起前置修复）：line 134 有同样的 `SKILL.md`-vs-`_meta/` bug 模式；下次 macOS 重启时会通过 RunAtLoad plist 触发。预防性应用 R-1.8.0-004 的同样修法。
+- **R-1.8.0-006 · `scripts/setup-cron.sh` · `repo_command_prompt`**：cron 拉起的 `claude -p` session 没有 pre-approved Write 权限，所以每个 prompt-based job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）跑完分析后阻塞在 Write tool 权限弹窗上 — 没人按 yes，session 5-15 分钟后超时退出。结果：exit 0 但**啥都没写** — 100% 数据丢失。给生成的 `claude -p` 命令加 `--dangerously-skip-permissions` flag。安全边界仍由 `cd "$DATA_ROOT"`（无法越界 second-brain）+ prompt 文件版本受控（`scripts/prompts/`）保证。
+- **R-1.8.0-007 · `tools/missed_cron_check.py` · `trigger_recovery`**：在 `data_root/scripts/` 下找 `run-cron-now.sh`，但 R-1.8.0-003 修完后 `data_root` 是用户 second-brain — 那里没 `scripts/`。之前装过 v1.8.0 的 Mac 上，`data_root/scripts/` 里残留一份 R-1.8.0-002 修复前的旧 `run-cron-now.sh`（还带 `declare -A`），结果上游虽然 patch 了但被调用的是旧版，报 "declare -A: invalid option"。改成用 `Path(__file__).resolve().parent.parent / "scripts" / "run-cron-now.sh"` 解析路径，**永远调用当前上游版本**，并通过 subprocess env 传 `LIFEOS_DATA_ROOT` 让脚本知道数据 root。
+- **R-1.8.0-008 · `scripts/setup-cron.sh` · PATH 扩展**：launchd 拉起的 shell 的 PATH（`~/.local/bin:/opt/homebrew/bin:/usr/local/bin:...`）不包含 Claude Code 常见的安装位置（`~/.claude/local`、`~/.bun/bin`、`~/.npm-global/bin`、`~/.volta/bin`），所以 `command -v claude` 返回 false，`archiver-recovery`（以及所有 prompt job）报 "claude CLI not found"。在全部 3 个命令生成器（`repo_command`、`repo_command_pymod`、`repo_command_prompt`）的 PATH export 行加上这 4 个安装位置。
+- **`tools/seed.py`**：`META_GITKEEP_DIRS` 缺失 `_meta/inbox`、`_meta/runtime` 以及三个 `_meta/eval-history/` 子目录（`cron-runs`、`auditor-patrol`、`recovery`）。`tools/seed.py` 新建的 second-brain repo 没有 v1.8.0 cron prompt 与 `session-start-inbox` hook 写入的目录。同时初始化 `_meta/inbox/notifications.md` 头部，使 cron→session 桥接从第一天起就有可写目标。
+- **`scripts/setup-cron.sh`**（与 seed.py 修复配套）：新增 `bootstrap_repo_dirs()` 辅助函数，由 `main` 在 `ensure_repo` 之后调用。幂等地为本次修复之前 seed 的**已存在** second-brain repo 补齐相同目录 + notifications.md 头部。现在 keyed off `$DATA_ROOT/_meta` 而非 `$REPO_ROOT/_meta`（R-1.8.0-003 清理）。
+
+### 迁移
+
+```bash
+# 从你的 second-brain repo 内部跑（含 _meta/、SOUL.md、wiki/ 的那个目录）：
+cd /path/to/your/second-brain
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install
+# 如果不能 cd，可用：LIFEOS_DATA_ROOT=/path/to/second-brain bash ... install
+```
+
+无第二大脑数据迁移需求。v1.7.x 数据完全兼容。`$PWD`（或 `$LIFEOS_DATA_ROOT`）若没有 `_meta/` 目录，install 会清晰报错退出，错误配置会响亮失败而不是静默扫错根目录。`bootstrap_repo_dirs` 幂等 — 已有目录的 repo 重跑安全。macOS 重新安装后：`launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && launchctl load ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` 让新的 `WorkingDirectory` 与 `--root` 路径生效。
+
+### Audit 结论（v1.8.0 final）
+
+v1.7.3 audit 发现的「spec 承诺但从未自动化」缺口现已 close。AUDITOR Mode 2 / ADVISOR monthly / eval-history monthly / strategic consistency / wiki decay / spec compliance / archiver recovery / boot catch-up 全部 ✅。
+
+用户反馈：「Hermes 和 cortex 的问题」→「为什么设计好了但没跑起来」→「不要 routines 也能实现」→「我不可能每天都开新 session」→「完整版必须一次性全部做完」。
+
+---
+
 ## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 强制启动 + 自动触发 + archiver Phase 2 拆分 + 4 个死代码模块删除
 
 > "让工具真能用起来" release window。三轮迭代全部 squash 进单一 v1.7.3 release：

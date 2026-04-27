@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -74,6 +74,29 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.8.0 新特性 — Daily Cycle 混合化
+
+v1.8.0 是 Life OS 历史上最大的单次 release：把 lifeos 从「反应式 chatbot」（必须由用户驱动）转变为「混合 OS」（reactive + autonomous）。三种正交的 session/process 模式现在并存：
+
+- **Mode 1 · 业务 session**（你日常 Claude Code 聊天）。长期持续：单个 session 可以跨天/周。**上朝/退朝降级为可选软触发**（不再是强制 daily cycle）。
+- **Mode 2 · Monitor session**（`/monitor` slash command）。运维控制台模式。看 cron 输出 / 控制系统 / 处理 action items。不参与业务决策讨论。
+- **Mode 3 · Cron 自治**（后台 scheduler，无用户）。10 个 cron job + 1 个 RunAtLoad 在 macOS launchd / Linux cron 上跑，输出到 `_meta/eval-history/`，通知到 `_meta/inbox/notifications.md`。
+
+亮点：
+
+- **10 个调度 job**（v1.8.0 新增 5 个）：reindex / daily-briefing / backup / **spec-compliance** / **wiki-decay** / **archiver-recovery** / **auditor-mode-2** / **advisor-monthly** / **eval-history-monthly** / **strategic-consistency**，加上开机时的 **missed-cron-check**。其中几个激活了 v1.6.x 起承诺过但**零 cron 触发**的 spec（AUDITOR Mode 2 Patrol、monthly SOUL drift 等）。
+- **`/monitor` slash command** — 新的运维控制台模式。读 cron 输出，手动触发 cron，暂停/恢复 schedule，逐项处理 action items。
+- **`/run-cron <job>` slash command** — 在 session 内手动触发任何 cron job。
+- **3 个新 hook** — `session-start-inbox`（cron→session 桥：SessionStart hook 注入最近 cron 活动到 system-reminder）、`pre-task-launch`（机器强制 v1.7.3 carve-out：knowledge-extractor 必须先于 archiver）、`post-task-audit-trail`（即时 R11 trail 检查，不再等 session-end）。
+- **4 个新 python 工具** — `spec_compliance_report`（启发式 spec→evidence 比率）、`wiki_decay`（过期 entry 检测）、`cron_health_report`（cron 成功率）、`missed_cron_check`（Mac 唤醒/启动补跑）。
+- **5 个 cron 驱动的 Claude Code prompts** — `archiver-recovery`（自动恢复漏退朝）、`auditor-mode-2`（周度 Patrol Inspection）、`advisor-monthly`（SOUL drift 检测）、`eval-history-monthly`（系统性能汇总）、`strategic-consistency`（跨项目冲突检测）。
+- **2 个新 spec 文档** — `references/automation-spec.md`（三层架构权威文档）+ `references/session-modes-spec.md`（Mode 1/2/3 详细定义）。
+- **新 subagent** — `pro/agents/monitor.md`（Mode 2 角色）。
+
+迁移：重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`（注册 3 个新 hook + 安装 2 个新 slash command）和 `bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install`（安装 10 cron + 1 RunAtLoad）。无第二大脑数据迁移需求。既有 v1.7.x sessions/wiki/SOUL 完全兼容。
 
 ---
 
