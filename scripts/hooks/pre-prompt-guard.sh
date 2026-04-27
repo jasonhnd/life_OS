@@ -217,9 +217,11 @@ VIOLATIONS_PATH="$(lib_detect_compliance_path "$CWD")"
 # This stdout is injected as a <system-reminder> by Claude Code.
 cat <<EOF
 <system-reminder>
-🚨 LIFE OS HARD RULE · Trigger "$TRIGGER" detected (v1.7 · $REPO_TYPE repo)
+🌅 LIFE OS · Trigger "$TRIGGER" detected (v1.8.0 · $REPO_TYPE repo)
 
-REQUIRED (skipping any of these = violation logged to $VIOLATIONS_PATH):
+v1.8.0 daily cycle softening: 上朝/退朝 are now **optional soft triggers**, not mandatory daily cycle. Cron tier (archiver-recovery daily 23:30, daily-briefing daily 08:00) auto-handles missed cycles. User asking for 上朝/退朝 explicitly = wants the FULL flow now (not "next time").
+
+Since the user explicitly asked, proceed with the full flow:
 
 1. Read pro/agents/${AGENT}.md BEFORE any other tool call. Do not use memory.
 2. Launch(${AGENT}) as an independent subagent via the Task tool, in: $MODE
@@ -232,6 +234,8 @@ Pre-flight Compliance Check (output this line BEFORE any tool call):
     🌅 Trigger: ${TRIGGER} → Action: Launch(${AGENT}) — ${MODE}
 
 Then the FIRST tool call MUST be Task(${AGENT}).
+
+Note: violations logged to $VIOLATIONS_PATH. v1.8.0 distinguishes "user explicitly invoked, then we skipped" (CLASS_C) from "user did not invoke, cron handles" (no violation).
 
 ─── Precedent ───────────────────────────────────────────────────────────────
 COURT-START-001 (2026-04-19): ROUTER skipped retrospective subagent,
