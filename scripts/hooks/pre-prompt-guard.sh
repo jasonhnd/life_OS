@@ -84,7 +84,7 @@ if [ -z "$CLASS" ]; then
     ACTIVITY_REMINDER="yes"
     cat <<'MEMORY_EOF'
 <system-reminder>
-📚 LIFE OS · MEMORY auto-emit detected (v1.7.3.1)
+📚 LIFE OS · MEMORY auto-emit detected (v1.8.0 · spec since v1.7.3.1)
 
 The user message contains a memory-record keyword (记一下 / remind me / 覚えて / TODO / etc).
 ROUTER MUST automatically run `python -m tools.memory emit "<inferred-key>=<value>"` based on
@@ -108,65 +108,12 @@ Spec source: pro/CLAUDE.md → Auto-Trigger Rules → Memory auto-emit
 MEMORY_EOF
   fi
 
-# ─── Cortex always-on smart trigger (v1.7.3) ────────────────────────────────
-# Per pro/CLAUDE.md §0.5, Cortex is "always-on", but ROUTER has been silently
-# skipping it. v1.7.2 audit found 0 _meta/runtime/<sid>/cortex-*.json across
-# 17+ sessions = silent degradation. This block forces a system-reminder when
-# the prompt qualifies. Skip rules: very short messages without decision
-# keywords are treated as conversational filler ("ok", "go on") — no Cortex.
-  CORTEX_NEEDED="no"
-
-  if [ "$LINE_LEN" -ge 80 ]; then
-    CORTEX_NEEDED="yes"
-  elif [ "$LINE_LEN" -ge 20 ]; then
-    DECISION_RE='(决定|选择|规划|未来|应该|要不要|该不该|考虑|想清楚|对比|权衡|长期|战略|财务|投资|关系|人际|价值观|后悔|纠结|抉择|想想|帮我想|计划|方案|策略|目标|deciding|should|consider|long.?term|strategy|invest|future|whether|either|plan|goal|tradeoff)'
-    if printf '%s' "$PROMPT" | grep -qiE "$DECISION_RE"; then
-      CORTEX_NEEDED="yes"
-    fi
-  fi
-
-  if [ "$CORTEX_NEEDED" = "yes" ]; then
-    ACTIVITY_TRIGGER="cortex"
-    ACTIVITY_REMINDER="yes"
-    cat <<'CORTEX_EOF'
-<system-reminder>
-🧠 LIFE OS · CORTEX Pre-Router Cognitive Layer (v1.7.3 always-on enforcement)
-
-This message qualifies for Cortex (length >= 80 chars OR decision keyword detected).
-ROUTER MUST run Step 0.5 BEFORE answering — not after, not "next time".
-
-REQUIRED ACTIONS (in order):
-
-1. Launch IN PARALLEL via Task tool (do NOT simulate in main context):
-   - Task(hippocampus)    — spec: pro/agents/hippocampus.md
-   - Task(concept-lookup) — spec: pro/agents/concept-lookup.md
-   - Task(soul-check)     — spec: pro/agents/soul-check.md
-
-2. Wait for all 3 (5s soft / 15s hard timeout per subagent — pro/CLAUDE.md §0.5)
-
-3. Launch Task(gwt-arbitrator) with the 3 consolidated YAML payloads.
-
-4. Prepend [COGNITIVE CONTEXT] block (from gwt-arbitrator output) BEFORE answering the user.
-
-5. EACH Cortex subagent MUST write to _meta/runtime/<sid>/<name>-<step>.json
-   (HARD RULE per pro/CLAUDE.md §0.5 + each agent spec). Without the JSON file,
-   AUDITOR Mode 3 records a CLASS_C violation.
-
-Bootstrap failure path (INDEX missing or empty):
-- Run `tools/migrate.py` to auto-bootstrap _meta/sessions/INDEX.md and _meta/concepts/INDEX.md
-- If bootstrap fails, log to _meta/runtime/<sid>/cortex-bootstrap-failure.json
-- Then degrade to v1.6.3 behavior (raw message to ROUTER, no [COGNITIVE CONTEXT])
-
-Why this matters:
-- "Always-on" is a SPEC CONTRACT, not an aspiration. v1.7.2 audit found 0
-  Cortex audit trails across 17+ sessions = silent degradation.
-- The user is paying compute for a cognitive layer they cannot see. Make it visible.
-
-Spec sources: pro/CLAUDE.md §0.5 + pro/agents/{hippocampus,concept-lookup,soul-check,gwt-arbitrator}.md
-</system-reminder>
-CORTEX_EOF
-  fi
-
+# ─── Cortex always-on enforcement REMOVED in v1.8.0 pivot ───────────────────
+# v1.7.3 forced 4-subagent launch (hippocampus/concept-lookup/soul-check/
+# gwt-arbitrator) on every qualifying message. v1.8.0 pivot moves Cortex to
+# pull-based: ROUTER decides when to launch them via Task tool. No more
+# always-on hook injection. See pro/CLAUDE.md §0.5 (rewritten) for the new
+# pull-based ROUTER guidance.
   exit 0
 fi
 
@@ -217,9 +164,11 @@ VIOLATIONS_PATH="$(lib_detect_compliance_path "$CWD")"
 # This stdout is injected as a <system-reminder> by Claude Code.
 cat <<EOF
 <system-reminder>
-🚨 LIFE OS HARD RULE · Trigger "$TRIGGER" detected (v1.7 · $REPO_TYPE repo)
+🌅 LIFE OS · Trigger "$TRIGGER" detected (v1.8.0 · $REPO_TYPE repo)
 
-REQUIRED (skipping any of these = violation logged to $VIOLATIONS_PATH):
+v1.8.0 daily cycle softening: 上朝/退朝 are now **optional soft triggers**, not mandatory daily cycle. Cron tier (archiver-recovery daily 23:30, daily-briefing daily 08:00) auto-handles missed cycles. User asking for 上朝/退朝 explicitly = wants the FULL flow now (not "next time").
+
+Since the user explicitly asked, proceed with the full flow:
 
 1. Read pro/agents/${AGENT}.md BEFORE any other tool call. Do not use memory.
 2. Launch(${AGENT}) as an independent subagent via the Task tool, in: $MODE
@@ -232,6 +181,8 @@ Pre-flight Compliance Check (output this line BEFORE any tool call):
     🌅 Trigger: ${TRIGGER} → Action: Launch(${AGENT}) — ${MODE}
 
 Then the FIRST tool call MUST be Task(${AGENT}).
+
+Note: violations logged to $VIOLATIONS_PATH. v1.8.0 distinguishes "user explicitly invoked, then we skipped" (CLASS_C) from "user did not invoke, cron handles" (no violation).
 
 ─── Precedent ───────────────────────────────────────────────────────────────
 COURT-START-001 (2026-04-19): ROUTER skipped retrospective subagent,

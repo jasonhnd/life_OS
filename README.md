@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -82,6 +82,39 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.8.0 — User-Invoked Maintenance (post-pivot)
+
+v1.8.0 originally shipped with cron autonomy + always-on Cortex. After two days of production testing the cron architecture failed every reliability test (silent data loss, LLM-in-cron permission stalls, stale script paths, multiple bash compatibility bugs). v1.8.0 was **pivoted in-place** (same version tag) to a simpler design: **user invokes everything, ROUTER does the work directly**.
+
+**Core principle**: cron required determinism, LLMs are non-deterministic — that mismatch can't be patched. Replace cron with explicit user prompts. The user types "rebuild index" or "monthly review", ROUTER reads `scripts/prompts/<job>.md` and executes inline. No background processes. Nothing runs without you watching.
+
+Two session modes:
+
+- **Mode 1 · Business session** — your standard Claude Code chat. Long-lived: a session can span days/weeks. 上朝/退朝 are **optional soft triggers**. Cortex is now **pull-based** (ROUTER decides per-message whether to launch hippocampus / concept-lookup / soul-check / gwt-arbitrator) instead of always-on.
+- **Mode 2 · Monitor session** (`/monitor`) — view-and-invoke operations console. Shows maintenance task timestamps + recent reports + action items. You say "跑 X" / "都跑", monitor reads the matching prompt and executes. No cron, no background.
+
+10 user-invoked maintenance jobs (each is a markdown prompt at `scripts/prompts/<job>.md` that ROUTER reads + executes via Read/Write/Bash):
+
+- `reindex` · `daily-briefing` · `backup` · `spec-compliance` · `wiki-decay` (the v1.7.x "python tool" jobs, now LLM-driven)
+- `archiver-recovery` · `auditor-mode-2` · `advisor-monthly` · `eval-history-monthly` · `strategic-consistency` (the v1.8.0 "prompt cron" jobs, now user-invoked)
+
+Hooks (only 1 fires automatically):
+
+- `session-start-inbox` — at session start, scans the 10 maintenance jobs' last-run timestamps and shows a one-line "what's overdue" status. **Does not execute anything**; you decide what to invoke.
+- `pre-prompt-guard` — memory keyword auto-detect + 上朝/退朝 soft trigger. **Cortex always-on enforcement REMOVED**.
+- `pre-bash-approval` (kept) — security gate against dangerous bash.
+- `post-task-audit-trail` (weakened) — only enforces R11 audit trail for archiver + knowledge-extractor (Cortex agents no longer required to write trails).
+
+Removed in pivot:
+- Cron infrastructure: `scripts/setup-cron.sh`, `scripts/run-cron-now.sh`, `scripts/commands/run-cron.md`, `tools/missed_cron_check.py`, `tools/cron_health_report.py`, all launchd plists.
+- Python middleware: `tools/memory.py` (now Write/Read directly to `~/.claude/lifeos-memory/`), `tools/session_search.py` (now Grep directly), `tools/cli.py` (no longer needed), 5 maintenance python tools (replaced by user-invoked prompts above).
+- Cortex artifacts: `pro/agents/narrator-validator.md` (validator was tied to always-on flow).
+- Spec docs: `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/architecture/hermes-local.md` (cron-era specs).
+
+Migration: re-pull the repo, then re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` (re-registers the simplified hook set). On macOS, `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` to remove the dead cron jobs. No second-brain data migration required. v1.7.x sessions / wiki / SOUL fully compatible.
 
 ---
 

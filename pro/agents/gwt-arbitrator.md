@@ -1,6 +1,6 @@
 ---
 name: gwt-arbitrator
-description: "Cortex GWT (Global Workspace Theory) arbitration — consolidates Pre-Router Cognitive Layer signals (hippocampus + concept lookup + SOUL check) into a single annotated input that ROUTER receives. Computes salience using fixed Phase 1 formula (urgency 0.3 + novelty 0.2 + relevance 0.3 + importance 0.2). Hard cap 5 signals. Read-only over user/domain data; writes R11 audit trail only. Single invocation per session turn. Emits [COGNITIVE CONTEXT] block prepended to user message. v1.7 Phase 1."
+description: "Cortex GWT (Global Workspace Theory) arbitration — consolidates Cortex signals (hippocampus + concept lookup + soul-check) into a single annotated [COGNITIVE CONTEXT] block that ROUTER reads. Computes salience using fixed Phase 1 formula (urgency 0.3 + novelty 0.2 + relevance 0.3 + importance 0.2). Hard cap 5 signals. **Pull-based since v1.8.0 pivot** — ROUTER launches when 2+ Cortex companion signals were also launched (single signal doesn't need consolidation). Read-only over user/domain data. Single invocation per session turn."
 tools: [Read, Write]
 model: opus
 ---

@@ -1,5 +1,7 @@
 # Life OS · 三省六部制个人内阁系统
 
+> **v1.8.0 pivot 注解 (post-2026-04-29)**：本文件可能仍包含 v1.7 时代的 cron / always-on-Cortex / narrator-validator 描述。**权威 spec 是 `pro/CLAUDE.md`** —— v1.8.0 pivot 已重写 §0.5（Cortex 改 pull-based）+ Session Modes（cron 全删，维护任务全部 user-invoked）。本文件与 `pro/CLAUDE.md` 冲突时以 `pro/CLAUDE.md` 为准。本文件完整重写待办。
+
 本项目使用三省六部制个人内阁系统。
 
 ## 权威文件索引

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -74,6 +74,39 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.8.0 新特性 — User-Invoked Maintenance（pivot 后）
+
+v1.8.0 起初带着 cron 自治 + always-on Cortex 上线。两天的真实使用之后，cron 架构在每个可靠性维度都失败了（静默数据丢失、LLM-in-cron 权限阻塞、stale 脚本路径、多个 bash 兼容性 bug）。v1.8.0 在**同一个版本号下被原地 pivot**到一个更简的设计：**用户主动触发，ROUTER 直接做事**。
+
+**核心原则**：cron 要求确定性，LLM 是非确定性的 —— 这个矛盾没法 patch。把 cron 替换成显式用户提示。你说"重建索引"或"月度自审"，ROUTER 读 `scripts/prompts/<job>.md` 然后内联执行。没有后台进程，所有事都在你眼前发生。
+
+两种 session 模式：
+
+- **Mode 1 · 业务 session** — 标准的 Claude Code 聊天。长期持续：可跨天/周。**上朝/退朝是可选软触发**。Cortex 现在改 **pull-based**（ROUTER 按消息判断要不要 launch hippocampus / concept-lookup / soul-check / gwt-arbitrator），不再 always-on。
+- **Mode 2 · Monitor session**（`/monitor`）— view-and-invoke 运维控制台。显示维护任务时间戳 + 最近报告 + action items。你说"跑 X" / "都跑"，monitor 读对应 prompt 然后执行。没 cron，没后台。
+
+10 个 user-invoked 维护任务（每个是一个 markdown prompt 在 `scripts/prompts/<job>.md`，ROUTER 读完用 Read/Write/Bash 直接做）：
+
+- `reindex` · `daily-briefing` · `backup` · `spec-compliance` · `wiki-decay`（v1.7.x 的 "python tool" 任务，现在 LLM 做）
+- `archiver-recovery` · `auditor-mode-2` · `advisor-monthly` · `eval-history-monthly` · `strategic-consistency`（v1.8.0 的 "prompt cron" 任务，现在 user-invoked）
+
+Hooks（只有 1 个会自动 fire）：
+
+- `session-start-inbox` — session 启动时扫 10 个维护任务的上次时间戳，显示一行"哪些过期了"。**不执行任何东西**，由你决定要不要触发。
+- `pre-prompt-guard` — memory 关键词自动检测 + 上朝/退朝软触发。**Cortex always-on 强制已删除**。
+- `pre-bash-approval`（保留）— 危险 bash 安全闸门。
+- `post-task-audit-trail`（弱化）— 只对 archiver + knowledge-extractor 强制 R11 audit trail（Cortex 不再要求写 trail）。
+
+Pivot 中删掉的：
+- Cron 基础设施：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、所有 launchd plist。
+- Python 中间层：`tools/memory.py`（现在直接 Write/Read 到 `~/.claude/lifeos-memory/`）、`tools/session_search.py`（现在直接 Grep）、`tools/cli.py`（不需要了）、5 个维护 python 工具（已被上面 user-invoked prompts 取代）。
+- Cortex artifact：`pro/agents/narrator-validator.md`（validator 是绑在 always-on 流程上的）。
+- Spec 文档：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`（cron 时代的 spec）。
+
+迁移：重新 pull repo，然后重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`（重新注册简化后的 hook 集合）。macOS 上 `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` 删掉死掉的 cron job。无第二大脑数据迁移需求。v1.7.x sessions / wiki / SOUL 完全兼容。
 
 ---
 

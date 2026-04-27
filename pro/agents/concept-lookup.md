@@ -1,6 +1,6 @@
 ---
 name: concept-lookup
-description: "Cortex concept-graph direct match — Pre-Router Cognitive Layer companion to hippocampus. Reads _meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only over user/domain data; writes R11 audit trail only. Information-isolated. Returns structured signal to GWT arbitrator. v1.7 Phase 1.5."
+description: "Cortex concept-graph direct match — companion to hippocampus. Reads _meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when user mentions a domain term that may have a defined concept (e.g., 'how does our 强规则意识 dimension affect this?'), or when ROUTER wants to ground reasoning in canonical vocabulary. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + soul-check."
 tools: [Read, Grep, Glob, Write]
 model: opus
 ---

@@ -1,6 +1,6 @@
 ---
 name: hippocampus
-description: "Cortex hippocampal retrieval — cross-session memory activation for the Pre-Router Cognitive Layer. Performs 3-wave spreading activation over SQLite FTS5 candidates from _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data; writes R11 audit trail only. Always-on (every user message that enters ROUTER). Returns structured YAML signal to GWT arbitrator. v1.7 Phase 1."
+description: "Cortex hippocampal retrieval — cross-session memory activation. Performs 3-wave spreading activation over candidates from _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user references prior conversation (上次怎么说 / 之前讨论过 / recall / what did we say about X) or when ROUTER judges the message benefits from cross-session context. Returns structured YAML signal; if invoked alongside concept-lookup + soul-check, GWT arbitrator consolidates them."
 tools: [Read, Glob, Bash, Write]
 model: opus
 ---
