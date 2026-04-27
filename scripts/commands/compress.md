@@ -6,6 +6,8 @@ allowed-tools: Read, Write, Bash
 
 # /compress · 上下文压缩
 
+> **⚠️ Backup mode (v1.7.3.1).** 主要路径是自动触发：context > 70% 或 user 说"太长/压缩"时 ROUTER 会主动建议+执行。这个命令是给"我想精确控制"或"自动 detection 漏了"的备份。详见 `pro/CLAUDE.md` → Auto-Trigger Rules → Compress auto-suggest。
+
 User invoked: `/compress $ARGUMENTS`
 
 ## 你要做的（按顺序）

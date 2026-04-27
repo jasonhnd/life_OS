@@ -6,6 +6,30 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.3.1] - 2026-04-27 - Auto-trigger UX patch (slash commands → backup mode)
+
+> Closes a UX bug introduced in v1.7.3: ROUTER was redirecting users to type `/memory emit X=Y`, `/compress`, `/search`, `/method` instead of detecting intent automatically. Slash commands are now demoted to "explicit-control backup mode"; auto-detection is the primary path.
+
+### Added
+
+- **pro/CLAUDE.md → Auto-Trigger Rules section**: codifies memory auto-emit, compress auto-suggest, search auto-trigger (via Cortex hippocampus), and method auto-create (via archiver Phase 2). Includes the principle: "if ROUTER asks the user to switch to a slash command, that is a UX bug — just do the action".
+- **pre-prompt-guard.sh memory keyword detection**: detects 中/英/日 memory keywords (记一下 / remind me / 覚えて / TODO etc) in user prompts and injects a `<system-reminder>` forcing ROUTER to auto-run `python -m tools.memory emit` with inferred key/value/role/trigger-time, instead of redirecting the user to `/memory`. Adds new `trigger=memory` value to hook activity log.
+
+### Changed
+
+- **4 slash command files** (`scripts/commands/{compress,search,memory,method}.md`): each now starts with a "⚠️ Backup mode" header pointing to the relevant pro/CLAUDE.md Auto-Trigger Rules subsection. Slash commands remain functional for: (1) precise user control, (2) developer smoke test, (3) auto-trigger fallback.
+- **Version markers**: `SKILL.md` frontmatter and 3 README badges updated to `1.7.3.1`.
+
+### Migration
+
+Re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to install the updated `pre-prompt-guard.sh` (now with memory keyword detection). No new hooks registered. No `tools/` changes.
+
+### Why this patch
+
+User feedback (verbatim, 2026-04-27): "我为什么要用这样的方式来启动这些命令？这些命令不可以直接自动启动吗？" — the slash command UX in v1.7.3 was an engineer default (give users explicit commands); the right design is auto-detect intent and act, with slash commands as a backup escape hatch.
+
+---
+
 ## [1.7.3] - 2026-04-26 - Cortex enforcement + slash commands + approval hook + 4 dead modules removed
 
 > The "make tools actually usable" release. Turns Cortex from declared-always-on into machine-enforced always-on, gives Hermes tools 4 user-facing slash commands, wires the 47-pattern approval guard to every Bash call, and removes 4 dead-weight modules (1830 lines of unused code).

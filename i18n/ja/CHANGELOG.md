@@ -6,6 +6,30 @@
 
 ---
 
+## [1.7.3.1] - 2026-04-27 - 自動トリガー UX パッチ（slash コマンド → バックアップモード）
+
+> v1.7.3 で導入された UX バグを修正：ROUTER が意図を自動検出する代わりに、ユーザーに `/memory emit X=Y` / `/compress` / `/search` / `/method` の入力を求めていました。Slash コマンドは「明示制御バックアップモード」に降格、自動検出が主要パスに。
+
+### 追加
+
+- **pro/CLAUDE.md → Auto-Trigger Rules セクション**：memory 自動 emit、compress 自動提案、search 自動トリガー（Cortex hippocampus 経由）、method 自動 create（archiver Phase 2 経由）を明文化。原則を含む：「ROUTER がユーザーに slash コマンドへの切り替えを求めるのは UX バグ — 直接アクションを実行する」。
+- **pre-prompt-guard.sh memory キーワード検出**：ユーザーメッセージ内の 中/英/日 memory キーワード（記一下 / remind me / 覚えて / TODO 等）を検出し、`<system-reminder>` を注入して ROUTER に `python -m tools.memory emit` を key/value/role/trigger-time を推論して自動実行させ、`/memory` にリダイレクトしないようにします。Hook activity log に新規 `trigger=memory` 値を追加。
+
+### 変更
+
+- **4 つの slash コマンドファイル**（`scripts/commands/{compress,search,memory,method}.md`）：各ファイル先頭に "⚠️ Backup mode" header を追加、対応する pro/CLAUDE.md Auto-Trigger Rules サブセクションへリンク。Slash コマンドは以下の用途で機能保持：(1) ユーザー精密制御、(2) 開発者スモークテスト、(3) 自動トリガー fallback。
+- **バージョンマーカー**：`SKILL.md` frontmatter と 3 つの README badge を `1.7.3.1` に更新。
+
+### マイグレーション
+
+更新された `pre-prompt-guard.sh`（memory キーワード検出を追加）をインストールするため `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行してください。新規 hook 登録なし。`tools/` 変更なし。
+
+### Why this patch
+
+ユーザーフィードバック原文（2026-04-27）：「我为什么要用这样的方式来启动这些命令？这些命令不可以直接自动启动吗？」— v1.7.3 の slash コマンド UX はエンジニアのデフォルト（ユーザーに明示コマンドを与える）；正しいデザインは意図を自動検出して実行し、slash コマンドはバックアップ脱出口として残す。
+
+---
+
 ## [1.7.3] - 2026-04-26 - Cortex 強制起動 + slash コマンド + approval hook + デッドコード 4 モジュール削除
 
 > 「ツールを実際に使える状態にする」リリース。Cortex を「宣言 always-on」から「強制 always-on」に変え、Hermes ツールにユーザー向けの 4 つの slash コマンドを接続し、47-pattern approval guard を全 Bash 呼び出しに接続し、4 つのデッドコードモジュール（1830 行の未使用コード）を削除。

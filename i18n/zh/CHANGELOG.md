@@ -6,6 +6,30 @@
 
 ---
 
+## [1.7.3.1] - 2026-04-27 - 自动触发 UX 补丁（slash 命令降级为 backup 模式）
+
+> 修复 v1.7.3 引入的 UX bug：ROUTER 让用户输入 `/memory emit X=Y` / `/compress` / `/search` / `/method` 而不是自动检测意图。Slash command 降级为"显式控制 backup 模式"，主路径改为自动检测。
+
+### 新增
+
+- **pro/CLAUDE.md → Auto-Trigger Rules section**：明文定义 memory 自动 emit、compress 自动建议、search 自动触发（通过 Cortex hippocampus）、method 自动 create（通过 archiver Phase 2）。包含原则："如果 ROUTER 让用户切换到 slash command，那是 UX bug——直接做动作"。
+- **pre-prompt-guard.sh memory 关键词检测**：检测用户消息中的中/英/日 memory 关键词（记一下 / remind me / 覚えて / TODO 等），注入 `<system-reminder>` 强制 ROUTER 自动跑 `python -m tools.memory emit` 并推断 key/value/角色/触发时间，而不是把用户引导到 `/memory`。新增 `trigger=memory` 值到 hook activity log。
+
+### 变更
+
+- **4 个 slash command 文件**（`scripts/commands/{compress,search,memory,method}.md`）：每个文件开头加 "⚠️ Backup mode" header，指向对应的 pro/CLAUDE.md Auto-Trigger Rules 子段。Slash command 保留功能，用于：(1) 用户精确控制，(2) 开发者冒烟测试，(3) 自动触发 fallback。
+- **版本标记**：`SKILL.md` frontmatter 和 3 份 README badge 更新到 `1.7.3.1`。
+
+### 迁移
+
+重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 安装更新后的 `pre-prompt-guard.sh`（新增 memory 关键词检测）。无新 hook 注册。`tools/` 无改动。
+
+### Why this patch
+
+用户反馈原文（2026-04-27）："我为什么要用这样的方式来启动这些命令？这些命令不可以直接自动启动吗？"——v1.7.3 的 slash command UX 是工程师默认（给用户明确命令）；正确设计是自动检测意图并执行，slash command 只作为 backup 逃生口。
+
+---
+
 ## [1.7.3] - 2026-04-26 - Cortex 强制启动 + slash 命令 + approval hook + 4 个死代码模块删除
 
 > "让工具真能用起来" release。把 Cortex 从「声明 always-on」变成「机器强制 always-on」，给 Hermes 工具接 4 个用户可见的 slash command，把 47-pattern approval guard 接到每次 Bash 调用，删掉 4 个死代码模块（1830 行未用代码）。

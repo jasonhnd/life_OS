@@ -279,6 +279,72 @@ Paste literal stdout into the archiver subagent launch payload before launch. Ar
 
 **/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
 
+## Auto-Trigger Rules (v1.7.3.1 · slash commands are backup mode, auto-detect is primary)
+
+The 4 v1.7.3 slash commands (`/compress` `/search` `/memory` `/method`) are **escape-hatch backup mode** for explicit user control. The **primary path is auto-detection** — ROUTER MUST observe these triggers and act without making the user type a slash command. Asking the user to "switch to `/memory emit X=Y`" is a UX bug; just do it.
+
+### Memory auto-emit (replaces forcing the user to type `/memory emit`)
+
+When the user message matches any pattern below, ROUTER MUST run `python -m tools.memory emit "<inferred-key>=<value>"` automatically and report `📚 已入档案柜` with the inferred key + role + trigger time — do NOT redirect the user to `/memory`:
+
+- **中文**: 记一下、记下、帮我记、提醒我、我要记一下、备忘
+- **English**: remind me, remember that, note that, TODO, jot down
+- **日本語**: 覚えて、メモして、リマインド、思い出させて
+
+Key inference:
+- value contains date/time → `key=reminder:<context>`
+- value contains a decision → `key=decision:<topic>`
+- otherwise → `key=note:<context>`
+
+Role inference (for the 礼/户/刑/工/吏/兵 attribution shown in the report):
+- relationship/family/friend → 礼部
+- money/spending/income/invest → 户部
+- legal/risk/审查/decision-quality → 刑部
+- health/sleep/diet/digital infra → 工部
+- learning/branding/content/social etiquette → 礼部 (also)
+- project execution/task breakdown → 兵部
+- relationship management/team building → 吏部
+
+### Compress auto-suggest + auto-execute (replaces forcing the user to type `/compress`)
+
+ROUTER MUST proactively suggest compression when ANY of these hold:
+- Conversation has > 40 turns AND no compression in this session
+- Estimated visible-context usage > 70% (heuristic: total chars in current frame > 50,000)
+- User says one of: 太长 / 压缩 / 整理一下 / 清理上下文 / too long / compress / tidy up
+
+Suggestion format (proactive):
+
+```
+📦 当前对话已 N turns（估算 context X%）。要不要我压缩一次？
+   归档低价值 turns 到 _meta/compression/<sid>-compress-<ts>.md
+   保留：last 5 turns + SOUL/DREAM/决策相关 + <focus 关键词，如果你说>
+   [回 "压缩" / "yes" / 给我 focus 关键词 来确认]
+```
+
+Auto-execute (no user confirm) when:
+- User just said an Adjourn trigger AND estimated context > 80% — compress BEFORE launching archiver, so archiver gets a clean frame.
+
+### Search auto-trigger (already automatic via Cortex)
+
+`hippocampus` in Step 0.5 automatically calls `tools.session_search` (FTS5) for every Cortex-eligible message. ROUTER reads the retrieved sessions from the `[COGNITIVE CONTEXT]` block; the user does NOT need to type `/search`.
+
+The `/search <query>` slash command exists ONLY for: "I want to precisely search keyword X right now without going through Cortex". 95%+ of search needs are handled automatically.
+
+### Method auto-create (already automatic via archiver Phase 2)
+
+`archiver` Phase 2 auto-detects method candidates from the session (recurring decision patterns, method library hits) and writes/updates `_meta/methods/<name>.md`. ROUTER does NOT prompt the user to type `/method create`.
+
+The `/method create|update|list` slash command exists ONLY for: "I want to manually inspect or seed a specific method right now". 95%+ of method authoring is handled by archiver.
+
+### Why slash commands at all?
+
+Three legitimate use cases:
+1. **Precise control**: User wants to compress with specific focus, search a specific keyword, or seed a specific method without waiting for auto-trigger.
+2. **Audit/test**: Developer wants to verify the underlying tool works (smoke test).
+3. **Auto-trigger fallback**: If the auto-detection rules in this section fail (regex miss, ROUTER override), the user has an explicit escape hatch.
+
+If ROUTER is constantly relying on slash commands instead of auto-trigger, the auto-trigger rules need tightening — not the user's input.
+
 ## Session Binding (HARD RULE · v1.7.2.3 clarified — discussion scope ≠ data write scope)
 
 Each session may bind to a primary project for **data write scope** — decisions, journal entries, wiki additions, SOUL updates persist to the bound project to avoid cross-contamination.

@@ -72,13 +72,48 @@ fi
 # ─── Classify trigger ───────────────────────────────────────────────────────
 CLASS="$(lib_classify_trigger "$FIRST_LINE")"
 
+# ─── Memory auto-emit detection (v1.7.3.1) ──────────────────────────────────
+# Per pro/CLAUDE.md Auto-Trigger Rules, the user should NEVER need to type
+# `/memory emit X=Y`. When the message contains a memory-record keyword,
+# ROUTER must automatically emit. This hook injects a reminder so ROUTER
+# does not redirect the user to a slash command.
+if [ -z "$CLASS" ]; then
+  MEMORY_KEYWORD_RE='(记一下|记下|帮我记|提醒我|我要记一下|备忘|remind me|remember that|note that|TODO|jot down|覚えて|メモして|リマインド|思い出させて)'
+  if printf '%s' "$PROMPT" | grep -qiE "$MEMORY_KEYWORD_RE"; then
+    ACTIVITY_TRIGGER="memory"
+    ACTIVITY_REMINDER="yes"
+    cat <<'MEMORY_EOF'
+<system-reminder>
+📚 LIFE OS · MEMORY auto-emit detected (v1.7.3.1)
+
+The user message contains a memory-record keyword (记一下 / remind me / 覚えて / TODO / etc).
+ROUTER MUST automatically run `python -m tools.memory emit "<inferred-key>=<value>"` based on
+the user's content. DO NOT redirect the user to `/memory emit ...` — that is a UX bug.
+
+After emit, report exactly:
+
+  📚 已入档案柜
+    · key: <inferred>
+    · role: <礼/户/刑/工/吏/兵 inferred from content>
+    · trigger time: <if value contains date/time>
+    · 24h 后未完成会出现在状态行
+
+Key inference (pro/CLAUDE.md Auto-Trigger Rules):
+- value contains date/time → key=reminder:<context>
+- value contains a decision → key=decision:<topic>
+- otherwise → key=note:<context>
+
+Spec source: pro/CLAUDE.md → Auto-Trigger Rules → Memory auto-emit
+</system-reminder>
+MEMORY_EOF
+  fi
+
 # ─── Cortex always-on smart trigger (v1.7.3) ────────────────────────────────
 # Per pro/CLAUDE.md §0.5, Cortex is "always-on", but ROUTER has been silently
 # skipping it. v1.7.2 audit found 0 _meta/runtime/<sid>/cortex-*.json across
 # 17+ sessions = silent degradation. This block forces a system-reminder when
 # the prompt qualifies. Skip rules: very short messages without decision
 # keywords are treated as conversational filler ("ok", "go on") — no Cortex.
-if [ -z "$CLASS" ]; then
   CORTEX_NEEDED="no"
 
   if [ "$LINE_LEN" -ge 80 ]; then

@@ -6,6 +6,8 @@ allowed-tools: Bash, Read, Write
 
 # /method · 方法论库管理
 
+> **⚠️ Backup mode (v1.7.3.1).** 主要路径是 archiver Phase 2 退朝时自动检测 method candidate 并 create/update。这个命令是给"我想现在立刻 seed 一个具体 method"的备份。详见 `pro/CLAUDE.md` → Auto-Trigger Rules → Method auto-create。
+
 User invoked: `/method $ARGUMENTS`
 
 ## 你要做的

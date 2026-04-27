@@ -6,6 +6,8 @@ allowed-tools: Bash, Read
 
 # /search · 历史会话搜索
 
+> **⚠️ Backup mode (v1.7.3.1).** 主要路径是 Cortex 的 hippocampus 自动调 `tools.session_search`，结果出现在 [COGNITIVE CONTEXT] 块里。这个命令是给"我想精确搜某个关键词不走 Cortex"的备份。详见 `pro/CLAUDE.md` → Auto-Trigger Rules → Search auto-trigger。
+
 User invoked: `/search $ARGUMENTS`
 
 ## 你要做的

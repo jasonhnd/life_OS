@@ -6,6 +6,8 @@ allowed-tools: Bash, Read
 
 # /memory · 即时记忆
 
+> **⚠️ Backup mode (v1.7.3.1).** 主要路径是 ROUTER 自动检测 "记一下/提醒我/TODO/覚えて" 等关键词后自动 emit。这个命令是给"我想精确控制 key/value 格式"的备份。详见 `pro/CLAUDE.md` → Auto-Trigger Rules → Memory auto-emit。
+
 User invoked: `/memory $ARGUMENTS`
 
 ## 你要做的
