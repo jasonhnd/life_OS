@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -76,6 +76,39 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.8.0 の新機能 — User-Invoked Maintenance（pivot 後）
+
+v1.8.0 は当初 cron 自治 + always-on Cortex を搭載してリリースしました。本番テスト 2 日で cron アーキテクチャは全ての信頼性試験に失敗（サイレントなデータロス、LLM-in-cron の権限ストール、stale なスクリプトパス、複数の bash 互換性 bug）。v1.8.0 は**同じバージョンタグのまま**シンプルな設計に**インプレース pivot**：**ユーザーが全てを起動、ROUTER が直接実行**。
+
+**コア原則**：cron は決定論性を要求、LLM は非決定論的 — このミスマッチは patch では解消できません。cron を明示的なユーザープロンプトに置き換え。あなたが「インデックス再構築」「月次レビュー」と言えば ROUTER が `scripts/prompts/<job>.md` を読んで内部実行。バックグラウンドプロセスなし、何もあなたが見ていない時には実行されない。
+
+2 つの session モード：
+
+- **Mode 1 · ビジネス session** — 標準の Claude Code チャット。長期持続：数日〜数週間にまたがる。**上朝/退朝はオプショナルなソフトトリガー**。Cortex は **pull-based に変更**（ROUTER がメッセージごとに hippocampus / concept-lookup / soul-check / gwt-arbitrator を起動するか判断）、always-on ではなくなりました。
+- **Mode 2 · Monitor session**（`/monitor`）— view-and-invoke 運用コンソール。メンテナンスタスクのタイムスタンプ + 最近のレポート + action items を表示。あなたが「跑 X」「都跑」と言えば、monitor が対応する prompt を読んで実行。cron なし、バックグラウンドなし。
+
+10 個の user-invoked メンテナンスジョブ（それぞれ `scripts/prompts/<job>.md` の markdown prompt、ROUTER が読んで Read/Write/Bash で直接実行）：
+
+- `reindex` · `daily-briefing` · `backup` · `spec-compliance` · `wiki-decay`（v1.7.x の "python tool" ジョブ、現在は LLM が実行）
+- `archiver-recovery` · `auditor-mode-2` · `advisor-monthly` · `eval-history-monthly` · `strategic-consistency`（v1.8.0 の "prompt cron" ジョブ、現在は user-invoked）
+
+Hooks（自動 fire するのは 1 つだけ）：
+
+- `session-start-inbox` — session 開始時に 10 個のメンテナンスタスクの最終実行タイムスタンプをスキャン、「何が overdue か」を 1 行で表示。**何も実行しない**、何を起動するかはあなたが決定。
+- `pre-prompt-guard` — memory キーワード自動検出 + 上朝/退朝ソフトトリガー。**Cortex always-on enforcement は削除**。
+- `pre-bash-approval`（保持）— 危険な bash に対するセキュリティゲート。
+- `post-task-audit-trail`（弱化）— archiver + knowledge-extractor のみ R11 audit trail を強制（Cortex は trail 書き込み不要に）。
+
+Pivot で削除されたもの：
+- Cron インフラ：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、全 launchd plist。
+- Python ミドルウェア：`tools/memory.py`（現在は直接 Write/Read で `~/.claude/lifeos-memory/`）、`tools/session_search.py`（現在は直接 Grep）、`tools/cli.py`（不要）、5 つのメンテナンス python ツール（上記 user-invoked prompts に置換）。
+- Cortex artifact：`pro/agents/narrator-validator.md`（validator は always-on フローに紐付いていた）。
+- Spec ドキュメント：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`（cron 時代の spec）。
+
+マイグレーション：repo を再 pull、`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行（簡略化された hook セットを再登録）。macOS では `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` で死んだ cron job を削除。第二の脳のデータマイグレーションは不要。v1.7.x sessions / wiki / SOUL は完全互換。
 
 ---
 

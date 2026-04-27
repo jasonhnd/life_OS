@@ -48,6 +48,11 @@ HOOK_STOP_ID="life-os-stop-session-verify"
 HOOK_PRE_READ_ID="life-os-pre-read-allowlist"
 HOOK_PRE_BASH_APPROVAL_ID="life-os-pre-bash-approval"
 
+# v1.8.0 hook IDs
+HOOK_SESSION_START_INBOX_ID="life-os-session-start-inbox"
+HOOK_PRE_TASK_LAUNCH_ID="life-os-pre-task-launch"
+HOOK_POST_TASK_AUDIT_TRAIL_ID="life-os-post-task-audit-trail"
+
 # Source paths inside the skill package
 V17_LIB_SOURCE="$SOURCE_DIR/hooks/_lib.sh"
 V17_PRE_PROMPT_SOURCE="$SOURCE_DIR/hooks/pre-prompt-guard.sh"
@@ -57,6 +62,11 @@ V17_STOP_SOURCE="$SOURCE_DIR/hooks/stop-session-verify.sh"
 V17_PRE_READ_SOURCE="$SOURCE_DIR/hooks/pre-read-allowlist.sh"
 V17_PRE_BASH_APPROVAL_SOURCE="$SOURCE_DIR/hooks/pre-bash-approval.sh"
 
+# v1.8.0 hook source paths
+V18_SESSION_START_INBOX_SOURCE="$SOURCE_DIR/hooks/session-start-inbox.sh"
+V18_PRE_TASK_LAUNCH_SOURCE="$SOURCE_DIR/hooks/pre-task-launch.sh"
+V18_POST_TASK_AUDIT_TRAIL_SOURCE="$SOURCE_DIR/hooks/post-task-audit-trail.sh"
+
 # Dest paths inside ~/.claude/scripts/hooks
 V17_LIB_DEST="$HOOKS_SUBDIR/_lib.sh"
 V17_PRE_PROMPT_DEST="$HOOKS_SUBDIR/pre-prompt-guard.sh"
@@ -65,6 +75,11 @@ V17_PRE_WRITE_DEST="$HOOKS_SUBDIR/pre-write-scan.sh"
 V17_STOP_DEST="$HOOKS_SUBDIR/stop-session-verify.sh"
 V17_PRE_READ_DEST="$HOOKS_SUBDIR/pre-read-allowlist.sh"
 V17_PRE_BASH_APPROVAL_DEST="$HOOKS_SUBDIR/pre-bash-approval.sh"
+
+# v1.8.0 hook dest paths
+V18_SESSION_START_INBOX_DEST="$HOOKS_SUBDIR/session-start-inbox.sh"
+V18_PRE_TASK_LAUNCH_DEST="$HOOKS_SUBDIR/pre-task-launch.sh"
+V18_POST_TASK_AUDIT_TRAIL_DEST="$HOOKS_SUBDIR/post-task-audit-trail.sh"
 
 # ─── Uninstall mode ─────────────────────────────────────────────────────────
 uninstall_all() {
@@ -166,6 +181,9 @@ copy_exec "$V17_PRE_WRITE_SOURCE"     "$V17_PRE_WRITE_DEST"
 copy_exec "$V17_STOP_SOURCE"          "$V17_STOP_DEST"
 copy_exec "$V17_PRE_READ_SOURCE"      "$V17_PRE_READ_DEST"
 copy_exec "$V17_PRE_BASH_APPROVAL_SOURCE" "$V17_PRE_BASH_APPROVAL_DEST"
+copy_exec "$V18_SESSION_START_INBOX_SOURCE" "$V18_SESSION_START_INBOX_DEST"
+copy_exec "$V18_PRE_TASK_LAUNCH_SOURCE" "$V18_PRE_TASK_LAUNCH_DEST"
+copy_exec "$V18_POST_TASK_AUDIT_TRAIL_SOURCE" "$V18_POST_TASK_AUDIT_TRAIL_DEST"
 
 # ─── Copy v1.7.3 slash commands → ~/.claude/commands ────────────────────────
 COMMANDS_DEST="$HOME/.claude/commands"
@@ -260,6 +278,19 @@ register_hook "PreToolUse" "$HOOK_PRE_READ_ID" "Read" \
 register_hook "PreToolUse" "$HOOK_PRE_BASH_APPROVAL_ID" "Bash" \
   "$V17_PRE_BASH_APPROVAL_DEST" 5 \
   "v1.7.3 · Approval guard wrapping tools/approval.py (47 dangerous patterns + hardline + tirith)"
+
+# ─── Register v1.8.0 hooks ──────────────────────────────────────────────────
+register_hook "SessionStart" "$HOOK_SESSION_START_INBOX_ID" "*" \
+  "$V18_SESSION_START_INBOX_DEST" 5 \
+  "v1.8.0 · Inject inbox/notifications + recent cron runs as system-reminder at session start (cron→session bridge)"
+
+register_hook "PreToolUse" "$HOOK_PRE_TASK_LAUNCH_ID" "Task" \
+  "$V18_PRE_TASK_LAUNCH_DEST" 3 \
+  "v1.8.0 · Enforce knowledge-extractor before archiver (v1.7.3 carve-out HARD RULE machine-strict)"
+
+register_hook "PostToolUse" "$HOOK_POST_TASK_AUDIT_TRAIL_ID" "Task" \
+  "$V18_POST_TASK_AUDIT_TRAIL_DEST" 3 \
+  "v1.8.0 · Verify R11 audit trail written by Cortex/archiver/knowledge-extractor subagents (immediate check, not session-end)"
 
 register_hook "PostToolUse" "$HOOK_POST_RESPONSE_ID" "Task|Bash|Write|Edit" \
   "$V17_POST_RESPONSE_DEST" 5 \

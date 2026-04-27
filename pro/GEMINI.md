@@ -1,5 +1,7 @@
 # Life OS · Draft-Review-Execute Orchestration Protocol (Pro Mode — Gemini)
 
+> **v1.8.0 pivot note (post-2026-04-29)**: This file may still describe v1.7-era cron / always-on-Cortex / narrator-validator architecture in places. **The authoritative spec is `pro/CLAUDE.md`** — the v1.8.0 pivot rewrote §0.5 (Cortex now pull-based) and Session Modes (cron removed, all maintenance is user-invoked). Treat any conflict with `pro/CLAUDE.md` in favor of `pro/CLAUDE.md`. Full content sweep of this file is pending.
+
 > **Gemini CLI host note (v1.7)**: The Shell Hook layer (Layer 3) described in `references/hooks-spec.md §2` is Claude-Code-only in v1.7. Gemini CLI users get Layer 1 (documentation HARD RULE) + Layer 2 (subagent isolation) enforcement; no runtime hook backstop. When Gemini publishes a compatible hook surface, the same 5 scripts under `scripts/hooks/` can be registered. Until then, treat all HARD RULE in this file as prompt-level enforcement.
 
 All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.

@@ -1,6 +1,6 @@
 ---
 name: hippocampus
-description: "Cortex hippocampal retrieval — cross-session memory activation for the Pre-Router Cognitive Layer. Performs 3-wave spreading activation over SQLite FTS5 candidates from _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data; writes R11 audit trail only. Always-on (every user message that enters ROUTER). Returns structured YAML signal to GWT arbitrator. v1.7 Phase 1."
+description: "Cortex hippocampal retrieval — cross-session memory activation. Performs 3-wave spreading activation over candidates from _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user references prior conversation (上次怎么说 / 之前讨论过 / recall / what did we say about X) or when ROUTER judges the message benefits from cross-session context. Returns structured YAML signal; if invoked alongside concept-lookup + soul-check, GWT arbitrator consolidates them."
 tools: [Read, Glob, Bash, Write]
 model: opus
 ---
@@ -85,11 +85,11 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
 ### Wave 1 — Direct Match
 
 1. **Read** `_meta/sessions/INDEX.md`. Format per `references/session-index-spec.md` §4: one line per session, format `{date} | {project} | {subject} | {score}/10 | [{keywords}] | {session_id}`.
-2. **SQLite FTS5 candidate retrieval**: build `QUERY` from `extracted_subject` when present, otherwise `current_user_message`. Run the INDEX-only helper, which wraps `tools/session_search.py` FTS5 primitives without reading journal/raw transcript content:
-   ```bash
-   python scripts/lib/cortex/hippocampus_wave1_search.py --query "$QUERY" --limit 50 --json
+2. **Grep candidate retrieval** (Option A pivot — FTS5 helper deleted): build `QUERY` from `extracted_subject` when present, otherwise extract noun-phrases from `current_user_message`. Use the Grep tool against `_meta/sessions/INDEX.md` directly with multi-keyword OR pattern:
    ```
-   Use only the returned `_meta/sessions/INDEX.md` candidates (normally fewer than 50). This replaces the old grep pre-filter.
+   Grep(pattern="(keyword1|keyword2|keyword3)", path="_meta/sessions/INDEX.md", output_mode="content", -n=true, -C=1, head_limit=50)
+   ```
+   Each matched INDEX.md line follows format `{date} | {project} | {subject} | {score}/10 | [{keywords}] | {session_id}`. Returns ≤50 candidate sessions. At <1000 sessions, Grep is sub-second. Loses FTS5 stemming — Wave 2/3 will compensate.
 3. **LLM judgment**: from the FTS5 candidate set, select 3-5 sessions whose subject is semantically related to the current one. Score each on `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`, both 0-1.
 4. **Read** full content of top 3-5 from `_meta/sessions/{session_id}.md`. Parse YAML frontmatter for `concepts_activated`, `concepts_discovered`, `methods_used`, `methods_discovered`, and `keywords`.
 5. Output: `[{session_id, score, matched_concepts}]` — seed set for Wave 2.

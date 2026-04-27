@@ -18,43 +18,46 @@ When the user sends the first message, launch simultaneously:
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
-### 0.5. Pre-Router Cognitive Layer (Cortex Phase 1, v1.7.2) — ALWAYS-ON
+### 0.5. Pre-Router Cognitive Layer (Cortex) — PULL-BASED since v1.8.0
 
-For v1.7.2, the orchestrator launches the Pre-Router Cognitive Layer for every user message, including Start Session triggers. `_meta/config.md` may hold thresholds and secondary switches, but `cortex_enabled` is deprecated and MUST NOT be used as an activation gate. Do not place Cortex config under `_meta/cortex/`; if `_meta/sessions/INDEX.md` is missing or empty, auto-bootstrap before Step 0.5 and degrade only if bootstrap or a Cortex component fails.
+**v1.8.0 pivot**: Cortex was always-on in v1.7.2-v1.7.3 (every qualifying message launched 4 subagents). Audit found this added cost without measurable benefit — ROUTER often did not change its response based on the [COGNITIVE CONTEXT]. v1.8.0 removes the always-on hook and makes Cortex pull-based: **ROUTER decides when to launch Cortex subagents**.
 
-**3 parallel subagents** (each independent, information-isolated from each other):
+**The 4 subagents remain available** (`pro/agents/{hippocampus,concept-lookup,soul-check,gwt-arbitrator}.md`). ROUTER launches them via Task tool when it judges the current message benefits from cross-session context, canonical concept grounding, or SOUL alignment.
 
-1. `hippocampus` — cross-session memory retrieval via 3-wave spreading activation over `_meta/sessions/INDEX.md` and the concept graph. Reads only its dedicated inputs. See `pro/agents/hippocampus.md`.
-2. `concept-lookup` (v1.7 Phase 1.5) — direct concept-graph match via `_meta/concepts/INDEX.md`, returns top 5-10 concepts directly mentioned/implied by current message. See `pro/agents/concept-lookup.md`.
-3. `soul-check` — relevant SOUL dimensions via the current SOUL Health Report. The orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
+**When ROUTER SHOULD launch Cortex subagents** (heuristics, not rules):
 
-After GWT arbitrator returns `[COGNITIVE CONTEXT]`, the orchestrator MAY also trigger **ROUTER Step 7.5 (narrator mode)** — a ROUTER-internal narrator composition step (NOT a standalone subagent; see `pro/compliance/2026-04-21-narrator-spec-violation.md`) that runs AFTER REVIEWER Final Review (between step 6 and step 7) to wrap Summary Report substantive claims with `signal_id` citations from the cognitive context. Narrator-mode failure is non-blocking — falls back to v1.6.3 unwrapped Summary Report. The composition template lives at `pro/agents/narrator.md` (ROUTER-internal template, NOT spawnable via Task).
+1. **`hippocampus`** — when the user references prior conversation:
+   - "上次怎么说的" / "之前讨论过" / "remember when we" / "what did we say about X" / "we talked about this"
+   - User opens with a topic that may have history (your judgment)
 
-When ROUTER Step 7.5 (narrator mode) runs, the orchestrator chains the `narrator-validator` subagent (a real standalone Sonnet subagent — cheaper than Opus) to audit citation discipline. Validator failures trigger up to 2 rewrite cycles inside ROUTER Step 7.5; after 2 failed rewrites, fall back to v1.6.3 unwrapped report and log to `_meta/eval-history/narrator-{date}.md`. See `pro/agents/narrator-validator.md`. **Budget (per `references/narrator-spec.md §11`)**: fallback fires when cumulative wall-clock across narrator + validator cycles exceeds **21 seconds**, OR any single regenerate-and-revalidate cycle exceeds **8 seconds** (typical total ≈ 18s).
+2. **`concept-lookup`** — when the user uses domain vocabulary that may have a defined concept:
+   - References to SOUL dimensions, recurring project names, technical terms the user has codified
+   - Helpful when grounding reasoning in canonical vocabulary improves answer quality
 
-After all 3 return (with 5s soft timeout, 15s hard timeout per individual subagent), launch `gwt-arbitrator` with the consolidated outputs. See `pro/agents/gwt-arbitrator.md`.
+3. **`soul-check`** — when the user is making a value-laden decision:
+   - Career changes, financial choices, relationship questions, identity drift, "should I" questions
+   - Decisions that may conflict with documented SOUL dimensions
 
-**Cortex upstream emit contract (v1.7.2.1 display note):** `hippocampus`, `concept-lookup`, and `soul-check` each emit a YAML payload. ROUTER may let those outputs appear naturally in the transcript or use the optional Subagent Output Display wrapper for clarity before showing the GWT `[COGNITIVE CONTEXT]`. The GWT output should not be treated as proof that the upstream agents ran when auditing the workflow.
+4. **`gwt-arbitrator`** — only when 2+ of the above were launched. Single-signal output goes straight to ROUTER without arbitration.
 
-**GWT arbitrator output** is a `[COGNITIVE CONTEXT]` Markdown block. Orchestrator **prepends** it to the user message before ROUTER sees it:
+**When ROUTER should NOT launch Cortex** (most messages):
 
-```
-[COGNITIVE CONTEXT — reference only, not user input]
-{annotations from GWT}
-[END COGNITIVE CONTEXT]
+- Casual conversation, factual lookups, simple tool requests
+- Quick clarifications, "ok"/"continue"/"yes" replies
+- Anything where the user clearly knows what they want
+- Anything where reading SOUL/concepts wouldn't change your answer
 
-{original user message}
-```
+**ROUTER's heuristic question**: "Would launching this subagent change my response?" If yes, launch. If no, skip.
 
-**ROUTER behaviour**: ROUTER parses the `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters to separate advisory content from real user input. The cognitive context is **advisory, not authoritative** — ROUTER may discard it if the user explicitly says "ignore history" or similar.
+**Output handling when launched**:
+- Each subagent emits a YAML payload visible in the transcript.
+- If GWT arbitrator runs, its `[COGNITIVE CONTEXT]` block is the consolidated signal. ROUTER reads it and may use it to inform the response. ROUTER may discard if the user says "ignore history" or similar.
+- No audit trail enforcement (R11 was relaxed for Cortex in v1.8.0 pivot — see post-task-audit-trail.sh).
 
-**Failure / bootstrap modes**:
-- INDEX missing or empty → ROUTER runs `tools/migrate.py` to auto-bootstrap before Step 0.5; if bootstrap fails, degrade to v1.6.3 behaviour and ROUTER receives raw message
-- Any subagent times out → its slot becomes `null`, GWT proceeds with available signals
-- GWT timeout → orchestrator emits empty `[COGNITIVE CONTEXT]` block, ROUTER receives original message
-- Deprecated `cortex_enabled: false` in `_meta/config.md` → ignored for activation; Step 0.5 still runs
-
-**Cost**: ~$0.05-0.10 per invocation (Opus token usage). Cortex is always-on in v1.7.2; control cost by honoring Express/direct-handle reductions and degradation budgets, not by disabling Step 0.5.
+**Removed in v1.8.0**:
+- `narrator-validator` subagent (file deleted) — citation discipline validator was tied to the always-on flow
+- `pre-prompt-guard.sh` Cortex enforcement block — no longer auto-injects "MUST run Step 0.5" reminder
+- "Always-on" cost framing — Cortex is now opt-in per message, cost only when ROUTER judges it useful
 
 ### 1. ROUTER Triage
 
@@ -262,39 +265,44 @@ See SKILL.md Trigger Words table for the complete list in English, Chinese, and 
 
 **Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り" / "レビュー"): Launch `retrospective` (Review Mode) → briefing only, no full sync. Faster, for mid-session check-ins.
 
-**Briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
-After running `retrospective-mode-0.sh` and before launching retrospective subagent, ROUTER MUST run:
+**Briefing pre-render (Option A pivot — Bash skeleton REMOVED):**
 
-```bash
-bash scripts/retrospective-briefing-skeleton.sh "$(pwd)"
-```
-
-Paste literal stdout into the retrospective subagent launch payload before launch. Retrospective only fills `<!-- LLM_FILL -->` placeholders: Today's Focus + Pending Decisions, plus SOUL narrative if needed. All deterministic briefing structure and measured facts come from Bash output: 80% Bash pre-render, 20% LLM judgment.
+v1.7.2.3 used `retrospective-briefing-skeleton.sh` to pre-render the 6-H2 structure with 80% Bash + 20% LLM fill. **Option A deleted those scripts** — retrospective subagent now generates everything inline via Read/Glob/Grep. Cost: Mode 0 from ~1-2s pre-render + LLM filling → ~30-60s full LLM execution. AUDITOR Mode 3 still checks for Class C-brief-incomplete to catch H2 omissions.
 
 **Adjourn Session** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `archiver` (ARCHIVER agent) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE.
 
-**Adjourn briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
-After running `archiver-phase-prefetch.sh` and before launching archiver subagent, ROUTER MUST run:
+**Adjourn briefing pre-render (Option A pivot — Bash skeleton REMOVED):**
 
-```bash
-bash scripts/archiver-briefing-skeleton.sh "$(pwd)"
-```
-
-Paste literal stdout into the archiver subagent launch payload before launch. Archiver only fills `<!-- LLM_FILL -->` placeholders: Phase 2 extraction narrative (≤ 1500 tokens combined wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity) + Phase 3 DREAM narrative (≤ 800 tokens) + verbatim DREAM journal paste (no length cap) + Phase 4 sync status + Completion Checklist values. All deterministic briefing structure (6 H2 = Phase 0/1/2/3/4 + Completion Checklist) and measured facts come from Bash output. Speed target: archiver Adjourn 25 min → 10-12 min via 80% Bash pre-render + 20% LLM judgment.
+v1.7.2.3 used `archiver-phase-prefetch.sh` + `archiver-briefing-skeleton.sh` to halve adjourn time from 25 → 10-12 min via 80% Bash + 20% LLM fill. **Option A deleted both scripts** — archiver subagent now does Phase 0-4 entirely via LLM (Read/Glob/Grep + Write). **Adjourn time regression to ~25-30 min is accepted** in exchange for architecture purity. The 6-H2 structure is enforced by archiver.md spec; AUDITOR Mode 3 still catches Class C-brief-incomplete violations.
 
 **COUNCIL** ("debate" / "court debate" / "朝堂议政" / "討論"): When domain conclusions show clear contradictions, launch 3 rounds of debate; the PLANNER compiles consensus and disagreements.
 
 **Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): ROUTER skips intent clarification, enters Express analysis path directly (ROUTER launches 1-3 domains, no PLANNER/REVIEWER).
 
+**Monitor Mode** ("监控模式" / "进监控" / "进 monitor" / "看系统状态" / "看 cron" / "维护控制台" / "ops console" / "monitor mode" / "enter monitor"): Launch `monitor` subagent (Mode 2 ops console). Does NOT engage business deliberation, does NOT trigger Cortex pull-based subagents, does NOT run 上朝/退朝. Reads maintenance task timestamps + recent reports + violations. User says "跑 X" → execute via `scripts/prompts/<X>.md`. Exits via "退出 monitor" / "exit monitor". Per `pro/agents/monitor.md`. **Slash command `/monitor` exists as backup mode but natural language is primary path** (per user "全部都要自然语言").
+
 **/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
 
 ## Auto-Trigger Rules (v1.7.3.1 · slash commands are backup mode, auto-detect is primary)
 
-The 4 v1.7.3 slash commands (`/compress` `/search` `/memory` `/method`) are **escape-hatch backup mode** for explicit user control. The **primary path is auto-detection** — ROUTER MUST observe these triggers and act without making the user type a slash command. Asking the user to "switch to `/memory emit X=Y`" is a UX bug; just do it.
+The 5 slash commands (`/compress` `/search` `/memory` `/method` `/monitor`) are **escape-hatch backup mode** for explicit user control. The **primary path is auto-detection** — ROUTER MUST observe these triggers and act without making the user type a slash command. Asking the user to "switch to `/memory emit X=Y`" or "use `/monitor`" is a UX bug; just do it.
+
+### Monitor mode auto-launch (v1.8.0 · replaces forcing the user to type `/monitor`)
+
+When the user message matches any of the following patterns, ROUTER MUST automatically launch `Task(subagent_type=monitor)` — do NOT redirect the user to `/monitor`:
+
+- **中文**: 监控模式、进监控、开监控、监控控制台、看一下系统状态、看系统状态、看 cron、看维护状态、维护控制台、看 lifeos 状态、进运维
+- **English**: monitor mode, enter monitor, open monitor, ops console, monitor
+
+Once monitor subagent is active, ROUTER stays out of business deliberation until user says "退出 monitor" / "exit monitor" / "回到普通模式". See `pro/agents/monitor.md` for the operational console behavior.
+
+The pre-prompt-guard hook injects a `<system-reminder>` (`trigger=monitor`) when these keywords match, so ROUTER cannot accidentally redirect to slash command.
 
 ### Memory auto-emit (replaces forcing the user to type `/memory emit`)
 
-When the user message matches any pattern below, ROUTER MUST run `python -m tools.memory emit "<inferred-key>=<value>"` automatically and report `📚 已入档案柜` with the inferred key + role + trigger time — do NOT redirect the user to `/memory`:
+> v1.8.0 pivot: `tools/memory.py` was deleted. Memory is now a flat KV directory (`~/.claude/lifeos-memory/<key>.json`) that ROUTER reads/writes via Write/Read tools directly — no python middleware.
+
+When the user message matches any pattern below, ROUTER MUST write `~/.claude/lifeos-memory/<inferred-key>.json` directly via Write tool (with `{ "value": "<text>", "role": "<礼/户/刑/工/吏/兵>", "created": "<ISO8601>" }`) and report `📚 已入档案柜` with the inferred key + role + trigger time — do NOT redirect the user to `/memory`:
 
 - **中文**: 记一下、记下、帮我记、提醒我、我要记一下、备忘
 - **English**: remind me, remember that, note that, TODO, jot down
@@ -353,6 +361,60 @@ Three legitimate use cases:
 3. **Auto-trigger fallback**: If the auto-detection rules in this section fail (regex miss, ROUTER override), the user has an explicit escape hatch.
 
 If ROUTER is constantly relying on slash commands instead of auto-trigger, the auto-trigger rules need tightening — not the user's input.
+
+## Session Modes (v1.8.0 pivot — user-invoked, no cron)
+
+Life OS v1.8.0 originally shipped with cron autonomy (Mode 3). The pivot **removed cron entirely** — it was unreliable, invisible, and the LLM-in-cron pattern produced silent data loss. Replaced with: ROUTER + user prompts everywhere.
+
+### Mode 1 · Business session (reactive, user-driven — primary and now only mode)
+
+This is the standard Claude Code session. ROUTER, Cortex (now pull-based per §0.5), PLANNER/REVIEWER/DISPATCHER/6 Domains, AUDITOR/ADVISOR, archiver — all behave as before. **Long-lived sessions are first-class**: open a Claude Code window, talk to lifeos for hours/days. Maintenance work is invoked by you when you want it, not by cron at 23:30.
+
+### Mode 2 · Monitor (optional, view-and-invoke, no business deliberation)
+
+Triggered by `/monitor` slash command. Loads `pro/agents/monitor.md` role. Purpose: **operations console for viewing maintenance state and manually invoking maintenance jobs**. Does NOT run 上朝/退朝. Does NOT trigger Cortex pull-based subagents. Does NOT engage in business deliberation. Reads `_meta/inbox/notifications.md` + `_meta/eval-history/` to show timestamps + recent reports. User says "跑 X" → ROUTER reads `scripts/prompts/X.md` and executes inline. Exits via `/exit-monitor`.
+
+When in monitor mode, treat any business question as out-of-scope and politely redirect.
+
+### Maintenance jobs — user-invoked, all LLM (since v1.8.0 pivot)
+
+10 maintenance jobs are available. Each has a prompt at `scripts/prompts/<name>.md` that ROUTER reads and executes when the user asks. **No cron, no python tools** — ROUTER does the work directly using Read/Write/Bash/Glob/Grep/Task.
+
+| Job | Prompt | When user invokes |
+|-----|--------|-------------------|
+| reindex | `scripts/prompts/reindex.md` | "重建索引" / "rebuild index" / "reindex" |
+| daily-briefing | `scripts/prompts/daily-briefing.md` | "早朝" / "daily briefing" / "今天的简报" |
+| backup | `scripts/prompts/backup.md` | "备份" / "backup" / "打包" |
+| spec-compliance | `scripts/prompts/spec-compliance.md` | "检查合规" / "spec compliance" |
+| wiki-decay | `scripts/prompts/wiki-decay.md` | "扫一下 wiki" / "wiki 哪些过时了" |
+| archiver-recovery | `scripts/prompts/archiver-recovery.md` | "补救退朝" / "漏 adjourn" |
+| auditor-mode-2 | `scripts/prompts/auditor-mode-2.md` | "巡检" / "patrol" / "auditor 巡检" |
+| advisor-monthly | `scripts/prompts/advisor-monthly.md` | "月度自审" / "monthly review" / "SOUL 漂移" |
+| eval-history-monthly | `scripts/prompts/eval-history-monthly.md` | "统计这个月" / "monthly summary" |
+| strategic-consistency | `scripts/prompts/strategic-consistency.md` | "检查项目冲突" / "战略一致性" |
+
+### session-start status hook (only auto-fired thing)
+
+`scripts/hooks/session-start-inbox.sh` runs at every session start. It scans the 10 maintenance jobs' last-run timestamps, finds overdue ones, and injects a `<system-reminder>` summarizing what's overdue. ROUTER mentions this in one short sentence in the first response. **No automatic execution** — user decides what to invoke.
+
+### Daily cycle (上朝/退朝) — soft triggers, not enforced
+
+- 上朝 = optional soft trigger. Say it when you want a full RETROSPECTIVE briefing; otherwise just start chatting.
+- 退朝 = optional soft trigger. Say it when you want immediate archiver flow; otherwise the next session's `archiver-recovery` reminder will surface that you missed it.
+- Forgetting either = OK. Use the user-invoked recovery prompt to catch up.
+
+ROUTER MUST NOT enforce 上朝/退朝 as a hard cycle.
+
+### Removed in v1.8.0 pivot
+
+- `setup-cron.sh`, `run-cron-now.sh` (cron infrastructure)
+- 5 python tools (reindex.py, daily_briefing.py, backup.py, spec_compliance_report.py, wiki_decay.py)
+- 3 python middleware tools (memory.py, session_search.py, cli.py)
+- `tools/missed_cron_check.py`, `tools/cron_health_report.py`
+- `references/automation-spec.md`, `references/session-modes-spec.md`
+- All launchd plists previously installed (user runs `launchctl unload ...` to remove)
+
+---
 
 ## Session Binding (HARD RULE · v1.7.2.3 clarified — discussion scope ≠ data write scope)
 

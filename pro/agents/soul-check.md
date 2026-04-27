@@ -1,6 +1,6 @@
 ---
 name: soul-check
-description: "Cortex SOUL dimension check — Pre-Router Cognitive Layer. Reads SOUL.md and the most recent SOUL snapshot, returns top relevant dimensions to the current user message classified by alignment / conflict / relevance / reactivation. Read-only over user/domain data; writes R11 audit trail only. Information-isolated. Returns structured signal to GWT arbitrator. v1.7 Phase 1.5."
+description: "Cortex SOUL dimension check — companion in Cortex layer. Reads SOUL.md and the most recent SOUL snapshot, returns top relevant dimensions to the current user message classified by alignment / conflict / relevance / reactivation. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user is making a value-laden decision (career change, financial choice, relationship, identity question) and ROUTER wants to surface relevant SOUL dimensions before responding. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + concept-lookup."
 tools: [Read, Grep, Glob, Write]
 model: opus
 ---

@@ -154,6 +154,31 @@ pointer to the most relevant ones.)_
 """
 
 
+_INBOX_NOTIFICATIONS = """# Life OS · Cron Notifications Inbox (v1.8.0)
+
+This file is the **cron → session bridge** target. Background cron jobs
+(archiver-recovery, auditor-mode-2, advisor-monthly, etc.) append one-line
+notifications here. The `session-start-inbox` hook reads the tail at every
+new Claude Code session start and surfaces unread items.
+
+## Format
+
+Each line: `[ISO8601] <emoji> <subagent>: <summary> · see <relative-path>`
+
+Example:
+```
+[2026-04-28T23:30:00Z] 🌆 archiver-recovery: auto-recovered SID 2026-04-27T1602Z, see _meta/eval-history/recovery/2026-04-27-2330.md
+```
+
+## Notes
+
+- Append-only. Do not edit historical lines.
+- `session-start-inbox` reads the last 30 lines at session start.
+- Older entries can be archived to `_meta/inbox/archive/YYYY-MM.md` if this
+  file grows beyond a few hundred lines.
+"""
+
+
 # ─── Scaffolding ────────────────────────────────────────────────────────────
 
 
@@ -162,7 +187,12 @@ META_GITKEEP_DIRS = (
     "_meta/concepts",
     "_meta/snapshots",
     "_meta/eval-history",
+    "_meta/eval-history/cron-runs",
+    "_meta/eval-history/auditor-patrol",
+    "_meta/eval-history/recovery",
     "_meta/methods",
+    "_meta/inbox",
+    "_meta/runtime",
 )
 
 TOP_GITKEEP_DIRS = (
@@ -208,6 +238,10 @@ def _seed_scaffolding(target: Path) -> None:
         _write_gitkeep(target / d)
     for d in TOP_GITKEEP_DIRS:
         _write_gitkeep(target / d)
+
+    inbox_notif = target / "_meta" / "inbox" / "notifications.md"
+    if not inbox_notif.exists():
+        _write_file(inbox_notif, _INBOX_NOTIFICATIONS)
 
 
 # ─── Git bootstrap ──────────────────────────────────────────────────────────

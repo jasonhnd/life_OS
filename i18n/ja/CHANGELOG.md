@@ -6,6 +6,125 @@
 
 ---
 
+## [1.8.0] - 2026-04-28 - Daily Cycle ハイブリッド化（cron + monitor + 上朝/退朝のソフト化）
+
+> **Life OS 史上最大の単一リリース**。lifeos を「反応型 chatbot」から「ハイブリッド OS」（reactive + autonomous）へ変革。3 つの直交モードが並存：ビジネス session（長期持続）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。
+
+### 追加 · Session Modes（核心アーキテクチャ変更）
+
+- **Mode 1 · ビジネス session**：長期持続、数日〜数週間にまたがる。**上朝/退朝はオプショナルなソフトトリガー**。
+- **Mode 2 · Monitor session**：`/monitor` で運用コンソールモード。
+- **Mode 3 · Cron 自治**：10 cron job + 1 RunAtLoad。
+
+### 追加 · Cron jobs（v1.8.0 で 5 個追加、計 10 + 1 RunAtLoad）
+
+新規：spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency / missed-cron-check。**v1.6.x 以来 spec で約束しながら cron トリガーが 0 だった機能を起動**。
+
+### 追加 · Slash コマンド（2 個）
+
+- `/monitor` — monitor モード突入
+- `/run-cron <job>` — 手動トリガー
+
+### 追加 · Hooks（3 個）
+
+- `session-start-inbox` — cron→session ブリッジ
+- `pre-task-launch` — マシンレベルで v1.7.3 carve-out 強制
+- `post-task-audit-trail` — 即時 R11 audit trail チェック
+
+### 追加 · Python ツール（4）+ Cron プロンプト（5）+ Spec ドキュメント（2）+ 新 subagent
+
+- 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
+- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+- 2 specs: `references/{automation-spec,session-modes-spec}.md`
+- 1 subagent: `pro/agents/monitor.md`
+- 1 trigger script: `scripts/run-cron-now.sh`
+
+### 変更
+
+- **pro/CLAUDE.md** 新規 "Session Modes (v1.8.0)" section
+- **scripts/setup-cron.sh** 3 → 10 cron jobs + 1 RunAtLoad
+- **scripts/setup-hooks.sh** 3 つの新 hook 登録
+- **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder ソフト化
+- **バージョンマーカー**：SKILL.md + 3 README badge → 1.8.0
+
+### リリース後修正（v1.8.0 に取り込み — バージョンは据え置き、「全 bug は本バージョンに属する」方針）
+
+- **R-1.8.0-001 · `scripts/setup-hooks.sh`**：9 個の変数宣言が欠落（3× `HOOK_*_ID`、3× `V18_*_SOURCE`、3× `V18_*_DEST`）。`copy_exec` / `register_hook` で参照されているのに未定義で、setup が "未定义变量 V18_SESSION_START_INBOX_SOURCE" でエラー。line 52-54、66-68、80-82 に宣言を追加。
+- **R-1.8.0-002 · `scripts/run-cron-now.sh`**：bash 4+ の `declare -A` 連想配列を使用。macOS は bash 3.2.57（GPLv2 で凍結）が標準のため、Mac でスクリプトが 100% 失敗。JOBS テーブルを `case` ベースの `job_spec()` 関数 + 別の `JOB_NAMES` リストに書き直し。データルートも `$LIFEOS_DATA_ROOT`（env）→ `$PWD`（cwd）→ 明確なエラーで失敗するように変更。
+- **R-1.8.0-003 · `scripts/setup-cron.sh`**：致命的な root 混同バグ。`REPO_ROOT` が `tools/cli.py` 検索（正しい：skill ソース）と生成コマンド内の `cd` + `--root .`（誤り：ユーザーの second-brain repo であるべき）の両方に使われていました。結果：11 個の cron job すべてが空の skill ディレクトリをスキャンし、「0 sessions / 0 SOUL / 0 projects」と報告。独立した `DATA_ROOT`（`$LIFEOS_DATA_ROOT` または `$PWD` から）を導入し、`repo_command{,_pymod,_prompt}`（python：`--root "$DATA_ROOT"`、prompt：`cd "$DATA_ROOT"`）と、6 つの `print_launchd_plist*` ジェネレーター全て（`<key>WorkingDirectory</key>` は `$DATA_ROOT` から取得）に貫通。`main()` に `require_data_root()` 早期チェックを追加し、実行可能なエラーメッセージを出すようにしました。
+- **R-1.8.0-004 · `tools/spec_compliance_report.py`**：root 検証 guard が `(root / "SKILL.md").is_file()` で Life OS root を判定していましたが、`SKILL.md` は skill ソースにのみ存在し、ユーザーの second-brain repo にはありません。インストールごとに "no SKILL.md" でエラー終了していました。`(root / "_meta").is_dir()` に変更し、本来のデータ root マーカーに合わせました。
+- **R-1.8.0-005 · `tools/wiki_decay.py`**：R-1.8.0-004 と同じ `SKILL.md`-vs-`_meta/` ミスマッチバグ。同様に修正。
+- **`tools/missed_cron_check.py`**（R-1.8.0-004 と一緒に先行修正）：line 134 に同じ `SKILL.md`-vs-`_meta/` バグパターン。次回 macOS 再起動時に RunAtLoad plist 経由で発火する見込み。R-1.8.0-004 の同じ修正を予防的に適用。
+- **R-1.8.0-006 · `scripts/setup-cron.sh` · `repo_command_prompt`**：cron が起動した `claude -p` session に事前承認された Write 権限がなく、prompt ベースの全 job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）が分析後に Write tool 権限プロンプトでブロック — 誰も承認しないため 5-15 分でタイムアウト。結果：exit 0 だが**何も書かれない** — 100% データロス。生成される `claude -p` コマンドに `--dangerously-skip-permissions` フラグを追加。安全境界は `cd "$DATA_ROOT"`（second-brain 外に出られない）+ prompt ファイルが `scripts/prompts/` でバージョン管理されていることで担保。
+- **R-1.8.0-007 · `tools/missed_cron_check.py` · `trigger_recovery`**：`data_root/scripts/` 配下で `run-cron-now.sh` を探していたが、R-1.8.0-003 修正後の `data_root` はユーザーの second-brain — そこに `scripts/` はない。以前 v1.8.0 をインストールした Mac では、`data_root/scripts/` に R-1.8.0-002 修正前の古い `run-cron-now.sh`（`declare -A` を含む）が残っており、上流が patch されていてもそちらが呼ばれて "declare -A: invalid option" でクラッシュ。`Path(__file__).resolve().parent.parent / "scripts" / "run-cron-now.sh"` でパス解決するよう修正し、**常に現在の上流版**を呼び出すように。`LIFEOS_DATA_ROOT` を subprocess env で渡してスクリプトにデータ root を伝えます。
+- **R-1.8.0-008 · `scripts/setup-cron.sh` · PATH 拡張**：launchd が起動する shell の PATH（`~/.local/bin:/opt/homebrew/bin:/usr/local/bin:...`）には Claude Code の典型的なインストール先（`~/.claude/local`、`~/.bun/bin`、`~/.npm-global/bin`、`~/.volta/bin`）が含まれておらず、`command -v claude` が false を返して `archiver-recovery`（および全 prompt job）が "claude CLI not found" で失敗。3 つのコマンドビルダー（`repo_command`、`repo_command_pymod`、`repo_command_prompt`）の PATH export 行にこれら 4 つのインストール先を追加。
+- **`tools/seed.py`**：`META_GITKEEP_DIRS` から `_meta/inbox`、`_meta/runtime`、3 つの `_meta/eval-history/` サブディレクトリ（`cron-runs`、`auditor-patrol`、`recovery`）が欠落していました。`tools/seed.py` で seed された新しい second-brain repo に、v1.8.0 の cron prompt と `session-start-inbox` hook が書き込むディレクトリが存在していませんでした。同時に `_meta/inbox/notifications.md` のヘッダーも初期化し、cron→session bridge が初日から書き込み先を持つようにしました。
+- **`scripts/setup-cron.sh`**（seed.py 修正の対）：`bootstrap_repo_dirs()` ヘルパーを追加し、`main` から `ensure_repo` の後に呼び出します。本修正以前に seed された**既存の** second-brain repo に対して、同じディレクトリと notifications.md ヘッダーを冪等に補完します。今は `$REPO_ROOT/_meta` ではなく `$DATA_ROOT/_meta` を keyed off（R-1.8.0-003 整理）。
+
+- **R-1.8.0-010 · アーキテクチャ PIVOT (post-2026-04-29) · cron アーキテクチャを丸ごと廃止**：本番環境テスト 2 日後、R-1.8.0-001~009 修正後の cron アーキテクチャもユーザーの信頼性テストに失敗しました。5 つの prompt ベース cron job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）がサイレントにデータを失う：cron が起動した `claude -p` session が分析完了後に prompt テンプレートの礼儀正しさで「書き込みますか？」とユーザーに尋ねる — cron は誰も見ていない、session タイムアウト、exit 0、`_meta/eval-history/` は空。`--dangerously-skip-permissions` flag（R-1.8.0-006）は OS レベルの Write 権限のみスキップでき、LLM 自身の対話礼儀はバイパスできません。結論：**cron は決定論性を要求、LLM は非決定論的、このミスマッチは patch では解消できない**。
+  - **Pivot 決定（ユーザー判断）**：cron を明示的なユーザープロンプトに置き換え。ユーザーが「インデックス再構築」「月次レビュー」と言えば ROUTER が `scripts/prompts/<job>.md` を読んで内部実行。バックグラウンドプロセスなし。
+  - **削除 (17 ファイル)**：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、`tools/reindex.py`、`tools/daily_briefing.py`、`tools/backup.py`、`tools/spec_compliance_report.py`、`tools/wiki_decay.py`、`tools/memory.py`、`tools/session_search.py`、`tools/cli.py`、`pro/agents/narrator-validator.md`、`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`。さらに削除ツール用の eval scenarios 3 件。
+  - **新規作成 (5 つの user-invoked prompts)**：`scripts/prompts/{reindex,daily-briefing,backup,spec-compliance,wiki-decay}.md` —— 削除された python ツールを置換。それぞれ markdown prompt で、ROUTER が読んで Read/Write/Bash/Glob/Grep で直接実行（ユーザーがキーワードで起動）。
+  - **修正 (5 つの既存 prompts)**：`scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md` —— 「autonomous cron-triggered」フレーミングを「user-invoked from session」に変更。UNATTENDED CRON CONTRACT ブロック削除（不要）。
+  - **Hooks 再構成 (3 つの hook)**：
+    - `scripts/hooks/pre-prompt-guard.sh`：Cortex always-on enforcement ブロック（line 111-167）削除。Memory キーワード検出は Write tool で `~/.claude/lifeos-memory/<key>.json` に直接書き込むように変更（削除された `tools/memory.py` を呼ばない）。上朝/退朝ソフトトリガー保持。
+    - `scripts/hooks/session-start-inbox.sh`：完全リライト —— 以前は cron 出力を読んでいた、現在は 10 個のメンテナンスタスクの glob で最新ファイルの mtime をスキャン（`_meta/eval-history/<job>-*.md`）、overdue 一覧を `<system-reminder>` で表示。Hook は表示のみ、実行しない；ユーザーが起動を決定。
+    - `scripts/hooks/post-task-audit-trail.sh`：弱化 —— Cortex 4 subagent + narrator-validator の R11 audit trail 強制を削除。archiver + knowledge-extractor のみ trail 書き込み強制（永続状態に触れる）。
+  - **Cortex を pull-based 化**（`pro/CLAUDE.md` §0.5 リライト）：4 つの Cortex subagent はメッセージごとに自動 launch しなくなりました。ROUTER がメッセージごとに「履歴/概念/SOUL を加えると応答が変わるか？」を判断；変わる → launch、変わらない → スキップ。Subagent description ファイルを全て pull-based 反映に更新。
+  - **Slash command リライト**：`/monitor` は view-and-invoke コンソール（cron 監視ではない）；`/memory` は JSON ファイルを直接書き込み（python ミドルウェアなし）；`/search` は Grep tool で直接検索（SQLite FTS5 不使用）。
+  - **Spec ドキュメント**：`pro/CLAUDE.md` §0.5 + Session Modes section 両方リライト。`references/hard-rules-index.md` で Cortex は always-on ではないと明記。`pro/AGENTS.md`、`pro/GEMINI.md`、`AGENTS.md` の冒頭に pivot 注釈追加（`pro/CLAUDE.md` を権威と指定、完全な内容スイープは保留）。
+  - **統計**：~3500 行の cron インフラ + python ミドルウェア削除。~500 行の user-invoked prompt 内容を追加。差分：23 削除、5 新規、~25 修正。
+  - **バックアップ**：`git branch backup-pre-v1.8-pivot @ 7b15509` で pivot 前の状態を保存。
+
+- **R-1.8.0-011 · アーキテクチャ PIVOT 第二段階 (post-2026-04-29) · Bash 骨格 + cortex helpers + python ミドルウェアを全削除 → 100% LLM**：R-1.8.0-010 で cron 層を削除した後、R-1.8.0-011 で次の「決定論的 helpers」層を削除：Bash briefing 骨格、cortex Python データモデル helpers、残りのメンテナンス python ツール。目標：最小実装可能アーキテクチャ = `hooks（免疫系）+ approval.py（セキュリティ）+ 5 個の一回きり bootstrap スクリプト + その他全部 LLM が直接実行`。
+  - **Pivot 決定（ユーザー判断、"全 LLM 因为我要增强实用型"）**：LLM が合理的に実行できる helper はすべて LLM 化；hooks（OS プロトコル要求）と `approval.py`（セキュリティ境界）のみコードとして残す。
+  - **削除 (23 ファイル)**：
+    - Cortex helpers (5)：`tools/lib/cortex/{__init__,concept,extraction,session_index,snapshot}.py`
+    - Cascade .py (4)：`tools/extract.py`、`tools/rebuild_session_index.py`、`tools/rebuild_concept_index.py`、`tools/migrate.py`
+    - Bash 骨格 + telemetry (4)：`scripts/retrospective-briefing-skeleton.sh`、`scripts/archiver-briefing-skeleton.sh`、`scripts/retrospective-mode-0.sh`、`scripts/archiver-phase-prefetch.sh`
+    - Cortex broken FTS5 helper (1)：`scripts/lib/cortex/hippocampus_wave1_search.py`
+    - 死んだテスト (9)：`tests/test_{backup,cli,daily_briefing,reindex,extraction,concept_and_snapshot,session_index,package_imports,migrate}.py`
+  - **新規作成 (5 つの user-invoked prompts、削除された python ツールを置換)**：
+    - `scripts/prompts/rebuild-session-index.md`、`scripts/prompts/rebuild-concept-index.md`、`scripts/prompts/migrate-from-v1.6.md`、`scripts/prompts/snapshot-cleanup.md`、`scripts/prompts/extract-concepts.md`
+  - **Spec 書き直し (5 agent spec)**：
+    - `pro/agents/hippocampus.md` L88-92：FTS5 SQLite helper → Grep tool で INDEX.md を直接スキャン
+    - `pro/agents/retrospective.md` L47-55：Python helper パス削除、inline LLM rebuild のみ；L244 R10 boundary 書き直し
+    - `pro/agents/archiver.md`：snapshot Python helper ブロック → inline Write + 明示的 YAML schema；extraction Python helper → inline tokenize/stopword/slug ステップ；SessionSummary Python helper → 直接 Write + 明示的 byte-level フォーマット契約；v1.7.2.3 rationale ブロック更新
+    - `pro/CLAUDE.md` L268-286：HARD RULE briefing skeleton ブロック（retrospective + archiver）削除
+  - **受け入れたコスト**：retrospective Mode 0 ~30× 遅い；archiver Adjourn 10-12 min → ~25-30 min；hippocampus Wave 1 が FTS5 stemming を失う
+  - **受け入れたリスク**：SessionSummary フォーマットドリフト、Concept slug ドリフト（SHA-1 fallback で緩和）、SOUL snapshot 蓄積、6-H2 briefing で H2 欠落の可能性
+  - **保持されるコード（不可侵）**：11 hooks + `tools/approval.py` + `seed.py` / `seed_concepts.py` / `skill_manager.py` + `tools/lib/{config,llm,notion,second_brain}.py` + `scripts/lib/{audit-trail.sh,sha-fallback.sh}` + R-1.8.0-010 の 10 個の cron-replacement prompts
+  - **統計**：~3500 行削除、~700 行追加。差分：-2800 行。
+  - **バックアップ**：`git branch backup-pre-option-A @ 744d034`。
+
+- **R-1.8.0-012 · Monitor mode を自然言語のみで起動（post-2026-04-29 ユーザーフィードバック）**：ユーザー原文「这个不能要任何命令全部都要自然语言」。Monitor mode は自然言語キーワードで起動する必要があり、ユーザーに `/monitor` を入力させてはいけない。Slash コマンドは backup mode として残す（`/memory` `/search` `/method` と同じ扱い）。
+  - **`scripts/hooks/pre-prompt-guard.sh`**：`MEMORY_KEYWORD_RE` 検出ブロックの直後に `MONITOR_KEYWORD_RE` 検出ブロックを追加。キーワード：监控模式 / 进监控 / 进 monitor / 开监控 / 监控控制台 / 看系统状态 / 看 cron / 看维护状态 / 维护控制台 / ops console / monitor mode / enter monitor / open monitor / 看 lifeos 状态 / 进运维。マッチした場合 `<system-reminder>`（`trigger=monitor`）を注入し、ROUTER に `Task(subagent_type=monitor)` を直接 launch させる —— ユーザーを `/monitor` に誘導しない。
+  - **`scripts/hooks/pre-prompt-guard.sh`**（同 edit で修正 —— R-1.8.0-010 漏れ）：MEMORY ブロックのテキストがまだ ROUTER に `python -m tools.memory emit "..."` を呼ばせていたが、`tools/memory.py` は v1.8.0 pivot で削除済み。ROUTER に Write tool で `~/.claude/lifeos-memory/<sanitized-key>.json` を直接書き込むよう変更（明示的な JSON schema：`value` / `role` / `created` / オプショナル `trigger_time`）。
+  - **`pro/CLAUDE.md` Special Triggers セクション**：上朝 / 退朝 / Quick Mode と並んで Monitor Mode エントリーを追加。自然言語が主経路、`/monitor` は backup と明記。
+  - **`pro/CLAUDE.md` Auto-Trigger Rules セクション**：Memory auto-emit と並んで「Monitor mode auto-launch」サブセクションを追加。中/英キーワード列挙。「4 つの v1.7.3 slash コマンド」記述を 5 つに拡張（`/monitor` 含む）。
+  - **`scripts/commands/monitor.md`**：先頭に「Backup mode」注記ブロックを追加。ROUTER がユーザーに slash コマンドを入力させないよう指示 —— 自然言語が主経路。Slash コマンドは：focus パラメータの精密制御（`/monitor wiki`）、auto-trigger fallback（regex ミスマッチ）、テストシナリオ用に残す。
+  - **どのパスも壊さない**：`/monitor` slash コマンドはパワーユーザー向けに引き続き利用可能；`pro/agents/monitor.md` subagent 自体は未変更。エントリーパスを拡張しただけ。
+
+### マイグレーション
+
+```bash
+# あなたの second-brain repo（_meta/、SOUL.md、wiki/ がある所）の中で実行：
+cd /path/to/your/second-brain
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install
+# cd できない場合：LIFEOS_DATA_ROOT=/path/to/second-brain bash ... install
+```
+
+第二の脳のデータマイグレーション不要。v1.7.x データは完全互換。`$PWD`（または `$LIFEOS_DATA_ROOT`）に `_meta/` がない場合、install は明確なメッセージでエラー終了します — 設定ミスは静かに間違った root をスキャンするのではなく、明確に失敗します。`bootstrap_repo_dirs` は冪等 — 既にディレクトリがある repo での再実行も安全。macOS で再インストール後：`launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && launchctl load ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` で新しい `WorkingDirectory` と `--root` を反映。
+
+### Audit 結論（v1.8.0 final）
+
+v1.7.3 audit が発見した「spec で約束したが自動化されていない」ギャップが close。AUDITOR Mode 2 / ADVISOR monthly / eval-history monthly / strategic consistency / wiki decay / spec compliance / archiver recovery / boot catch-up すべて ✅。
+
+ユーザーフィードバック：「Hermes 和 cortex 的问题」→「为什么设计好了但没跑起来」→「不要 routines 也能实现」→「我不可能每天都开新 session」→「完整版必须一次性全部做完」。
+
+---
+
 ## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 強制起動 + 自動トリガー + archiver Phase 2 切り出し + デッドコード 4 モジュール削除
 
 > 「ツールを実際に使える状態にする」release window。3 ラウンドの反復を全て単一 v1.7.3 リリースに squash：

@@ -226,35 +226,32 @@ After SOUL auto-write completes (incremented evidence/challenges + new dimension
 
 **Schema**: per `references/snapshot-spec.md` §YAML Frontmatter Schema. Required fields: `snapshot_id`, `captured_at`, `session_id`, `previous_snapshot`, `dimensions[]`. Each dimension: `name`, `confidence`, `evidence_count`, `challenges`, `tier`. Only confidence > 0.2 dimensions included (dormant excluded — keeps snapshots small).
 
-**Implementation paths**:
+**Implementation** (Option A pivot — `tools/lib/cortex/snapshot.py` deleted): use Write tool directly with markdown matching the schema below.
 
-1. **Python helper** (when `tools/lib/cortex/snapshot.py` available):
-   ```bash
-   python3 -c "
-   from datetime import datetime
-   from pathlib import Path
-   from tools.lib.second_brain import SoulSnapshot, SnapshotDimension
-   from tools.lib.cortex.snapshot import write_snapshot
+```yaml
+# Target file: _meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
+---
+snapshot_id: 2026-04-29-2150
+captured_at: 2026-04-29T21:50:00+09:00
+session_id: <sid>
+previous_snapshot: <prev-id-or-null>
+dimensions:
+  - name: 强规则意识
+    confidence: 0.72
+    evidence_count: 9
+    challenges: 0
+    tier: core   # derived from confidence: ≥ 0.7 → core; ≥ 0.3 → secondary; ≥ 0.2 → emerging; < 0.2 → dormant (excluded)
+  - ...
+---
+```
 
-   snap = SoulSnapshot(
-       snapshot_id='{YYYY-MM-DD-HHMM}',
-       captured_at=datetime.fromisoformat('{captured_at}'),
-       session_id='{session_id}',
-       previous_snapshot='{prev_id_or_None}',
-       dimensions=[
-           SnapshotDimension(name=..., confidence=..., evidence_count=...,
-                             challenges=..., tier=...),
-           ...
-       ],
-   )
-   write_snapshot(snap, Path('_meta/snapshots/soul'))
-   "
-   ```
+**Tier derivation** (must follow exactly — no `SnapshotDimension.derive_tier()` helper anymore):
+- `confidence >= 0.7` → `tier: core`
+- `confidence >= 0.3 and < 0.7` → `tier: secondary`
+- `confidence >= 0.2 and < 0.3` → `tier: emerging`
+- `confidence < 0.2` → exclude (do NOT write to snapshot)
 
-2. **Direct write fallback** (when Python tools unavailable):
-   Use Write tool with markdown content matching spec §YAML Frontmatter Schema.
-
-**Tier mapping** is derived at capture time from confidence (NOT stored separately in SOUL.md): core ≥ 0.7 / secondary ≥ 0.3 / emerging ≥ 0.2 / dormant < 0.2. Use `SnapshotDimension.derive_tier()` if available.
+**Snapshot retention** (was enforced by `snapshot.py:should_archive()/should_delete()`, now manual): snapshots > 30 days old should be moved to `_meta/snapshots/soul/_archive/`; > 90 days old should be deleted. Run `scripts/prompts/snapshot-cleanup.md` periodically (user-invoked), otherwise snapshots accumulate forever.
 
 **Failure modes**:
 - `date` command unavailable → halt with error
@@ -284,26 +281,19 @@ Scan ALL session materials (Summary Report, AUDITOR + ADVISOR reports, conversat
 
 > See `references/concept-spec.md` §Creation + `references/wiki-spec.md` §Privacy Filter for full criteria details.
 
-**Use `tools/lib/cortex/extraction.py` helpers when Python tools available** (deterministic + cheap, no LLM tokens needed for the boring parts):
+**Concept candidate extraction** (Option A pivot — `tools/lib/cortex/extraction.py` deleted, archiver does it inline):
 
-```bash
-python3 -c "
-from tools.lib.cortex.extraction import (
-    count_candidate_frequencies, filter_by_min_frequency, slug_from_name
-)
-
-# Step A.1: count occurrences across session materials
-session_text = open('/path/to/concatenated/session/materials.txt').read()
-counts = count_candidate_frequencies(session_text)
-
-# Step A.2: filter by criterion 1 (≥ 2 mentions)
-filtered = filter_by_min_frequency(counts, min_count=2)
-
-# Step A.3: print candidates for LLM judgment in Step B
-for phrase, count in filtered.most_common(20):
-    print(f'  {count}× {phrase} → slug: {slug_from_name(phrase)}')
-"
-```
+For each session material (Summary Report, AUDITOR + ADVISOR, conversation summary):
+1. Concatenate text
+2. Tokenize into noun-phrase candidates (1-3 word sequences, alphanumeric + Chinese characters)
+3. Filter stopwords: 中英日 common words (是 / 的 / 了 / the / a / and / です / ます / etc. — full list in `references/concept-spec.md` §Stopwords)
+4. Count occurrences per candidate
+5. Filter `count >= 2`
+6. **Generate slug** per candidate (CRITICAL — must be deterministic across archiver runs):
+   - Lowercase
+   - Replace spaces / non-alphanumeric with `-`
+   - For Chinese: prefer pinyin transliteration; **if you can't guarantee transliteration consistency, use SHA-1 hash of canonical name (first 10 chars) as slug** to prevent same-name-different-slug drift
+7. Output `[(count, name, slug)]` sorted by count desc, top 20
 
 Then apply LLM judgment (this part stays in archiver prompt, not Python) for criteria 2-6:
 - Identity beyond session? (LLM judges)
@@ -362,38 +352,59 @@ After all Phase 2 outputs are produced (wiki auto-write, SOUL auto-write, concep
 
 **Body**: four sections per spec §3 — `## Subject` (paragraph, max 500 chars), `## Key Decisions` (1-3 bullets), `## Outcome` (paragraph including overall rating, max 400 chars), `## Notable Signals` (bullets — narrator-flagged items, cross-session patterns, unresolved tensions). NO raw message quotes. NO PII (apply Phase 2 privacy filter). NO thinking-process dumps.
 
-**Two implementation paths** (use whichever is available):
+**Direct write** (Option A pivot — `tools/lib/cortex/session_index.py` deleted):
 
-1. **Python helper (preferred when `tools/lib/cortex/session_index.py` is installed)**:
+Use the Write tool to construct the markdown directly. **FORMAT IS A CONTRACT** — all archiver runs must produce byte-level identical schema so `_meta/sessions/INDEX.md` compilation in retrospective Mode 0 stays consistent. Field order matters.
 
-```bash
-# Via Bash tool, after computing all field values from Phase 2 outputs:
-python3 -c "
-from datetime import date, datetime
-from pathlib import Path
-from tools.lib.second_brain import SessionSummary, ActionItem
-from tools.lib.cortex.session_index import write_session_summary
+```yaml
+# Target file: _meta/outbox/{session_id}/sessions/{session_id}.md
+---
+session_id: <sid>
+date: 2026-04-29                                    # YYYY-MM-DD
+started_at: 2026-04-29T09:36:00+09:00              # ISO8601 with TZ
+ended_at:   2026-04-29T16:35:00+09:00              # ISO8601 with TZ
+duration_minutes: 419
+platform: claude-code                              # claude-code | codex | gemini
+theme: zh-classical                                # active theme id
+project: <project-id-or-null>
+workflow: full                                     # full | express | review | strategist
+subject: <max 80 chars, no newlines>
+overall_score: 8                                   # int 0-10 or null
+veto_count: 0
+council_triggered: false
+compliance_violations: 0
+domains_activated: [people, finance, governance]
+domain_scores: {people: 7, finance: 8, governance: 9}
+soul_dimensions_touched: [<dim1>, <dim2>]
+wiki_written: [<entry-slug-1>]
+methods_used: [<method-id>]
+methods_discovered: [<method-id>]
+concepts_activated: [<concept-id>, ...]            # from Phase 2 mid-step
+concepts_discovered: [<concept-id>, ...]
+dream_triggers: [<trigger-id>]
+keywords: [<kw1>, <kw2>, ...]                      # max 10
+action_items:
+  - text: <action>
+    owner: <domain-or-user>
+    deadline: <YYYY-MM-DD-or-null>
+---
 
-summary = SessionSummary(
-    session_id='{session_id}', date=date.fromisoformat('{date}'),
-    started_at=datetime.fromisoformat('{started_at}'),
-    ended_at=datetime.fromisoformat('{ended_at}'),
-    duration_minutes={duration}, platform='{platform}', theme='{theme}',
-    project='{project}', workflow='{workflow}', subject='{subject}',
-    overall_score={score}, veto_count={veto_count},
-    council_triggered={council}, compliance_violations={violations},
-    domains_activated={domains}, keywords={keywords},
-    body='''{body}''',
-)
-print(write_session_summary(summary, Path('_meta/outbox')))
-"
+## Subject
+<paragraph, max 500 chars>
+
+## Key Decisions
+- <decision 1>
+- <decision 2>
+- <decision 3>
+
+## Outcome
+<paragraph including overall rating, max 400 chars>
+
+## Notable Signals
+- <narrator-flagged item / cross-session pattern / unresolved tension>
 ```
 
-2. **Direct write fallback (when Python tools unavailable)**:
-
-Use the Write tool to construct the markdown manually. Schema lives in `references/session-index-spec.md` §3. Paths and body sections as above.
-
-**Both paths produce the same output file**. Add `sessions/{session_id}.md` to the manifest count for atomic git commit alongside other outbox artifacts.
+NO raw message quotes. NO PII (apply Phase 2 privacy filter). NO thinking-process dumps. Add `sessions/{session_id}.md` to the manifest count for atomic git commit alongside other outbox artifacts.
 
 **Failure modes** (per spec §5): if `date` command fails → halt Phase 1 with clear error. If outbox dir write fails → log to `_meta/sync-log.md`, omit session from INDEX. If frontmatter fields incomplete → fill required fields with sentinels (`overall_score: null`, empty arrays) and proceed; retrospective parser handles `null` scores as `n/a`.
 
@@ -677,7 +688,7 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 
 The final archiver adjourn report MUST be one contiguous output emitted after all four phases finish. It MUST contain the **six core H2 headings** below (Phase 0 / Phase 1 / Phase 2 / Phase 3 / Phase 4 / Completion Checklist), in this order, with concrete non-placeholder values. If any required heading is missing, empty, split across messages, or contains `TBD`, `{...}`, `pending (TBD)`, or a blank value, AUDITOR logs `Class C-brief-incomplete` and the adjourn is incomplete.
 
-**v1.7.2.3 simplification rationale**: Previous 12-H2 contract caused archiver to take 25+ minutes because LLM expanded every H2/H3 sub-section. v1.7.2.3 reduces to 6 core H2 + Phase 2/3 token budget + planned Bash skeleton (`scripts/archiver-briefing-skeleton.sh`) for deterministic structure. AUDITOR Mode 3 status / Subagent self-check / Hook fired / 子代理调用清单 / total tokens/cost are now embedded in the Completion Checklist instead of standalone H2s.
+**v1.7.2.3 simplification rationale (post-Option A pivot)**: Previous 12-H2 contract caused archiver to take 25+ minutes because LLM expanded every H2/H3 sub-section. v1.7.2.3 reduced to 6 core H2 + Phase 2/3 token budget. Option A pivot deleted the Bash skeleton (`scripts/archiver-briefing-skeleton.sh`) — archiver now generates the 6-H2 structure inline via LLM. **Adjourn time regression to ~25-30 min is accepted** in exchange for architecture simplification. AUDITOR Mode 3 status / Subagent self-check / Hook fired / 子代理调用清单 / total tokens/cost are embedded in the Completion Checklist instead of standalone H2s. AUDITOR Mode 3 still checks for Class C-brief-incomplete to catch H2 omissions.
 
 ## Phase 2/3 LLM Token Budget (HARD RULE · v1.7.2.3 speed fix)
 

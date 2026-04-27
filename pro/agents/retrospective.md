@@ -42,17 +42,21 @@ After outbox merge (Mode 0 step 7) but before final briefing, retrospective MUST
 
 **Source**: per `references/session-index-spec.md` §5, scan `_meta/sessions/*.md` (exclude INDEX.md itself), parse YAML frontmatter, sort by date desc + started_at desc tie-break, group by YYYY-MM (## heading), most recent month first. Output one line per session in spec §4 format: `{date} | {project} | {subject-truncated-80} | {score}/10 | [{kw-top3}] | {session_id}`.
 
-**Two paths** (use whichever is available):
-
-1. **Python helper (preferred when `tools/lib/cortex/session_index.py` is installed)**:
-
-```bash
-python3 tools/rebuild_session_index.py --root .
-```
-
-2. **Inline compilation fallback** (when Python tools unavailable):
+**Inline compilation** (Option A pivot — python helper `tools/rebuild_session_index.py` deleted):
 
 Use Glob to enumerate `_meta/sessions/*.md` (exclude INDEX.md), Read each, parse frontmatter manually, format per spec §4, then Write to `_meta/sessions/INDEX.md`. Idempotent — safe if Mode 0 runs multiple times.
+
+Detail steps:
+1. `Glob _meta/sessions/*.md`
+2. For each path (skip INDEX.md):
+   - Read frontmatter YAML
+   - Extract: `session_id`, `date`, `project`, `subject`, `outcome_score`, `keywords`
+3. Sort by `date` desc, `started_at` desc tie-break
+4. Group by `YYYY-MM` (## headings, most recent month first)
+5. Format each line: `{date} | {project} | {subject:80} | {score}/10 | [{keywords-top3}] | {session_id}`
+6. Write `_meta/sessions/INDEX.md`
+
+For user-invoked manual rebuild (outside Mode 0), see `scripts/prompts/rebuild-session-index.md`.
 
 **Failure modes** (per spec §5): if individual session file has malformed YAML, log filename to `_meta/sync-log.md` and skip — corrupt session is omitted from INDEX but file preserved for inspection. Do not block briefing.
 
@@ -237,7 +241,7 @@ Use `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivale
 
 R12 fresh invocation fields: every `_meta/runtime/<sid>/retrospective-step-N.json` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current Mode 0 trigger count within this session. Do not infer completion from previous Mode 0 transcript output; every fresh invocation executes all 18 steps from scratch before writing Step 18.
 
-R10 execution boundary: for Mode 0 / Mode 2, ROUTER provides literal stdout from `bash ~/.claude/skills/life_OS/scripts/retrospective-mode-0.sh "$(pwd)"` before launch. RETROSPECTIVE consumes those `[STEP N · ...]` markers as ground truth for every `[ROUTER pre-fetched · do not re-run]` step and MUST NOT re-run their underlying Bash/Read/Grep/Glob work. Partial steps may add LLM narrative only on top of pre-fetched facts.
+R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-0.sh` deleted): RETROSPECTIVE Mode 0 / Mode 2 runs all 18 steps from scratch each invocation. No ROUTER pre-fetch. Each step does its own Read/Grep/Glob work directly. Audit trail still required per step (R11). Cost: Mode 0 from ~1-2s pre-fetched + LLM filling → ~30-60s full LLM execution. Accepted in Option A pivot for architecture simplification.
 
 ```
 --- Phase A: Environment Detection ---

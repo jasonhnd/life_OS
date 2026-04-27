@@ -84,89 +84,83 @@ if [ -z "$CLASS" ]; then
     ACTIVITY_REMINDER="yes"
     cat <<'MEMORY_EOF'
 <system-reminder>
-📚 LIFE OS · MEMORY auto-emit detected (v1.7.3.1)
+📚 LIFE OS · MEMORY auto-emit detected (v1.8.0 pivot · LLM-direct · spec since v1.7.3.1)
 
 The user message contains a memory-record keyword (记一下 / remind me / 覚えて / TODO / etc).
-ROUTER MUST automatically run `python -m tools.memory emit "<inferred-key>=<value>"` based on
-the user's content. DO NOT redirect the user to `/memory emit ...` — that is a UX bug.
+ROUTER MUST automatically write a memory file using the Write tool. DO NOT redirect the
+user to `/memory emit ...` — that is a UX bug. DO NOT call `python -m tools.memory` —
+that module was deleted in v1.8.0 pivot.
 
-After emit, report exactly:
+Steps:
+1. Infer key (one of):
+   - value contains date/time → `key=reminder:<context>`
+   - value contains a decision → `key=decision:<topic>`
+   - otherwise → `key=note:<context>`
+2. Sanitize key for filename: `:` → `__`, `/` → `_`
+3. Infer role: 户 (money) / 刑 (risk) / 工 (health/infra) / 礼 (relations/learning) / 吏 (people) / 兵 (execution)
+4. Write file at `~/.claude/lifeos-memory/<sanitized-key>.json`:
+   ```json
+   {
+     "value": "<original text>",
+     "role": "<inferred>",
+     "created": "<ISO8601>",
+     "trigger_time": "<if value contains date/time, else omit>"
+   }
+   ```
+5. Report exactly:
 
   📚 已入档案柜
     · key: <inferred>
-    · role: <礼/户/刑/工/吏/兵 inferred from content>
-    · trigger time: <if value contains date/time>
+    · role: <inferred>
+    · trigger time: <if any>
     · 24h 后未完成会出现在状态行
 
-Key inference (pro/CLAUDE.md Auto-Trigger Rules):
-- value contains date/time → key=reminder:<context>
-- value contains a decision → key=decision:<topic>
-- otherwise → key=note:<context>
-
-Spec source: pro/CLAUDE.md → Auto-Trigger Rules → Memory auto-emit
+Spec source: pro/CLAUDE.md → Auto-Trigger Rules → Memory auto-emit + scripts/commands/memory.md
 </system-reminder>
 MEMORY_EOF
   fi
 
-# ─── Cortex always-on smart trigger (v1.7.3) ────────────────────────────────
-# Per pro/CLAUDE.md §0.5, Cortex is "always-on", but ROUTER has been silently
-# skipping it. v1.7.2 audit found 0 _meta/runtime/<sid>/cortex-*.json across
-# 17+ sessions = silent degradation. This block forces a system-reminder when
-# the prompt qualifies. Skip rules: very short messages without decision
-# keywords are treated as conversational filler ("ok", "go on") — no Cortex.
-  CORTEX_NEEDED="no"
-
-  if [ "$LINE_LEN" -ge 80 ]; then
-    CORTEX_NEEDED="yes"
-  elif [ "$LINE_LEN" -ge 20 ]; then
-    DECISION_RE='(决定|选择|规划|未来|应该|要不要|该不该|考虑|想清楚|对比|权衡|长期|战略|财务|投资|关系|人际|价值观|后悔|纠结|抉择|想想|帮我想|计划|方案|策略|目标|deciding|should|consider|long.?term|strategy|invest|future|whether|either|plan|goal|tradeoff)'
-    if printf '%s' "$PROMPT" | grep -qiE "$DECISION_RE"; then
-      CORTEX_NEEDED="yes"
-    fi
-  fi
-
-  if [ "$CORTEX_NEEDED" = "yes" ]; then
-    ACTIVITY_TRIGGER="cortex"
+# ─── Monitor mode auto-detection (v1.8.0 pivot · natural language only) ─────
+# Per user feedback "这个不能要任何命令全部都要自然语言", monitor mode must be
+# triggered by natural language, not slash command. The /monitor slash command
+# remains as backup mode but is no longer the primary path.
+  MONITOR_KEYWORD_RE='(监控模式|进监控|进 monitor|开监控|监控控制台|看一下系统状态|看系统状态|看 cron|看cron|看维护状态|维护控制台|ops console|monitor mode|enter monitor|open monitor|看 lifeos 状态|进运维)'
+  if printf '%s' "$PROMPT" | grep -qiE "$MONITOR_KEYWORD_RE"; then
+    ACTIVITY_TRIGGER="monitor"
     ACTIVITY_REMINDER="yes"
-    cat <<'CORTEX_EOF'
+    cat <<'MONITOR_EOF'
 <system-reminder>
-🧠 LIFE OS · CORTEX Pre-Router Cognitive Layer (v1.7.3 always-on enforcement)
+📡 LIFE OS · MONITOR mode auto-detected (v1.8.0 pivot · natural language)
 
-This message qualifies for Cortex (length >= 80 chars OR decision keyword detected).
-ROUTER MUST run Step 0.5 BEFORE answering — not after, not "next time".
+The user message contains a monitor-mode keyword (监控模式 / 进 monitor / 看系统状态 /
+ops console / etc). ROUTER MUST launch the `monitor` subagent via Task tool. DO NOT
+redirect the user to `/monitor` — that is a UX bug.
 
-REQUIRED ACTIONS (in order):
+Steps:
+1. Launch `Task(subagent_type=monitor)` with the user's original message
+2. Monitor subagent reads `pro/agents/monitor.md` and behaves per spec:
+   - Scans 10 maintenance task timestamps
+   - Reads inbox notifications + recent reports
+   - Reads recent violations
+   - Generates dashboard for user
+3. While in monitor mode (until user says "退出 monitor" / "exit monitor"):
+   - DO NOT engage business deliberation
+   - DO NOT trigger Cortex pull-based subagents
+   - DO NOT run 上朝/退朝
+   - DO accept "跑 X" / "看 X 详情" / "都跑" / "处理 wiki stale" → execute via prompts
+4. On exit ("退出 monitor" / "exit monitor"), tell user: "monitor 模式已退出，回到普通 session 模式"
 
-1. Launch IN PARALLEL via Task tool (do NOT simulate in main context):
-   - Task(hippocampus)    — spec: pro/agents/hippocampus.md
-   - Task(concept-lookup) — spec: pro/agents/concept-lookup.md
-   - Task(soul-check)     — spec: pro/agents/soul-check.md
-
-2. Wait for all 3 (5s soft / 15s hard timeout per subagent — pro/CLAUDE.md §0.5)
-
-3. Launch Task(gwt-arbitrator) with the 3 consolidated YAML payloads.
-
-4. Prepend [COGNITIVE CONTEXT] block (from gwt-arbitrator output) BEFORE answering the user.
-
-5. EACH Cortex subagent MUST write to _meta/runtime/<sid>/<name>-<step>.json
-   (HARD RULE per pro/CLAUDE.md §0.5 + each agent spec). Without the JSON file,
-   AUDITOR Mode 3 records a CLASS_C violation.
-
-Bootstrap failure path (INDEX missing or empty):
-- Run `tools/migrate.py` to auto-bootstrap _meta/sessions/INDEX.md and _meta/concepts/INDEX.md
-- If bootstrap fails, log to _meta/runtime/<sid>/cortex-bootstrap-failure.json
-- Then degrade to v1.6.3 behavior (raw message to ROUTER, no [COGNITIVE CONTEXT])
-
-Why this matters:
-- "Always-on" is a SPEC CONTRACT, not an aspiration. v1.7.2 audit found 0
-  Cortex audit trails across 17+ sessions = silent degradation.
-- The user is paying compute for a cognitive layer they cannot see. Make it visible.
-
-Spec sources: pro/CLAUDE.md §0.5 + pro/agents/{hippocampus,concept-lookup,soul-check,gwt-arbitrator}.md
+Spec source: pro/agents/monitor.md + scripts/commands/monitor.md (backup mode)
 </system-reminder>
-CORTEX_EOF
+MONITOR_EOF
   fi
 
+# ─── Cortex always-on enforcement REMOVED in v1.8.0 pivot ───────────────────
+# v1.7.3 forced 4-subagent launch (hippocampus/concept-lookup/soul-check/
+# gwt-arbitrator) on every qualifying message. v1.8.0 pivot moves Cortex to
+# pull-based: ROUTER decides when to launch them via Task tool. No more
+# always-on hook injection. See pro/CLAUDE.md §0.5 (rewritten) for the new
+# pull-based ROUTER guidance.
   exit 0
 fi
 
@@ -217,9 +211,11 @@ VIOLATIONS_PATH="$(lib_detect_compliance_path "$CWD")"
 # This stdout is injected as a <system-reminder> by Claude Code.
 cat <<EOF
 <system-reminder>
-🚨 LIFE OS HARD RULE · Trigger "$TRIGGER" detected (v1.7 · $REPO_TYPE repo)
+🌅 LIFE OS · Trigger "$TRIGGER" detected (v1.8.0 · $REPO_TYPE repo)
 
-REQUIRED (skipping any of these = violation logged to $VIOLATIONS_PATH):
+v1.8.0 daily cycle softening: 上朝/退朝 are now **optional soft triggers**, not mandatory daily cycle. Cron tier (archiver-recovery daily 23:30, daily-briefing daily 08:00) auto-handles missed cycles. User asking for 上朝/退朝 explicitly = wants the FULL flow now (not "next time").
+
+Since the user explicitly asked, proceed with the full flow:
 
 1. Read pro/agents/${AGENT}.md BEFORE any other tool call. Do not use memory.
 2. Launch(${AGENT}) as an independent subagent via the Task tool, in: $MODE
@@ -232,6 +228,8 @@ Pre-flight Compliance Check (output this line BEFORE any tool call):
     🌅 Trigger: ${TRIGGER} → Action: Launch(${AGENT}) — ${MODE}
 
 Then the FIRST tool call MUST be Task(${AGENT}).
+
+Note: violations logged to $VIOLATIONS_PATH. v1.8.0 distinguishes "user explicitly invoked, then we skipped" (CLASS_C) from "user did not invoke, cron handles" (no violation).
 
 ─── Precedent ───────────────────────────────────────────────────────────────
 COURT-START-001 (2026-04-19): ROUTER skipped retrospective subagent,

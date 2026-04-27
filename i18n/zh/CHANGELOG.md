@@ -6,6 +6,125 @@
 
 ---
 
+## [1.8.0] - 2026-04-28 - Daily Cycle 混合化（cron + monitor + 软化上朝/退朝）
+
+> **Life OS 历史上最大的单次 release**。把 lifeos 从「反应式 chatbot」（必须由用户驱动）转变为「混合 OS」（reactive + autonomous）。三种正交模式并存：业务 session（长期持续）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。
+
+### 新增 · Session Modes（核心架构变化）
+
+- **Mode 1 · 业务 session**：长期持续，session 可跨天/周。**上朝/退朝降级为可选软触发**。
+- **Mode 2 · Monitor session**：`/monitor` slash command 进入运维控制台模式。
+- **Mode 3 · Cron 自治**：10 个调度 job + 1 个 RunAtLoad。
+
+### 新增 · Cron jobs（v1.8.0 新增 5 个，共 10 + 1 RunAtLoad）
+
+新增：spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency / missed-cron-check。**激活 v1.6.x 起承诺过但 0 次 cron 触发的多个 spec**。
+
+### 新增 · Slash commands（2 个）
+
+- `/monitor` — 进入 monitor 模式
+- `/run-cron <job>` — 手动触发
+
+### 新增 · Hooks（3 个）
+
+- `session-start-inbox` — cron→session 桥
+- `pre-task-launch` — 机器强制 v1.7.3 carve-out
+- `post-task-audit-trail` — 即时 R11 audit trail 检查
+
+### 新增 · Python tools（4 个）+ Cron prompts（5 个）+ Spec docs（2 个）+ 新 subagent
+
+- 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
+- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+- 2 specs: `references/{automation-spec,session-modes-spec}.md`
+- 1 subagent: `pro/agents/monitor.md`
+- 1 trigger script: `scripts/run-cron-now.sh`
+
+### 变更
+
+- **pro/CLAUDE.md** 新增 "Session Modes (v1.8.0)" section
+- **scripts/setup-cron.sh** 从 3 → 10 cron jobs + 1 RunAtLoad
+- **scripts/setup-hooks.sh** 注册 3 个新 hook
+- **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder 软化
+- **版本标记**：SKILL.md + 3 README badge → 1.8.0
+
+### 发布后修复（折回 v1.8.0 — 版本号不变，按"所有 bug 都属于这个版本"原则）
+
+- **R-1.8.0-001 · `scripts/setup-hooks.sh`**：缺失 9 个变量声明（3× `HOOK_*_ID`、3× `V18_*_SOURCE`、3× `V18_*_DEST`），被 `copy_exec` / `register_hook` 引用却从未定义。setup 报错"未定义变量 V18_SESSION_START_INBOX_SOURCE"。已在 line 52-54、66-68、80-82 补齐声明。
+- **R-1.8.0-002 · `scripts/run-cron-now.sh`**：使用了 bash 4+ 的 `declare -A` 关联数组。macOS 自带 bash 3.2.57（GPLv2 永远停在那一版），脚本在 Mac 上 100% 失败。改写 JOBS 表为基于 `case` 的 `job_spec()` 查找函数 + 独立的 `JOB_NAMES` 列表。同时把 data root 改成 `$LIFEOS_DATA_ROOT`（环境变量）→ `$PWD`（cwd）→ 失败并清晰报错。
+- **R-1.8.0-003 · `scripts/setup-cron.sh`**：灾难性的 root 混淆 bug。`REPO_ROOT` 同时被用于查找 `tools/cli.py`（正确：skill 源码）和生成命令里的 `cd` + `--root .`（错误：应该是用户的 second-brain repo）。结果：所有 11 个 cron job 扫描的是空的 skill 目录，全部报告"0 sessions / 0 SOUL / 0 projects"。引入独立的 `DATA_ROOT`（来自 `$LIFEOS_DATA_ROOT` 或 `$PWD`），并贯穿到 `repo_command{,_pymod,_prompt}`（python：`--root "$DATA_ROOT"`；prompt：`cd "$DATA_ROOT"`），以及全部 6 个 `print_launchd_plist*` 生成器（`<key>WorkingDirectory</key>` 现在来自 `$DATA_ROOT`）。在 `main()` 中加入 `require_data_root()` 早期检查，给出可执行的报错信息。
+- **R-1.8.0-004 · `tools/spec_compliance_report.py`**：root 校验 guard 检查 `(root / "SKILL.md").is_file()` 来识别 Life OS root，但 `SKILL.md` 只存在于 skill 源码 — 不在用户 second-brain repo 里。每次安装都会报"no SKILL.md"中断。改为 `(root / "_meta").is_dir()`，匹配真正的数据 root 标记。
+- **R-1.8.0-005 · `tools/wiki_decay.py`**：与 R-1.8.0-004 同样的 `SKILL.md`-vs-`_meta/` 不匹配 bug。同样修法。
+- **`tools/missed_cron_check.py`**（与 R-1.8.0-004 一起前置修复）：line 134 有同样的 `SKILL.md`-vs-`_meta/` bug 模式；下次 macOS 重启时会通过 RunAtLoad plist 触发。预防性应用 R-1.8.0-004 的同样修法。
+- **R-1.8.0-006 · `scripts/setup-cron.sh` · `repo_command_prompt`**：cron 拉起的 `claude -p` session 没有 pre-approved Write 权限，所以每个 prompt-based job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）跑完分析后阻塞在 Write tool 权限弹窗上 — 没人按 yes，session 5-15 分钟后超时退出。结果：exit 0 但**啥都没写** — 100% 数据丢失。给生成的 `claude -p` 命令加 `--dangerously-skip-permissions` flag。安全边界仍由 `cd "$DATA_ROOT"`（无法越界 second-brain）+ prompt 文件版本受控（`scripts/prompts/`）保证。
+- **R-1.8.0-007 · `tools/missed_cron_check.py` · `trigger_recovery`**：在 `data_root/scripts/` 下找 `run-cron-now.sh`，但 R-1.8.0-003 修完后 `data_root` 是用户 second-brain — 那里没 `scripts/`。之前装过 v1.8.0 的 Mac 上，`data_root/scripts/` 里残留一份 R-1.8.0-002 修复前的旧 `run-cron-now.sh`（还带 `declare -A`），结果上游虽然 patch 了但被调用的是旧版，报 "declare -A: invalid option"。改成用 `Path(__file__).resolve().parent.parent / "scripts" / "run-cron-now.sh"` 解析路径，**永远调用当前上游版本**，并通过 subprocess env 传 `LIFEOS_DATA_ROOT` 让脚本知道数据 root。
+- **R-1.8.0-008 · `scripts/setup-cron.sh` · PATH 扩展**：launchd 拉起的 shell 的 PATH（`~/.local/bin:/opt/homebrew/bin:/usr/local/bin:...`）不包含 Claude Code 常见的安装位置（`~/.claude/local`、`~/.bun/bin`、`~/.npm-global/bin`、`~/.volta/bin`），所以 `command -v claude` 返回 false，`archiver-recovery`（以及所有 prompt job）报 "claude CLI not found"。在全部 3 个命令生成器（`repo_command`、`repo_command_pymod`、`repo_command_prompt`）的 PATH export 行加上这 4 个安装位置。
+- **`tools/seed.py`**：`META_GITKEEP_DIRS` 缺失 `_meta/inbox`、`_meta/runtime` 以及三个 `_meta/eval-history/` 子目录（`cron-runs`、`auditor-patrol`、`recovery`）。`tools/seed.py` 新建的 second-brain repo 没有 v1.8.0 cron prompt 与 `session-start-inbox` hook 写入的目录。同时初始化 `_meta/inbox/notifications.md` 头部，使 cron→session 桥接从第一天起就有可写目标。
+- **`scripts/setup-cron.sh`**（与 seed.py 修复配套）：新增 `bootstrap_repo_dirs()` 辅助函数，由 `main` 在 `ensure_repo` 之后调用。幂等地为本次修复之前 seed 的**已存在** second-brain repo 补齐相同目录 + notifications.md 头部。现在 keyed off `$DATA_ROOT/_meta` 而非 `$REPO_ROOT/_meta`（R-1.8.0-003 清理）。
+
+- **R-1.8.0-010 · 架构 PIVOT (post-2026-04-29) · cron 架构整体砍掉**：经过两天真实环境测试，R-1.8.0-001~009 修完之后的 cron 架构仍然在用户可靠性测试中失败。5 个 prompt-based cron job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）静默丢数据：cron 拉起的 `claude -p` session 完成分析后用 prompt 模板的礼貌语气问用户「需要我写吗？」—— cron 没人盯着，session timeout，exit 0，`_meta/eval-history/` 是空的。`--dangerously-skip-permissions` flag（R-1.8.0-006）只跳过 OS 级 Write 权限，不能跳过 LLM 自身的对话礼貌。结论：**cron 要求确定性，LLM 是非确定性，这个矛盾没法 patch**。
+  - **Pivot 决定（用户拍板）**：把 cron 替换成显式用户提示。用户说「重建索引」/「月度自审」，ROUTER 读 `scripts/prompts/<job>.md` 然后内联执行。无后台进程。
+  - **删除 (17 文件)**：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、`tools/reindex.py`、`tools/daily_briefing.py`、`tools/backup.py`、`tools/spec_compliance_report.py`、`tools/wiki_decay.py`、`tools/memory.py`、`tools/session_search.py`、`tools/cli.py`、`pro/agents/narrator-validator.md`、`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`。还有 3 个删除工具的 eval scenarios。
+  - **新建 (5 个 user-invoked prompts)**：`scripts/prompts/{reindex,daily-briefing,backup,spec-compliance,wiki-decay}.md` —— 替代被删的 python 工具。每个是一个 markdown prompt，ROUTER 读完用 Read/Write/Bash/Glob/Grep 直接做（用户用关键词触发）。
+  - **修改 (5 个现有 prompts)**：`scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md` —— 把"autonomous cron-triggered"框架换成"user-invoked from session"框架。删了 UNATTENDED CRON CONTRACT 块（不再需要）。
+  - **Hooks 重构 (3 个 hook)**：
+    - `scripts/hooks/pre-prompt-guard.sh`：删 Cortex always-on enforcement 块（line 111-167）。Memory 关键词检测现在用 Write tool 直接写 `~/.claude/lifeos-memory/<key>.json`，不再调被删的 `tools/memory.py`。上朝/退朝软触发保留。
+    - `scripts/hooks/session-start-inbox.sh`：完全重写 —— 之前读 cron 输出，现在扫 10 个维护任务的 glob 找最新文件 mtime（`_meta/eval-history/<job>-*.md`），把 overdue 的总结成 `<system-reminder>`。Hook 只显示，不执行；用户决定要不要触发。
+    - `scripts/hooks/post-task-audit-trail.sh`：弱化 —— 删了 Cortex 4 个 subagent + narrator-validator 的 R11 audit trail 强制。只剩 archiver + knowledge-extractor 强制写 trail（它们触碰持久状态）。
+  - **Cortex 改 pull-based**（`pro/CLAUDE.md` §0.5 重写）：4 个 Cortex subagent 不再每条消息都 launch。ROUTER 按消息判断回答是否会因为加上历史/概念/SOUL 而变好；会 → launch，不会 → 不 launch。Subagent description 文件全部更新反映 pull-based。
+  - **Slash command 重写**：`/monitor` 现在是 view-and-invoke 控制台（不是 cron 监控）；`/memory` 现在直接写 JSON 文件（不调 python 中间层）；`/search` 现在用 Grep tool 直接搜（不走 SQLite FTS5）。
+  - **Spec 文档**：`pro/CLAUDE.md` §0.5 + Session Modes section 重写。`references/hard-rules-index.md` 更新 Cortex 不再 always-on。`pro/AGENTS.md`、`pro/GEMINI.md`、`AGENTS.md` 顶部加 pivot 提示指向 `pro/CLAUDE.md` 为权威（完整内容扫描待办）。
+  - **统计**：~3500 行 cron 基础设施 + python 中间层删除。~500 行 user-invoked prompt 内容新增。净：23 删、5 创、~25 改。
+  - **备份**：`git branch backup-pre-v1.8-pivot @ 7b15509` 保留 pivot 前状态。
+
+- **R-1.8.0-011 · 架构 PIVOT 第二阶段 (post-2026-04-29) · Bash 骨架 + cortex helpers + python 中间层全部砍 → 100% LLM**：R-1.8.0-010 砍了 cron 层之后，R-1.8.0-011 砍下一层"确定性 helpers"：Bash briefing 骨架、cortex Python 数据模型 helpers、剩下的维护 python 工具。目标：最小可行架构 = `hooks（免疫系统）+ approval.py（安全）+ 5 个一次性 bootstrap 脚本 + 其他全部 LLM 直接做`。
+  - **Pivot 决定（用户拍板，"全 LLM 因为我要增强实用型"）**：每个 LLM 能合理做的 helper 都该 LLM 化；只有 hooks（OS 协议要求）和 `approval.py`（安全边界）留代码。
+  - **删除 (23 文件)**：
+    - Cortex helpers (5)：`tools/lib/cortex/{__init__,concept,extraction,session_index,snapshot}.py`
+    - Cascade .py (4)：`tools/extract.py`、`tools/rebuild_session_index.py`、`tools/rebuild_concept_index.py`、`tools/migrate.py`
+    - Bash 骨架 + telemetry (4)：`scripts/retrospective-briefing-skeleton.sh`、`scripts/archiver-briefing-skeleton.sh`、`scripts/retrospective-mode-0.sh`、`scripts/archiver-phase-prefetch.sh`
+    - Cortex broken FTS5 helper (1)：`scripts/lib/cortex/hippocampus_wave1_search.py`
+    - 死掉的测试 (9)：`tests/test_{backup,cli,daily_briefing,reindex,extraction,concept_and_snapshot,session_index,package_imports,migrate}.py`
+  - **新建 (5 个 user-invoked prompts，替代被删的 python 工具)**：
+    - `scripts/prompts/rebuild-session-index.md`、`scripts/prompts/rebuild-concept-index.md`、`scripts/prompts/migrate-from-v1.6.md`、`scripts/prompts/snapshot-cleanup.md`、`scripts/prompts/extract-concepts.md`
+  - **Spec 重写 (5 个 agent spec)**：
+    - `pro/agents/hippocampus.md` L88-92：FTS5 SQLite helper → 用 Grep tool 直接扫 INDEX.md
+    - `pro/agents/retrospective.md` L47-55：删 Python helper 路径，只剩 inline LLM rebuild；L244 R10 boundary 重写
+    - `pro/agents/archiver.md`：snapshot Python helper 块 → inline Write + 显式 YAML schema；extraction Python helper → inline tokenize/stopword/slug 步骤；SessionSummary Python helper → 直接 Write + 显式 byte-level 格式合同；v1.7.2.3 rationale 块更新
+    - `pro/CLAUDE.md` L268-286：HARD RULE briefing skeleton 块（retrospective + archiver）删除
+  - **接受的代价**：retrospective Mode 0 ~30× 慢；archiver Adjourn 10-12 min → ~25-30 min；hippocampus Wave 1 失去 FTS5 stemming
+  - **接受的风险**：SessionSummary 格式漂移、Concept slug 漂移（SHA-1 兜底缓解）、SOUL snapshot 累积、6-H2 briefing 可能漏 H2
+  - **保留的代码（不可侵犯）**：11 hooks + `tools/approval.py` + `seed.py` / `seed_concepts.py` / `skill_manager.py` + `tools/lib/{config,llm,notion,second_brain}.py` + `scripts/lib/{audit-trail.sh,sha-fallback.sh}` + R-1.8.0-010 的 10 个 cron-replacement prompts
+  - **统计**：~3500 行删除，~700 行新增。净：-2800 行。
+  - **备份**：`git branch backup-pre-option-A @ 744d034`。
+
+- **R-1.8.0-012 · Monitor mode 改为纯自然语言触发（post-2026-04-29 用户反馈）**：用户原话「这个不能要任何命令全部都要自然语言」。Monitor mode 必须通过自然语言关键词触发，不能要求用户打 `/monitor`。Slash 命令保留为 backup mode（与 `/memory` `/search` `/method` 一致）。
+  - **`scripts/hooks/pre-prompt-guard.sh`**：在 `MEMORY_KEYWORD_RE` 检测块后新增 `MONITOR_KEYWORD_RE` 检测块。关键词：监控模式 / 进监控 / 进 monitor / 开监控 / 监控控制台 / 看系统状态 / 看 cron / 看维护状态 / 维护控制台 / ops console / monitor mode / enter monitor / open monitor / 看 lifeos 状态 / 进运维。匹配时注入 `<system-reminder>`（`trigger=monitor`）让 ROUTER 直接 `Task(subagent_type=monitor)` —— 不要引导用户去打 `/monitor`。
+  - **`scripts/hooks/pre-prompt-guard.sh`**（同次 edit 中修复 —— R-1.8.0-010 漏修）：MEMORY 块文本还在叫 ROUTER 跑 `python -m tools.memory emit "..."`，但 `tools/memory.py` 已经在 v1.8.0 pivot 中删了。改成让 ROUTER 用 Write tool 直接写 `~/.claude/lifeos-memory/<sanitized-key>.json`，附明确 JSON schema（`value` / `role` / `created` / optional `trigger_time`）。
+  - **`pro/CLAUDE.md` Special Triggers 段**：在 上朝 / 退朝 / Quick Mode 旁边加 Monitor Mode 条目。说明自然语言是主路径，`/monitor` 是 backup。
+  - **`pro/CLAUDE.md` Auto-Trigger Rules 段**：在 Memory auto-emit 旁边加 "Monitor mode auto-launch" 子段。列出中/英关键词。"4 个 v1.7.3 slash commands"说明扩展为 5 个（包含 `/monitor`）。
+  - **`scripts/commands/monitor.md`**：顶部加 "Backup mode" 提示块。告诉 ROUTER 不要引导用户输入 slash 命令 —— 自然语言是主路径。Slash 命令保留给：精确控制 focus 参数（`/monitor wiki`）、auto-trigger fallback（regex 漏匹配）、测试场景。
+  - **不破坏任何路径**：`/monitor` slash 命令 power user 还能用；`pro/agents/monitor.md` subagent 本身未改。只是入口扩展。
+
+### 迁移
+
+```bash
+# 从你的 second-brain repo 内部跑（含 _meta/、SOUL.md、wiki/ 的那个目录）：
+cd /path/to/your/second-brain
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install
+# 如果不能 cd，可用：LIFEOS_DATA_ROOT=/path/to/second-brain bash ... install
+```
+
+无第二大脑数据迁移需求。v1.7.x 数据完全兼容。`$PWD`（或 `$LIFEOS_DATA_ROOT`）若没有 `_meta/` 目录，install 会清晰报错退出，错误配置会响亮失败而不是静默扫错根目录。`bootstrap_repo_dirs` 幂等 — 已有目录的 repo 重跑安全。macOS 重新安装后：`launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && launchctl load ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` 让新的 `WorkingDirectory` 与 `--root` 路径生效。
+
+### Audit 结论（v1.8.0 final）
+
+v1.7.3 audit 发现的「spec 承诺但从未自动化」缺口现已 close。AUDITOR Mode 2 / ADVISOR monthly / eval-history monthly / strategic consistency / wiki decay / spec compliance / archiver recovery / boot catch-up 全部 ✅。
+
+用户反馈：「Hermes 和 cortex 的问题」→「为什么设计好了但没跑起来」→「不要 routines 也能实现」→「我不可能每天都开新 session」→「完整版必须一次性全部做完」。
+
+---
+
 ## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 强制启动 + 自动触发 + archiver Phase 2 拆分 + 4 个死代码模块删除
 
 > "让工具真能用起来" release window。三轮迭代全部 squash 进单一 v1.7.3 release：
