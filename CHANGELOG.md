@@ -6,39 +6,51 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
-## [1.7.3] - 2026-04-26 - Cortex enforcement + slash commands wired + dead weight cleanup
+## [1.7.3] - 2026-04-26 - Cortex enforcement + slash commands + approval hook + 4 dead modules removed
 
-> The "make tools actually usable" release. Turns Cortex from declared-always-on into machine-enforced always-on, gives Hermes tools 4 user-facing slash commands, and removes one dead-weight module.
+> The "make tools actually usable" release. Turns Cortex from declared-always-on into machine-enforced always-on, gives Hermes tools 4 user-facing slash commands, wires the 47-pattern approval guard to every Bash call, and removes 4 dead-weight modules (1830 lines of unused code).
 
 ### Added
 
 - **Cortex always-on enforcement (hook injection)**: `scripts/hooks/pre-prompt-guard.sh` now emits a `<system-reminder>` block (trigger=cortex) that forces ROUTER to launch all 5 Cortex subagents (hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator) in parallel before answering, whenever the prompt qualifies (length ≥ 80 chars OR decision keyword detected). Closes the silent-degradation gap found in v1.7.2 audit (0 `_meta/runtime/<sid>/cortex-*.json` audit trails across 17+ sessions). Skip rules: short conversational filler ("ok", "go on") bypasses Cortex.
 - **4 slash commands wired into Claude Code**: new `scripts/commands/{compress,search,memory,method}.md` source files; `scripts/setup-hooks.sh` now copies them to `~/.claude/commands/` during install. Commands:
-  - `/compress [focus]` — inline context compression with `_meta/compression/<sid>-compress-<ts>.md` archive (Claude does the compression; tools/manual_compression_feedback was DEAD).
+  - `/compress [focus]` — inline context compression with `_meta/compression/<sid>-compress-<ts>.md` archive.
   - `/search <query>` — FTS5 cross-session search via `tools.session_search` CLI.
   - `/memory emit|read|remove|path` — 24-48h short-term memory via `tools.memory` CLI.
-  - `/method create|update|list` — method library management via `tools.skill_manager` CLI (note: tool kept its historical name; functionally manages methods).
+  - `/method create|update|list` — method library management via `tools.skill_manager` CLI.
+- **Approval guard wired (PreToolUse Bash hook)**: new `scripts/hooks/pre-bash-approval.sh` bridges every Bash command to `tools/approval.py`. Closes the v1.7.2 gap where 47 dangerous-command patterns + hardline + tirith guards sat with 0 callers. Hook reads Claude Code stdin JSON, runs `check_dangerous_command()`, exits 0 (silent approve) or exit 2 + stderr (block with reason). Bypass: `export LIFEOS_YOLO_MODE=1`. Registered in `setup-hooks.sh` as `life-os-pre-bash-approval` (PreToolUse · matcher Bash · timeout 5s).
 
 ### Changed
 
-- **narrator-validator audit trail HARD RULE**: `pro/agents/narrator-validator.md` frontmatter `tools` extended from `[Read]` to `[Read, Bash, Write]`; new "Audit Trail (R11, HARD RULE)" section added requiring `_meta/runtime/<sid>/narrator-validator.json` write before returning YAML output. Brings narrator-validator into compliance with pro/CLAUDE.md §0.5 audit trail contract that the other 4 Cortex agents already observe.
+- **narrator-validator audit trail HARD RULE**: `pro/agents/narrator-validator.md` frontmatter `tools` extended from `[Read]` to `[Read, Bash, Write]`; new "Audit Trail (R11, HARD RULE)" section added requiring `_meta/runtime/<sid>/narrator-validator.json` write before returning YAML output.
 - **Version markers**: `SKILL.md` frontmatter and 3 README badges updated to `1.7.3`.
+- **Spec docs updated for inline compression**: `SKILL.md` Trigger Execution Templates `/compress` section, `references/hard-rules-index.md` manual compression bullet, and `evals/scenarios/cortex-retrieval.md` CX11 positive case all rewritten to describe ROUTER inline compression replacing the removed `tools/context_compressor.py`.
 
-### Removed
+### Removed (4 dead modules · 1830 lines)
 
-- **`tools/prompt_cache.py` deleted** (118 lines, 0 callers): Anthropic prompt-cache tooling has no value in Claude Code subscription mode (pricing is flat-rate, not per-token). Was dead weight from v1.7.2 Hermes fork.
-- **`docs/architecture/prompt-cache-strategy.md` deleted**: spec doc for the now-deleted module.
-- **`docs/architecture/hermes-local.md`**: removed prompt-cache references from `related:` frontmatter and module list.
+- **`tools/prompt_cache.py` deleted** (118 lines, 0 callers): no value in Claude Code subscription mode.
+- **`tools/mcp_server.py` deleted** (227 lines, 0 callers, 0 client connections): MCP stdio wrapper never connected.
+- **`tools/context_compressor.py` deleted** (1370 lines, 0 callers): compression now inline by ROUTER.
+- **`tools/manual_compression_feedback.py` deleted** (51 lines, 0 callers): output helper for removed compressor.
+- **`docs/architecture/prompt-cache-strategy.md` deleted**: spec doc for removed prompt_cache.
+- **`docs/architecture/mcp-server.md` deleted**: spec doc for removed mcp_server.
+- **`docs/architecture/hermes-local.md` cleaned**: removed dead-module refs from `related:` frontmatter; rewrote Borrow/Fork Surface module list to reflect v1.7.3 reality (approval wired, memory + session_search + skill_manager remain); removed `context_compressor` naming-note paragraph.
 
 ### Migration
 
-Re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to install the 4 new slash commands. No second-brain migration required. No CLI behaviour changes for `tools.session_search`, `tools.memory`, `tools.skill_manager`.
+Re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to:
+1. Install 4 new slash commands to `~/.claude/commands/`
+2. Register the new `life-os-pre-bash-approval` PreToolUse(Bash) hook
 
-### Known Gaps (deferred to v1.7.4)
+After install, every Bash command Claude runs is screened against the 47 dangerous patterns; if blocked, you'll see the 🛡️ 守门人 message in stderr.
 
-- `tools/approval.py` (964 lines, 47 dangerous-command patterns) is still NOT wired to PreToolUse(Bash) hook — patterns are dead until hook bridge is written.
-- `tools/mcp_server.py` (227 lines) and `docs/architecture/mcp-server.md` are also DEAD (no callers, no client connections), but kept this release to avoid wide doc churn (mcp_server is referenced from 5+ docs).
-- `tools/context_compressor.py` (1370 lines) and `tools/manual_compression_feedback.py` (51 lines) still unused at runtime; `/compress` does inline compression instead.
+### Audit Verdict (post-v1.7.3)
+
+All v1.7.2 dead-weight findings are closed:
+- Cortex always-on: enforced (hook injection) ✅
+- approval.py 47 patterns: wired (PreToolUse Bash hook) ✅
+- 4 dead modules removed (1830 lines) ✅
+- Slash commands wired: /compress /search /memory /method ✅
 
 ---
 

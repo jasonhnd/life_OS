@@ -6,39 +6,51 @@
 
 ---
 
-## [1.7.3] - 2026-04-26 - Cortex 強制起動 + slash コマンド接続 + デッドコード整理
+## [1.7.3] - 2026-04-26 - Cortex 強制起動 + slash コマンド + approval hook + デッドコード 4 モジュール削除
 
-> 「ツールを実際に使える状態にする」リリース。Cortex を「宣言 always-on」から「強制 always-on」に変え、Hermes ツールにユーザー向けの 4 つの slash コマンドを接続し、デッドコード 1 モジュールを削除。
+> 「ツールを実際に使える状態にする」リリース。Cortex を「宣言 always-on」から「強制 always-on」に変え、Hermes ツールにユーザー向けの 4 つの slash コマンドを接続し、47-pattern approval guard を全 Bash 呼び出しに接続し、4 つのデッドコードモジュール（1830 行の未使用コード）を削除。
 
 ### 追加
 
-- **Cortex always-on 強制起動 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` がプロンプト長 80 文字以上または決定キーワード検出時に `<system-reminder>` ブロック（trigger=cortex）を出力し、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制します。v1.7.2 audit が発見したサイレント degradation（17+ セッションで `_meta/runtime/<sid>/cortex-*.json` audit trail が 0）を修正。短い会話フィラー（「了解」「続けて」）は Cortex をスキップ。
+- **Cortex always-on 強制起動 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` がプロンプト長 80 文字以上または決定キーワード検出時に `<system-reminder>` ブロック（trigger=cortex）を出力し、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制します。v1.7.2 audit が発見したサイレント degradation を修正。短い会話フィラー（「了解」「続けて」）は Cortex をスキップ。
 - **4 つの slash コマンドを Claude Code に接続**：新規 `scripts/commands/{compress,search,memory,method}.md` ソースファイル；`scripts/setup-hooks.sh` がインストール時に `~/.claude/commands/` にコピー。コマンド：
-  - `/compress [focus]` — インラインコンテキスト圧縮、`_meta/compression/<sid>-compress-<ts>.md` にアーカイブ（Claude が圧縮を実行；tools/manual_compression_feedback は DEAD）。
+  - `/compress [focus]` — インラインコンテキスト圧縮、`_meta/compression/<sid>-compress-<ts>.md` にアーカイブ。
   - `/search <query>` — `tools.session_search` CLI による FTS5 クロスセッション検索。
   - `/memory emit|read|remove|path` — `tools.memory` CLI による 24-48h 短期記憶。
-  - `/method create|update|list` — `tools.skill_manager` CLI によるメソッドライブラリ管理（注：ツールは歴史的命名のまま、機能的にはメソッドを管理）。
+  - `/method create|update|list` — `tools.skill_manager` CLI によるメソッドライブラリ管理。
+- **Approval guard 接続 (PreToolUse Bash hook)**：新規 `scripts/hooks/pre-bash-approval.sh` が全 Bash コマンドを `tools/approval.py` にブリッジ。v1.7.2 のギャップを修正：47 個の危険コマンドパターン + hardline + tirith guards が 0 caller だった状態を解消。Hook が stdin JSON を読み、`check_dangerous_command()` を実行、exit 0（サイレント承認）または exit 2 + stderr（理由付きでブロック）。バイパス：`export LIFEOS_YOLO_MODE=1`。`life-os-pre-bash-approval` として登録（PreToolUse · matcher Bash · timeout 5s）。
 
 ### 変更
 
-- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` の frontmatter `tools` を `[Read]` から `[Read, Bash, Write]` に拡張；新規 "Audit Trail (R11, HARD RULE)" セクション追加、YAML 返却前に `_meta/runtime/<sid>/narrator-validator.json` の書き込みを必須化。narrator-validator を他 4 つの Cortex agent と pro/CLAUDE.md §0.5 audit trail 契約で揃えます。
+- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` の frontmatter `tools` を `[Read]` から `[Read, Bash, Write]` に拡張；新規 "Audit Trail (R11, HARD RULE)" セクション追加、YAML 返却前に `_meta/runtime/<sid>/narrator-validator.json` の書き込みを必須化。
 - **バージョンマーカー**：`SKILL.md` frontmatter と 3 つの README badge を `1.7.3` に更新。
+- **spec ドキュメントを inline 圧縮へ更新**：`SKILL.md` Trigger Execution Templates の `/compress` セクション、`references/hard-rules-index.md` manual compression bullet、`evals/scenarios/cortex-retrieval.md` CX11 positive case を、削除された `tools/context_compressor.py` を ROUTER inline 圧縮へ置き換える形に書き換え。
 
-### 削除
+### 削除（4 つのデッドコードモジュール · 1830 行）
 
-- **`tools/prompt_cache.py` 削除**（118 行 0 caller）：Anthropic prompt-cache ツールは Claude Code サブスクリプション環境では無意味（フラットレート、トークン課金ではない）。v1.7.2 Hermes fork のデッドコード。
-- **`docs/architecture/prompt-cache-strategy.md` 削除**：対応する spec ドキュメント。
-- **`docs/architecture/hermes-local.md`**：`related:` frontmatter とモジュールリストから prompt-cache 参照を削除。
+- **`tools/prompt_cache.py` 削除**（118 行 0 caller）：Claude Code サブスクリプション環境では無意味。
+- **`tools/mcp_server.py` 削除**（227 行 0 caller 0 client 接続）：MCP stdio wrapper は client に接続されたことがない。
+- **`tools/context_compressor.py` 削除**（1370 行 0 caller）：圧縮は ROUTER inline 実行。
+- **`tools/manual_compression_feedback.py` 削除**（51 行 0 caller）：削除された compressor の出力 helper。
+- **`docs/architecture/prompt-cache-strategy.md` 削除**：削除された prompt_cache の spec doc。
+- **`docs/architecture/mcp-server.md` 削除**：削除された mcp_server の spec doc。
+- **`docs/architecture/hermes-local.md` 整理**：`related:` frontmatter から削除モジュール参照を削除；Borrow/Fork Surface モジュールリストを v1.7.3 の実際状態に書き換え（approval は wired、memory + session_search + skill_manager は保持）；`context_compressor` naming-note 段落を削除。
 
 ### マイグレーション
 
-4 つの新しい slash コマンドをインストールするため `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行してください。第二の脳のマイグレーションは不要。`tools.session_search` / `tools.memory` / `tools.skill_manager` の CLI 動作は不変。
+`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行して以下を完了：
+1. 4 つの新しい slash コマンドを `~/.claude/commands/` にインストール
+2. 新規 `life-os-pre-bash-approval` PreToolUse(Bash) hook を登録
 
-### 既知のギャップ（v1.7.4 へ延期）
+インストール後、Claude が実行する全ての Bash コマンドが 47 個の危険パターンでスクリーニングされます；ブロックされた場合、stderr に 🛡️ 守門人 メッセージが表示されます。
 
-- `tools/approval.py`（964 行、47 個の危険コマンドパターン）はまだ PreToolUse(Bash) hook に接続されていません — hook ブリッジが書かれるまでパターンはデッドです。
-- `tools/mcp_server.py`（227 行）と `docs/architecture/mcp-server.md` も DEAD（0 caller、0 client 接続）ですが、大量のドキュメント変更を避けるため本リリースでは保留（mcp_server は 5+ docs から参照されています）。
-- `tools/context_compressor.py`（1370 行）と `tools/manual_compression_feedback.py`（51 行）は実行時未使用のまま；`/compress` はインライン圧縮を使用。
+### Audit 結論（v1.7.3 後）
+
+v1.7.2 の全ての dead-weight 発見が close：
+- Cortex always-on：強制（hook 注入）✅
+- approval.py 47 patterns：wired（PreToolUse Bash hook）✅
+- 4 つのデッドコードモジュール削除（1830 行）✅
+- Slash コマンド接続：/compress /search /memory /method ✅
 
 ---
 

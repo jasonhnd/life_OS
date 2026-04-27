@@ -30,9 +30,11 @@ The transcript is compliant when all of the following are true:
 - **CX10 positive (v1.7.2)**: Method extraction evidence flows through
   `methods_used` / `methods_discovered` session frontmatter; retrieval agents
   may consume it but may not create, promote, or edit method files.
-- **CX11 positive (v1.7.2)**: Cortex subagent outputs may be display-compressed
-  with `tools/context_compressor.py`, but wrappers include audit-trail links
-  and preserve signal IDs, method activations, blockers, and side effects.
+- **CX11 positive (v1.7.3)**: Cortex subagent outputs may be display-compressed
+  inline by ROUTER, but wrappers include audit-trail links and preserve signal
+  IDs, method activations, blockers, and side effects. The Hermes-vendored
+  `tools/context_compressor.py` was removed in v1.7.3 (0 callers); ROUTER does
+  the compression in-context.
 
 ## Negative Cases
 

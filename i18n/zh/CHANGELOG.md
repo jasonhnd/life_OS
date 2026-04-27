@@ -6,39 +6,51 @@
 
 ---
 
-## [1.7.3] - 2026-04-26 - Cortex 强制启动 + slash 命令接入 + 死代码清理
+## [1.7.3] - 2026-04-26 - Cortex 强制启动 + slash 命令 + approval hook + 4 个死代码模块删除
 
-> "让工具真能用起来" release。把 Cortex 从「声明 always-on」变成「机器强制 always-on」，给 Hermes 工具接 4 个用户可见的 slash command，删掉一个死代码模块。
+> "让工具真能用起来" release。把 Cortex 从「声明 always-on」变成「机器强制 always-on」，给 Hermes 工具接 4 个用户可见的 slash command，把 47-pattern approval guard 接到每次 Bash 调用，删掉 4 个死代码模块（1830 行未用代码）。
 
 ### 新增
 
-- **Cortex always-on 强制启动 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` 现在输出 `<system-reminder>` 块（trigger=cortex），在 prompt 长度 ≥ 80 字符或含决策关键词时强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 audit 发现的静默降级问题（17+ session 0 个 `_meta/runtime/<sid>/cortex-*.json` audit trail）。短对话填充（"好"、"继续"）会跳过 Cortex。
+- **Cortex always-on 强制启动 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` 现在输出 `<system-reminder>` 块（trigger=cortex），在 prompt 长度 ≥ 80 字符或含决策关键词时强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 audit 发现的静默降级问题。短对话填充（"好"、"继续"）会跳过 Cortex。
 - **4 个 slash command 接入 Claude Code**：新增 `scripts/commands/{compress,search,memory,method}.md` 源文件；`scripts/setup-hooks.sh` 安装时复制到 `~/.claude/commands/`。命令：
-  - `/compress [focus]` — inline 上下文压缩，归档到 `_meta/compression/<sid>-compress-<ts>.md`（Claude 执行压缩；tools/manual_compression_feedback 是 DEAD）。
+  - `/compress [focus]` — inline 上下文压缩，归档到 `_meta/compression/<sid>-compress-<ts>.md`。
   - `/search <query>` — 基于 `tools.session_search` CLI 的 FTS5 跨 session 搜索。
   - `/memory emit|read|remove|path` — 基于 `tools.memory` CLI 的 24-48h 短期记忆。
-  - `/method create|update|list` — 基于 `tools.skill_manager` CLI 的方法论库管理（注：工具保留历史命名，功能上管理 method）。
+  - `/method create|update|list` — 基于 `tools.skill_manager` CLI 的方法论库管理。
+- **Approval guard 接入 (PreToolUse Bash hook)**：新增 `scripts/hooks/pre-bash-approval.sh`，把每次 Bash 命令桥接到 `tools/approval.py`。修复 v1.7.2 缺口：47 个危险命令 pattern + hardline + tirith guards 之前 0 调用。Hook 读 stdin JSON，跑 `check_dangerous_command()`，exit 0（静默放行）或 exit 2 + stderr（拦截并显示原因）。绕开方式：`export LIFEOS_YOLO_MODE=1`。注册为 `life-os-pre-bash-approval`（PreToolUse · matcher Bash · timeout 5s）。
 
 ### 变更
 
-- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` frontmatter `tools` 从 `[Read]` 扩展到 `[Read, Bash, Write]`；新增 "Audit Trail (R11, HARD RULE)" section，要求返回 YAML 前必须写 `_meta/runtime/<sid>/narrator-validator.json`。让 narrator-validator 与其他 4 个 Cortex agent 在 pro/CLAUDE.md §0.5 audit trail 契约上对齐。
+- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` frontmatter `tools` 从 `[Read]` 扩展到 `[Read, Bash, Write]`；新增 "Audit Trail (R11, HARD RULE)" section，要求返回 YAML 前必须写 `_meta/runtime/<sid>/narrator-validator.json`。
 - **版本标记**：`SKILL.md` frontmatter 和 3 份 README badge 更新到 `1.7.3`。
+- **spec 文档更新为 inline 压缩**：`SKILL.md` Trigger Execution Templates `/compress` section、`references/hard-rules-index.md` manual compression bullet、`evals/scenarios/cortex-retrieval.md` CX11 positive case 全部重写为说 ROUTER inline 压缩，替代已删的 `tools/context_compressor.py`。
 
-### 删除
+### 删除（4 个死代码模块 · 1830 行）
 
-- **`tools/prompt_cache.py` 删除**（118 行 0 调用）：Anthropic prompt-cache 工具在 Claude Code 包月场景下无意义（包月定价，不按 token）。是 v1.7.2 Hermes fork 的死代码。
-- **`docs/architecture/prompt-cache-strategy.md` 删除**：对应的 spec 文档。
-- **`docs/architecture/hermes-local.md`**：从 `related:` frontmatter 和模块列表中移除 prompt-cache 引用。
+- **`tools/prompt_cache.py` 删除**（118 行 0 调用）：Claude Code 包月场景下无意义。
+- **`tools/mcp_server.py` 删除**（227 行 0 调用 0 client 连接）：MCP stdio wrapper fork 进来但从未接入 client。
+- **`tools/context_compressor.py` 删除**（1370 行 0 调用）：压缩改由 ROUTER inline 执行。
+- **`tools/manual_compression_feedback.py` 删除**（51 行 0 调用）：已删 compressor 的输出 helper。
+- **`docs/architecture/prompt-cache-strategy.md` 删除**：已删 prompt_cache 的 spec doc。
+- **`docs/architecture/mcp-server.md` 删除**：已删 mcp_server 的 spec doc。
+- **`docs/architecture/hermes-local.md` 清理**：从 `related:` frontmatter 移除已删模块引用；重写 Borrow/Fork Surface 模块列表反映 v1.7.3 实际状态（approval 已 wired，memory + session_search + skill_manager 保留）；移除 `context_compressor` naming-note 段。
 
 ### 迁移
 
-重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 安装 4 个新 slash command。无第二大脑迁移需求。`tools.session_search` / `tools.memory` / `tools.skill_manager` 的 CLI 行为不变。
+重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 完成：
+1. 安装 4 个新 slash command 到 `~/.claude/commands/`
+2. 注册新的 `life-os-pre-bash-approval` PreToolUse(Bash) hook
 
-### 已知缺口（推迟到 v1.7.4）
+安装后，Claude 每次跑 Bash 命令都会被 47 个危险 pattern 筛查；如被拦截，stderr 中会出现 🛡️ 守门人 提示。
 
-- `tools/approval.py`（964 行，47 个危险命令 pattern）仍未接入 PreToolUse(Bash) hook — patterns 在 hook 桥写好之前都是死的。
-- `tools/mcp_server.py`（227 行）和 `docs/architecture/mcp-server.md` 也是 DEAD（0 调用、0 client 连接），本版保留避免大量文档改动（mcp_server 被 5+ docs 引用）。
-- `tools/context_compressor.py`（1370 行）和 `tools/manual_compression_feedback.py`（51 行）运行时仍未使用；`/compress` 改用 inline 压缩。
+### Audit 结论（v1.7.3 后）
+
+v1.7.2 所有 dead-weight 发现已 close：
+- Cortex always-on：强制启用（hook 注入）✅
+- approval.py 47 patterns：已 wired（PreToolUse Bash hook）✅
+- 4 个死代码模块删除（1830 行）✅
+- Slash command 接入：/compress /search /memory /method ✅
 
 ---
 

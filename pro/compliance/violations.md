@@ -73,3 +73,4 @@ An entry transitions to `Resolved: true` when all three conditions hold:
 | 2026-04-26T22:07:40+09:00 | CLASS_C | high | archiver | missing_phases=1 4 placeholder_phases=2 3 | stop-session-verify | open |
 | 2026-04-26T22:55:48+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
 | 2026-04-26T23:06:57+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-26T23:32:41+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
