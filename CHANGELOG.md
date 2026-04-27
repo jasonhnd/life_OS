@@ -6,6 +6,87 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.0] - 2026-04-28 - Daily Cycle Hybridization (cron + monitor + softened 上朝/退朝)
+
+> **Largest single release in Life OS history**. Transforms lifeos from a reactive chatbot (must-be-driven-by-user) into a hybrid OS (reactive + autonomous). Three orthogonal session/process modes now coexist: business session (long-lived), monitor session (`/monitor`), cron autonomy (10 jobs + RunAtLoad).
+
+### Added · Session Modes (the core architectural shift)
+
+- **Mode 1 · Business session**: long-lived Claude Code chat, sessions can span days/weeks. 上朝/退朝 are now optional soft triggers, not mandatory daily cycle.
+- **Mode 2 · Monitor session**: new `/monitor` slash command opens operations console mode (`pro/agents/monitor.md`). Reads cron output, triggers cron manually, processes action items. Does NOT engage business deliberation. Exits via `/exit-monitor`.
+- **Mode 3 · Cron autonomy**: 10 scheduled jobs + 1 RunAtLoad on macOS launchd / Linux cron. Background, no user attention, runs even when no session is active.
+
+### Added · Cron jobs (5 new in v1.8.0, total 10 + 1 RunAtLoad)
+
+Pre-existing (preserved): `reindex` (daily 03:00), `daily-briefing` (daily 08:00), `backup` (weekly Sun 02:00).
+
+NEW v1.8.0:
+- **`spec-compliance`** (weekly Sun 22:00) — heuristic spec-promise vs evidence ratio
+- **`wiki-decay`** (monthly 15th 02:00) — stale entry detection (confidence + age)
+- **`archiver-recovery`** (daily 23:30) — auto-recovers missed adjourns. Closes 80%+ archiver violation root cause.
+- **`auditor-mode-2`** (weekly Sun 21:00) — AUDITOR Patrol Inspection. **Activates spec promise from v1.6.x that had 0 cron triggers until v1.8.0.**
+- **`advisor-monthly`** (monthly 1st 06:00) — SOUL drift detection + contradictory pattern flagging + regret accumulation
+- **`eval-history-monthly`** (monthly 1st 07:00) — system performance aggregation
+- **`strategic-consistency`** (monthly 1st 08:00) — cross-project conflict detection
+- **`missed-cron-check`** (RunAtLoad / @reboot) — Mac wake/boot catch-up for critical missed jobs
+
+### Added · Slash commands (2 new)
+
+- **`/monitor`** — enter Monitor session mode (Mode 2)
+- **`/run-cron <job>`** — manually trigger any cron job from session
+
+### Added · Hooks (3 new)
+
+- **`session-start-inbox`** (SessionStart) — cron→session bridge. Reads `_meta/inbox/notifications.md` + recent cron runs at session start, injects `<system-reminder>` so Claude proactively mentions cron activity to user.
+- **`pre-task-launch`** (PreToolUse Task) — machine-enforces v1.7.3 carve-out: blocks `archiver` launch unless `_meta/runtime/<sid>/knowledge-extractor.json` exists. Bypass: `LIFEOS_SKIP_KE_GUARD=1`.
+- **`post-task-audit-trail`** (PostToolUse Task) — immediate R11 audit trail check after every Cortex/archiver/knowledge-extractor invocation. Bypass: `LIFEOS_SKIP_AUDIT_GUARD=1`.
+
+### Added · Python tools (4 new)
+
+- `tools/spec_compliance_report.py`
+- `tools/wiki_decay.py`
+- `tools/cron_health_report.py`
+- `tools/missed_cron_check.py`
+
+### Added · Cron-driven Claude Code prompts (5)
+
+`scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+
+### Added · Spec docs (2 new)
+
+- `references/automation-spec.md` — canonical 3-layer architecture
+- `references/session-modes-spec.md` — Mode 1/2/3 detailed lifecycle
+
+### Added · New subagent + manual trigger script
+
+- `pro/agents/monitor.md` — Mode 2 role
+- `scripts/run-cron-now.sh <job>` — manual cron trigger
+
+### Changed
+
+- **pro/CLAUDE.md**: new "Session Modes (v1.8.0)" section
+- **scripts/setup-cron.sh**: extended from 3 → 10 cron jobs + 1 RunAtLoad. Added `repo_command_pymod` / `repo_command_prompt` builders + 5 new launchd plist printers.
+- **scripts/setup-hooks.sh**: registers 3 new hooks
+- **scripts/hooks/pre-prompt-guard.sh**: 上朝/退朝 trigger reminder softened (HARD RULE → optional soft trigger language)
+- **Version markers**: SKILL.md frontmatter + 3 README badges → 1.8.0
+
+### Migration
+
+```bash
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install
+```
+
+No second-brain data migration required. v1.7.x sessions/wiki/SOUL fully compatible.
+
+### Audit Verdict (v1.8.0 final)
+
+The "spec promised but never automated" gap from v1.7.3 audit is now closed. AUDITOR Mode 2 / ADVISOR monthly / eval-history monthly / strategic consistency / wiki decay / spec compliance / archiver recovery / boot catch-up — all ✅.
+
+User feedback driving v1.8.0: 「Hermes 和 cortex 的问题」→「为什么设计好了但没跑起来」→「不要 routines 也能实现」→「我不可能每天都开新 session」→「完整版必须一次性全部做完」.
+
+---
+
 ## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex enforcement + auto-trigger + archiver Phase 2 carve-out + 4 dead modules removed
 
 > The "make tools actually usable" release window. Three iterations folded into the single v1.7.3 release per user request:

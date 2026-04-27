@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -76,6 +76,29 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.8.0 の新機能 — Daily Cycle ハイブリッド化
+
+v1.8.0 は Life OS 史上最大の単一リリース：lifeos を「反応型 chatbot」（ユーザー駆動必須）から「ハイブリッド OS」（reactive + autonomous）へ変革。3 つの直交する session/process モードが並存：
+
+- **Mode 1 · ビジネス session**（日常の Claude Code チャット）。長期持続：単一 session が数日〜数週間にまたがる。**上朝/退朝はオプショナルなソフトトリガー**（強制的な daily cycle ではない）。
+- **Mode 2 · Monitor session**（`/monitor` slash command）。運用コンソールモード。cron 出力を見る / システム制御 / action items 処理。ビジネス決定には関与しない。
+- **Mode 3 · Cron 自治**（バックグラウンドスケジューラ、ユーザー不在）。10 cron job + 1 RunAtLoad が macOS launchd / Linux cron で実行、レポートを `_meta/eval-history/` へ、通知を `_meta/inbox/notifications.md` へ。
+
+ハイライト：
+
+- **10 個のスケジュール job**（v1.8.0 で 5 個追加）：reindex / daily-briefing / backup / **spec-compliance** / **wiki-decay** / **archiver-recovery** / **auditor-mode-2** / **advisor-monthly** / **eval-history-monthly** / **strategic-consistency**、加えて起動時の **missed-cron-check**。一部は v1.6.x 以来 spec で約束されながら **cron トリガーが 0 だった**機能（AUDITOR Mode 2 Patrol、monthly SOUL drift 等）を起動。
+- **`/monitor` slash command** — 新しい運用コンソールモード。cron 出力を読み、cron を手動トリガー、schedule を一時停止/再開、action items を順次処理。
+- **`/run-cron <job>` slash command** — session 内から任意の cron job を手動トリガー。
+- **3 つの新 hook** — `session-start-inbox`（cron→session ブリッジ：SessionStart hook が最近の cron 活動を system-reminder として注入）、`pre-task-launch`（v1.7.3 carve-out をマシンレベルで強制：knowledge-extractor が archiver より先）、`post-task-audit-trail`（即時 R11 trail チェック、session-end まで待たない）。
+- **4 つの新 python ツール** — `spec_compliance_report`（ヒューリスティックな spec→evidence 比率）、`wiki_decay`（古い entry 検出）、`cron_health_report`（cron 成功率）、`missed_cron_check`（Mac wake/boot キャッチアップ）。
+- **5 つの cron 駆動 Claude Code プロンプト** — `archiver-recovery`（退朝忘れ自動回復）、`auditor-mode-2`（週次 Patrol Inspection）、`advisor-monthly`（SOUL drift 検出）、`eval-history-monthly`（システム性能集計）、`strategic-consistency`（クロスプロジェクト衝突検出）。
+- **2 つの新 spec ドキュメント** — `references/automation-spec.md`（3 層アーキテクチャの canonical reference）+ `references/session-modes-spec.md`（Mode 1/2/3 詳細定義）。
+- **新 subagent** — `pro/agents/monitor.md`（Mode 2 ロール）。
+
+マイグレーション：`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行（3 つの新 hook 登録 + 2 つの新 slash command インストール）し、`bash ~/.claude/skills/life_OS/scripts/setup-cron.sh install`（10 cron + 1 RunAtLoad インストール）。第二の脳のデータマイグレーションは不要。既存の v1.7.x sessions/wiki/SOUL は完全互換。
 
 ---
 

@@ -354,6 +354,64 @@ Three legitimate use cases:
 
 If ROUTER is constantly relying on slash commands instead of auto-trigger, the auto-trigger rules need tightening — not the user's input.
 
+## Session Modes (v1.8.0 · hybrid reactive + autonomous)
+
+Life OS v1.8.0 introduces three orthogonal session/process modes, replacing the previous "user-driven daily cycle" assumption:
+
+### Mode 1 · Business session (reactive, user-driven, primary mode)
+
+This is the standard Claude Code session you've always used. ROUTER, Cortex Pre-Router, PLANNER/REVIEWER/DISPATCHER/6 Domains, AUDITOR/ADVISOR, archiver — all behave as before. **Long-lived sessions are now first-class**: you don't need to start/end a session every day. Open a Claude Code window, talk to lifeos for hours/days, archiver fires per the soft trigger rules below.
+
+### Mode 2 · Monitor session (reactive, system-management focused)
+
+Triggered by `/monitor` slash command. Loads `pro/agents/monitor.md` role. Purpose: **operations console for cron automation, system health, action items**. Does NOT run 上朝/退朝. Does NOT trigger Cortex Pre-Router. Does NOT engage in business deliberation. Reads `_meta/inbox/notifications.md` + `_meta/eval-history/` to give user a dashboard. Lets user trigger cron jobs manually (`/run-cron <job>`), pause/resume schedules, process action items. Exits via `/exit-monitor`.
+
+When in monitor mode, treat any business question as out-of-scope and politely redirect.
+
+### Mode 3 · Cron autonomy (background, scheduler-driven, no user)
+
+Independent of Claude Code sessions. Runs on macOS launchd / Linux cron via `bash scripts/setup-cron.sh install`. v1.8.0 ships 10 jobs + 1 RunAtLoad:
+
+| Job | Schedule | What it does |
+|-----|----------|-------------|
+| reindex | daily 03:00 | Rebuild `_meta/sessions/INDEX.md` + concept INDEX |
+| daily-briefing | daily 08:00 | Pre-render briefing for next 上朝 |
+| backup | weekly Sun 02:00 | Snapshot rotation |
+| spec-compliance | weekly Sun 22:00 | Heuristic compliance index report (NEW v1.8.0) |
+| wiki-decay | monthly 15th 02:00 | Stale wiki entry detection (NEW v1.8.0) |
+| archiver-recovery | daily 23:30 | Auto-recover missed adjourns (NEW v1.8.0) |
+| auditor-mode-2 | weekly Sun 21:00 | AUDITOR Patrol Inspection (NEW v1.8.0 — activates spec promise from v1.6.x that had 0 cron until v1.8.0) |
+| advisor-monthly | monthly 1st 06:00 | SOUL drift + contradiction patterns (NEW v1.8.0) |
+| eval-history-monthly | monthly 1st 07:00 | System performance aggregation (NEW v1.8.0) |
+| strategic-consistency | monthly 1st 08:00 | Cross-project conflict detection (NEW v1.8.0) |
+| missed-cron-check | RunAtLoad / @reboot | Catch-up on missed jobs after wake/boot (NEW v1.8.0) |
+
+Each cron job either runs `python -m tools.<name>` (pure python) or `claude -p "$(cat scripts/prompts/<name>.md)"` (full Claude Code session via CLI). The latter can launch lifeos subagents and trigger hooks.
+
+### cron → session bridge
+
+Cron writes to `_meta/inbox/notifications.md` + `_meta/eval-history/`. Sessions don't see cron output in real time, but the **SessionStart hook** (`scripts/hooks/session-start-inbox.sh`) injects a `<system-reminder>` summarizing recent cron activity at session start. ROUTER MUST proactively mention these in the first response so user knows what happened.
+
+### Daily cycle (上朝/退朝) — softened in v1.8.0
+
+| Old (v1.7.x) | New (v1.8.0) |
+|-------------|-------------|
+| 上朝 mandatory each new session | 上朝 is **optional soft trigger** — say it when you want a full briefing; otherwise just start chatting (cron's daily-briefing already pre-rendered today's brief) |
+| 退朝 mandatory at session end | 退朝 is **optional soft trigger** — say it when you want immediate archive; otherwise cron's archiver-recovery (23:30 daily) handles it |
+| Forgetting cycle = data loss | Forgetting cycle = OK, cron tier handles it |
+| Sessions structured around cycle | Sessions long-lived, cycle structured around sessions |
+
+ROUTER MUST NOT enforce 上朝/退朝 as hard cycle. Treat as optional user-controlled triggers.
+
+### Mode interaction rules
+
+- A given Claude Code window is **always exactly one mode** (business OR monitor — not both at once)
+- `/monitor` switches business → monitor; `/exit-monitor` switches monitor → business
+- Cron runs are independent of any session; can run while business or monitor session is active (with 5-min retry if `~/.claude/lifeos-active-session.lock` exists)
+- Both modes share `_meta/`, `wiki/`, `SOUL.md` via filesystem; cron contention is git-handled (`pull --rebase` before, `push` after, conflict → abort + log)
+
+---
+
 ## Session Binding (HARD RULE · v1.7.2.3 clarified — discussion scope ≠ data write scope)
 
 Each session may bind to a primary project for **data write scope** — decisions, journal entries, wiki additions, SOUL updates persist to the bound project to avoid cross-contamination.

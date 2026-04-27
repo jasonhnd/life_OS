@@ -76,3 +76,16 @@ An entry transitions to `Resolved: true` when all three conditions hold:
 | 2026-04-26T23:32:41+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
 | 2026-04-27T09:49:20+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
 | 2026-04-27T10:02:38+09:00 | CLASS_C | high | archiver | missing_phases=1 3 4  | stop-session-verify | open |
+| 2026-04-27T10:29:51+09:00 | CLASS_C | high | archiver | missing_phases=1 3 4 placeholder_phases=2 | stop-session-verify | open |
+| 2026-04-27T10:35:12+09:00 | CLASS_C | high | archiver | missing_phases=1 3 4  | stop-session-verify | open |
+| 2026-04-27T15:43:04+09:00 | CLASS_C | high | archiver | missing_phases=2 3 4  | stop-session-verify | open |
+| 2026-04-27T15:57:36+09:00 | CLASS_C | high | archiver | missing_phases=1 3 4  | stop-session-verify | open |
+| 2026-04-27T16:07:36+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-27T16:22:21+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-27T16:32:22+09:00 | CLASS_C | high | archiver | missing_phases=1 3  | stop-session-verify | open |
+| 2026-04-27T16:43:54+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-27T16:48:54+09:00 | CLASS_C | high | archiver | missing_phases=1  | stop-session-verify | open |
+| 2026-04-27T17:06:46+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-27T17:17:20+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-27T17:46:28+09:00 | CLASS_C | high | archiver | missing_phases=1 3  | stop-session-verify | open |
+| 2026-04-27T17:57:04+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |

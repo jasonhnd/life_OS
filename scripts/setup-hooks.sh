@@ -166,6 +166,9 @@ copy_exec "$V17_PRE_WRITE_SOURCE"     "$V17_PRE_WRITE_DEST"
 copy_exec "$V17_STOP_SOURCE"          "$V17_STOP_DEST"
 copy_exec "$V17_PRE_READ_SOURCE"      "$V17_PRE_READ_DEST"
 copy_exec "$V17_PRE_BASH_APPROVAL_SOURCE" "$V17_PRE_BASH_APPROVAL_DEST"
+copy_exec "$V18_SESSION_START_INBOX_SOURCE" "$V18_SESSION_START_INBOX_DEST"
+copy_exec "$V18_PRE_TASK_LAUNCH_SOURCE" "$V18_PRE_TASK_LAUNCH_DEST"
+copy_exec "$V18_POST_TASK_AUDIT_TRAIL_SOURCE" "$V18_POST_TASK_AUDIT_TRAIL_DEST"
 
 # ─── Copy v1.7.3 slash commands → ~/.claude/commands ────────────────────────
 COMMANDS_DEST="$HOME/.claude/commands"
@@ -260,6 +263,32 @@ register_hook "PreToolUse" "$HOOK_PRE_READ_ID" "Read" \
 register_hook "PreToolUse" "$HOOK_PRE_BASH_APPROVAL_ID" "Bash" \
   "$V17_PRE_BASH_APPROVAL_DEST" 5 \
   "v1.7.3 · Approval guard wrapping tools/approval.py (47 dangerous patterns + hardline + tirith)"
+
+# ─── Register v1.8.0 hooks ──────────────────────────────────────────────────
+register_hook "SessionStart" "$HOOK_SESSION_START_INBOX_ID" "*" \
+  "$V18_SESSION_START_INBOX_DEST" 5 \
+  "v1.8.0 · Inject inbox/notifications + recent cron runs as system-reminder at session start (cron→session bridge)"
+
+register_hook "PreToolUse" "$HOOK_PRE_TASK_LAUNCH_ID" "Task" \
+  "$V18_PRE_TASK_LAUNCH_DEST" 3 \
+  "v1.8.0 · Enforce knowledge-extractor before archiver (v1.7.3 carve-out HARD RULE machine-strict)"
+
+register_hook "PostToolUse" "$HOOK_POST_TASK_AUDIT_TRAIL_ID" "Task" \
+  "$V18_POST_TASK_AUDIT_TRAIL_DEST" 3 \
+  "v1.8.0 · Verify R11 audit trail written by Cortex/archiver/knowledge-extractor subagents (immediate check, not session-end)"
+
+# ─── Register v1.8.0 hooks ──────────────────────────────────────────────────
+register_hook "SessionStart" "$HOOK_SESSION_START_INBOX_ID" "*" \
+  "$V18_SESSION_START_INBOX_DEST" 5 \
+  "v1.8.0 · Inject inbox/notifications + recent cron runs as system-reminder at session start (cron→session bridge)"
+
+register_hook "PreToolUse" "$HOOK_PRE_TASK_LAUNCH_ID" "Task" \
+  "$V18_PRE_TASK_LAUNCH_DEST" 3 \
+  "v1.8.0 · Enforce knowledge-extractor before archiver (v1.7.3 carve-out HARD RULE machine-strict)"
+
+register_hook "PostToolUse" "$HOOK_POST_TASK_AUDIT_TRAIL_ID" "Task" \
+  "$V18_POST_TASK_AUDIT_TRAIL_DEST" 3 \
+  "v1.8.0 · Verify R11 audit trail written by Cortex/archiver/knowledge-extractor subagents (immediate check, not session-end)"
 
 register_hook "PostToolUse" "$HOOK_POST_RESPONSE_ID" "Task|Bash|Write|Edit" \
   "$V17_POST_RESPONSE_DEST" 5 \
