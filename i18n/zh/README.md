@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.2.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -74,6 +74,19 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.7.3 新特性
+
+v1.7.3 让 Cortex 从「声明 always-on」变成「机器强制 always-on」，并给 Hermes 工具真实可见、可触发的入口。
+
+- **Cortex hook 强制注入** — `pre-prompt-guard` 现在在用户消息含决策关键词或超过 80 字时，输出 system-reminder 强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 的静默降级（17+ session 0 audit trail）。
+- **narrator-validator audit trail HARD RULE** — frontmatter `tools` 加 Bash + Write，按 pro/CLAUDE.md §0.5 强制写 `_meta/runtime/<sid>/narrator-validator.json` audit trail JSON。
+- **4 个 slash command 接入** — `/compress`（inline 上下文压缩，归档到 `_meta/compression/`）、`/search`（基于 `tools.session_search` 的 FTS5 跨 session 搜索）、`/memory`（基于 `tools.memory` 的 24-48h 短期记忆）、`/method`（基于 `tools.skill_manager` 的方法论库管理）。`setup-hooks.sh` 安装到 `~/.claude/commands/`。
+- **死代码清理** — `tools/prompt_cache.py`（118 行 0 调用，Claude Code 包月场景无意义）+ `docs/architecture/prompt-cache-strategy.md` 删除。`docs/architecture/hermes-local.md` 中相关引用清理完毕。
+
+迁移：重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`，把 4 个新 slash command 安装到 `~/.claude/commands/`。
 
 ---
 

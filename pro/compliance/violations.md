@@ -67,3 +67,12 @@ An entry transitions to `Resolved: true` when all three conditions hold:
 
 `partial` = fix shipped, awaiting eval regression verification or 30-day observation window.
 | 2026-04-25T21:52:47+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-26T21:16:30+09:00 | CLASS_C | high | archiver | missing_phases=1 4 placeholder_phases=2 3 | stop-session-verify | open |
+| 2026-04-26T21:22:25+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-26T21:37:40+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-26T22:07:40+09:00 | CLASS_C | high | archiver | missing_phases=1 4 placeholder_phases=2 3 | stop-session-verify | open |
+| 2026-04-26T22:55:48+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-26T23:06:57+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-04-26T23:32:41+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
+| 2026-04-27T09:49:20+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
+| 2026-04-27T10:02:38+09:00 | CLASS_C | high | archiver | missing_phases=1 3 4  | stop-session-verify | open |

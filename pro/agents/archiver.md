@@ -74,7 +74,7 @@ else
 fi
 ```
 
-Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as the first phase section in the 12-section Adjourn Report Completeness Contract).
+Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as the first phase section in the **6-H2 Adjourn Report Completeness Contract** simplified per v1.7.2.3 — Phase 0 / 1 / 2 / 3 / 4 / Completion Checklist).
 
 ---
 
@@ -95,13 +95,43 @@ Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as th
 
 ---
 
-## Phase 2 — Knowledge Extraction (Core Responsibility) → Session Candidates
+## Phase 2 — Knowledge Extraction (delegated to knowledge-extractor · v1.7.3)
 
-**Before starting Phase 2, self-check**: Confirm you are running inside an independent archiver subagent. If you detect you are running in the main context (as the ROUTER), STOP immediately — you are violating the invocation rule. Emit this message to the orchestrator: "⚠️ archiver must be launched as a subagent, not executed inline. Re-launching..." and halt. The main-context instance must NOT continue past this checkpoint.
+**v1.7.3 carve-out · primary path**:
 
-This is your primary mission — not a side step, but the reason you exist.
+Phase 2's heavy lifting (7 sub-step extraction + 7 persistent file writes) was the root cause of 80%+ recent archiver placeholder violations (see `pro/compliance/violations.md` 2026-04-25 through 2026-04-27). v1.7.3 carved this work out into a dedicated `knowledge-extractor` subagent (`pro/agents/knowledge-extractor.md`).
 
-R11 audit trail: before Phase 3 starts, write `_meta/runtime/<sid>/archiver-phase-2.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST cover wiki, SOUL, method, concept, SessionSummary, snapshot, strategic, and last_activity outputs.
+**New protocol** (primary):
+
+1. ROUTER MUST launch `knowledge-extractor` as a subagent via Task tool BEFORE launching archiver (or archiver launches it as the first action of Phase 2 if the host supports nested Task).
+2. `knowledge-extractor` writes 7 extraction reports to `_meta/runtime/<sid>/extraction/{wiki-candidates,soul-changes,methods,concepts,session-summary,snapshot,strategic}.md` AND writes the 7 persistent files (wiki/, SOUL.md, _meta/methods/_tentative/, _meta/concepts/, _meta/sessions/<sid>.md, _meta/soul-snapshots/<sid>.md, _meta/STRATEGIC-MAP.md).
+3. **Archiver Phase 2** reads `_meta/runtime/<sid>/extraction/*.md` and emits a single-paragraph user-facing summary in the Adjourn Report:
+
+   ```
+   ## Phase 2 · Knowledge Extraction
+
+   knowledge-extractor wrote: <N wiki / M discarded>, <K SOUL changes>,
+   <L tentative methods>, <P new concepts + Q Hebbian updates>, SessionSummary
+   `_meta/sessions/<sid>.md`, snapshot `_meta/soul-snapshots/<sid>.md`,
+   strategic-map <updated|unchanged>. Reports archived in
+   `_meta/runtime/<sid>/extraction/` for AUDITOR review.
+   ```
+
+4. R11 audit trail: archiver writes `_meta/runtime/<sid>/archiver-phase-2.json` with `output_summary` mirroring the user-facing summary; `tool_calls` notes that knowledge-extractor was the primary worker.
+
+The detailed 7-sub-step spec (six-criteria wiki gate, SOUL evidence rules, method extraction, concept Hebbian, SessionSummary contract, snapshot protocol, strategic-map updates) lives in `pro/agents/knowledge-extractor.md`. ARCHIVER does not re-implement those rules in the primary path.
+
+**Self-check (still applies in primary path)**: Confirm you are running inside an independent archiver subagent. If you detect you are running in the main context (as the ROUTER), STOP immediately — you are violating the invocation rule. Emit this message to the orchestrator: "⚠️ archiver must be launched as a subagent, not executed inline. Re-launching..." and halt.
+
+---
+
+### Legacy Phase 2 inline spec (fallback only — used if knowledge-extractor was not launched)
+
+If the host lacks Task nesting and ROUTER did not pre-launch `knowledge-extractor`, archiver falls back to running Phase 2 inline using the spec below. This is preserved for resilience; the primary path uses knowledge-extractor.
+
+This is your primary mission — not a side step, but the reason you exist (in fallback mode).
+
+R11 audit trail (fallback): before Phase 3 starts, write `_meta/runtime/<sid>/archiver-phase-2.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST cover wiki, SOUL, method, concept, SessionSummary, snapshot, strategic, and last_activity outputs.
 
 Phase 2 produces **Session Candidates** — extracted from the current session only. Wiki and SOUL entries are **auto-written** inside this subagent based on strict criteria — no user confirmation in the main context.
 

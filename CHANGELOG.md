@@ -6,6 +6,79 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex enforcement + auto-trigger + archiver Phase 2 carve-out + 4 dead modules removed
+
+> The "make tools actually usable" release window. Three iterations folded into the single v1.7.3 release per user request:
+>
+> 1. **v1.7.3 base (2026-04-26)**: Cortex always-on hook, 4 slash commands, approval guard wired, 4 dead modules removed.
+> 2. **v1.7.3 auto-trigger patch (2026-04-27)**: slash commands demoted to backup mode after user feedback. pre-prompt-guard.sh memory keyword detection added.
+> 3. **v1.7.3 archiver carve-out (2026-04-27)**: Phase 2 split into dedicated `knowledge-extractor` subagent to fix 80%+ recent archiver placeholder violations. spec consistency fixes + stop-session-verify LLM_FILL detection.
+>
+> All three folded into single v1.7.3 release per user request: 「版本号不能变，还是 1.7.3，都要在这个版本里面全部修完」.
+
+### Added
+
+- **Cortex always-on enforcement (hook injection)**: `scripts/hooks/pre-prompt-guard.sh` now emits a `<system-reminder>` block (trigger=cortex) that forces ROUTER to launch all 5 Cortex subagents (hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator) in parallel before answering, whenever the prompt qualifies (length ≥ 80 chars OR decision keyword detected). Closes the silent-degradation gap found in v1.7.2 audit (0 `_meta/runtime/<sid>/cortex-*.json` audit trails across 17+ sessions). Skip rules: short conversational filler ("ok", "go on") bypasses Cortex.
+- **4 slash commands wired into Claude Code**: new `scripts/commands/{compress,search,memory,method}.md` source files; `scripts/setup-hooks.sh` now copies them to `~/.claude/commands/` during install. Commands:
+  - `/compress [focus]` — inline context compression with `_meta/compression/<sid>-compress-<ts>.md` archive.
+  - `/search <query>` — FTS5 cross-session search via `tools.session_search` CLI.
+  - `/memory emit|read|remove|path` — 24-48h short-term memory via `tools.memory` CLI.
+  - `/method create|update|list` — method library management via `tools.skill_manager` CLI.
+- **Approval guard wired (PreToolUse Bash hook)**: new `scripts/hooks/pre-bash-approval.sh` bridges every Bash command to `tools/approval.py`. Closes the v1.7.2 gap where 47 dangerous-command patterns + hardline + tirith guards sat with 0 callers. Hook reads Claude Code stdin JSON, runs `check_dangerous_command()`, exits 0 (silent approve) or exit 2 + stderr (block with reason). Bypass: `export LIFEOS_YOLO_MODE=1`. Registered in `setup-hooks.sh` as `life-os-pre-bash-approval` (PreToolUse · matcher Bash · timeout 5s).
+- **Memory auto-emit detection (auto-trigger patch · 2026-04-27)**: `pre-prompt-guard.sh` also detects 中/英/日 memory keywords (记一下 / remind me / 覚えて / TODO etc) and injects `<system-reminder>` (trigger=memory) forcing ROUTER to auto-run `python -m tools.memory emit` instead of redirecting user to `/memory`. Adds `trigger=memory` value to hook activity log.
+- **pro/CLAUDE.md → Auto-Trigger Rules section (auto-trigger patch · 2026-04-27)**: codifies memory auto-emit, compress auto-suggest, search auto-trigger (via Cortex hippocampus), method auto-create (via archiver Phase 2 → knowledge-extractor). Principle: "if ROUTER asks the user to switch to a slash command, that is a UX bug — just do the action".
+- **knowledge-extractor subagent (Phase 2 carve-out · 2026-04-27)**: new `pro/agents/knowledge-extractor.md` (Opus tier, [Read, Grep, Glob, Bash, Write] tools). Performs the 7 Phase 2 sub-steps (wiki six-criteria gate / SOUL changes / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map) AND writes the 7 persistent files. Writes 7 extraction reports to `_meta/runtime/<sid>/extraction/*.md` for archiver to read back. R11 audit trail to `_meta/runtime/<sid>/knowledge-extractor.json`. Reason: previous monolithic archiver had 80%+ placeholder violations (10+ recent adjourn runs in `pro/compliance/violations.md` 2026-04-25 through 2026-04-27) because it had to do everything in one invocation. ROUTER MUST launch knowledge-extractor BEFORE archiver.
+
+### Changed
+
+- **narrator-validator audit trail HARD RULE**: `pro/agents/narrator-validator.md` frontmatter `tools` extended from `[Read]` to `[Read, Bash, Write]`; new "Audit Trail (R11, HARD RULE)" section added requiring `_meta/runtime/<sid>/narrator-validator.json` write before returning YAML output.
+- **Version markers**: `SKILL.md` frontmatter and 3 README badges updated to `1.7.3`.
+- **Spec docs updated for inline compression**: `SKILL.md` Trigger Execution Templates `/compress` section, `references/hard-rules-index.md` manual compression bullet, and `evals/scenarios/cortex-retrieval.md` CX11 positive case all rewritten to describe ROUTER inline compression replacing the removed `tools/context_compressor.py`.
+- **4 slash command files demoted to backup mode (auto-trigger patch · 2026-04-27)**: each `scripts/commands/{compress,search,memory,method}.md` now starts with a "⚠️ Backup mode" header pointing to the relevant pro/CLAUDE.md Auto-Trigger Rules subsection. Slash commands remain functional for: (1) precise user control, (2) developer smoke test, (3) auto-trigger fallback.
+- **archiver.md Phase 2 carve-out + spec consistency fix (carve-out · 2026-04-27)**: `pro/agents/archiver.md` line 77 fixed (was "12-section Adjourn Report Completeness Contract" legacy v1.7.2 wording, now matches v1.7.2.3 "6-H2"). Phase 2 entire spec rewritten: primary path delegates to `knowledge-extractor` subagent; legacy 7-sub-step inline spec preserved as fallback. `pro/CLAUDE.md` Step 10 updated: ROUTER MUST launch `knowledge-extractor` first, then `archiver`. New launch sequence template.
+- **stop-session-verify hook LLM_FILL detection (carve-out · 2026-04-27)**: `scripts/hooks/stop-session-verify.sh check_phase()` enhanced. Previously only detected TBD / `{...}` / "placeholder" string in phase header lines. Now also scans the next 30 lines after each phase header for unfilled `<!-- LLM_FILL: ... -->` patterns and `LLM_FILL:` strings, marking that phase as `placeholder_phases`. Catches the actual root cause of recent archiver violations (LLM emitting Bash skeleton verbatim without filling placeholders).
+
+### Removed (4 dead modules · 1830 lines)
+
+- **`tools/prompt_cache.py` deleted** (118 lines, 0 callers): no value in Claude Code subscription mode.
+- **`tools/mcp_server.py` deleted** (227 lines, 0 callers, 0 client connections): MCP stdio wrapper never connected.
+- **`tools/context_compressor.py` deleted** (1370 lines, 0 callers): compression now inline by ROUTER.
+- **`tools/manual_compression_feedback.py` deleted** (51 lines, 0 callers): output helper for removed compressor.
+- **`docs/architecture/prompt-cache-strategy.md` deleted**: spec doc for removed prompt_cache.
+- **`docs/architecture/mcp-server.md` deleted**: spec doc for removed mcp_server.
+- **`docs/architecture/hermes-local.md` cleaned**: removed dead-module refs from `related:` frontmatter; rewrote Borrow/Fork Surface module list to reflect v1.7.3 reality (approval wired, memory + session_search + skill_manager remain); removed `context_compressor` naming-note paragraph.
+
+### Migration
+
+Re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to:
+1. Install 4 new slash commands to `~/.claude/commands/`
+2. Register the new `life-os-pre-bash-approval` PreToolUse(Bash) hook
+3. Update `pre-prompt-guard.sh` (now with Cortex always-on + memory keyword detection)
+4. Update `stop-session-verify.sh` (now with LLM_FILL detection + 30-line section body scan)
+
+After install, every Bash command Claude runs is screened against the 47 dangerous patterns; if blocked, you'll see the 🛡️ 守门人 message in stderr.
+
+No second-brain migration required.
+
+### Audit Verdict (post-v1.7.3 final)
+
+All v1.7.2 dead-weight findings AND v1.7.3 archiver-violation root cause are closed:
+- Cortex always-on: enforced (hook injection) ✅
+- approval.py 47 patterns: wired (PreToolUse Bash hook) ✅
+- 4 dead modules removed (1830 lines) ✅
+- Slash commands wired AND demoted to backup mode in favor of auto-trigger ✅
+- Memory auto-emit: hook detects keywords and forces ROUTER auto-emit ✅
+- archiver Phase 2 carved out into knowledge-extractor subagent ✅
+- archiver.md spec internal consistency restored (12-section vs 6-H2 fixed) ✅
+- stop-session-verify LLM_FILL detection added ✅
+
+User feedback driving this release window:
+1. "我为什么要用这样的方式来启动这些命令？这些命令不可以直接自动启动吗？" → auto-trigger patch
+2. "重新检查一下上朝流程和退朝流程" → revealed 80%+ archiver placeholder violations → carve-out
+3. "C 还是1.7.3" + "版本号不能变，还是 1.7.3，都要在这个版本里面全部修完" → all changes squashed into single v1.7.3 release
+
+---
+
 ## [1.7.2.3] - 2026-04-26 - Retrospective skeleton ownership
 
 > Subagent D ownership patch. Scope limited to `pro/agents/retrospective.md`, `SKILL.md`, three README files, and three CHANGELOG files.

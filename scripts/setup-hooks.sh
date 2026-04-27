@@ -46,6 +46,7 @@ HOOK_POST_RESPONSE_ID="life-os-post-response-verify"
 HOOK_PRE_WRITE_ID="life-os-pre-write-scan"
 HOOK_STOP_ID="life-os-stop-session-verify"
 HOOK_PRE_READ_ID="life-os-pre-read-allowlist"
+HOOK_PRE_BASH_APPROVAL_ID="life-os-pre-bash-approval"
 
 # Source paths inside the skill package
 V17_LIB_SOURCE="$SOURCE_DIR/hooks/_lib.sh"
@@ -54,6 +55,7 @@ V17_POST_RESPONSE_SOURCE="$SOURCE_DIR/hooks/post-response-verify.sh"
 V17_PRE_WRITE_SOURCE="$SOURCE_DIR/hooks/pre-write-scan.sh"
 V17_STOP_SOURCE="$SOURCE_DIR/hooks/stop-session-verify.sh"
 V17_PRE_READ_SOURCE="$SOURCE_DIR/hooks/pre-read-allowlist.sh"
+V17_PRE_BASH_APPROVAL_SOURCE="$SOURCE_DIR/hooks/pre-bash-approval.sh"
 
 # Dest paths inside ~/.claude/scripts/hooks
 V17_LIB_DEST="$HOOKS_SUBDIR/_lib.sh"
@@ -62,6 +64,7 @@ V17_POST_RESPONSE_DEST="$HOOKS_SUBDIR/post-response-verify.sh"
 V17_PRE_WRITE_DEST="$HOOKS_SUBDIR/pre-write-scan.sh"
 V17_STOP_DEST="$HOOKS_SUBDIR/stop-session-verify.sh"
 V17_PRE_READ_DEST="$HOOKS_SUBDIR/pre-read-allowlist.sh"
+V17_PRE_BASH_APPROVAL_DEST="$HOOKS_SUBDIR/pre-bash-approval.sh"
 
 # ─── Uninstall mode ─────────────────────────────────────────────────────────
 uninstall_all() {
@@ -162,6 +165,24 @@ copy_exec "$V17_POST_RESPONSE_SOURCE" "$V17_POST_RESPONSE_DEST"
 copy_exec "$V17_PRE_WRITE_SOURCE"     "$V17_PRE_WRITE_DEST"
 copy_exec "$V17_STOP_SOURCE"          "$V17_STOP_DEST"
 copy_exec "$V17_PRE_READ_SOURCE"      "$V17_PRE_READ_DEST"
+copy_exec "$V17_PRE_BASH_APPROVAL_SOURCE" "$V17_PRE_BASH_APPROVAL_DEST"
+
+# ─── Copy v1.7.3 slash commands → ~/.claude/commands ────────────────────────
+COMMANDS_DEST="$HOME/.claude/commands"
+COMMANDS_SOURCE="$SOURCE_DIR/commands"
+mkdir -p "$COMMANDS_DEST"
+echo ""
+echo "📁 Installing v1.7.3 slash commands → $COMMANDS_DEST"
+if [ -d "$COMMANDS_SOURCE" ]; then
+  for cmd in "$COMMANDS_SOURCE"/*.md; do
+    if [ -f "$cmd" ]; then
+      cp "$cmd" "$COMMANDS_DEST/"
+      echo "  ✅ /$(basename "$cmd" .md)"
+    fi
+  done
+else
+  echo "  ⚠️ $COMMANDS_SOURCE not found — skipping (older Life OS install layout)"
+fi
 
 # ─── Initialize settings.json if needed ─────────────────────────────────────
 if [ ! -f "$SETTINGS" ]; then
@@ -235,6 +256,10 @@ register_hook "PreToolUse" "$HOOK_PRE_WRITE_ID" "Write|Edit" \
 register_hook "PreToolUse" "$HOOK_PRE_READ_ID" "Read" \
   "$V17_PRE_READ_DEST" 3 \
   "v1.7 · Block Reads on credential denylist (~/.ssh, ~/.aws, /etc/passwd, .env, ...)"
+
+register_hook "PreToolUse" "$HOOK_PRE_BASH_APPROVAL_ID" "Bash" \
+  "$V17_PRE_BASH_APPROVAL_DEST" 5 \
+  "v1.7.3 · Approval guard wrapping tools/approval.py (47 dangerous patterns + hardline + tirith)"
 
 register_hook "PostToolUse" "$HOOK_POST_RESPONSE_ID" "Task|Bash|Write|Edit" \
   "$V17_POST_RESPONSE_DEST" 5 \

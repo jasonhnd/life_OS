@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.2.3-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -82,6 +82,19 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.7.3
+
+v1.7.3 turns Cortex from declared-always-on into actually-always-on, and gives the Hermes tools real entry points users can see and trigger.
+
+- **Cortex hook injection** — `pre-prompt-guard` now emits a system-reminder that forces ROUTER to launch all 5 Cortex subagents (hippocampus, concept-lookup, soul-check, gwt-arbitrator, narrator-validator) in parallel before answering, whenever the prompt has a decision keyword or exceeds 80 chars. Closes the silent-degradation gap found in v1.7.2 (0 audit trails across 17+ sessions).
+- **narrator-validator audit trail HARD RULE** — frontmatter `tools` extended to `[Read, Bash, Write]`; audit trail JSON write to `_meta/runtime/<sid>/narrator-validator.json` is now mandatory per pro/CLAUDE.md §0.5.
+- **4 slash commands wired** — `/compress` (inline context compression with `_meta/compression/` archive), `/search` (FTS5 cross-session search via `tools.session_search`), `/memory` (24-48h short-term memory via `tools.memory`), `/method` (method library management via `tools.skill_manager`). Installed by `setup-hooks.sh` to `~/.claude/commands/`.
+- **Dead-weight removed** — `tools/prompt_cache.py` (118 lines, 0 callers, no value in Claude Code subscription mode) and its `docs/architecture/prompt-cache-strategy.md` deleted. References cleaned from `docs/architecture/hermes-local.md`.
+
+Migration: re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to install the 4 new slash commands into `~/.claude/commands/`.
 
 ---
 

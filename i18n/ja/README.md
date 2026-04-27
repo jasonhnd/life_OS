@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.7.2.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.3-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -76,6 +76,19 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.7.3 の新機能
+
+v1.7.3 は Cortex を「宣言 always-on」から「強制 always-on」に変え、Hermes ツールにユーザーが見える・トリガーできる実際の入口を与えます。
+
+- **Cortex hook 強制注入** — `pre-prompt-guard` がユーザーメッセージに決定キーワードを含む、または 80 文字を超える場合、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制する system-reminder を出力します。v1.7.2 のサイレント degradation（17+ セッションで 0 audit trail）を修正。
+- **narrator-validator audit trail HARD RULE** — frontmatter `tools` に Bash + Write を追加、pro/CLAUDE.md §0.5 に従い `_meta/runtime/<sid>/narrator-validator.json` JSON audit trail 書き込みを必須化。
+- **4 つの slash command 接続** — `/compress`（インライン圧縮、`_meta/compression/` にアーカイブ）、`/search`（`tools.session_search` による FTS5 クロスセッション検索）、`/memory`（`tools.memory` による 24-48h 短期記憶）、`/method`（`tools.skill_manager` によるメソッドライブラリ管理）。`setup-hooks.sh` が `~/.claude/commands/` にインストール。
+- **デッドコード削除** — `tools/prompt_cache.py`（118 行 0 caller、Claude Code サブスク環境では無意味）と `docs/architecture/prompt-cache-strategy.md` を削除。`docs/architecture/hermes-local.md` の関連参照を整理。
+
+マイグレーション：4 つの新しい slash command を `~/.claude/commands/` にインストールするため `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行してください。
 
 ---
 

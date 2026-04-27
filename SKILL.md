@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.7.2.3"
+version: "1.7.3"
 commit_sha: "PLACEHOLDER"
 install_date: "PLACEHOLDER"
 description: "A personal decision engine with 16 independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
@@ -121,11 +121,17 @@ Trigger words are theme-dependent. Each theme file defines its own triggers. Com
 
 Certain triggers have fixed execution templates. ROUTER must follow these verbatim.
 
-### Manual Compression (`/compress`) (v1.7.2)
+### Manual Compression (`/compress`) (v1.7.3)
 
-When the user says `/compress` or `/compress <focus>`, ROUTER treats it as a user manual compression trigger, not as a domain-analysis request. Compress earlier visible context using `tools/context_compressor.py` where available; if a focus is supplied, preserve information relevant to that focus more aggressively. Return concise feedback using `tools/manual_compression_feedback.py` semantics: message count before/after, rough token estimate before/after, and a no-op notice when nothing can be compressed.
+When the user says `/compress` or `/compress <focus>`, ROUTER treats it as a user manual compression trigger, not as a domain-analysis request. ROUTER follows the slash command spec at `~/.claude/commands/compress.md` (installed by `setup-hooks.sh` from `scripts/commands/compress.md`):
 
-`tools/context_compressor.py` is vendored from Hermes v0.11, where `context_compressor` is the rename of `trajectory_compressor`.
+1. Inventory current conversation context (turn count + rough token estimate)
+2. Identify low-value turns to archive (debug noise, content unrelated to `<focus>`, stale exploration)
+3. Always preserve last 5 turns + any turn touching SOUL / DREAM / decisions / long-term plans
+4. Write archived content (summary + recoverable original) to `_meta/compression/<sid>-compress-<ts>.md`
+5. Report: original turn count, retained count, archived to `<file>`, rough tokens released, key decisions preserved
+
+v1.7.3 removed the unused `tools/context_compressor.py` (1370 lines, 0 callers) and `tools/manual_compression_feedback.py` (51 lines, 0 callers); compression is fully inline now.
 
 ### Pre-flight Compliance Check (v1.6.3, HARD RULE)
 

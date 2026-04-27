@@ -6,6 +6,79 @@
 
 ---
 
+## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 強制起動 + 自動トリガー + archiver Phase 2 切り出し + デッドコード 4 モジュール削除
+
+> 「ツールを実際に使える状態にする」release window。3 ラウンドの反復を全て単一 v1.7.3 リリースに squash：
+>
+> 1. **v1.7.3 base (2026-04-26)**：Cortex always-on hook、4 slash commands、approval guard wired、4 dead modules removed。
+> 2. **v1.7.3 自動トリガーパッチ (2026-04-27)**：ユーザーフィードバック後、slash コマンドをバックアップモードに降格。pre-prompt-guard.sh に memory キーワード検出を追加。
+> 3. **v1.7.3 archiver 切り出し (2026-04-27)**：Phase 2 を専用 `knowledge-extractor` subagent に切り出し、80%+ の最近の archiver placeholder 違反を修正。spec 一貫性修正 + stop-session-verify LLM_FILL 検出。
+>
+> 3 ラウンド全てを単一 v1.7.3 リリースに統合（ユーザー要求：「版本号不能变，还是 1.7.3，都要在这个版本里面全部修完」）。
+
+### 追加
+
+- **Cortex always-on 強制起動 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` がプロンプト長 80 文字以上または決定キーワード検出時に `<system-reminder>` ブロック（trigger=cortex）を出力し、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制します。v1.7.2 audit が発見したサイレント degradation を修正。短い会話フィラー（「了解」「続けて」）は Cortex をスキップ。
+- **4 つの slash コマンドを Claude Code に接続**：新規 `scripts/commands/{compress,search,memory,method}.md` ソースファイル；`scripts/setup-hooks.sh` がインストール時に `~/.claude/commands/` にコピー。コマンド：
+  - `/compress [focus]` — インラインコンテキスト圧縮、`_meta/compression/<sid>-compress-<ts>.md` にアーカイブ。
+  - `/search <query>` — `tools.session_search` CLI による FTS5 クロスセッション検索。
+  - `/memory emit|read|remove|path` — `tools.memory` CLI による 24-48h 短期記憶。
+  - `/method create|update|list` — `tools.skill_manager` CLI によるメソッドライブラリ管理。
+- **Approval guard 接続 (PreToolUse Bash hook)**：新規 `scripts/hooks/pre-bash-approval.sh` が全 Bash コマンドを `tools/approval.py` にブリッジ。v1.7.2 のギャップを修正：47 個の危険コマンドパターン + hardline + tirith guards が 0 caller だった状態を解消。Hook が stdin JSON を読み、`check_dangerous_command()` を実行、exit 0（サイレント承認）または exit 2 + stderr（理由付きでブロック）。バイパス：`export LIFEOS_YOLO_MODE=1`。`life-os-pre-bash-approval` として登録（PreToolUse · matcher Bash · timeout 5s）。
+- **Memory 自動 emit 検出（自動トリガーパッチ · 2026-04-27）**：`pre-prompt-guard.sh` も中/英/日 memory キーワード（記一下 / remind me / 覚えて / TODO 等）を検出し、`<system-reminder>`（trigger=memory）を注入して ROUTER に `python -m tools.memory emit` を自動実行させ、`/memory` へのリダイレクトを防ぎます。Hook activity log に `trigger=memory` 値を追加。
+- **pro/CLAUDE.md → Auto-Trigger Rules セクション（自動トリガーパッチ · 2026-04-27）**：memory 自動 emit、compress 自動提案、search 自動トリガー（Cortex hippocampus 経由）、method 自動 create（archiver Phase 2 → knowledge-extractor 経由）を明文化。原則：「ROUTER がユーザーに slash コマンドへの切り替えを求めるのは UX バグ — 直接アクションを実行する」。
+- **knowledge-extractor subagent (Phase 2 切り出し · 2026-04-27)**：新規 `pro/agents/knowledge-extractor.md`（Opus tier、[Read, Grep, Glob, Bash, Write] tools）。7 つの Phase 2 sub-step（wiki 六基準ゲート / SOUL 変化 / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map）を実行し、7 つの永続ファイルを書きます。同時に 7 つの extraction reports を `_meta/runtime/<sid>/extraction/*.md` に書いて archiver が読み戻せるようにします。R11 audit trail を `_meta/runtime/<sid>/knowledge-extractor.json` に。理由：以前の monolithic archiver は 80%+ の placeholder 違反（最近 10+ 回の adjourn 実行が `pro/compliance/violations.md` 2026-04-25 〜 2026-04-27 に記録）があり、一回の invocation で全てを処理する必要があったため。ROUTER は archiver の前に必ず knowledge-extractor を launch する必要があります。
+
+### 変更
+
+- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` の frontmatter `tools` を `[Read]` から `[Read, Bash, Write]` に拡張；新規 "Audit Trail (R11, HARD RULE)" セクション追加、YAML 返却前に `_meta/runtime/<sid>/narrator-validator.json` の書き込みを必須化。
+- **バージョンマーカー**：`SKILL.md` frontmatter と 3 つの README badge を `1.7.3` に更新。
+- **spec ドキュメントを inline 圧縮へ更新**：`SKILL.md` Trigger Execution Templates の `/compress` セクション、`references/hard-rules-index.md` manual compression bullet、`evals/scenarios/cortex-retrieval.md` CX11 positive case を、削除された `tools/context_compressor.py` を ROUTER inline 圧縮へ置き換える形に書き換え。
+- **4 つの slash コマンドファイルをバックアップモードに降格（自動トリガーパッチ · 2026-04-27）**：各 `scripts/commands/{compress,search,memory,method}.md` の先頭に "⚠️ Backup mode" header を追加、対応する pro/CLAUDE.md Auto-Trigger Rules サブセクションへリンク。Slash コマンドは以下の用途で機能保持：(1) ユーザー精密制御、(2) 開発者スモークテスト、(3) 自動トリガー fallback。
+- **archiver.md Phase 2 切り出し + spec 一貫性修正（切り出し · 2026-04-27）**：`pro/agents/archiver.md` line 77 修正（以前の "12-section Adjourn Report Completeness Contract" は v1.7.2 旧表記、v1.7.2.3 の "6-H2" に整合）。Phase 2 spec 全面書き換え：主要パスは `knowledge-extractor` subagent へ委譲；legacy 7-sub-step inline spec は fallback として保持。`pro/CLAUDE.md` Step 10 更新：ROUTER は必ず先に `knowledge-extractor` を launch、その後 `archiver`。新 launch 順序テンプレート。
+- **stop-session-verify hook LLM_FILL 検出（切り出し · 2026-04-27）**：`scripts/hooks/stop-session-verify.sh check_phase()` 強化。以前は phase header 行の TBD / `{...}` / "placeholder" のみ検出。現在は各 phase header 後 30 行内の未充填 `<!-- LLM_FILL: ... -->` パターンと `LLM_FILL:` 文字列もスキャンし、`placeholder_phases` としてマーク。最近の archiver 違反の真の根本原因（LLM が Bash skeleton をそのまま出力して placeholder を埋めない）を捕捉。
+
+### 削除（4 つのデッドコードモジュール · 1830 行）
+
+- **`tools/prompt_cache.py` 削除**（118 行 0 caller）：Claude Code サブスクリプション環境では無意味。
+- **`tools/mcp_server.py` 削除**（227 行 0 caller 0 client 接続）：MCP stdio wrapper は client に接続されたことがない。
+- **`tools/context_compressor.py` 削除**（1370 行 0 caller）：圧縮は ROUTER inline 実行。
+- **`tools/manual_compression_feedback.py` 削除**（51 行 0 caller）：削除された compressor の出力 helper。
+- **`docs/architecture/prompt-cache-strategy.md` 削除**：削除された prompt_cache の spec doc。
+- **`docs/architecture/mcp-server.md` 削除**：削除された mcp_server の spec doc。
+- **`docs/architecture/hermes-local.md` 整理**：`related:` frontmatter から削除モジュール参照を削除；Borrow/Fork Surface モジュールリストを v1.7.3 の実際状態に書き換え（approval は wired、memory + session_search + skill_manager は保持）；`context_compressor` naming-note 段落を削除。
+
+### マイグレーション
+
+`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行して以下を完了：
+1. 4 つの新しい slash コマンドを `~/.claude/commands/` にインストール
+2. 新規 `life-os-pre-bash-approval` PreToolUse(Bash) hook を登録
+3. `pre-prompt-guard.sh` を更新（Cortex always-on + memory キーワード検出を追加）
+4. `stop-session-verify.sh` を更新（LLM_FILL 検出 + 30 行 section body スキャンを追加）
+
+インストール後、Claude が実行する全ての Bash コマンドが 47 個の危険パターンでスクリーニングされます；ブロックされた場合、stderr に 🛡️ 守門人 メッセージが表示されます。
+
+第二の脳のマイグレーションは不要。
+
+### Audit 結論（v1.7.3 final 後）
+
+v1.7.2 の全ての dead-weight 発見 + v1.7.3 archiver 違反の根本原因が close：
+- Cortex always-on：強制（hook 注入）✅
+- approval.py 47 patterns：wired（PreToolUse Bash hook）✅
+- 4 つのデッドコードモジュール削除（1830 行）✅
+- Slash コマンド接続 + 自動トリガー優先のためバックアップモードに降格 ✅
+- Memory 自動 emit：hook がキーワード検出して ROUTER 自動 emit を強制 ✅
+- archiver Phase 2 を knowledge-extractor subagent に切り出し ✅
+- archiver.md spec 内部一貫性を回復（12-section vs 6-H2 修正）✅
+- stop-session-verify LLM_FILL 検出を追加 ✅
+
+このリリース window を駆動したユーザーフィードバック：
+1. 「我为什么要用这样的方式来启动这些命令？这些命令不可以直接自动启动吗？」→ 自動トリガーパッチ
+2. 「重新检查一下上朝流程和退朝流程」→ 80%+ archiver placeholder 違反を露呈 → 切り出し
+3. 「C 还是1.7.3」+「版本号不能变，还是 1.7.3，都要在这个版本里面全部修完」→ 全変更を単一 v1.7.3 リリースに squash
+
+---
+
 ## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE skeleton ownership
 
 > Subagent D ownership patch。対象は `pro/agents/retrospective.md`、`SKILL.md`、3つの README、3つの CHANGELOG のみです。

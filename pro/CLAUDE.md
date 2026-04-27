@@ -150,29 +150,38 @@ Launch `advisor`, passing in the Summary Report + user's original message. The A
 
 ### 10. ARCHIVER agent — Archive + Knowledge Extraction + DREAM (standalone) — HARD RULE
 
-**Mandatory launch template** (ROUTER output, in the active theme's language):
+**v1.7.3 carve-out**: Phase 2 (Knowledge Extraction) is now done by a dedicated `knowledge-extractor` subagent (`pro/agents/knowledge-extractor.md`). ROUTER MUST launch knowledge-extractor BEFORE archiver. Archiver Phase 2 reads the extraction reports and emits a single-paragraph summary instead of running the 7 sub-steps inline. This carve-out closes the v1.7.2 placeholder-violation root cause (archiver was overloaded).
+
+**Mandatory launch sequence** (ROUTER output, in the active theme's language):
 ```
+🧠 [theme: extractor display name] — Pre-launching knowledge-extractor (Phase 2 carve-out)...
+[Launch knowledge-extractor subagent — wait for YAML output]
 📝 [theme: archiver display name] — Starting archive flow (4 phases)...
-[Launch archiver subagent here]
+[Launch archiver subagent here, passing knowledge-extractor's extraction_dir + YAML]
 ```
 
-ROUTER output must match this template. Any deviation is a process violation, including:
-- "Let me first check what candidates to save" — NO, archiver does that internally
+ROUTER output must match this sequence. Any deviation is a process violation, including:
+- Skipping knowledge-extractor and asking archiver to do Phase 2 inline (regression to v1.7.2 behavior — only allowed as documented fallback when host lacks Task nesting)
+- "Let me first check what candidates to save" — NO, knowledge-extractor + archiver do that internally
 - "Tell me your decision, then I'll launch DREAM/sync" — NO, split flow is forbidden
-- Listing wiki/SOUL/strategic candidates in the main context — NO, that's Phase 2's job
+- Listing wiki/SOUL/strategic candidates in the main context — NO, that's knowledge-extractor's job
 - Performing any file move, git commit, or Notion write in the main context — NO
 
-Launch `archiver` as subagent, passing in:
+Launch `knowledge-extractor` first, passing in:
+- Summary Report + Session conversation summary (key topics from ROUTER, direct-handle conversations, express analysis results, STRATEGIST summaries — everything NOT captured in the Summary Report)
+- The session id (`<sid>`)
+
+After knowledge-extractor returns its YAML output, launch `archiver` as subagent, passing in:
 - Summary Report + AUDITOR report + ADVISOR report
-- **Session conversation summary**: key topics discussed by ROUTER (including direct-handle conversations, express analysis results, STRATEGIST summaries — everything NOT captured in the Summary Report)
+- knowledge-extractor's YAML output + extraction reports directory path (`_meta/runtime/<sid>/extraction/`)
 
-The ARCHIVER subagent handles ALL session-closing operations in 4 phases end-to-end in a single invocation:
-1. **Archive**: decisions/tasks/journal → outbox
-2. **Knowledge Extraction**: scan ALL session materials for wiki + SOUL + strategic candidates. Archiver auto-writes wiki and SOUL entries when strict criteria are met (6 wiki criteria + privacy filter; SOUL criteria + low initial confidence). Users nudge post-hoc by deletion ("undo recent wiki" rolls back).
-3. **DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
-4. **Sync**: git push + Notion sync (4 specific operations)
+The ARCHIVER subagent handles the remaining 4 phases end-to-end in a single invocation:
+1. **Phase 1 · Archive**: decisions/tasks/journal → outbox
+2. **Phase 2 · Knowledge Extraction Summary**: read `_meta/runtime/<sid>/extraction/*.md` from knowledge-extractor, emit single-paragraph summary in Adjourn Report (no inline 7 sub-steps in primary path)
+3. **Phase 3 · DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
+4. **Phase 4 · Sync**: git push + Notion sync (4 specific operations)
 
-ROUTER does not interject between phases. The subagent emits the Completion Checklist when done. See `pro/agents/archiver.md` for the full specification.
+ROUTER does not interject between phases. The subagent emits the Completion Checklist when done. See `pro/agents/archiver.md` (parent spec, includes legacy fallback) and `pro/agents/knowledge-extractor.md` (Phase 2 carve-out) for the full specifications.
 
 ### 10a. Notion Sync (orchestrator, after archiver returns) — HARD RULE
 
@@ -278,6 +287,72 @@ Paste literal stdout into the archiver subagent launch payload before launch. Ar
 **Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): ROUTER skips intent clarification, enters Express analysis path directly (ROUTER launches 1-3 domains, no PLANNER/REVIEWER).
 
 **/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
+
+## Auto-Trigger Rules (v1.7.3.1 · slash commands are backup mode, auto-detect is primary)
+
+The 4 v1.7.3 slash commands (`/compress` `/search` `/memory` `/method`) are **escape-hatch backup mode** for explicit user control. The **primary path is auto-detection** — ROUTER MUST observe these triggers and act without making the user type a slash command. Asking the user to "switch to `/memory emit X=Y`" is a UX bug; just do it.
+
+### Memory auto-emit (replaces forcing the user to type `/memory emit`)
+
+When the user message matches any pattern below, ROUTER MUST run `python -m tools.memory emit "<inferred-key>=<value>"` automatically and report `📚 已入档案柜` with the inferred key + role + trigger time — do NOT redirect the user to `/memory`:
+
+- **中文**: 记一下、记下、帮我记、提醒我、我要记一下、备忘
+- **English**: remind me, remember that, note that, TODO, jot down
+- **日本語**: 覚えて、メモして、リマインド、思い出させて
+
+Key inference:
+- value contains date/time → `key=reminder:<context>`
+- value contains a decision → `key=decision:<topic>`
+- otherwise → `key=note:<context>`
+
+Role inference (for the 礼/户/刑/工/吏/兵 attribution shown in the report):
+- relationship/family/friend → 礼部
+- money/spending/income/invest → 户部
+- legal/risk/审查/decision-quality → 刑部
+- health/sleep/diet/digital infra → 工部
+- learning/branding/content/social etiquette → 礼部 (also)
+- project execution/task breakdown → 兵部
+- relationship management/team building → 吏部
+
+### Compress auto-suggest + auto-execute (replaces forcing the user to type `/compress`)
+
+ROUTER MUST proactively suggest compression when ANY of these hold:
+- Conversation has > 40 turns AND no compression in this session
+- Estimated visible-context usage > 70% (heuristic: total chars in current frame > 50,000)
+- User says one of: 太长 / 压缩 / 整理一下 / 清理上下文 / too long / compress / tidy up
+
+Suggestion format (proactive):
+
+```
+📦 当前对话已 N turns（估算 context X%）。要不要我压缩一次？
+   归档低价值 turns 到 _meta/compression/<sid>-compress-<ts>.md
+   保留：last 5 turns + SOUL/DREAM/决策相关 + <focus 关键词，如果你说>
+   [回 "压缩" / "yes" / 给我 focus 关键词 来确认]
+```
+
+Auto-execute (no user confirm) when:
+- User just said an Adjourn trigger AND estimated context > 80% — compress BEFORE launching archiver, so archiver gets a clean frame.
+
+### Search auto-trigger (already automatic via Cortex)
+
+`hippocampus` in Step 0.5 automatically calls `tools.session_search` (FTS5) for every Cortex-eligible message. ROUTER reads the retrieved sessions from the `[COGNITIVE CONTEXT]` block; the user does NOT need to type `/search`.
+
+The `/search <query>` slash command exists ONLY for: "I want to precisely search keyword X right now without going through Cortex". 95%+ of search needs are handled automatically.
+
+### Method auto-create (already automatic via archiver Phase 2)
+
+`archiver` Phase 2 auto-detects method candidates from the session (recurring decision patterns, method library hits) and writes/updates `_meta/methods/<name>.md`. ROUTER does NOT prompt the user to type `/method create`.
+
+The `/method create|update|list` slash command exists ONLY for: "I want to manually inspect or seed a specific method right now". 95%+ of method authoring is handled by archiver.
+
+### Why slash commands at all?
+
+Three legitimate use cases:
+1. **Precise control**: User wants to compress with specific focus, search a specific keyword, or seed a specific method without waiting for auto-trigger.
+2. **Audit/test**: Developer wants to verify the underlying tool works (smoke test).
+3. **Auto-trigger fallback**: If the auto-detection rules in this section fail (regex miss, ROUTER override), the user has an explicit escape hatch.
+
+If ROUTER is constantly relying on slash commands instead of auto-trigger, the auto-trigger rules need tightening — not the user's input.
 
 ## Session Binding (HARD RULE · v1.7.2.3 clarified — discussion scope ≠ data write scope)
 

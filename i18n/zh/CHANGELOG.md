@@ -6,6 +6,79 @@
 
 ---
 
+## [1.7.3] - 2026-04-26 / 2026-04-27 - Cortex 强制启动 + 自动触发 + archiver Phase 2 拆分 + 4 个死代码模块删除
+
+> "让工具真能用起来" release window。三轮迭代全部 squash 进单一 v1.7.3 release：
+>
+> 1. **v1.7.3 base (2026-04-26)**：Cortex always-on hook、4 slash commands、approval guard wired、4 dead modules removed。
+> 2. **v1.7.3 自动触发补丁 (2026-04-27)**：用户反馈后 slash commands 降级为 backup 模式。pre-prompt-guard.sh 加 memory 关键词检测。
+> 3. **v1.7.3 archiver 拆分 (2026-04-27)**：Phase 2 拆出独立 `knowledge-extractor` subagent，修复 80%+ 最近 archiver placeholder 违规。spec 一致性修复 + stop-session-verify LLM_FILL 检测。
+>
+> 三轮全部合并为单一 v1.7.3 release，按用户要求：「版本号不能变，还是 1.7.3，都要在这个版本里面全部修完」。
+
+### 新增
+
+- **Cortex always-on 强制启动 (hook 注入)**：`scripts/hooks/pre-prompt-guard.sh` 现在输出 `<system-reminder>` 块（trigger=cortex），在 prompt 长度 ≥ 80 字符或含决策关键词时强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 audit 发现的静默降级问题。短对话填充（"好"、"继续"）会跳过 Cortex。
+- **4 个 slash command 接入 Claude Code**：新增 `scripts/commands/{compress,search,memory,method}.md` 源文件；`scripts/setup-hooks.sh` 安装时复制到 `~/.claude/commands/`。命令：
+  - `/compress [focus]` — inline 上下文压缩，归档到 `_meta/compression/<sid>-compress-<ts>.md`。
+  - `/search <query>` — 基于 `tools.session_search` CLI 的 FTS5 跨 session 搜索。
+  - `/memory emit|read|remove|path` — 基于 `tools.memory` CLI 的 24-48h 短期记忆。
+  - `/method create|update|list` — 基于 `tools.skill_manager` CLI 的方法论库管理。
+- **Approval guard 接入 (PreToolUse Bash hook)**：新增 `scripts/hooks/pre-bash-approval.sh`，把每次 Bash 命令桥接到 `tools/approval.py`。修复 v1.7.2 缺口：47 个危险命令 pattern + hardline + tirith guards 之前 0 调用。Hook 读 stdin JSON，跑 `check_dangerous_command()`，exit 0（静默放行）或 exit 2 + stderr（拦截并显示原因）。绕开方式：`export LIFEOS_YOLO_MODE=1`。注册为 `life-os-pre-bash-approval`（PreToolUse · matcher Bash · timeout 5s）。
+- **Memory 自动 emit 检测（自动触发补丁 · 2026-04-27）**：`pre-prompt-guard.sh` 也检测中/英/日 memory 关键词（记一下 / remind me / 覚えて / TODO 等），注入 `<system-reminder>`（trigger=memory）强制 ROUTER 自动跑 `python -m tools.memory emit`，而不是把用户引导到 `/memory`。新增 `trigger=memory` 值到 hook activity log。
+- **pro/CLAUDE.md → Auto-Trigger Rules section（自动触发补丁 · 2026-04-27）**：明文定义 memory 自动 emit、compress 自动建议、search 自动触发（通过 Cortex hippocampus）、method 自动 create（通过 archiver Phase 2 → knowledge-extractor）。原则："如果 ROUTER 让用户切换到 slash command，那是 UX bug——直接做动作"。
+- **knowledge-extractor subagent (Phase 2 拆分 · 2026-04-27)**：新增 `pro/agents/knowledge-extractor.md`（Opus tier，[Read, Grep, Glob, Bash, Write] tools）。执行 7 个 Phase 2 sub-step（wiki 六准则审查 / SOUL 维度变化 / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map）并写 7 个持久文件。同时写 7 个 extraction reports 到 `_meta/runtime/<sid>/extraction/*.md` 供 archiver 读回。R11 audit trail 写到 `_meta/runtime/<sid>/knowledge-extractor.json`。原因：之前 monolithic archiver 有 80%+ placeholder 违规（最近 10+ 次 adjourn 在 `pro/compliance/violations.md` 2026-04-25 至 2026-04-27），因为它一次要做太多事。ROUTER 必须在 launch archiver 之前先 launch knowledge-extractor。
+
+### 变更
+
+- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` frontmatter `tools` 从 `[Read]` 扩展到 `[Read, Bash, Write]`；新增 "Audit Trail (R11, HARD RULE)" section，要求返回 YAML 前必须写 `_meta/runtime/<sid>/narrator-validator.json`。
+- **版本标记**：`SKILL.md` frontmatter 和 3 份 README badge 更新到 `1.7.3`。
+- **spec 文档更新为 inline 压缩**：`SKILL.md` Trigger Execution Templates `/compress` section、`references/hard-rules-index.md` manual compression bullet、`evals/scenarios/cortex-retrieval.md` CX11 positive case 全部重写为说 ROUTER inline 压缩，替代已删的 `tools/context_compressor.py`。
+- **4 个 slash command 文件降级为 backup mode（自动触发补丁 · 2026-04-27）**：每个 `scripts/commands/{compress,search,memory,method}.md` 开头加 "⚠️ Backup mode" header，指向对应的 pro/CLAUDE.md Auto-Trigger Rules 子段。Slash command 保留功能，用于：(1) 用户精确控制，(2) 开发者冒烟测试，(3) 自动触发 fallback。
+- **archiver.md Phase 2 拆分 + spec 一致性修复（拆分 · 2026-04-27）**：`pro/agents/archiver.md` line 77 修正（之前 "12-section Adjourn Report Completeness Contract" 是 v1.7.2 旧措辞，现在改为 v1.7.2.3 的 "6-H2"）。Phase 2 spec 完整重写：主路径委托给 `knowledge-extractor` subagent；legacy 7-sub-step inline spec 保留作 fallback。`pro/CLAUDE.md` Step 10 更新：ROUTER 必须先 launch `knowledge-extractor`，再 launch `archiver`。新 launch 顺序模板。
+- **stop-session-verify hook LLM_FILL 检测（拆分 · 2026-04-27）**：`scripts/hooks/stop-session-verify.sh check_phase()` 增强。之前只检测 phase header 行的 TBD / `{...}` / "placeholder"。现在也扫描每个 phase header 之后 30 行内的未填 `<!-- LLM_FILL: ... -->` pattern 和 `LLM_FILL:` 字符串，标记为 `placeholder_phases`。捕获最近 archiver 违规的真实根因（LLM 把 Bash skeleton 原样输出而没填占位符）。
+
+### 删除（4 个死代码模块 · 1830 行）
+
+- **`tools/prompt_cache.py` 删除**（118 行 0 调用）：Claude Code 包月场景下无意义。
+- **`tools/mcp_server.py` 删除**（227 行 0 调用 0 client 连接）：MCP stdio wrapper fork 进来但从未接入 client。
+- **`tools/context_compressor.py` 删除**（1370 行 0 调用）：压缩改由 ROUTER inline 执行。
+- **`tools/manual_compression_feedback.py` 删除**（51 行 0 调用）：已删 compressor 的输出 helper。
+- **`docs/architecture/prompt-cache-strategy.md` 删除**：已删 prompt_cache 的 spec doc。
+- **`docs/architecture/mcp-server.md` 删除**：已删 mcp_server 的 spec doc。
+- **`docs/architecture/hermes-local.md` 清理**：从 `related:` frontmatter 移除已删模块引用；重写 Borrow/Fork Surface 模块列表反映 v1.7.3 实际状态（approval 已 wired，memory + session_search + skill_manager 保留）；移除 `context_compressor` naming-note 段。
+
+### 迁移
+
+重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 完成：
+1. 安装 4 个新 slash command 到 `~/.claude/commands/`
+2. 注册新的 `life-os-pre-bash-approval` PreToolUse(Bash) hook
+3. 更新 `pre-prompt-guard.sh`（新增 Cortex always-on + memory 关键词检测）
+4. 更新 `stop-session-verify.sh`（新增 LLM_FILL 检测 + 30 行 section body 扫描）
+
+安装后，Claude 每次跑 Bash 命令都会被 47 个危险 pattern 筛查；如被拦截，stderr 中会出现 🛡️ 守门人 提示。
+
+无第二大脑迁移需求。
+
+### Audit 结论（v1.7.3 final 后）
+
+v1.7.2 所有 dead-weight 发现 + v1.7.3 archiver 违规根因都已 close：
+- Cortex always-on：强制启用（hook 注入）✅
+- approval.py 47 patterns：已 wired（PreToolUse Bash hook）✅
+- 4 个死代码模块删除（1830 行）✅
+- Slash command 接入并降级为 backup mode（自动触发为主）✅
+- Memory 自动 emit：hook 检测关键词强制 ROUTER 自动 emit ✅
+- archiver Phase 2 拆出 knowledge-extractor subagent ✅
+- archiver.md spec 内部一致性恢复（12-section vs 6-H2 修复）✅
+- stop-session-verify LLM_FILL 检测加上 ✅
+
+驱动这次 release window 的用户反馈：
+1. "我为什么要用这样的方式来启动这些命令？这些命令不可以直接自动启动吗？" → 自动触发补丁
+2. "重新检查一下上朝流程和退朝流程" → 揭示 80%+ archiver placeholder 违规 → 拆分
+3. "C 还是1.7.3" + "版本号不能变，还是 1.7.3，都要在这个版本里面全部修完" → 全部 squash 到单一 v1.7.3 release
+
+---
+
 ## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE 骨架所有权
 
 > Subagent D ownership patch。范围仅限 `pro/agents/retrospective.md`、`SKILL.md`、三份 README 和三份 CHANGELOG。

@@ -6,9 +6,6 @@ status: "normative naming note"
 last_updated: 2026-04-26
 related:
   - docs/architecture/execution-layer.md
-  - docs/architecture/prompt-cache-strategy.md
-  - docs/architecture/mcp-server.md
-  - tools/context_compressor.py
 ---
 
 # Hermes Local
@@ -42,19 +39,13 @@ Life OS does not embed the full Hermes gateway/runtime. The borrowed pieces are
 adapted for Life OS's markdown-first second-brain, host-agnostic orchestration,
 and local-only execution model.
 
-The context compression module follows the Hermes v0.11 upstream naming:
-`context_compressor` is the renamed successor of `trajectory_compressor`. Life
-OS docs and wrappers should use `tools/context_compressor.py` and avoid
-reintroducing the old `trajectory_compressor` filename as the public reference.
-
 ## Current Borrow/Fork Surface
 
 - `tools/approval.py`: dangerous-command approval patterns and approval-flow
-  structure, adapted to Life OS escalation.
-- `tools/context_compressor.py` and
-  `tools/manual_compression_feedback.py`: context compression primitives and
-  user-facing compression summaries.
-- `tools/prompt_cache.py`: prompt-cache breakpoint strategy helpers.
+  structure, adapted to Life OS escalation. **Wired in v1.7.3** to the
+  `PreToolUse(Bash)` hook via `scripts/hooks/pre-bash-approval.sh`; every
+  Bash invocation now passes through the 47 dangerous patterns + hardline +
+  tirith guards.
 - `tools/memory.py`: bounded local memory with injection/exfiltration checks.
 - `tools/session_search.py`: SQLite FTS session search adapted for Life OS
   markdown sources.
