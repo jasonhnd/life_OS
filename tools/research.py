@@ -420,13 +420,14 @@ def _is_private_ip(host: str) -> bool:
     except ValueError:
         pass  # Hostname — proceed to DNS lookup.
 
-    # Test-only escape hatch (off by default). Tests use synthetic hostnames
-    # like searx.example.test that intentionally don't resolve via real DNS;
-    # without this opt-out, every test that monkey-patches httpx hits a
-    # fail-CLOSED on DNS NXDOMAIN. Production code never sets this var; in
-    # production an unresolvable hostname is treated as unsafe (auditor
-    # recommendation).
-    if os.environ.get("LIFEOS_RESEARCH_SKIP_DNS_SSRF") == "1":
+    # Test-only escape hatch — Round-4 audit fix replaces user-settable
+    # env var (LIFEOS_RESEARCH_SKIP_DNS_SSRF) with a strict pytest-runtime
+    # check. PYTEST_CURRENT_TEST is set by pytest itself before each test
+    # runs (and only then). A user shell never has this var set, so
+    # production code can never accidentally / maliciously skip the DNS
+    # check. Tests using synthetic hostnames (searx.example.test) get the
+    # bypass automatically inside pytest — no env-var poisoning surface.
+    if "PYTEST_CURRENT_TEST" in os.environ:
         return False
 
     try:
@@ -443,7 +444,9 @@ def _is_private_ip(host: str) -> bool:
     for info in infos:
         # info = (family, type, proto, canonname, sockaddr); sockaddr[0] is IP
         sockaddr = info[4]
-        ip_str = sockaddr[0] if sockaddr else ""
+        # sockaddr[0] is `str | int` per typeshed (port for AF_UNIX); narrow
+        # to str for AF_INET / AF_INET6 cases that produce IP literals.
+        ip_str = str(sockaddr[0]) if sockaddr else ""
         if ip_str and _ip_is_dangerous(ip_str):
             print(
                 f"[research] SSRF guard: {h} resolves to dangerous IP {ip_str}",

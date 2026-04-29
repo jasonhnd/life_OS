@@ -31,7 +31,7 @@ from typing import Any
 try:
     import yaml  # type: ignore[import-untyped]
 except ImportError:  # pragma: no cover - exercised only in incomplete envs
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 logger = logging.getLogger(__name__)
 

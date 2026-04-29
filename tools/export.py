@@ -430,7 +430,7 @@ def export_anki(scope: Path, out_path: Path, *, deck_name: str) -> int:
         return 1
 
     try:
-        import genanki  # type: ignore[import-untyped]
+        import genanki
     except ModuleNotFoundError:
         print(
             "[export] genanki not installed; run `uv sync --extra export` "

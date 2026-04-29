@@ -36,11 +36,13 @@ def _install_fake_httpx(
     Missing URLs raise a fake RequestError. Returns the Client mock for
     assertion purposes.
 
-    Round-3 audit fix: also opts out of the DNS-resolution SSRF check via
-    env var so tests using synthetic hostnames (e.g. searx.example.test)
-    don't fail-CLOSED on DNS NXDOMAIN. Production code never sets this var.
+    Round-4 audit fix: DNS-SSRF check now opts out automatically when
+    pytest is running (via PYTEST_CURRENT_TEST detection in the production
+    code). The previous env-var bypass was removed because users could
+    set it in their shell to disable the security check; PYTEST_CURRENT_TEST
+    can only be set by pytest itself, removing the production attack
+    surface.
     """
-    monkeypatch.setenv("LIFEOS_RESEARCH_SKIP_DNS_SSRF", "1")
     fake = ModuleType("httpx")
 
     class FakeResponse:

@@ -52,10 +52,12 @@ research = [
     "markdownify>=0.11",
 ]
 
-# CLI entry point — dispatches to tools/{command}.py based on first arg.
-# See tools/cli.py for available subcommands.
-[project.scripts]
-life-os-tool = "tools.cli:main"
+# Round-4 audit fix: tools/cli.py was deleted in R-1.8.0-011 "100% LLM"
+# pivot. The dispatcher pattern is replaced by direct module invocation
+# (`uv run python -m tools.search`, `uv run python -m tools.export`, etc).
+# Removing the broken `life-os-tool` console script that pointed at
+# tools.cli:main (non-existent module) — `pip install` would have failed
+# the entry-point validation on a fresh clone.
 
 [project.urls]
 Homepage = "https://github.com/jasonhnd/life_OS"
@@ -83,6 +85,23 @@ python_version = "3.11"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+
+# Round-4 audit fix: optional third-party deps (notion_client / markdown_it /
+# genanki / httpx / markdownify) and optional internal modules
+# (tools.tirith_security) don't ship type stubs. Without this override the
+# CI's strict gate fails 6 errors before any real type issue is checked.
+[[tool.mypy.overrides]]
+module = [
+    "notion_client",
+    "notion_client.*",
+    "markdown_it",
+    "markdown_it.*",
+    "genanki",
+    "httpx",
+    "markdownify",
+    "tools.tirith_security",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

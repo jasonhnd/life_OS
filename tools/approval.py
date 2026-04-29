@@ -20,7 +20,9 @@ import tempfile
 import threading
 import time
 import unicodedata
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +115,7 @@ def detect_hardline_command(command: str) -> tuple[bool, str | None]:
     return False, None
 
 
-def _hardline_block_result(description: str) -> dict:
+def _hardline_block_result(description: str) -> dict[str, Any]:
     """Build the standard block result for a hardline match."""
     return {
         "approved": False,
@@ -246,7 +248,7 @@ def detect_dangerous_command(command: str) -> tuple[bool, str | None, str | None
 
 
 _lock = threading.Lock()
-_pending: dict[str, dict] = {}
+_pending: dict[str, dict[str, Any]] = {}
 _session_approved: dict[str, set[str]] = {}
 _session_yolo: set[str] = set()
 _permanent_approved: set[str] = set()
@@ -257,17 +259,20 @@ class _ApprovalEntry:
 
     __slots__ = ("event", "data", "result")
 
-    def __init__(self, data: dict):
+    def __init__(self, data: dict[str, Any]):
         self.event = threading.Event()
         self.data = data
         self.result: str | None = None
 
 
 _gateway_queues: dict[str, list[_ApprovalEntry]] = {}
-_gateway_notify_cbs: dict[str, object] = {}
+_gateway_notify_cbs: dict[str, Callable[[dict[str, Any]], None]] = {}
 
 
-def register_gateway_notify(session_key: str, cb) -> None:
+def register_gateway_notify(
+    session_key: str,
+    cb: Callable[[dict[str, Any]], None],
+) -> None:
     """Register a per-session callback for sending approval requests."""
     with _lock:
         _gateway_notify_cbs[session_key] = cb
@@ -308,7 +313,7 @@ def has_blocking_approval(session_key: str) -> bool:
         return bool(_gateway_queues.get(session_key))
 
 
-def submit_pending(session_key: str, approval: dict) -> None:
+def submit_pending(session_key: str, approval: dict[str, Any]) -> None:
     """Store a pending approval request for a session."""
     with _lock:
         _pending[session_key] = approval
@@ -422,7 +427,7 @@ def prompt_dangerous_approval(
     description: str,
     timeout_seconds: int | None = None,
     allow_permanent: bool = True,
-    approval_callback=None,
+    approval_callback: Callable[..., str] | None = None,
 ) -> str:
     """Prompt the user to approve a dangerous command."""
     if timeout_seconds is None:
@@ -430,7 +435,7 @@ def prompt_dangerous_approval(
 
     if approval_callback is not None:
         try:
-            return approval_callback(command, description, allow_permanent=allow_permanent)
+            return str(approval_callback(command, description, allow_permanent=allow_permanent))
         except Exception as exc:
             logger.error("Approval callback failed: %s", exc, exc_info=True)
             return "deny"
@@ -491,7 +496,7 @@ def prompt_dangerous_approval(
         sys.stdout.flush()
 
 
-def _normalize_approval_mode(mode) -> str:
+def _normalize_approval_mode(mode: Any) -> str:
     """Normalize approval mode values loaded from env/config."""
     if isinstance(mode, bool):
         return "off" if mode is False else "manual"
@@ -501,7 +506,7 @@ def _normalize_approval_mode(mode) -> str:
     return "manual"
 
 
-def _get_approval_config() -> dict:
+def _get_approval_config() -> dict[str, Any]:
     """Read Life OS approval settings from environment variables."""
     return {
         "mode": os.getenv("LIFEOS_APPROVAL_MODE", "manual"),
@@ -611,7 +616,11 @@ def _smart_approve(command: str, description: str) -> str:
     return "escalate"
 
 
-def check_dangerous_command(command: str, env_type: str, approval_callback=None) -> dict:
+def check_dangerous_command(
+    command: str,
+    env_type: str,
+    approval_callback: Callable[..., str] | None = None,
+) -> dict[str, Any]:
     """Check if a command is dangerous and handle approval."""
     if env_type in ("docker", "singularity", "modal", "daytona"):
         return {"approved": True, "message": None}
@@ -688,7 +697,7 @@ def check_dangerous_command(command: str, env_type: str, approval_callback=None)
     return {"approved": True, "message": None}
 
 
-def _format_tirith_description(tirith_result: dict) -> str:
+def _format_tirith_description(tirith_result: dict[str, Any]) -> str:
     """Build a human-readable description from tirith findings."""
     findings = tirith_result.get("findings") or []
     if not findings:
@@ -710,7 +719,11 @@ def _format_tirith_description(tirith_result: dict) -> str:
     return "Security scan - " + "; ".join(parts)
 
 
-def check_all_command_guards(command: str, env_type: str, approval_callback=None) -> dict:
+def check_all_command_guards(
+    command: str,
+    env_type: str,
+    approval_callback: Callable[..., str] | None = None,
+) -> dict[str, Any]:
     """Run all pre-exec security checks and return one approval decision."""
     if env_type in ("docker", "singularity", "modal", "daytona"):
         return {"approved": True, "message": None}
@@ -749,7 +762,7 @@ def check_all_command_guards(command: str, env_type: str, approval_callback=None
     # operators see that Tirith is not actually running, then continue with
     # pattern-only checks. Pattern matching alone still blocks 47+ dangerous
     # invocations and is sufficient for the documented baseline guarantees.
-    tirith_result = {"action": "allow", "findings": [], "summary": ""}
+    tirith_result: dict[str, Any] = {"action": "allow", "findings": [], "summary": ""}
     global _TIRITH_UNAVAILABLE_WARNED  # noqa: PLW0603
     try:
         from tools.tirith_security import check_command_security

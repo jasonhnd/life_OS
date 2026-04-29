@@ -53,56 +53,79 @@ def _run(output_file: Path, scenario: str, cwd: Path | None = None) -> subproces
 # ─── start-session-compliance scenario ──────────────────────────────────────
 
 
+# Round-4 audit fix: reusable full-briefing skeleton with all 6 H2 sections
+# + version markers + cortex status marker so individual tests only trigger
+# the specific failure they're asserting (instead of the catch-all
+# C (P0): briefing-completeness fail blocking every other check).
+_FULL_START_BRIEFING_BASE = (
+    "🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0\n"
+    "✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation)\n"
+    "Step 2 DIRECTORY TYPE CHECK:\n"
+    "a) 连接到 second-brain\n"
+    "b) 开发模式\n"
+    "c) 新建 second-brain\n"
+    "[Local SKILL.md version: 1.8.0]\n"
+    "[Remote check (forced fresh): up-to-date]\n"
+    "[Cortex: skipped - per-message pull mode in v1.8.0]\n"
+    "## 0. <display name> · 上朝准备\nReady\n\n"
+    "## 1. 第二大脑同步状态\nClean\n\n"
+    "## 2. SOUL Health 报告\nNo drift\n\n"
+    "## 3. DREAM / 隔夜更新\nNone\n\n"
+    "## 4. Today's Focus + 待陛下圣裁\nReady\n\n"
+    "## 5. 系统状态\nGreen\n"
+)
+
+
 class TestStartSession:
     def test_clean_output_passes(self, tmp_path: Path):
         out = tmp_path / "clean.md"
-        out.write_text(
-            "🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0\n"
-            "✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation)\n"
-            "Step 2 DIRECTORY TYPE CHECK:\n"
-            "a) 连接到 second-brain\n"
-            "b) 开发模式\n"
-            "c) 新建 second-brain\n",
-            encoding="utf-8",
-        )
+        out.write_text(_FULL_START_BRIEFING_BASE, encoding="utf-8")
         result = _run(out, "start-session-compliance")
         assert result.returncode == 0, f"stderr: {result.stderr}"
         assert "PASSED" in result.stdout
 
     def test_missing_preflight_fails(self, tmp_path: Path):
-        out = tmp_path / "no_preflight.md"
-        out.write_text(
-            "✅ I am the RETROSPECTIVE subagent\n"
-            "a) 连接到 second-brain\nb) 开发模式\n",
-            encoding="utf-8",
+        # Round-4 audit fix: A3 (preflight-check) lives in the dedicated
+        # `preflight-check` scenario, not in `start-session-compliance`'s
+        # 5-check bundle. Use the specific scenario so the assertion
+        # exercises the actual capability without coupling to which
+        # scenarios bundle which checks.
+        without_preflight = "\n".join(
+            line for line in _FULL_START_BRIEFING_BASE.splitlines()
+            if not line.startswith("🌅 Trigger")
         )
-        result = _run(out, "start-session-compliance")
+        out = tmp_path / "no_preflight.md"
+        out.write_text(without_preflight, encoding="utf-8")
+        result = _run(out, "preflight-check")
         assert result.returncode == 1
         assert "A3" in result.stderr
 
     def test_fabricated_path_detected(self, tmp_path: Path):
+        # B (fabricate-path-check) lives in the dedicated scenario,
+        # same as above.
         out = tmp_path / "fabricated.md"
         out.write_text(
-            "🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0\n"
-            "✅ I am the RETROSPECTIVE subagent\n"
-            "a) 连接到 second-brain\nb) 开发模式\n"
-            "Per _meta/roles/CLAUDE.md, we do XYZ\n",
+            _FULL_START_BRIEFING_BASE
+            + "\nPer _meta/roles/CLAUDE.md, we do XYZ\n",
             encoding="utf-8",
         )
-        result = _run(out, "start-session-compliance")
+        result = _run(out, "fabricate-path-check")
         assert result.returncode == 1
         assert "B" in result.stderr
 
     def test_fabricated_escape_phrase_detected(self, tmp_path: Path):
+        # Round-4 audit fix: denylist uses the English form
+        # "lightweight briefing path" (verified against
+        # scripts/lifeos-compliance-check.sh check_fabricate_path list).
+        # Earlier "轻量简报路径" Chinese form was a fixture artefact, never
+        # in the denylist.
         out = tmp_path / "escape.md"
         out.write_text(
-            "🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0\n"
-            "✅ I am the RETROSPECTIVE subagent\n"
-            "a) 连接到 second-brain\nb) 开发模式\n"
-            "Using the 轻量简报路径\n",
+            _FULL_START_BRIEFING_BASE
+            + "\nUsing the lightweight briefing path\n",
             encoding="utf-8",
         )
-        result = _run(out, "start-session-compliance")
+        result = _run(out, "fabricate-path-check")
         assert result.returncode == 1
         assert "B" in result.stderr
 
@@ -114,8 +137,17 @@ class TestAdjourn:
     def test_clean_adjourn_passes(self, tmp_path: Path):
         out = tmp_path / "clean.md"
         out.write_text(
+            # Round-4 audit fix: archiver adjourn checker now also requires
+            # `archiver self-check: I am the ARCHIVER subagent` line plus
+            # `## Phase 1` through `## Phase 4` H2 sections plus
+            # `## Completion Checklist` H2.
             "📝 Trigger: 退朝 → Theme: 三省六部 → Action: Launch(archiver) (4 phases)\n"
-            "✅ Adjourn Completion Checklist:\n"
+            "I am the ARCHIVER subagent\n"
+            "## Phase 1\nPhase 1 outbox: _meta/outbox/claude-20260421-1530/\n\n"
+            "## Phase 2\nwiki: 2 entries\n\n"
+            "## Phase 3\nDREAM: 0 triggers\n\n"
+            "## Phase 4\ngit: pushed (hash abc1234)\n\n"
+            "## Completion Checklist\n"
             "- Phase 1 outbox: _meta/outbox/claude-20260421-1530/\n"
             "- Phase 2 wiki: 2 entries\n"
             "- Phase 3 DREAM: 0 triggers\n"

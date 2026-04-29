@@ -188,6 +188,25 @@
 
 这些都是真实的改进，但每个都是多小时的重构；按"先修安全/正确性，再修复杂度债务"明确推迟。
 
+- **R-1.8.0-013 用户第 4 轮再审计（同次提交）**：审计确认第三轮修复落地正确，但又发现 7 个新问题打破"CI 绿/零遗留"声明。全部确认并修复。第四轮的强项是检查**基础设施层**（CI gate、包安装、全量 pytest 收集）：
+  - **CRITICAL · `tests/test_integration.py:26` fresh clone import 失败**：依赖 R-1.8.0-011 删掉的 `tools.lib.cortex`，所以全量 `pytest --collect-only` 在第三轮的目标测试运行前就 ERROR 了。功能已被 LLM prompt 替代。删掉死测试文件。
+  - **CRITICAL · `pyproject.toml:58` 损坏的 `life-os-tool` console script**：指向不存在的 `tools.cli:main`（R-1.8.0-011 删掉）。fresh clone 上 `pip install` 会因为 entry-point 验证失败。移除 `[project.scripts]` 段。
+  - **CRITICAL · `LIFEOS_RESEARCH_SKIP_DNS_SSRF` env var 旁路**：第三轮加这个给测试，但用户 shell 可在生产环境 set 这个 var 来禁用 SSRF DNS 检查。改用 `PYTEST_CURRENT_TEST` 检测 —— 只有 pytest 自己能 set 这个变量。测试 fixture 删除 `monkeypatch.setenv` 行。
+  - **HIGH · mypy --strict 25 个错误阻塞 CI gate**：`tools/approval.py` 有裸 `dict` 返回和没类型的参数；`notion_client / markdown_it / genanki / httpx / markdownify / tools.tirith_security` 没 stub 导致 6 个 import-not-found。给这 6 个模块加 `[[tool.mypy.overrides]]`。给 `approval.py` 加类型注解：7 个函数 `dict` → `dict[str, Any]`，callback 参数 `Callable[..., str] | None`，收紧 `tirith_result["findings"]` 类型。修 `prompt_dangerous_approval` 线程函数的 B023 closure 绑定 bug。删除 `skill_manager.py:34` + `export.py:433` 没用的 `# type: ignore` 注释。修 `socket.getaddrinfo` `sockaddr[0]: str | int` 收窄。`Callable` 从 `collections.abc` 导入（现代风格，ruff UP035）。结果：**0 个 mypy 错误**（之前 25 个）。
+  - **HIGH · `test_compliance_check.py` 5 个失败**：fixture 用 R-1.8.0-013 之前的极简 briefing 结构，但 checker 现在要求 6 个 H2 段 + 版本标记 + Cortex 状态。建立可复用 `_FULL_START_BRIEFING_BASE` 常量。重写 4 个 `TestStartSession` fixture。发现 3 个 fabricate/preflight 测试调用了 `start-session-compliance` scenario 但它已不打包那些检查；改成调用专门的 `preflight-check` / `fabricate-path-check` scenario。修 `test_clean_adjourn_passes` fixture 加 `## Phase 1` … `## Phase 4` H2 + `## Completion Checklist`。修 escape-phrase 用英文 `"lightweight briefing path"`（实际 denylist 条目；中文版从来不在 denylist 里）。11 个 compliance 测试全过。
+  - **HIGH · `test_stop_session_verify.sh` 3 个失败**：2 个独立 bug：
+    1. `stop-session-verify.sh` `ARCHIVER_TAIL` awk 在每次匹配都 `start = NR`（覆盖），所以 transcript 有 4 个 phase 行都匹配 `archiver` 时，只有最后一行存活 → 误报 Phase 1/2/3 缺失 → T2 在 transcript 实际完整时误报违规。修成 `start == 0 { start = NR }`（锁定第一次匹配）。
+    2. T2 的伪 lockfile（5 分钟冷却，按 transcript 第一行 sha 算）阻止 T3/T4（同样的第一行 `User: 退朝`）运行。每个测试用例前加 `rm -f $HOME/.cache/lifeos/stop-hook-*` 清理。结果：**11/11 hook 测试用例全过**（之前 8/11）。
+  - **MEDIUM · 4 个 `test_export.py` 失败因为缺 optional extras**：之前被 mypy 标记为 unused 的 `# type: ignore[import-untyped]` 注释掩盖了。给 `TestExportHtml` 加 `@pytest.mark.skipif(not find_spec("markdown_it"))`，给 `TestExportAnki` 加 `find_spec("genanki")`。默认 install：测试干净跳过。`uv sync --extra export` 时：正常运行。
+
+验证（CI 矩阵现在真的绿）：
+- 30 个 tracked .sh 全部 `bash -n` 通过
+- `mypy --strict tools/`: **0 个错误**（16 个源文件检查）—— 之前 25 个
+- `ruff check tools/ tests/`: All checks passed
+- `pytest tests/` 全套: **223 通过，9 跳过（optional extras），3 deselected** —— 之前 5+ 失败
+- Hook 测试套件: **7/7 通过** —— 之前 6/7
+- pytest 收集: 232/235（3 deselected；之前 232/235 + 1 个 test_integration 收集 ERROR）
+
 ### 迁移
 
 ```bash

@@ -25,6 +25,14 @@ TEST_NAME="stop-session-verify.sh"
 
 [ ! -f "$HOOK" ] && { echo "❌ FATAL: $HOOK missing"; exit 1; }
 
+# Round-4 audit fix: stop-session-verify.sh has a 5-minute cooldown
+# lockfile keyed by sha of first transcript line. Test cases share first
+# lines (User: 退朝 / User: adjourn) and would otherwise hit cooldown if
+# the test was run twice within 5 min. Clean any stale lockfiles before
+# the suite runs so cases run isolated. Note: production hook usage is
+# unaffected — these lockfiles only exist after this hook runs.
+rm -f "$HOME/.cache/lifeos/stop-hook-"* 2>/dev/null || true
+
 # Build a transcript file with N phases present (1-4 means "include Phase 1..N").
 mktranscript() {
   local dir="$1"; local phases="$2"; local trigger="${3:-}"
@@ -50,6 +58,7 @@ echo "T1: transcript without adjourn trigger → silent pass"
 cwd=$(test_mkdev_cwd)
 transcript=$(mktranscript "$cwd" 0 "")
 input='{"session_id":"e1","final_state":"normal","transcript_path":"'$transcript'"}'
+rm -f "$HOME/.cache/lifeos/stop-hook-"* 2>/dev/null || true
 out=$(cd "$cwd" && echo "$input" | bash "$HOOK" 2>&1)
 ec=$?
 assert_exit "$ec" 0 "silent pass"
@@ -63,6 +72,7 @@ echo "T2: adjourn + 4 phases present → compliant"
 cwd=$(test_mkdev_cwd)
 transcript=$(mktranscript "$cwd" 4 "退朝")
 input='{"session_id":"e2","final_state":"normal","transcript_path":"'$transcript'"}'
+rm -f "$HOME/.cache/lifeos/stop-hook-"* 2>/dev/null || true
 out=$(cd "$cwd" && echo "$input" | bash "$HOOK" 2>&1)
 ec=$?
 assert_exit "$ec" 0 "compliant"
@@ -76,6 +86,7 @@ echo "T3: adjourn + only Phase 1+2 → CLASS_C (archiver bailed early)"
 cwd=$(test_mkdev_cwd)
 transcript=$(mktranscript "$cwd" 2 "退朝")
 input='{"session_id":"e3","final_state":"normal","transcript_path":"'$transcript'"}'
+rm -f "$HOME/.cache/lifeos/stop-hook-"* 2>/dev/null || true
 out=$(cd "$cwd" && echo "$input" | bash "$HOOK" 2>&1)
 ec=$?
 assert_exit "$ec" 0 "always exit 0 (session ending)"
@@ -96,6 +107,7 @@ archiver Phase 3: DREAM — done
 archiver Phase 4: Sync — TBD
 EOF
 input='{"session_id":"e4","final_state":"normal","transcript_path":"'$cwd'/transcript.md"}'
+rm -f "$HOME/.cache/lifeos/stop-hook-"* 2>/dev/null || true
 out=$(cd "$cwd" && echo "$input" | bash "$HOOK" 2>&1)
 ec=$?
 assert_exit "$ec" 0 "exit 0"
@@ -108,6 +120,7 @@ echo ""
 echo "T5: missing transcript file → exit 0"
 cwd=$(test_mkdev_cwd)
 input='{"session_id":"e5","final_state":"normal","transcript_path":"'$cwd'/does-not-exist.md"}'
+rm -f "$HOME/.cache/lifeos/stop-hook-"* 2>/dev/null || true
 out=$(cd "$cwd" && echo "$input" | bash "$HOOK" 2>&1)
 ec=$?
 assert_exit "$ec" 0 "exit 0 on missing transcript"
@@ -119,6 +132,7 @@ echo "T6: English 'adjourn' in transcript → detected"
 cwd=$(test_mkdev_cwd)
 transcript=$(mktranscript "$cwd" 2 "adjourn")
 input='{"session_id":"e6","final_state":"normal","transcript_path":"'$transcript'"}'
+rm -f "$HOME/.cache/lifeos/stop-hook-"* 2>/dev/null || true
 out=$(cd "$cwd" && echo "$input" | bash "$HOOK" 2>&1)
 ec=$?
 assert_exit "$ec" 0 "exit 0"

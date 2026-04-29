@@ -168,6 +168,19 @@ class TestExportJson:
 # ─── export_html ─────────────────────────────────────────────────────────────
 
 
+# Round-4 audit fix: HTML export tests need the optional `markdown_it`
+# package (declared in pyproject.toml `[export]` extras). Skip the class
+# when it's absent so a default install (which doesn't pull extras)
+# stays green; CI jobs that install --extra export still run them.
+import importlib.util as _importlib_util  # noqa: E402
+
+_HAS_MARKDOWN_IT = _importlib_util.find_spec("markdown_it") is not None
+
+
+@pytest.mark.skipif(
+    not _HAS_MARKDOWN_IT,
+    reason="optional `markdown_it` not installed; run `uv sync --extra export`",
+)
 class TestExportHtml:
     def test_self_contained(
         self, scope_with_mixed_files: Path, tmp_path: Path
@@ -252,6 +265,13 @@ class TestExportPdf:
 # ─── export_anki (per-type mapping) ──────────────────────────────────────────
 
 
+_HAS_GENANKI = _importlib_util.find_spec("genanki") is not None
+
+
+@pytest.mark.skipif(
+    not _HAS_GENANKI,
+    reason="optional `genanki` not installed; run `uv sync --extra export`",
+)
 class TestExportAnki:
     def test_anki_file_is_apkg(
         self, scope_with_mixed_files: Path, tmp_path: Path

@@ -82,9 +82,17 @@ fi
 : > "$LOCKFILE" 2>/dev/null || true
 
 TRANSCRIPT_TAIL="$(tail -n 800 "$TRANSCRIPT_PATH" 2>/dev/null || cat "$TRANSCRIPT_PATH")"
+# Round-4 audit fix: previously this awk set `start` on every match, so
+# ARCHIVER_TAIL ended up containing only the LAST `archiver` line —
+# throwing away the Phase 1-3 lines that came BEFORE it. That made
+# `check_phase` mis-report Phase 1/2/3 as missing in transcripts where
+# all 4 phases were actually present (T2 false positive in
+# tests/hooks/test_stop_session_verify.sh) and made T3/T4 share T2's
+# lockfile via cooldown so they couldn't even run. Now `start` locks at
+# the FIRST archiver mention, capturing the full archiver section.
 ARCHIVER_TAIL="$(printf '%s\n' "$TRANSCRIPT_TAIL" | awk '
   { lines[NR] = $0 }
-  /archiver|ARCHIVER|Archiver/ { start = NR }
+  /archiver|ARCHIVER|Archiver/ && start == 0 { start = NR }
   END {
     if (start == 0) {
       start = NR - 199
