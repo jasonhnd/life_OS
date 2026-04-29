@@ -85,23 +85,43 @@ if [ -d "$MEMORY_DIR" ]; then
 fi
 
 # v1.8.0 R-1.8.0-013: Async review queue (replaces scattered notifications)
-# Read _meta/review-queue.md and count open items by priority.
+# Read _meta/review-queue.md and count open items by priority + capture latest summary.
+# Anchored regex: ^[[:space:]]*priority:[[:space:]]*P[012]\b — prevents false positives
+# from prose like `summary: "escalated because priority: P0 was missed"`.
+# Section ordering guard: do NOT count anything until ## Open items has been seen
+# (in_open starts undefined, only set to 1 when we hit the header).
 REVIEW_QUEUE_FILE="_meta/review-queue.md"
 REVIEW_QUEUE_SUMMARY=""
+REVIEW_QUEUE_LATEST=""
 if [ -f "$REVIEW_QUEUE_FILE" ]; then
   if command -v awk >/dev/null 2>&1; then
-    REVIEW_QUEUE_SUMMARY="$(awk '
-      /^## Open items/   { in_open = 1; next }
-      /^## Recently/     { in_open = 0; next }
-      in_open && /priority: P0/ { p0++ }
-      in_open && /priority: P1/ { p1++ }
-      in_open && /priority: P2/ { p2++ }
+    # Note: awk stderr deliberately NOT suppressed — surfaces parser regressions
+    # to the user via SessionStart hook log instead of silently producing empty output.
+    REVIEW_QUEUE_RAW="$(awk '
+      BEGIN { in_open = 0; latest = "" }
+      /^## Open items/         { in_open = 1; next }
+      /^## Recently resolved/  { in_open = 0; next }
+      /^## /                   { in_open = 0; next }   # any other H2 ends section
+      in_open && /^[[:space:]]*priority:[[:space:]]*P0([^0-9]|$)/ { p0++ }
+      in_open && /^[[:space:]]*priority:[[:space:]]*P1([^0-9]|$)/ { p1++ }
+      in_open && /^[[:space:]]*priority:[[:space:]]*P2([^0-9]|$)/ { p2++ }
+      in_open && latest == "" && /^[[:space:]]*summary:[[:space:]]*/ {
+        sub(/^[[:space:]]*summary:[[:space:]]*/, "", $0)
+        gsub(/^"|"$/, "", $0)
+        if (length($0) > 80) { latest = substr($0, 1, 77) "..." } else { latest = $0 }
+      }
       END {
         if (p0 + p1 + p2 > 0) {
-          printf "P0=%d / P1=%d / P2=%d (total %d open)", p0+0, p1+0, p2+0, p0+p1+p2
+          printf "P0=%d / P1=%d / P2=%d (total %d open)\t%s", p0+0, p1+0, p2+0, p0+p1+p2, latest
         }
       }
-    ' "$REVIEW_QUEUE_FILE" 2>/dev/null || true)"
+    ' "$REVIEW_QUEUE_FILE" || true)"
+    # Split on tab: counts before tab, latest after.
+    if [ -n "$REVIEW_QUEUE_RAW" ]; then
+      REVIEW_QUEUE_SUMMARY="${REVIEW_QUEUE_RAW%%	*}"
+      REVIEW_QUEUE_LATEST="${REVIEW_QUEUE_RAW#*	}"
+      [ "$REVIEW_QUEUE_LATEST" = "$REVIEW_QUEUE_RAW" ] && REVIEW_QUEUE_LATEST=""
+    fi
   fi
 fi
 
@@ -144,14 +164,19 @@ if [ -n "$REVIEW_QUEUE_SUMMARY" ]; then
   echo "## 📋 Open Review Queue (v1.8.0 R-1.8.0-013)"
   echo ""
   echo "  ${REVIEW_QUEUE_SUMMARY}"
+  if [ -n "$REVIEW_QUEUE_LATEST" ]; then
+    echo "  Latest: ${REVIEW_QUEUE_LATEST}"
+  fi
   echo ""
   echo "If user says \"看 queue\" / \"处理 queue\" / \"review queue\":"
   echo "  → Read scripts/prompts/review-queue.md and walk through items."
   echo "If user says \"看 r{id} 详情\":"
   echo "  → Read the detail_path field from that queue item and show user."
   echo "If user mentions ANY business topic, surface ONE-LINE summary first:"
-  echo "  → e.g. \"📋 You have 3 P0 items in review queue (latest: ...). Want to handle now or later?\""
+  echo "  → e.g. \"📋 You have 3 P0 items in review queue (latest: ${REVIEW_QUEUE_LATEST:-...}). Want to handle now or later?\""
   echo "  → Then proceed with their actual ask."
+  echo "Privacy filter: if any related [[person-*]] item has privacy_tier: high,"
+  echo "  redact aliases before displaying to user (per references/people-spec.md)."
   echo ""
 fi
 

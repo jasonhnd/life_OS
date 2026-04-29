@@ -75,8 +75,8 @@ Use Edit tool (NOT Write). Append rules per finding type:
 - id: r{YYYY-MM-DD}-{NNN}
   created: <ISO8601 with TZ>
   source: advisor-monthly
-  type: drift | conflict | action-item
-  priority: P0 | P1                    # P0 = regret accumulation > 3; P1 = SOUL drift / contradictory pattern
+  type: drift | conflict | action-item | outcome-unmeasured
+  priority: P0 | P1 | P2               # P0 = regret accumulation > 3; P1 = SOUL drift / contradictory pattern; P2 = comparison missing ## Outcome past 90d
   summary: <one line, max 100 chars>
   detail_path: _meta/eval-history/advisor-monthly-{YYYY-MM}.md
   related:

@@ -365,7 +365,17 @@ concepts_activated: [concept-1, concept-2]   # YAML strings, NOT wikilinks
 related: [[[concept-1]], [[wiki-entry-1]]]   # exception: explicit wikilink arrays
 ```
 
-When a frontmatter field semantically references another page (`source_session`, `superseded_by`, `related`, `concepts_linked` in people/comparison pages), use wikilink syntax for Obsidian navigability.
+When a frontmatter field semantically references another page, use wikilink syntax for Obsidian navigability. Canonical exception fields:
+
+- `provenance.source_sessions` (plural array, on `_meta/concepts/*.md` + `_meta/methods/*.md` — multiple historical sessions)
+- `source_session` (singular scalar, on `_meta/comparisons/*.md` — the one session that produced the decision)
+- `outgoing_edges[].target` (on `_meta/concepts/*.md`)
+- `superseded_by` (on `_meta/comparisons/*.md` — single follow-up comparison)
+- `related` (array, on multiple page types)
+- `concepts_linked` (array, on `_meta/people/*.md` + `_meta/comparisons/*.md`)
+- `soul_dimensions_linked` (array, on `_meta/people/*.md`)
+
+The plural-vs-singular distinction (`source_sessions` vs `source_session`) is semantic: concepts/methods accumulate evidence across many sessions; a comparison records one decision moment.
 
 ### Existing content migration
 

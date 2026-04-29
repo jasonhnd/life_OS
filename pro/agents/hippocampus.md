@@ -105,7 +105,7 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
      3 × direct_link_count(candidate, current)        # [[wikilinks]] from candidate to current's referenced pages (Grep for [[<id>]])
    + 4 × source_overlap_count(candidate, current)     # shared concepts_activated entries
    + 2 × common_neighbor_count(candidate, current)    # simplified Adamic-Adar (count, no log)
-   + 1 × type_affinity(candidate, current)            # 1.0 same type / 0.5 related (concept↔wiki/person) / 0.0 unrelated
+   + 1 × type_affinity(candidate, current)            # 1.0 same type / 0.5 related (concept↔wiki, concept↔person, concept↔method, wiki↔method, person↔comparison) / 0.0 unrelated
    ```
    Page types per `references/wiki-spec.md` § Page Taxonomy: concept / people / comparison / method / wiki / session / snapshot.
 5. Cap: Wave 2 adds at most **3 sessions** total. No exceptions.

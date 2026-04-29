@@ -150,7 +150,7 @@ From Wave 1 sessions, expand along the **concept graph** to find related session
    - **direct_link_count**: number of `[[wikilinks]]` from candidate body/frontmatter to current message's referenced pages (Grep candidate file for `[[<id>]]` patterns)
    - **source_overlap_count**: number of `concepts_activated` shared between candidate's session and current message's inferred concepts
    - **common_neighbor_count**: simplified Adamic-Adar — count of concepts that appear in both candidate's `outgoing_edges` and current's referenced concept set. (Original Adamic-Adar uses `1/log(degree)` but LLM cannot reliably compute log; we use plain count.)
-   - **type_affinity**: 1.0 if candidate page type == current message's primary referenced page type (e.g., both about a person, both comparisons); 0.5 if related (concept ↔ wiki, concept ↔ person); 0.0 otherwise. Page types per `references/wiki-spec.md` § Page Taxonomy.
+   - **type_affinity**: 1.0 if candidate page type == current message's primary referenced page type (e.g., both about a person, both comparisons); 0.5 if related — pairs in the related set are: `concept ↔ wiki`, `concept ↔ person`, `concept ↔ method`, `wiki ↔ method`, `person ↔ comparison`; 0.0 otherwise. Page types per `references/wiki-spec.md` § Page Taxonomy.
 
 **Why these weights**: source_overlap (×4) dominates because shared sessions = strong evidence of co-relevance. direct_link (×3) is high-precision but lower-recall. common_neighbor (×2) catches indirect via concept graph. type_affinity (×1) is a tie-breaker.
 

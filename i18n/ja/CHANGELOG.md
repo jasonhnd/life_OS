@@ -117,6 +117,16 @@
   - **修正 prompt（5 メンテナンス + 2 新規）**：5 つの v1.8.0 メンテナンス prompt（`auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `archiver-recovery.md` / `eval-history-monthly.md`）すべてに「v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)」セクションとソース固有 YAML テンプレートを追加。新規 `scripts/prompts/review-queue.md`（借用 3 のウォーカー）と `scripts/prompts/migrate-to-wikilinks.md`（既存コンテンツの全量 wikilink 移行、ユーザー選択 4「全，完整」に対応）。
   - **修正ツール（1）**：`tools/seed.py` —— 3 つの新規 `META_GITKEEP_DIRS`（`_meta/people`、`_meta/comparisons`、`_meta/review-queue/archive`）、定数 `_REVIEW_QUEUE` / `_OBSIDIAN_APP_JSON` / `_OBSIDIAN_CORE_PLUGINS` / `_OBSIDIAN_GITIGNORE`、関数 `_write_obsidian_vault(target)` を `_seed_scaffolding()` に接続。スモークテスト合格。
   - **修正 hook（1）**：`scripts/hooks/session-start-inbox.sh` —— `_meta/review-queue.md` の `## Open items` セクションを awk でパースし P0/P1/P2 別カウント；SessionStart system-reminder に `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>. Say "看 queue" to walk through.` を出力。
+  - **R-1.8.0-013 セルフ監査修正（同コミット）**：並列 agent 監査で 7 つの実バグを発見、ユーザー原文「全部干完，不要再留任何 bug 了」に従い同リリース内ですべて修正：
+    - **HIGH · awk priority 正規表現が未アンカー** —— パターン `/priority: P0/` が `summary: "因为 priority: P0 上周没处理"` のような本文プローズにマッチして二重カウント。`^[[:space:]]*priority:[[:space:]]*P0([^0-9]|$)` にアンカー（GNU awk の `\b` ワード境界に依存しない）。スペース無し（`priority:P0`）、複数スペース（`priority:    P0`）の variant も正しく扱う。
+    - **HIGH · CHANGELOG が session-start hook 出力に `Latest: <summary>` を約束していたが hook はカウントのみ出力** —— awk を拡張して最新 open 項目の最初の `summary:` を捕獲、80 文字で切詰、`Latest: ${REVIEW_QUEUE_LATEST}` 行で出力。bash で tab 分離。`[[person-*]]` 項目で `privacy_tier: high` の場合のプライバシーフィルター注記追加。
+    - **HIGH · `source_session(s)` フィールド名の単複不一致** —— `references/comparison-spec.md`（単数、決定の瞬間）と `references/concept-spec.md`（複数、累積する証拠）の命名違い。`references/wiki-spec.md` 例外フィールドリストで意味的区別を明記、`pro/agents/archiver.md` + `pro/agents/knowledge-extractor.md` を両方の名前と各 cardinality の理由を引用するよう同期。
+    - **HIGH · 4 シグナル `type_affinity` の related 集合が不足** —— CHANGELOG は `concept↔wiki/person/method` を引用したが spec + agent は `concept↔wiki, concept↔person` のみ。すべてを `concept ↔ wiki, concept ↔ person, concept ↔ method, wiki ↔ method, person ↔ comparison` に揃えた。
+    - **MEDIUM · advisor-monthly に `outcome-unmeasured` type enum 欠落** —— type リストに追加 + priority 拡張で P2 を含む（comparison-spec の outcome-tracking フローで「90 日経過しても comparison に ## Outcome なし」を検出するため）。
+    - **MEDIUM · awk エラーの暗黙呑み込み** —— awk コマンドから `2>/dev/null` を削除、パーサ回帰エラーを SessionStart hook log に浮上させる（暗黙的に空文字列を出力するのではなく）。新規 vault のファイル不在は `|| true` で引き続きカバー。
+    - **LOW · pre-prompt-guard の 2 hook ブロックが同時発火** —— REVIEW_QUEUE + MIGRATE_WIKILINKS 両方のキーワードを含むメッセージで 2 つの競合する `<system-reminder>` を注入。両ブロックに `[ "$ACTIVITY_REMINDER" != "yes" ]` first-match-wins ガードを追加。
+    - **LOW · `_OBSIDIAN_GITIGNORE` 定数名が repo ルートの `_GITIGNORE` と重複** —— `tools/seed.py` 244 行目に vault 内部のものであることを inline コメントで明記。
+    - **LOW · トリガーキーワードリストが hook + pro/CLAUDE.md + walker prompt の間でドリフト** —— `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE を canonical source に指定、CLAUDE.md と `scripts/prompts/review-queue.md` をそれに合わせる。
 
 ### マイグレーション
 

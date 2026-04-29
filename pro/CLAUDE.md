@@ -302,10 +302,12 @@ The pre-prompt-guard hook injects a `<system-reminder>` (`trigger=monitor`) when
 
 When the user message matches any of the following patterns, ROUTER MUST read `scripts/prompts/review-queue.md` and execute the walker — do NOT ignore or treat as info-only:
 
-- **中文**: 处理 queue、看 queue、走一遍 queue、今天有什么要处理的、有什么要我决定的、review 队列
-- **English**: process queue, walk queue, review queue, what needs my attention, queue walk
+Canonical keyword list (must match `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE; if you change one, change both):
 
-The session-start-inbox hook surfaces queue counts as `📋 Review queue: N P0 / M P1 / K P2 open` in `<system-reminder>`. ROUTER mentions this in one short sentence in the first response — but does NOT auto-walk; user explicitly invokes via the keywords above.
+- **中文**: 处理 queue / 处理queue / 看 queue / 看queue / 走一遍 queue / 今天有什么要处理的 / 有什么要我决定的 / queue 处理 / review 队列
+- **English**: review queue / process queue / walk queue / queue walk
+
+The session-start-inbox hook surfaces queue counts as `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>` in `<system-reminder>`. ROUTER mentions this in one short sentence in the first response — but does NOT auto-walk; user explicitly invokes via the keywords above.
 
 When user says "add to queue" / "track this" / "把这个加到 queue", ROUTER triggers the same prompt's "Add item" sub-flow.
 

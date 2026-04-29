@@ -173,7 +173,7 @@ When writing persistent files in Phase 2, mirror the routing + wikilink rules fr
 - Procedure → `_meta/methods/<id>.md`
 - General fact → `wiki/<slug>.md`
 
-**B. Wikilinks**: All body cross-references use `[[]]`. Frontmatter arrays remain plain YAML for IDs (`concepts_activated:`), but reference fields (`outgoing_edges:`, `concepts_linked:`, `source_session:`, `superseded_by:`, `related:`) use wikilink syntax `target: "[[id]]"`.
+**B. Wikilinks**: All body cross-references use `[[]]`. Frontmatter arrays remain plain YAML for IDs (`concepts_activated:`), but reference fields use wikilink syntax: `outgoing_edges[].target`, `provenance.source_sessions` (plural, concepts/methods), `source_session` (singular, comparisons), `concepts_linked`, `superseded_by`, `related`, `soul_dimensions_linked`. See `references/wiki-spec.md` "Page Taxonomy + Wikilink Convention" for the canonical list.
 
 **C. Slug determinism**: same canonical name → same slug across runs. Lowercase + hyphenate ASCII, pinyin transliteration for Chinese when reliable, SHA-1 hash of canonical name (first 10 chars) as fallback.
 

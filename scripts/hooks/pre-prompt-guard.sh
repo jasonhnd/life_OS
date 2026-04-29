@@ -160,7 +160,10 @@ MONITOR_EOF
 # scripts/prompts/review-queue.md handles all action items in _meta/review-queue.md.
 # No slash command — natural language is the only path.
   REVIEW_QUEUE_RE='(处理 queue|处理queue|看 queue|看queue|走一遍 queue|今天有什么要处理的|有什么要我决定的|review queue|process queue|walk queue|queue walk|queue 处理|review 队列)'
-  if printf '%s' "$PROMPT" | grep -qiE "$REVIEW_QUEUE_RE"; then
+  # Mutual exclusion guard: if a previous block (memory/monitor) already fired,
+  # do NOT also fire review-queue / wikilink-migration — ROUTER would receive
+  # two competing <system-reminder> blocks. First match wins.
+  if [ "$ACTIVITY_REMINDER" != "yes" ] && printf '%s' "$PROMPT" | grep -qiE "$REVIEW_QUEUE_RE"; then
     ACTIVITY_TRIGGER="review-queue"
     ACTIVITY_REMINDER="yes"
     cat <<'REVIEW_QUEUE_EOF'
@@ -191,7 +194,8 @@ REVIEW_QUEUE_EOF
 # Borrowed from llm_wiki [[wikilinks]]. Migrates legacy plain-text refs
 # to Obsidian wikilinks across wiki/, _meta/concepts/, _meta/sessions/, etc.
   MIGRATE_WIKILINKS_RE='(迁移 wikilinks|迁移wikilinks|跑迁移|把老内容都改成 wikilinks|migrate to wikilinks|link migration|wikilink migration|run wikilink migration)'
-  if printf '%s' "$PROMPT" | grep -qiE "$MIGRATE_WIKILINKS_RE"; then
+  # First-match-wins guard (see comment above REVIEW_QUEUE_RE).
+  if [ "$ACTIVITY_REMINDER" != "yes" ] && printf '%s' "$PROMPT" | grep -qiE "$MIGRATE_WIKILINKS_RE"; then
     ACTIVITY_TRIGGER="migrate-to-wikilinks"
     ACTIVITY_REMINDER="yes"
     cat <<'MIGRATE_WIKILINKS_EOF'

@@ -5,9 +5,11 @@
 
 ## Trigger keywords
 
-- `处理 queue` / `看 queue` / `review queue` / `walk queue`
-- `今天有什么要处理的` / `what needs my attention`
-- session-start-inbox hook reports `📋 Review queue: N P0 / M P1 / K P2 open` and user says "处理"
+Canonical list (kept in sync with `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE):
+
+- 中文: `处理 queue` / `处理queue` / `看 queue` / `看queue` / `走一遍 queue` / `今天有什么要处理的` / `有什么要我决定的` / `queue 处理` / `review 队列`
+- English: `review queue` / `process queue` / `walk queue` / `queue walk`
+- session-start-inbox hook reports `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>` and user says "处理"
 
 ## Context
 

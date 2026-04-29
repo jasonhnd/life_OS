@@ -241,6 +241,8 @@ _OBSIDIAN_CORE_PLUGINS = """[
 """
 
 
+# NOTE: written to .obsidian/.gitignore (the Obsidian-vault-internal one),
+# distinct from _GITIGNORE at line 39 which is the repo-root .gitignore.
 _OBSIDIAN_GITIGNORE = """# Obsidian local state (per-device, do not sync)
 workspace.json
 workspace-mobile.json

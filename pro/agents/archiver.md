@@ -143,7 +143,7 @@ Privacy filter applies BEFORE routing (per each spec). If candidate is person bu
 
 **B. Wikilinks — all body cross-references use `[[]]`**:
 
-Replace plain text references like `see strong-rule-consciousness` with `[[强规则意识]]`. Frontmatter arrays stay YAML strings; only the `outgoing_edges`, `source_session`, `superseded_by`, `related`, `concepts_linked` (in people/comparison) frontmatter fields use wikilink format.
+Replace plain text references like `see strong-rule-consciousness` with `[[强规则意识]]`. Frontmatter arrays stay YAML strings; only these reference fields use wikilink format: `outgoing_edges[].target`, `provenance.source_sessions` (plural, on concepts/methods), `source_session` (singular, on comparisons), `superseded_by`, `related`, `concepts_linked` (people/comparison), `soul_dimensions_linked` (people). See `references/wiki-spec.md` "Page Taxonomy + Wikilink Convention" for the canonical list.
 
 Examples:
 ```yaml

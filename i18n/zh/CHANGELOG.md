@@ -117,6 +117,16 @@
   - **修改 prompt（5 维护 + 2 新）**：5 个 v1.8.0 维护 prompt（`auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `archiver-recovery.md` / `eval-history-monthly.md`）都加了 "v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)" 段和源特定 YAML 模板。新增 `scripts/prompts/review-queue.md`（借鉴 3 的走读器）和 `scripts/prompts/migrate-to-wikilinks.md`（全量迁移老内容到 wikilink，对应用户选 4 "全，完整"）。
   - **修改工具（1）**：`tools/seed.py` —— 新增 3 个 `META_GITKEEP_DIRS`（`_meta/people`、`_meta/comparisons`、`_meta/review-queue/archive`）、常量 `_REVIEW_QUEUE` / `_OBSIDIAN_APP_JSON` / `_OBSIDIAN_CORE_PLUGINS` / `_OBSIDIAN_GITIGNORE`、函数 `_write_obsidian_vault(target)` 接入 `_seed_scaffolding()`。冒烟测试通过。
   - **修改 hook（1）**：`scripts/hooks/session-start-inbox.sh` —— 新增 awk 解析 `_meta/review-queue.md` `## Open items` 段，按 P0/P1/P2 分级计数；SessionStart system-reminder 输出 `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>. Say "看 queue" to walk through.`。
+  - **R-1.8.0-013 自审修复（同次提交）**：并行 agent 审查发现 7 个真实 bug，全部修复在同一发版（用户原话「全部干完，不要再留任何 bug 了」）：
+    - **HIGH · awk priority 正则未锚定** —— 模式 `/priority: P0/` 会匹配正文中如 `summary: "因为 priority: P0 上周没处理"` 的字串导致重复计数。锚定为 `^[[:space:]]*priority:[[:space:]]*P0([^0-9]|$)`（不依赖 GNU awk 的 `\b` 词边界）。同时正确处理无空格（`priority:P0`）和多空格（`priority:    P0`）变体。
+    - **HIGH · CHANGELOG 承诺 session-start hook 输出 `Latest: <summary>` 但 hook 只输出计数** —— awk 扩展为捕获最新 open 项的第一个 `summary:` 字段，截断到 80 字符，通过 `Latest: ${REVIEW_QUEUE_LATEST}` 行输出。bash 用 tab 分隔符切分。新增 `[[person-*]]` 项 `privacy_tier: high` 的隐私过滤提示。
+    - **HIGH · `source_session(s)` 字段单复数不一致** —— `references/comparison-spec.md`（单数，一个决策时刻）和 `references/concept-spec.md`（复数，累积证据）字段命名不同。在 `references/wiki-spec.md` 例外字段列表中明确语义差异，同步 `pro/agents/archiver.md` + `pro/agents/knowledge-extractor.md` 同时引用两个字段名并说明各自的 cardinality 理由。
+    - **HIGH · 4 信号 `type_affinity` related 集合不全** —— CHANGELOG 提到 `concept↔wiki/person/method` 但 spec + agent 只写 `concept↔wiki, concept↔person`。统一到：`concept ↔ wiki, concept ↔ person, concept ↔ method, wiki ↔ method, person ↔ comparison`。
+    - **MEDIUM · advisor-monthly 缺 `outcome-unmeasured` 类型枚举** —— 加入 type 列表 + 扩展 priority 包含 P2（用于 comparison-spec 的 outcome-tracking 流程检测「过 90 天 comparison 仍无 ## Outcome」）。
+    - **MEDIUM · awk 错误静默吞掉** —— 去掉 awk 命令的 `2>/dev/null`，让解析器回归错误浮到 SessionStart hook log，而不是静默输出空字符串。新建 vault 文件不存在时仍由 `|| true` 保留。
+    - **LOW · pre-prompt-guard 两个 hook 块同时触发** —— 同时含 REVIEW_QUEUE + MIGRATE_WIKILINKS 关键词的消息会注入两个相互竞争的 `<system-reminder>`。两个块都加 `[ "$ACTIVITY_REMINDER" != "yes" ]` first-match-wins 守卫。
+    - **LOW · `_OBSIDIAN_GITIGNORE` 常量命名与 repo 根的 `_GITIGNORE` 重叠** —— `tools/seed.py` line 244 加 inline 注释说明它是 vault 内部那个。
+    - **LOW · 触发关键词列表在 hook + pro/CLAUDE.md + walker prompt 之间漂移** —— 指定 `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE 为权威源，更新 CLAUDE.md 和 `scripts/prompts/review-queue.md` 对齐。
 
 ### 迁移
 
