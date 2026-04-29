@@ -211,17 +211,47 @@ class NotionClient:
         page_id = first.get("id")
         return page_id if isinstance(page_id, str) else None
 
+    # Notion's API rejects rich_text.content > 2000 chars per object.
+    # We chunk at 1900 to leave headroom for any per-block metadata.
+    _NOTION_RICH_TEXT_MAX = 1900
+
     @staticmethod
     def _body_to_children(body: str) -> list[dict[str, Any]]:
-        """Convert a plain-text body into a single paragraph block."""
+        """Convert a plain-text body into one or more paragraph blocks.
+
+        Round-3 audit fix: previously wrapped the entire body in a single
+        rich_text object. Notion API limits rich_text.content to 2000 chars,
+        so any body longer than that silently failed to sync. Now chunks
+        the body at paragraph boundaries (or hard-splits at the chunk size
+        when a single paragraph is itself too long) and emits one paragraph
+        block per chunk.
+        """
+        max_chunk = NotionClient._NOTION_RICH_TEXT_MAX
+        chunks: list[str] = []
+
+        # Empty body → emit one empty paragraph (matches old behavior).
+        if not body:
+            chunks = [""]
+        else:
+            # First split on existing paragraph breaks to keep semantic units
+            # together when possible.
+            for paragraph in body.split("\n\n"):
+                if len(paragraph) <= max_chunk:
+                    chunks.append(paragraph)
+                else:
+                    # Hard-split: walk the paragraph in max_chunk-sized slices.
+                    for i in range(0, len(paragraph), max_chunk):
+                        chunks.append(paragraph[i : i + max_chunk])
+
         return [
             {
                 "object": "block",
                 "type": "paragraph",
                 "paragraph": {
-                    "rich_text": [{"type": "text", "text": {"content": body}}]
+                    "rich_text": [{"type": "text", "text": {"content": chunk}}]
                 },
             }
+            for chunk in chunks
         ]
 
     def _translate(self, exc: BaseException) -> None:

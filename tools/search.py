@@ -41,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from tools.lib.config import load_config  # noqa: E402
+from tools.lib.config import ConfigError, load_config  # noqa: E402
 from tools.lib.second_brain import load_markdown  # noqa: E402
 
 # ─── Constants ──────────────────────────────────────────────────────────────
@@ -292,14 +292,14 @@ def main(argv: list[str] | None = None) -> int:
 
     # Config resolves recency_boost_days; falls back to default 90 when no
     # .life-os.toml is present (load_config is defensive about missing files).
-    # R-1.8.0-013 deep-audit fix: only swallow the specific config-loading
-    # exceptions, log to stderr so a corrupt config is visible. Previously
-    # bare `except Exception` hid everything including ImportErrors and
-    # AttributeErrors (real bugs in config loader).
+    # Round-3 audit fix: catch the project's own ConfigError (semantic
+    # signal for "config malformed/missing") plus FileNotFoundError (file
+    # genuinely absent). Other exceptions (ImportError / AttributeError /
+    # bugs in config loader) propagate so the user sees them.
     try:
         cfg = load_config(root)
         recency_boost_days = cfg.search_recency_boost_days
-    except (FileNotFoundError, OSError, ValueError, KeyError) as exc:
+    except (ConfigError, FileNotFoundError) as exc:
         print(
             f"[search] config load failed ({type(exc).__name__}: {exc}); "
             "using default recency_boost_days=90",

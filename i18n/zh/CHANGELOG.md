@@ -157,6 +157,37 @@
 
 净：11 文件修改，2 文件删除（seed_concepts.py + test）。所有之前的 hook 测试仍然通过。3 个之前就存在的 `test_stop_session_verify.sh` 失败未变（最近一次改在 v1.7.3，与本次审查无关）。
 
+- **R-1.8.0-013 用户第三轮审查（同次提交）**：用户在 HEAD `d7639fc` 上做了第三轮独立审查，发现 7 个之前 1/2 轮没抓到的问题。全部确认并修复。第三轮的强项是攻击第二轮安全/解析修复的**边界**：
+  - **CRITICAL · `tools/lib/second_brain.py:60` CRLF frontmatter 被忽略**：parser 用字面 `content.startswith("---\n")` 拒绝 Windows CRLF 行尾的文件 —— 它们被当成"无 frontmatter"，body=完整文件。已实测验证。改成正则 `^---[ \t]*\r?\n(.*?)\r?\n---[ \t]*\r?\n` 接受 LF/CRLF/混合 + 围栏后的尾部空白。在 `tests/test_second_brain.py` 加 4 个回归测试（CRLF parsed、CRLF no-frontmatter、混合行尾、围栏尾空白）—— 25 个 frontmatter 测试全过。
+  - **CRITICAL · `tools/research.py:381` SSRF guard 不解析 DNS**：之前的修复只检查字面 IP 和 hostname denylist，所以 `internal.corp.example` 指向 `10.0.0.1` 会通过。加 `socket.getaddrinfo()` 解析 + 对每条 A/AAAA 记录做 IP 检查。DNS 失败（NXDOMAIN/timeout）当作**不安全**处理（fail-CLOSED 加 stderr 提示）。测试用合成 hostname 通过 `LIFEOS_RESEARCH_SKIP_DNS_SSRF=1` 环境变量旁路（生产代码永不设置）。
+  - **CRITICAL · `tools/research.py:354` 重定向链旁路**：`httpx.Client(follow_redirects=True)` 意味着只有原始 URL 跑 SSRF 检查；公网 URL 302→ 内网 IP 完全旁路。改成 `follow_redirects=False`，在 `_fetch_text` 里手动遍历 Location 头（最多 5 跳），每跳重跑 `_is_safe_url()`。相对重定向通过 `urljoin` 解析。
+  - **CRITICAL · `tools/research.py:452` resp.text 把整个 body 加载到内存**：之前的 max_bytes 截断发生在 httpx 把整个响应加载到内存**之后** —— 对内存保护毫无用处。重写 `_fetch_text` 用 `client.stream()` + 字节计数器在 stream 中途到 `max_bytes` 就停。测试用的 FakeClient 没有 `.stream()`，落到非流式分支（仍由 post-load 截断兜底）—— 安全因为 mock 返回小的合成 body。
+  - **CRITICAL · `scripts/hooks/pre-bash-approval.sh:75` missing-source fail-OPEN**：`tools/approval.py` 在任何候选路径都找不到时，hook exit 0（=放行）。我第二轮的修复辩称这是"不能强制不存在的 guard"；审计正确反驳 —— **缺失安全源就是 critical 状态**。改成 fail-CLOSED 加完整诊断（搜索过哪些路径、通过 `setup-hooks.sh` 怎么补救、`LIFEOS_YOLO_MODE=1` 紧急通道）。新增 `tests/hooks/test_pre_bash_approval.sh` 6 个测试用例（safe / hardline / empty / malformed JSON / missing source fail-CLOSED / YOLO bypass）—— 9 个断言全过。
+  - **WARNING · `tools/search.py:302` 异常不够语义化**：之前的修复收紧到 `(FileNotFoundError, OSError, ValueError, KeyError)`，但项目有自己的 `ConfigError` 类作为"config 损坏"的标准信号。改成 `except (ConfigError, FileNotFoundError)` —— config loader 的真实 bug（ImportError、AttributeError）现在传播让用户能看到。
+  - **WARNING · `tools/lib/notion.py:215` rich_text > 2000 字符静默失败**：`_body_to_children` 把整个 body 包进一个 rich_text 对象，但 Notion API 对每个对象的 content 拒绝 > 2000 字符。长 body 同步静默失败。加段落边界分块到 1900 字符（段落本身超过就硬切），每块发一个 paragraph block。空 body 仍然发一个空 paragraph（匹配老行为）。新常量 `_NOTION_RICH_TEXT_MAX = 1900`。
+
+验证：
+- 18 个 tracked .sh 全部 `bash -n` 通过
+- Ruff baseline: All checks passed
+- `pytest tests/test_research.py`（28 测试）+ `test_second_brain.py`（25 测试）+ `test_sync_notion.py`（14 测试）= 67 通过
+- Hook 测试套件：6/7 通过（唯一失败 `test_stop_session_verify` 是 v1.7.3 起就存在的 pre-existing 失败，未变）
+- 新 `tests/hooks/test_pre_bash_approval.sh`: 9/9 断言通过
+
+架构层面备注（推迟 —— 审计中提及但不在本轮范围）：
+- `tools/approval.py:713` 224 行 god function 拆 5 层
+- 2 个 hook 重复的 session discovery → `_lib.sh` 帮助函数
+- `tools/lib/config.py:137` 119 行 load_config 拆分
+- `evals/run-tool-eval.sh:223` frontmatter `eval`（用 repo-trust scope 缓解，未移除）
+- research/notion 的 `Any` types → `Protocol` 定义
+- `ApprovalDecision` TypedDict
+- `tools/search.py:212` SQLite/FTS sessions index
+- `tools/export.py:210` streaming generator
+- `--notion-token-stdin` UX 改进
+- Hook JSON parser 去重
+- `setup-hooks.sh:310` SKILL.md install meta 分离
+
+这些都是真实的改进，但每个都是多小时的重构；按"先修安全/正确性，再修复杂度债务"明确推迟。
+
 ### 迁移
 
 ```bash

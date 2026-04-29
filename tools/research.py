@@ -348,10 +348,13 @@ class _RobotsCache:
 
 
 def _open_client(httpx_mod: Any, *, user_agent: str) -> Any:
+    # Round-3 audit fix: follow_redirects=False so we manually walk Location
+    # headers and re-run _is_safe_url on each hop (otherwise a public URL
+    # 302→ private IP bypasses the SSRF guard entirely).
     return httpx_mod.Client(
         headers={"User-Agent": user_agent},
         timeout=10.0,
-        follow_redirects=True,
+        follow_redirects=False,
     )
 
 
@@ -367,23 +370,12 @@ _SSRF_DENY_HOSTS = frozenset({
 })
 
 
-def _is_private_ip(host: str) -> bool:
-    """Return True if host resolves to a private / loopback / link-local IP.
-
-    Covers IPv4 RFC1918, IPv4 loopback (127/8), IPv4 link-local (169.254/16),
-    IPv4 cloud metadata, IPv6 ::1 / fc00::/7 / fe80::/10. Hostnames in the
-    deny set are checked literally (case-insensitive).
-    """
+def _ip_is_dangerous(ip_str: str) -> bool:
+    """True if the literal IP string is private / loopback / link-local / etc."""
     import ipaddress
-    h = host.lower().strip("[]")
-    if h in _SSRF_DENY_HOSTS:
-        return True
     try:
-        ip = ipaddress.ip_address(h)
+        ip = ipaddress.ip_address(ip_str)
     except ValueError:
-        # Not a literal IP — could still be a hostname pointing at one,
-        # but DNS resolution adds latency + TOCTOU. We rely on the literal
-        # checks above for hostnames; this catches direct IP literals only.
         return False
     return (
         ip.is_private
@@ -395,10 +387,78 @@ def _is_private_ip(host: str) -> bool:
     )
 
 
+def _is_private_ip(host: str) -> bool:
+    """Return True if host (literal IP or hostname) resolves to a dangerous IP.
+
+    Round-3 audit fix: previously only checked literal IPs. Now also performs
+    DNS resolution for hostnames so `internal.corp.example` pointing at
+    10.0.0.1 is blocked. DNS lookups can fail (NXDOMAIN, timeout); on failure
+    we conservatively block (fail-closed — better to skip a potentially-safe
+    URL than fetch a potentially-internal one).
+
+    Covers IPv4 RFC1918, IPv4 loopback (127/8), IPv4 link-local (169.254/16),
+    IPv4 cloud metadata, IPv6 ::1 / fc00::/7 / fe80::/10. Hostnames in the
+    explicit deny set are checked literally (case-insensitive).
+    """
+    import socket
+    h = host.lower().strip("[]")
+
+    # 1. Explicit hostname denylist (cloud metadata + literal localhost).
+    if h in _SSRF_DENY_HOSTS:
+        return True
+
+    # 2. Direct IP literal.
+    if _ip_is_dangerous(h):
+        return True
+
+    # 3. DNS resolution (only if not already a literal IP).
+    try:
+        import ipaddress
+        ipaddress.ip_address(h)
+        # If we got here, h IS a literal IP that passed the dangerous check.
+        return False
+    except ValueError:
+        pass  # Hostname — proceed to DNS lookup.
+
+    # Test-only escape hatch (off by default). Tests use synthetic hostnames
+    # like searx.example.test that intentionally don't resolve via real DNS;
+    # without this opt-out, every test that monkey-patches httpx hits a
+    # fail-CLOSED on DNS NXDOMAIN. Production code never sets this var; in
+    # production an unresolvable hostname is treated as unsafe (auditor
+    # recommendation).
+    if os.environ.get("LIFEOS_RESEARCH_SKIP_DNS_SSRF") == "1":
+        return False
+
+    try:
+        # getaddrinfo returns ALL records (IPv4 + IPv6); check every one.
+        infos = socket.getaddrinfo(h, None)
+    except (socket.gaierror, socket.herror, OSError):
+        # DNS failure — fail-CLOSED. Surface to operator so they know.
+        print(
+            f"[research] SSRF guard: DNS lookup failed for {h}; treating as unsafe",
+            file=sys.stderr,
+        )
+        return True
+
+    for info in infos:
+        # info = (family, type, proto, canonname, sockaddr); sockaddr[0] is IP
+        sockaddr = info[4]
+        ip_str = sockaddr[0] if sockaddr else ""
+        if ip_str and _ip_is_dangerous(ip_str):
+            print(
+                f"[research] SSRF guard: {h} resolves to dangerous IP {ip_str}",
+                file=sys.stderr,
+            )
+            return True
+
+    return False
+
+
 def _is_safe_url(url: str) -> tuple[bool, str]:
     """Return (ok, reason_if_blocked) for SSRF safety check.
 
-    Allows only http(s) schemes and rejects hosts on the SSRF denylist.
+    Allows only http(s) schemes and rejects hosts on the SSRF denylist
+    (literal IPs, hostname denylist, AND DNS-resolved IPs).
     """
     try:
         parsed = urlparse(url)
@@ -420,6 +480,9 @@ def _is_safe_url(url: str) -> tuple[bool, str]:
 _MAX_RESPONSE_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
+_MAX_REDIRECTS = 5
+
+
 def _fetch_text(
     client: Any,
     url: str,
@@ -429,40 +492,96 @@ def _fetch_text(
 ) -> str | None:
     """Return body text for a URL, or None on any error.
 
-    Performs SSRF safety check before fetching. Truncates response body
-    at ``max_bytes`` to bound memory.
+    Round-3 audit fix:
+    - Performs SSRF safety check on EVERY URL in the redirect chain (not
+      just the original) — public URL 302→ private IP no longer bypasses.
+    - Streams response body via httpx ``stream`` API with byte counter,
+      stopping at ``max_bytes`` so a malicious 100GB stream cannot OOM.
+      Previously ``resp.text`` loaded everything before truncation.
+
+    The httpx client is configured with ``follow_redirects=False`` so we
+    walk redirects manually here; max ``_MAX_REDIRECTS`` hops.
     """
-    safe, reason = _is_safe_url(url)
-    if not safe:
-        # Surface to stderr so the operator can see why a fetch was skipped.
-        print(f"[research] SSRF guard blocked {url} ({reason})", file=sys.stderr)
-        return None
-    try:
-        resp = (
-            client.get(url, headers=headers)
-            if headers
-            else client.get(url)
-        )
-    except Exception:  # noqa: BLE001
-        return None
-    try:
-        resp.raise_for_status()
-    except Exception:  # noqa: BLE001
-        return None
-    text = getattr(resp, "text", "")
-    if not isinstance(text, str):
-        return None
-    # Truncate UTF-8-safe at max_bytes (encode→slice→decode-with-errors='ignore').
-    encoded = text.encode("utf-8", errors="replace")
-    if len(encoded) > max_bytes:
-        truncated = encoded[:max_bytes].decode("utf-8", errors="ignore")
-        print(
-            f"[research] response truncated at {max_bytes} bytes "
-            f"({len(encoded)} bytes received from {url})",
-            file=sys.stderr,
-        )
-        return truncated
-    return text
+    current = url
+    for hop in range(_MAX_REDIRECTS + 1):
+        safe, reason = _is_safe_url(current)
+        if not safe:
+            print(
+                f"[research] SSRF guard blocked {current} "
+                f"(hop {hop} from {url}, reason={reason})",
+                file=sys.stderr,
+            )
+            return None
+
+        # Stream the response — never let httpx buffer the full body.
+        try:
+            req_headers = headers if headers else None
+            with client.stream("GET", current, headers=req_headers) as resp:
+                # 3xx redirect: extract Location, re-check, hop again.
+                status = getattr(resp, "status_code", 0)
+                if 300 <= status < 400:
+                    location = resp.headers.get("location") if hasattr(resp, "headers") else None
+                    if not location:
+                        return None
+                    # Resolve relative redirects against current URL
+                    from urllib.parse import urljoin
+                    current = urljoin(current, location)
+                    continue
+                # Non-redirect: check status, then stream body bounded by max_bytes.
+                try:
+                    resp.raise_for_status()
+                except Exception:  # noqa: BLE001
+                    return None
+
+                buf = bytearray()
+                truncated = False
+                # iter_bytes is the httpx streaming API.
+                for chunk in resp.iter_bytes():
+                    if len(buf) + len(chunk) > max_bytes:
+                        # Take only enough to reach max_bytes, then stop.
+                        take = max_bytes - len(buf)
+                        if take > 0:
+                            buf.extend(chunk[:take])
+                        truncated = True
+                        break
+                    buf.extend(chunk)
+                if truncated:
+                    print(
+                        f"[research] response truncated at {max_bytes} bytes "
+                        f"during streaming from {current}",
+                        file=sys.stderr,
+                    )
+                # Decode with replacement; trim partial trailing UTF-8 sequence.
+                text = bytes(buf).decode("utf-8", errors="ignore")
+                return text
+        except AttributeError:
+            # client.stream() not available (mock client in tests). Fall
+            # back to the non-streaming path with post-load truncation —
+            # this is fine because mocks return small synthetic bodies.
+            try:
+                resp = (
+                    client.get(current, headers=req_headers)
+                    if req_headers
+                    else client.get(current)
+                )
+                resp.raise_for_status()
+                text = getattr(resp, "text", "")
+                if not isinstance(text, str):
+                    return None
+                encoded = text.encode("utf-8", errors="replace")
+                if len(encoded) > max_bytes:
+                    return encoded[:max_bytes].decode("utf-8", errors="ignore")
+                return text
+            except Exception:  # noqa: BLE001
+                return None
+        except Exception:  # noqa: BLE001
+            return None
+
+    print(
+        f"[research] redirect chain exceeded {_MAX_REDIRECTS} hops from {url}",
+        file=sys.stderr,
+    )
+    return None
 
 
 # ─── HTML link extraction ───────────────────────────────────────────────────

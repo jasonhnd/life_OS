@@ -197,6 +197,37 @@ NEW v1.8.0:
 
 Net: 11 files modified, 2 deleted (seed_concepts.py + test). All previous hook tests still pass. 3 pre-existing `test_stop_session_verify.sh` failures unchanged (last touched in v1.7.3, unrelated to this audit).
 
+- **R-1.8.0-013 USER round-3 audit (commit follows)**: User performed a third independent audit at HEAD `d7639fc`, surfacing 7 findings not caught in rounds 1/2. All confirmed and fixed. Round-3 audit's strength was attacking the **boundaries** of the security/parsing fixes from round-2:
+  - **CRITICAL · `tools/lib/second_brain.py:60` CRLF frontmatter ignored**: parser used literal `content.startswith("---\n")` which rejected files saved with Windows CRLF line endings — they appeared as having no frontmatter, body=full file. Verified empirically. Replaced with regex `^---[ \t]*\r?\n(.*?)\r?\n---[ \t]*\r?\n` accepting both LF/CRLF/mixed + trailing whitespace on fence. Added 4 regression tests in `tests/test_second_brain.py` (CRLF parsed, CRLF no-frontmatter, mixed line endings, fence trailing whitespace) — all 25 frontmatter tests pass.
+  - **CRITICAL · `tools/research.py:381` SSRF guard didn't resolve DNS**: previous fix only checked literal IPs and a hostname denylist, so `internal.corp.example` pointing at `10.0.0.1` would pass. Added `socket.getaddrinfo()` resolution + IP check on every A/AAAA record. DNS failure (NXDOMAIN/timeout) treated as **unsafe** (fail-CLOSED with stderr surface). Test fixtures using synthetic hostnames opt out via `LIFEOS_RESEARCH_SKIP_DNS_SSRF=1` env var (production code never sets this).
+  - **CRITICAL · `tools/research.py:354` redirect chain bypass**: `httpx.Client(follow_redirects=True)` meant only the original URL ran the SSRF check; a public URL 302→ private IP bypassed entirely. Changed to `follow_redirects=False`, manually walk Location headers in `_fetch_text` (max 5 hops), re-run `_is_safe_url()` per hop. Relative redirects resolved against current URL via `urljoin`.
+  - **CRITICAL · `tools/research.py:452` resp.text loaded full body**: previous max_bytes truncation happened AFTER httpx loaded the entire response into memory — useless for memory protection. Rewrote `_fetch_text` to use `client.stream()` with byte counter that stops at `max_bytes` mid-stream. Tests using FakeClient without `.stream()` fall through to a non-streaming branch (still bounded by post-load truncation) — safe because mocks return small synthetic bodies.
+  - **CRITICAL · `scripts/hooks/pre-bash-approval.sh:75` missing-source fail-OPEN**: when `tools/approval.py` couldn't be located at any candidate path, hook exited 0 (= approve). My round-2 fix had argued this was "can't enforce missing guard"; auditor correctly pushed back — missing security source IS a critical state. Changed to fail-CLOSED with full diagnostic (which paths searched, recovery steps via `setup-hooks.sh`, `LIFEOS_YOLO_MODE=1` escape hatch). Added `tests/hooks/test_pre_bash_approval.sh` with 6 test cases (safe / hardline / empty input / malformed JSON / missing source fail-CLOSED / YOLO bypass) — all 9 assertions pass.
+  - **WARNING · `tools/search.py:302` exception not semantic enough**: previous fix tightened to `(FileNotFoundError, OSError, ValueError, KeyError)` but project has its own `ConfigError` class that's the canonical "config is malformed" signal. Changed to `except (ConfigError, FileNotFoundError)` — bugs in config loader (ImportError, AttributeError) now propagate so user sees them.
+  - **WARNING · `tools/lib/notion.py:215` rich_text > 2000 chars silently failed**: `_body_to_children` wrapped the entire body in a single rich_text object, but Notion API rejects content > 2000 chars per object. Long-body sync silently failed. Added paragraph-boundary chunking at 1900 chars (with hard-split for paragraphs longer than that), emitting one paragraph block per chunk. Empty body still emits one empty paragraph (matches old behavior). New constant `_NOTION_RICH_TEXT_MAX = 1900`.
+
+Verification:
+- `bash -n` on all 18 tracked .sh files: pass
+- Ruff baseline: All checks passed
+- `pytest tests/test_research.py` (28 tests) + `test_second_brain.py` (25 tests) + `test_sync_notion.py` (14 tests) = 67 passed
+- Hook test suite: 6/7 pass (the 1 pre-existing `test_stop_session_verify` failure from v1.7.3 unchanged)
+- New `tests/hooks/test_pre_bash_approval.sh`: 9/9 assertions pass
+
+Architecture notes (deferred — listed in audit but out of round-3 scope):
+- `tools/approval.py:713` 224-line god function refactor → 5 layers
+- duplicated session discovery in 2 hooks → `_lib.sh` helper
+- `tools/lib/config.py:137` 119-line load_config split
+- `evals/run-tool-eval.sh:223` `eval` of frontmatter (mitigated by repo-trust scope, not removed)
+- `Any` types in research/notion → `Protocol` definitions
+- `ApprovalDecision` TypedDict
+- `tools/search.py:212` SQLite/FTS index for sessions
+- `tools/export.py:210` streaming generator
+- `--notion-token-stdin` UX improvement
+- Hook JSON parser deduplication
+- `setup-hooks.sh:310` SKILL.md install meta separation
+
+These are real improvements but each is a multi-hour refactor; explicitly deferred per "fix safety/correctness first, then complexity debt".
+
 ### Migration
 
 ```bash

@@ -28,6 +28,7 @@ Authoritative specs:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
@@ -54,20 +55,27 @@ class ParsedMarkdown:
 def parse_frontmatter(content: str, source_path: Path | None = None) -> ParsedMarkdown:
     """Parse a markdown string into frontmatter dict + body string.
 
-    Frontmatter must be delimited by ``---`` lines at the very top of the file.
-    If no frontmatter is present, returns an empty dict and the full content as body.
+    Frontmatter must be delimited by ``---`` lines at the very top of the
+    file. Both LF (``\\n``) and CRLF (``\\r\\n``) line endings are accepted
+    so files saved by Windows editors parse correctly. Round-3 audit fix:
+    previously the literal ``---\\n`` start check rejected CRLF files,
+    making them appear to have no frontmatter.
+
+    If no frontmatter is present, returns an empty dict and the full content
+    as body.
     """
-    if not content.startswith("---\n"):
+    # Regex match: ---<optional trailing spaces><LF or CRLF>...<frontmatter
+    # body>...<LF or CRLF>---<optional trailing spaces><LF or CRLF>
+    m = re.match(
+        r"^---[ \t]*\r?\n(.*?)\r?\n---[ \t]*\r?\n",
+        content,
+        re.DOTALL,
+    )
+    if not m:
         return ParsedMarkdown(frontmatter={}, body=content, source_path=source_path)
 
-    # Find the closing ---
-    end_marker = content.find("\n---\n", 4)
-    if end_marker == -1:
-        # Malformed — no closing marker. Treat as no frontmatter.
-        return ParsedMarkdown(frontmatter={}, body=content, source_path=source_path)
-
-    fm_text = content[4:end_marker]
-    body = content[end_marker + 5 :]
+    fm_text = m.group(1)
+    body = content[m.end():]
 
     try:
         fm_dict = yaml.safe_load(fm_text) or {}

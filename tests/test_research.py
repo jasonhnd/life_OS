@@ -35,7 +35,12 @@ def _install_fake_httpx(
 
     Missing URLs raise a fake RequestError. Returns the Client mock for
     assertion purposes.
+
+    Round-3 audit fix: also opts out of the DNS-resolution SSRF check via
+    env var so tests using synthetic hostnames (e.g. searx.example.test)
+    don't fail-CLOSED on DNS NXDOMAIN. Production code never sets this var.
     """
+    monkeypatch.setenv("LIFEOS_RESEARCH_SKIP_DNS_SSRF", "1")
     fake = ModuleType("httpx")
 
     class FakeResponse:

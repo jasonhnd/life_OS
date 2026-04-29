@@ -157,6 +157,37 @@
 
 ネット：11 ファイル修正、2 ファイル削除（seed_concepts.py + test）。以前の hook テストは全てパス。3 個の既存の `test_stop_session_verify.sh` 失敗は未変（最後の変更は v1.7.3、本監査とは無関係）。
 
+- **R-1.8.0-013 ユーザー第 3 ラウンド監査（同コミット）**：ユーザーが HEAD `d7639fc` で第 3 ラウンドの独立監査を実施、以前のラウンド 1/2 で捕捉できなかった 7 つの問題を発見。すべて確認・修正。第 3 ラウンドの強みはラウンド 2 のセキュリティ/パース修正の**境界**を攻撃したこと：
+  - **CRITICAL · `tools/lib/second_brain.py:60` CRLF frontmatter が無視される**：parser は文字どおりの `content.startswith("---\n")` を使用していたため、Windows CRLF 行末で保存されたファイルは「frontmatter なし」と判定され、body=ファイル全体になっていた。実証検証済。正規表現 `^---[ \t]*\r?\n(.*?)\r?\n---[ \t]*\r?\n` に置換し LF/CRLF/混合 + フェンス末尾の空白を許容。`tests/test_second_brain.py` に 4 つの回帰テスト追加（CRLF parsed、CRLF no-frontmatter、混合行末、フェンス末尾空白）—— 25 個の frontmatter テスト全合格。
+  - **CRITICAL · `tools/research.py:381` SSRF guard が DNS を解決しない**：以前の修正はリテラル IP と hostname denylist のみチェックだったため、`internal.corp.example` が `10.0.0.1` を指すと通過してしまう。`socket.getaddrinfo()` 解決 + 全 A/AAAA レコードへの IP チェックを追加。DNS 失敗（NXDOMAIN/timeout）は**安全でない**として扱う（fail-CLOSED + stderr 表示）。合成 hostname を使うテストフィクスチャは `LIFEOS_RESEARCH_SKIP_DNS_SSRF=1` 環境変数でオプトアウト（プロダクションコードは絶対設定しない）。
+  - **CRITICAL · `tools/research.py:354` リダイレクトチェーンバイパス**：`httpx.Client(follow_redirects=True)` は元の URL のみ SSRF チェックが走るため、公開 URL が 302→ プライベート IP すれば完全にバイパス可能。`follow_redirects=False` に変更、`_fetch_text` で Location ヘッダを手動で歩く（最大 5 ホップ）、ホップごとに `_is_safe_url()` 再実行。相対リダイレクトは `urljoin` で解決。
+  - **CRITICAL · `tools/research.py:452` resp.text が body 全体をメモリにロード**：以前の max_bytes 切り詰めは httpx が応答全体をメモリにロード**した後**に発生 —— メモリ保護として無意味。`client.stream()` + バイトカウンタを使い `max_bytes` でストリーム途中停止する `_fetch_text` に書き直し。`.stream()` を持たない FakeClient のテストは非ストリーミング分岐に落ちる（依然 post-load 切り詰めで保護）—— モックは小さい合成 body を返すので安全。
+  - **CRITICAL · `scripts/hooks/pre-bash-approval.sh:75` missing-source fail-OPEN**：`tools/approval.py` がどの候補パスにも見つからない時、hook が exit 0（=承認）。私のラウンド 2 修正は「存在しない guard を強制できない」と主張したが、監査人は正しく反論 —— **セキュリティソース欠落自体が critical 状態**。fail-CLOSED に変更し完全な診断（検索したパス、`setup-hooks.sh` での復旧手順、`LIFEOS_YOLO_MODE=1` エスケープハッチ）を追加。新規 `tests/hooks/test_pre_bash_approval.sh` 6 ケース追加（safe / hardline / empty / malformed JSON / missing source fail-CLOSED / YOLO bypass）—— 9 アサーション全合格。
+  - **WARNING · `tools/search.py:302` 例外が意味的に不十分**：以前の修正は `(FileNotFoundError, OSError, ValueError, KeyError)` に絞ったが、プロジェクトには専用の `ConfigError` クラス（「config が壊れている」のカノニカルシグナル）がある。`except (ConfigError, FileNotFoundError)` に変更 —— config loader の実バグ（ImportError、AttributeError）はユーザーに伝播するように。
+  - **WARNING · `tools/lib/notion.py:215` rich_text > 2000 文字のサイレント失敗**：`_body_to_children` は body 全体を 1 つの rich_text オブジェクトでラップしていたが、Notion API は各オブジェクトの content > 2000 文字を拒絶。長い body の同期はサイレントに失敗していた。1900 文字での段落境界チャンキング追加（段落自体が長い場合はハードスプリット）、チャンクごとに 1 つの paragraph ブロックを発行。空 body は引き続き 1 つの空 paragraph を発行（旧動作と一致）。新規定数 `_NOTION_RICH_TEXT_MAX = 1900`。
+
+検証：
+- 18 個の tracked .sh すべて `bash -n` パス
+- Ruff baseline: All checks passed
+- `pytest tests/test_research.py`（28 テスト）+ `test_second_brain.py`（25 テスト）+ `test_sync_notion.py`（14 テスト）= 67 パス
+- Hook テストスイート：6/7 パス（唯一失敗 `test_stop_session_verify` は v1.7.3 以来の既存失敗、未変）
+- 新規 `tests/hooks/test_pre_bash_approval.sh`: 9/9 アサーションパス
+
+アーキテクチャ注記（先送り —— 監査言及だが本ラウンド範囲外）：
+- `tools/approval.py:713` 224 行 god 関数を 5 層に分割
+- 2 hook の重複 session discovery → `_lib.sh` ヘルパー
+- `tools/lib/config.py:137` 119 行 load_config 分割
+- `evals/run-tool-eval.sh:223` frontmatter `eval`（repo-trust スコープで緩和、未除去）
+- research/notion の `Any` types → `Protocol` 定義
+- `ApprovalDecision` TypedDict
+- `tools/search.py:212` SQLite/FTS sessions index
+- `tools/export.py:210` ストリーミング generator
+- `--notion-token-stdin` UX 改善
+- Hook JSON parser 重複除去
+- `setup-hooks.sh:310` SKILL.md install meta 分離
+
+これらは真の改善だが、各々が複数時間のリファクタリング；「安全性/正確性を先に修正、複雑性負債は後」に従い明示的に先送り。
+
 ### マイグレーション
 
 ```bash

@@ -63,17 +63,42 @@ fi
 
 # ─── Locate lifeos source (where tools/approval.py lives) ───────────────────
 LIFEOS_DIR=""
+SEARCHED_PATHS=""
 for candidate in \
   "$(cd "$(dirname "$0")/../.." 2>/dev/null && pwd)" \
   "$HOME/.claude/skills/life_OS" \
   "$HOME/.claude/skills/lifeos"; do
+  SEARCHED_PATHS="${SEARCHED_PATHS}    ${candidate}/tools/approval.py
+"
   if [ -n "$candidate" ] && [ -f "$candidate/tools/approval.py" ]; then
     LIFEOS_DIR="$candidate"
     break
   fi
 done
+# Round-3 audit fix (was: silent exit 0 = approve when source not found):
+# This is the security guard's source code — if it's not on disk, the
+# guard isn't installed, and that's a critical state, not a benign one.
+# Fail-CLOSED so the user notices the misinstall instead of running with
+# silent unenforced policy. LIFEOS_YOLO_MODE=1 escape hatch still works.
 if [ -z "$LIFEOS_DIR" ]; then
-  exit 0
+  if [ "${LIFEOS_YOLO_MODE:-0}" = "1" ]; then
+    echo "[approval] LIFEOS_YOLO_MODE=1 — skipping guard despite missing approval.py" >&2
+    exit 0
+  fi
+  cat >&2 <<EOF
+🛡️ Life OS 守门人 · approval.py 找不到（fail-CLOSED）
+
+  命令: $COMMAND
+  搜索过的路径:
+$SEARCHED_PATHS
+  原因: lifeos source 不在任何标准位置，approval guard 无法运行。
+        为安全起见命令被阻止。
+  补救: (1) 重新跑 \`bash scripts/setup-hooks.sh\` 确保 lifeos 安装到
+            ~/.claude/skills/life_OS/
+        (2) 或设置 LIFEOS_YOLO_MODE=1 临时跳过 guard（仅在你确认
+            风险可控时使用）
+EOF
+  exit 2
 fi
 
 # ─── Run approval check (FAIL-CLOSED on bridge error) ──────────────────────

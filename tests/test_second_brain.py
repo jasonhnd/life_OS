@@ -73,6 +73,32 @@ class TestParseFrontmatter:
         assert parsed.frontmatter == sample
         assert parsed.body == body
 
+    def test_crlf_frontmatter_parsed(self):
+        """Round-3 audit fix: CRLF (Windows) frontmatter must parse like LF."""
+        crlf = "---\r\ntitle: Test\r\nstatus: active\r\n---\r\n\r\nBody content\r\n"
+        parsed = parse_frontmatter(crlf)
+        assert parsed.frontmatter == {"title": "Test", "status": "active"}
+        assert "Body content" in parsed.body
+
+    def test_crlf_no_frontmatter(self):
+        """CRLF file without frontmatter still returns empty dict + full body."""
+        crlf = "Just body\r\nno frontmatter\r\n"
+        parsed = parse_frontmatter(crlf)
+        assert parsed.frontmatter == {}
+        assert parsed.body == crlf
+
+    def test_mixed_line_endings(self):
+        """File with mixed LF/CRLF (e.g., git autocrlf glitch) still parses."""
+        mixed = "---\ntitle: Mixed\r\nstatus: active\r\n---\nbody"
+        parsed = parse_frontmatter(mixed)
+        assert parsed.frontmatter == {"title": "Mixed", "status": "active"}
+
+    def test_trailing_whitespace_on_fence(self):
+        """Trailing spaces/tabs on the --- fence are tolerated."""
+        with_trail = "---   \ntitle: Test\n---\t\nbody"
+        parsed = parse_frontmatter(with_trail)
+        assert parsed.frontmatter == {"title": "Test"}
+
 
 class TestLoadMarkdown:
     def test_load_real_file(self, tmp_path: Path):
