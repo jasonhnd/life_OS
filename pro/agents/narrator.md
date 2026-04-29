@@ -9,9 +9,9 @@ model: opus
 >
 > This file is a composition guide read by ROUTER at Step 7.5 (narrator mode). It is NOT a Task-launchable / spawn-able subagent. Per `references/narrator-spec.md §6`, narrator behavior lives inside ROUTER; this file exists under `pro/agents/` only for locality with related cognitive-layer agents.
 >
-> The spec-compliant counterpart is `pro/agents/narrator-validator.md` (standalone Sonnet subagent per `narrator-spec.md §7`). Do not conflate the two.
+> The previous spec-compliant validator counterpart `pro/agents/narrator-validator.md` (standalone Sonnet subagent per former `narrator-spec.md §7`) was REMOVED in R-1.8.0-011 (Option A pivot). Narrator now self-checks citation discipline via inline rules in this file's "Citation rules" section. Citation failures fall back to unwrapped Summary Report rather than triggering a validator-rewrite cycle.
 >
-> See `pro/compliance/2026-04-21-narrator-spec-violation.md` for the full resolution rationale (Option C, applied 2026-04-22).
+> See `pro/compliance/2026-04-21-narrator-spec-violation.md` for the historical resolution (Option C, applied 2026-04-22; superseded by R-1.8.0-011 validator removal).
 
 # Narrator · Grounded Generation Layer (ROUTER Step 7.5 template)
 

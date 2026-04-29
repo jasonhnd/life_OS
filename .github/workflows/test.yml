@@ -115,14 +115,41 @@ jobs:
           echo "✅ Hook regex OK"
 
       - name: Verify compliance check (all runners)
+        # R-1.8.0-013 round-5 audit fix: fixture must include the 6 H2
+        # sections + version markers + Cortex status (matches what
+        # tests/test_compliance_check.py uses post-R-1.8.0-013, which
+        # itself was caught failing in round-4 audit). Otherwise the
+        # checker bails on `C (P0): briefing-completeness failed` and
+        # this CI step turns red.
         run: |
           chmod +x scripts/lifeos-compliance-check.sh || true
-          # Synthetic clean output should pass
           tmpdir=$(mktemp -d)
           cat > "$tmpdir/clean.md" <<'EOF'
           🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0
           ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation)
+          Step 2 DIRECTORY TYPE CHECK:
           a) 连接到 second-brain
           b) 开发模式
+          c) 新建 second-brain
+          [Local SKILL.md version: 1.8.0]
+          [Remote check (forced fresh): up-to-date]
+          [Cortex: skipped - per-message pull mode in v1.8.0]
+          ## 0. <display name> · 上朝准备
+          Ready
+
+          ## 1. 第二大脑同步状态
+          Clean
+
+          ## 2. SOUL Health 报告
+          No drift
+
+          ## 3. DREAM / 隔夜更新
+          None
+
+          ## 4. Today's Focus + 待陛下圣裁
+          Ready
+
+          ## 5. 系统状态
+          Green
           EOF
           bash scripts/lifeos-compliance-check.sh "$tmpdir/clean.md" start-session-compliance

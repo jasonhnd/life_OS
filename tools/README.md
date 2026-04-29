@@ -23,12 +23,16 @@ See [`references/tools-spec.md`](../references/tools-spec.md) for the full contr
 # Install dependencies
 uv sync
 
-# Run any tool
-uv run tools/{tool_name}.py [args]
+# Run any tool directly via Python module syntax
+uv run python -m tools.{tool_name} [args]
 
-# Or via the unified CLI (when available)
-uv run life-os-tool {command} [args]
+# Examples:
+uv run python -m tools.search "your query"
+uv run python -m tools.export --scope decisions --format pdf
+uv run python -m tools.skill_manager list
 ```
+
+> The previous `life-os-tool {command}` console-script entry point was removed in R-1.8.0-011 along with `tools/cli.py`. The dispatcher pattern was replaced by direct module invocation — same functionality, fewer indirection layers.
 
 ## Why Optional
 

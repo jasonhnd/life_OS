@@ -77,7 +77,9 @@ def _life_os_toml(root_path: Path) -> str:
         "recency_boost_days = 90\n"
         "\n"
         "[export]\n"
-        "# Default format for `life-os-tool export` when --format is omitted.\n"
+        "# Default format for `python -m tools.export` when --format is omitted.\n"
+        "# (life-os-tool dispatcher was removed in R-1.8.0-011; tools now\n"
+        "# invoked directly via `python -m tools.<name>`.)\n"
         'default_format = "pdf"\n'
         "\n"
         "[reconcile]\n"

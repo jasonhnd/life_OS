@@ -113,7 +113,7 @@ Top 5 signals by tier priority (Tier 1 conflict > Tier 1 alignment > Tier 2 > do
 
 Final message MUST be a single YAML block:
 
-**YAML output emit contract (HARD RULE · v1.7.1 R8):** This YAML is an upstream Cortex payload. ROUTER MUST wrap and paste it to the user in full using the subagent transparency wrapper. The GWT `[COGNITIVE CONTEXT]` is a downstream synthesis and cannot replace, compress, or stand in for this YAML payload.
+**YAML output emit contract (Recommended, v1.8.0 R-1.8.0-013):** This YAML is an upstream Cortex payload. ROUTER MAY wrap and paste it to the user using the subagent transparency wrapper when full transparency is desired (e.g. user explicitly asks "show me what Cortex saw"). Default v1.8.0 behavior: GWT `[COGNITIVE CONTEXT]` is a downstream synthesis that ROUTER consumes inline; the raw YAML payload doesn't have to be displayed verbatim. (Was HARD RULE in v1.7.1 R8; downgraded in R-1.8.0-013 because pull-based Cortex doesn't always run.)
 
 **Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/soul-check.json` using `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
 

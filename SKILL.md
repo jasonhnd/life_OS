@@ -100,7 +100,7 @@ All display names, emoji, tone, and output titles come from the active theme fil
 
 Each role is defined in `pro/agents/*.md`. Orchestration protocol: `pro/CLAUDE.md`.
 
-> **v1.7.0+ native registration**: `scripts/register-claude-agents.sh` writes `lifeos-*` wrappers under `~/.claude/agents/` for Claude Code's native `Task()` discovery. There are 22 `pro/agents/*.md` definition files; 21 are Task-spawnable wrappers and `narrator.md` remains ROUTER-internal. ROUTER should call targets such as `Task(lifeos-retrospective)` so Claude Code launches the real subagent instead of `general-purpose`.
+> **v1.7.0+ native registration**: `scripts/register-claude-agents.sh` writes `lifeos-*` wrappers under `~/.claude/agents/` for Claude Code's native `Task()` discovery. There are 23 `pro/agents/*.md` definition files; 22 are Task-spawnable wrappers and `narrator.md` remains ROUTER-internal. ROUTER should call targets such as `Task(lifeos-retrospective)` so Claude Code launches the real subagent instead of `general-purpose`.
 
 ## Trigger Words
 
@@ -168,23 +168,11 @@ bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
 
 ROUTER includes the literal stdout in the launch payload to `retrospective` as: "Ground truth (ROUTER pre-fetched): <stdout>". The subagent MUST use this ground truth in Step 8 instead of attempting its own remote check. This eliminates the confabulation surface: subagent has no opening to fabricate failure reasons. If Bash returns non-zero, ROUTER passes the literal error to subagent, who pastes it into briefing. Still no fabrication allowed.
 
-**ROUTER retrospective pre-fetch (HARD RULE · v1.7.1 R10):**
-Before launching retrospective subagent (Mode 0 / Mode 2), ROUTER MUST first run:
+**ROUTER retrospective pre-fetch — REMOVED in v1.8.0 Option A pivot (R-1.8.0-011):**
+Previously v1.7.1 R10 required ROUTER to run `scripts/retrospective-mode-0.sh` before launching retrospective. That script was deleted in the "100% LLM" pivot (R-1.8.0-011). Retrospective subagent now executes all Mode 0 steps directly via inline Read/Glob/Grep — no ROUTER pre-fetch, no `[ROUTER pre-fetched]` markers in step output. See `pro/agents/retrospective.md` for the canonical step-by-step.
 
-```bash
-bash ~/.claude/skills/life_OS/scripts/retrospective-mode-0.sh "$(pwd)"
-```
-
-Paste literal stdout containing 11 `[STEP N · ...]` markers into subagent launch payload AND user-visible briefing wrap. Retrospective MUST NOT re-run steps 2/3/4/5/8/10/11/12/13/14/17; it consumes pre-fetched values. Subagent handles only LLM judgment steps 1/6/9/16/18. Steps 7/15 are partial.
-
-**Briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
-After running `retrospective-mode-0.sh` and before launching retrospective subagent, ROUTER MUST run:
-
-```bash
-bash scripts/retrospective-briefing-skeleton.sh "$(pwd)"
-```
-
-Paste literal stdout into the retrospective subagent launch payload before launch. Retrospective only fills `<!-- LLM_FILL -->` placeholders: Today's Focus + Pending Decisions, plus SOUL narrative if needed. All deterministic briefing structure and measured facts come from Bash output: 80% Bash pre-render, 20% LLM judgment.
+**Briefing skeleton pre-render — REMOVED in v1.8.0 R-1.8.0-011:**
+Previously v1.7.2.3 required ROUTER to run `scripts/retrospective-briefing-skeleton.sh` to pre-render the 6-H2 briefing structure. Both that script and `archiver-briefing-skeleton.sh` were deleted in R-1.8.0-011. Retrospective and archiver now generate briefings inline as part of their normal step/phase execution — no Bash skeleton, no `<!-- LLM_FILL -->` placeholders.
 
 **Triage reasoning visibility (HARD RULE · v1.7.1 R8):**
 After trigger detection and before launching any subagent, ROUTER MUST output one plain-language line to the user:

@@ -271,7 +271,7 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - HARD RULE: When user switches theme mid-session, re-show the selector, load new theme, switch language immediately. Confirm in the NEW language.
    - R11 AUDIT TRAIL: before proceeding to Step 2, write `_meta/runtime/<sid>/retrospective-step-1.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
-2. DIRECTORY TYPE CHECK [ROUTER pre-fetched · do not re-run]
+2. DIRECTORY TYPE CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
    - If current directory contains SKILL.md + pro/agents/ + themes/:
      → This is the Life OS SYSTEM REPOSITORY (product code), not a second-brain
      → Ask user:
@@ -287,7 +287,7 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - Otherwise:
      → This is a regular project repo, proceed and look for second-brain at configured path
 
-3. DATA LAYER CHECK [ROUTER pre-fetched · do not re-run]
+3. DATA LAYER CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
    - Check: does _meta/config.md exist?
    - If YES → proceed to step 4
    - If NO → FIRST-RUN mode:
@@ -311,9 +311,9 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
 
 --- Phase B: Sync ---
 
-4. Read _meta/config.md → get storage backend list + last sync timestamp [ROUTER pre-fetched · do not re-run]
+4. Read _meta/config.md → get storage backend list + last sync timestamp [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
-5. GIT HEALTH CHECK — detect and report (before any sync) [ROUTER pre-fetched · do not re-run]:
+5. GIT HEALTH CHECK — detect and report (before any sync) [v1.8.0 R-1.8.0-011 · retrospective executes inline]:
    - Run `git worktree list` → if any entry shows "prunable" or non-existent path, record
    - Check `.claude/worktrees/` → if any .git file points to non-existent path, record
    - Run `git config --get core.hooksPath` → if points to non-existent path, record
@@ -363,19 +363,18 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
 
 --- Phase C: Version + Project ---
 
-8. VERSION CHECK PREFETCH CONSUMPTION [ROUTER pre-fetched · do not re-run]
+8. VERSION CHECK PREFETCH CONSUMPTION [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
 Detail: Platform + Version Check (HARD RULE · v1.7.2.1 version-marker grounding).
 
-R10 execution boundary: Consume the ROUTER pre-fetched `[STEP 8 · ...]` marker from `retrospective-mode-0.sh` and copy its local/remote version details into briefing's `## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + Cortex status, 3-5 lines max 10)` block. Do NOT re-run the commands below in retrospective. The commands remain here only as the R5 source contract for ROUTER's pre-fetch and audit; they are not subagent execution instructions under R10/R12.
+v1.8.0 execution: RETROSPECTIVE runs both Step 8a + 8b commands directly via Bash tool. Previous v1.7.1 R10 pre-fetch via `retrospective-mode-0.sh` was removed in R-1.8.0-011 (script deleted in Option A pivot). Output goes into briefing's `## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + Cortex status, 3-5 lines max 10)` block.
 
-Step 8a — Local version (ROUTER pre-fetch source command; do not run in RETROSPECTIVE):
+Step 8a — Local version:
 ```bash
 grep -m1 '^version:' ~/.claude/skills/life_OS/SKILL.md | sed -E 's/^version:[[:space:]]*"?([^"]+)"?/\1/'
 ```
 
-Step 8b — Force fresh remote check (ROUTER pre-fetch source command; `--force`
-bypasses daily cache):
+Step 8b — Force fresh remote check (`--force` bypasses daily cache):
 ```bash
 bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
 ```
@@ -384,7 +383,7 @@ Briefing `## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + C
 - "[Local SKILL.md version: <literal Bash stdout without `version:` prefix>]"
 - "[Remote check (forced fresh): <complete literal Bash stdout, unlimited; do not truncate>]"
 
-If either ROUTER pre-fetched command result returns non-zero or empty:
+If either Step 8a or 8b command result returns non-zero or empty:
 - Briefing MUST paste actual error: "Bash exit code: <N>" + "stderr: <literal>"
 - Treat these as observation patterns that should be backed by literal tool evidence, not as automatic violation-triggering phrases:
   "private repo", "WebFetch 失败", "WebFetch failed", "network unavailable",
@@ -413,9 +412,9 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - If the directory is missing or empty, record `Eval-history loop: no prior entries`.
     - Read-only: RETROSPECTIVE must not modify `_meta/eval-history/`.
 
-10. Read user-patterns.md (if exists) [ROUTER pre-fetched · do not re-run]
+10. Read user-patterns.md (if exists) [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
-11. SOUL state + trend (for SOUL Health Report) [ROUTER pre-fetched · do not re-run]
+11. SOUL state + trend (for SOUL Health Report) [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
     11.1 Read current SOUL.md. If does not exist, mark as "uninitialized" and skip to 11.6.
 
@@ -452,12 +451,12 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - Snapshot file corrupted or unparseable → fall back to "current state only, no trend comparison". Briefing adds: "⚠️ Trend comparison unavailable (previous snapshot not readable)."
     - Snapshot from >24 hours ago (session gap) → still used, but add note "Trends computed against state from {YYYY-MM-DD HH:MM}."
 
-12. Read _meta/STATUS.md + _meta/lint-state.md [ROUTER pre-fetched · do not re-run]
+12. Read _meta/STATUS.md + _meta/lint-state.md [v1.8.0 R-1.8.0-011 · retrospective executes inline]
     - If lint-state >4h since last run → trigger AUDITOR lightweight patrol
 
-13. ReadProjectContext(bound project) — index.md + decisions + tasks + journal [ROUTER pre-fetched · do not re-run]
+13. ReadProjectContext(bound project) — index.md + decisions + tasks + journal [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
-14. Global overview — list all Project + Area titles + status [ROUTER pre-fetched · do not re-run]
+14. Global overview — list all Project + Area titles + status [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
 --- Phase E: Strategy + Knowledge ---
 
@@ -486,7 +485,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - Read the triggered_actions YAML block from last dream journal. These feed the DREAM Auto-Triggers section of the briefing (always shown, fixed position).
     - R11 AUDIT TRAIL: before proceeding to Step 17, write `_meta/runtime/<sid>/retrospective-step-16.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
-17. WIKI HEALTH CHECK [ROUTER pre-fetched · do not re-run]
+17. WIKI HEALTH CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
     a. wiki/ empty or doesn't exist → skip silently
     b. wiki/ has files but no INDEX.md → compile from conforming files, report legacy
     c. INDEX.md exists → recompile fresh
@@ -730,7 +729,7 @@ Product note: the briefing should be approximately 80% user second-brain content
 Minimum content:
 - Keep this section to 3-5 lines when healthy and never exceed 10 lines.
 - Report Step 0 hook health as complete, incomplete, auto-installed, or failed; include manual setup instruction only when action is needed.
-- Include local and remote version markers from ROUTER's pre-fetched Step 8 result, plus literal failure stdout/stderr only when version checks failed.
+- Include local and remote version markers from Step 8 (RETROSPECTIVE-executed inline since R-1.8.0-011), plus literal failure stdout/stderr only when version checks failed.
 - Report Cortex Step 0.5 as enabled, skipped, or degraded, with summary status for hippocampus, concept-lookup, soul-check, and GWT/arbitrator when present.
 
 ## 1. 第二大脑同步状态 (Inbox N with first 5, Projects M active with first 5, 1-2 sentence health summary)

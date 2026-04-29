@@ -118,16 +118,9 @@ Migration: re-pull the repo, then re-run `bash ~/.claude/skills/life_OS/scripts/
 
 ---
 
-## What's New in v1.7.3
+## Historical version notes
 
-v1.7.3 turns Cortex from declared-always-on into actually-always-on, and gives the Hermes tools real entry points users can see and trigger.
-
-- **Cortex hook injection** — `pre-prompt-guard` now emits a system-reminder that forces ROUTER to launch all 5 Cortex subagents (hippocampus, concept-lookup, soul-check, gwt-arbitrator, narrator-validator) in parallel before answering, whenever the prompt has a decision keyword or exceeds 80 chars. Closes the silent-degradation gap found in v1.7.2 (0 audit trails across 17+ sessions).
-- **narrator-validator audit trail HARD RULE** — frontmatter `tools` extended to `[Read, Bash, Write]`; audit trail JSON write to `_meta/runtime/<sid>/narrator-validator.json` is now mandatory per pro/CLAUDE.md §0.5.
-- **4 slash commands wired** — `/compress` (inline context compression with `_meta/compression/` archive), `/search` (FTS5 cross-session search via `tools.session_search`), `/memory` (24-48h short-term memory via `tools.memory`), `/method` (method library management via `tools.skill_manager`). Installed by `setup-hooks.sh` to `~/.claude/commands/`.
-- **Dead-weight removed** — `tools/prompt_cache.py` (118 lines, 0 callers, no value in Claude Code subscription mode) and its `docs/architecture/prompt-cache-strategy.md` deleted. References cleaned from `docs/architecture/hermes-local.md`.
-
-Migration: re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` to install the 4 new slash commands into `~/.claude/commands/`.
+> v1.7.3 (Cortex always-on hook injection + narrator-validator + 4 slash commands wired) and earlier v1.7.x release notes have been consolidated into [`CHANGELOG.md`](CHANGELOG.md). v1.7.3's "always-on Cortex" behavior was REVERSED in v1.8.0 R-1.8.0-011 pivot — current architecture is pull-based (see "What's New in v1.8.0" above). The README only describes the CURRENT architecture; previous designs live in CHANGELOG so this section doesn't mislead users.
 
 ---
 

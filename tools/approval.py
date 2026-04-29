@@ -622,13 +622,19 @@ def check_dangerous_command(
     approval_callback: Callable[..., str] | None = None,
 ) -> dict[str, Any]:
     """Check if a command is dangerous and handle approval."""
-    if env_type in ("docker", "singularity", "modal", "daytona"):
-        return {"approved": True, "message": None}
-
+    # Round-5 audit fix: hardline patterns (rm -rf /, mkfs, fork bomb,
+    # etc.) MUST be checked BEFORE any env-type bypass. Containerized
+    # environments are still real machines that can be destroyed; an
+    # `rm -rf /` inside a docker container with a host-mounted volume
+    # nukes the host. The previous order let docker/modal/daytona/
+    # singularity invocations bypass hardline entirely.
     is_hardline, hardline_desc = detect_hardline_command(command)
     if is_hardline:
         logger.warning("Hardline block: %s (command: %s)", hardline_desc, command[:200])
         return _hardline_block_result(hardline_desc or "hardline command")
+
+    if env_type in ("docker", "singularity", "modal", "daytona"):
+        return {"approved": True, "message": None}
 
     if os.getenv("LIFEOS_YOLO_MODE") or is_current_session_yolo_enabled():
         return {"approved": True, "message": None}
@@ -725,13 +731,17 @@ def check_all_command_guards(
     approval_callback: Callable[..., str] | None = None,
 ) -> dict[str, Any]:
     """Run all pre-exec security checks and return one approval decision."""
-    if env_type in ("docker", "singularity", "modal", "daytona"):
-        return {"approved": True, "message": None}
-
+    # Round-5 audit fix: hardline patterns MUST be checked BEFORE any
+    # env-type or YOLO bypass. Same reasoning as check_dangerous_command:
+    # `rm -rf /` inside a docker container with host-mounted volume
+    # nukes the host. Containers are not exempt from hardline blocks.
     is_hardline, hardline_desc = detect_hardline_command(command)
     if is_hardline:
         logger.warning("Hardline block: %s (command: %s)", hardline_desc, command[:200])
         return _hardline_block_result(hardline_desc or "hardline command")
+
+    if env_type in ("docker", "singularity", "modal", "daytona"):
+        return {"approved": True, "message": None}
 
     approval_mode = _get_approval_mode()
     if os.getenv("LIFEOS_YOLO_MODE") or is_current_session_yolo_enabled() or approval_mode == "off":

@@ -20,7 +20,7 @@ action items, do NOT auto-fix (user must approve).
 Launch the `auditor` subagent with Mode 2 input. Pass:
 - `mode: 2_patrol`
 - `jurisdiction_targets: [wiki/, SOUL.md, _meta/methods/, _meta/sessions/, _meta/concepts/]`
-- `cron_triggered: true`
+- `user_invoked: true`  # v1.8.0 R-1.8.0-011: cron removed, all maintenance is user-invoked
 - `output_dir: _meta/eval-history/auditor-patrol/{YYYY-MM-DD}.md`
 
 The auditor subagent will:

@@ -19,7 +19,7 @@ ADVISOR monthly self-review = detect SOUL dimensions that drifted, contradictory
 Launch the `advisor` subagent with monthly input:
 - `mode: monthly_self_review`
 - `lookback_window_days: 30`
-- `cron_triggered: true`
+- `user_invoked: true`  # v1.8.0 R-1.8.0-011: cron removed, all maintenance is user-invoked
 - `output_path: _meta/eval-history/advisor-monthly-{YYYY-MM}.md`
 
 The advisor subagent will:

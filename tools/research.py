@@ -370,6 +370,27 @@ _SSRF_DENY_HOSTS = frozenset({
 })
 
 
+def _default_dns_resolver(host: str) -> list[Any]:
+    """Default DNS resolver — calls socket.getaddrinfo on the real system.
+
+    Tests monkey-patch the module-level `_dns_resolver` reference (see below)
+    to inject synthetic hostname → IP mappings without going to real DNS.
+    Round-5 audit fix replaces the previous PYTEST_CURRENT_TEST env-var
+    escape hatch (which a user could set in their shell to disable SSRF
+    DNS check entirely).
+    """
+    import socket
+    return socket.getaddrinfo(host, None)
+
+
+# Module-level resolver reference. Production: bound to _default_dns_resolver
+# which calls socket.getaddrinfo. Tests rebind this to a fake resolver that
+# returns synthetic IP records, e.g.:
+#     monkeypatch.setattr(tools.research, "_dns_resolver",
+#                         lambda h: [(2, 1, 6, "", ("203.0.113.42", 0))])
+_dns_resolver = _default_dns_resolver
+
+
 def _ip_is_dangerous(ip_str: str) -> bool:
     """True if the literal IP string is private / loopback / link-local / etc."""
     import ipaddress
@@ -420,19 +441,13 @@ def _is_private_ip(host: str) -> bool:
     except ValueError:
         pass  # Hostname — proceed to DNS lookup.
 
-    # Test-only escape hatch — Round-4 audit fix replaces user-settable
-    # env var (LIFEOS_RESEARCH_SKIP_DNS_SSRF) with a strict pytest-runtime
-    # check. PYTEST_CURRENT_TEST is set by pytest itself before each test
-    # runs (and only then). A user shell never has this var set, so
-    # production code can never accidentally / maliciously skip the DNS
-    # check. Tests using synthetic hostnames (searx.example.test) get the
-    # bypass automatically inside pytest — no env-var poisoning surface.
-    if "PYTEST_CURRENT_TEST" in os.environ:
-        return False
-
+    # Round-5 audit fix: replaced PYTEST_CURRENT_TEST escape hatch
+    # (user-settable in shell) with dependency-injected resolver. Tests
+    # monkey-patch `tools.research._dns_resolver` at module level to bypass
+    # real DNS for synthetic hostnames; production code has NO env-var
+    # read path that could disable the check.
     try:
-        # getaddrinfo returns ALL records (IPv4 + IPv6); check every one.
-        infos = socket.getaddrinfo(h, None)
+        infos = _dns_resolver(h)
     except (socket.gaierror, socket.herror, OSError):
         # DNS failure — fail-CLOSED. Surface to operator so they know.
         print(

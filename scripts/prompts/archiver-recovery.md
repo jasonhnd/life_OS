@@ -26,7 +26,7 @@ The user may have:
    - Check today's CLASS_C archiver violations in `pro/compliance/violations.md`
 
 2. **Decision matrix**:
-   - Found complete adjourn AND no violations → **silent skip**, write to `_meta/eval-history/cron-runs/archiver-recovery-{date}.log` "no recovery needed", exit 0.
+   - Found complete adjourn AND no violations → **silent skip**, write to `_meta/eval-history/recovery/archiver-recovery-{date}.log` "no recovery needed", exit 0. (Path renamed from `cron-runs/` in R-1.8.0-011 — cron removed, paths use `recovery/` to reflect user-invoked semantics.)
    - No successful adjourn today OR CLASS_C violation present → **proceed to recovery**.
 
 3. **Recovery execution**:
@@ -48,7 +48,7 @@ The user may have:
 ## Exit conditions
 
 - Success (recovery complete or silent skip) → exit 0
-- Failure (knowledge-extractor or archiver subagent fail) → write failure to `_meta/eval-history/cron-runs/archiver-recovery-{date}-FAIL.md` + macOS notification → exit 1
+- Failure (knowledge-extractor or archiver subagent fail) → write failure to `_meta/eval-history/recovery/archiver-recovery-{date}-FAIL.md` + macOS notification → exit 1 (path renamed from `cron-runs/` in R-1.8.0-011)
 
 ## HARD RULES
 

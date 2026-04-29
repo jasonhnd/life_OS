@@ -35,10 +35,11 @@ def test_bridge_custom_model_and_timeout() -> None:
 
 
 def test_invoke_passes_model_and_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
-    captured: dict[str, list[str]] = {}
+    captured: dict[str, object] = {}
 
     def fake_run(cmd: list[str], **kwargs: object) -> MagicMock:
         captured["cmd"] = cmd
+        captured["input"] = kwargs.get("input")
         result = MagicMock()
         result.returncode = 0
         result.stdout = "response text"
@@ -49,12 +50,15 @@ def test_invoke_passes_model_and_prompt(monkeypatch: pytest.MonkeyPatch) -> None
     bridge = LLMBridge(model="claude-sonnet-4-6")
     out = bridge.invoke("Hello")
     assert out == "response text"
-    # Order: claude -p --model <model> <prompt>
-    assert captured["cmd"][0] == "claude"
-    assert "-p" in captured["cmd"]
-    assert "--model" in captured["cmd"]
-    assert "claude-sonnet-4-6" in captured["cmd"]
-    assert "Hello" in captured["cmd"]
+    # Round-5 audit fix: prompt now passed via STDIN, not argv.
+    cmd = captured["cmd"]
+    assert isinstance(cmd, list)
+    assert cmd[0] == "claude"
+    assert "-p" in cmd
+    assert "--model" in cmd
+    assert "claude-sonnet-4-6" in cmd
+    assert "Hello" not in cmd  # prompt NOT in argv anymore
+    assert captured["input"] == "Hello"  # prompt now in stdin
 
 
 def test_invoke_strips_trailing_whitespace(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -71,10 +75,11 @@ def test_invoke_strips_trailing_whitespace(monkeypatch: pytest.MonkeyPatch) -> N
 
 
 def test_invoke_with_system_prompt_prepends_it(monkeypatch: pytest.MonkeyPatch) -> None:
-    captured: dict[str, list[str]] = {}
+    captured: dict[str, object] = {}
 
     def fake_run(cmd: list[str], **kwargs: object) -> MagicMock:
         captured["cmd"] = cmd
+        captured["input"] = kwargs.get("input")
         result = MagicMock()
         result.returncode = 0
         result.stdout = "ok"
@@ -85,11 +90,11 @@ def test_invoke_with_system_prompt_prepends_it(monkeypatch: pytest.MonkeyPatch) 
     bridge = LLMBridge()
     bridge.invoke("user prompt", system="you are a robot")
 
-    # System text must appear somewhere in the final prompt arg
-    # (via --system flag OR prepended to prompt — implementation detail)
-    joined = " ".join(captured["cmd"])
-    assert "you are a robot" in joined
-    assert "user prompt" in joined
+    # Round-5 audit fix: system+prompt now flow via STDIN, not argv.
+    stdin = captured["input"]
+    assert isinstance(stdin, str)
+    assert "you are a robot" in stdin
+    assert "user prompt" in stdin
 
 
 # ─── invoke(): error paths ──────────────────────────────────────────────────

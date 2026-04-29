@@ -61,15 +61,22 @@ class LLMBridge:
         ``--system`` flag (not all CLI versions expose one) and keep the
         call shape minimal and portable.
 
+        Round-5 audit fix (P2-18): the full prompt is passed via STDIN
+        instead of argv. Previous implementation embedded the entire prompt
+        as a positional argv value — visible in `ps aux` / proc filesystem
+        / shell history if any wrapper logs the command. STDIN keeps prompt
+        content out of the process listing.
+
         :raises LLMError: if ``claude`` is missing, the call times out,
             or the subprocess exits non-zero.
         """
         full_prompt = f"{system}\n\n{prompt}" if system else prompt
-        cmd = ["claude", "-p", "--model", self.model, full_prompt]
+        cmd = ["claude", "-p", "--model", self.model]
 
         try:
             result = subprocess.run(  # noqa: S603 — fixed argv, no shell
                 cmd,
+                input=full_prompt,
                 capture_output=True,
                 text=True,
                 timeout=self.timeout_s,

@@ -264,7 +264,22 @@ def main(argv: list[str] | None = None) -> int:
         "--notion-token",
         dest="notion_token",
         default=None,
-        help="Notion integration token (highest precedence).",
+        help=(
+            "Notion integration token (highest precedence). "
+            "DEPRECATED — exposes secret in shell history / process list. "
+            "Prefer --notion-token-stdin or NOTION_TOKEN env var."
+        ),
+    )
+    parser.add_argument(
+        "--notion-token-stdin",
+        dest="notion_token_stdin",
+        action="store_true",
+        default=False,
+        help=(
+            "Read Notion token from stdin (Round-5 audit fix). "
+            "Recommended over --notion-token to keep the secret out of "
+            "shell history and process list."
+        ),
     )
     parser.add_argument(
         "--root",
@@ -277,12 +292,23 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    # Round-5 audit fix: prefer --notion-token-stdin over --notion-token.
+    cli_token = args.notion_token
+    if args.notion_token_stdin:
+        cli_token = sys.stdin.read().strip()
+        if not cli_token:
+            print(
+                "[sync_notion] --notion-token-stdin given but stdin was empty",
+                file=sys.stderr,
+            )
+            return 2
+
     cfg = load_config(root=args.root) if args.root is None else None
     root = args.root if args.root is not None else cfg.second_brain_root  # type: ignore[union-attr]
 
     return run(
         root=root,
-        cli_token=args.notion_token,
+        cli_token=cli_token,
         since=args.since,
         verbose=args.verbose,
     )

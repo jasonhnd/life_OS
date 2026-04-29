@@ -43,21 +43,48 @@ if [ -z "$INPUT" ]; then
 fi
 
 # ─── Extract command from hook JSON ─────────────────────────────────────────
+# Round-5 audit fix: distinguish "JSON parse failed" (fail-CLOSED — bad
+# input means we can't trust anything) from "valid JSON but command is
+# empty" (legit pass-through, e.g., a Bash hook fired with no command).
 COMMAND=""
+PARSE_OK=0
 if command -v jq >/dev/null 2>&1; then
-  COMMAND="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)"
+  if COMMAND="$(printf '%s' "$INPUT" | jq -er '.tool_input.command // ""' 2>/dev/null)"; then
+    PARSE_OK=1
+  fi
 fi
-if [ -z "$COMMAND" ]; then
-  COMMAND="$(printf '%s' "$INPUT" | python -c "
+if [ "$PARSE_OK" -eq 0 ]; then
+  PARSED="$(printf '%s' "$INPUT" | python -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
-    print(d.get('tool_input', {}).get('command', ''))
-except Exception:
-    pass
+    cmd = d.get('tool_input', {}).get('command', '')
+    print('OK\x1f' + (cmd if isinstance(cmd, str) else ''))
+except Exception as e:
+    print('FAIL\x1f' + str(e), file=sys.stderr)
+    sys.exit(1)
 " 2>/dev/null)"
+  if [ -n "$PARSED" ]; then
+    PARSE_OK=1
+    COMMAND="${PARSED#OK?}"   # strip 'OK' + 0x1f separator
+    [ "$COMMAND" = "$PARSED" ] && COMMAND=""
+  fi
 fi
+
+if [ "$PARSE_OK" -eq 0 ]; then
+  # Both jq and python failed to parse the input — corrupt payload.
+  # Fail-CLOSED so unscanned commands don't slip through.
+  cat >&2 <<EOF
+🛡️ Life OS 守门人 · 输入 JSON 无法解析（fail-CLOSED）
+
+  原因: jq 和 python 都无法解析 stdin。Approval guard 拒绝放行未扫描命令。
+  补救: 检查 Claude Code hook input 格式；或设置 LIFEOS_YOLO_MODE=1 暂时绕过
+EOF
+  exit 2
+fi
+
 if [ -z "$COMMAND" ]; then
+  # Valid JSON but empty command — legit pass-through.
   exit 0
 fi
 

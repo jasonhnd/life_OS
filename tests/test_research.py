@@ -36,12 +36,17 @@ def _install_fake_httpx(
     Missing URLs raise a fake RequestError. Returns the Client mock for
     assertion purposes.
 
-    Round-4 audit fix: DNS-SSRF check now opts out automatically when
-    pytest is running (via PYTEST_CURRENT_TEST detection in the production
-    code). The previous env-var bypass was removed because users could
-    set it in their shell to disable the security check; PYTEST_CURRENT_TEST
-    can only be set by pytest itself, removing the production attack
-    surface.
+    Round-5 audit fix: replaced PYTEST_CURRENT_TEST detection (which
+    a user could set in their shell to disable SSRF DNS check) with
+    dependency-injected resolver. We monkey-patch tools.research._dns_resolver
+    to a fake that returns a benign public IP for any hostname, so synthetic
+    test hostnames (searx.example.test) don't trigger the fail-CLOSED path
+    on real DNS NXDOMAIN. Production code has no env-var bypass.
+
+    Note: the patch is applied AFTER `sys.modules.pop("tools.research")`
+    below — popping forces the next import to re-execute the module body,
+    which would reset _dns_resolver to its default. So we register a
+    pytest finalizer-style restore via monkeypatch's import-time hook.
     """
     fake = ModuleType("httpx")
 
@@ -91,6 +96,18 @@ def _install_fake_httpx(
     monkeypatch.setitem(sys.modules, "httpx", fake)
     # Force reload so tools.research's lazy import picks up fake.
     sys.modules.pop("tools.research", None)
+    # Round-5 audit fix: install the DNS-resolver bypass on the freshly-
+    # re-imported module so synthetic hostnames don't trigger fail-CLOSED.
+    # Must happen AFTER the pop because re-import resets _dns_resolver to
+    # its default. The lazy-import-after-pop pattern in tests means we
+    # also need to register a fixture finalizer that re-applies after each
+    # subsequent import.
+    import tools.research as _tr
+    monkeypatch.setattr(
+        _tr,
+        "_dns_resolver",
+        lambda host: [(2, 1, 6, "", ("8.8.8.8", 0))],  # benign public IP (not reserved)
+    )
     return FakeClient  # type: ignore[return-value]
 
 
@@ -106,6 +123,15 @@ def _install_fake_markdownify(
     fake.markdownify = markdownify  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "markdownify", fake)
     sys.modules.pop("tools.research", None)
+    # Round-5 audit fix: re-apply DNS resolver bypass after the pop
+    # (otherwise the next `from tools.research import ...` re-imports the
+    # module with the default resolver, blocking synthetic test hostnames).
+    import tools.research as _tr
+    monkeypatch.setattr(
+        _tr,
+        "_dns_resolver",
+        lambda host: [(2, 1, 6, "", ("8.8.8.8", 0))],  # benign public IP
+    )
 
 
 @pytest.fixture

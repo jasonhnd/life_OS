@@ -57,21 +57,22 @@ When the user sends the first message, spawn simultaneously:
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
-### 0.5. Pre-Router Cognitive Layer (Cortex Phase 1, v1.7.2) — ALWAYS-ON
+### 0.5. Pre-Router Cognitive Layer (Cortex) — PULL-BASED in v1.8.0
 
-For v1.7.2, the orchestrator spawns the Pre-Router Cognitive Layer for every user message, including Start Session triggers. `_meta/config.md` may hold thresholds and secondary switches, but `cortex_enabled` is deprecated and MUST NOT be used as an activation gate. Do not place Cortex config under `_meta/cortex/`; if `_meta/sessions/INDEX.md` is missing or empty, auto-bootstrap before Step 0.5 and degrade only if bootstrap or a Cortex component fails.
+> **v1.8.0 pivot (R-1.8.0-011)**: Cortex always-on was REMOVED. Previous v1.7.2 design spawned 3 cognitive subagents on every user message (~$0.05-0.10 per turn even when LLM didn't need historical context). v1.8.0 replaces this with **pull-based** activation: ROUTER decides per-message whether to launch any Cortex subagent based on the actual question. Canonical guidance in `pro/CLAUDE.md` §0.5.
 
-**3 parallel subagents** (each independent, information-isolated from each other):
+**Subagents available (ROUTER spawns on demand)** — never automatic:
 
-1. `hippocampus` — cross-session memory retrieval via 3-wave spreading activation over `_meta/sessions/INDEX.md` and the concept graph. Reads only its dedicated inputs. See `pro/agents/hippocampus.md`.
-2. `concept-lookup` (v1.7 Phase 1.5) — direct concept-graph match via `_meta/concepts/INDEX.md`, returns top 5-10 concepts directly mentioned/implied by current message. See `pro/agents/concept-lookup.md`.
-3. `soul-check` — relevant SOUL dimensions via the current SOUL Health Report. The orchestrator passes the SOUL Health block from RETROSPECTIVE's housekeeping output.
+1. `hippocampus` — cross-session memory retrieval via 3-wave spreading activation. Useful when user asks "what did we decide about X" / "remember the discussion about Y". See `pro/agents/hippocampus.md`.
+2. `concept-lookup` — direct concept-graph match. Useful when user mentions a known concept that has accumulated context. See `pro/agents/concept-lookup.md`.
+3. `soul-check` — relevant SOUL dimensions. Useful when message touches values / identity / recurring patterns. See `pro/agents/soul-check.md`.
+4. `gwt-arbitrator` — only spawned if ≥2 of the above produced signals. See `pro/agents/gwt-arbitrator.md`.
 
-After GWT arbitrator returns `[COGNITIVE CONTEXT]`, the orchestrator MAY also trigger **ROUTER Step 7.5 (narrator mode)** — a ROUTER-internal narrator composition step (NOT a standalone subagent; see `pro/compliance/2026-04-21-narrator-spec-violation.md`) that runs AFTER REVIEWER Final Review (between step 6 and step 7) to wrap Summary Report substantive claims with `signal_id` citations from the cognitive context. Narrator-mode failure is non-blocking — falls back to v1.6.3 unwrapped Summary Report. The composition template lives at `pro/agents/narrator.md` (ROUTER-internal template, NOT spawnable via Task).
+**ROUTER Step 7.5 (narrator mode)**: ROUTER-internal composition that wraps Summary Report substantive claims with `signal_id` citations IF and ONLY IF cognitive context exists for the current turn. Composition template at `pro/agents/narrator.md` (ROUTER-internal template, NOT spawnable via Task).
 
-When ROUTER Step 7.5 (narrator mode) runs, the orchestrator chains the `narrator-validator` subagent (a real standalone Sonnet subagent — cheaper than Opus) to audit citation discipline. Validator failures trigger up to 2 rewrite cycles inside ROUTER Step 7.5; after 2 failed rewrites, fall back to v1.6.3 unwrapped report and log to `_meta/eval-history/narrator-{date}.md`. See `pro/agents/narrator-validator.md`. **Budget (per `references/narrator-spec.md §11`)**: fallback fires when cumulative wall-clock across narrator + validator cycles exceeds **21 seconds**, OR any single regenerate-and-revalidate cycle exceeds **8 seconds** (typical total ≈ 18s).
+The `narrator-validator` subagent that previously audited citation discipline was REMOVED in R-1.8.0-011 (file `pro/agents/narrator-validator.md` deleted). Narrator now self-checks via inline rules in `pro/agents/narrator.md` — citation failures fall back to unwrapped Summary Report, no validator-rewrite cycles.
 
-After all 3 return (with 5s soft timeout, 15s hard timeout per individual subagent), spawn `gwt-arbitrator` with the consolidated outputs. See `pro/agents/gwt-arbitrator.md`.
+When the LLM determines retrieval is unnecessary (most messages), Step 0.5 is skipped entirely — saves ~$0.05-0.10 / turn vs the v1.7.2 always-on cost.
 
 **GWT arbitrator output** is a `[COGNITIVE CONTEXT]` Markdown block. Orchestrator **prepends** it to the user message before ROUTER sees it:
 
@@ -85,13 +86,13 @@ After all 3 return (with 5s soft timeout, 15s hard timeout per individual subage
 
 **ROUTER behaviour**: ROUTER parses the `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters to separate advisory content from real user input. The cognitive context is **advisory, not authoritative** — ROUTER may discard it if the user explicitly says "ignore history" or similar.
 
-**Failure / bootstrap modes**:
-- INDEX missing or empty → ROUTER runs `tools/migrate.py` to auto-bootstrap before Step 0.5; if bootstrap fails, degrade to v1.6.3 behaviour and ROUTER receives raw message
-- Any subagent times out → its slot becomes `null`, GWT proceeds with available signals
-- GWT timeout → orchestrator emits empty `[COGNITIVE CONTEXT]` block, ROUTER receives original message
-- Deprecated `cortex_enabled: false` in `_meta/config.md` → ignored for activation; Step 0.5 still runs
+**Failure / bootstrap modes (v1.8.0 pull-based)**:
+- ROUTER decides not to launch Cortex (most messages) → no `[COGNITIVE CONTEXT]` block, ROUTER receives raw user message
+- INDEX missing or empty → ROUTER reads `scripts/prompts/rebuild-concept-index.md` to bootstrap inline (replaces deleted `tools/migrate.py` per R-1.8.0-011); if bootstrap fails, ROUTER receives raw message
+- Any spawned Cortex subagent times out → its slot becomes `null`, GWT proceeds with available signals
+- GWT not spawned (only 1 Cortex signal) → ROUTER consumes that single signal directly, no arbitrator needed
 
-**Cost**: ~$0.05-0.10 per invocation. Cortex is always-on in v1.7.2; control cost by honoring Express/direct-handle reductions and degradation budgets, not by disabling Step 0.5.
+**Cost (v1.8.0)**: $0 on most messages because Cortex doesn't run by default. Cost only incurred when ROUTER explicitly decides historical context is needed for the current question.
 
 ### 1. ROUTER Triage
 

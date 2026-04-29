@@ -64,12 +64,23 @@ rc_t3=0
 echo "" | bash "$HOOK" >/dev/null 2>&1 || rc_t3=$?
 assert_exit "$rc_t3" "0" "empty input exits 0"
 
-# T4: malformed JSON → exit 0 (no command extracted, pass through)
+# T4: malformed JSON → exit 2 fail-CLOSED (Round-5 audit fix)
+# Previously this case silently passed; now we fail-CLOSED because corrupt
+# payload means we can't trust ANY field — including whether the command
+# is actually empty vs the parser just failed.
 echo ""
-echo "T4: malformed JSON → exit 0"
+echo "T4: malformed JSON → exit 2 fail-CLOSED"
 rc_t4=0
-echo "not json at all" | bash "$HOOK" >/dev/null 2>&1 || rc_t4=$?
-assert_exit "$rc_t4" "0" "malformed json exits 0 (silent passthrough)"
+out_t4="$(echo "not json at all" | bash "$HOOK" 2>&1)" || rc_t4=$?
+assert_exit "$rc_t4" "2" "malformed json exits 2 (fail-CLOSED)"
+if echo "$out_t4" | grep -qiE "无法解析|fail-CLOSED|parse"; then
+  TEST_PASS_COUNT=$((TEST_PASS_COUNT + 1))
+  echo "  PASS stderr explains parse failure"
+else
+  TEST_FAIL_COUNT=$((TEST_FAIL_COUNT + 1))
+  echo "  FAIL stderr did not explain parse failure"
+  echo "       stderr: $out_t4"
+fi
 
 # T5: approval.py source missing → exit 2 fail-CLOSED (Round-3 audit fix)
 echo ""

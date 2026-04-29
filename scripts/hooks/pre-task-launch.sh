@@ -31,20 +31,38 @@ if [ -z "$INPUT" ]; then
   exit 0
 fi
 
+# Round-5 audit fix: distinguish parse-failure from empty-subagent.
+# Parse failure logs a stderr warning so the issue is visible (this hook's
+# role is to enforce the knowledge-extractor → archiver carve-out, not
+# general security; we don't block the launch but we surface the failure).
 SUBAGENT=""
+PARSE_OK=0
 if command -v jq >/dev/null 2>&1; then
-  SUBAGENT="$(printf '%s' "$INPUT" | jq -r '.tool_input.subagent_type // .tool_input.description // empty' 2>/dev/null)"
+  if SUBAGENT="$(printf '%s' "$INPUT" | jq -er '.tool_input.subagent_type // .tool_input.description // ""' 2>/dev/null)"; then
+    PARSE_OK=1
+  fi
 fi
-if [ -z "$SUBAGENT" ]; then
-  SUBAGENT="$(printf '%s' "$INPUT" | python -c "
+if [ "$PARSE_OK" -eq 0 ]; then
+  PARSED="$(printf '%s' "$INPUT" | python -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
     ti = d.get('tool_input', {})
-    print(ti.get('subagent_type') or ti.get('description') or '')
+    val = ti.get('subagent_type') or ti.get('description') or ''
+    print('OK\x1f' + (val if isinstance(val, str) else ''))
 except Exception:
-    pass
+    sys.exit(1)
 " 2>/dev/null)"
+  if [ -n "$PARSED" ]; then
+    PARSE_OK=1
+    SUBAGENT="${PARSED#OK?}"
+    [ "$SUBAGENT" = "$PARSED" ] && SUBAGENT=""
+  fi
+fi
+
+if [ "$PARSE_OK" -eq 0 ]; then
+  echo "[pre-task-launch] WARNING: stdin JSON parse failed; cannot enforce knowledge-extractor carve-out for this launch" >&2
+  exit 0
 fi
 
 case "$SUBAGENT" in

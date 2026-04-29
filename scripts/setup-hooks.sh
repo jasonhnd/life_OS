@@ -282,7 +282,7 @@ register_hook "PreToolUse" "$HOOK_PRE_BASH_APPROVAL_ID" "Bash" \
 # ─── Register v1.8.0 hooks ──────────────────────────────────────────────────
 register_hook "SessionStart" "$HOOK_SESSION_START_INBOX_ID" "*" \
   "$V18_SESSION_START_INBOX_DEST" 5 \
-  "v1.8.0 · Inject inbox/notifications + recent cron runs as system-reminder at session start (cron→session bridge)"
+  "v1.8.0 · Inject _meta/inbox/notifications.md + maintenance task overdue status + review queue summary as system-reminder at session start (cron removed in R-1.8.0-011; all maintenance is user-invoked)"
 
 register_hook "PreToolUse" "$HOOK_PRE_TASK_LAUNCH_ID" "Task" \
   "$V18_PRE_TASK_LAUNCH_DEST" 3 \
@@ -362,7 +362,7 @@ install_date: \"$install_date\"
 write_install_sha
 
 echo ""
-echo "🏛️ Setup complete. Life OS v1.7 hooks active:"
+echo "🏛️ Setup complete. Life OS v1.8.0 hooks active:"
 echo "   · SessionStart      $VERSION_HOOK_ID"
 echo "   · UserPromptSubmit  $LEGACY_GUARD_HOOK_ID (legacy)"
 echo "   · UserPromptSubmit  $HOOK_PRE_PROMPT_ID"
