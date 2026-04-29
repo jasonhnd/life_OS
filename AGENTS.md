@@ -1,6 +1,6 @@
 # Life OS · 三省六部制个人内阁系统
 
-> **v1.8.0 pivot 注解 (post-2026-04-29)**：本文件可能仍包含 v1.7 时代的 cron / always-on-Cortex / narrator-validator 描述。**权威 spec 是 `pro/CLAUDE.md`** —— v1.8.0 pivot 已重写 §0.5（Cortex 改 pull-based）+ Session Modes（cron 全删，维护任务全部 user-invoked）。本文件与 `pro/CLAUDE.md` 冲突时以 `pro/CLAUDE.md` 为准。本文件完整重写待办。
+> **v1.8.0 pivot 已完成 (R-1.8.0-013 round-7 audit · 2026-04-30)**：本文件已重写为 v1.8.0 host-agnostic 语义合同。Cortex 由 always-on 改为 pull-based，cron 已删除（全部维护任务 user-invoked），narrator-validator 已删除（改为 narrator inline self-check）。**权威 spec 仍是 `pro/CLAUDE.md`**；本文件提供 host-agnostic 抽象，与 `pro/CLAUDE.md` 冲突时以 `pro/CLAUDE.md` 为准。
 
 本项目使用三省六部制个人内阁系统。
 
@@ -11,35 +11,32 @@
   - Claude Code: `pro/CLAUDE.md`
   - Gemini CLI / Antigravity: `pro/GEMINI.md`
   - OpenAI Codex CLI: `pro/AGENTS.md`
-- **16 个 subagent 定义**：`pro/agents/*.md` — 各角色的岗位说明书（跨 host 共享）
+- **23 个 subagent 定义**：`pro/agents/*.md` — 各角色的岗位说明书（跨 host 共享）
 - **六领域职能详解**：`references/domains.md`
 - **标准场景配置**：`references/scene-configs.md`
 - **数据模型与 Notion 适配器**：`references/data-model.md`、`references/adapter-notion.md`
 
-## Host-Agnostic 语义合同（v1.7）
+## Host-Agnostic 语义合同（v1.8.0）
 
 本文件定义 Life OS 在任何 host（Claude Code / Gemini / Codex）上都必须满足的**语义合同**。具体 host 调用语法、子代理 spawn 方式、工具映射见 `pro/{CLAUDE,GEMINI,AGENTS}.md`。
 
-### Step 0.5 · Pre-Router Cognitive Layer（v1.7 Cortex Phase 1）· OPTIONAL
+### Step 0.5 · Pre-Router Cognitive Layer · PULL-BASED in v1.8.0
 
-当用户发送非 Start-Session 消息 **且** 绑定的 second-brain 中存在 `_meta/sessions/INDEX.md` 时，orchestrator **可以**在 ROUTER 介入之前启动认知前置层。激活由 `_meta/config.md` 中 `cortex_enabled: true|false` 控制，v1.7 默认 **opt-out**（关闭，需用户显式开启）。
+> v1.7.2 设计是 always-on（每条消息都 spawn 3 个 cognitive subagent，~$0.05-0.10 / turn）。**v1.8.0 R-1.8.0-011 改为 pull-based**：ROUTER 按消息内容判断是否需要历史 context，需要时才 spawn。`cortex_enabled` config flag 已不再用作激活闸门（保留是为旧 vault 兼容）。
 
-**语义合同**：
-1. 并行启动 3 个独立的 subagent（互相信息隔离，严格按 Information Isolation 表接收输入）：
-   - `hippocampus` — 跨会话记忆检索，基于 `_meta/sessions/INDEX.md` 和概念图做 3-wave spreading activation
-   - `concept-lookup`（Phase 1.5）— 直接概念图匹配，返回 Top 5-10 相关概念
-   - `soul-check` — 通过当前 SOUL Health Report 提供相关 SOUL 维度信号；orchestrator 把 RETROSPECTIVE housekeeping 输出的 SOUL Health block 传给它
-2. 3 个 subagent 返回后（5s soft / 15s hard 超时），启动 `gwt-arbitrator` 仲裁并合成 `[COGNITIVE CONTEXT]` 块
-3. Orchestrator 将 `[COGNITIVE CONTEXT]` 块**前置**到用户消息之上，再交给 ROUTER
-4. ROUTER 按分隔符识别"顾问信息"与"真实用户输入"；此 context 是**建议性**而非权威性的
+**可选 subagent（ROUTER 按需 spawn，不自动）**：
+1. `hippocampus` — 跨 session 记忆检索（user 问 "我们之前决定 X 怎么处理来着" 时启动）
+2. `concept-lookup` — 概念图匹配（user 提到已知 concept 时启动）
+3. `soul-check` — SOUL 维度相关性（消息触及价值观/身份/重复模式时启动）
+4. `gwt-arbitrator` — 当上述 ≥2 个返回信号时才 spawn，做仲裁
 
-**降级规则**（任一触发，Step 0.5 完全跳过，回退到 v1.6.3 行为）：
-- INDEX 文件缺失或为空
-- 任一 subagent 超时 → 该槽位置 `null`，GWT 基于可用信号继续
-- GWT 超时 → 发出空 `[COGNITIVE CONTEXT]` 块
-- `cortex_enabled: false`
+**降级规则**（v1.8.0 pull-based 简化）：
+- ROUTER 判断不需要 Cortex（多数消息）→ 直接处理 raw user message
+- INDEX 缺失或空 → ROUTER 内联读 `scripts/prompts/rebuild-concept-index.md` 引导（`tools/migrate.py` 已在 R-1.8.0-011 删除）
+- 任一 spawned subagent 超时 → 该槽位 null，GWT 用可用信号继续
+- 只有 1 个 Cortex 信号 → ROUTER 直接消费，不 spawn arbitrator
 
-**成本预算**：每次调用约 $0.05-0.10。用户累积 ≥30 session 后开启收益较大。
+**成本预算（v1.8.0）**：多数消息 $0（不 spawn）；仅在 ROUTER 显式判断需要历史 context 时计费。
 
 **Host 实现**：
 - Claude Code: `pro/CLAUDE.md` §0.5（Task tool + Shell Hook 双层防御）

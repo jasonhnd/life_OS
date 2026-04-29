@@ -168,7 +168,7 @@ v1.7.1 は、透明性と証拠の扱いを強化するリリースです。toke
 - 6 つの Cortex ユーザーガイド + v1.7-migration UX 章
 - cortex-spec + hippocampus-spec の中国語・日本語訳
 
-アップグレード：`uv run life-os-tool migrate`（詳細は [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md)）
+アップグレード（v1.6 → v1.7）：詳細は [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md)。以前の `uv run life-os-tool migrate` コマンドは R-1.8.0-011 で `life-os-tool` dispatcher と共に削除されました；現在は LLM 駆動の `scripts/prompts/migrate-from-v1.6.md` を使用、詳細は `pro/CLAUDE.md` §0.5。
 
 v1.7 の全 commit チェーンと COURT-START-001 v1.6.3 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
 

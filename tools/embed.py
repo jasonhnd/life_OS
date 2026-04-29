@@ -26,9 +26,10 @@ _NOTICE = (
 def main(argv: list[str] | None = None) -> int:
     """Print the unimplemented notice and exit 0.
 
-    ``argv`` is accepted but ignored; the tool has no flags. Default-None
-    signature matches the other v1.7 tools so ``tools/cli.py`` can dispatch
-    uniformly.
+    ``argv`` is accepted but ignored; the tool has no flags. The
+    default-None signature is preserved as a stable public contract for
+    callers that invoke via ``python -m tools.embed`` (the previous
+    ``tools/cli.py`` dispatcher was removed in R-1.8.0-011).
     """
     del argv  # explicitly unused
     print(_NOTICE)

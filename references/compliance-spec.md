@@ -126,12 +126,20 @@ Deprecated v1.7.2.1 subclasses remain documented below only for old evals, incid
 - **Logged fields**: `Type=C-brief-incomplete`; `Severity=P1`; `required_headings.retrospective: [`## 0. ${RETRO_NAME} · 上朝准备(含 hook 健康 + 版本核查 + Cortex 状态)`, `## 1. 二脑同步状态`, `## 2. SOUL Health 报告`, `## 3. 18 步执行(自然输出,不强制 marker)`, `## 4. 御史台巡查(AUDITOR Mode 3)`, `## 5. 待陛下圣裁`]`; `required_headings.archiver: [`## Phase 1 · Outbox`, `## Phase 2 · Wiki Extraction`, `## Phase 3 · DREAM Triggers`, `## Phase 4 · Git Sync`, `## Completion Checklist`]`; `missing_headings: <comma-separated list of missing literal headings>`; `Details` must include a concrete evidence marker (grep output, transcript quote, or tool-call ID) and state that the run reached final briefing output; `Resolved=false` until the briefing contract fix ships and passes regression.
 - **Escalation**: Inherits the Class C standard ladder as its own type (`C-brief-incomplete`). It does not count toward base `C` archiver-incomplete thresholds.
 
-### Deprecated subclass: C-step-skipped (R10; not active v1.7.2.1)
+### Retired subclass: C-step-skipped (R10; deprecated v1.7.2.1, fully retired v1.8.0 R-1.8.0-011)
 
-- **Definition**: ROUTER did not run `retrospective-mode-0.sh`, or runtime/router evidence shows the pre-fetched Mode 0 path was skipped before briefing assembly.
-- **Detection**: AUDITOR no longer requires all 11 retrospective pre-fetch markers to be pasted into the final briefing. Use ROUTER stdout/runtime audit evidence for step execution; `bash scripts/lifeos-compliance-check.sh retrospective-completeness <briefing>` checks only the core briefing marker literals. Bash exit code is authoritative.
-- **Logged fields**: `Type=C-step-skipped`; `Severity=P0`; `missing_markers: <comma-separated list>`; `session_id: <session_id or unknown>`; `agent=retrospective`; `Details` must include concrete grep/stdout evidence.
-- **Escalation**: Standard Class C ladder.
+- **v1.8.0 status (Round-7 audit fix)**: This subclass is RETIRED. The
+  underlying script `scripts/retrospective-mode-0.sh` was deleted in the
+  R-1.8.0-011 Option A pivot — retrospective now executes all 18 Mode 0
+  steps inline, so there is no pre-fetch path that could be "skipped".
+- **Equivalent v1.8.0 violation**: missing-step compliance is now caught
+  by `briefing-completeness` (existing C class) — if retrospective bails
+  before producing the 6 H2 sections + version markers + Cortex status,
+  the existing `briefing-completeness` check fires.
+- **Historical definition (kept for archive readers)**: ROUTER did not
+  run `retrospective-mode-0.sh`, or runtime/router evidence showed the
+  pre-fetched Mode 0 path was skipped before briefing assembly. AUDITOR
+  no longer emits `Type=C-step-skipped` in v1.8.0.
 
 ### Deprecated subclass: C-fresh-skip (R12; not active v1.7.2.1)
 

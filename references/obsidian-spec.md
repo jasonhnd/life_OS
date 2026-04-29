@@ -41,7 +41,8 @@ Key settings written by `_write_obsidian_vault()`:
   "spellcheck": false,
   "userIgnoreFilters": [
     "_meta/runtime/",
-    "_meta/eval-history/cron-runs/",
+    "_meta/eval-history/recovery/",
+    "_meta/eval-history/maintenance/",
     ".git/",
     "scripts/",
     "tools/",

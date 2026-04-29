@@ -39,7 +39,7 @@ Build promise list: `(file, line, keyword, context_phrase)`.
 Look for matching evidence in:
 
 ```
-_meta/eval-history/cron-runs/*       (legacy from before v1.8.0 pivot)
+_meta/eval-history/maintenance/*     (current v1.8.0 path; user-invoked maintenance runs)
 _meta/eval-history/recovery/*        (archiver recovery runs)
 _meta/eval-history/auditor-patrol/*  (auditor patrol runs)
 _meta/eval-history/*-{YYYY-MM}.md    (monthly reports)

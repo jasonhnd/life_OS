@@ -57,14 +57,17 @@ invocation. Users do not activate virtualenvs manually. Every tool is
 invoked as:
 
 ```bash
-uv run tools/{tool_name}.py [args]
-# or via the unified CLI:
-uv run life-os-tool {command} [args]
+# v1.8.0 (current): direct module invocation
+uv run python -m tools.{tool_name} [args]
+
+# Pre-v1.8.0 (REMOVED in R-1.8.0-011 — tools/cli.py dispatcher deleted):
+# uv run life-os-tool {command} [args]
 ```
 
-The `life-os-tool` binary is installed by `uv sync` via the
-`[project.scripts]` table in `pyproject.toml`, dispatching to the
-appropriate module under `tools/` based on the first positional argument.
+The `life-os-tool` console script and `tools/cli.py` dispatcher were
+**removed in R-1.8.0-011**. Callers now invoke modules directly via
+`python -m tools.<name>`. The `[project.scripts]` table in `pyproject.toml`
+no longer registers the dispatcher entry.
 
 **Why uv**: resolves and installs faster than pip, handles Python version
 pinning, and produces reproducible lockfiles. New users clone the repo,
@@ -78,7 +81,7 @@ support burden.
 ```
 tools/
 ├── __init__.py
-├── cli.py                 # Unified entry: `uv run life-os-tool <cmd>`
+│  (cli.py removed in R-1.8.0-011 — invoke modules directly)
 ├── reindex.py             # v1.7 core — compile _meta/sessions/INDEX.md
 ├── reconcile.py           # v1.7 core — schema / link / orphan checker
 ├── stats.py               # v1.7 core — usage + quality statistics
