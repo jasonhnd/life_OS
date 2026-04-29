@@ -229,13 +229,26 @@ def export_pdf(scope: Path, out_path: Path) -> int:
     combined.write_text("\n\n---\n\n".join(body_parts), encoding="utf-8")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    # R-1.8.0-013 deep-audit fix: 60s timeout prevents pandoc hanging
+    # indefinitely on malformed input or filesystem stalls. Most exports
+    # complete in < 5 seconds; 60s is a generous upper bound.
     try:
         result = subprocess.run(
             ["pandoc", str(combined), "-o", str(out_path)],
             capture_output=True,
             text=True,
             check=False,
+            timeout=60,
         )
+    except subprocess.TimeoutExpired as exc:  # pragma: no cover
+        size = combined.stat().st_size if combined.exists() else "unknown"
+        print(
+            f"[export] pandoc timed out after {exc.timeout}s. "
+            f"Input file size: {size} bytes. "
+            "Try splitting the export into smaller scopes or reducing entry count.",
+            file=sys.stderr,
+        )
+        return 1
     except (OSError, FileNotFoundError) as exc:  # pragma: no cover
         print(f"[export] pandoc invocation failed: {exc}", file=sys.stderr)
         return 1

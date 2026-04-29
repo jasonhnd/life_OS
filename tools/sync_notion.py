@@ -204,7 +204,13 @@ def run(
                 properties=_build_properties(entry),
                 body=None,
             )
-        except BaseException as exc:  # noqa: BLE001 -- per-page isolation
+        except (KeyboardInterrupt, SystemExit):
+            # Re-raise interpreter-level signals — they should propagate up
+            # so the user can Ctrl-C out and exit codes from sys.exit() flow
+            # correctly. Previous BaseException catch swallowed both,
+            # turning Ctrl-C into a "page failed" log entry. R-1.8.0-013 fix.
+            raise
+        except Exception as exc:  # noqa: BLE001 -- per-page isolation
             code, reason = _classify_failure(exc)
             failures += 1
             worst_exit_code = max(worst_exit_code, code)

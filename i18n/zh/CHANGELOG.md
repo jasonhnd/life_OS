@@ -143,6 +143,20 @@
     - **LOW · 互斥注释误导** —— 写的是 "ROUTER 会收到两个相互竞争的 system-reminder 块"，但实际伤害是它们会拼接成一个 banner 错配的合并块。重写注释说明真实伤害。
     - **LOW · MIGRATE_WIKILINKS_EOF heredoc 阶段编号不按执行顺序**（0,1,5,2,3,4,6）—— LLM 顺序跟读会困惑。重写为按执行顺序的 1-10 编号 + 显式说明源 prompt 的阶段编号为何不同。
 
+- **R-1.8.0-013 用户只读 repo 审查（同次提交）**：用户独立审查了所有 67 个 tracked `.py/.sh/.yml` 文件（范围比 R-1.8.0-013 更广），发现 9 个可执行项。全部接受并修复（"全部干完，不要再留任何 bug 了"）：
+  - **CRITICAL · `scripts/hooks/pre-bash-approval.sh` fail-OPEN**：3 处 fail-open 让危险命令在 approval bridge 崩溃时静默放行（ImportError、JSON 解析失败、空输出）。3 个路径全部改成 fail-CLOSED —— bridge 错误现在阻止命令并通过 stderr 输出诊断信息（rc=$BRIDGE_RC + 捕获的 stderr + LIFEOS_YOLO_MODE=1 旁路指引）。"未安装"情况仍然放行（不能强制不存在的 guard），但所有其他路径默认拒绝。
+  - **CRITICAL · `tools/research.py` SSRF**：研究工具抓取搜索结果中任意 `http(s)` URL，没有私网拒绝列表 —— 可能被精心构造的搜索结果用作内网探测器。加 `_is_private_ip()` 覆盖 IPv4 RFC1918 / loopback / link-local / 云元数据 + IPv6 ::1 / fc00::/7 / fe80::/10 + 字面 hostname 拒绝列表（`localhost`、`metadata.google.internal`、`metadata.azure.com`、AWS 169.254.169.254 等）。加 `_is_safe_url()` 拒绝非 http(s) 协议并跑 IP 检查。在任何网络 I/O 前 wired 到 `_fetch_text` 拦截。被阻止 URL 输出 stderr 让 operator 看到拒绝。同时加 `_MAX_RESPONSE_BYTES = 5 MB` 截断限制内存。
+  - **CRITICAL · `tools/sync_notion.py` BaseException 捕获**：每页同步循环捕获 `BaseException`，吞掉 `KeyboardInterrupt` / `SystemExit` 把 Ctrl-C 记录成"page failed"。改成 `(KeyboardInterrupt, SystemExit): raise` 优先，然后 `Exception` 处理实际同步失败。解释器信号现在正确传播。
+  - **CRITICAL · `tools/approval.py` Tirith 静默缺失**：optional `tools.tirith_security` 模块的 ImportError 被静默吞掉但 `setup-hooks.sh` 描述声称 "tirith enabled"。加一次性 stderr warning 当 Tirith 不可用 + 模块级 `_TIRITH_UNAVAILABLE_WARNED` flag（每进程 warn 一次，不是每命令）。更新 `setup-hooks.sh` 描述为 "optional tirith if installed" 让说明匹配实际。
+  - **CRITICAL · `tools/seed_concepts.py` fresh clone 上崩**：依赖在 R-1.8.0-011 cortex-helper 清理中删除的 `tools.lib.cortex.{concept,extraction}` 模块，所以 `import tools.seed_concepts` 在每个 fresh clone 上都失败（用 `python -c` 实测验证）。功能已被 LLM 驱动的 `scripts/prompts/extract-concepts.md` 和 `scripts/prompts/rebuild-concept-index.md` 替代。删除死模块 + 测试（`tests/test_seed_concepts.py`）。
+  - **HIGH · `.github/workflows/test.yml` ruff `continue-on-error: true`**：lint 回归静默通过。移除 `continue-on-error`。需要先清理现有 baseline —— 修了 16 个 lint 错误（12 个自动 + 4 个手动：`B023` `approval.py:455` `get_input` 线程函数 closure 绑定 bug、`SIM105` try/except/pass → `contextlib.suppress`、`PTH105/108` `os.replace/unlink` → `Path.replace/unlink`、`SIM102` `skill_manager.py:272` 嵌套 if 合并）。Ruff baseline 现在干净。
+  - **HIGH · `.github/workflows/test.yml` bash 语法检查漏 `scripts/lib/*.sh`**：硬编码 glob 只列了 `scripts/*.sh scripts/hooks/*.sh evals/run-eval.sh tests/hooks/test_*.sh`。改成 `git ls-files '*.sh'` 让任何目录下的新 shell 文件自动覆盖。验证当前 18 个 tracked `.sh` 全部通过 `bash -n`。
+  - **HIGH · `scripts/hooks/pre-write-scan.sh` JSON 正则解析**：jq 缺失时用 `grep/sed` 正则解析 JSON 在转义引号 / 多行内容 / 嵌套字段上失败 → 未扫描的写入静默放行。加 Python JSON parser 作为中间层 fallback（Python 在 Claude Code 运行的任何地方都有；用 `\x1f` unit separator 安全分隔 file_path 和 content）。最后一道正则路径现在对敏感路径（`/_meta/`、`/SOUL.md`、`/wiki/`、`/.env`、`/secrets`）FAIL-CLOSED —— 阻止 + 告诉用户安装 jq 或 python。
+  - **MEDIUM · `tools/search.py` 吞掉 config 异常**：bare `except Exception` 同时隐藏配置损坏 AND ImportError / AttributeError（config loader 真实 bug）。收紧到 `(FileNotFoundError, OSError, ValueError, KeyError)` + stderr warning 让损坏 config 可见，同时保留 recency_boost_days=90 默认 fallback。
+  - **MEDIUM · `tools/export.py` pandoc 无 timeout**：在格式错误的输入或文件系统卡住时无限等。加 `timeout=60` 到 `subprocess.run` + 新 `subprocess.TimeoutExpired` handler 报告输入文件大小和补救建议到 stderr。
+
+净：11 文件修改，2 文件删除（seed_concepts.py + test）。所有之前的 hook 测试仍然通过。3 个之前就存在的 `test_stop_session_verify.sh` 失败未变（最近一次改在 v1.7.3，与本次审查无关）。
+
 ### 迁移
 
 ```bash

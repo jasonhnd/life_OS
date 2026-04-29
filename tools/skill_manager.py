@@ -24,7 +24,7 @@ import re
 import sys
 import tempfile
 from collections.abc import Mapping, Sequence
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -81,7 +81,7 @@ class MethodManagerError(ValueError):
 
 def _now_iso() -> str:
     """Return an ISO 8601 timestamp suitable for method frontmatter."""
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    return datetime.now(UTC).isoformat(timespec="seconds")
 
 
 def _require_yaml() -> None:
@@ -152,10 +152,10 @@ def _atomic_write_text(file_path: Path, content: str, encoding: str = "utf-8") -
     try:
         with os.fdopen(fd, "w", encoding=encoding, newline="\n") as handle:
             handle.write(content)
-        os.replace(temp_path, file_path)
+        Path(temp_path).replace(file_path)
     except Exception:
         try:
-            os.unlink(temp_path)
+            Path(temp_path).unlink()
         except OSError:
             logger.error("Failed to remove temporary file %s", temp_path, exc_info=True)
         raise
@@ -269,10 +269,9 @@ def validate_method_markdown(content: str, *, root: Path | str | None = None) ->
             raise MethodManagerError("domain must be a string.")
         _validate_domain(frontmatter["domain"])
 
-    if "status" in frontmatter:
-        if frontmatter["status"] not in METHOD_STATUSES:
-            allowed = ", ".join(sorted(METHOD_STATUSES))
-            raise MethodManagerError(f"status must be one of: {allowed}.")
+    if "status" in frontmatter and frontmatter["status"] not in METHOD_STATUSES:
+        allowed = ", ".join(sorted(METHOD_STATUSES))
+        raise MethodManagerError(f"status must be one of: {allowed}.")
 
     if "confidence" in frontmatter:
         if not _is_number(frontmatter["confidence"]):

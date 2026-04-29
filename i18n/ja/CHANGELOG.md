@@ -143,6 +143,20 @@
     - **LOW · 相互排他コメントが誤解を招く** —— 「ROUTER は 2 つの競合する system-reminder ブロックを受け取る」と書いていたが、実際の害は banner が不一致な 1 つの結合ブロックに連結されること。コメントを書き直して実際の害を説明。
     - **LOW · MIGRATE_WIKILINKS_EOF heredoc のフェーズ番号が実行順でない**（0,1,5,2,3,4,6）—— LLM が順番に追うと混乱。実行順の 1-10 番号付きリストに書き直し + ソース prompt のフェーズ番号がなぜ異なるかの明示的ノート追加。
 
+- **R-1.8.0-013 ユーザー読み取り専用 repo 監査（同コミット）**：ユーザーが独立して 67 個の tracked `.py/.sh/.yml` ファイル全てを監査（R-1.8.0-013 より広範囲）し、9 個のアクション項目を発見。「全部干完，不要再留任何 bug 了」マンデートに従い同リリース内ですべて受け入れ修正：
+  - **CRITICAL · `scripts/hooks/pre-bash-approval.sh` fail-OPEN**：3 つの fail-open パスが approval bridge クラッシュ時に危険コマンドを静かに通過させていた（ImportError、JSON パース失敗、空出力）。3 つのパス全て fail-CLOSED に書き直し —— bridge エラーは現在コマンドをブロックし、stderr 経由で診断情報をユーザーに提示（rc=$BRIDGE_RC + キャプチャされた stderr + LIFEOS_YOLO_MODE=1 バイパス手順）。「未インストール」のケースは依然通過（存在しない guard を強制できない）が、他のあらゆるパスはデフォルトで拒否。
+  - **CRITICAL · `tools/research.py` SSRF**：研究ツールが検索結果から任意の `http(s)` URL を取得、private-network denylist なし —— 細工された検索結果を介して内部ネットワークプローブとして使用される可能性。`_is_private_ip()` 追加（IPv4 RFC1918 / loopback / link-local / クラウドメタデータ + IPv6 ::1 / fc00::/7 / fe80::/10 + リテラル hostname denylist：`localhost`、`metadata.google.internal`、`metadata.azure.com`、AWS 169.254.169.254 など）をカバー。`_is_safe_url()` 追加で非 http(s) スキーム拒否 + IP チェック実行。任意のネットワーク I/O 前に `_fetch_text` に配線してブロック。ブロックされた URL は stderr に表示し、operator が拒否を見られるよう。`_MAX_RESPONSE_BYTES = 5 MB` 切り詰めも追加でメモリ制限。
+  - **CRITICAL · `tools/sync_notion.py` BaseException キャッチ**：ページごとの同期ループが `BaseException` をキャッチし、`KeyboardInterrupt` / `SystemExit` を呑み込んで Ctrl-C を「page failed」としてログ。`(KeyboardInterrupt, SystemExit): raise` を最初に、次に `Exception` で実際の同期失敗を処理するよう変更。インタプリタシグナルが正しく伝播するように。
+  - **CRITICAL · `tools/approval.py` Tirith サイレントミス**：オプションの `tools.tirith_security` モジュールの ImportError は静かに呑み込まれていたが、`setup-hooks.sh` の説明は「tirith enabled」と謳っていた。Tirith 利用不可時の一回限り stderr warning + モジュールレベル `_TIRITH_UNAVAILABLE_WARNED` フラグを追加（コマンドごとではなくプロセスごとに 1 回 warn）。`setup-hooks.sh` 説明を「optional tirith if installed」に更新し、開示が現実と一致するように。
+  - **CRITICAL · `tools/seed_concepts.py` fresh clone で破綻**：R-1.8.0-011 cortex-helper クリーンアップで削除された `tools.lib.cortex.{concept,extraction}` モジュールに依存、よって `import tools.seed_concepts` はすべての fresh clone で失敗（`python -c` で実証検証済）。機能は LLM 駆動の `scripts/prompts/extract-concepts.md` と `scripts/prompts/rebuild-concept-index.md` で既に置換済。デッドモジュール + テスト（`tests/test_seed_concepts.py`）削除。
+  - **HIGH · `.github/workflows/test.yml` ruff `continue-on-error: true`**：lint 回帰が静かに通過。`continue-on-error` を削除。既存ベースラインのクリーンアップが必要 —— 16 個の lint エラーを修正（12 個自動 + 4 個手動：`B023` `approval.py:455` `get_input` スレッド関数のクロージャバインディングバグ、`SIM105` try/except/pass → `contextlib.suppress`、`PTH105/108` `os.replace/unlink` → `Path.replace/unlink`、`SIM102` `skill_manager.py:272` ネスト if 結合）。Ruff ベースラインがクリーンに。
+  - **HIGH · `.github/workflows/test.yml` bash 構文チェックが `scripts/lib/*.sh` を漏らす**：ハードコード glob は `scripts/*.sh scripts/hooks/*.sh evals/run-eval.sh tests/hooks/test_*.sh` だけ列挙。`git ls-files '*.sh'` に変更し、任意のディレクトリ下の新規 shell ファイルが自動的にカバーされるように。現在 tracked の 18 個の `.sh` 全てが `bash -n` をパスすることを検証。
+  - **HIGH · `scripts/hooks/pre-write-scan.sh` JSON 正規表現パース**：jq 不在時に `grep/sed` 正規表現で JSON パースしていたが、エスケープされた引用符 / 複数行コンテンツ / ネストされたフィールドで失敗 → スキャンされていない書き込みのサイレントリーク。Python JSON パーサーを中間層フォールバックとして追加（Python は Claude Code が動作するあらゆる場所で利用可能；`\x1f` unit separator で file_path と content を安全に区切る）。最終手段の正規表現パスは現在センシティブパス（`/_meta/`、`/SOUL.md`、`/wiki/`、`/.env`、`/secrets`）に対して FAIL-CLOSED —— ブロック + jq か python のインストールをユーザーに伝える。
+  - **MEDIUM · `tools/search.py` config 例外を呑み込む**：bare `except Exception` が破損した config と ImportError / AttributeError（config loader の実バグ）の両方を隠す。`(FileNotFoundError, OSError, ValueError, KeyError)` + stderr warning に絞り込み、破損 config を可視化しつつ recency_boost_days=90 デフォルトフォールバックを保持。
+  - **MEDIUM · `tools/export.py` pandoc に timeout なし**：不正な入力やファイルシステムストールで無限待機。`subprocess.run` に `timeout=60` 追加 + 新しい `subprocess.TimeoutExpired` handler で入力ファイルサイズと是正ヒントを stderr に報告。
+
+ネット：11 ファイル修正、2 ファイル削除（seed_concepts.py + test）。以前の hook テストは全てパス。3 個の既存の `test_stop_session_verify.sh` 失敗は未変（最後の変更は v1.7.3、本監査とは無関係）。
+
 ### マイグレーション
 
 ```bash

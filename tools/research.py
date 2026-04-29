@@ -355,13 +355,88 @@ def _open_client(httpx_mod: Any, *, user_agent: str) -> Any:
     )
 
 
+# SSRF denylist (R-1.8.0-013 deep-audit fix). Blocks fetches against
+# private/loopback/link-local/cloud-metadata IPs to prevent the research
+# tool from being used as an internal-network probe via crafted search
+# results. List sources: RFC1918 / RFC6890 / cloud metadata IPs.
+_SSRF_DENY_HOSTS = frozenset({
+    "localhost", "ip6-localhost", "ip6-loopback",
+    # Cloud instance metadata endpoints (AWS / GCP / Azure / Alibaba / Oracle):
+    "169.254.169.254", "metadata.google.internal", "metadata.goog",
+    "metadata.azure.com", "100.100.100.200",
+})
+
+
+def _is_private_ip(host: str) -> bool:
+    """Return True if host resolves to a private / loopback / link-local IP.
+
+    Covers IPv4 RFC1918, IPv4 loopback (127/8), IPv4 link-local (169.254/16),
+    IPv4 cloud metadata, IPv6 ::1 / fc00::/7 / fe80::/10. Hostnames in the
+    deny set are checked literally (case-insensitive).
+    """
+    import ipaddress
+    h = host.lower().strip("[]")
+    if h in _SSRF_DENY_HOSTS:
+        return True
+    try:
+        ip = ipaddress.ip_address(h)
+    except ValueError:
+        # Not a literal IP — could still be a hostname pointing at one,
+        # but DNS resolution adds latency + TOCTOU. We rely on the literal
+        # checks above for hostnames; this catches direct IP literals only.
+        return False
+    return (
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_multicast
+        or ip.is_reserved
+        or ip.is_unspecified
+    )
+
+
+def _is_safe_url(url: str) -> tuple[bool, str]:
+    """Return (ok, reason_if_blocked) for SSRF safety check.
+
+    Allows only http(s) schemes and rejects hosts on the SSRF denylist.
+    """
+    try:
+        parsed = urlparse(url)
+    except (ValueError, TypeError):
+        return False, "url-parse-error"
+    if parsed.scheme.lower() not in ("http", "https"):
+        return False, f"unsupported-scheme:{parsed.scheme}"
+    if not parsed.hostname:
+        return False, "missing-hostname"
+    if _is_private_ip(parsed.hostname):
+        return False, f"ssrf-denied:{parsed.hostname}"
+    return True, ""
+
+
+# Maximum response body size before truncation (R-1.8.0-013 deep-audit fix).
+# Default 5 MB per page is enough for any reasonable text/HTML page; binary
+# blobs and unbounded streams get truncated with a warning rather than
+# blowing up memory or filling the inbox.
+_MAX_RESPONSE_BYTES = 5 * 1024 * 1024  # 5 MB
+
+
 def _fetch_text(
     client: Any,
     url: str,
     *,
     headers: dict[str, str] | None = None,
+    max_bytes: int = _MAX_RESPONSE_BYTES,
 ) -> str | None:
-    """Return body text for a URL, or None on any error."""
+    """Return body text for a URL, or None on any error.
+
+    Performs SSRF safety check before fetching. Truncates response body
+    at ``max_bytes`` to bound memory.
+    """
+    safe, reason = _is_safe_url(url)
+    if not safe:
+        # Surface to stderr so the operator can see why a fetch was skipped.
+        print(f"[research] SSRF guard blocked {url} ({reason})", file=sys.stderr)
+        return None
     try:
         resp = (
             client.get(url, headers=headers)
@@ -375,7 +450,19 @@ def _fetch_text(
     except Exception:  # noqa: BLE001
         return None
     text = getattr(resp, "text", "")
-    return text if isinstance(text, str) else None
+    if not isinstance(text, str):
+        return None
+    # Truncate UTF-8-safe at max_bytes (encode→slice→decode-with-errors='ignore').
+    encoded = text.encode("utf-8", errors="replace")
+    if len(encoded) > max_bytes:
+        truncated = encoded[:max_bytes].decode("utf-8", errors="ignore")
+        print(
+            f"[research] response truncated at {max_bytes} bytes "
+            f"({len(encoded)} bytes received from {url})",
+            file=sys.stderr,
+        )
+        return truncated
+    return text
 
 
 # ─── HTML link extraction ───────────────────────────────────────────────────

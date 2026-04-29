@@ -21,9 +21,17 @@
 # Bypass switch
 #   - export LIFEOS_YOLO_MODE=1   # one-session bypass (use sparingly)
 #
-# Safety design
-#   - Never blocks on tool failure (silent pass) — we don't want hook bugs
-#     to lock the user out of their own shell
+# Safety design (R-1.8.0-013 deep-audit fix · was fail-OPEN before)
+#   - **Fail-CLOSED on approval-bridge errors**: if approval.py raises,
+#     JSON parsing fails, or the decision payload is malformed, BLOCK the
+#     command and surface the cause to the user. Previous fail-OPEN
+#     behavior let dangerous commands through silently when the guard
+#     itself broke. The user can still bypass via LIFEOS_YOLO_MODE=1 if
+#     they consciously accept the risk.
+#   - **Setup-not-installed exception**: if lifeos source can't be located
+#     anywhere on disk (no approval.py exists at any candidate path), exit
+#     0 — we can't enforce a guard that isn't installed; this prevents a
+#     missing install from locking the user out of their own shell entirely.
 #   - Searches for lifeos source in 3 standard locations
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -68,7 +76,8 @@ if [ -z "$LIFEOS_DIR" ]; then
   exit 0
 fi
 
-# ─── Run approval check ─────────────────────────────────────────────────────
+# ─── Run approval check (FAIL-CLOSED on bridge error) ──────────────────────
+# Capture stderr so we can surface the cause if the bridge crashes.
 DECISION_JSON="$(cd "$LIFEOS_DIR" && LIFEOS_INTERACTIVE=1 python -c "
 import json, sys
 try:
@@ -76,21 +85,42 @@ try:
     result = check_dangerous_command(sys.argv[1], 'host')
     print(json.dumps(result))
 except Exception as e:
-    print(json.dumps({'approved': True, 'message': None, 'error': str(e)}))
-" "$COMMAND" 2>/dev/null)"
+    # Fail-CLOSED: explicit denial, not silent approval. The wrapper below
+    # treats any exception payload as 'block + show cause to user'.
+    print(json.dumps({'approved': False, 'message': f'approval bridge error: {e}', 'pattern_key': 'bridge-error', 'description': type(e).__name__}))
+    sys.exit(0)
+" "$COMMAND" 2>/tmp/lifeos-approval-stderr.$$)"
+BRIDGE_RC=$?
+BRIDGE_STDERR="$(cat /tmp/lifeos-approval-stderr.$$ 2>/dev/null || true)"
+rm -f /tmp/lifeos-approval-stderr.$$ 2>/dev/null || true
 
 if [ -z "$DECISION_JSON" ]; then
-  exit 0
+  # Bridge produced no output — possibly Python missing or sandbox killed it.
+  # Fail-CLOSED with diagnostic.
+  cat >&2 <<EOF
+🛡️ Life OS 守门人 · approval bridge 异常（fail-CLOSED）
+
+  命令: $COMMAND
+  状态: bridge no-output (rc=$BRIDGE_RC)
+  stderr: ${BRIDGE_STDERR:-<none>}
+
+  原因: approval guard 自身崩溃。为安全起见命令被阻止。
+  绕过: 设置 LIFEOS_YOLO_MODE=1 后重试（仅在你确认风险可控时使用）
+EOF
+  exit 2
 fi
 
-# ─── Parse decision ─────────────────────────────────────────────────────────
+# ─── Parse decision (FAIL-CLOSED on parse error) ───────────────────────────
 APPROVED="$(printf '%s' "$DECISION_JSON" | python -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
-    print('true' if d.get('approved', True) else 'false')
-except Exception:
-    print('true')
+    # Default to FALSE (block) when 'approved' key is missing — fail-CLOSED.
+    print('true' if d.get('approved', False) else 'false')
+except Exception as e:
+    # JSON parse failed — corrupt bridge output. Block and report cause.
+    print('false')
+    print(f'parse-error: {e}', file=sys.stderr)
 " 2>/dev/null)"
 
 if [ "$APPROVED" = "false" ]; then

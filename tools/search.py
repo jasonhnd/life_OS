@@ -292,10 +292,19 @@ def main(argv: list[str] | None = None) -> int:
 
     # Config resolves recency_boost_days; falls back to default 90 when no
     # .life-os.toml is present (load_config is defensive about missing files).
+    # R-1.8.0-013 deep-audit fix: only swallow the specific config-loading
+    # exceptions, log to stderr so a corrupt config is visible. Previously
+    # bare `except Exception` hid everything including ImportErrors and
+    # AttributeErrors (real bugs in config loader).
     try:
         cfg = load_config(root)
         recency_boost_days = cfg.search_recency_boost_days
-    except Exception:  # noqa: BLE001 — config must never break search
+    except (FileNotFoundError, OSError, ValueError, KeyError) as exc:
+        print(
+            f"[search] config load failed ({type(exc).__name__}: {exc}); "
+            "using default recency_boost_days=90",
+            file=sys.stderr,
+        )
         recency_boost_days = 90
 
     results = rank_sessions(

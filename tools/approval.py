@@ -8,6 +8,7 @@ of truth while adapting runtime names and smart-approval behavior for Life OS.
 
 from __future__ import annotations
 
+import contextlib
 import contextvars
 import logging
 import os
@@ -20,13 +21,17 @@ import threading
 import time
 import unicodedata
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 PUBLIC_NAMESPACE = "lifeos_approval"
 HERMES_SOURCE_COMMIT = "59b56d445c34e1d4bf797f5345b802c7b5986c72"
 EXPECTED_HERMES_DANGEROUS_PATTERN_COUNT = 42
+
+# Tirith availability flag — set to True the first time we discover
+# tools.tirith_security is missing, so we only emit the disclosure mismatch
+# warning ONCE per process instead of per command. R-1.8.0-013 deep-audit fix.
+_TIRITH_UNAVAILABLE_WARNED: bool = False
 
 # Per-thread/per-task session identity. The public namespace is intentionally
 # Life OS specific; legacy Hermes environment variables are not consulted.
@@ -99,7 +104,7 @@ HARDLINE_PATTERNS = [
 ]
 
 
-def detect_hardline_command(command: str) -> tuple[bool, Optional[str]]:
+def detect_hardline_command(command: str) -> tuple[bool, str | None]:
     """Check if a command matches the unconditional hardline blocklist."""
     normalized = _normalize_command_for_detection(command).lower()
     for pattern, description in HARDLINE_PATTERNS:
@@ -227,7 +232,7 @@ def _normalize_command_for_detection(command: str) -> str:
     return unicodedata.normalize("NFKC", command)
 
 
-def detect_dangerous_command(command: str) -> tuple[bool, Optional[str], Optional[str]]:
+def detect_dangerous_command(command: str) -> tuple[bool, str | None, str | None]:
     """Check if a command matches any dangerous patterns.
 
     Returns:
@@ -255,7 +260,7 @@ class _ApprovalEntry:
     def __init__(self, data: dict):
         self.event = threading.Event()
         self.data = data
-        self.result: Optional[str] = None
+        self.result: str | None = None
 
 
 _gateway_queues: dict[str, list[_ApprovalEntry]] = {}
@@ -377,7 +382,7 @@ def load_permanent(patterns: set[str]) -> None:
         _permanent_approved.update(patterns)
 
 
-def _allowlist_file() -> Optional[Path]:
+def _allowlist_file() -> Path | None:
     raw = os.getenv("LIFEOS_APPROVAL_ALLOWLIST_FILE", "").strip()
     return Path(raw).expanduser() if raw else None
 
@@ -415,7 +420,7 @@ def save_permanent_allowlist(patterns: set[str]) -> None:
 def prompt_dangerous_approval(
     command: str,
     description: str,
-    timeout_seconds: Optional[int] = None,
+    timeout_seconds: int | None = None,
     allow_permanent: bool = True,
     approval_callback=None,
 ) -> str:
@@ -448,7 +453,10 @@ def prompt_dangerous_approval(
 
             result = {"choice": ""}
 
-            def get_input() -> None:
+            # Pass loop variables `result` and `prompt` as default args so the
+            # closure captures THIS iteration's values, not the loop's last
+            # iteration. R-1.8.0-013 deep-audit fix (ruff B023).
+            def get_input(result: dict[str, str] = result, prompt: str = prompt) -> None:
                 try:
                     result["choice"] = input(prompt).strip().lower()
                 except (EOFError, OSError):
@@ -528,7 +536,7 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
-def _bash_executable() -> Optional[str]:
+def _bash_executable() -> str | None:
     bash = shutil.which("bash")
     if bash:
         return bash
@@ -589,10 +597,8 @@ def _smart_approve(command: str, description: str) -> str:
         return "escalate"
     finally:
         if payload_path is not None:
-            try:
+            with contextlib.suppress(OSError):
                 payload_path.unlink()
-            except OSError:
-                pass
 
     combined_output = f"{result.stdout}\n{result.stderr}".lower()
     if "no compliance checks defined" in combined_output:
@@ -735,13 +741,30 @@ def check_all_command_guards(command: str, env_type: str, approval_callback=None
                 }
         return {"approved": True, "message": None}
 
+    # Tirith is an OPTIONAL secondary security check (semantic analysis on
+    # top of pattern matching). When the optional tools.tirith_security module
+    # is absent, the previous code silently swallowed ImportError — making
+    # setup-hooks.sh's "tirith enabled" disclosure inaccurate. R-1.8.0-013
+    # deep-audit fix: log the unavailability ONCE per process to stderr so
+    # operators see that Tirith is not actually running, then continue with
+    # pattern-only checks. Pattern matching alone still blocks 47+ dangerous
+    # invocations and is sufficient for the documented baseline guarantees.
     tirith_result = {"action": "allow", "findings": [], "summary": ""}
+    global _TIRITH_UNAVAILABLE_WARNED  # noqa: PLW0603
     try:
         from tools.tirith_security import check_command_security
 
         tirith_result = check_command_security(command)
     except ImportError:
-        pass
+        if not _TIRITH_UNAVAILABLE_WARNED:
+            print(
+                "[approval] tirith_security module not installed — "
+                "running pattern-only checks. setup-hooks.sh disclosure "
+                "may overstate coverage. Install tools/tirith_security.py "
+                "or update the disclosure text.",
+                file=sys.stderr,
+            )
+            _TIRITH_UNAVAILABLE_WARNED = True
 
     is_dangerous, pattern_key, description = detect_dangerous_command(command)
     warnings: list[tuple[str, str, bool]] = []
@@ -913,7 +936,7 @@ def check_all_command_guards(command: str, env_type: str, approval_callback=None
     }
 
 
-def _main(argv: Optional[list[str]] = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     """Small CLI used by shell hooks: read stdin and report first match."""
     argv = argv if argv is not None else sys.argv[1:]
     command = " ".join(argv) if argv else sys.stdin.read()

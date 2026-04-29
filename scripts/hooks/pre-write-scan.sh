@@ -60,8 +60,37 @@ if command -v jq >/dev/null 2>&1; then
   else
     CONTENT="$(printf '%s' "$INPUT" | jq -r '.tool_input.new_string // empty' 2>/dev/null || echo "")"
   fi
+elif command -v python >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1; then
+  # R-1.8.0-013 deep-audit fix: Python JSON parser as middle tier (was:
+  # regex parsing of JSON that failed on escaped quotes / multi-line
+  # content / nested fields, silently leaking unscanned writes through).
+  # Python is universally available wherever Claude Code is installed.
+  PY_CMD="$(command -v python || command -v python3)"
+  PY_FIELD="content"
+  [ "$TOOL_NAME" = "Edit" ] && PY_FIELD="new_string"
+  PARSED="$(printf '%s' "$INPUT" | "$PY_CMD" -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    ti = d.get('tool_input', {})
+    fp = ti.get('file_path', '') or ''
+    co = ti.get('$PY_FIELD', '') or ''
+    # Use \\x1f (unit separator) — guaranteed not to appear in file paths or content
+    print(fp + '\\x1f' + co)
+except Exception:
+    pass
+" 2>/dev/null)"
+  FILE_PATH="${PARSED%%$'\x1f'*}"
+  CONTENT="${PARSED#*$'\x1f'}"
+  [ "$CONTENT" = "$PARSED" ] && CONTENT=""
 else
-  # Bash fallback — flat grep. Pull first nested "file_path" string.
+  # Last-resort bash fallback. R-1.8.0-013 deep-audit hardening: this
+  # path now FAIL-CLOSED for sensitive paths because regex parsing of
+  # JSON misses escaped quotes / multi-line content / nested fields.
+  # If we can't trust the parse, we can't trust the scan — block writes
+  # to sensitive paths instead of letting unscanned writes through.
+  echo "[pre-write-scan] WARNING: jq and python unavailable, using regex JSON parse" >&2
+  echo "[pre-write-scan] sensitive-path writes will be BLOCKED — install jq or python" >&2
   FILE_PATH="$(printf '%s' "$INPUT" \
     | grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' \
     | head -1 \
@@ -79,6 +108,14 @@ else
       | sed 's/^"new_string"[[:space:]]*:[[:space:]]*"\(.*\)"$/\1/' \
       | sed 's/\\"/"/g; s/\\n/ /g; s/\\t/ /g')"
   fi
+  # Fail-closed for sensitive paths when both proper parsers absent.
+  case "$FILE_PATH" in
+    *"/_meta/"* | *"/SOUL.md" | *"/wiki/"* | *"/.env"* | *"/secrets"*)
+      echo "[pre-write-scan] BLOCKED: regex JSON parser unsafe for sensitive path $FILE_PATH" >&2
+      echo "[pre-write-scan] install jq or python to enable proper scanning" >&2
+      exit 2
+      ;;
+  esac
 fi
 
 # Missing file_path = can't determine scope, pass through.

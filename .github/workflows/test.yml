@@ -45,9 +45,12 @@ jobs:
           uv run mypy --strict tools/
 
       - name: Run ruff (lint)
+        # R-1.8.0-013 deep-audit fix: removed continue-on-error so lint
+        # regressions block the merge. Existing baseline must stay clean;
+        # if ruff fails, fix the lint or update the rule config — don't
+        # silently let it through.
         run: |
           uv run ruff check tools/ tests/
-        continue-on-error: true
 
   bash-syntax:
     name: Bash scripts (${{ matrix.os }})
@@ -68,13 +71,21 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check bash syntax (all runners)
+        # R-1.8.0-013 deep-audit fix: enumerate via `git ls-files '*.sh'`
+        # so any new shell file added under any directory (including
+        # scripts/lib/, scripts/cron/, future dirs) is automatically
+        # checked. Previous fixed-glob approach silently skipped
+        # scripts/lib/*.sh which contained real shell logic (audit-trail.sh,
+        # sha-fallback.sh).
         run: |
-          for script in scripts/*.sh scripts/hooks/*.sh evals/run-eval.sh tests/hooks/test_*.sh; do
-            if [ -f "$script" ]; then
-              echo "Checking $script..."
-              bash -n "$script"
+          failed=0
+          while IFS= read -r script; do
+            echo "Checking $script..."
+            if ! bash -n "$script"; then
+              failed=1
             fi
-          done
+          done < <(git ls-files '*.sh')
+          exit $failed
 
       - name: Run hook test suite (all runners)
         run: |
