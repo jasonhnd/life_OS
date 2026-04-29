@@ -1,5 +1,22 @@
 # Python Tools · Contract Specification
 
+> ⚠️ **PARTIALLY LEGACY (v1.7-era) — see v1.8.0 deltas below**
+>
+> v1.8.0 R-1.8.0-011 ("Option A" pivot) replaced several Python tools with
+> LLM-driven prompts. The deltas vs this document:
+> - `tools/cli.py` (the `life-os-tool {cmd}` dispatcher) was **deleted**.
+>   Tools now invoked directly via `python -m tools.<name>` — no dispatcher.
+> - `tools/migrate.py` was **deleted**. Migration now runs via
+>   `scripts/prompts/migrate-from-v1.6.md`.
+> - `tools/memory.py`, `tools/session_search.py`, several maintenance python
+>   tools were **deleted** and replaced by `scripts/prompts/<job>.md` files.
+> - `setup-cron.sh`, `run-cron-now.sh`, all launchd plists were **deleted**.
+>   All maintenance is user-invoked.
+>
+> Tools that DO still exist (canonical for v1.8.0): `approval`, `export`,
+> `reconcile`, `research`, `search`, `seed`, `skill_manager`, `stats`,
+> `sync_notion`, plus `tools/lib/*`.
+
 > Layer 4 of the Life OS execution stack. Shell hooks (Layer 3) make HARD RULE
 > truly hard; Python tools make the system run on its own. This document is the
 > authoritative contract for every tool in `tools/`.

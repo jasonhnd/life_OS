@@ -1,5 +1,14 @@
 # Cortex Specification
 
+> ⚠️ **LEGACY DOCUMENT (v1.7-era) — NOT AUTHORITATIVE FOR v1.8.0**
+>
+> This specification describes the v1.7.2 design where Cortex was always-on (3 subagents spawned per message) and `narrator-validator` was a standalone Sonnet subagent. **Both designs were REPLACED in v1.8.0 R-1.8.0-011 Option A pivot**:
+> - Cortex is now **pull-based** — ROUTER decides per-message whether to spawn any cognitive subagent
+> - `narrator-validator` was **deleted**; citation discipline is self-checked inline by ROUTER
+> - `cortex_enabled` flag is fully retired
+>
+> For v1.8.0 canonical guidance, read `pro/CLAUDE.md` §0.5. This file is preserved as historical context for understanding the v1.7 → v1.8 evolution; do not treat any "always-on", "MUST spawn", or "narrator-validator" claim below as current operational policy.
+
 Cortex is the Life OS cognitive layer — the pre-router mechanism that loads cross-session memory, concept graphs, and multi-source signals into every decision workflow. It is a Layer 2 architectural upgrade, not a new layer. Introduced in v1.7.
 
 ## Positioning

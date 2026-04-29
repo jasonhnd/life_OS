@@ -18,6 +18,20 @@ related:
 
 # Narrator Spec · Grounded Generation Layer
 
+> ⚠️ **PARTIALLY LEGACY (v1.7-era) — v1.8.0 simplification applied**
+>
+> v1.8.0 R-1.8.0-011 ("Option A" pivot) **deleted** the standalone
+> `narrator-validator` Sonnet subagent. §7 "Validator Subagent" + the
+> 21s/8s wall-clock fallback budget + the 2-rewrite cycle described
+> below NO LONGER APPLY. Citation discipline is now self-checked inline
+> by the same ROUTER Step 7.5 invocation that runs narrator composition;
+> citation failures fall back to unwrapped Summary Report directly with
+> no rewrite cycle.
+>
+> §1-6 (citation grammar, signal_id format, narrator template) remain
+> active and authoritative. Read `pro/agents/narrator.md` for the
+> current (post-pivot) inline self-check rules.
+
 > The narrator layer is ROUTER's output stage. It produces user-facing text while preventing hallucination. Every substantive claim carries a citation back to the underlying signal.
 
 ---

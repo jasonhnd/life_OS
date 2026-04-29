@@ -1,6 +1,6 @@
 # Life OS · Draft-Review-Execute Orchestration Protocol (Pro Mode — Codex)
 
-> **v1.8.0 pivot note (post-2026-04-29)**: This file may still describe v1.7-era cron / always-on-Cortex / narrator-validator architecture in places. **The authoritative spec is `pro/CLAUDE.md`** — the v1.8.0 pivot rewrote §0.5 (Cortex now pull-based) and Session Modes (cron removed, all maintenance is user-invoked). Treat any conflict with `pro/CLAUDE.md` in favor of `pro/CLAUDE.md`. Full content sweep of this file is pending.
+> **v1.8.0 pivot completed (R-1.8.0-013 round-6 audit)**: Cortex §0.5 rewritten to pull-based; Session Modes updated to user-invoked (cron removed); narrator-validator references replaced with inline self-check; skeleton script blocks removed. The authoritative spec remains `pro/CLAUDE.md` — if a conflict surfaces, treat `pro/CLAUDE.md` as source of truth.
 
 > **Codex CLI host note (v1.7)**: The Shell Hook layer (Layer 3) described in `references/hooks-spec.md §2` is Claude-Code-only in v1.7. Codex CLI users get Layer 1 (documentation HARD RULE) + Layer 2 (subagent isolation) enforcement; no runtime hook backstop. When Codex publishes a compatible hook surface, the same 5 scripts under `scripts/hooks/` can be registered. Until then, treat all HARD RULE in this file as prompt-level enforcement.
 
@@ -281,25 +281,10 @@ See SKILL.md Trigger Words table for the complete list in English, Chinese, and 
 
 **Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り" / "レビュー"): Launch `retrospective` (Review Mode) → briefing only.
 
-**Briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
-After running `retrospective-mode-0.sh` and before launching retrospective subagent, ROUTER MUST run:
+**Briefing skeleton pre-render — REMOVED in v1.8.0 R-1.8.0-011 Option A pivot:**
+Previously v1.7.2.3 required ROUTER to run `scripts/retrospective-briefing-skeleton.sh` and `scripts/archiver-briefing-skeleton.sh` to pre-render the 6-H2 briefing structure. Both scripts were deleted in R-1.8.0-011. Retrospective and archiver now generate briefings inline as part of their normal step/phase execution — no Bash skeleton, no `<!-- LLM_FILL -->` placeholders, no `retrospective-mode-0.sh` / `archiver-phase-prefetch.sh` either.
 
-```bash
-bash scripts/retrospective-briefing-skeleton.sh "$(pwd)"
-```
-
-Paste literal stdout into the retrospective subagent launch payload before launch. Retrospective only fills `<!-- LLM_FILL -->` placeholders: Today's Focus + Pending Decisions, plus SOUL narrative if needed. All deterministic briefing structure and measured facts come from Bash output: 80% Bash pre-render, 20% LLM judgment.
-
-**Adjourn Session** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `archiver` (ARCHIVER agent) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE.
-
-**Adjourn briefing skeleton pre-render (HARD RULE · v1.7.2.3):**
-After running `archiver-phase-prefetch.sh` and before launching archiver subagent, ROUTER MUST run:
-
-```bash
-bash scripts/archiver-briefing-skeleton.sh "$(pwd)"
-```
-
-Paste literal stdout into the archiver subagent launch payload. Archiver only fills `<!-- LLM_FILL -->` placeholders: Phase 2 narrative (≤ 1500 tokens) + Phase 3 DREAM narrative (≤ 800 tokens) + verbatim DREAM journal paste + Phase 4 sync status + Completion Checklist values. Speed target: archiver Adjourn 25 min → 10-12 min.
+**Adjourn Session** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `archiver` (ARCHIVER agent) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE. Archiver runs all 4 phases inline; no pre-fetch or skeleton scripts.
 
 **COUNCIL** ("debate" / "court debate" / "朝堂议政" / "討論"): 3 rounds of debate when domain conclusions conflict.
 

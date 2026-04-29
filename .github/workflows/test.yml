@@ -99,6 +99,15 @@ jobs:
           done
           exit $failed
 
+      - name: Spec drift scan (R-1.8.0-013 round-6)
+        # Scans active .md/.py/.sh files for references to repo paths
+        # (e.g. `scripts/foo.sh`) and verifies the target exists. Catches
+        # cases like spec files pointing at scripts that were deleted in
+        # R-1.8.0-011 pivot. Forbidden-token check runs as warning only.
+        run: |
+          chmod +x scripts/check-spec-drift.sh || true
+          bash scripts/check-spec-drift.sh
+
       - name: Verify hook script regex (all runners)
         run: |
           # Smoke test: hook should detect '上朝' as trigger

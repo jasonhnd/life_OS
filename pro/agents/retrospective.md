@@ -344,7 +344,7 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - Update _meta/sync-log.md + last_sync_time
    - R11 AUDIT TRAIL: before proceeding to Step 7, write `_meta/runtime/<sid>/retrospective-step-6.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
 
-7. OUTBOX MERGE [partial pre-fetched + LLM narrative]: scan _meta/outbox/ for unmerged session directories
+7. OUTBOX MERGE [v1.8.0 R-1.8.0-011 · inline tool calls + LLM narrative]: scan _meta/outbox/ for unmerged session directories
    - If _meta/.merge-lock exists and < 5 minutes old → skip merge, proceed to step 8
    - Write _meta/.merge-lock with {platform, timestamp}
    - For each outbox directory (sorted chronologically):
@@ -460,7 +460,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
 
 --- Phase E: Strategy + Knowledge ---
 
-15. STRATEGIC MAP COMPILATION [partial pre-fetched + LLM narrative]
+15. STRATEGIC MAP COMPILATION [v1.8.0 R-1.8.0-011 · inline tool calls + LLM narrative]
     a. If _meta/strategic-lines.md does not exist → skip silently
     b. Read strategic-lines.md → all line definitions (driving_force, health_signals)
     c. Read all projects/*/index.md → collect strategic fields
@@ -493,7 +493,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
 
 --- Phase F: Output ---
 
-18. GENERATE BRIEFING [LLM assembly · uses pre-fetched markers as ground truth] — compile all results from steps 1-17 into the output format below
+18. GENERATE BRIEFING [LLM assembly · v1.8.0 R-1.8.0-011 · uses inline-collected markers from steps 1-17 as ground truth] — compile all results from steps 1-17 into the output format below
     - R11 AUDIT TRAIL: before returning the final briefing, write `_meta/runtime/<sid>/retrospective-step-18.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST match the briefing sections and ROUTER-visible paste markers.
 ```
 

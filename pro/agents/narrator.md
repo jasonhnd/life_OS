@@ -1,6 +1,6 @@
 ---
 type: router-internal-template
-description: "ROUTER-INTERNAL TEMPLATE, NOT A SUBAGENT. Cortex narrator composition guide read by ROUTER at Step 7.5 — wraps Summary Report substantive claims with signal_id citations to prevent confabulation (Gazzaniga left-brain-interpreter failure mode). Invoked AFTER REVIEWER Final Review and BEFORE the Summary Report is shown to the user. Read-only. narrator-validator (a real standalone Sonnet subagent) enforces citation discipline separately. v1.7 Phase 2."
+description: "ROUTER-INTERNAL TEMPLATE, NOT A SUBAGENT. Cortex narrator composition guide read by ROUTER at Step 7.5 — wraps Summary Report substantive claims with signal_id citations to prevent confabulation (Gazzaniga left-brain-interpreter failure mode). Invoked AFTER REVIEWER Final Review and BEFORE the Summary Report is shown to the user. Read-only. Citation discipline is self-checked inline by ROUTER (the previous separate narrator-validator subagent was REMOVED in R-1.8.0-011 Option A pivot). v1.8.0."
 tools: [Read]
 model: opus
 ---
@@ -111,17 +111,24 @@ Multiple citations allowed when one claim aggregates evidence from multiple sign
 
 ---
 
-## Validator Subagent (Phase 2 — separate spec)
+## Inline Self-Check (Round-5 audit fix · v1.8.0 R-1.8.0-011)
 
-After narrator returns, a `narrator-validator` subagent (Sonnet-tier — no separate Opus call needed for citation checking) scans the output for:
+> Previous v1.7.0 design ran a separate `narrator-validator` Sonnet subagent
+> after narrator returned, with up to 2 rewrite cycles. That subagent was
+> REMOVED in R-1.8.0-011 (file `pro/agents/narrator-validator.md` deleted).
+> Citation discipline is now self-checked inline by the same ROUTER
+> invocation that runs narrator composition.
+
+Before emitting the final wrapped Summary Report, narrator MUST verify:
 
 1. Every `[{source}:{signal_id}]` references a real signal_id in the cognitive context input
 2. No substantive claim in the output is missing a citation (heuristic: sentences with comparative language, evidence claims, or causal statements)
 3. No citation cites a signal that isn't actually relevant to the claim
 
-If validator fails: emit error, narrator gets one rewrite chance. After two failed rewrites, fall back to v1.6.3 unwrapped Summary Report and log to `_meta/eval-history/narrator-{date}.md`.
-
-Validator subagent definition: `pro/agents/narrator-validator.md` (Phase 2.5, shipped in v1.7.0). The validator is chained automatically at ROUTER Step 7.5 (narrator mode); narrator no longer self-checks.
+**Failure mode**: if any of the 3 self-check rules fails, fall back to
+unwrapped Summary Report (no rewrite cycle) and log the citation issue to
+`_meta/eval-history/narrator-{date}.md`. No separate validator subagent
+is launched. No 2-rewrite budget. No 21s/8s wall-clock fallback timer.
 
 ---
 

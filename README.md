@@ -166,7 +166,7 @@ Source-grounded briefings now include PRIMARY-SOURCE measured-count markers, STA
 - 6 Cortex user-guides + v1.7-migration UX chapter
 - cortex-spec + hippocampus-spec translated to Chinese and Japanese
 
-Upgrade: `uv run life-os-tool migrate` (see [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md))
+Upgrade (v1.6 → v1.7): see [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md). The previous `uv run life-os-tool migrate` command was removed in R-1.8.0-011 along with the `life-os-tool` dispatcher; current invocation uses `scripts/prompts/migrate-from-v1.6.md` (LLM-driven) per `pro/CLAUDE.md` §0.5.
 
 See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain and the COURT-START-001 v1.6.3 incident archive.
 
@@ -206,7 +206,7 @@ The engine runs 16 agents organized around a principle that is 1,400 years old: 
 
 | Agent | Function |
 |-------|----------|
-| ROUTER | Your always-on entry point — handles casual chat, routes complex matters to the engine |
+| ROUTER | Your primary entry point — handles casual chat, routes complex matters to the engine |
 | PLANNER | Breaks your situation into 3-6 dimensions and builds a structured plan |
 | REVIEWER | Independent review with emotional audit, 10/10/10 regret test, SOUL consistency check, red-team challenge, and **veto power** (max 2 rounds) |
 | DISPATCHER | Detects dependencies between domains, dispatches parallel or sequential execution |

@@ -58,7 +58,13 @@ except Exception:
 fi
 
 if [ "$PARSE_OK" -eq 0 ]; then
+  # Round-6 audit fix: write compliance violation for visibility.
   echo "[post-task-audit-trail] WARNING: stdin JSON parse failed; cannot verify R11 audit trail for this launch" >&2
+  # shellcheck source=/dev/null
+  source "$(dirname "$0")/_lib.sh" 2>/dev/null || true
+  if command -v lib_log_violation >/dev/null 2>&1; then
+    lib_log_violation "CLASS_C" "low" "router" "stdin-json-parse-failed" "post-task-audit-trail" 2>/dev/null || true
+  fi
   exit 0
 fi
 

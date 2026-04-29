@@ -210,7 +210,7 @@ _OBSIDIAN_APP_JSON = """{
   "spellcheck": false,
   "userIgnoreFilters": [
     "_meta/runtime/",
-    "_meta/eval-history/cron-runs/",
+    "_meta/eval-history/recovery/",
     ".git/",
     "scripts/",
     "tools/",
@@ -309,9 +309,9 @@ META_GITKEEP_DIRS = (
     "_meta/concepts",
     "_meta/snapshots",
     "_meta/eval-history",
-    "_meta/eval-history/cron-runs",
     "_meta/eval-history/auditor-patrol",
     "_meta/eval-history/recovery",
+    "_meta/eval-history/maintenance",  # v1.8.0: replaces cron-runs/ since cron is removed
     "_meta/methods",
     "_meta/inbox",
     "_meta/runtime",

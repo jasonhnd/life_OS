@@ -22,8 +22,9 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
 
 ## What You Do
 
-1. **Read recent cron activity**:
-   - `_meta/eval-history/cron-runs/` last 24h
+1. **Read recent maintenance activity** (v1.8.0 R-1.8.0-011 — cron removed; all maintenance is user-invoked):
+   - `_meta/eval-history/maintenance/` last 24h (formerly `cron-runs/` pre-pivot)
+   - `_meta/eval-history/recovery/` last 24h (archiver-recovery user invocations)
    - `_meta/inbox/notifications.md` last 30 lines
    - `_meta/eval-history/{advisor-monthly,auditor-patrol,strategic-consistency,monthly-summary,wiki-decay,spec-compliance,recovery}/*.md` last 7 days
 
@@ -46,26 +47,23 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
    - Spec compliance: {X}% (last spec-compliance report)
    - Archiver violations 上周: {N} 次
 
-   ## 你可以说
+   ## 你可以说 (v1.8.0 R-1.8.0-011: cron 已删除，全部 user-invoked)
    - "看 X 详情" → Read 对应 _meta/eval-history/ 文件
-   - "立刻跑 X" → bash scripts/run-cron-now.sh X
-   - "暂停 X cron" → launchctl unload / 编辑 crontab
-   - "改 X 时间" → 编辑 launchd plist / crontab
-   - "处理 wiki stale" / "处理 SOUL drift" → 进入 action items 处理流程
+   - "跑 X" / "立刻跑 X" → Read scripts/prompts/X.md，按 prompt 内联执行
+   - "处理 wiki stale" / "处理 SOUL drift" / "处理 queue" → 进入对应 action items 处理流程
    - "/exit-monitor" → 切回业务 session 模式
    ```
 
-3. **Handle user commands** (routing):
+3. **Handle user commands** (routing, v1.8.0 user-invoked semantics):
 
    | User says | You do |
    |-----------|--------|
    | "看 X 详情" | `Read` 对应 `_meta/eval-history/` 文件 |
-   | "立刻跑 X" | `Bash`: `bash scripts/run-cron-now.sh X` |
-   | "暂停 X cron" | `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.X.plist` |
-   | "改 X 时间" | 编辑 launchd plist 的 `StartCalendarInterval`，`launchctl reload` |
+   | "跑 X" / "立刻跑 X" | `Read scripts/prompts/X.md` and execute the prompt inline. (Was `bash scripts/run-cron-now.sh X` pre-pivot; that script was deleted in R-1.8.0-011.) |
    | "处理 wiki stale" | 读 wiki-decay 报告，逐项过 (keep / delete / refresh confidence)，应用到 wiki/ (用户确认后) |
    | "处理 SOUL drift" | 读 advisor-monthly 报告，逐维度过 (retire / commit-restart)，应用到 SOUL.md (用户确认后) |
    | "处理 strategic conflict" | 读 strategic-consistency 报告，逐 conflict 过，提示用户决策 |
+   | "处理 queue" / "看 queue" | 读 scripts/prompts/review-queue.md，逐项处理 (A/R/D/S/Q) |
    | "/exit-monitor" | 报告 "monitor 模式已退出"。后续 message 按普通 ROUTER 处理 |
 
 ## What You Do NOT Do (HARD RULES)

@@ -61,7 +61,18 @@ except Exception:
 fi
 
 if [ "$PARSE_OK" -eq 0 ]; then
+  # Round-6 audit fix: also write a compliance violation so the parse
+  # failure surfaces in pro/compliance/violations.md rather than only
+  # transient stderr. Source: scripts/hooks/_lib.sh lib_log_violation.
   echo "[pre-task-launch] WARNING: stdin JSON parse failed; cannot enforce knowledge-extractor carve-out for this launch" >&2
+  if command -v lib_log_violation >/dev/null 2>&1 || \
+     grep -q "lib_log_violation" "$(dirname "$0")/_lib.sh" 2>/dev/null; then
+    # shellcheck source=/dev/null
+    source "$(dirname "$0")/_lib.sh" 2>/dev/null || true
+    if command -v lib_log_violation >/dev/null 2>&1; then
+      lib_log_violation "CLASS_C" "low" "router" "stdin-json-parse-failed" "pre-task-launch" 2>/dev/null || true
+    fi
+  fi
   exit 0
 fi
 
