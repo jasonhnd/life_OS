@@ -154,6 +154,103 @@ pointer to the most relevant ones.)_
 """
 
 
+_REVIEW_QUEUE = """# Life OS · Async Review Queue (v1.8.0 R-1.8.0-013)
+
+Single source of truth for "things that need user attention." Replaces the
+scattered notifications.md / violations.md / eval-history reports as the
+**unified entry point**. session-start-inbox hook reads the open items at
+every new session start and surfaces a one-line summary.
+
+## Format
+
+YAML list of items. Each item:
+
+```yaml
+- id: r{YYYY-MM-DD}-{NNN}
+  created: <ISO8601 with TZ>
+  source: auditor-patrol|advisor-monthly|strategic-consistency|archiver-recovery|router|user
+  type: stale-wiki|drift|conflict|violation|action-item|decision-due|other
+  priority: P0|P1|P2
+  summary: <one-line, max 100 chars>
+  detail_path: <path to full report or null>
+  related: [[[wikilink-1]], [[wikilink-2]]]   # Obsidian wikilinks to related pages
+  suggested_action: <what user can do>
+  status: open|reviewed|resolved|dismissed
+  closed_at: <ISO8601 or null>
+```
+
+## Workflow
+
+1. Each report-writing prompt (auditor-mode-2, advisor-monthly,
+   strategic-consistency, archiver-recovery, router) appends new items here
+   when surfacing action items.
+2. session-start-inbox hook scans for `status: open` items and reports count.
+3. User says "看 queue" / "处理 queue" → ROUTER reads
+   `scripts/prompts/review-queue.md` and walks user through each.
+4. Status updated in-place. When > 100 resolved items accumulate, archive
+   them to `_meta/review-queue/archive/{YYYY-MM}.md` (append-only).
+
+## Open items
+
+(none yet — populated by maintenance prompts)
+
+## Recently resolved
+
+(none yet)
+"""
+
+
+_OBSIDIAN_APP_JSON = """{
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false,
+  "showLineNumber": true,
+  "spellcheck": false,
+  "userIgnoreFilters": [
+    "_meta/runtime/",
+    "_meta/eval-history/cron-runs/",
+    ".git/",
+    "scripts/",
+    "tools/",
+    "evals/",
+    "tests/"
+  ]
+}
+"""
+
+
+_OBSIDIAN_CORE_PLUGINS = """[
+  "file-explorer",
+  "global-search",
+  "switcher",
+  "graph",
+  "backlink",
+  "outgoing-link",
+  "tag-pane",
+  "page-preview",
+  "outline",
+  "word-count",
+  "templates",
+  "note-composer",
+  "command-palette",
+  "markdown-importer",
+  "random-note",
+  "starred",
+  "file-recovery"
+]
+"""
+
+
+_OBSIDIAN_GITIGNORE = """# Obsidian local state (per-device, do not sync)
+workspace.json
+workspace-mobile.json
+appearance.json
+
+# Obsidian sync conflicts
+.trash/
+"""
+
+
 _INBOX_NOTIFICATIONS = """# Life OS · Cron Notifications Inbox (v1.8.0)
 
 This file is the **cron → session bridge** target. Background cron jobs
@@ -193,6 +290,10 @@ META_GITKEEP_DIRS = (
     "_meta/methods",
     "_meta/inbox",
     "_meta/runtime",
+    # v1.8.0 R-1.8.0-013: page taxonomy expansion (llm_wiki borrow)
+    "_meta/people",
+    "_meta/comparisons",
+    "_meta/review-queue/archive",
 )
 
 TOP_GITKEEP_DIRS = (
@@ -222,6 +323,29 @@ def _write_gitkeep(dir_path: Path) -> None:
     keep.write_text("", encoding="utf-8")
 
 
+def _write_obsidian_vault(target: Path) -> None:
+    """Seed an Obsidian-compatible .obsidian/ config (v1.8.0 R-1.8.0-013).
+
+    Only writes files that don't already exist (preserve any user customization).
+    Writes minimal config so user can open the second-brain in Obsidian and get
+    file explorer + graph view + backlinks + wikilink resolution out of the box.
+    """
+    obsidian_dir = target / ".obsidian"
+    obsidian_dir.mkdir(parents=True, exist_ok=True)
+
+    app_json = obsidian_dir / "app.json"
+    if not app_json.exists():
+        _write_file(app_json, _OBSIDIAN_APP_JSON)
+
+    core_plugins = obsidian_dir / "core-plugins.json"
+    if not core_plugins.exists():
+        _write_file(core_plugins, _OBSIDIAN_CORE_PLUGINS)
+
+    obsidian_gitignore = obsidian_dir / ".gitignore"
+    if not obsidian_gitignore.exists():
+        _write_file(obsidian_gitignore, _OBSIDIAN_GITIGNORE)
+
+
 def _seed_scaffolding(target: Path) -> None:
     """Write every non-git file required by the spec."""
     target.mkdir(parents=True, exist_ok=True)
@@ -242,6 +366,13 @@ def _seed_scaffolding(target: Path) -> None:
     inbox_notif = target / "_meta" / "inbox" / "notifications.md"
     if not inbox_notif.exists():
         _write_file(inbox_notif, _INBOX_NOTIFICATIONS)
+
+    review_queue = target / "_meta" / "review-queue.md"
+    if not review_queue.exists():
+        _write_file(review_queue, _REVIEW_QUEUE)
+
+    # v1.8.0 R-1.8.0-013: Obsidian vault compatibility (llm_wiki borrow)
+    _write_obsidian_vault(target)
 
 
 # ─── Git bootstrap ──────────────────────────────────────────────────────────

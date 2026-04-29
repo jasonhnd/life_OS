@@ -103,6 +103,41 @@ Before returning, write `_meta/runtime/<sid>/monitor.json` with:
 - `references/session-modes-spec.md`
 - `references/automation-spec.md`
 - `scripts/commands/monitor.md`
-- `scripts/run-cron-now.sh`
-- `tools/cron_health_report.py`
-- `tools/spec_compliance_report.py`
+- `scripts/run-cron-now.sh` (deleted in v1.8.0 pivot)
+- `tools/cron_health_report.py` (deleted in v1.8.0 pivot)
+- `tools/spec_compliance_report.py` (deleted in v1.8.0 pivot — replaced by `scripts/prompts/spec-compliance.md`)
+- `references/review-queue-spec.md` (v1.8.0 R-1.8.0-013)
+
+---
+
+## v1.8.0 R-1.8.0-013 · Review Queue Dashboard
+
+When monitor mode starts, after showing maintenance task timestamps, **also read `_meta/review-queue.md`** and render a queue dashboard:
+
+```markdown
+## 📋 Open Review Queue ({total} items)
+
+### P0 ({n}) — urgent
+- [r2026-04-29-001] auditor-patrol · stale-wiki: <summary>
+  related: [[wiki-foo]] · suggested: review and decide
+- ...
+
+### P1 ({m}) — this week
+- [r2026-04-28-003] advisor-monthly · drift: <summary>
+- ...
+
+### P2 ({k}) — whenever
+- ...
+```
+
+User can say:
+- "处理 queue" / "走 queue" → ROUTER reads `scripts/prompts/review-queue.md` and walks through
+- "看 r2026-04-29-001 详情" → Read `detail_path` from that item
+- "标 r2026-04-29-001 dismissed" → update `status: dismissed` + `closed_at` + `closed_by: user-resolved`
+- "搜 advisor 来源" → filter queue by source field
+
+Queue grouping defaults: by priority (P0 first), then by source (group similar items), then by age (oldest first within group).
+
+If queue empty: show "✅ Review queue clean — 0 open items" instead.
+
+Spec: `references/review-queue-spec.md`.

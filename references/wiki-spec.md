@@ -314,5 +314,59 @@ Legacy files in wiki/ root (without front matter) are ignored by INDEX.md compil
 - **INDEX.md is compiled, not authored** — regenerated from wiki/ files at every Start Court
 - **One conclusion per file** — do not create "topic compilation" files
 - **Title = conclusion** — opening the file gives you the answer
-- **No cross-references within wiki** — each entry is self-contained
+- ~~**No cross-references within wiki** — each entry is self-contained~~ — **SUPERSEDED by R-1.8.0-013**: wiki entries MAY use Obsidian `[[wikilinks]]` to other wiki entries, concepts, people, comparisons. See "Page Taxonomy + Wikilink Convention" section below.
 - **Conciseness** — a wiki entry should be 10-30 lines, not a research paper
+
+---
+
+## Page Taxonomy + Wikilink Convention (v1.8.0 R-1.8.0-013)
+
+Borrowed from llm_wiki — a clearer split between page types so archiver knows where to route, hippocampus can score type affinity, and Obsidian graph view shows distinct colors.
+
+### Taxonomy
+
+| Type | Path | What goes here | Spec |
+|---|---|---|---|
+| `wiki` | `wiki/<slug>.md` | General reusable knowledge / conclusions / 50-100 char facts | this file |
+| `concept` | `_meta/concepts/<domain>/<id>.md` | Theories, methods, frameworks (LLM-grounded vocabulary) | `references/concept-spec.md` |
+| `people` | `_meta/people/<id>.md` | Persons in user's life — relationships, history, patterns | `references/people-spec.md` |
+| `comparison` | `_meta/comparisons/<id>.md` | "X vs Y" decision artifacts with options/criteria/outcome | `references/comparison-spec.md` |
+| `method` | `_meta/methods/<id>.md` | Reusable procedures / workflows | `references/method-library-spec.md` |
+| `session` | `_meta/sessions/<sid>.md` | Per-session summary | `references/session-index-spec.md` |
+| `snapshot` | `_meta/snapshots/soul/<date>.md` | SOUL trajectory snapshot | `references/snapshot-spec.md` |
+
+### Routing rules (archiver Phase 2 candidates)
+
+- Person (named individual user interacts with) → `_meta/people/`
+- "X vs Y" decision with options + criteria + decision → `_meta/comparisons/`
+- Reusable theory / method / framework → `_meta/concepts/<domain>/`
+- Procedure user can re-execute → `_meta/methods/`
+- General fact / conclusion that doesn't fit above → `wiki/`
+
+### Wikilink convention (HARD RULE for new writes)
+
+All cross-references in **body text** use Obsidian `[[]]` syntax:
+
+```
+- [[concept-id]]               → link to concept
+- [[wiki-entry-slug]]          → link to wiki entry
+- [[person-id]]                → link to person
+- [[comparison-id]]            → link to comparison
+- [[session-id]]               → link to session summary
+- [[concept-id|Display Name]]  → wikilink with display alias
+```
+
+Obsidian's `newLinkFormat: shortest` resolves these by filename match across the vault — no full path needed.
+
+**Frontmatter arrays remain YAML** (machine-parseable):
+
+```yaml
+concepts_activated: [concept-1, concept-2]   # YAML strings, NOT wikilinks
+related: [[[concept-1]], [[wiki-entry-1]]]   # exception: explicit wikilink arrays
+```
+
+When a frontmatter field semantically references another page (`source_session`, `superseded_by`, `related`, `concepts_linked` in people/comparison pages), use wikilink syntax for Obsidian navigability.
+
+### Existing content migration
+
+User runs `scripts/prompts/migrate-to-wikilinks.md` to migrate old wiki entries (plain text references) to wikilink format. The prompt reads each wiki/ entry, identifies references to other pages, rewrites with `[[]]`, preserves semantics. Decision: `4，全，完整` — full migration is the chosen approach.

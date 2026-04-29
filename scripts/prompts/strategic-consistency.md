@@ -69,3 +69,28 @@ If 0 critical flags: silent (file-only).
 - **Read-only on STRATEGIC-MAP, SOUL, wiki/, sessions/**.
 - **Audit trail**: `_meta/runtime/{sid}/strategic-consistency.json` (R11)
 - **Git push** report at end
+
+## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
+
+After writing the report, append a YAML item to `_meta/review-queue.md` under `## Open items` for EACH project conflict found. Spec: `references/review-queue-spec.md`.
+
+Use Edit tool (NOT Write). Pattern per conflict:
+
+```yaml
+- id: r{YYYY-MM-DD}-{NNN}
+  created: <ISO8601 with TZ>
+  source: strategic-consistency
+  type: conflict
+  priority: P0 | P1 | P2                # HIGH=P0 / MEDIUM=P1 / LOW=P2
+  summary: <one line, max 100 chars>
+  detail_path: _meta/eval-history/strategic-consistency-{YYYY-MM}.md
+  related:
+    - "[[<project-id-1>]]"
+    - "[[<project-id-2>]]"
+  suggested_action: <which project to deprioritize / merge / kill / etc>
+  status: open
+  closed_at: null
+  closed_by: null
+```
+
+Then in final report: "Added N items to review queue (P0=X / P1=Y / P2=Z). Say '处理 queue' to walk through."

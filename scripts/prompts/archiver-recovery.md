@@ -57,3 +57,27 @@ The user may have:
 - **Never delete files**. Only append + git commit.
 - **Always git pull --rebase before starting**. Always git push at end. Conflict → abort + log.
 - **Respect session lock**: if `~/.claude/lifeos-active-session.lock` exists, sleep 5 min retry, max 3 times.
+
+## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
+
+Recovery normally completes silently if no issues. ONLY append review-queue items if recovery surfaced data inconsistencies that need user attention. Spec: `references/review-queue-spec.md`.
+
+Use Edit tool (NOT Write). Pattern per issue:
+
+```yaml
+- id: r{YYYY-MM-DD}-{NNN}
+  created: <ISO8601 with TZ>
+  source: archiver-recovery
+  type: violation | action-item
+  priority: P0 | P1                    # P0 = phase failed / data corruption; P1 = missing audit trail / minor inconsistency
+  summary: <one line, max 100 chars>
+  detail_path: _meta/eval-history/recovery/{YYYY-MM-DD-HHMM}.md
+  related:
+    - "[[<sid-of-failed-session>]]"
+  suggested_action: <re-run X / inspect Y / etc>
+  status: open
+  closed_at: null
+  closed_by: null
+```
+
+If recovery silent (no issues), DO NOT append anything. Then in final report: "Recovery clean — no review queue additions" OR "Added N items to review queue (P0=X / P1=Y). Say '处理 queue' to walk through."

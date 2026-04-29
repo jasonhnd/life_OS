@@ -84,8 +84,29 @@ if [ -d "$MEMORY_DIR" ]; then
   fi
 fi
 
+# v1.8.0 R-1.8.0-013: Async review queue (replaces scattered notifications)
+# Read _meta/review-queue.md and count open items by priority.
+REVIEW_QUEUE_FILE="_meta/review-queue.md"
+REVIEW_QUEUE_SUMMARY=""
+if [ -f "$REVIEW_QUEUE_FILE" ]; then
+  if command -v awk >/dev/null 2>&1; then
+    REVIEW_QUEUE_SUMMARY="$(awk '
+      /^## Open items/   { in_open = 1; next }
+      /^## Recently/     { in_open = 0; next }
+      in_open && /priority: P0/ { p0++ }
+      in_open && /priority: P1/ { p1++ }
+      in_open && /priority: P2/ { p2++ }
+      END {
+        if (p0 + p1 + p2 > 0) {
+          printf "P0=%d / P1=%d / P2=%d (total %d open)", p0+0, p1+0, p2+0, p0+p1+p2
+        }
+      }
+    ' "$REVIEW_QUEUE_FILE" 2>/dev/null || true)"
+  fi
+fi
+
 # Skip output if nothing to surface
-if [ -z "$OVERDUE" ] && [ -z "$MEMORY_TAIL" ]; then
+if [ -z "$OVERDUE" ] && [ -z "$MEMORY_TAIL" ] && [ -z "$REVIEW_QUEUE_SUMMARY" ]; then
   exit 0
 fi
 
@@ -116,6 +137,21 @@ if [ -n "$MEMORY_TAIL" ]; then
   echo "$MEMORY_TAIL"
   echo ""
   echo "Available to recall when relevant. Do not list to user unless asked."
+  echo ""
+fi
+
+if [ -n "$REVIEW_QUEUE_SUMMARY" ]; then
+  echo "## 📋 Open Review Queue (v1.8.0 R-1.8.0-013)"
+  echo ""
+  echo "  ${REVIEW_QUEUE_SUMMARY}"
+  echo ""
+  echo "If user says \"看 queue\" / \"处理 queue\" / \"review queue\":"
+  echo "  → Read scripts/prompts/review-queue.md and walk through items."
+  echo "If user says \"看 r{id} 详情\":"
+  echo "  → Read the detail_path field from that queue item and show user."
+  echo "If user mentions ANY business topic, surface ONE-LINE summary first:"
+  echo "  → e.g. \"📋 You have 3 P0 items in review queue (latest: ...). Want to handle now or later?\""
+  echo "  → Then proceed with their actual ask."
   echo ""
 fi
 

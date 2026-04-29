@@ -100,3 +100,27 @@ If `Critical == 0`: silent (write report file, no notification).
 - **Audit trail**: write `_meta/runtime/{sid}/auditor-mode-2.json` (R11 HARD RULE).
 - **Git push** the patrol report at end.
 - **Respect session lock** (5 min retry, max 3).
+
+## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
+
+After writing the patrol report, for EACH `Critical (need user decision)` finding, append a YAML item to `_meta/review-queue.md` under `## Open items`. Spec: `references/review-queue-spec.md`.
+
+Use Edit tool (NOT Write — would overwrite). Pattern:
+
+```yaml
+- id: r{YYYY-MM-DD}-{NNN}            # NNN = next sequence within today; read existing queue to find max+1
+  created: <ISO8601 with TZ>
+  source: auditor-patrol
+  type: stale-wiki | drift | violation | action-item | other
+  priority: P0 | P1 | P2              # P0=data corruption/security; P1=stale wiki/orphan; P2=nice-to-have
+  summary: <one line, max 100 chars>
+  detail_path: _meta/eval-history/auditor-patrol/{YYYY-MM-DD}.md
+  related:
+    - "[[<concept-or-wiki-id>]]"
+  suggested_action: <what user can do>
+  status: open
+  closed_at: null
+  closed_by: null
+```
+
+Then in your final report to user, mention: "Added N items to review queue (P0=X / P1=Y / P2=Z). Say '处理 queue' to walk through."

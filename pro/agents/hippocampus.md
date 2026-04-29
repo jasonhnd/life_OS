@@ -99,12 +99,18 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
 1. For each Wave 1 session's concept list, **Read** `_meta/concepts/{domain}/{concept}.md`.
 2. Follow `outgoing_edges` with **weight ≥ 3** (strong synapse). Edge format defined in `references/concept-spec.md`.
 3. For each neighbor concept, look up `provenance.source_sessions` to find sessions where it was activated.
-4. Deduplicate against Wave 1 set. Keep **top 2-3 new sessions** ranked by:
+4. Deduplicate against Wave 1 set. Keep **top 2-3 new sessions** ranked by the **4-signal relevance model** (v1.8.0 R-1.8.0-013, see `references/hippocampus-spec.md` § Wave 2 for full spec):
    ```
-   score_wave2 = 0.5 * edge_weight_normalized + 0.3 * concept_overlap + 0.2 * recency_decay
-   recency_decay = exp(-days_since_session / 90)
+   relevance(candidate, current) =
+     3 × direct_link_count(candidate, current)        # [[wikilinks]] from candidate to current's referenced pages (Grep for [[<id>]])
+   + 4 × source_overlap_count(candidate, current)     # shared concepts_activated entries
+   + 2 × common_neighbor_count(candidate, current)    # simplified Adamic-Adar (count, no log)
+   + 1 × type_affinity(candidate, current)            # 1.0 same type / 0.5 related (concept↔wiki/person) / 0.0 unrelated
    ```
+   Page types per `references/wiki-spec.md` § Page Taxonomy: concept / people / comparison / method / wiki / session / snapshot.
 5. Cap: Wave 2 adds at most **3 sessions** total. No exceptions.
+
+**Pre-R-1.8.0-013 fallback**: if candidate concept files lack wikilink format and `type:` frontmatter, the formula degrades gracefully (missing signals contribute 0; remaining signals still rank).
 
 ### Wave 3 — Weak Neighbors
 

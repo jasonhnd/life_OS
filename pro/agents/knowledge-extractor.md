@@ -161,3 +161,20 @@ NEVER stall. Always emit YAML + audit trail. Archiver's Phase 2 step will surfac
 - `references/cortex-spec.md` §3 — SessionSummary contract
 - `references/data-layer.md` — wiki / SOUL / strategic-map architecture
 - `references/audit-trail-spec.md` — R11 audit trail schema
+
+## v1.8.0 R-1.8.0-013 · Page Taxonomy + Wikilink Writing (HARD RULE)
+
+When writing persistent files in Phase 2, mirror the routing + wikilink rules from `pro/agents/archiver.md` § Page Taxonomy Routing:
+
+**A. Routing**:
+- Person → `_meta/people/<id>.md` (per `references/people-spec.md`)
+- "X vs Y" decision → `_meta/comparisons/<id>.md` (per `references/comparison-spec.md`)
+- Theory / framework → `_meta/concepts/<domain>/<id>.md`
+- Procedure → `_meta/methods/<id>.md`
+- General fact → `wiki/<slug>.md`
+
+**B. Wikilinks**: All body cross-references use `[[]]`. Frontmatter arrays remain plain YAML for IDs (`concepts_activated:`), but reference fields (`outgoing_edges:`, `concepts_linked:`, `source_session:`, `superseded_by:`, `related:`) use wikilink syntax `target: "[[id]]"`.
+
+**C. Slug determinism**: same canonical name → same slug across runs. Lowercase + hyphenate ASCII, pinyin transliteration for Chinese when reliable, SHA-1 hash of canonical name (first 10 chars) as fallback.
+
+**D. Review queue**: when extraction reports flag items needing user attention (e.g., "candidate failed privacy filter, user should rephrase before re-extracting"), append to `_meta/review-queue.md` per `references/review-queue-spec.md`. The extraction reports themselves stay in `_meta/runtime/<sid>/extraction/`; the queue surfaces them to the user.

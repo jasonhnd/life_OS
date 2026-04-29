@@ -125,6 +125,63 @@ The detailed 7-sub-step spec (six-criteria wiki gate, SOUL evidence rules, metho
 
 ---
 
+### v1.8.0 R-1.8.0-013 · Page Taxonomy Routing + Wikilink Writing (HARD RULE)
+
+When Phase 2 (or knowledge-extractor) writes new persistent pages, follow these rules:
+
+**A. Routing — pick the right directory by candidate type**:
+
+| Candidate kind | Path | Spec |
+|---|---|---|
+| Person (named individual user interacts with) | `_meta/people/<id>.md` | `references/people-spec.md` |
+| "X vs Y" decision (≥2 options + criteria + decision) | `_meta/comparisons/<id>.md` | `references/comparison-spec.md` |
+| Theory / framework / canonical concept | `_meta/concepts/<domain>/<id>.md` | `references/concept-spec.md` |
+| Reusable procedure | `_meta/methods/<id>.md` | `references/method-library-spec.md` |
+| General reusable knowledge / fact | `wiki/<slug>.md` | `references/wiki-spec.md` |
+
+Privacy filter applies BEFORE routing (per each spec). If candidate is person but privacy filter strips it to nothing → discard, don't route to wiki/ as fallback.
+
+**B. Wikilinks — all body cross-references use `[[]]`**:
+
+Replace plain text references like `see strong-rule-consciousness` with `[[强规则意识]]`. Frontmatter arrays stay YAML strings; only the `outgoing_edges`, `source_session`, `superseded_by`, `related`, `concepts_linked` (in people/comparison) frontmatter fields use wikilink format.
+
+Examples:
+```yaml
+# concept page outgoing_edges (now wikilinks)
+outgoing_edges:
+  - target: "[[loss-aversion]]"
+    weight: 5
+    last_co_activated: 2026-04-29T10:00:00+09:00
+
+# people page concepts_linked (wikilinks)
+concepts_linked: [[[risk-tolerance]], [[strong-rule-consciousness]]]
+
+# session frontmatter (stays plain YAML — IDs only)
+concepts_activated: [risk-tolerance, strong-rule-consciousness]
+```
+
+```markdown
+<!-- body text in any page -->
+The decision conflicts with [[loss-aversion]] dimension. See
+[[2026-04-15T0900Z]] for prior reasoning, and
+[[mac-vs-pc-2026-04|the Mac vs PC comparison]] for similar pattern.
+```
+
+**C. Slug determinism (HARD RULE)**:
+
+Same canonical name MUST always produce the same slug across archiver runs. Use:
+1. Lowercase + hyphenate ASCII names
+2. Pinyin transliteration if reliable for Chinese
+3. **SHA-1 hash of canonical name (first 10 chars)** as fallback when transliteration is uncertain
+
+This prevents `[[strong-rule]]` one day, `[[strong-rules]]` next day, `[[qiang-gui-ze]]` third day → 3 orphan files.
+
+**D. Review queue append**:
+
+When Phase 2 surfaces ANY action item (e.g., "user should re-validate this wiki entry", "this person hasn't been mentioned in 90+ days"), append to `_meta/review-queue.md` per `references/review-queue-spec.md`. DO NOT bury action items only inside the Adjourn Report.
+
+---
+
 ### Legacy Phase 2 inline spec (fallback only — used if knowledge-extractor was not launched)
 
 If the host lacks Task nesting and ROUTER did not pre-launch `knowledge-extractor`, archiver falls back to running Phase 2 inline using the spec below. This is preserved for resilience; the primary path uses knowledge-extractor.

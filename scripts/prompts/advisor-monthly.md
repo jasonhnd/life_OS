@@ -64,3 +64,27 @@ Always notify (monthly is significant):
 - **Audit trail**: `_meta/runtime/{sid}/advisor-monthly.json` (R11)
 - **Git push** report at end
 - **Respect session lock** (5 min retry, max 3)
+
+## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
+
+After writing the monthly report, append YAML items to `_meta/review-queue.md` under `## Open items` for each significant finding. Spec: `references/review-queue-spec.md`.
+
+Use Edit tool (NOT Write). Append rules per finding type:
+
+```yaml
+- id: r{YYYY-MM-DD}-{NNN}
+  created: <ISO8601 with TZ>
+  source: advisor-monthly
+  type: drift | conflict | action-item
+  priority: P0 | P1                    # P0 = regret accumulation > 3; P1 = SOUL drift / contradictory pattern
+  summary: <one line, max 100 chars>
+  detail_path: _meta/eval-history/advisor-monthly-{YYYY-MM}.md
+  related:
+    - "[[<soul-dimension-or-pattern-id>]]"
+  suggested_action: <what user can do — review SOUL dim, decide pattern resolution, etc>
+  status: open
+  closed_at: null
+  closed_by: null
+```
+
+Then in final report: "Added N items to review queue (P0=X / P1=Y). Say '处理 queue' to walk through."

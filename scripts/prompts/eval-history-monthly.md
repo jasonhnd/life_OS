@@ -67,3 +67,32 @@ Otherwise silent (file-only).
 - **Read-only on session and journal data**.
 - **Audit trail**: `_meta/runtime/{sid}/eval-history-monthly.json` (R11)
 - **Git push** summary at end
+
+## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
+
+Append review-queue items ONLY when monthly summary surfaces ANOMALIES (not regular metrics). Spec: `references/review-queue-spec.md`.
+
+Anomaly thresholds:
+- Compliance index drop > 20% MoM → P0
+- Archiver fail rate > 20% → P1
+- Session count drop > 50% MoM → P1
+- Decision count zero (user not deciding anything) → P2
+
+Use Edit tool (NOT Write). Pattern per anomaly:
+
+```yaml
+- id: r{YYYY-MM-DD}-{NNN}
+  created: <ISO8601 with TZ>
+  source: eval-history-monthly
+  type: action-item | violation
+  priority: P0 | P1 | P2
+  summary: <one line — what anomaly, by how much>
+  detail_path: _meta/eval-history/monthly-summary-{YYYY-MM}.md
+  related: []
+  suggested_action: <investigate cause, restore baseline, etc>
+  status: open
+  closed_at: null
+  closed_by: null
+```
+
+If no anomalies (regular month), DO NOT append. Then in final report: "Monthly summary clean — no anomalies, no queue additions" OR "Added N anomaly items to review queue. Say '处理 queue' to walk through."

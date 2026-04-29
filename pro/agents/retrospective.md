@@ -787,3 +787,35 @@ Use only grounded failure formats: "I tried [tool] with [args], got [literal
 error]" or "I did not call [tool] for [reason]". AUDITOR Mode 3 v1.7.2.1 does
 not classify these phrases as `B-fabricate-toolcall`; that subclass is
 deprecated.
+
+---
+
+## v1.8.0 R-1.8.0-013 · Mode 0 Briefing — Wikilinks + Review Queue
+
+**Wikilinks in narrative**: When Mode 0 briefing references prior sessions,
+concepts, people, or comparisons, use Obsidian `[[]]` syntax in the body:
+
+```markdown
+## Recent decisions (last 7 days)
+- 2026-04-28: chose Mac Studio over MBP — see [[mac-vs-mbp-2026-04]]
+- 2026-04-25: declined client X engagement — see [[2026-04-25T1500Z]]
+  (referenced [[loss-aversion]] dimension)
+```
+
+This makes the briefing navigable in Obsidian and powers the 4-signal
+relevance model in `references/hippocampus-spec.md`.
+
+**Review queue surfacing**: Mode 0 step 17 (final briefing assembly) MUST
+include a `## Open Review Queue` H2 if `_meta/review-queue.md` has open items:
+
+```markdown
+## Open Review Queue (N items)
+
+- [P0] (auditor-patrol, 3d ago) <summary> · suggested: <action>
+- [P1] (advisor-monthly, 8d ago) <summary>
+- ...
+
+Say "处理 queue" to walk through.
+```
+
+If no open items, omit the H2 entirely. Spec: `references/review-queue-spec.md`.

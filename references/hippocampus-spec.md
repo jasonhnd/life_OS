@@ -139,11 +139,22 @@ From Wave 1 sessions, expand along the **concept graph** to find related session
 2. For each concept ID, **Read** `_meta/concepts/{domain}/{concept}.md`.
 3. From that concept's `outgoing_edges` list, **follow edges with weight ≥ 3** (strong synapse — see `references/concept-spec.md` for weight semantics).
 4. For each neighbor concept, look up its `provenance.source_sessions` field — this yields sessions where the neighbor concept was activated.
-5. **Deduplicate** against the Wave 1 set, keep the **top 2-3 new sessions** ranked by a composite score:
+5. **Deduplicate** against the Wave 1 set, keep the **top 2-3 new sessions** ranked by the **4-signal relevance model** (v1.8.0 R-1.8.0-013, borrowed from llm_wiki, simplified for LLM-friendly computation):
    ```
-   score_wave2 = 0.5 * edge_weight_normalized + 0.3 * concept_overlap + 0.2 * recency_decay
+   relevance(candidate, current) =
+     3 × direct_link_count(candidate, current)
+   + 4 × source_overlap_count(candidate, current)
+   + 2 × common_neighbor_count(candidate, current)
+   + 1 × type_affinity(candidate, current)
    ```
-   where `recency_decay = exp(-days_since_session / 90)`.
+   - **direct_link_count**: number of `[[wikilinks]]` from candidate body/frontmatter to current message's referenced pages (Grep candidate file for `[[<id>]]` patterns)
+   - **source_overlap_count**: number of `concepts_activated` shared between candidate's session and current message's inferred concepts
+   - **common_neighbor_count**: simplified Adamic-Adar — count of concepts that appear in both candidate's `outgoing_edges` and current's referenced concept set. (Original Adamic-Adar uses `1/log(degree)` but LLM cannot reliably compute log; we use plain count.)
+   - **type_affinity**: 1.0 if candidate page type == current message's primary referenced page type (e.g., both about a person, both comparisons); 0.5 if related (concept ↔ wiki, concept ↔ person); 0.0 otherwise. Page types per `references/wiki-spec.md` § Page Taxonomy.
+
+**Why these weights**: source_overlap (×4) dominates because shared sessions = strong evidence of co-relevance. direct_link (×3) is high-precision but lower-recall. common_neighbor (×2) catches indirect via concept graph. type_affinity (×1) is a tie-breaker.
+
+**Pre-R-1.8.0-013 fallback**: if candidate concept files lack the new wikilink format and `type:` frontmatter, the formula degrades gracefully: missing signals contribute 0, others still score. Migrate via `scripts/prompts/migrate-to-wikilinks.md` to enable full scoring.
 
 **Bounded by design**: Wave 2 adds at most 3 sessions. This prevents concept-graph fan-out from exploding the retrieval budget.
 

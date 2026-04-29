@@ -391,3 +391,54 @@ All roles check if `_meta/concepts/INDEX.md` exists before referencing it. Durin
 - `pro/agents/archiver.md` — Phase 2 owns Hebbian update, decay pass, SYNAPSES-INDEX regeneration, tentative writes
 - `pro/agents/retrospective.md` — Mode 0 regenerates `INDEX.md` and flags dormant concepts
 - `devdocs/architecture/cortex-integration.md` — Step 0.5 Pre-Router Cognitive Layer context
+
+---
+
+## Wikilink Convention (v1.8.0 R-1.8.0-013)
+
+Concept files use Obsidian `[[]]` syntax for cross-references in body text. This enables Obsidian graph view, click-through navigation, and powers the 4-signal relevance model in `references/hippocampus-spec.md` (`direct_link_count` signal).
+
+### Body text
+
+Plain text references to other concepts → wikilink:
+
+```markdown
+## Discussion
+The 强规则意识 dimension correlates strongly with [[loss-aversion]] and
+inversely with [[risk-tolerance]]. See [[2026-04-15T0900Z]] for the
+session where this pattern emerged.
+```
+
+### Frontmatter
+
+`outgoing_edges` array changes from plain ID list to wikilink list:
+
+```yaml
+outgoing_edges:
+  - target: "[[loss-aversion]]"
+    weight: 5
+    last_co_activated: 2026-04-29T10:00:00+09:00
+  - target: "[[risk-tolerance]]"
+    weight: -2          # negative weight = inverse correlation
+    last_co_activated: 2026-04-15T09:00:00+09:00
+```
+
+`aliases:` stays plain string array (filename matching, not wikilinks).
+`provenance.source_sessions:` becomes wikilink array:
+
+```yaml
+provenance:
+  source_sessions:
+    - "[[2026-04-15T0900Z]]"
+    - "[[2026-04-29T1430Z]]"
+```
+
+### People as concepts
+
+When a person becomes graph-relevant (per `references/people-spec.md`), the person page (`_meta/people/<id>.md`) participates in the same wikilink network. Concept `outgoing_edges` may target person pages: `target: "[[john-doe]]"`. Type affinity in 4-signal scoring distinguishes concept-to-concept (1.0) vs concept-to-person (0.5).
+
+### Migration
+
+Existing concept files with plain-text references migrate via
+`scripts/prompts/migrate-to-wikilinks.md`. Concepts created after R-1.8.0-013
+must use wikilink convention from day one.

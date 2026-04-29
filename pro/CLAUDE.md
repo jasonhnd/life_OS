@@ -285,7 +285,7 @@ v1.7.2.3 used `archiver-phase-prefetch.sh` + `archiver-briefing-skeleton.sh` to 
 
 ## Auto-Trigger Rules (v1.7.3.1 · slash commands are backup mode, auto-detect is primary)
 
-The 5 slash commands (`/compress` `/search` `/memory` `/method` `/monitor`) are **escape-hatch backup mode** for explicit user control. The **primary path is auto-detection** — ROUTER MUST observe these triggers and act without making the user type a slash command. Asking the user to "switch to `/memory emit X=Y`" or "use `/monitor`" is a UX bug; just do it.
+The 5 slash commands (`/compress` `/search` `/memory` `/method` `/monitor`) are **escape-hatch backup mode** for explicit user control. R-1.8.0-013 added two natural-language-only triggers (review-queue walker + wikilink migration) — no slash command, no fallback. The **primary path is auto-detection** — ROUTER MUST observe these triggers and act without making the user type a slash command. Asking the user to "switch to `/memory emit X=Y`" or "use `/monitor`" is a UX bug; just do it.
 
 ### Monitor mode auto-launch (v1.8.0 · replaces forcing the user to type `/monitor`)
 
@@ -297,6 +297,26 @@ When the user message matches any of the following patterns, ROUTER MUST automat
 Once monitor subagent is active, ROUTER stays out of business deliberation until user says "退出 monitor" / "exit monitor" / "回到普通模式". See `pro/agents/monitor.md` for the operational console behavior.
 
 The pre-prompt-guard hook injects a `<system-reminder>` (`trigger=monitor`) when these keywords match, so ROUTER cannot accidentally redirect to slash command.
+
+### Review Queue auto-launch (v1.8.0 R-1.8.0-013)
+
+When the user message matches any of the following patterns, ROUTER MUST read `scripts/prompts/review-queue.md` and execute the walker — do NOT ignore or treat as info-only:
+
+- **中文**: 处理 queue、看 queue、走一遍 queue、今天有什么要处理的、有什么要我决定的、review 队列
+- **English**: process queue, walk queue, review queue, what needs my attention, queue walk
+
+The session-start-inbox hook surfaces queue counts as `📋 Review queue: N P0 / M P1 / K P2 open` in `<system-reminder>`. ROUTER mentions this in one short sentence in the first response — but does NOT auto-walk; user explicitly invokes via the keywords above.
+
+When user says "add to queue" / "track this" / "把这个加到 queue", ROUTER triggers the same prompt's "Add item" sub-flow.
+
+### Wikilink migration auto-launch (v1.8.0 R-1.8.0-013, one-time)
+
+When the user message matches:
+
+- **中文**: 迁移 wikilinks、跑迁移、把老内容都改成 wikilinks
+- **English**: migrate to wikilinks, link migration, run wikilink migration
+
+ROUTER reads `scripts/prompts/migrate-to-wikilinks.md` and executes Phase 0 inventory first (read-only, user must approve before any Edit). Backup is mandatory before Phase 2.
 
 ### Memory auto-emit (replaces forcing the user to type `/memory emit`)
 
@@ -392,6 +412,8 @@ When in monitor mode, treat any business question as out-of-scope and politely r
 | advisor-monthly | `scripts/prompts/advisor-monthly.md` | "月度自审" / "monthly review" / "SOUL 漂移" |
 | eval-history-monthly | `scripts/prompts/eval-history-monthly.md` | "统计这个月" / "monthly summary" |
 | strategic-consistency | `scripts/prompts/strategic-consistency.md` | "检查项目冲突" / "战略一致性" |
+| review-queue (R-1.8.0-013) | `scripts/prompts/review-queue.md` | "处理 queue" / "看 queue" / "review queue" / "今天有什么要处理的" |
+| migrate-to-wikilinks (R-1.8.0-013) | `scripts/prompts/migrate-to-wikilinks.md` | "迁移 wikilinks" / "migrate to wikilinks" / "把老内容都改成 wikilinks" |
 
 ### session-start status hook (only auto-fired thing)
 

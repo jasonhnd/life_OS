@@ -155,6 +155,70 @@ Spec source: pro/agents/monitor.md + scripts/commands/monitor.md (backup mode)
 MONITOR_EOF
   fi
 
+# ─── Review Queue auto-detection (v1.8.0 R-1.8.0-013 · llm_wiki borrow) ─────
+# Borrowed from llm_wiki async review pattern. Walker prompt at
+# scripts/prompts/review-queue.md handles all action items in _meta/review-queue.md.
+# No slash command — natural language is the only path.
+  REVIEW_QUEUE_RE='(处理 queue|处理queue|看 queue|看queue|走一遍 queue|今天有什么要处理的|有什么要我决定的|review queue|process queue|walk queue|queue walk|queue 处理|review 队列)'
+  if printf '%s' "$PROMPT" | grep -qiE "$REVIEW_QUEUE_RE"; then
+    ACTIVITY_TRIGGER="review-queue"
+    ACTIVITY_REMINDER="yes"
+    cat <<'REVIEW_QUEUE_EOF'
+<system-reminder>
+📋 LIFE OS · REVIEW QUEUE walker auto-detected (v1.8.0 R-1.8.0-013)
+
+The user message contains a review-queue keyword (处理 queue / 看 queue / review queue
+/ what needs my attention / etc). ROUTER MUST read scripts/prompts/review-queue.md
+and execute the walker. DO NOT ignore or treat as info-only.
+
+Steps:
+1. Read scripts/prompts/review-queue.md (walker spec)
+2. Read _meta/review-queue.md (Open items section)
+3. Show user 1-screen summary grouped by priority (P0/P1/P2)
+4. Walk items one-by-one with A (act) / R (reviewed) / D (dismiss) / S (skip) / Q (quit)
+5. Update status via Edit tool (NEVER Write — would overwrite queue)
+6. Move resolved/dismissed items to ## Recently resolved section
+7. Auto-archive ## Recently resolved > 100 items to _meta/review-queue/archive/{YYYY-MM}.md
+8. Final report: walked / resolved / reviewed / dismissed / skipped counts
+9. Audit trail: _meta/runtime/{sid}/review-queue-walk.json
+
+Spec source: scripts/prompts/review-queue.md + references/review-queue-spec.md
+</system-reminder>
+REVIEW_QUEUE_EOF
+  fi
+
+# ─── Wikilink migration auto-detection (v1.8.0 R-1.8.0-013, one-time) ───────
+# Borrowed from llm_wiki [[wikilinks]]. Migrates legacy plain-text refs
+# to Obsidian wikilinks across wiki/, _meta/concepts/, _meta/sessions/, etc.
+  MIGRATE_WIKILINKS_RE='(迁移 wikilinks|迁移wikilinks|跑迁移|把老内容都改成 wikilinks|migrate to wikilinks|link migration|wikilink migration|run wikilink migration)'
+  if printf '%s' "$PROMPT" | grep -qiE "$MIGRATE_WIKILINKS_RE"; then
+    ACTIVITY_TRIGGER="migrate-to-wikilinks"
+    ACTIVITY_REMINDER="yes"
+    cat <<'MIGRATE_WIKILINKS_EOF'
+<system-reminder>
+🔗 LIFE OS · WIKILINK MIGRATION auto-detected (v1.8.0 R-1.8.0-013)
+
+The user message contains a wikilink-migration keyword (迁移 wikilinks / migrate to
+wikilinks / etc). ROUTER MUST read scripts/prompts/migrate-to-wikilinks.md and
+execute Phase 0 inventory FIRST. Backup is mandatory before Phase 2.
+
+Steps:
+1. Read scripts/prompts/migrate-to-wikilinks.md (full spec)
+2. Phase 0: inventory all candidate files, report count to user, ask Y/N
+3. If Y: Phase 1 build identifier index from _meta/concepts/, wiki/, _meta/people/, etc
+4. Phase 5: BACKUP _meta/migration-backup/{ISO8601}/ before any Edit (HARD RULE)
+5. Phase 2: body migration per file via Edit tool (skip code blocks + frontmatter)
+6. Phase 3: frontmatter exception fields for _meta/concepts/* only
+7. Phase 4: validation pass — broken wikilinks reported to review queue
+8. Phase 6: run report with file count, link count, broken-link list
+9. Audit trail: _meta/runtime/{sid}/wikilink-migration.json
+
+Per references/wiki-spec.md page taxonomy + wikilink convention section.
+Per references/concept-spec.md frontmatter exception rules.
+</system-reminder>
+MIGRATE_WIKILINKS_EOF
+  fi
+
 # ─── Cortex always-on enforcement REMOVED in v1.8.0 pivot ───────────────────
 # v1.7.3 forced 4-subagent launch (hippocampus/concept-lookup/soul-check/
 # gwt-arbitrator) on every qualifying message. v1.8.0 pivot moves Cortex to
