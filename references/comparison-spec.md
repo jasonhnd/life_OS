@@ -35,21 +35,35 @@ _meta/comparisons/<id>.md
 id: <slug>
 type: comparison
 title: <one-line, max 80 chars>
-options: [<option-A>, <option-B>, <option-C>]
-criteria: [<criterion-1>, <criterion-2>, <criterion-3>]
-decision: <chosen option or "deferred" or "none">
-confidence: <0.0-1.0 float at decision time>
+# `options` and `decision` interlock: `decision` MUST be one of `options[*]`
+# OR the literal "deferred" / "none". Validators / archiver MUST enforce.
+options: ["<option-A>", "<option-B>", "<option-C>"]
+# `criteria` here is the NAME LIST. Weights live in the body table
+# (## Criteria weights). DO NOT duplicate weights in frontmatter — body
+# is authoritative; this array is just for quick scan.
+criteria: ["<criterion-1>", "<criterion-2>", "<criterion-3>"]
+decision: <chosen option string from `options`, OR "deferred", OR "none">
+confidence: <0.0-1.0 float at decision time, inclusive bounds enforced>
 decided_at: <YYYY-MM-DD or null if deferred>
-source_session: [[session-id]]                    # session that produced it
-revisited: [[session-id-1], [session-id-2]]       # later sessions that referenced this
-related: [[[concept-id]], [[wiki-entry]], [[person-id]]]
-soul_dimensions_invoked: [<dim-1>, <dim-2>]
-domains_consulted: [<finance>, <people>, <governance>]
-status: active | superseded | retired
-superseded_by: [[comparison-id]] | null
+# WIKILINK FIELDS — quote them, don't use bare [[]] (YAML parses bare as nested list):
+source_session: "[[session-id]]"                       # singular: one decision moment
+revisited: ["[[session-id-1]]", "[[session-id-2]]"]    # later sessions referencing this; max 50 entries (rotate oldest to body)
+related: ["[[concept-id]]", "[[wiki-entry]]", "[[person-id]]"]
+soul_dimensions_invoked: ["<dim-1>", "<dim-2>"]
+domains_consulted: ["<finance>", "<people>", "<governance>"]
+status: active | superseded | retired                   # back-transitions disallowed (active→superseded→retired one-way)
+superseded_by: "[[comparison-id]]" | null               # required when status=superseded
 created: <ISO8601>
 updated: <ISO8601>
 ---
+
+# Required fields
+
+`id`, `type`, `title`, `options`, `decision`, `status`, `source_session`, `created` are REQUIRED.
+`decision` MUST equal one of `options` items (string match) OR "deferred" OR "none".
+`confidence` MUST be in [0.0, 1.0].
+`status: superseded` MUST have non-null `superseded_by`.
+`revisited` is OPTIONAL but if present, max 50 entries — older ones rotate to body `## Audit trail`.
 
 # {title}
 

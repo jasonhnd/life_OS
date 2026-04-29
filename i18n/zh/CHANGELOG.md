@@ -127,6 +127,21 @@
     - **LOW · pre-prompt-guard 两个 hook 块同时触发** —— 同时含 REVIEW_QUEUE + MIGRATE_WIKILINKS 关键词的消息会注入两个相互竞争的 `<system-reminder>`。两个块都加 `[ "$ACTIVITY_REMINDER" != "yes" ]` first-match-wins 守卫。
     - **LOW · `_OBSIDIAN_GITIGNORE` 常量命名与 repo 根的 `_GITIGNORE` 重叠** —— `tools/seed.py` line 244 加 inline 注释说明它是 vault 内部那个。
     - **LOW · 触发关键词列表在 hook + pro/CLAUDE.md + walker prompt 之间漂移** —— 指定 `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE 为权威源，更新 CLAUDE.md 和 `scripts/prompts/review-queue.md` 对齐。
+  - **R-1.8.0-013 第二轮自审修复（同次提交）**：6 个 agent 并行深度审查（python-reviewer + silent-failure-hunter + code-reviewer + security-reviewer + comment-analyzer + type-design-analyzer）发现**还有 15 个 bug**，含 3 个 CRITICAL/HIGH 会让每个新装的 vault Obsidian 集成静默失败。全部修复：
+    - **HIGH · Obsidian core-plugin ID 错的** —— `tools/seed.py` 写入 `.obsidian/core-plugins.json` 用了 `"backlink"`、`"outgoing-link"`、`"starred"`，但 Obsidian 实际的 plugin ID 是 `"backlinks"`、`"outgoing-links"`、`"bookmarks"`（最后这个在 Obsidian 1.2 / 2023 年 8 月从 `starred` 改名）。Obsidian 对未识别的 plugin ID 是静默忽略——意味着每个新装的 lifeos vault 在 Obsidian 里打开时，反向链接面板、出向链接面板、书签面板全部静默关闭。三个 ID 全改对 + 加 Obsidian 文档 URL 的注释块。
+    - **HIGH · `.obsidian/.gitignore` 缺 `cache`、`plugins/`、`themes/`** —— 用户装的 community plugin / theme 会被静默 commit 到 git，污染 repo。补全 + 加 `hot-reload.json`（开发流程）+ 加注释解释为什么需要两个 `.gitignore` 文件（Obsidian Sync 不读 vault-root `.gitignore`）。
+    - **HIGH · awk parser 在 CRLF + BOM 上崩** —— Windows 编辑器保存的 `_meta/review-queue.md` 带 CRLF 或 BOM 时会静默出 0 计数。加 `{ sub(/\r$/, "") }` 第一条 awk 规则 + `NR == 1 { sub(/^\xef\xbb\xbf/, "") }` 去 BOM。
+    - **HIGH · awk substr() 按字节切 UTF-8** —— POSIX awk substr 是按字节索引，所以 `substr($0, 1, 77)` 可能把 3 字节的中文字符从中间切掉，输出 invalid UTF-8 乱码。改成 `substr($0, 1, 67) "..."`（配合 `length > 70` 守卫），留 3 字节安全余量。同时加 block-scalar 守卫（`if ($0 ~ /^[|>][-+]?[[:space:]]*$/) { next }`）让 YAML `summary: |\n  text` 不会显示成 `Latest: |`。
+    - **HIGH · YAML 三层方括号语法是无效的** —— `references/people-spec.md` 和 `references/comparison-spec.md` 例子写的 `concepts_linked: [[[concept-id-1]], [[concept-id-2]]]` 以为是 wikilink 数组，但 PyYAML 把 bare `[[x]]` 解析成嵌套列表 `[['x']]`，不是 wikilink 字符串。已实测验证。改成带引号的字符串：`concepts_linked: ["[[concept-id-1]]", "[[concept-id-2]]"]`。同时给两个 spec 加了 required-fields 列表 + 不变量文档。
+    - **HIGH · concept-spec 有两套互相矛盾的 `outgoing_edges` schema** —— 第 82 行原版用 `to: concept_id`、`via:`、`last_reinforced:`；R-1.8.0-013 加的第 417 行用 `target: "[[]]"`、没 `via:`、`last_co_activated:`。实现会随机挑一个。统一：第 82 行现在是权威 wikilink schema，第 414 行注明是迁移前后对比示例。删了误导性的 `weight: -2` 例子（负权重在 lifecycle / decay 里没定义）。
+    - **HIGH · `migrate-to-wikilinks.md` 缺词边界要求** —— 朴素名字替换会把 "Algorithm" 弄坏成 `[[person-al]]gorithm` 如果存在叫 "Al" 的人。加显式 `\bword\b` 边界规则 + wikilinks-inside-wikilinks 守卫 + slug 冲突处理（按 concept-spec § 4.2）+ 跨平台 Windows PowerShell 备份命令 + 显式执行顺序说明（Phase 5 备份必须在 Phase 2 写入之前，尽管编号相反）。
+    - **HIGH · review-queue 缺 id 零填充规则 + 并发模型 + 归档排序** —— `r{TODAY}-{NNN}` 模糊（是 001 还是 1？）。文档化：永远 3 位零填充以便字典序可排序。加 lock-free 乐观并发协议（append 前重读 + 冲突重试）。加显式归档排序规则（按 `closed_at` 升序，从 `closed_at` 解析月份）。
+    - **HIGH · review-queue + comparison status 没回退守卫** —— `dismissed → open` 文档说无效但无强制。明确文档化为 MONOTONE / 单向 DAG。`closed_at` / `closed_by` 现在声明为 status != open 时 REQUIRED 非空。Comparison 的 `decision` 必须等于 `options[*]` 中之一 OR "deferred" OR "none"。`confidence` 必须在 [0.0, 1.0]。`revisited` 数组限制最多 50 项（溢出转入正文 `## Audit trail`）。给 people-spec 的 enum 加 `relationship: organization`（路由规则中引用了但 enum 缺）。
+    - **HIGH · people-spec privacy_tier 没有机器验证器** —— `high` 层只是文字声明的强制。加 Privacy Validator 段：post-write lint 扫正文中 10+ 位数字、街道地址正则、邮箱、canonical 之外的全名 → CLASS_C 违规 + P0 review-queue 项。加 operational tier 表（low/medium/high）说明每层允许什么。加 monotonicity 不变量：`last_mentioned >= first_mentioned`、`mention_count` append-only。
+    - **MEDIUM · pre-prompt-guard.sh 中文匹配依赖 locale** —— POSIX/C locale 下运行可能误判 上朝/退朝/监控模式/处理 queue 等多字节 UTF-8 关键词。脚本前面加 `export LC_ALL=C.UTF-8 LANG=C.UTF-8`（en_US.UTF-8 fallback），grep 之前。
+    - **LOW · concept-spec 中过期的 `tools/migrate.py` 引用** —— 该文件已在 R-1.8.0-011 pivot 中删除，但 spec 中还引用了 3 次（148、319、351 行）。改为指向替代品 `scripts/prompts/migrate-from-v1.6.md`。
+    - **LOW · 互斥注释误导** —— 写的是 "ROUTER 会收到两个相互竞争的 system-reminder 块"，但实际伤害是它们会拼接成一个 banner 错配的合并块。重写注释说明真实伤害。
+    - **LOW · MIGRATE_WIKILINKS_EOF heredoc 阶段编号不按执行顺序**（0,1,5,2,3,4,6）—— LLM 顺序跟读会困惑。重写为按执行顺序的 1-10 编号 + 显式说明源 prompt 的阶段编号为何不同。
 
 ### 迁移
 

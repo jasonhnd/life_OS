@@ -98,6 +98,10 @@ if [ -f "$REVIEW_QUEUE_FILE" ]; then
     # Note: awk stderr deliberately NOT suppressed — surfaces parser regressions
     # to the user via SessionStart hook log instead of silently producing empty output.
     REVIEW_QUEUE_RAW="$(awk '
+      # Always strip CRLF + UTF-8 BOM first — Windows editors save CRLF and
+      # may prepend BOM. Without these, ^anchored regexes silently miss matches.
+      { sub(/\r$/, "") }
+      NR == 1 { sub(/^\xef\xbb\xbf/, "") }
       BEGIN { in_open = 0; latest = "" }
       /^## Open items/         { in_open = 1; next }
       /^## Recently resolved/  { in_open = 0; next }
@@ -108,7 +112,12 @@ if [ -f "$REVIEW_QUEUE_FILE" ]; then
       in_open && latest == "" && /^[[:space:]]*summary:[[:space:]]*/ {
         sub(/^[[:space:]]*summary:[[:space:]]*/, "", $0)
         gsub(/^"|"$/, "", $0)
-        if (length($0) > 80) { latest = substr($0, 1, 77) "..." } else { latest = $0 }
+        # Skip block-scalar indicators (`summary: |` or `>`); next line will be captured
+        if ($0 ~ /^[|>][-+]?[[:space:]]*$/) { next }
+        # Truncate at 70 BYTES (not chars) — POSIX awk substr is byte-indexed.
+        # 70 leaves margin so a Chinese char (3 bytes) cannot be split mid-byte
+        # within the visible ~22-char Chinese / 70-char ASCII budget.
+        if (length($0) > 70) { latest = substr($0, 1, 67) "..." } else { latest = $0 }
       }
       END {
         if (p0 + p1 + p2 > 0) {

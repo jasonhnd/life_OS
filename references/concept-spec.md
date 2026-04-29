@@ -79,14 +79,15 @@ permanence: enum                  # identity | skill | fact | transient
 activation_count: integer         # how many times referenced across sessions
 last_activated: ISO 8601          # timestamp of last activation
 created: ISO 8601                 # creation timestamp
+# R-1.8.0-013 wikilink schema (CANONICAL):
 outgoing_edges:
-  - to: concept_id
-    weight: integer               # 1-100, Hebbian-strengthened
+  - target: "[[concept_id]]"      # wikilink string (quoted; see § Wikilink Convention)
+    weight: integer               # 1-100, Hebbian-strengthened (NON-NEGATIVE; negative weights NOT supported)
     via: [tag]                    # what triggered this connection (free-form tags)
-    last_reinforced: ISO 8601
+    last_co_activated: ISO 8601   # renamed from last_reinforced for R-1.8.0-013
 provenance:
-  source_sessions: [session_id]   # sessions where evidence appeared
-  extracted_by: enum              # archiver | manual | dream
+  source_sessions: ["[[session_id]]"]   # wikilink array (quoted strings); was plain id pre-R-1.8.0-013
+  extracted_by: enum                    # archiver | manual | dream
 decay_policy: enum                # matches permanence tier (see §5)
 ---
 
@@ -144,7 +145,7 @@ Body content (markdown, optional but encouraged)...
 3. All 6 pass → create file in `_meta/concepts/_tentative/{domain}/{concept_id}.md`
 4. Any criterion fails → discard, log in `decay-log.md` for later audit
 
-> Implementations: `pro/agents/archiver.md` §Phase 2 Mid-Step (Concept Extraction + Hebbian Update) and `tools/migrate.py` use the same 6-criteria enumeration. When this spec changes, those must be updated in lock-step.
+> Implementations: `pro/agents/archiver.md` §Phase 2 Mid-Step (Concept Extraction + Hebbian Update) and `scripts/prompts/migrate-from-v1.6.md` (replaces deleted `tools/migrate.py` since R-1.8.0-011 pivot) use the same 6-criteria enumeration. When this spec changes, those must be updated in lock-step.
 
 ### Promotion
 
@@ -315,7 +316,7 @@ Personal information flows into SOUL.md, not into concepts. Concepts about indiv
 
 ## Migration from v1.6.2a
 
-Pre-v1.7 there is no concepts directory. Migration to v1.7 runs once, orchestrated by `tools/migrate.py` (user decision #7):
+Pre-v1.7 there is no concepts directory. Migration to v1.7 runs once, orchestrated by `scripts/prompts/migrate-from-v1.6.md` (replaces deleted `tools/migrate.py` since R-1.8.0-011 pivot — user decision #7):
 
 1. Scan **last 3 months** of `_meta/journal/` entries (bounded window — older material goes untouched)
 2. Extract candidate concepts using the same algorithm as the archiver Hebbian pass
@@ -347,7 +348,7 @@ These are forbidden by spec and must be rejected at write-time by the archiver:
 
 ## How Each Role Uses Concepts
 
-All roles check if `_meta/concepts/INDEX.md` exists before referencing it. During Step 0.5, a missing or empty concept index is an auto-bootstrap precondition: the orchestrator runs `tools/migrate.py` before spawning Cortex subagents. If bootstrap fails, concept input is null and GWT records the condition through `degradation_summary`. Outside Step 0.5, roles operate normally without concept input.
+All roles check if `_meta/concepts/INDEX.md` exists before referencing it. During Step 0.5, a missing or empty concept index is an auto-bootstrap precondition: the orchestrator reads `scripts/prompts/migrate-from-v1.6.md` (post-R-1.8.0-011 replacement for deleted `tools/migrate.py`) before spawning Cortex subagents. If bootstrap fails, concept input is null and GWT records the condition through `degradation_summary`. Outside Step 0.5, roles operate normally without concept input.
 
 | Role | What they read | How they use it |
 |------|---------------|-----------------|
@@ -411,7 +412,7 @@ session where this pattern emerged.
 
 ### Frontmatter
 
-`outgoing_edges` array changes from plain ID list to wikilink list:
+`outgoing_edges` array uses wikilink target field (canonical schema above):
 
 ```yaml
 outgoing_edges:
@@ -419,9 +420,15 @@ outgoing_edges:
     weight: 5
     last_co_activated: 2026-04-29T10:00:00+09:00
   - target: "[[risk-tolerance]]"
-    weight: -2          # negative weight = inverse correlation
+    weight: 3
     last_co_activated: 2026-04-15T09:00:00+09:00
 ```
+
+Pre-R-1.8.0-013 frontmatter used `to: concept_id` (plain string) and field
+name `last_reinforced`. Migration prompt `scripts/prompts/migrate-to-wikilinks.md`
+rewrites both during Phase 3. Weights are always non-negative (negative
+"inverse correlation" was considered then rejected — too rare to justify the
+spec complexity; use a separate inhibitory-edge concept page if needed).
 
 `aliases:` stays plain string array (filename matching, not wikilinks).
 `provenance.source_sessions:` becomes wikilink array:

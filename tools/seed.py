@@ -219,13 +219,18 @@ _OBSIDIAN_APP_JSON = """{
 """
 
 
+# Obsidian core-plugin IDs — these MUST match Obsidian's actual plugin
+# identifiers (verified against an installed Obsidian 1.5+ vault). Wrong
+# names are silently ignored, so a typo like "backlink" instead of
+# "backlinks" disables the plugin without any error message.
+# Reference: https://help.obsidian.md/plugins
 _OBSIDIAN_CORE_PLUGINS = """[
   "file-explorer",
   "global-search",
   "switcher",
   "graph",
-  "backlink",
-  "outgoing-link",
+  "backlinks",
+  "outgoing-links",
   "tag-pane",
   "page-preview",
   "outline",
@@ -235,7 +240,7 @@ _OBSIDIAN_CORE_PLUGINS = """[
   "command-palette",
   "markdown-importer",
   "random-note",
-  "starred",
+  "bookmarks",
   "file-recovery"
 ]
 """
@@ -243,6 +248,11 @@ _OBSIDIAN_CORE_PLUGINS = """[
 
 # NOTE: written to .obsidian/.gitignore (the Obsidian-vault-internal one),
 # distinct from _GITIGNORE at line 39 which is the repo-root .gitignore.
+# WHY two .gitignore files: Obsidian's own sync engine ignores the vault-root
+# .gitignore — vault-internal exclusions must live inside .obsidian/ for
+# Obsidian Sync to honor them. The repo-root _GITIGNORE handles git-level
+# concerns (what gets committed); this handles Obsidian-level concerns
+# (what gets sync'd to mobile, cached, etc.).
 _OBSIDIAN_GITIGNORE = """# Obsidian local state (per-device, do not sync)
 workspace.json
 workspace-mobile.json
@@ -250,6 +260,17 @@ appearance.json
 
 # Obsidian sync conflicts
 .trash/
+
+# Obsidian metadata cache (regenerated on launch; per-device)
+cache
+
+# Community plugins + themes — installed per-device, not sync'd via git
+# (use Obsidian Sync or BRAT for cross-device plugin management instead)
+plugins/
+themes/
+
+# Hot Reload plugin local state (dev workflow only)
+hot-reload.json
 """
 
 

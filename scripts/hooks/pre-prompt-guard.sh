@@ -28,6 +28,18 @@
 set -u
 # Note: no pipefail — hook must never exit non-zero on input quirks.
 
+# Locale guard for portable Chinese / Japanese keyword matching.
+# Without this, hook running in POSIX or C locale can misinterpret UTF-8
+# byte boundaries and produce false negatives on multi-byte trigger words
+# (上朝 / 退朝 / 监控模式 / 处理 queue / etc). C.UTF-8 is glibc / git-bash
+# safe; fall back to en_US.UTF-8 if not available, and finally to current
+# environment if neither is set (last resort, may misbehave but won't crash).
+if locale -a 2>/dev/null | grep -qi '^C\.UTF-8$\|^C\.utf8$'; then
+  export LC_ALL=C.UTF-8 LANG=C.UTF-8
+elif locale -a 2>/dev/null | grep -qi '^en_US\.UTF-8$\|^en_US\.utf8$'; then
+  export LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+fi
+
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=/dev/null
 source "$HOOK_DIR/_lib.sh"
@@ -160,9 +172,14 @@ MONITOR_EOF
 # scripts/prompts/review-queue.md handles all action items in _meta/review-queue.md.
 # No slash command — natural language is the only path.
   REVIEW_QUEUE_RE='(处理 queue|处理queue|看 queue|看queue|走一遍 queue|今天有什么要处理的|有什么要我决定的|review queue|process queue|walk queue|queue walk|queue 处理|review 队列)'
-  # Mutual exclusion guard: if a previous block (memory/monitor) already fired,
-  # do NOT also fire review-queue / wikilink-migration — ROUTER would receive
-  # two competing <system-reminder> blocks. First match wins.
+  # Mutual exclusion guard (first-match-wins). Without this, multiple cat
+  # heredoc blocks emit to stdout in this single hook invocation, and
+  # they CONCATENATE into one combined <system-reminder> injection — not
+  # two separate blocks. The combined injection has back-to-back banner
+  # lines with mismatched trigger names, confusing ROUTER about which
+  # subagent / prompt to dispatch. By gating on ACTIVITY_REMINDER (set to
+  # "yes" by the first block that matches), only one trigger reminder is
+  # ever emitted per user message.
   if [ "$ACTIVITY_REMINDER" != "yes" ] && printf '%s' "$PROMPT" | grep -qiE "$REVIEW_QUEUE_RE"; then
     ACTIVITY_TRIGGER="review-queue"
     ACTIVITY_REMINDER="yes"
@@ -206,16 +223,30 @@ The user message contains a wikilink-migration keyword (迁移 wikilinks / migra
 wikilinks / etc). ROUTER MUST read scripts/prompts/migrate-to-wikilinks.md and
 execute Phase 0 inventory FIRST. Backup is mandatory before Phase 2.
 
-Steps:
+Execution order (note: phase NUMBERS in the prompt were assigned in
+discovery order, but EXECUTION must follow this sequence — backup before
+any write, validation after all writes):
+
 1. Read scripts/prompts/migrate-to-wikilinks.md (full spec)
-2. Phase 0: inventory all candidate files, report count to user, ask Y/N
-3. If Y: Phase 1 build identifier index from _meta/concepts/, wiki/, _meta/people/, etc
-4. Phase 5: BACKUP _meta/migration-backup/{ISO8601}/ before any Edit (HARD RULE)
-5. Phase 2: body migration per file via Edit tool (skip code blocks + frontmatter)
-6. Phase 3: frontmatter exception fields for _meta/concepts/* only
-7. Phase 4: validation pass — broken wikilinks reported to review queue
-8. Phase 6: run report with file count, link count, broken-link list
-9. Audit trail: _meta/runtime/{sid}/wikilink-migration.json
+2. Phase 0 (inventory): count all candidate files, report to user, ask Y/N
+3. Phase 1 (index): build identifier_map from _meta/concepts/, wiki/,
+   _meta/people/, _meta/comparisons/, _meta/methods/
+4. Phase 1.5 (collisions): handle slug collisions per concept-spec § 4.2
+   (double-hyphen suffix); surface as P1 review-queue items
+5. Phase 5 (BACKUP — HARD RULE, MUST PRECEDE ANY EDIT): copy candidate dirs
+   to _meta/migration-backup/{ISO8601}/. Verify file count matches source
+   before continuing. Abort migration if backup fails.
+6. Phase 2 (body migration): per file via Edit tool, with WORD-BOUNDARY
+   matching, skip fenced + inline code blocks + YAML frontmatter (except
+   exceptions per Phase 3) + HTML comments + URL paths. Do NOT create
+   wikilinks-inside-wikilinks.
+7. Phase 3 (frontmatter exceptions): _meta/concepts/* only — provenance
+   .source_sessions, outgoing_edges.target (renamed from `to`), other
+   wikilink exception fields per references/wiki-spec.md exception list.
+8. Phase 4 (validation): extract all [[...]] patterns, verify target files
+   exist; broken wikilinks → P1 review-queue items.
+9. Phase 6 (report): file count / link count / broken-link list / backup path.
+10. Audit trail: _meta/runtime/{sid}/wikilink-migration.json
 
 Per references/wiki-spec.md page taxonomy + wikilink convention section.
 Per references/concept-spec.md frontmatter exception rules.

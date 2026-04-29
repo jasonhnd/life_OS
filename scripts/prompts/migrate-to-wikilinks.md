@@ -85,21 +85,35 @@ Strategy:
 For each file in inventory:
 
 1. Read file.
-2. Identify legacy reference patterns:
+2. Identify legacy reference patterns. **WORD-BOUNDARY MATCHING IS MANDATORY**
+   — match only on whitespace / punctuation / line boundaries, never substring.
+   Example of what to avoid: name "Al" must NOT match inside "Algorithm" →
+   `[[person-al]]gorithm`. Use regex like `\bAl\b` (or markdown-aware
+   equivalent).
    - `concept "foo"` / `wiki "bar"` → `[[foo]]` / `[[bar]]`
    - Bare ID mentions like `(see CONCEPT-FOO)` → `(see [[foo]])`
    - Stylized cross-refs like `→ wiki/decision-engine.md` → `→ [[wiki-decision-engine]]`
    - Names matching people/canonical_name → `[[person-jason]]` etc.
+   **DO NOT** create wikilinks-inside-wikilinks: if the target text already
+   sits inside an existing `[[...]]` or `[[...|...]]` display alias, skip
+   that occurrence (Obsidian renders only the outer link; nested becomes
+   broken literal text).
 
 3. Apply edits via Edit tool, one canonical text replacement per pattern.
 
-4. Skip code blocks, YAML frontmatter (except known exceptions), HTML comments.
+4. Skip:
+   - YAML frontmatter (except known exceptions per Phase 3)
+   - HTML comments `<!-- ... -->`
+   - Fenced code blocks (between ``` lines)
+   - Inline code (between single `backticks`)
+   - URL paths (don't rewrite `[link](https://...)` text)
 
 5. After file done, verify with quick re-read.
 
 ### Phase 3: Frontmatter exceptions
 
-For `_meta/concepts/*.md` only, also update:
+For `_meta/concepts/*.md` only, also update (see `references/concept-spec.md`
+canonical schema):
 
 ```yaml
 provenance:
@@ -107,9 +121,9 @@ provenance:
     - "[[2026-04-29]]"             # was: "2026-04-29"
     - "[[2026-04-22]]"
 outgoing_edges:
-  - target: "[[concept-bar]]"      # was: target: "bar"
-    weight: 0.7
-    type: related
+  - target: "[[concept-bar]]"      # was: to: bar  (renamed `to` → `target`)
+    weight: 5                      # NON-NEGATIVE integer 1-100
+    last_co_activated: 2026-04-29T10:00:00+09:00   # was: last_reinforced (renamed)
 ```
 
 For all other frontmatter fields, KEEP as plain strings (machine-parseable).
@@ -122,16 +136,36 @@ After all files migrated:
 2. Report broken links: `[[unknown-id]]` found in `_meta/sessions/2026-03-15.md` line 42.
 3. User decides: create stub / fix typo / leave as TODO.
 
-### Phase 5: Backup before write
+### Slug collision handling (Phase 1.5)
 
-BEFORE any Edit, create timestamped backup:
+If `identifier_map` builder hits two pages with the same canonical slug
+(e.g., concept "Foo" exists in both `wiki/finance/foo.md` and
+`wiki/startup/foo.md` — both naive-slug to `foo`), apply the
+double-hyphen-suffix rule from `references/concept-spec.md` § 4.2:
+`foo`, `foo--2`, `foo--3`, etc. Surface the collision to the user as a
+review-queue P1 item rather than silently mapping one to the other.
+
+### Phase 5: ⚠️ MANDATORY BACKUP — RUN THIS BEFORE PHASE 2 EDITS
+
+**Despite phase numbering, this MUST execute BEFORE Phase 2's first Edit
+call. Do not begin Phase 2 until backup completes.** Phase numbering is
+historical (followed inventory→index→migration→validation discovery flow);
+execution order MUST be: 0 → 1 → 1.5 → 5 → 2 → 3 → 4 → 6.
 
 ```bash
+# Cross-platform: prefer Python copier for Windows compatibility
 mkdir -p _meta/migration-backup/{ISO-DATE}
+# Bash:
 cp -r wiki/ _meta/concepts/ _meta/sessions/ _meta/methods/ \
+       _meta/people/ _meta/comparisons/ \
        SOUL.md _meta/STRATEGIC-MAP.md \
-       _meta/migration-backup/{ISO-DATE}/
+       _meta/migration-backup/{ISO-DATE}/  2>/dev/null || true
+# Windows PowerShell equivalent:
+# Copy-Item -Path wiki,_meta\concepts,_meta\sessions,_meta\methods,SOUL.md,_meta\STRATEGIC-MAP.md -Destination _meta\migration-backup\{ISO-DATE}\ -Recurse
 ```
+
+Verify backup directory non-empty + has same file count as source dirs
+BEFORE proceeding to Phase 2. If backup fails, ABORT migration entirely.
 
 ### Phase 6: Run report
 

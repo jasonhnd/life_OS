@@ -27,19 +27,26 @@ for non-ASCII when transliteration unreliable). Same slug rule as concepts.
 ---
 id: <slug>
 canonical_name: <display name>
-aliases: [<alt name 1>, <alt name 2>]
+aliases: ["<alt name 1>", "<alt name 2>"]
 type: people
-relationship: family | friend | colleague | partner | mentor | client | acquaintance | public-figure | other
+relationship: family | friend | colleague | partner | mentor | client | acquaintance | public-figure | organization | other
 first_mentioned: <YYYY-MM-DD of session_id where first appeared>
-last_mentioned: <YYYY-MM-DD>
-mention_count: <int, total sessions referencing>
-concepts_linked: [[[concept-id-1]], [[concept-id-2]]]    # Obsidian wikilinks
-soul_dimensions_linked: [<dimension-name>]
-privacy_tier: low | medium | high                         # high = redact details
+last_mentioned: <YYYY-MM-DD>                              # MUST be >= first_mentioned (monotonic invariant)
+mention_count: <int, total sessions referencing>          # append-only, never decremented
+# WIKILINK ARRAYS — must be quoted strings, NOT bare [[ ]] (YAML parses
+# bare [[x]] as nested list [['x']], not as wikilink string. Quote it.):
+concepts_linked: ["[[concept-id-1]]", "[[concept-id-2]]"]
+soul_dimensions_linked: ["[[<dimension-name>]]"]
+privacy_tier: low | medium | high                         # high = redact aliases + relationship details
 status: active | dormant | archived
 created: <ISO8601>
 updated: <ISO8601>
 ---
+
+# Required fields
+
+`id`, `canonical_name`, `type`, `privacy_tier`, `status` are REQUIRED.
+All other fields are OPTIONAL (default to empty array / null / unset).
 
 # {canonical_name}
 
@@ -71,7 +78,35 @@ archiver Phase 2 + knowledge-extractor MUST apply BEFORE writing:
 3. **Strip date+location combinations** that uniquely identify
 4. **Skip if stripping leaves entry meaningless** — privacy beats coverage
 
+### Privacy tier semantics (operational)
+
+| Tier | Frontmatter visibility | Body redaction | Display in queue/briefing |
+|------|------------------------|----------------|---------------------------|
+| `low` | All fields visible | None | Full summary shown |
+| `medium` | All fields visible | Strip phone, address, financial IDs from body | Show `canonical_name` only, NOT `aliases` |
+| `high` | `aliases` redacted to `[REDACTED]`, `relationship` shown as `[REDACTED]` | Strip everything beyond `canonical_name` + first 100 chars of context | Show only id; redact summary |
+
+### Privacy validator (must run; planned for archiver Phase 2)
+
+Post-write lint that scans every `_meta/people/*.md` with `privacy_tier:
+high` for these patterns in the BODY:
+- 10+ digit number sequences (phone / SSN / account)
+- street-address regex (e.g., `\d+\s+[A-Z][a-z]+\s+(St|Ave|Rd|Blvd)`)
+- email addresses
+- full name (first + last) other than `canonical_name` itself
+
+Violations → CLASS_C entry in `pro/compliance/violations.md` + P0 review-queue
+item per `references/review-queue-spec.md`.
+
 `privacy_tier: high` means **redact aggressively** in any future export.
+
+### Monotonicity invariants (validator-enforced)
+
+- `last_mentioned >= first_mentioned` (date comparison) — violation = data
+  corruption, abort archive
+- `mention_count` is **append-only / monotonically non-decreasing** — never
+  decrement; if recount produces lower number, prefer keeping higher value
+  + log discrepancy
 
 ## Routing rules (archiver Phase 2)
 

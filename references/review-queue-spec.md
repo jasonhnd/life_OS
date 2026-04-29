@@ -121,12 +121,54 @@ User can manually append via `scripts/prompts/review-queue.md` "add item" flow.
 When a maintenance prompt finds an action item:
 
 1. Read current `_meta/review-queue.md`
-2. Find the highest existing `r{TODAY}-{N}` id, increment N (or start at 001)
+2. Find the highest existing `r{TODAY}-{N}` id, increment N (start at 001 if no items today)
 3. Construct new item per schema
 4. Append to `## Open items` section (Edit tool, before "## Recently resolved")
 5. Report to user: "Added N items to review queue (priority: P0=X / P1=Y / P2=Z)"
 
 DO NOT use Write tool (would overwrite). Use Edit with append pattern.
+
+### Id zero-padding rule
+
+**`{NNN}` is ALWAYS zero-padded to 3 digits** (`001`, `002`, ..., `099`,
+`100`, `101`, ...). This makes ids sort lexicographically the same as
+numerically. Do NOT use natural integers (`1`, `2`, `10`, `11` would sort as
+`1, 10, 11, 2`).
+
+Beyond 999 items in a single day (vanishingly unlikely), use 4 digits:
+`r2026-04-29-1000`. Documented but never expected to fire.
+
+### Concurrency / lock-free append protocol
+
+Multiple prompts may try to append simultaneously (e.g., user manually
+invokes `auditor-mode-2` while `advisor-monthly` is mid-run from earlier).
+Without locking, two appends in parallel could:
+- collide on id (both compute `r2026-04-29-007` independently)
+- one Edit overwrite the other's change
+
+**Mitigation (lock-free, optimistic):**
+
+1. Each appender re-reads `_meta/review-queue.md` IMMEDIATELY before
+   constructing its Edit (not 30 seconds before).
+2. Compute next id from re-read content.
+3. After Edit, re-read to verify the new id appears exactly once. If it
+   appears twice (collision), DELETE the duplicate (keep first writer's
+   item, discard second writer's), then re-attempt with id+1.
+4. If verify-and-retry fails 3 times, abort with `_meta/review-queue/lock-conflicts/{ISO}.md`
+   recording the conflict for user inspection.
+
+**Note**: lifeos is single-user single-session today, so collisions are
+theoretical. Documenting protocol for future multi-process cron resurrection.
+
+### Archive ordering source-of-truth
+
+When `## Recently resolved` exceeds 100 entries, oldest items move to
+`_meta/review-queue/archive/{YYYY-MM}.md` where `{YYYY-MM}` is parsed from
+each item's `closed_at` field (NOT `created` — items can sit open for
+months). Within the monthly archive file, items are appended in
+**`closed_at` ASC order** (oldest first). Items with null `closed_at` are
+never archived (they're still open and should not be in `## Recently
+resolved` anyway — that's a data inconsistency to flag).
 
 ## Status transitions
 
@@ -138,10 +180,27 @@ reviewed → resolved
 reviewed → dismissed
 ```
 
-When status changes:
-- Set `closed_at` to current ISO8601
-- Set `closed_by` to who/how (user-resolved / auto-archived / superseded)
+**Status transitions are MONOTONE / one-way** (DAG, no back-edges):
+- `dismissed → open` is INVALID — dismissed items stay dismissed
+- `resolved → open` is INVALID — re-opening means creating a new queue item
+  with `related: ["[[r-id-of-resolved-item]]"]` referencing the prior one
+- `reviewed → open` is INVALID — same reasoning
+
+A walker prompt that detects an attempted back-transition MUST refuse and
+log to `_meta/runtime/{sid}/review-queue-walk.json`. Out-of-band YAML edits
+(user manually edits `_meta/review-queue.md` to re-open) are tolerated but
+flagged at next walker run.
+
+When status changes from `open`:
+- Set `closed_at` to current ISO8601 (REQUIRED non-null when status != open)
+- Set `closed_by` to who/how (REQUIRED non-null when status != open):
+  `user-resolved` | `auto-archived` | `superseded` | `auto-dismissed-stale`
 - Move from `## Open items` to `## Recently resolved` section
+
+**Required-field invariant**: items with `status: open` MUST have
+`closed_at: null` and `closed_by: null`. Items with status != open MUST
+have both non-null. A validator (planned, not yet implemented) MUST flag
+items violating this.
 
 ## Hook integration
 
