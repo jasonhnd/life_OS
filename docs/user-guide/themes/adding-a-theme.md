@@ -381,7 +381,7 @@ The angel investor advisor is unique — small check, no control rights, just pu
 
 ### ❌ 缺失某个 engine ID 的映射
 结果：对应的 agent 会用英文默认名（"ROUTER"、"PLANNER"），破坏沉浸感。
-修复：确保 16 个 ID 全部填上。
+修复：确保所有当前 engine ID 全部填上。
 
 ### ❌ 复用其他主题的 trigger word
 比如你的新主题用"上朝"作为 Start Session——会和 zh-classical 冲突，系统的自动推断会出错。

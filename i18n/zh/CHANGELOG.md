@@ -199,6 +199,22 @@
     2. T2 的伪 lockfile（5 分钟冷却，按 transcript 第一行 sha 算）阻止 T3/T4（同样的第一行 `User: 退朝`）运行。每个测试用例前加 `rm -f $HOME/.cache/lifeos/stop-hook-*` 清理。结果：**11/11 hook 测试用例全过**（之前 8/11）。
   - **MEDIUM · 4 个 `test_export.py` 失败因为缺 optional extras**：之前被 mypy 标记为 unused 的 `# type: ignore[import-untyped]` 注释掩盖了。给 `TestExportHtml` 加 `@pytest.mark.skipif(not find_spec("markdown_it"))`，给 `TestExportAnki` 加 `find_spec("genanki")`。默认 install：测试干净跳过。`uv sync --extra export` 时：正常运行。
 
+- **R-1.8.0-018 · 段落感知 lookback + 扩宽 NOUN 覆盖（2026-04-30 用户第十二轮审计后）**：第十一轮收紧 EXEMPT_PATTERN 到文件级，但用户第十二轮抓到两类剩余的"假绿"：
+  - **lookback 跨段落太贪婪**：`what-is-life-os.md` 第 431 行的 `v1.7` 在第 439 行的 8 行 lookback 窗口内，但两行之间隔了空行 + 新 H2。扫描器只在文件边界 reset，不在段落边界 reset，所以前一个 topical block 的 CONTEXT_ALLOW 关键字会跨段落豁免下个 block 的 drift。
+  - **regex 漏掉内部空格和额外名词**：`[N] 个[^，。\\s]{0,12}NOUN` 内部字符类排除空格，所以 "16 个真正独立的 subagent"（"的" 后有空格）匹配不到。NOUN 列表也漏了 `岗位`、独立 `ID`（"16 个 ID"）、`功能`（"以下 16 个功能完全相同"）。
+  - **扫描器修复（`scripts/check-spec-drift.sh`）**：
+    - **段落感知 reset**：三个 awk loop（broken-path 扫描器 + literal-token 扫描器 + count-pattern 扫描器）都改为在 `^[[:space:]]*$`（空行）或 `^#{1,6} `（markdown 标题）时清空 `recent[]`。Context 现在只在同一段落 / topical block 内传递。
+    - **NOUN 列表扩展**：增加 `岗位`、`角色`、`功能 ID`、独立 `ID`、`engine ID`、`engine`、`engine agent`、JA `サブエージェント`、`エージェント`、`役職`、`機能 ID`。新增 `[N] (个|個) (功能|定义|ID)` pattern。
+    - **允许内部空格**：`[^，。\\s]{0,12}` → `[^，。\\n]{0,18}`，多词 ZH 修饰语如"真正独立的 "（带尾空格）能匹配。
+  - **Active 文档修复（5 处残留 + 2 处 broken path 共 8 文件 10 处替换）**：
+    - `docs/getting-started/what-is-life-os.md`（+ ZH/JA 平行）："Life OS 需要 16 个真正独立的 subagent" → "...多个真正独立的 subagent"。`scripts/monthly-review-check.py` 引用（cron 时代，R-1.8.0-011 删除）替换为 `scripts/prompts/advisor-monthly.md` user-invoked prompt。
+    - `docs/guides/your-first-decision.md`："中间 16 个岗位具体在做什么" → "中间多个岗位具体在做什么"。
+    - `docs/user-guide/themes/themes-overview.md`："以下 16 个功能完全相同" → "以下核心功能完全相同"。
+    - `docs/user-guide/themes/adding-a-theme.md`："确保 16 个 ID 全部填上" → "确保所有当前 engine ID 全部填上"。
+    - `docs/architecture/system-overview.md`：架构图 "pro/agents/*.md (16 个) · themes/*.md (9 个)" → "pro/agents/*.md · themes/*.md (9 个)"（保留 9 个主题这个结构性稳定数字；删掉易漂移的 agent 数）。
+    - `pro/agents/retrospective.md`：TBD 引用 `pro/compliance/2026-04-23-status-cache-drift.md` 改写为 "(planned, TBD: ... will be created when the post-mortem is filed)" 让 planned 上下文豁免生效。
+  - **验证**：`STRICT=1 bash scripts/check-spec-drift.sh` → exit 0；审计员原 `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` 过滤非 legacy 非 CHANGELOG → **active 0 命中**；mypy --strict tools/ → 0 错误 / 16 文件；ruff → 干净；pytest → 233 通过 / 3 deselected；31 个 tracked .sh `bash -n` → 全过。
+
 - **R-1.8.0-017 · 让扫描器真的成为 source of truth——收紧 EXEMPT_PATTERN + 抓出真正的残留（2026-04-30 用户第十一轮审计后）**：用户第十一轮审计的核心洞察：R-1.8.0-016 的扫描器之所以通过，是因为它有过宽的**目录级豁免**（整个 `docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/` 被跳过），不是因为仓库真的干净。在那种豁免下，扫描器 PASS 不能作为 "active 文档没漂移" 的证明。审计员通过列出扫描器漏掉的 24 处 active 数量漂移残留（FAQ、主题概览、ZH/JA 安装文档等）证明了这个 gap。这一轮 (a) 通过删除目录豁免让扫描器变得可信，(b) 修掉新扫描器抓到的所有问题。
   - **扫描器收紧（`scripts/check-spec-drift.sh`）**：
     - **删除目录级豁免**：`docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/`、`references/v1.7-shipping-report-`、`references/cortex-spec.md`、`references/tools-spec.md`、`references/narrator-spec.md`。新的 EXEMPT_PATTERN 只覆盖真正历史性的 artifact（CHANGELOG、backup/、MIGRATION、扫描器自己、*-template、pro/compliance/ 违规日志）。其他文件必须用 YAML frontmatter（`status: legacy` / `authoritative: false`）声明自己是 legacy，或按行靠 8 行 CONTEXT_ALLOW lookback 豁免。

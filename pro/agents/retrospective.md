@@ -227,7 +227,7 @@ fi
 
 If `git`, `find`, or shell execution is unavailable in the current environment, put this warning at the very top of the briefing: `⚠️ primary-source unavailable; numeric claims degraded to STATUS narrative only`. In that degraded state, do not write any quantitative numbers.
 
-**Why**: On 2026-04-23, three Start Session briefings over-trusted `_meta/STATUS.md` as a secondary cache and produced stale numeric claims (wiki growth, project task counts, project inactivity days). This step locks briefing numbers to primary sources instead of cache narrative. See `pro/compliance/2026-04-23-status-cache-drift.md` when that incident note is created.
+**Why**: On 2026-04-23, three Start Session briefings over-trusted `_meta/STATUS.md` as a secondary cache and produced stale numeric claims (wiki growth, project task counts, project inactivity days). This step locks briefing numbers to primary sources instead of cache narrative. See the future status-cache-drift incident note (planned, TBD: pro/compliance/2026-04-23-status-cache-drift.md will be created when the post-mortem is filed).
 
 ### Execution Steps
 

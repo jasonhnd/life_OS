@@ -33,7 +33,7 @@ superseded_by: pro/CLAUDE.md
 ├──────────────────────────────────────────────────────────────┤
 │ Layer 2 · Skill 层（核心逻辑）                                 │
 │   SKILL.md · pro/CLAUDE.md / GEMINI.md / AGENTS.md            │
-│   pro/agents/*.md (16 个) · themes/*.md (9 个)                │
+│   pro/agents/*.md            · themes/*.md (9 个)             │
 │   Cortex 增量：Pre-Router 认知前置层（v1.7 GA）                │
 ├──────────────────────────────────────────────────────────────┤
 │ Layer 1 · 数据层 / Second Brain（真理源）                      │

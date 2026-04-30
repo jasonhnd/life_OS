@@ -87,6 +87,10 @@ FORBIDDEN_TOKENS=(
 # had 14 → 16 → 22 → 23 subagents over its history; any of those values
 # in a current doc indicates drift.
 N='(1[3-9]|[2-9][0-9])'
+# Nouns considered "subagent count" — covers EN/ZH/JA + structural
+# vocabulary the system uses interchangeably (engine ID, 岗位 = "post",
+# 角色 = "role", 個 / 个 = counter, etc.).
+NOUN='(sub'"agents?|a"'gents?|roles?|individuals?|岗位|角色|功能 ID|ID|engine ID|engine|engine a'"gent|サブエージェント|エージェント|役職|機能 ID)"
 SUBAGENT_COUNT_PATTERNS=(
   # ===== EN =====
   "$N (sub""agents?|sub""agent definitions?)"
@@ -94,12 +98,20 @@ SUBAGENT_COUNT_PATTERNS=(
   "$N (AI )?(a""gents?|roles?|individuals?)"
   "$N engine ID"
   # ===== ZH =====
-  "$N ?个 ?(sub""agent|a""gent|角色|功能 ID|engine|engine ID|engine a""gent)"
+  # Tightened to (a) accept inner SPACES (round-12 fix — round-11 regex
+  # used [^，。\\s]{0,12} which broke on "16 个 真正独立的 subagent" because
+  # the space after "的" terminated the inner-char match) and (b) add the
+  # '岗位 / ID alone / 功能' nouns the auditor flagged.
+  "$N ?个 ?$NOUN"
   "$N 子 ?(sub""agent|a""gent)"
-  "$N 个[^，。\\s]{0,12}(sub""agent|a""gent|engine a""gent|engine ID)"
-  "$N 个[^，。\\s]{0,12}(AI 角色)"
+  # Up to 18 chars (allowing spaces and Chinese particles) between 个 and
+  # the target noun. Excludes only commas/periods/newlines so multi-word
+  # modifiers like "真正独立的 " match.
+  "$N 个[^，。\\n]{0,18}$NOUN"
+  "$N 个[^，。\\n]{0,12}(AI 角色)"
   "$N a""gent (制衡|编排|定义|calls|流程)"
   "$N engine a""gent"
+  "$N (个|個) (功能|定义|ID)"
   # ===== JA =====
   "$N 個の独立した (sub""agent|a""gent|エージェント|サブエージェント)"
   "$N の(機能 ID|声|エージェント|サブエージェント|独立した|独立 ?サブエージェント|AI 役職|役職|エージェントが)"
@@ -146,10 +158,16 @@ while IFS= read -r file; do
   # Walk file line-by-line, track 5-line context window
   awk -v ctx="$SCANNER_CTX" -v fname="$file" '
     BEGIN { for (i=1; i<=8; i++) recent[i] = "" }
+    # Round-12 paragraph-aware reset: blank lines and H1-H6 headers
+    # break the lookback so context only carries within the same
+    # paragraph / topical block.
+    /^[[:space:]]*$/ || /^#{1,6} / {
+      for (i=1; i<=8; i++) recent[i] = ""
+      next
+    }
     {
-      # Check if any of last 8 lines or current line matches CONTEXT_ALLOW
-      # (8 covers H2/H3 header + blank + up to 6 bullet items, the common
-      # markdown "Removed in pivot:" pattern in active READMEs / CLAUDEs.)
+      # Check if any of last 8 lines (within same paragraph) or current
+      # line matches CONTEXT_ALLOW.
       any_recent_ctx = ($0 ~ ctx)
       for (i=1; i<=8; i++) if (recent[i] ~ ctx) any_recent_ctx = 1
       if (!any_recent_ctx) {
@@ -224,10 +242,17 @@ for token in "${FORBIDDEN_TOKENS[@]}"; do
       }
       BEGIN {
         for (i=1; i<=8; i++) recent[i] = ""
-        # Build word-boundary regex so e.g. "life-os-tool" does NOT match the
-        # legitimate plural "life-os-tools". (Awk lacks proper \b; use a
-        # character class disallowing word continuation chars on either side.)
         pat = "(^|[^A-Za-z0-9_-])" regex_escape(token) "([^A-Za-z0-9_-]|$)"
+      }
+      # Round-12 fix: blank lines and H1/H2/H3 markdown headers BREAK the
+      # context window. Previously a "v1.7" mention at line N could exempt
+      # an unrelated drift line at N+8 even when separated by a blank line
+      # and a new H2 — clearly a different paragraph. Now any blank line
+      # or `^#{1,6} ` header line clears recent[] so context only carries
+      # within the same paragraph / topical block.
+      /^[[:space:]]*$/ || /^#{1,6} / {
+        for (i=1; i<=8; i++) recent[i] = ""
+        next
       }
       {
         line_has_token = ($0 ~ pat)
@@ -261,6 +286,13 @@ for pat in "${SUBAGENT_COUNT_PATTERNS[@]}"; do
     is_legacy_file "$file" && continue
     bad_lines="$(awk -v pat="$pat" -v ctx="$CONTEXT_ALLOW" '
       BEGIN { for (i=1; i<=8; i++) recent[i] = "" }
+      # Paragraph-aware reset (round-12): blank lines and H1-H6 headers
+      # break the lookback window so context only carries within the
+      # same paragraph / topical block.
+      /^[[:space:]]*$/ || /^#{1,6} / {
+        for (i=1; i<=8; i++) recent[i] = ""
+        next
+      }
       {
         line_has_match = ($0 ~ pat)
         line_has_ctx = ($0 ~ ctx)

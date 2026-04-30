@@ -199,6 +199,22 @@
     2. T2 の偽 lockfile（5 分クールダウン、トランスクリプト 1 行目の sha でキー化）が T3/T4（同じ 1 行目 `User: 退朝`）の実行をブロック。各テストケース前に `rm -f $HOME/.cache/lifeos/stop-hook-*` クリーンアップを追加。結果：**11/11 hook テストケース合格**（8/11 から）。
   - **MEDIUM · 4 つの `test_export.py` 失敗、欠落しているオプション extras から**：以前は mypy が unused としてフラグ立てた `# type: ignore[import-untyped]` コメントで隠されていた。`TestExportHtml` クラスに `@pytest.mark.skipif(not find_spec("markdown_it"))` 追加、`TestExportAnki` に `find_spec("genanki")` 追加。デフォルトインストール：テストはきれいにスキップ。`uv sync --extra export` 時：通常実行。
 
+- **R-1.8.0-018 · 段落単位の lookback + NOUN カバレッジ拡張（2026-04-30 ユーザー第 12 ラウンド監査後）**: ラウンド 11 で EXEMPT_PATTERN をファイルレベルに絞ったが、ユーザーラウンド 12 が残り 2 種類の "偽 PASS" をキャッチ:
+  - **lookback が段落境界をまたいで貪欲すぎた**: `what-is-life-os.md` 行 431 の `v1.7` が行 439 の 8 行 lookback ウィンドウ内だが、間に空行 + 新 H2。スキャナはファイル境界でしか reset せず段落境界では reset しなかったため、前 topical block の CONTEXT_ALLOW キーワードが次 block の drift を免除できた。
+  - **regex が内部スペースと追加名詞を見落とした**: `[N] 个[^，。\\s]{0,12}NOUN` 内部文字クラスがスペースを除外、よって "16 个真正独立的 subagent"（"的" 後にスペース）はマッチしない。NOUN リストは `岗位`、裸の `ID`（"16 个 ID"）、`功能`（"以下 16 个功能完全相同"）も漏れていた。
+  - **スキャナ修正（`scripts/check-spec-drift.sh`）**:
+    - **段落単位 reset**: 3 つの awk loop（broken-path スキャナ + literal-token スキャナ + count-pattern スキャナ）すべて、`^[[:space:]]*$`（空行）または `^#{1,6} `（markdown ヘッダ）で `recent[]` をクリア。Context は同一段落 / topical block 内でのみ伝播。
+    - **NOUN リスト拡張**: `岗位`、`角色`、`功能 ID`、裸の `ID`、`engine ID`、`engine`、`engine agent`、JA `サブエージェント`、`エージェント`、`役職`、`機能 ID` を追加。`[N] (个|個) (功能|定义|ID)` pattern を別途追加。
+    - **内部スペース許可**: `[^，。\\s]{0,12}` → `[^，。\\n]{0,18}`、多語 ZH 修飾語 "真正独立的 "（末尾スペース付き）がマッチ。
+  - **Active ドキュメント修正（5 残留 + 2 broken path = 8 ファイル 10 substitutions）**:
+    - `docs/getting-started/what-is-life-os.md`（+ ZH/JA 並行）: "Life OS 需要 16 个真正独立的 subagent" → "...多个真正独立的 subagent"。`scripts/monthly-review-check.py` 参照（cron 時代、R-1.8.0-011 で削除）を `scripts/prompts/advisor-monthly.md` user-invoked prompt に置換。
+    - `docs/guides/your-first-decision.md`: "中间 16 个岗位具体在做什么" → "中间多个岗位具体在做什么"。
+    - `docs/user-guide/themes/themes-overview.md`: "以下 16 个功能完全相同" → "以下核心功能完全相同"。
+    - `docs/user-guide/themes/adding-a-theme.md`: "确保 16 个 ID 全部填上" → "确保所有当前 engine ID 全部填上"。
+    - `docs/architecture/system-overview.md`: アーキテクチャ図 "pro/agents/*.md (16 个) · themes/*.md (9 个)" → "pro/agents/*.md · themes/*.md (9 个)"（9 テーマカウントは構造的に安定なので保持; ドリフトしやすい agent カウントを削除）。
+    - `pro/agents/retrospective.md`: TBD 参照 `pro/compliance/2026-04-23-status-cache-drift.md` を "(planned, TBD: ... will be created when the post-mortem is filed)" に書き換え、planned コンテキスト免除を有効化。
+  - **検証**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0; 監査員の `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` フィルタ非 legacy 非 CHANGELOG → **active 0 ヒット**; mypy --strict tools/ → 0 エラー / 16 ファイル; ruff → クリーン; pytest → 233 合格 / 3 deselected; 31 個の tracked .sh `bash -n` → すべて合格。
+
 - **R-1.8.0-017 · スキャナを真に source of truth にする —— EXEMPT_PATTERN を絞り、本物の残留をキャッチ（2026-04-30 ユーザー第 11 ラウンド監査後）**: ユーザー第 11 ラウンド監査のコア洞察: R-1.8.0-016 のスキャナがパスしていたのは過広な**ディレクトリレベル免除**（`docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/` 全体がスキップ）のせいであって、リポジトリが本当にクリーンだからではなかった。あの免除下ではスキャナ PASS は "active ドキュメントにドリフトなし" の証拠にならない。監査者はスキャナが見落とした 24 件の active カウントドリフト残留（FAQ、テーマ概要、ZH/JA インストールドキュメントなど）を列挙して gap を証明。本ラウンドは (a) ディレクトリ免除を削除してスキャナを信頼可能にし、(b) 新スキャナがキャッチした全てを修正。
   - **スキャナ厳格化（`scripts/check-spec-drift.sh`）**:
     - **ディレクトリレベル免除を削除**: `docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/`、`references/v1.7-shipping-report-`、`references/cortex-spec.md`、`references/tools-spec.md`、`references/narrator-spec.md`。新 EXEMPT_PATTERN は真に歴史的な artifact のみカバー（CHANGELOG、backup/、MIGRATION、スキャナ自身、*-template、pro/compliance/ 違反ログ）。それ以外のファイルは YAML frontmatter（`status: legacy` / `authoritative: false`）で legacy を宣言、または行ごとに 8 行 CONTEXT_ALLOW lookback で免除を獲得する必要がある。
