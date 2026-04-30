@@ -520,7 +520,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 **手動更新**：任意のセッションで「アップデート」と言うだけ。
 
-> **非対応**：ChatGPT、Gemini Web、その他のシングルコンテキストチャットインターフェース。Life OS は真の情報隔離を持つ16の独立した subagent を必要とする——単一のチャットウィンドウでは実現できない。
+> **非対応**：ChatGPT、Gemini Web、その他のシングルコンテキストチャットインターフェース。Life OS は真の情報隔離を持つ23の独立した subagent を必要とする——単一のチャットウィンドウでは実現できない。
 
 ストレージバックエンドの設定を含む詳細は **[インストールガイド全文](./docs/installation.md)** を参照。
 

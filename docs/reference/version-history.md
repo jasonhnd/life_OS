@@ -181,7 +181,7 @@ GitHub second-brain 取代 Notion 成为主数据库：
 
 ### v1.6.0 迁移
 
-**16 个 agent 文件重命名**：
+**v1.6.0 当时的 agent 文件重命名（v1.6.0 时为 16 个，至 v1.8.0 增至 23 个）**：
 - 中文拼音（`chengxiang.md`、`zhongshu.md`...）→ 功能英文（`router.md`、`planner.md`...）
 - `departments.md` → `domains.md`（六部 → 六领域）
 

@@ -21,7 +21,7 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 | 方向 | 状态 | 说明 |
 |---|---|---|
 | **第二大脑** | 已有，持续维护 | 本地 markdown + iCloud + GitHub；SOUL / Wiki / Strategic Map 运转中 |
-| **决策引擎** | 已有，持续维护 | 16 agent 架构 + 9 主题 + 三语言，三省六部 / 霞が関 / C-Suite 随选 |
+| **决策引擎** | 已有，持续维护 | 23 agent 架构 + 9 主题 + 三语言，三省六部 / 霞が関 / C-Suite 随选 |
 | **Cortex 认知架构** | v1.7 主线 | 突触 + 海马体 + GWT + 叙事层，跨 session 记忆与联想 |
 | **执行层** | v1.7 主线 | Shell hook 守卫 + Python 工具脚本,让 Life OS 能主动做事 |
 
@@ -38,7 +38,7 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 
 **已完成的能力**：
 
-- **16 agent 决策引擎稳定**：ROUTER / PLANNER / REVIEWER / DISPATCHER + 6 domain + AUDITOR / ADVISOR / COUNCIL / RETROSPECTIVE / ARCHIVER / STRATEGIST
+- **23 agent 决策引擎稳定**：ROUTER / PLANNER / REVIEWER / DISPATCHER + 6 domain + AUDITOR / ADVISOR / COUNCIL / RETROSPECTIVE / ARCHIVER / STRATEGIST
 - **9 主题系统**：三语 × 3 风格（经典 / 政府 / 企业），Engine / Theme / Locale 三层分离
 - **SOUL 灵魂层**：六维人格自动写入 + 趋势箭头 + 冲突检测 + 3 层引用策略
 - **Wiki 自动写入**：6 条严格标准 + Privacy Filter，跨项目可复用的结论沉淀

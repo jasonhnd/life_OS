@@ -63,7 +63,7 @@ Full pull 的结果。典型值：
 - `outbox 合并：2 个会话，无冲突` —— 有并行会话的情况
 
 ### Platform
-Claude Code / Gemini CLI / Codex CLI。系统自己检测环境变量和工具集判断。影响的只是编排文件（读 CLAUDE.md / GEMINI.md / AGENTS.md），16 个 agent 的定义完全一样。
+Claude Code / Gemini CLI / Codex CLI。系统自己检测环境变量和工具集判断。影响的只是编排文件（读 CLAUDE.md / GEMINI.md / AGENTS.md），23 个 agent 的定义完全一样。
 
 ### Life OS version
 当前装的版本 + 是否有新版。格式：

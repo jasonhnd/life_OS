@@ -8,7 +8,7 @@ Life OS 装在 AI 终端里。三个平台官方支持：Claude Code、Gemini CL
 
 ## 为什么必须 Pro Mode
 
-Life OS 的核心机制是 16 个 subagent **互相看不见对方的思考过程**。PLANNER 出计划，REVIEWER 独立复核时拿到的是计划本身，拿不到 PLANNER 怎么想出这个计划的推理链。这是制衡的前提 —— 如果 REVIEWER 能看到 PLANNER 的思考，它会被锚定，否决就走形式。
+Life OS 的核心机制是 23 个 subagent **互相看不见对方的思考过程**。PLANNER 出计划，REVIEWER 独立复核时拿到的是计划本身，拿不到 PLANNER 怎么想出这个计划的推理链。这是制衡的前提 —— 如果 REVIEWER 能看到 PLANNER 的思考，它会被锚定，否决就走形式。
 
 这需要真实的 subagent 机制：每个 agent 跑在独立上下文里，orchestrator 负责传消息，消息内容由协议规定（`pro/CLAUDE.md` 的「信息隔离」表）。
 

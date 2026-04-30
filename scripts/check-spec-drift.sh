@@ -51,6 +51,23 @@ FORBIDDEN_TOKENS=(
   "run-cron-now.sh"
   "ALWAYS-ON"
   "cortex_enabled"
+  # Round-9 audit: semantic count drift. Subagent count went 16 → 23 in
+  # v1.7 Cortex / v1.7.3 knowledge-extractor / v1.8.0 monitor additions.
+  # Active files referencing the old "16" count are stale. Legacy files
+  # (status: legacy / authoritative: false) are exempt as usual.
+  #
+  # NB: tokens are built via bash adjacent-string concatenation
+  #     ("16 sub""agents") so the source of THIS file does not carry the
+  #     literal substring — that way a user-side `rg "<the stale count phrase>"` audit
+  #     against the repo finds zero hits in the scanner itself, only real
+  #     drift candidates.
+  "16 sub""agents"
+  "16 个 sub""agent"
+  "16 个 a""gent"
+  "All 16 sub""agents"
+  "16 indepen""dent agents"
+  "16 个独立 a""gent"
+  "16 個の独立した a""gent"
 )
 
 drift_found=0

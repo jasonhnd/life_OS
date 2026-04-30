@@ -38,7 +38,7 @@ You need to have [Claude Code](https://claude.ai/code) (Anthropic's command-line
 ```
 
 3. Wait for installation to complete; a success message will appear
-4. Done! All 16 subagents are automatically ready and available across all projects
+4. Done! All 23 Life OS subagents are automatically ready and available across all projects
 
 ### Verification
 

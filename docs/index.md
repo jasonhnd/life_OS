@@ -15,8 +15,8 @@
 | `getting-started/` | 新用户第一次接触系统需要看的 4 篇 | 刚装完，或者推荐给别人 |
 | `user-guide/` | 系统各个功能模块的用法（SOUL、DREAM、Wiki、主题、六部、战略地图、存储、会话生命周期、智库 Hall of Wisdom） | 想深入用某个功能 |
 | `guides/` | 场景化操作手册（年度规划、职业决策、建 wiki、映射战略等） | 遇到具体场景想抄作业 |
-| `architecture/` | 引擎内部设计（16 agents、编排协议、状态机、信息隔离、HARD RULE 目录、多平台编排） | 想改代码、想写 subagent、想调试流程 |
-| `reference/` | 规格和字典类文档（9 主题 × 16 agents 的完整映射、触发词、适配器、FAQ、版本历史、token 估算） | 查具体名字、参数、数据结构 |
+| `architecture/` | 引擎内部设计（23 agents、编排协议、状态机、信息隔离、HARD RULE 目录、多平台编排） | 想改代码、想写 subagent、想调试流程 |
+| `reference/` | 规格和字典类文档（9 主题 × 23 agents 的完整映射、触发词、适配器、FAQ、版本历史、token 估算） | 查具体名字、参数、数据结构 |
 | `evals/` | 评估脚本与场景 | 长期演化系统时的参考 |
 
 内部文档（不在 `docs/` 里，在仓库根部的 `devdocs/` 下，gitignored）：
@@ -92,7 +92,7 @@
 | `pro/CLAUDE.md` | Claude 平台的 11 步编排协议 |
 | `pro/GEMINI.md` | Gemini 平台同等地位的编排文件 |
 | `pro/AGENTS.md` | Codex 平台的编排文件 |
-| `pro/agents/*.md` | 16 个 subagent 的定义 |
+| `pro/agents/*.md` | 23 个 subagent 的定义 |
 | `themes/*.md` | 9 个主题的显示名映射 |
 | `references/*.md` | 数据模型、适配器、SOUL / DREAM / Wiki spec |
 
@@ -109,7 +109,7 @@
 - [第一次上朝全流程](getting-started/first-session.md)
 - [平台选择](getting-started/choose-your-platform.md)
 - [公开安装指南](installation.md)
-- [16 agents](architecture/16-agents.md)
+- [23 agents](architecture/16-agents.md)
 - [编排协议](architecture/orchestration-protocol.md)
 - [HARD RULE 目录](architecture/hard-rules-catalog.md)
 - [FAQ](reference/faq.md)
@@ -163,4 +163,4 @@
 
 `docs/reference/` 和 `/references/` 是两个不同的地方，别混淆：
 - `/references/` —— 引擎读的权威规格（`domains.md`、`soul-spec.md`、`wiki-spec.md`、`dream-spec.md`、`data-model.md`、`adapter-*.md` 等）
-- `docs/reference/` —— 给人看的查表目录（9 主题字典、16 agent 索引、触发词表、FAQ）
+- `docs/reference/` —— 给人看的查表目录（9 主题字典、23 agent 索引、触发词表、FAQ）

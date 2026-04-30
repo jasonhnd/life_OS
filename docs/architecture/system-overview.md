@@ -144,17 +144,19 @@ _meta/
 | `pro/GEMINI.md` | Gemini CLI 等价编排 |
 | `pro/AGENTS.md` | Codex CLI 等价编排 |
 | `pro/GLOBAL.md` | 全部 agent 必须遵守的通用规则 |
-| `pro/agents/*.md` | **16 个 subagent 定义**（跨平台共享） |
+| `pro/agents/*.md` | **23 个 subagent 定义**（跨平台共享） |
 | `themes/*.md` | **9 个主题文件**（只定义显示名 + tone + 语言） |
 | `references/*.md` | 跨 agent 复用的规格（数据模型、适配器、4 大 spec） |
 
-### 16 个 subagent（功能 ID）
+### 23 个 subagent（功能 ID）
 
 ```
 router / planner / reviewer / dispatcher
 people / finance / growth / execution / governance / infra
 auditor / advisor / council
 retrospective / archiver / strategist
+hippocampus / concept-lookup / soul-check / gwt-arbitrator
+narrator / knowledge-extractor / monitor
 ```
 
 详见 `pro/agents/*.md` 和 `references/domains.md`。
@@ -187,7 +189,7 @@ Adjourn（ARCHIVER 4 phases）→ Notion Sync
 
 ### v1.7 Cortex 增量（GA）
 
-Cortex **不是新一层**。它是在 v1.6.2a 稳定核心之上叠加的 Layer 2 增量：在现有 16 agent 之前增加 **Pre-Router 认知前置层**（Step 0.5），并扩展 ARCHIVER Phase 2：
+Cortex **不是新一层**。它是在 v1.6.2a 稳定核心之上叠加的 Layer 2 增量：在现有 23 agent 之前增加 **Pre-Router 认知前置层**（Step 0.5），并扩展 ARCHIVER Phase 2：
 
 ```
 User message
@@ -199,7 +201,7 @@ User message
   ↓
 [GWT 仲裁]（salience 竞争 + top-K 广播）
   ↓
-Annotated input → ROUTER（原 16 agent 流程不变）
+Annotated input → ROUTER（原 23 agent 流程不变）
   ↓
 …Summary Report…
   ↓
@@ -307,7 +309,7 @@ tools/
 | 方向 | 主要在哪层 | 辅助层 |
 |------|-----------|--------|
 | **第二大脑**（知识持久化） | Layer 1 | — |
-| **决策引擎**（16 agent 工作流） | Layer 2 | — |
+| **决策引擎**（23 agent 工作流） | Layer 2 | — |
 | **认知执行智能体**（Cortex + runtime + 自动化） | Layer 2 (Cortex) + Layer 3 (Hook) + Layer 4 (Python) | Layer 1（新增 concepts / sessions / methods / cortex / eval-history / audit / ambiguous_corrections 7 个目录） |
 
 第二大脑和决策引擎是 **v1.6.2a 稳定核心**。认知执行智能体是叠加其上的 **v1.7 Cortex 增量**。
@@ -352,7 +354,7 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
   海马体子 agent 扩散激活 → 检索 projects/career/ + SOUL "risk_tolerance" + wiki
   返回带记忆标注的输入给 ROUTER
 
-【2 · Layer 2 · 16 agent 工作流】
+【2 · Layer 2 · 23 agent 工作流】
   ROUTER 识别为全议 → 2-3 轮意图澄清
   PLANNER 起草 → REVIEWER 审议（可能 veto 回送）
   DISPATCHER 调度 → FINANCE / PEOPLE / GOVERNANCE / INFRA 并行分析
@@ -401,7 +403,7 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 ### 差异所在
 
 - **Layer 1**：纯文件，三平台 100% 共用
-- **Layer 2**：16 agent + 9 theme + GLOBAL.md 三平台共用；唯一差异在编排文件（CLAUDE.md / GEMINI.md / AGENTS.md）
+- **Layer 2**：23 agent + 9 theme + GLOBAL.md 三平台共用；唯一差异在编排文件（CLAUDE.md / GEMINI.md / AGENTS.md）
 - **Layer 3**：Claude Code 的 hook 是一等公民；Gemini / Codex 需要自行实现等价机制（Gemini / Codex 的 hook API 稳定后在后续版本打平）
 - **Layer 4**：纯 Python，三平台 100% 共用
 

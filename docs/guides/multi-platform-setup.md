@@ -40,7 +40,7 @@ npx skills add jasonhnd/life_OS
 - Gemini / Antigravity 读 `pro/GEMINI.md`
 - Codex 读 `pro/AGENTS.md`
 
-**16 个 subagent 定义共享**（都在 `pro/agents/*.md`）。只有编排文件分三份。
+**23 个 subagent 定义共享**（都在 `pro/agents/*.md`）。只有编排文件分三份。
 
 ---
 
@@ -246,7 +246,7 @@ Theme 只影响**输出的 display name**，不影响数据本身。
 |------|----------|------|
 | `SKILL.md` | 共享 | 系统总入口 |
 | `pro/GLOBAL.md` | 共享 | 通用 agent 规则 |
-| `pro/agents/*.md` | 共享 | 16 个 subagent 定义 |
+| `pro/agents/*.md` | 共享 | 23 个 subagent 定义 |
 | `themes/*.md` | 共享 | 9 个主题 |
 | `references/*.md` | 共享 | 规格定义 |
 | `pro/CLAUDE.md` | Claude Code | 编排协议 |

@@ -200,9 +200,9 @@ Life OS rests on five pillars. The **decision engine** is the core — everythin
 
 ### I. The Decision Engine — Plan, Review, Veto, Execute, Audit
 
-The engine runs 16 agents organized around a principle that is 1,400 years old: **no single voice goes unchecked**. The theme gives those agents names from your culture. The logic is always the same.
+The engine runs 23 agents organized around a principle that is 1,400 years old: **no single voice goes unchecked**. The theme gives those agents names from your culture. The logic is always the same.
 
-#### The 16 agents
+#### The 23 agents
 
 | Agent | Function |
 |-------|----------|
@@ -564,10 +564,10 @@ For detailed setup including storage backend configuration, see the **[full inst
  │     zh: 三省六部 · 中国政府 · 公司部门
  │     ja: 明治政府 · 霞が関 · 企業
  │     en: Roman Republic · US Government · C-Suite
- │     Maps 16 functional IDs → display names, tone, trigger words
+ │     Maps 23 functional IDs → display names, tone, trigger words
  │     One file per theme (~60 lines). Adding a new theme = one new file.
  │
- ├─ ⚙️ Decision Engine (16 agents, culture-neutral)
+ ├─ ⚙️ Decision Engine (23 agents, culture-neutral)
  │  │
  │  ├─ 🏛️ ROUTER — Daily entry point
  │  │     Direct handling: casual chat, emotional support, quick questions
@@ -727,7 +727,7 @@ themes/
 └── en-csuite.md         # 🏢 C-Suite — Corporate Executive (English)
 ```
 
-Each theme is a single file (~60 lines) that maps 16 functional IDs to display names, defines the tone, sets trigger words, and names the output formats. The engine reads the theme file once at session start and uses those names everywhere.
+Each theme is a single file (~60 lines) that maps 23 functional IDs to display names, defines the tone, sets trigger words, and names the output formats. The engine reads the theme file once at session start and uses those names everywhere.
 
 **Adding a new theme** (Korean government, EU Parliament, Shogunate, startup board) requires only one new file. No engine changes. No new agents.
 
