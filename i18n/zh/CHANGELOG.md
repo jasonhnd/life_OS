@@ -199,6 +199,12 @@
     2. T2 的伪 lockfile（5 分钟冷却，按 transcript 第一行 sha 算）阻止 T3/T4（同样的第一行 `User: 退朝`）运行。每个测试用例前加 `rm -f $HOME/.cache/lifeos/stop-hook-*` 清理。结果：**11/11 hook 测试用例全过**（之前 8/11）。
   - **MEDIUM · 4 个 `test_export.py` 失败因为缺 optional extras**：之前被 mypy 标记为 unused 的 `# type: ignore[import-untyped]` 注释掩盖了。给 `TestExportHtml` 加 `@pytest.mark.skipif(not find_spec("markdown_it"))`，给 `TestExportAnki` 加 `find_spec("genanki")`。默认 install：测试干净跳过。`uv sync --extra export` 时：正常运行。
 
+- **R-1.8.0-020 · GitHub Release 对齐 HARD RULE + verifier 脚本（2026-04-30 用户观察后）**：用户在 R-1.8.0-019 后截图 GitHub Releases 页面：**"Latest" 仍然显示 v1.7.3,即使 main + v1.8.0 tag 都在 `e51822e`**。根因：`git push --tags` 只更新 git 层；GitHub Releases 页面是另一个独立 UI，Latest 标志和 release notes 必须通过 `gh release create` 或 web UI **显式发布**。4-29 那个 v1.8.0 Draft 从来没 publish，所以 v1.7.3 一直是 Latest。用户原话："今后每次都要检查这个东西"。
+  - **发布 v1.8.0 Release**：删掉过时的 4-29 Draft，在 `e51822e` 重新打 tag，跑 `gh release create v1.8.0 --latest` 附完整 release notes 涵盖 R-1.8.0-013..019。v1.8.0 现在是 GitHub Latest。
+  - **新增 `scripts/verify-release.sh`**：发布后对齐检查。验证 (1) 工作树干净、(2) HEAD == origin/main、(3) 目标 tag 指向 HEAD、(4) tag 已推到 remote、(5) GitHub Release 存在、(6) 不是 Draft、(7) 在 GitHub 上被标为 Latest。任何漂移 exit 1 + 输出修复用的 `git` / `gh` 命令。默认检查最新 tag；`bash scripts/verify-release.sh v1.8.0` 检查指定 tag。
+  - **`pro/CLAUDE.md` Orchestration Code of Conduct 加规则 #10**：把 4 步发布序列（push main → push tag → `gh release create --latest` → `verify-release.sh` exit 0）固化为 HARD RULE，让未来任何 session / 任何版本 / Gemini & Codex host 都强制执行。本地 `.claude/CLAUDE.md`（gitignored，仅本机）同步加同条规则方便日常使用。
+  - **验证**：`bash scripts/verify-release.sh` → exit 0（脚本自身提交后）；`gh release list` 确认 `v1.8.0 Latest`。
+
 - **R-1.8.0-019 · 删掉 active 文档对 legacy `16-agents` 路径的链接 + scanner 抓住此类残留（2026-04-30 用户第十三轮审计后）**：第十二轮把 active 文档的*内容*漂移收掉了（不再硬编码"16 subagents"）。用户第十三轮抓到最后一类残留：**active 文档入口仍把用户导向 legacy `architecture/16-agents.md` 和 `reference/all-16-agents/`**。Legacy 文件本身已正确 marked，但 `docs/index.md` 在"必读"/"找 agent 看哪里"导航里链向它们，等于把 v1.7 历史内容当作当前架构再次推荐给用户。
   - **重命名 legacy reference 目录**：`git mv docs/reference/all-16-agents → docs/reference/all-agents`（16 个 per-agent reference 文件全保留；只是目录名去掉过时数字）。
   - **重写 `docs/index.md` 导航**（之前 3 行链向 legacy 路径）：

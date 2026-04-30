@@ -199,6 +199,12 @@
     2. T2 の偽 lockfile（5 分クールダウン、トランスクリプト 1 行目の sha でキー化）が T3/T4（同じ 1 行目 `User: 退朝`）の実行をブロック。各テストケース前に `rm -f $HOME/.cache/lifeos/stop-hook-*` クリーンアップを追加。結果：**11/11 hook テストケース合格**（8/11 から）。
   - **MEDIUM · 4 つの `test_export.py` 失敗、欠落しているオプション extras から**：以前は mypy が unused としてフラグ立てた `# type: ignore[import-untyped]` コメントで隠されていた。`TestExportHtml` クラスに `@pytest.mark.skipif(not find_spec("markdown_it"))` 追加、`TestExportAnki` に `find_spec("genanki")` 追加。デフォルトインストール：テストはきれいにスキップ。`uv sync --extra export` 時：通常実行。
 
+- **R-1.8.0-020 · GitHub Release 整列 HARD RULE + verifier スクリプト（2026-04-30 ユーザー観察後）**: ユーザーが R-1.8.0-019 後に GitHub Releases ページをスクリーンショット: **"Latest" がまだ v1.7.3 を表示、main + v1.8.0 tag は両方 `e51822e` なのに**。根本原因: `git push --tags` は git レイヤのみ更新; GitHub の Releases ページは別 UI で、Latest バッジと release notes は `gh release create` または Web UI で**明示的にパブリッシュ**する必要がある。4-29 の v1.8.0 Draft はパブリッシュされなかったため、v1.7.3 が Latest のまま。ユーザー原文: "今后每次都要检查这个东西"（今後毎回これをチェックすること）。
+  - **v1.8.0 Release パブリッシュ**: 古い 4-29 Draft を削除、`e51822e` で tag を再作成、`gh release create v1.8.0 --latest` を R-1.8.0-013..019 をカバーする完全 release notes と共に実行。v1.8.0 が GitHub Latest に。
+  - **`scripts/verify-release.sh` 追加**: ポストリリースの整列チェック。(1) ワーキングツリーがクリーン、(2) HEAD == origin/main、(3) ターゲット tag が HEAD を指す、(4) tag が remote に push 済み、(5) GitHub Release が存在、(6) Draft でない、(7) GitHub で Latest としてマーク、を検証。ドリフトは exit 1 + 修正用 `git` / `gh` コマンドを出力。デフォルトは最新 tag をチェック; `bash scripts/verify-release.sh v1.8.0` で指定 tag。
+  - **`pro/CLAUDE.md` Orchestration Code of Conduct にルール #10 追加**: 4 ステップのリリースシーケンス（push main → push tag → `gh release create --latest` → `verify-release.sh` exit 0）を HARD RULE として固定化し、今後の任意のセッション / 任意のバージョン / Gemini & Codex host すべてで強制。ローカル `.claude/CLAUDE.md`（gitignored, 本マシンのみ）にも同ルールを追加し日常作業の可視性を確保。
+  - **検証**: `bash scripts/verify-release.sh` → exit 0（スクリプト自身コミット後）; `gh release list` で `v1.8.0 Latest` 確認。
+
 - **R-1.8.0-019 · active ドキュメントから legacy `16-agents` パスへのリンクを削除 + scanner がこの種の残留をキャッチ（2026-04-30 ユーザー第 13 ラウンド監査後）**: ラウンド 12 で active ドキュメントの*内容*ドリフトは収束した（"16 subagents" のハードコードがなくなった）。ユーザーラウンド 13 が最後の残留クラスをキャッチ: **active ドキュメント入口がまだ legacy `architecture/16-agents.md` と `reference/all-16-agents/` にユーザーを誘導していた**。Legacy ファイル自体は正しくマークされているが、`docs/index.md` が「必読」/「agent を探すならここ」ナビゲーションでそれらにリンクしていたのは、v1.7 歴史コンテンツを現在のアーキテクチャとして再プロモーションするのと同じ。
   - **Legacy reference ディレクトリをリネーム**: `git mv docs/reference/all-16-agents → docs/reference/all-agents`（16 個の per-agent reference ファイルは全保持; ディレクトリ名から古いカウントを削除）。
   - **`docs/index.md` ナビゲーション書き換え**（以前 3 行が legacy パスにリンク）:

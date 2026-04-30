@@ -485,6 +485,12 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 
 9. **Fresh Invocation HARD RULE (R12, rule #9)** · every Start Session / Adjourn trigger MUST launch fresh full execution of retrospective Mode 0 (18 steps) or archiver (4 phases). No reuse, no 省步骤, no previous briefing references, and no phrases like "as last time" / "unchanged" / "see above". AUDITOR greps the transcript and audit trail for freshness violations; any violation is `C-fresh-skip` P0. HARD RULE.
 
+10. **GitHub Release alignment (rule #10, post-R-1.8.0-019)** · `git push --tags` does NOT auto-create a GitHub Release. Pushing a tag is git-layer only; GitHub's Releases page is a separate layer where the "Latest" badge and release notes must be **explicitly published**. Otherwise the Releases page stays frozen on the previous release (e.g. v1.7.3) even though main + the new v1.8.0 tag are up to date — end-users clicking "Latest" download stale code. Any version bump that pushes a new tag MUST complete the full sequence before declaring the release done:
+    1. `git push origin main` (commits)
+    2. `git tag -a v<X.Y.Z> <sha> -m "..."` + `git push origin v<X.Y.Z>` (tag)
+    3. `gh release create v<X.Y.Z> --title "..." --notes-file <RELEASE_NOTES> --latest`
+    4. **Run `bash scripts/verify-release.sh`** — must exit 0 with all ✅ checks (HEAD == origin/main, tag points to HEAD, tag on remote, GitHub Release exists, not Draft, marked as Latest). Any ❌ means the release is incomplete. HARD RULE.
+
 ## Subagent Output Display (Recommended · v1.7.2.1)
 
 Subagent returns may appear naturally in the host transcript, or ROUTER may group them with a lightweight wrapper when it improves readability. Heavy-line wrappers, verbatim repaste, token/duration/cost receipts, and a separate transactional receipt are not compliance gates.
