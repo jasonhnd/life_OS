@@ -55,6 +55,14 @@ FORBIDDEN_TOKENS=(
   "archiver-briefing-skeleton.sh"
   "archiver-phase-prefetch.sh"
   "narrator-validator.md"
+  # Round-13 audit: legacy doc filenames that bake the obsolete "16"
+  # count into the path. Active docs that link to these paths point
+  # users to historical content as if it were current. The legacy files
+  # themselves are exempt via status: legacy frontmatter; this token
+  # only fires when an ACTIVE doc references the path.
+  "16-agents.md"
+  "all-16-agents"
+  "all-16-a""gents"
   "life-os-tool"
   "tools.cli"
   "tools/cli.py"

@@ -61,7 +61,7 @@
 
 架构细节全在 `architecture/`：
 
-- `architecture/16-agents.md` — 每个 agent 的功能边界
+- `pro/agents/*.md` — 每个 agent 的源定义（功能边界、工具权限、触发条件）。这是当前 active 的权威源；旧的 v1.7 历史 agent 清单文档仍在 `architecture/` 下并标了 `status: legacy`（仅作历史参考，不要把它当作当前架构入口）。
 - `architecture/orchestration-protocol.md` — 11 步编排协议的完整逻辑
 - `architecture/workflow-state-machine.md` — 状态机定义，违反哪一步会被 AUDITOR 标记
 - `architecture/hard-rules-catalog.md` — 33 条 HARD RULE 的完整清单
@@ -109,7 +109,7 @@
 - [第一次上朝全流程](getting-started/first-session.md)
 - [平台选择](getting-started/choose-your-platform.md)
 - [公开安装指南](installation.md)
-- [multiple agents](architecture/16-agents.md)
+- [Agent 定义源](../pro/agents/) — 当前 active 的 agent 定义全集
 - [编排协议](architecture/orchestration-protocol.md)
 - [HARD RULE 目录](architecture/hard-rules-catalog.md)
 - [FAQ](reference/faq.md)
@@ -137,7 +137,7 @@
 操作手册，解决特定场景。每篇独立、可单独读。命名直接用场景名（`annual-planning-session.md`、`career-decision-playbook.md`）。
 
 ### architecture/
-每篇对应一个架构议题。改系统前必读的顺序是：`system-overview` → `16-agents` → `orchestration-protocol` → 按需看其他。
+每篇对应一个架构议题。改系统前必读的顺序是：`system-overview` → `pro/agents/` 源定义 → `orchestration-protocol` → 按需看其他。`architecture/` 下的旧 agent 清单文档已 marked `status: legacy`（v1.7 历史档案），不要把它当作当前必读链路。
 
 ### reference/
 查表用。不讲故事，只列条目。如果某个条目需要解释，在条目里留一行链接到 user-guide 或 architecture。

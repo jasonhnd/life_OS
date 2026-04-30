@@ -199,6 +199,16 @@
     2. T2 的伪 lockfile（5 分钟冷却，按 transcript 第一行 sha 算）阻止 T3/T4（同样的第一行 `User: 退朝`）运行。每个测试用例前加 `rm -f $HOME/.cache/lifeos/stop-hook-*` 清理。结果：**11/11 hook 测试用例全过**（之前 8/11）。
   - **MEDIUM · 4 个 `test_export.py` 失败因为缺 optional extras**：之前被 mypy 标记为 unused 的 `# type: ignore[import-untyped]` 注释掩盖了。给 `TestExportHtml` 加 `@pytest.mark.skipif(not find_spec("markdown_it"))`，给 `TestExportAnki` 加 `find_spec("genanki")`。默认 install：测试干净跳过。`uv sync --extra export` 时：正常运行。
 
+- **R-1.8.0-019 · 删掉 active 文档对 legacy `16-agents` 路径的链接 + scanner 抓住此类残留（2026-04-30 用户第十三轮审计后）**：第十二轮把 active 文档的*内容*漂移收掉了（不再硬编码"16 subagents"）。用户第十三轮抓到最后一类残留：**active 文档入口仍把用户导向 legacy `architecture/16-agents.md` 和 `reference/all-16-agents/`**。Legacy 文件本身已正确 marked，但 `docs/index.md` 在"必读"/"找 agent 看哪里"导航里链向它们，等于把 v1.7 历史内容当作当前架构再次推荐给用户。
+  - **重命名 legacy reference 目录**：`git mv docs/reference/all-16-agents → docs/reference/all-agents`（16 个 per-agent reference 文件全保留；只是目录名去掉过时数字）。
+  - **重写 `docs/index.md` 导航**（之前 3 行链向 legacy 路径）：
+    - "找 agent 看哪里" 改为指向 `pro/agents/*.md`（真正的当前权威源）而不是 `architecture/16-agents.md`。Legacy 文件仍存在，但显式 de-recommend，说明它不是"当前架构入口"。
+    - "快速链接" 段：把 `[multiple agents](architecture/16-agents.md)` 换成 `[Agent 定义源](../pro/agents/)`。
+    - "改系统前必读顺序" 改为 `system-overview` → `pro/agents/` 源 → `orchestration-protocol`，并显式注明 architecture/ 下的旧 agent 清单文档是 `status: legacy` v1.7 历史，不在当前关键路径。
+  - **扫描器升级（`scripts/check-spec-drift.sh`）**：把 `16-agents.md`、`all-16-agents`、`all-16-a""gents`（bash 拼接）加入 FORBIDDEN_TOKENS，让以后任何 active 文档链向旧路径都会 STRICT fail。Legacy 文件（已 marked `status: legacy`）依旧豁免。
+  - **提交 runtime log**：`pro/compliance/violations.md` 有未提交的 runtime log 行（`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`），是今天测试时被 `stop-session-verify` hook 追加的——和 round-13 改动一起提交（文件是自动追加的违规日志；`pro/compliance/` 在 EXEMPT_PATTERN 内，不触发 drift）。
+  - **验证**：`STRICT=1 bash scripts/check-spec-drift.sh` → exit 0；审计员的 `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` 过滤非 legacy 非 CHANGELOG → active 0 命中；`git ls-files | xargs grep -l "16-agents|all-16-agents"` 过滤非 legacy 非 CHANGELOG → **active 0 命中**（之前是 1：docs/index.md）；mypy --strict tools/ → 0 错误 / 16 文件；ruff → 干净；pytest → 233 通过 / 3 deselected；31 个 tracked .sh `bash -n` → 全过。
+
 - **R-1.8.0-018 · 段落感知 lookback + 扩宽 NOUN 覆盖（2026-04-30 用户第十二轮审计后）**：第十一轮收紧 EXEMPT_PATTERN 到文件级，但用户第十二轮抓到两类剩余的"假绿"：
   - **lookback 跨段落太贪婪**：`what-is-life-os.md` 第 431 行的 `v1.7` 在第 439 行的 8 行 lookback 窗口内，但两行之间隔了空行 + 新 H2。扫描器只在文件边界 reset，不在段落边界 reset，所以前一个 topical block 的 CONTEXT_ALLOW 关键字会跨段落豁免下个 block 的 drift。
   - **regex 漏掉内部空格和额外名词**：`[N] 个[^，。\\s]{0,12}NOUN` 内部字符类排除空格，所以 "16 个真正独立的 subagent"（"的" 后有空格）匹配不到。NOUN 列表也漏了 `岗位`、独立 `ID`（"16 个 ID"）、`功能`（"以下 16 个功能完全相同"）。

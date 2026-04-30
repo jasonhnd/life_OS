@@ -199,6 +199,16 @@
     2. T2 の偽 lockfile（5 分クールダウン、トランスクリプト 1 行目の sha でキー化）が T3/T4（同じ 1 行目 `User: 退朝`）の実行をブロック。各テストケース前に `rm -f $HOME/.cache/lifeos/stop-hook-*` クリーンアップを追加。結果：**11/11 hook テストケース合格**（8/11 から）。
   - **MEDIUM · 4 つの `test_export.py` 失敗、欠落しているオプション extras から**：以前は mypy が unused としてフラグ立てた `# type: ignore[import-untyped]` コメントで隠されていた。`TestExportHtml` クラスに `@pytest.mark.skipif(not find_spec("markdown_it"))` 追加、`TestExportAnki` に `find_spec("genanki")` 追加。デフォルトインストール：テストはきれいにスキップ。`uv sync --extra export` 時：通常実行。
 
+- **R-1.8.0-019 · active ドキュメントから legacy `16-agents` パスへのリンクを削除 + scanner がこの種の残留をキャッチ（2026-04-30 ユーザー第 13 ラウンド監査後）**: ラウンド 12 で active ドキュメントの*内容*ドリフトは収束した（"16 subagents" のハードコードがなくなった）。ユーザーラウンド 13 が最後の残留クラスをキャッチ: **active ドキュメント入口がまだ legacy `architecture/16-agents.md` と `reference/all-16-agents/` にユーザーを誘導していた**。Legacy ファイル自体は正しくマークされているが、`docs/index.md` が「必読」/「agent を探すならここ」ナビゲーションでそれらにリンクしていたのは、v1.7 歴史コンテンツを現在のアーキテクチャとして再プロモーションするのと同じ。
+  - **Legacy reference ディレクトリをリネーム**: `git mv docs/reference/all-16-agents → docs/reference/all-agents`（16 個の per-agent reference ファイルは全保持; ディレクトリ名から古いカウントを削除）。
+  - **`docs/index.md` ナビゲーション書き換え**（以前 3 行が legacy パスにリンク）:
+    - 「agent を探すならここ」を `architecture/16-agents.md` ではなく `pro/agents/*.md`（実際の現行ソース）に向ける。Legacy ファイル存在は記載するが「現在のアーキテクチャ入口ではない」と明示的に de-recommend。
+    - 「クイックリンク」: `[multiple agents](architecture/16-agents.md)` を `[Agent 定義源](../pro/agents/)` に置換。
+    - 「システム変更前の必読順序」を `system-overview` → `pro/agents/` ソース → `orchestration-protocol` に書き換え、architecture/ の旧 agent リスト文書は `status: legacy` v1.7 履歴で、現在のクリティカルパスにないと明記。
+  - **スキャナアップグレード（`scripts/check-spec-drift.sh`）**: `16-agents.md`、`all-16-agents`、`all-16-a""gents`（bash 連結）を FORBIDDEN_TOKENS に追加し、今後 active ドキュメントが旧パスにリンクすると STRICT fail させる。Legacy ファイル（`status: legacy` 済み）は通常通り免除。
+  - **runtime log コミット**: `pro/compliance/violations.md` に未コミットの runtime log 行（`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`）があり、本日のテスト中に `stop-session-verify` hook によって追加されたもの —— ラウンド 13 変更と一緒にコミット（ファイルは自動追加の違反ログ; `pro/compliance/` は EXEMPT_PATTERN 内、ドリフト非トリガー）。
+  - **検証**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0; 監査員の `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` フィルタ非 legacy 非 CHANGELOG → active 0 ヒット; `git ls-files | xargs grep -l "16-agents|all-16-agents"` フィルタ非 legacy 非 CHANGELOG → **active 0 ヒット**（前回 1: docs/index.md）; mypy --strict tools/ → 0 エラー / 16 ファイル; ruff → クリーン; pytest → 233 合格 / 3 deselected; 31 個の tracked .sh `bash -n` → すべて合格。
+
 - **R-1.8.0-018 · 段落単位の lookback + NOUN カバレッジ拡張（2026-04-30 ユーザー第 12 ラウンド監査後）**: ラウンド 11 で EXEMPT_PATTERN をファイルレベルに絞ったが、ユーザーラウンド 12 が残り 2 種類の "偽 PASS" をキャッチ:
   - **lookback が段落境界をまたいで貪欲すぎた**: `what-is-life-os.md` 行 431 の `v1.7` が行 439 の 8 行 lookback ウィンドウ内だが、間に空行 + 新 H2。スキャナはファイル境界でしか reset せず段落境界では reset しなかったため、前 topical block の CONTEXT_ALLOW キーワードが次 block の drift を免除できた。
   - **regex が内部スペースと追加名詞を見落とした**: `[N] 个[^，。\\s]{0,12}NOUN` 内部文字クラスがスペースを除外、よって "16 个真正独立的 subagent"（"的" 後にスペース）はマッチしない。NOUN リストは `岗位`、裸の `ID`（"16 个 ID"）、`功能`（"以下 16 个功能完全相同"）も漏れていた。
