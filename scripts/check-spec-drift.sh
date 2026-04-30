@@ -51,23 +51,29 @@ FORBIDDEN_TOKENS=(
   "run-cron-now.sh"
   "ALWAYS-ON"
   "cortex_enabled"
-  # Round-9 audit: semantic count drift. Subagent count went 16 → 23 in
-  # v1.7 Cortex / v1.7.3 knowledge-extractor / v1.8.0 monitor additions.
-  # Active files referencing the old "16" count are stale. Legacy files
-  # (status: legacy / authoritative: false) are exempt as usual.
-  #
-  # NB: tokens are built via bash adjacent-string concatenation
-  #     ("16 sub""agents") so the source of THIS file does not carry the
-  #     literal substring — that way a user-side `rg "<the stale count phrase>"` audit
-  #     against the repo finds zero hits in the scanner itself, only real
-  #     drift candidates.
-  "16 sub""agents"
-  "16 个 sub""agent"
-  "16 个 a""gent"
-  "All 16 sub""agents"
-  "16 indepen""dent agents"
-  "16 个独立 a""gent"
-  "16 個の独立した a""gent"
+  # Round-10 audit follow-up: per-user instruction "不要说多少个 agent 了，
+  # 多少个 agent 不重要，就说'多个 agent'就行". Hardcoded counts of agents
+  # / subagents / roles are now flagged regardless of value — see the
+  # SUBAGENT_COUNT_PATTERNS regex check below the literal-token loop. The
+  # legacy frontmatter exemption (status: legacy / authoritative: false)
+  # still applies, so v1.7-era spec / archive files describing "16 agents"
+  # historically are correctly skipped.
+)
+
+# Round-10: regex patterns that match ANY hardcoded count of agents in the
+# active surface. Tokens use the same bash adjacent-string concat trick so
+# the scanner source itself does not carry the literal substring (a user-side
+# `rg "23 subagents"` audit gets 0 hits from this file). Each pattern is an
+# ERE matched line-by-line; same CONTEXT_ALLOW + 8-line lookback exemption
+# applies as for FORBIDDEN_TOKENS.
+SUBAGENT_COUNT_PATTERNS=(
+  "[0-9]+ (sub""agents?|sub""agent definitions?)"
+  "[0-9]+ (independent )?(sub""agents?|a""gents?)"
+  "[0-9]+ (AI )?(a""gents?|roles?|individuals?)"
+  "[0-9]+ ?个 ?(sub""agent|a""gent|角色|功能 ID)"
+  "[0-9]+ a""gent (制衡|编排|定义|calls)"
+  "[0-9]+ 個の独立した (sub""agent|a""gent|エージェント)"
+  "[0-9]+の(機能 ID|声|エージェント)"
 )
 
 drift_found=0
@@ -211,6 +217,38 @@ for token in "${FORBIDDEN_TOKENS[@]}"; do
       | grep -vE "$EXEMPT_PATTERN" \
       | grep -vE "$BROKEN_PATH_EXEMPT" \
       | xargs grep -l "$token" 2>/dev/null || true
+  )
+done
+
+# Round-10: regex-based subagent-count drift detection. Same context-window
+# rules apply (8-line lookback for CONTEXT_ALLOW exemption + legacy
+# frontmatter exemption). The patterns are EREs already, no escape needed.
+for pat in "${SUBAGENT_COUNT_PATTERNS[@]}"; do
+  while IFS= read -r file; do
+    is_legacy_file "$file" && continue
+    bad_lines="$(awk -v pat="$pat" -v ctx="$CONTEXT_ALLOW" '
+      BEGIN { for (i=1; i<=8; i++) recent[i] = "" }
+      {
+        line_has_match = ($0 ~ pat)
+        line_has_ctx = ($0 ~ ctx)
+        any_recent_ctx = line_has_ctx
+        for (i=1; i<=8; i++) if (recent[i] ~ ctx) any_recent_ctx = 1
+        if (line_has_match && !any_recent_ctx) print NR ":" $0
+        for (i=8; i>1; i--) recent[i] = recent[i-1]
+        recent[1] = $0
+      }
+    ' "$file" 2>/dev/null)"
+    if [ -n "$bad_lines" ]; then
+      echo "  WARN regex /$pat/ (subagent-count drift, no explanatory context) in $file:"
+      echo "$bad_lines" | head -3 | sed 's/^/      /'
+      warnings_only=$((warnings_only + 1))
+      active_token_hits=$((active_token_hits + 1))
+    fi
+  done < <(
+    git ls-files '*.md' '*.sh' '*.py' '*.yml' '*.yaml' '*.toml' \
+      | grep -vE "$EXEMPT_PATTERN" \
+      | grep -vE "$BROKEN_PATH_EXEMPT" \
+      | xargs grep -lE "$pat" 2>/dev/null || true
   )
 done
 echo ""

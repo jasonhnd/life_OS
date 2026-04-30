@@ -22,7 +22,7 @@ Life OS can be used on various AI platforms. Choose your platform and follow the
 
 ## Claude Code (Pro Mode)
 
-This is the full form of Life OS on Claude: 16 independent AI roles with true information isolation and parallel execution.
+This is the full form of Life OS on Claude: multiple independent AI roles with true information isolation and parallel execution.
 
 ### Prerequisites
 
@@ -38,7 +38,7 @@ You need to have [Claude Code](https://claude.ai/code) (Anthropic's command-line
 ```
 
 3. Wait for installation to complete; a success message will appear
-4. Done! All 23 Life OS subagents are automatically ready and available across all projects
+4. Done! All Life OS subagents are automatically ready and available across all projects
 
 ### Verification
 
@@ -57,7 +57,7 @@ If you see a response in this format, installation was successful:
 
 ### What Makes Pro Mode Special
 
-- 16 AI roles each run independently, unable to see each other's thought processes
+- multiple AI roles each run independently, unable to see each other's thought processes
 - Six Ministries can work in parallel (no queuing)
 - The Chancellery cannot see how the Secretariat thinks during review — truly independent review
 - All roles use Claude's opus-tier model (strongest available, auto-selected)
@@ -66,7 +66,7 @@ If you see a response in this format, installation was successful:
 
 ## Gemini CLI / Antigravity (Pro Mode)
 
-Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemini-cli) and [Google Antigravity](https://idx.google.com/) with 16 independent subagents powered by Gemini's strongest available model (auto-selected at runtime, no hardcoded version).
+Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemini-cli) and [Google Antigravity](https://idx.google.com/) with multiple independent subagents powered by Gemini's strongest available model (auto-selected at runtime, no hardcoded version).
 
 ### Installation Steps
 
@@ -88,13 +88,13 @@ npx skills add jasonhnd/life_OS
 
 - Automatically uses Gemini's strongest available model (no hardcoded version)
 - Tool names are mapped automatically (see `pro/GEMINI.md` for the mapping table)
-- Same workflow, same information isolation, same 16 roles
+- Same workflow, same information isolation, same multiple roles
 
 ---
 
 ## OpenAI Codex CLI (Pro Mode)
 
-Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with 16 independent subagents powered by Codex's strongest reasoning model (auto-selected at runtime, no hardcoded version).
+Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with multiple independent subagents powered by Codex's strongest reasoning model (auto-selected at runtime, no hardcoded version).
 
 ### Installation Steps
 
@@ -111,11 +111,11 @@ npx skills add jasonhnd/life_OS
 
 - Automatically uses Codex's strongest available model (no hardcoded version)
 - Follows the [AGENTS.md open standard](https://agents.md/)
-- Same workflow, same information isolation, same 16 roles
+- Same workflow, same information isolation, same multiple roles
 
 ---
 
-> **Note**: Life OS requires Pro Mode — 16 independent subagents with true information isolation. Single-context platforms (ChatGPT, Gemini Web, Claude.ai web) are not supported.
+> **Note**: Life OS requires Pro Mode — multiple independent subagents with true information isolation. Single-context platforms (ChatGPT, Gemini Web, Claude.ai web) are not supported.
 
 ---
 
@@ -230,7 +230,7 @@ The `version` field at the top of SKILL.md shows the current version number. See
 ## FAQ
 
 **Q: Which platform should I start with?**
-A: [Claude Code](https://claude.ai/code) is recommended. Full Pro Mode with 16 independent subagents, one-command install.
+A: [Claude Code](https://claude.ai/code) is recommended. Full Pro Mode with multiple independent subagents, one-command install.
 
 **Q: I use both Claude Code and Antigravity. Will they conflict?**
 A: No. They use different orchestration files (`CLAUDE.md` vs `GEMINI.md`) and different agent model mappings. The same `pro/agents/*.md` files are shared. Just make sure `.claude/worktrees/` is in your `.gitignore` to prevent Antigravity from choking on Claude's temporary files.

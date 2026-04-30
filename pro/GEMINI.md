@@ -6,7 +6,7 @@
 
 All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.
 
-This file is the Gemini CLI / Antigravity equivalent of CLAUDE.md. It defines how to orchestrate the 23 subagents on the Gemini platform.
+This file is the Gemini CLI / Antigravity equivalent of CLAUDE.md. It defines how to orchestrate the multiple subagents on the Gemini platform.
 
 All roles use the platform's strongest available model. See `references/data-layer.md` for data layer architecture details.
 

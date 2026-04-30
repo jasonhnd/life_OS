@@ -11,7 +11,7 @@
   - Claude Code: `pro/CLAUDE.md`
   - Gemini CLI / Antigravity: `pro/GEMINI.md`
   - OpenAI Codex CLI: `pro/AGENTS.md`
-- **23 个 subagent 定义**：`pro/agents/*.md` — 各角色的岗位说明书（跨 host 共享）
+- **多个 subagent 定义**：`pro/agents/*.md` — 各角色的岗位说明书（跨 host 共享）
 - **六领域职能详解**：`references/domains.md`
 - **标准场景配置**：`references/scene-configs.md`
 - **数据模型与 Notion 适配器**：`references/data-model.md`、`references/adapter-notion.md`

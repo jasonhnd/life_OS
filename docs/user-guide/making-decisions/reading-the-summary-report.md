@@ -195,7 +195,7 @@ Audit Log:
 - 是否触发 COUNCIL
 
 **可以用来**：
-- 判断成本（14 个 agent calls ≈ 大约多少 token）
+- 判断成本（多个 agent calls ≈ 大约多少 token）
 - 和过往会话对比（平均时间变长/变短）
 - 发现流程退化（Agent Calls 突然变少 = 可能跳步）
 

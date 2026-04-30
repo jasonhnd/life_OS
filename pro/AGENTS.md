@@ -6,7 +6,7 @@
 
 All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.
 
-This file is the OpenAI Codex CLI equivalent of CLAUDE.md / GEMINI.md. It defines how to orchestrate the 23 subagents on the Codex platform, following the AGENTS.md open standard.
+This file is the OpenAI Codex CLI equivalent of CLAUDE.md / GEMINI.md. It defines how to orchestrate the multiple subagents on the Codex platform, following the AGENTS.md open standard.
 
 All roles use the platform's strongest available model. See `references/data-layer.md` for data layer architecture details.
 

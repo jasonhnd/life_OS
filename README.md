@@ -27,7 +27,7 @@
 
 ## One engine. Nine worlds. Your call.
 
-Life OS installs into your AI terminal (Claude Code, Gemini CLI, or Codex CLI) and transforms it into a **personal cabinet** — 16 independent AI agents that analyze your decisions from every angle, argue with each other, and hold both the plan *and you* accountable.
+Life OS installs into your AI terminal (Claude Code, Gemini CLI, or Codex CLI) and transforms it into a **personal cabinet** — multiple independent AI agents that analyze your decisions from every angle, argue with each other, and hold both the plan *and you* accountable.
 
 The decision engine is the same for everyone: plan, review, veto, execute, audit. What changes is the world it speaks.
 
@@ -200,9 +200,9 @@ Life OS rests on five pillars. The **decision engine** is the core — everythin
 
 ### I. The Decision Engine — Plan, Review, Veto, Execute, Audit
 
-The engine runs 23 agents organized around a principle that is 1,400 years old: **no single voice goes unchecked**. The theme gives those agents names from your culture. The logic is always the same.
+The engine runs multiple agents organized around a principle that is 1,400 years old: **no single voice goes unchecked**. The theme gives those agents names from your culture. The logic is always the same.
 
-#### The 23 agents
+#### The multiple agents
 
 | Agent | Function |
 |-------|----------|
@@ -540,13 +540,13 @@ This checks for updates once a day when you start a session.
 
 After `bash scripts/setup-hooks.sh`, life_OS auto-registers its Task-spawnable agents under `~/.claude/agents/lifeos-*.md`. Claude Code then recognizes calls such as `Task(lifeos-retrospective)` and `Task(lifeos-archiver)` as first-class targets instead of falling back to `general-purpose`.
 
-The `lifeos-` prefix avoids collisions with other skills. Wrappers point at the canonical definitions under `pro/agents/*.md` in the skill, so updating the skill and rerunning setup refreshes agent behavior. There are 22 agent definition files; 21 are Task-spawnable wrappers, while `narrator.md` remains ROUTER-internal.
+The `lifeos-` prefix avoids collisions with other skills. Wrappers point at the canonical definitions under `pro/agents/*.md` in the skill, so updating the skill and rerunning setup refreshes agent behavior. There are multiple agents definition files; 21 are Task-spawnable wrappers, while `narrator.md` remains ROUTER-internal.
 
 Uninstall: `bash scripts/unregister-claude-agents.sh`.
 
 **Manual update**: Say "update" (or "更新" or "アップデート") in any session.
 
-> **Not supported**: ChatGPT, Gemini Web, or any single-context chat interface. Life OS requires 16 independent subagents with true information isolation — a single chat window cannot do this.
+> **Not supported**: ChatGPT, Gemini Web, or any single-context chat interface. Life OS requires multiple independent subagents with true information isolation — a single chat window cannot do this.
 
 For detailed setup including storage backend configuration, see the **[full installation guide](docs/installation.md)**.
 
@@ -564,10 +564,10 @@ For detailed setup including storage backend configuration, see the **[full inst
  │     zh: 三省六部 · 中国政府 · 公司部门
  │     ja: 明治政府 · 霞が関 · 企業
  │     en: Roman Republic · US Government · C-Suite
- │     Maps 23 functional IDs → display names, tone, trigger words
+ │     Maps the functional IDs → display names, tone, trigger words
  │     One file per theme (~60 lines). Adding a new theme = one new file.
  │
- ├─ ⚙️ Decision Engine (23 agents, culture-neutral)
+ ├─ ⚙️ Decision Engine (multiple agents, culture-neutral)
  │  │
  │  ├─ 🏛️ ROUTER — Daily entry point
  │  │     Direct handling: casual chat, emotional support, quick questions
@@ -727,7 +727,7 @@ themes/
 └── en-csuite.md         # 🏢 C-Suite — Corporate Executive (English)
 ```
 
-Each theme is a single file (~60 lines) that maps 23 functional IDs to display names, defines the tone, sets trigger words, and names the output formats. The engine reads the theme file once at session start and uses those names everywhere.
+Each theme is a single file (~60 lines) that maps the functional IDs to display names, defines the tone, sets trigger words, and names the output formats. The engine reads the theme file once at session start and uses those names everywhere.
 
 **Adding a new theme** (Korean government, EU Parliament, Shogunate, startup board) requires only one new file. No engine changes. No new agents.
 
