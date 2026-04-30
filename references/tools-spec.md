@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Python Tools · Contract Specification
 
 > ⚠️ **PARTIALLY LEGACY (v1.7-era) — see v1.8.0 deltas below**

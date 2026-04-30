@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Method Library Specification
 
 Method Library is Life OS's procedural memory — the "how you work best" layer. It lives in the `_meta/methods/` directory of the second-brain and stores reusable workflows that recur across sessions.

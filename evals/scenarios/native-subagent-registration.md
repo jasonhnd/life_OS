@@ -16,6 +16,9 @@ expected_files:
   - "{tmp_dir}/fake-home/.claude/agents/lifeos-auditor.md"
 expected_files_glob:
   - "{tmp_dir}/fake-home/.claude/agents/lifeos-*.md"
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Scenario · Native Subagent Registration

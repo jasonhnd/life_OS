@@ -16,6 +16,9 @@ expected_exit_code: 0
 expected_stdout_contains: []
 expected_stderr_contains: []
 expected_files: []
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Tool Scenario · research

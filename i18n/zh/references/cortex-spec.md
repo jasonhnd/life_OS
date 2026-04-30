@@ -1,6 +1,9 @@
 ---
 translated_from: references/cortex-spec.md
 translator_note: auto-translated 2026-04-21, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Cortex 规范（Cortex Specification）

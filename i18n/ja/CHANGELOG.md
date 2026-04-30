@@ -199,6 +199,22 @@
     2. T2 の偽 lockfile（5 分クールダウン、トランスクリプト 1 行目の sha でキー化）が T3/T4（同じ 1 行目 `User: 退朝`）の実行をブロック。各テストケース前に `rm -f $HOME/.cache/lifeos/stop-hook-*` クリーンアップを追加。結果：**11/11 hook テストケース合格**（8/11 から）。
   - **MEDIUM · 4 つの `test_export.py` 失敗、欠落しているオプション extras から**：以前は mypy が unused としてフラグ立てた `# type: ignore[import-untyped]` コメントで隠されていた。`TestExportHtml` クラスに `@pytest.mark.skipif(not find_spec("markdown_it"))` 追加、`TestExportAnki` に `find_spec("genanki")` 追加。デフォルトインストール：テストはきれいにスキップ。`uv sync --extra export` 時：通常実行。
 
+- **R-1.8.0-014 · Spec GC スプリント完了（2026-04-30 ユーザー第 8 ラウンド監査後）**: 監査ラウンド 5–8 にまたがって積み上がった spec drift クリーンアップを完結。STRICT モードの CI ゲート（`STRICT=1 bash scripts/check-spec-drift.sh`）が通過 — active ファイルから削除済みスクリプト/CLI/subagent/cron インフラへの参照が消滅。v1.7 時代の legacy spec は YAML frontmatter（`status: legacy` および/または `authoritative: false`）で明示的にマーク済み。
+  - **スキャナアップグレード（`scripts/check-spec-drift.sh`）**:
+    - **カウンタのサブシェルバグ修正**: `broken_paths` のインクリメントが `... | sort -u | while ...` パイプラインがサブシェルで実行されるため失われていた。ユニークパスを一時ファイルに書いてから親シェルで反復するよう変更し、STRICT 終了コードを正しく反映。
+    - **legacy frontmatter 免除範囲拡大**: `status: legacy` *または* `authoritative: false` のいずれかでもスキップ。v1.7 references で 2 つのマーカーが混在していたため、両方を尊重。
+    - **マルチライン context lookback 5 → 8 行**: 一般的な markdown パターン — `### Removed in v1.8.0 pivot` のような H2/H3 ヘッダ + 空行 + 4–6 削除箇条 — をカバー。従来の 5 行ウィンドウだと最後の箇条がヘッダコンテキストから外れていた。
+    - **CONTEXT_ALLOW キーワード拡充**: 大文字 `Removed`/`Deleted`/`Deprecated`、`in v1.8.0 pivot`、`in pivot`、`R-1.8.0-012`、`R-1.8.0-013`、`TBD`、`planned`、`will be created` を追加し、説明的注釈が確実にマッチするよう。
+    - **forbidden-token 単語境界チェック**: 文字通りの `index($0, token)` から文字クラスベースの単語境界正規表現（awk に `\b` がないため）に変更。サブストリング `life-os-tool` が `pyproject.toml` の正当な複数形パッケージ名 `life-os-tools` を誤って一致させなくなる。
+  - **Active ファイル書き換え**（削除済みスクリプト参照は明示的な「v1.8.0 pivot で削除」注釈または現行 pull-based 等価物に置換）:
+    - `docs/getting-started/what-is-life-os.md` Layer 4 セクション（× EN/ZH/JA）: cron 時代の `scripts/{decay-audit,dream-trigger-check,monthly-review,session-index,wiki-conflict-check}.py` リストを R-1.8.0-011 後に実際に出荷されている `python -m tools.<name>` モジュールに置換。
+    - `tools/README.md`: Status + Authoritative Spec セクションを書き換え、「Planned Modules」テーブルを「Currently Shipped Modules」（実際に存在する 10 ツールを列挙）に置換、削除済み dispatcher / cron スクリプト / cortex helper を歴史的コンテキストとしてマーク。
+    - `pro/agents/monitor.md` Related Specs: `references/automation-spec.md` と `references/session-modes-spec.md` を v1.8.0 pivot で削除としてマーク（`pro/CLAUDE.md` Session Modes に置換）。
+    - `evals/scenarios/tool-seed.md`: `references/SOUL-template.md` と `references/tools-spec.md §6.10` を legacy/削除としてマーク; `tools/seed.py` がスケルトンをインライン生成。
+    - `docs/user-guide/themes/adding-a-theme.md`: 存在しない `themes/zh-classical-tw.md` への参照を削除し、繁体中国語版はユーザー作成ファイルとして説明。
+  - **legacy frontmatter バッチ処理（ラウンド 8 累積 · 2 バッチで 71 ファイルマーク）**: `docs/architecture/`、`docs/guides/v1.7-migration.md`、`docs/user-guide/cortex/*`（× EN/ZH/JA）、`references/{cortex-spec, cortex-architecture, narrator-spec, tools-spec, v1.7-shipping-report, templates/concept-template, concept-spec, data-layer, eval-history-spec, hippocampus-spec, method-library-spec, session-index-spec, snapshot-spec, compliance-spec}.md`（× EN/ZH/JA）、`evals/scenarios/*` のスペック / レガシードキュメントファイルが `status: legacy`（または `authoritative: false`）を持ち、スキャナがアクティブ spec ではなく歴史コンテンツとして認識。
+  - **検証**: `STRICT=1 bash scripts/check-spec-drift.sh` exit 0（active ファイルの broken paths: 0; active ファイルの forbidden-token hits: 0）。`mypy --strict tools/` 0 エラー / 16 ファイル。`ruff check tools/ tests/` クリーン。`pytest tests/` 232 合格 / 3 deselected。
+
 検証（CI マトリックス今度こそ実際にグリーン）：
 - 30 個の tracked .sh すべて `bash -n` パス
 - `mypy --strict tools/`: **0 エラー**（16 ソースファイルチェック済）—— 25 から

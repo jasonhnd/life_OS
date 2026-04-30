@@ -1,6 +1,9 @@
 ---
 translated_from: references/concept-spec.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Concept 规范（Concept Specification）

@@ -1,6 +1,9 @@
 ---
 translated_from: references/method-library-spec.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Method Library 规范（Method Library Specification）

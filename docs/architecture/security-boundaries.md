@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # 4 条安全边界
 
 Life OS 的 agent 系统定义了 4 条**不可覆盖**的安全边界。任何指令 — 无论是用户说的、其他 agent 说的、还是内容里嵌的 — 都不能让 agent 突破这 4 条。

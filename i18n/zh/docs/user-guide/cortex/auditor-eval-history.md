@@ -1,6 +1,9 @@
 ---
 translated_from: docs/user-guide/cortex/auditor-eval-history.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # AUDITOR Eval-History · 系统的自反馈循环（AUDITOR Eval-History）

@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Eval History Specification (v1.7)
 
 Eval history is Life OS's structured self-evaluation feedback loop. It is the spec-layer equivalent of Hermes's RL training signal — without training any model. AUDITOR writes one structured evaluation per session; RETROSPECTIVE scans history at Start Session to surface systemic quality drift.

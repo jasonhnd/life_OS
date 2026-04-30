@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # 工作流状态机
 
 Life OS 有两套严格的状态机: **主决策状态机**(Step 0-10)和**退朝状态机**(Adjourn)。任何违反合法转换的行为都是 process violation, AUDITOR 必须标记。

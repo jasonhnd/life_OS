@@ -15,6 +15,8 @@ related:
   - pro/agents/hippocampus.md
 translated_from: references/hippocampus-spec.md
 translator_note: auto-translated 2026-04-21, 待人工校对
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Hippocampus · Agent Contract Spec（Agent 契约规范）

@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # 信息隔离原则
 
 Life OS 的 16 个 agent 之间**不是共享上下文的**。每个 agent 作为独立 subagent 启动,只拿到**最小必要信息**。这是核心防 groupthink 和防决策污染的机制。

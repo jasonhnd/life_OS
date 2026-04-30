@@ -19,6 +19,8 @@ provenance:
   source_sessions:
     - claude-20260421-1430
   discovered_at: 2026-04-21T14:30:00
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Example Concept Name

@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Cortex Architecture · End-to-End Data Flow (v1.7)
 
 > Quick-reference architecture diagram + sequence for the v1.7 Pre-Router Cognitive Layer. Companion to `references/cortex-spec.md` (theory + decisions) and the per-component specs (hippocampus, gwt, concept, snapshot, narrator, etc).

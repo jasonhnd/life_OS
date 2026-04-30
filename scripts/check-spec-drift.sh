@@ -56,33 +56,79 @@ FORBIDDEN_TOKENS=(
 drift_found=0
 broken_paths=0
 
+# Round-8 Spec GC Sprint + round-9 extension: files marked `status: legacy`
+# OR `authoritative: false` in YAML frontmatter are exempt from drift checks
+# (legitimate archival / superseded content). Active files (no frontmatter,
+# or `status: active`, with `authoritative` either omitted or true) are
+# subject to STRICT-mode failure on broken paths or forbidden tokens.
+is_legacy_file() {
+  local file="$1"
+  head -n 30 "$file" 2>/dev/null \
+    | grep -qE '^(status:[[:space:]]*legacy([[:space:]]|$)|authoritative:[[:space:]]*false([[:space:]]|$))'
+}
+
 echo "-- (1/2) Broken-path scanner --"
-# Active files only (CHANGELOGs, READMEs explaining "what was removed",
-# and known historical-archive docs are exempted). Reports broken paths
-# as INFORMATIONAL on the existing baseline; the scanner tightens to
-# strict-fail once the existing debt list is processed.
-BROKEN_PATH_EXEMPT='^(README\.md|i18n/.*/README\.md|MIGRATION\.md|CHANGELOG\.md|i18n/.*/CHANGELOG\.md|docs/architecture/|docs/guides/|docs/user-guide/|docs/index\.md|i18n/.*/docs/|references/v1\.7|references/templates/|references/cortex-architecture\.md|references/cortex-spec\.md|references/tools-spec\.md|references/narrator-spec\.md|references/data-layer\.md|references/snapshot-spec\.md|pro/CLAUDE\.md|pro/AGENTS\.md|pro/GEMINI\.md|backup/|pro/compliance/|i18n/.*/references/|tools/README\.md|scripts/check-spec-drift\.sh|.*-template\.md|themes/.*\.md|evals/scenarios/.*\.md|tests/.*\.py)'
+# Two-tier exemption: (a) BROKEN_PATH_EXEMPT regex for files where
+# frontmatter doesn't fit (CHANGELOG / templates / themes / tests / backup /
+# devdocs / compliance archives); (b) `status: legacy` frontmatter — the
+# preferred path. Files matching neither are ACTIVE and subject to STRICT
+# fail.
+BROKEN_PATH_EXEMPT='^(CHANGELOG\.md|i18n/.*/CHANGELOG\.md|backup/|pro/compliance/|scripts/check-spec-drift\.sh|.*-template\.md|themes/.*\.md|tests/.*\.py|devdocs/|MIGRATION\.md)'
+# Round-8 scanner upgrade: per-file multi-line context check. A broken
+# path is exempted if any of the 5 preceding lines in the same file
+# contains an explanatory CONTEXT_ALLOW token (REMOVED / deleted / etc).
+# This catches the common markdown pattern where a "Removed in pivot:"
+# header introduces a bullet list of deleted paths.
+declare -A REPORTED  # de-dupe: only report each broken path once
+# Pre-build CONTEXT_ALLOW used by both scanners (defined later in file
+# but available via the shell parser at this point — set to a default
+# here too in case ordering changes):
+SCANNER_CTX="${CONTEXT_ALLOW:-REMOVED|Removed|removed|deleted|Deleted|DELETED|deprecated|Deprecated|previously|was tied to|legacy|Legacy|historical|Historical|pre-pivot|pre-R-1\\.8\\.0|pre-v1\\.8|R-1\\.8\\.0-011|R-1\\.8\\.0-012|R-1\\.8\\.0-013|formerly|once required|no longer|cron infrastructure|Cron infrastructure|Cron インフラ|Cron 基础设施|in v1\\.8\\.0 pivot|in pivot|v1\\.8\\.0 pivot|Removed in pivot|不要尝试调用|Don.t call|cron-era|v1\\.7|v1\\.7\\.x|删除|已删除|弃用|废弃|被删|削除|廃止|抛弃|放棄|历史档案|Python 中间层|Python ミドルウェア|Python 中間層|TBD|planned|will be created}"
+
+while IFS= read -r file; do
+  is_legacy_file "$file" && continue
+  # Walk file line-by-line, track 5-line context window
+  awk -v ctx="$SCANNER_CTX" -v fname="$file" '
+    BEGIN { for (i=1; i<=8; i++) recent[i] = "" }
+    {
+      # Check if any of last 8 lines or current line matches CONTEXT_ALLOW
+      # (8 covers H2/H3 header + blank + up to 6 bullet items, the common
+      # markdown "Removed in pivot:" pattern in active READMEs / CLAUDEs.)
+      any_recent_ctx = ($0 ~ ctx)
+      for (i=1; i<=8; i++) if (recent[i] ~ ctx) any_recent_ctx = 1
+      if (!any_recent_ctx) {
+        # Extract any backtick-quoted repo paths on this line
+        line = $0
+        while (match(line, /`(scripts|pro|tools|references|docs|themes|evals)\/[A-Za-z0-9_./-]+\.(sh|md|py|json|yml|yaml|toml)`/)) {
+          path = substr(line, RSTART+1, RLENGTH-2)
+          print path
+          line = substr(line, RSTART + RLENGTH)
+        }
+      }
+      for (i=8; i>1; i--) recent[i] = recent[i-1]
+      recent[1] = $0
+    }
+  ' "$file" 2>/dev/null
+done < <(
+  git ls-files '*.md' '*.sh' '*.py' \
+    | grep -vE "$EXEMPT_PATTERN" \
+    | grep -vE "$BROKEN_PATH_EXEMPT"
+) | sort -u > /tmp/spec-drift-paths.txt
+# Process collected unique paths in a NON-subshell while-loop so the counter
+# survives. (Earlier version used `... | sort -u | while ...` which ran the
+# loop in a subshell and lost the broken_paths increment.)
 while IFS= read -r path_ref; do
-  path_ref="$(echo "$path_ref" | sed 's/^[[:space:]`]*//;s/[[:space:]`,)]*$//')"
   [ -z "$path_ref" ] && continue
   case "$path_ref" in
     http*|mailto:*|//*) continue ;;
-  esac
-  # Placeholder paths (template variables) are not real broken refs
-  case "$path_ref" in
     *X.md|*xxx*|*YYYY*|*your-theme*|*custom-*) continue ;;
   esac
   if [ ! -e "$path_ref" ]; then
     echo "  BROKEN: $path_ref"
     broken_paths=$((broken_paths + 1))
   fi
-done < <(
-  git ls-files '*.md' '*.sh' '*.py' \
-    | grep -vE "$EXEMPT_PATTERN" \
-    | grep -vE "$BROKEN_PATH_EXEMPT" \
-    | xargs grep -hoE '`(scripts|pro|tools|references|docs|themes|evals)/[A-Za-z0-9_./-]+\.(sh|md|py|json|yml|yaml|toml)`' 2>/dev/null \
-    | sort -u
-)
+done < /tmp/spec-drift-paths.txt
+rm -f /tmp/spec-drift-paths.txt
 echo ""
 echo "  (broken paths in active files: $broken_paths)"
 if [ "${STRICT:-0}" = "1" ] && [ "$broken_paths" -gt 0 ]; then
@@ -98,24 +144,65 @@ echo "-- (2/2) Forbidden-token scanner (warning-only) --"
 # mechanically verifiable. Operators can manually audit forbidden-token
 # hits and fix when context clearly indicates active drift.
 # Allow lines that contain explanatory context in CN/EN/JP.
-CONTEXT_ALLOW='REMOVED|removed|deleted|deprecated|previously|was tied to|legacy|historical|pre-pivot|pre-R-1\.8\.0|pre-v1\.8|R-1\.8\.0-011|formerly|once required|no longer|删除|已删除|弃用|废弃|被删|削除|廃止'
+CONTEXT_ALLOW='REMOVED|Removed|removed|deleted|Deleted|DELETED|deprecated|Deprecated|previously|was tied to|legacy|Legacy|historical|Historical|pre-pivot|pre-R-1\.8\.0|pre-v1\.8|R-1\.8\.0-011|R-1\.8\.0-012|R-1\.8\.0-013|formerly|once required|no longer|cron infrastructure|Cron infrastructure|Cron インフラ|Cron 基础设施|in v1\.8\.0 pivot|in pivot|v1\.8\.0 pivot|Removed in pivot|不要尝试调用|Don.t call|cron-era|v1\.7|v1\.7\.x|删除|已删除|弃用|废弃|被删|削除|廃止|抛弃|放棄|历史档案|Python 中间层|Python ミドルウェア|Python 中間層|TBD|planned|will be created'
 warnings_only=0
+active_token_hits=0
+# Multi-line context allow: a line is also exempted if any of the 5
+# preceding lines contains the CONTEXT_ALLOW pattern. This catches the
+# common markdown pattern of a "Removed in pivot:" header followed by
+# bullet list of removed paths.
 for token in "${FORBIDDEN_TOKENS[@]}"; do
   while IFS= read -r file; do
-    bad_lines="$(grep -nF "$token" "$file" 2>/dev/null | grep -vE "$CONTEXT_ALLOW" || true)"
+    is_legacy_file "$file" && continue
+    # Use awk for multi-line context: keep last 5 lines; if any of them
+    # matched CONTEXT_ALLOW, current token line is exempt.
+    bad_lines="$(awk -v token="$token" -v ctx="$CONTEXT_ALLOW" '
+      function regex_escape(s,    out, i, c) {
+        out = ""
+        for (i = 1; i <= length(s); i++) {
+          c = substr(s, i, 1)
+          if (c ~ /[][.*+?(){}|^$\\\/]/) out = out "\\" c
+          else out = out c
+        }
+        return out
+      }
+      BEGIN {
+        for (i=1; i<=8; i++) recent[i] = ""
+        # Build word-boundary regex so e.g. "life-os-tool" does NOT match the
+        # legitimate plural "life-os-tools". (Awk lacks proper \b; use a
+        # character class disallowing word continuation chars on either side.)
+        pat = "(^|[^A-Za-z0-9_-])" regex_escape(token) "([^A-Za-z0-9_-]|$)"
+      }
+      {
+        line_has_token = ($0 ~ pat)
+        line_has_ctx = ($0 ~ ctx)
+        any_recent_ctx = line_has_ctx
+        for (i=1; i<=8; i++) if (recent[i] ~ ctx) any_recent_ctx = 1
+        if (line_has_token && !any_recent_ctx) print NR ":" $0
+        for (i=8; i>1; i--) recent[i] = recent[i-1]
+        recent[1] = $0
+      }
+    ' "$file" 2>/dev/null)"
     if [ -n "$bad_lines" ]; then
       echo "  WARN '$token' (no explanatory context) in $file:"
       echo "$bad_lines" | head -3 | sed 's/^/      /'
       warnings_only=$((warnings_only + 1))
+      active_token_hits=$((active_token_hits + 1))
     fi
   done < <(
     git ls-files '*.md' '*.sh' '*.py' '*.yml' '*.yaml' '*.toml' \
       | grep -vE "$EXEMPT_PATTERN" \
+      | grep -vE "$BROKEN_PATH_EXEMPT" \
       | xargs grep -l "$token" 2>/dev/null || true
   )
 done
 echo ""
-echo "  (forbidden-token warnings: $warnings_only — informational only, does not fail CI)"
+echo "  (forbidden-token hits in active files: $active_token_hits)"
+if [ "${STRICT:-0}" = "1" ] && [ "$active_token_hits" -gt 0 ]; then
+  drift_found=1
+fi
+echo ""
+echo "  (forbidden-token warnings (legacy + active): $warnings_only)"
 
 echo ""
 if [ "$drift_found" -eq 0 ]; then

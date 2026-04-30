@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Scenario: Cortex Retrieval Compliance (CX1-CX7)
 
 **Purpose**: Verify Cortex Step 0.5 retrieval orchestration and AUDITOR Mode 3 compliance detection for CX1-CX7.

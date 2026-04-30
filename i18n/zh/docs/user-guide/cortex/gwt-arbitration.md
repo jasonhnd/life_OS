@@ -1,6 +1,9 @@
 ---
 translated_from: docs/user-guide/cortex/gwt-arbitration.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # GWT 仲裁 · 多源信号的显著性竞争（GWT Arbitration）

@@ -14,6 +14,8 @@ related:
   - devdocs/architecture/cortex-integration.md
   - pro/agents/router.md
   - pro/CLAUDE.md
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Narrator Spec · Grounded Generation Layer

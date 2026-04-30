@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # HARD RULE 目录
 
 Life OS 里散落在 SKILL.md、pro/CLAUDE.md、pro/GLOBAL.md、pro/agents/*.md 里的全部 HARD RULE, 汇总成一处。按类别组织,每条注明**出处**和**强制机制**。

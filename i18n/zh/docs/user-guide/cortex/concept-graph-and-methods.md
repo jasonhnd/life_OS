@@ -1,6 +1,9 @@
 ---
 translated_from: docs/user-guide/cortex/concept-graph-and-methods.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # 概念图谱 + 方法库 · 系统怎么"攒智慧"（Concept Graph & Method Library）

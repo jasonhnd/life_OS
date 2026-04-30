@@ -8,6 +8,8 @@ related:
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
   - references/data-layer.md
   - references/data-model.md
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Markdown-First 架构

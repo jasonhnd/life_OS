@@ -1,6 +1,9 @@
 ---
 translated_from: references/cortex-spec.md
 translator_note: 自動翻訳 2026-04-21、人間校正待ち
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Cortex 仕様書(Cortex Specification)

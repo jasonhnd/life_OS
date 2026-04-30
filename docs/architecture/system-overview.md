@@ -9,6 +9,8 @@ related:
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
   - SKILL.md
   - pro/CLAUDE.md
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Life OS 系统总览

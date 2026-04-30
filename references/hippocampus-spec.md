@@ -13,6 +13,8 @@ related:
   - references/session-index-spec.md
   - references/gwt-spec.md
   - pro/agents/hippocampus.md
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Hippocampus · Agent Contract Spec

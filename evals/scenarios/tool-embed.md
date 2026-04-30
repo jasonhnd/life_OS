@@ -17,6 +17,9 @@ expected_stdout_contains:
   - "search.py"
 expected_stderr_contains: []
 expected_files: []
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Tool Scenario · embed

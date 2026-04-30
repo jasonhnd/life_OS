@@ -1,5 +1,8 @@
 ---
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # 概念グラフ + メソッドライブラリ · システムはどう「知恵を蓄える」か / Concept Graph & Method Library

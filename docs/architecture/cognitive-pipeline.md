@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # 7 阶段认知管线
 
 Life OS 的数据流从「感知」到「涌现」经过 7 个阶段, 每阶段对应一种方法论、一个 storage 位置、一个 agent。

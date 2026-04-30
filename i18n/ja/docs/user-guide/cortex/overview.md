@@ -1,5 +1,8 @@
 ---
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Cortex 総覧 · v1.7 認知層概要(Cortex Overview)

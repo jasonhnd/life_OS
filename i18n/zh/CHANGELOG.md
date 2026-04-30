@@ -199,6 +199,22 @@
     2. T2 的伪 lockfile（5 分钟冷却，按 transcript 第一行 sha 算）阻止 T3/T4（同样的第一行 `User: 退朝`）运行。每个测试用例前加 `rm -f $HOME/.cache/lifeos/stop-hook-*` 清理。结果：**11/11 hook 测试用例全过**（之前 8/11）。
   - **MEDIUM · 4 个 `test_export.py` 失败因为缺 optional extras**：之前被 mypy 标记为 unused 的 `# type: ignore[import-untyped]` 注释掩盖了。给 `TestExportHtml` 加 `@pytest.mark.skipif(not find_spec("markdown_it"))`，给 `TestExportAnki` 加 `find_spec("genanki")`。默认 install：测试干净跳过。`uv sync --extra export` 时：正常运行。
 
+- **R-1.8.0-014 · Spec GC 冲刺收尾（2026-04-30 用户第八轮审计后）**：完成跨第 5–8 轮审计积累的 spec drift 清理。STRICT 模式 CI 闸门（`STRICT=1 bash scripts/check-spec-drift.sh`）现在通过——active 文件不再引用任何已删除脚本/CLI/subagent/cron 架构。v1.7 时代的 legacy spec 已用 YAML frontmatter（`status: legacy` 和/或 `authoritative: false`）显式标注。
+  - **扫描器升级（`scripts/check-spec-drift.sh`）**：
+    - **计数器子 shell bug 修复**：`broken_paths` 自增因为 `... | sort -u | while ...` 跑在子 shell 而丢失。改为先把唯一路径写到临时文件再在父 shell 里循环，STRICT 退出码恢复正确。
+    - **legacy frontmatter 豁免范围扩大**：现在 `status: legacy` *或* `authoritative: false` 都豁免。这两个标记历史上在 v1.7 references 里混用，现在两者都认。
+    - **多行上下文 lookback 5 → 8 行**：覆盖常见 markdown 模式——`### Removed in v1.8.0 pivot` 这种 H2/H3 标题 + 空行 + 4–6 个删除条目。原来 5 行窗口会让最后一个条目脱离标题上下文。
+    - **CONTEXT_ALLOW 关键字扩充**：增加大写 `Removed`/`Deleted`/`Deprecated`、`in v1.8.0 pivot`、`in pivot`、`R-1.8.0-012`、`R-1.8.0-013`、`TBD`、`planned`、`will be created`，让"已删除"类注释真的命中。
+    - **forbidden-token 单词边界检测**：从字面 `index($0, token)` 改成字符类构造的单词边界正则（awk 没有 `\b`），子串 `life-os-tool` 不再误命中合法的 `pyproject.toml` 包名 `life-os-tools`（复数）。
+  - **Active 文件改写**（已删除脚本引用全部加上"v1.8.0 pivot 删除"的明示注释，或迁移到 pull-based 等价物）：
+    - `docs/getting-started/what-is-life-os.md` Layer 4 段落（× EN/ZH/JA）：把 cron 时代的 `scripts/{decay-audit,dream-trigger-check,monthly-review,session-index,wiki-conflict-check}.py` 列表换成 R-1.8.0-011 后实际发布的 `python -m tools.<name>` 模块。
+    - `tools/README.md`：重写 Status + Authoritative Spec 段落，把"Planned Modules"表格换成"Currently Shipped Modules"，列出实际存在的 10 个工具，已删除的 dispatcher / cron 脚本 / cortex helper 标为历史背景。
+    - `pro/agents/monitor.md` Related Specs：`references/automation-spec.md` 和 `references/session-modes-spec.md` 标为 v1.8.0 pivot 删除（被 `pro/CLAUDE.md` Session Modes 替代）。
+    - `evals/scenarios/tool-seed.md`：`references/SOUL-template.md` 与 `references/tools-spec.md §6.10` 标为 legacy/已删除；`tools/seed.py` 现在内联生成 skeleton。
+    - `docs/user-guide/themes/adding-a-theme.md`：删除对不存在的 `themes/zh-classical-tw.md` 的引用，改为描述繁体中文需用户自行创建。
+  - **legacy frontmatter 批处理（第 8 轮累计 · 71 文件分两批标注）**：`docs/architecture/`、`docs/guides/v1.7-migration.md`、`docs/user-guide/cortex/*`（× EN/ZH/JA）、`references/{cortex-spec, cortex-architecture, narrator-spec, tools-spec, v1.7-shipping-report, templates/concept-template, concept-spec, data-layer, eval-history-spec, hippocampus-spec, method-library-spec, session-index-spec, snapshot-spec, compliance-spec}.md`（× EN/ZH/JA）、`evals/scenarios/*` 全部带 `status: legacy`（或 `authoritative: false`），扫描器把它们识别为历史档案而非 active spec。
+  - **验证**：`STRICT=1 bash scripts/check-spec-drift.sh` 退出 0（active 文件 broken paths：0；active 文件 forbidden-token hits：0）。`mypy --strict tools/` 0 错误 / 16 文件。`ruff check tools/ tests/` 干净。`pytest tests/` 232 通过 / 3 deselected。
+
 验证（CI 矩阵现在真的绿）：
 - 30 个 tracked .sh 全部 `bash -n` 通过
 - `mypy --strict tools/`: **0 个错误**（16 个源文件检查）—— 之前 25 个

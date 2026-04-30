@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # 多平台编排: Claude / Gemini / Codex
 
 Life OS 支持 3 个平台: Claude Code、Gemini CLI / Antigravity、OpenAI Codex CLI。每个平台有自己的编排文件, 但 16 个 agent 定义**完全共享**。

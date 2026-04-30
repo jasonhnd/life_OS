@@ -6,11 +6,11 @@ This directory contains Python tools that operate on the user's second-brain mar
 
 ## Status
 
-**v1.7 Phase 1 bootstrap.** Only the project skeleton exists in this commit — no tools implemented yet. Tools will land in subsequent commits per `references/tools-spec.md`.
+**v1.8.0 (post R-1.8.0-011 / R-1.8.0-013).** Pull-based toolkit; modules are invoked on demand by the orchestrator (no cron). The historical v1.7 layout (cortex helpers under `tools/lib/cortex/`, the `tools/cli.py` dispatcher, scheduled `tools/backup.py` / `tools/rebuild_indexes.py` / `tools/migrate.py`) was retired in R-1.8.0-011 and replaced by the modules listed below.
 
 ## Authoritative Spec
 
-See [`references/tools-spec.md`](../references/tools-spec.md) for the full contract: directory structure, runtime requirements, dataclass schemas, and per-tool contracts.
+`references/tools-spec.md` is marked **legacy** (v1.7 Cortex era); it is kept for historical context only and is **not** the active contract. The active per-module contract lives in this README plus each module's docstring.
 
 ## Runtime
 
@@ -42,24 +42,30 @@ Tools add maintenance automation, not core functionality. A new Life OS user who
 - Systematic scans of every file (no LLM creativity needed)
 - LLM-free pure parsing + YAML generation + markdown I/O
 
-## Planned Modules (per tools-spec.md)
+## Currently Shipped Modules
 
-| Module | Purpose | Phase |
-|--------|---------|-------|
-| `tools/lib/second_brain.py` | Dataclasses for all second-brain types | 1 |
-| `tools/lib/cortex/hippocampus.py` | Helpers for `_meta/sessions/INDEX.md` operations | 1 |
-| `tools/lib/cortex/concept.py` | Concept file CRUD + Hebbian update | 1 |
-| `tools/stats.py` | Read `pro/compliance/violations.md` + compute escalation thresholds | 2 |
-| `tools/backup.py` | Quarterly archival of violations.md, snapshots, etc. | 2 |
-| `tools/rebuild_indexes.py` | Recompile INDEX.md files (concepts, methods, sessions, wiki) | 2 |
+| Module | Purpose |
+|--------|---------|
+| `tools/approval.py` | Adapter approval / governance flow |
+| `tools/embed.py` | Concept / hippocampus vector rebuild (on demand) |
+| `tools/export.py` | Batch export of sessions / SOUL snapshots |
+| `tools/reconcile.py` | Detect contradictory wiki entries; emit conflict list |
+| `tools/research.py` | LLM-free research helpers (HTTP fetch + markdownify) |
+| `tools/search.py` | Cross-source search over SOUL / wiki / sessions |
+| `tools/seed.py` | Bootstrap helpers for new repos |
+| `tools/sync_notion.py` | Two-way sync to Notion mirror |
+| `tools/skill_manager.py` | Local skill catalog management |
+| `tools/stats.py` | Read `pro/compliance/violations.md` + compute escalation thresholds |
+| `tools/lib/` | Shared helpers (HTTP guard, redaction, types) — not invoked directly |
+
+> Removed in R-1.8.0-011 (kept here only as historical context — do not call): the deleted dispatcher / cron scripts (formerly under `tools/cli.py`, `tools/migrate.py`, `tools/backup.py`, `tools/rebuild_indexes.py`) and the deleted Cortex helper layer (formerly `tools/lib/cortex/`).
 
 ## Locality Constraint
 
-Per user decision (md + git storage rule, see `pro/compliance/2026-04-19-court-start-violation.md`), all tools run **locally** — invoked from the Claude Code Bash tool or manually. No GitHub Actions, no cron-on-VPS, no external API calls.
+Per user decision (md + git storage rule, see `pro/compliance/2026-04-19-court-start-violation.md`), all tools run **locally** — invoked from the Claude Code Bash tool or manually. No GitHub Actions, no cron-on-VPS.
 
 ## See Also
 
-- `references/tools-spec.md` — authoritative contract
 - `references/data-model.md` — types tools manipulate
-- `references/cortex-spec.md` — Cortex layer this toolkit primarily supports
 - `references/compliance-spec.md` — violations log spec consumed by `tools/stats.py`
+- The **legacy** `references/tools-spec.md` and `references/cortex-spec.md` describe the v1.7 Cortex-era contract and are no longer authoritative.

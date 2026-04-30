@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # 执行层架构 · Shell Hooks (Layer 3) + Python Tools (Layer 4)
 
 > 本文档说明 Life OS 的执行层设计：如何让 HARD RULE 真正"hard"、如何让决策引擎不只在用户打字时才动起来。

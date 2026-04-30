@@ -4,6 +4,8 @@ date: 2026-04-20
 status: active
 owner: Jason
 tags: [roadmap, versioning, cortex, execution-layer]
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Life OS · v1.7 推进计划

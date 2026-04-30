@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Scenario: Adjourn Compliance (Class C/D/E regression test)
 
 **Path**: User says adjourn trigger → archiver subagent launch → all 4 phases complete with concrete Completion Checklist values.

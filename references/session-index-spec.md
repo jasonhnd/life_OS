@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Session Index Specification
 
 Session index is the data source for Cortex's hippocampus (cross-session retrieval). Two artifacts are produced, with a strict separation between writer (archiver) and compiler (retrospective).

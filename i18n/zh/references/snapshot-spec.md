@@ -1,6 +1,9 @@
 ---
 translated_from: references/snapshot-spec.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Snapshot 规范（Snapshot Specification）

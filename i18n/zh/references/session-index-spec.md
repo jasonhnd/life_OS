@@ -1,6 +1,9 @@
 ---
 translated_from: references/session-index-spec.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Session Index 规范（Session Index Specification）

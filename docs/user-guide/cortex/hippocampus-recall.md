@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Hippocampus · 跨 Session 记忆检索
 
 > 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)

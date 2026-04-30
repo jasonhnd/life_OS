@@ -250,14 +250,15 @@ STRATEGIST 不走 Draft-Review-Execute 流程，是独立的"思想启发"通道
 
   Hermes 用 42 条 dangerous pattern 正则保护自己不被 prompt injection 搞崩（`rm -rf /`、fork bomb、`curl | sh`、`git reset --hard` 全覆盖），Life OS 借鉴这个思路做 Privacy Filter 的具体正则列表——不做就永远是"手艺"，做了就是"规格"。
 
-- **Layer 4（Python 工具层）**：手动或定时跑，处理批量、后台、维护任务。不是每次对话都跑，是"需要批量扫全部笔记才能做的重型工具"。具体能做：
-  - `scripts/session-index.py`：把所有 Summary Report 的 score / domain 抽出来做 SQL 查询（借鉴 Hermes FTS5 思路的轻量版）
-  - `scripts/monthly-review.py`：每月跑一次 self-review journal，统计 AUDITOR 召回率、REVIEWER 否决率、COUNCIL 触发率、Express 命中率。数字越诚实越好。
-  - `scripts/decay-audit.py`：每周扫 concept 文件，衰减 + 修剪长期不激活的 synapse 边
-  - `scripts/wiki-conflict-check.py`:批量扫 wiki 检测互相矛盾的条目
-  - `scripts/dream-trigger-check.py`:定时跑 10 种跨 session 模式检测
+- **Layer 4（Python 工具层）**：v1.8.0 R-1.8.0-011 改为按需调用（pull-based），不再预设 cron 定时。维护任务由编排层在合适时机直接 `python -m tools.<name>` 调用：
+  - `python -m tools.search`：跨 SOUL / wiki / sessions 检索（FTS5 思路的轻量版）
+  - `python -m tools.reconcile`：检测 wiki 互相矛盾的条目，输出冲突清单
+  - `python -m tools.embed`：concept / hippocampus 向量重建（按需调用）
+  - `python -m tools.stats`：统计 AUDITOR 召回率 / REVIEWER 否决率 / COUNCIL 触发率
+  - `python -m tools.export`：批量导出 sessions / SOUL 快照
+  - `python -m tools.sync_notion`：双向同步 Notion 镜像
 
-  这些脚本**不绑云**——你可以放 launchd / cron / GitHub Actions / Vercel Cron / 随便什么。重点是"会自己跑"，具体怎么跑你挑。
+  v1.7 cron 时代的 `scripts/decay-audit.py / dream-trigger-check.py / monthly-review.py / session-index.py / wiki-conflict-check.py` 已在 R-1.8.0-011 删除，对应职能改由 `tools/*` 按需触发。Layer 4 不再绑定具体调度方式（cron / launchd / Actions），由用户按需手动调用。
 
 **方法库**：类似 Hermes Skills 的程序性记忆——把"怎么做 X"本身做成可检索的 skill，Cortex 海马体能在相关场景下自动激活对应 skill。这是 Hermes 自学习闭环的本地版，但不需要 RL 训练，用"规则闭环学习"代替——规则自己不会变，但会被标记"这条规则最近在被违反"。
 

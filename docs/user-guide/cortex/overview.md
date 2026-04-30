@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Cortex 总览 · v1.7 认知层总览
 
 > 面包屑: [← 产品入口:用户指南首页](../index.md)

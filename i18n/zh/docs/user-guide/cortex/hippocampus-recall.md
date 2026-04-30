@@ -1,6 +1,9 @@
 ---
 translated_from: docs/user-guide/cortex/hippocampus-recall.md
 translator_note: auto-translated 2026-04-22
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Hippocampus · 跨 Session 记忆检索(Cross-Session Memory Recall)

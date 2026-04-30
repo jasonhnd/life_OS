@@ -98,8 +98,8 @@ Before returning, write `_meta/runtime/<sid>/monitor.json` with:
 ## Related Specs
 
 - `pro/CLAUDE.md` → Session Modes (v1.8.0)
-- `references/session-modes-spec.md`
-- `references/automation-spec.md`
+- `references/session-modes-spec.md` (deleted in v1.8.0 pivot — superseded by `pro/CLAUDE.md` Session Modes)
+- `references/automation-spec.md` (deleted in v1.8.0 pivot — cron infrastructure retired)
 - `scripts/commands/monitor.md`
 - `scripts/run-cron-now.sh` (deleted in v1.8.0 pivot)
 - `tools/cron_health_report.py` (deleted in v1.8.0 pivot)

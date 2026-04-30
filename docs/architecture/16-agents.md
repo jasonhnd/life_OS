@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # 16 个 Agent 完整清单
 
 全部 16 个 subagent 的 engine ID、职能、触发条件、工具权限、model、文件路径。

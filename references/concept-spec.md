@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Concept Specification
 
 Concept files are the nodes in Cortex's synaptic network. Each file represents one reusable idea, entity, or pattern that can be activated across sessions. Synapse edges between concepts live inside the YAML frontmatter of the concept file itself, not in a separate graph database. This keeps the entire network inspectable with a text editor and portable through plain git.

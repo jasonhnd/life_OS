@@ -120,7 +120,7 @@ Exit 1
 
 ## Linked Documents
 
-- `references/tools-spec.md` §6.10
-- `references/SOUL-template.md` (skeleton source)
+- `references/tools-spec.md` §6.10 (legacy spec — kept for historical context)
+- `references/SOUL-template.md` (deleted in v1.8.0 pivot — skeleton now generated inline by `tools/seed.py`)
 - `tools/seed.py`
 - `tests/test_seed.py`

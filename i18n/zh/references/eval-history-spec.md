@@ -1,6 +1,9 @@
 ---
 translated_from: references/eval-history-spec.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Eval History 规范（Eval History Specification · v1.7）

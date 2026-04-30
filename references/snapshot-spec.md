@@ -1,3 +1,10 @@
+---
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+---
+
 # Snapshot Specification
 
 SOUL snapshots are small, immutable metadata dumps captured at the end of every session. They enable the SOUL Health Report at the next Start Session to compute trend arrows (↗↘→) across sessions without maintaining a separate state machine. A snapshot is a frozen moment: what the system knew about the user's identity dimensions at time T.

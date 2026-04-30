@@ -1,5 +1,8 @@
 ---
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
+status: legacy
+authoritative: false
+superseded_by: pro/CLAUDE.md
 ---
 
 # Narrator 引用と Trace · 捏造防止メカニズム / Narrator Citations & Trace
