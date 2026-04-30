@@ -206,18 +206,42 @@ class TestCortex:
         result = _run(out, "cortex-retrieval", cwd=tmp_path)
         assert result.returncode == 0
 
-    def test_cortex_enabled_no_agents_fails(self, tmp_path: Path):
+    def test_cortex_enabled_no_agents_passes_post_pivot(self, tmp_path: Path) -> None:
+        """v1.8.0 R-1.8.0-011 pull-based pivot: `cortex_enabled: true` is no
+        longer a gate. ROUTER decides per-message whether to launch any
+        Cortex subagent. A transcript with no Cortex launches is now valid
+        regardless of the legacy config flag — there's nothing to verify
+        when ROUTER chose to skip Cortex.
+        """
         config_dir = tmp_path / "_meta"
         config_dir.mkdir()
+        # Legacy flag — kept here only to confirm it is now ignored.
         (config_dir / "config.md").write_text(
             "cortex_enabled: true\n", encoding="utf-8"
         )
         out = tmp_path / "no_agents.md"
         out.write_text("no agents fired\n", encoding="utf-8")
         result = _run(out, "cortex-retrieval", cwd=tmp_path)
+        assert result.returncode == 0, f"stderr: {result.stderr}"
+        assert "CX1" not in result.stderr
+        assert "CX2" not in result.stderr
+        assert "CX3" not in result.stderr
+
+    def test_cortex_partial_launch_fails(self, tmp_path: Path) -> None:
+        """v1.8.0 pull-based: if ROUTER launches Cortex subagents, the
+        transcript must also include GWT arbitration evidence (CX2) and
+        the [COGNITIVE CONTEXT] delimiter block (CX3). A partial transcript
+        that only shows module launches but no GWT or delimiter triggers
+        CX2 + CX3 violations. This is the post-pivot replacement for the
+        old cortex_enabled gate test.
+        """
+        out = tmp_path / "partial.md"
+        out.write_text(
+            "Task(hippocampus) launched\nTask(concept-lookup) launched\n",
+            encoding="utf-8",
+        )
+        result = _run(out, "cortex-retrieval", cwd=tmp_path)
         assert result.returncode == 1
-        # Should detect CX1 (3 missing subagents) + CX2 + CX3
-        assert "CX1" in result.stderr
         assert "CX2" in result.stderr
         assert "CX3" in result.stderr
 

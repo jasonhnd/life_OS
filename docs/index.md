@@ -75,7 +75,7 @@
 去 `reference/`：
 
 - `reference/all-9-themes/` — 9 个主题每个角色叫什么、什么 tone
-- `reference/all-16-agents/` — 16 个 engine ID 到角色定义的索引
+- `reference/all-agents/` — engine ID 到角色定义的索引
 - `reference/trigger-words.md` — 所有触发词一览
 - `reference/adapters/` — GitHub / Google Drive / Notion 的适配器规格
 - `reference/specifications/` — SOUL / DREAM / Wiki / Strategic Map 的数据结构

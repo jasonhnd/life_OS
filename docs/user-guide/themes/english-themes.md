@@ -14,7 +14,7 @@
 
 ## 角色映射对照表
 
-三个主题的 16 个 engine ID → 显示名对照：
+三个主题的 engine ID → 显示名对照：
 
 | Engine ID | Roman Republic | US Government | C-Suite |
 |-----------|----------------|---------------|---------|

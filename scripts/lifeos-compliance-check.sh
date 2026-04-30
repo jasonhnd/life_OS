@@ -611,20 +611,35 @@ check_false_positive() {
 }
 
 check_cortex_gate() {
-  if [[ -f "_meta/config.md" ]] && ! grep -qE '^cortex_enabled:[[:space:]]*true' "_meta/config.md"; then
-    return 1
+  # v1.8.0 R-1.8.0-011 pivot: Cortex is now PULL-BASED. The legacy
+  # `cortex_enabled: true` flag in `_meta/config.md` and the v1.7-era
+  # "Cortex active" / "Step 0.5" transcript markers no longer represent
+  # an "active" gate. ROUTER decides per-message whether to launch any of
+  # the hippocampus / concept-lookup / soul-check / gwt-arbitrator
+  # subagents based on the actual question.
+  #
+  # The CX checks below only fire when the current transcript ALREADY
+  # shows ROUTER chose to launch a Cortex subagent (i.e. there is at
+  # least one Task(hippocampus|concept-lookup|soul-check|gwt-arbitrator)
+  # invocation visible). If ROUTER skipped Cortex entirely — the common
+  # case post-pivot — there is nothing to verify and the gate returns
+  # "not applicable" (return 1).
+  if has 'Task\(hippocampus\)|Task\(concept-lookup\)|Task\(soul-check\)|Task\(gwt-arbitrator\)|Launch\(hippocampus\)|Launch\(concept-lookup\)|Launch\(soul-check\)|Launch\(gwt-arbitrator\)'; then
+    return 0
   fi
-  if [[ ! -f "_meta/config.md" ]] && ! has 'cortex_enabled:[[:space:]]*true|Cortex active|Step 0.5'; then
-    return 1
-  fi
-  return 0
+  return 1
 }
 
 check_cortex_cx1() {
+  # Pull-based: only verify per-module evidence if ROUTER actually
+  # launched that specific module. Skip silently when the user's
+  # question didn't trigger Cortex at all.
   check_cortex_gate || return 0
   local agent
   for agent in hippocampus concept-lookup soul-check; do
-    has "${agent} subagent|Task\(${agent}\)|Launch\(${agent}\)|${agent}: null" || add_violation "CX1 (P1): missing Pre-Router Cortex module evidence: $agent"
+    if has "Task\(${agent}\)|Launch\(${agent}\)"; then
+      has "${agent} subagent|Task\(${agent}\)|Launch\(${agent}\)|${agent}: null" || add_violation "CX1 (P1): launched Cortex module $agent but missing evidence"
+    fi
   done
 }
 

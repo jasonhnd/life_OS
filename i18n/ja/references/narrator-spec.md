@@ -1,7 +1,9 @@
 ---
 title: "Narrator Spec — Grounded Generation Layer for Cortex"
 version: v1.7
-status: draft
+status: legacy
+authoritative: false
+superseded_by: pro/agents/narrator.md
 scope: references
 audience: Life OS maintainers + orchestration implementers
 last_updated: 2026-04-20

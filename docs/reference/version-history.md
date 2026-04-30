@@ -31,7 +31,7 @@ MAJOR.MINOR.PATCH[子版本字母]
 
 三省六部制个人内阁系统初版：
 - 多个角色：丞相 + 三省 + 六部 + 御史台 + 谏官 + 政事堂 + 早朝官 + 翰林院
-- Lite 模式（单上下文）+ Pro 模式（14 个独立 subagent）
+- Lite 模式（单上下文）+ Pro 模式（独立 subagent）
 - 10 个标准场景配置
 - 六部 × 四司 职能详解
 - Apache-2.0 License

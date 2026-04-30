@@ -25,7 +25,7 @@ Life OS 三层架构：
 |------|------|------|
 | **Language** | 硬规则——主题决定输出语言 | English / Chinese / Japanese |
 | **Tone** | 语气定义 | "现代直白，不用古语" |
-| **Role Mapping** | 16 个 engine ID → 显示名 + emoji + 输出标题 | `router → 丞相 🏛️` |
+| **Role Mapping** | engine ID → 显示名 + emoji + 输出标题 | `router → 丞相 🏛️` |
 | **Domain Mapping** | 6 个领域 → 显示名 | `FINANCE → 户部 · 财务` |
 | **Summary Report** | 总结报告的名字和格式 | "奏折" / "Executive Brief" |
 | **Session Commands** | 触发词（多语言） | "上朝"、"退朝"、"quick" |

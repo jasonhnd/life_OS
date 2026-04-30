@@ -514,7 +514,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 `bash scripts/setup-hooks.sh` を実行すると、life_OS は Task から呼べる agents を `~/.claude/agents/lifeos-*.md` に自動登録する。これにより Claude Code は `Task(lifeos-retrospective)` や `Task(lifeos-archiver)` を一級の対象として認識し、`general-purpose` へ fallback しなくなる。
 
-`lifeos-` prefix は他の skill の agents との衝突を避けるためのもの。Wrapper は skill 内の `pro/agents/*.md` の canonical 定義を指すため、skill を更新して setup を再実行すれば agent の挙動も更新される。リポジトリには 22 個の agent 定義ファイルがあり、そのうち 21 個が Task-spawnable wrapper として登録され、`narrator.md` は ROUTER-internal のまま残る。
+`lifeos-` prefix は他の skill の agents との衝突を避けるためのもの。Wrapper は skill 内の `pro/agents/*.md` の canonical 定義を指すため、skill を更新して setup を再実行すれば agent の挙動も更新される。リポジトリには複数の agent 定義ファイルがあり、ほぼすべてが Task-spawnable wrapper として登録される。`narrator.md` のみ ROUTER-internal のまま残る。
 
 アンインストール：`bash scripts/unregister-claude-agents.sh`。
 

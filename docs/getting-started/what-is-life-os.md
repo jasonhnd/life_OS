@@ -192,7 +192,7 @@ STRATEGIST 不走 Draft-Review-Execute 流程，是独立的"思想启发"通道
 
 - **海马体**：每轮对话自动跨 session 检索相关记忆（不是"按需调用"，是**默认跑**）。三波激活扩散：直接匹配 → 强连接（weight ≥ 3）→ 弱连接。按相关度 + 权重取 top 5-7 条送给 ROUTER。
 - **GWT 全局工作空间**：多模块并行产出信号，每个信号带 salience 向量（urgency / novelty / relevance / importance，四维 0-1）+ confidence。v1.7 先实现 4 维权重求和：`salience = urgency × 0.3 + novelty × 0.2 + relevance × 0.3 + importance × 0.2`，情绪维度（杏仁核第 5 维信号）留给未来版本。仲裁层按 salience 竞争中央舞台，最强的进入"意识层"广播给所有模块。ROUTER 收到的是"带认知标注的输入"，不是原始 message。
-- **叙事层**：底层分布式信号竞争的结论重新包装成"朝廷 / 霞が関 / C-Suite"的文化剧本。**关键约束：grounded generation**——每句话强制附带 signal_id 引用，没有对应 signal 的叙述会被 Sonnet Claude Code 校验子 agent（narrator-validator，在当前 session 内运行，不是外部 Haiku API——用户决策 #9）拦截重生成。这不是为了好看，是为了避免 Gazzaniga 左脑解释器效应（裂脑人实验证明大脑会无中生有编自洽故事并真诚相信，Life OS 绝不能继承这个 bug——否则就成了系统化自欺）。
+- **叙事层**：底层分布式信号竞争的结论重新包装成"朝廷 / 霞が関 / C-Suite"的文化剧本。**关键约束：grounded generation**——每句话强制附带 signal_id 引用，引用核查由 narrator 内联自检完成（v1.8.0 R-1.8.0-011 pivot 后简化：不再单独 spawn validator subagent，narrator 自己按 inline 规则核查；引用失败则降级为 unwrapped Summary Report，不再走 validator-rewrite 循环）。这不是为了好看，是为了避免 Gazzaniga 左脑解释器效应（裂脑人实验证明大脑会无中生有编自洽故事并真诚相信，Life OS 绝不能继承这个 bug——否则就成了系统化自欺）。
 - **突触 + 赫布强化**：每篇 concept 文件 front matter 带 outgoing_edges 和权重。共同激活 → 权重 +1（赫布学习 "neurons that fire together, wire together"）。长期不激活 → 衰减。衰减到 0 → 自动修剪。用进废退。concept 分四档 permanence（identity / skill / fact / transient），衰减曲线各不相同——SOUL 核心价值不衰减，临时事件断崖衰减。
 
 **为什么 v1.7 一定要加这层**：v1.6.2a 的决策引擎已经很稳——分权、审议、veto、六部打分，该有的制衡都有。但这些都发生在**当前对话**内。session 结束，ARCHIVER 把结果写回第二大脑，系统就"睡着了"——直到下次上朝，RETROSPECTIVE 再把 SOUL / wiki / user-patterns 读一遍重新开机。中间那段空白期——**跨 session 的关联、概念之间的消长、哪条知识最近被反复激活、哪个维度在休眠、这次决策和三个月前那次是不是同一件事**——没人管。所以第二大脑存的东西越多，反而越像是"档案室"，不是"正在想事的那个脑子"。Cortex 不是再加功能，是**把认知闭环补齐**：记忆 → 联想 → 叙事 → 强化 → 反思，五环都在，系统才算"活着"。
@@ -234,7 +234,7 @@ STRATEGIST 不走 Draft-Review-Execute 流程，是独立的"思想启发"通道
 - **Read/Write** — 第二大脑的任何 markdown 文件都能读写。SOUL、wiki、projects、_meta 每次决策自动更新——ARCHIVER 每次 Adjourn 按 6 条严格准则 + Privacy Filter 自动写 wiki；ADVISOR 每次 Summary Report 后自动更新 SOUL。
 - **Bash** — 跑任意本地命令。git 操作、文件整理、脚本调用、shell hook、任何本地 CLI 工具。
 - **WebFetch + WebSearch** — 联网抓资料、版本检查、链接验证、后台搜索。比 ChatGPT 的联网更可控——可以指定 URL 深度抓、可以在分析中并行跑多个搜索。
-- **16 子 agent 并行** — 同时跑 16 个独立 subagent，彼此信息隔离。六部是这个能力的固定用法，任何复杂任务都可以临时 spawn 多个 subagent（比如翰林院的 93 思想家圆桌）。
+- **多个子 agent 并行** — 同时跑多个独立 subagent，彼此信息隔离。六部是这个能力的固定用法，任何复杂任务都可以临时 spawn 多个 subagent（比如翰林院的 93 思想家圆桌）。
 - **Notion MCP + Google Drive MCP** — 跨设备同步。手机上改的 inbox 条目 Adjourn 时自动拉回本地；Status / Todo / Working Memory 四个 Notion 组件由 orchestrator 每次退朝时同步。
 - **定时任务** — launchd（Mac）/ cron（Linux）/ GitHub Actions 都可以跑，不绑任何特定云服务。你也可以用 Vercel / Cloudflare Workers / 自己的 VPS / 甚至手动跑——**Life OS 不在乎你选哪个**。默认零云依赖。
 

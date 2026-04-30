@@ -30,9 +30,22 @@ set -u
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
-# Files exempted from forbidden-token check (history is allowed to mention
-# deleted things).
-EXEMPT_PATTERN='^(CHANGELOG\.md|i18n/.*/CHANGELOG\.md|backup/|references/v1\.7-shipping-report-|pro/compliance/|references/cortex-spec\.md|references/tools-spec\.md|references/narrator-spec\.md|docs/architecture/|docs/guides/|i18n/.*/docs/|i18n/.*/references/|MIGRATION\.md|scripts/check-spec-drift\.sh|.*-template\.md)'
+# Files exempted from forbidden-token check.
+#
+# Round-11 audit fix: removed directory-level exemptions for
+# `docs/architecture/`, `docs/guides/`, `i18n/.*/docs/`,
+# `i18n/.*/references/`. Those passes were too broad — they let active
+# v1.8.0 user-facing docs (e.g. installation in 3 langs, FAQ, getting-
+# started, theme system overview) hide active spec drift behind a
+# directory regex. The scanner now only exempts:
+#   1. Truly historical artifacts that pre-date the spec model entirely
+#      (CHANGELOG, backup/, MIGRATION, the scanner itself, *-template.md,
+#      pro/compliance/ violation logs).
+#   2. Anything else: must declare itself legacy via YAML frontmatter
+#      (`status: legacy` or `authoritative: false`), OR have an explanatory
+#      8-line context (CONTEXT_ALLOW match in any of the preceding 8 lines
+#      or current line).
+EXEMPT_PATTERN='^(CHANGELOG\.md|i18n/.*/CHANGELOG\.md|backup/|pro/compliance/|MIGRATION\.md|scripts/check-spec-drift\.sh|.*-template\.md)'
 
 # Forbidden tokens — architectural relics that the v1.8.0 R-1.8.0-011
 # pivot retired. Any active file containing these is spec drift.
@@ -66,14 +79,34 @@ FORBIDDEN_TOKENS=(
 # `rg "23 subagents"` audit gets 0 hits from this file). Each pattern is an
 # ERE matched line-by-line; same CONTEXT_ALLOW + 8-line lookback exemption
 # applies as for FORBIDDEN_TOKENS.
+#
+# NB: count threshold = 13. Smaller numbers (1-12) describe structural
+# things — "1-3 domain agents" (Express limit), "2 independent subagent"
+# (per-request minimum), "9 themes" (# of cultural variants). Those are
+# legitimate constants. Numbers >= 13 are suspicious because the system has
+# had 14 → 16 → 22 → 23 subagents over its history; any of those values
+# in a current doc indicates drift.
+N='(1[3-9]|[2-9][0-9])'
 SUBAGENT_COUNT_PATTERNS=(
-  "[0-9]+ (sub""agents?|sub""agent definitions?)"
-  "[0-9]+ (independent )?(sub""agents?|a""gents?)"
-  "[0-9]+ (AI )?(a""gents?|roles?|individuals?)"
-  "[0-9]+ ?个 ?(sub""agent|a""gent|角色|功能 ID)"
-  "[0-9]+ a""gent (制衡|编排|定义|calls)"
-  "[0-9]+ 個の独立した (sub""agent|a""gent|エージェント)"
-  "[0-9]+の(機能 ID|声|エージェント)"
+  # ===== EN =====
+  "$N (sub""agents?|sub""agent definitions?)"
+  "$N (independent )?(sub""agents?|a""gents?)"
+  "$N (AI )?(a""gents?|roles?|individuals?)"
+  "$N engine ID"
+  # ===== ZH =====
+  "$N ?个 ?(sub""agent|a""gent|角色|功能 ID|engine|engine ID|engine a""gent)"
+  "$N 子 ?(sub""agent|a""gent)"
+  "$N 个[^，。\\s]{0,12}(sub""agent|a""gent|engine a""gent|engine ID)"
+  "$N 个[^，。\\s]{0,12}(AI 角色)"
+  "$N a""gent (制衡|编排|定义|calls|流程)"
+  "$N engine a""gent"
+  # ===== JA =====
+  "$N 個の独立した (sub""agent|a""gent|エージェント|サブエージェント)"
+  "$N の(機能 ID|声|エージェント|サブエージェント|独立した|独立 ?サブエージェント|AI 役職|役職|エージェントが)"
+  "${N}の(機能 ID|声|エージェント|サブエージェント|独立した|独立 ?サブエージェント|AI 役職|役職|エージェントが)"
+  "$N ?個の ?(sub""agent|a""gent|エージェント|サブエージェント|役職|機能 ID)"
+  "同じ ?$N ?の ?(役職|エージェント|サブエージェント)"
+  "$N sub""agent (並列|フロー)"
 )
 
 drift_found=0

@@ -8,7 +8,7 @@
 
 ### Q：我应该从哪个平台开始？
 
-推荐 **[Claude Code](https://claude.ai/code)**。它是 Life OS 开发的原始平台，也是功能最完整的——16 个独立 subagent 都能真正并行运行。一条命令安装：
+推荐 **[Claude Code](https://claude.ai/code)**。它是 Life OS 开发的原始平台，也是功能最完整的——多个独立 subagent 都能真正并行运行。一条命令安装：
 
 ```bash
 /install-skill https://github.com/jasonhnd/life_OS
@@ -69,7 +69,7 @@ git config --unset extensions.worktreeConfig
 
 ### Q：ChatGPT、Claude.ai Web、Gemini Web 为什么不能用？
 
-**Life OS 需要 Pro Mode**——16 个独立 subagent 的真正信息隔离。单上下文平台无法做到这一点，因为所有"角色"都在同一个上下文里互相看见，失去了制衡意义。
+**Life OS 需要 Pro Mode**——多个独立 subagent 的真正信息隔离。单上下文平台无法做到这一点，因为所有"角色"都在同一个上下文里互相看见，失去了制衡意义。
 
 只有支持 **独立 subagent** 的命令行工具（Claude Code、Gemini CLI、Codex CLI）才能运行 Life OS。
 
@@ -154,7 +154,7 @@ git config --unset extensions.worktreeConfig
 
 ### Q：主题影响功能吗？
 
-**不影响**。所有主题共用同一套 16 个 engine agent 的逻辑。主题只改变：
+**不影响**。所有主题共用同一套 engine agent 的逻辑。主题只改变：
 - 显示名（"丞相" vs "Chief of Staff"）
 - 语气（古典 vs 现代 vs 商务）
 - 触发词（"上朝" vs "start"）
@@ -246,7 +246,7 @@ v1.6.2 新增。REM 阶段会自动检测 10 种模式：
 
 ### Q：Pro Mode 有什么特别的？
 
-- 16 个 AI 角色每个都独立运行，互相看不到彼此的思考过程
+- 每个 AI 角色都独立运行，互相看不到彼此的思考过程
 - 六部可以并行工作（不排队）
 - 门下省审查中书省时，真正看不到中书省是怎么想的——真独立审查
 - 所有角色用该平台最强的模型（opus / gemini 2.5 pro / o3）
