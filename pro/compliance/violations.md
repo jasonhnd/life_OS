@@ -120,3 +120,4 @@ An entry transitions to `Resolved: true` when all three conditions hold:
 | 2026-04-30T11:52:30+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
 | 2026-04-30T12:43:39+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
 | 2026-05-01T17:12:20+09:00 | CLASS_D | critical | unknown | pattern=5 name=shell-injection-backticks scope=wiki tool=Write | pre-write-scan | open |
+| 2026-05-01T17:32:58+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |

@@ -1,56 +1,85 @@
 #!/bin/bash
-# scripts/wiki/setup-secondbrain.sh — v1.8.1 F1+F2+F3 deployment
+# scripts/wiki/setup-secondbrain.sh — v1.8.1 vault auto-bootstrap
 # ─────────────────────────────────────────────────────────────────────────────
-# One-time bootstrap for a user's second-brain repo (the vault, NOT this
-# Life OS dev repo). Idempotent — safe to re-run; only writes files that
-# don't exist, never overwrites.
+# Idempotent vault bootstrap. Normally invoked AUTOMATICALLY by the
+# session-start-inbox.sh hook on the user's first session in a vault that
+# lacks the v1.8.1 scaffolding. Users do not need to run this manually.
 #
-# Run from inside your second-brain vault:
+# Manual invocation (if you want to re-bootstrap or test):
 #
 #     cd ~/path/to/SecondBrain
 #     bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh
 #
-# What this creates (only if missing):
+# Flags:
+#   --silent   — suppress all banner / instructional output; only print
+#                "wrote N files" if anything changed; emit nothing if all
+#                files already exist. Used by the auto-bootstrap hook path.
+#   --quiet    — alias for --silent
 #
-#   wiki/log.md                       (F1: activity timeline)
-#   wiki/OBSIDIAN-SETUP.md            (F2: vault setup advice)
-#   wiki/.templates/wiki-entry-template.md  (F2: new-entry stub)
-#   _meta/inbox/to-process/.gitkeep   (F3: drop-zone)
-#   _meta/inbox/README.md             (F3: usage doc)
+# What this creates (only if missing — never overwrites):
+#   wiki/log.md                               (F1: activity timeline)
+#   wiki/OBSIDIAN-SETUP.md                    (F2: vault setup guide)
+#   wiki/.templates/wiki-entry-template.md    (F2: new-entry stub)
+#   _meta/inbox/to-process/.gitkeep           (F3: drop-zone marker)
+#   _meta/inbox/README.md                     (F3: usage doc)
+#
+# What this also does (only if applicable):
+#   .obsidian/graph.json — adds a wiki/ color group if and only if:
+#     (1) .obsidian/graph.json exists (Obsidian is configured), AND
+#     (2) python3 is available (we use json module to safely parse), AND
+#     (3) no existing colorGroup already targets path:wiki/
+#   Behavior: backs up to .obsidian/graph.json.lifeos-backup-<ts>, applies
+#   patch, validates resulting JSON; on any failure restores backup.
 #
 # What this DOES NOT touch:
-#   - existing wiki/SCHEMA.md         (your contract; we only suggest
-#                                      a "Logging convention" section to
-#                                      append; we don't edit your file)
-#   - existing wiki/INDEX.md          (your manual structure)
-#   - existing .obsidian/             (your customizations)
-#   - any existing wiki/<domain>/<entry>.md
-#
-# After running, you should manually:
-#   - Append the "Logging convention" section to wiki/SCHEMA.md (template
-#     printed at end of run)
-#   - Open .obsidian/graph.json and apply the color group suggestion
-#     printed at end of run (or skip if you don't use graph view)
+#   - existing wiki/SCHEMA.md   (your contract; v1.8.1 log convention is
+#                                self-contained inside wiki/log.md header)
+#   - existing wiki/INDEX.md    (your manual structure)
+#   - existing wiki/<domain>/<entry>.md (your data)
+#   - .obsidian/ files OTHER than graph.json
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -u
 
+# ─── Argument parsing ──────────────────────────────────────────────────────
+SILENT=0
+for arg in "$@"; do
+  case "$arg" in
+    --silent|--quiet) SILENT=1 ;;
+    --help|-h)
+      sed -n '2,40p' "$0" | sed 's/^# \?//'
+      exit 0
+      ;;
+  esac
+done
+
+emit() { [ "$SILENT" -eq 1 ] || echo "$@"; }
+
 # ─── Sanity: must run inside a vault ────────────────────────────────────────
+# Vault = has wiki/ AND _meta/. Dev repo of Life OS = also has scripts/hooks/
+# AND SKILL.md, so we refuse to bootstrap inside dev repo.
 if [ ! -d "wiki" ] || [ ! -d "_meta" ]; then
+  if [ "$SILENT" -eq 1 ]; then
+    # Silent mode: hook called us in a non-vault dir; just return cleanly.
+    exit 0
+  fi
   echo "ERROR: cwd doesn't look like a second-brain vault (no wiki/ or _meta/ dirs)." >&2
   echo "       cd into your vault root first, then re-run." >&2
   exit 1
 fi
 
 if [ -d ".git" ] && [ -d "scripts/hooks" ] && [ -f "SKILL.md" ]; then
+  if [ "$SILENT" -eq 1 ]; then
+    exit 0
+  fi
   echo "ERROR: this looks like the Life OS DEV repo, not a user vault." >&2
   echo "       setup-secondbrain.sh should only run inside your second-brain vault." >&2
   exit 1
 fi
 
 VAULT_ROOT="$(pwd)"
-echo "🪴 setup-secondbrain v1.8.1 — vault: $VAULT_ROOT"
-echo ""
+emit "🪴 setup-secondbrain v1.8.1 — vault: $VAULT_ROOT"
+emit ""
 
 CHANGED=0
 SKIPPED=0
@@ -59,18 +88,18 @@ write_if_missing() {
   local path="$1"
   local desc="$2"
   if [ -e "$path" ]; then
-    echo "  skip  $path ($desc — already exists, not overwriting)"
+    emit "  skip  $path ($desc — already exists, not overwriting)"
     SKIPPED=$((SKIPPED + 1))
     return 0
   fi
   mkdir -p "$(dirname "$path")"
   cat > "$path"
-  echo "  wrote $path ($desc)"
+  emit "  wrote $path ($desc)"
   CHANGED=$((CHANGED + 1))
 }
 
 # ─── F1: wiki/log.md ────────────────────────────────────────────────────────
-echo "── F1 · wiki activity log ──"
+emit "── F1 · wiki activity log ──"
 TODAY="$(date +%Y-%m-%d)"
 NOW="$(date +%H:%M)"
 
@@ -79,26 +108,35 @@ write_if_missing "wiki/log.md" "wiki activity timeline" <<EOF
 
 Append-only timeline of all wiki/ writes. Newest day at the bottom.
 
-Schema source: \`wiki/SCHEMA.md\` (Logging convention section).
+## Convention (self-contained — does NOT depend on wiki/SCHEMA.md)
+
+Format:
+
+\`\`\`
+- [HH:MM] <action> | <wiki-path> | <summary>
+\`\`\`
 
 Action enum: \`created\` | \`updated\` | \`promoted\` | \`deprecated\` | \`merged\` | \`renamed\` | \`rejected\` | \`bulk\` (batch operations summary)
-
-Format: \`- [HH:MM] <action> | <wiki-path> | <summary>\`
 
 Every wiki Write/Edit/Move operation must append one line here. The
 \`/inbox-process\` and \`/research\` slash commands do this automatically.
 Manual edits should also append (one line per operation).
 
+The \`research-generated\` tag (in any wiki entry's \`tags:\`) means the
+entry was synthesized by the \`/research\` multi-agent pipeline. Default
+\`confidence: 0.65\` reflects multi-source convergence; bump or trim per
+your judgment after review.
+
 ---
 
 ## ${TODAY}
 
-- [${NOW}] bulk     | wiki/                          | setup-secondbrain.sh deployed wiki/log.md, .templates/, OBSIDIAN-SETUP.md (v1.8.1 F1+F2)
+- [${NOW}] bulk     | wiki/                          | v1.8.1 auto-bootstrap: created log.md / OBSIDIAN-SETUP.md / .templates/wiki-entry-template.md / _meta/inbox/to-process/ + README
 EOF
-echo ""
+emit ""
 
 # ─── F2: Obsidian setup advice ──────────────────────────────────────────────
-echo "── F2 · Obsidian setup advice ──"
+emit "── F2 · Obsidian setup advice ──"
 
 write_if_missing "wiki/OBSIDIAN-SETUP.md" "Obsidian vault setup recommendations" <<'EOF'
 # Obsidian setup for the wiki/ subtree
@@ -106,10 +144,11 @@ write_if_missing "wiki/OBSIDIAN-SETUP.md" "Obsidian vault setup recommendations"
 This file documents recommended Obsidian configuration to make the wiki/
 subtree a first-class graph citizen alongside the rest of your second-brain.
 
-## Status
-
-The vault root has `.obsidian/` configured (5 files baseline). This doc
-adds wiki-specific tuning that does NOT overwrite your existing config.
+> **Auto-applied by v1.8.1**: if `.obsidian/graph.json` existed when
+> `setup-secondbrain.sh` ran (auto-invoked by SessionStart hook), a wiki/
+> color group was added automatically. A backup was saved to
+> `.obsidian/graph.json.lifeos-backup-<timestamp>` before any edit.
+> If you don't use Obsidian's graph view, this is a no-op.
 
 ## Recommended plugin set
 
@@ -122,23 +161,23 @@ adds wiki-specific tuning that does NOT overwrite your existing config.
 
 Install via Settings → Community Plugins → Browse → search the name.
 
-## graph.json color group suggestion
+## What the auto-applied graph color group does
 
-To make wiki/ nodes visually distinct in graph view, add a color group:
+The patched `.obsidian/graph.json` now has an entry like:
 
 ```jsonc
-// .obsidian/graph.json — add this object to the "colorGroups" array
 {
   "query": "path:wiki/",
-  "color": {
-    "a": 1,
-    "rgb": 4737228   // blue (#4842cc); pick whatever you prefer
-  }
+  "color": { "a": 1, "rgb": 4737228 }
 }
 ```
 
-After saving, re-open graph view — wiki/ nodes will all show in the chosen
-color while the rest of your vault keeps default coloring.
+Result: every node under `wiki/` shows in blue (#4842cc) in graph view,
+while the rest of your vault keeps default coloring. To customize the
+color, edit the `rgb` value (decimal RGB integer; pick any color you
+prefer) and reload the graph view.
+
+To revert: restore the backup file `.obsidian/graph.json.lifeos-backup-*`.
 
 ## Useful Dataview queries (paste into any note)
 
@@ -172,6 +211,19 @@ compliant frontmatter stub + standard H2 sections. With Templater
 installed, bind it to a hotkey (Settings → Templater → Hotkey) and
 inserting a new wiki entry becomes one keystroke.
 
+## Audit your link graph
+
+The `/wiki-decay` slash command (or natural-language "扫一下 wiki") runs
+the bash audit script and walks you through the report. Or invoke
+directly:
+
+```bash
+bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh
+```
+
+Report goes to `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`. Pure
+bash, no Python dependency. Run monthly or after large edits.
+
 ## What this doesn't do
 
 - Doesn't reorganize your existing wiki/ tree
@@ -180,20 +232,8 @@ inserting a new wiki entry becomes one keystroke.
 - Doesn't change your `.obsidian/app.json` or `.obsidian/appearance.json`
 - Doesn't install plugins for you (Obsidian community plugins are user-
   consent only; you decide what runs in your vault)
-
-## Audit your link graph
-
-Run `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` from
-the vault root to generate a report at
-`_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md` summarizing:
-- wikilink usage count
-- markdown-link usage count
-- broken links (point to non-existent files)
-- orphan entries
-
-Run monthly or after large edits. Pure bash; no Python dependency.
 EOF
-echo ""
+emit ""
 
 write_if_missing "wiki/.templates/wiki-entry-template.md" "new-entry stub (Templater target)" <<'EOF'
 ---
@@ -236,10 +276,10 @@ source: |
 ## Sources
 - <full URL or citation>
 EOF
-echo ""
+emit ""
 
 # ─── F3: inbox to-process drop-zone ─────────────────────────────────────────
-echo "── F3 · inbox to-process drop-zone ──"
+emit "── F3 · inbox to-process drop-zone ──"
 
 write_if_missing "_meta/inbox/to-process/.gitkeep" "empty marker so git tracks the dir" <<EOF
 EOF
@@ -276,15 +316,14 @@ accepts an item.
 | **accept** | New `wiki/<domain>/<slug>.md` written; source moved to `archive/`; `wiki/log.md` line appended |
 | **update** | Existing `wiki/<domain>/<slug>.md` amended; source moved to `archive/`; `wiki/log.md` line appended |
 | **archive** | Source moved to `archive/`; no wiki write |
-| **reject** | Source moved to `archive/` + `wiki/log.md` records the rejection (with reason) so future you knows it was considered and declined |
+| **reject** | Source moved to `archive/` + `wiki/log.md` records the rejection (with reason) |
 | **defer** | Source stays in `to-process/`, gets `defer_until: YYYY-MM-DD` frontmatter; future runs skip until date passes |
 
 Nothing is ever deleted. `archive/` is the recycle bin.
 
 ## Hook integration
 
-If `~/.claude/skills/life_OS/scripts/hooks/session-start-inbox.sh` is
-registered (Life OS v1.8.1+), every Claude Code session start surfaces:
+The `session-start-inbox.sh` hook (Life OS v1.8.1+) surfaces:
 
 ```
 📥 Inbox: N items waiting (+ M deferred). Run /inbox-process or say "处理 inbox".
@@ -294,67 +333,124 @@ The count includes only items past their `defer_until` date (or with no
 defer set). Deferred items are listed separately so you know they're
 parked, not forgotten.
 
-## What's NOT here
-
-- `notifications.md` is system-written; don't put your own drops there
-- `archive/` is for processed items; don't drop new material there
-- Subdirectories under `to-process/` are NOT scanned; flatten if needed
-
 ## See also
 
-- `wiki/SCHEMA.md` — frontmatter contract for accepted entries
-- `wiki/log.md` — activity timeline
+- `wiki/log.md` — activity timeline (self-contained convention; no
+  SCHEMA.md edit required)
 - `wiki/OBSIDIAN-SETUP.md` — vault config recommendations
 EOF
-echo ""
+emit ""
 
-# ─── Summary + post-run instructions ────────────────────────────────────────
-echo "─────────────────────────────────────────────"
-echo "✅ setup-secondbrain v1.8.1 done"
-echo "   wrote:   $CHANGED files"
-echo "   skipped: $SKIPPED files (already existed)"
-echo ""
+# ─── F4: auto-patch .obsidian/graph.json (best-effort, with backup) ─────────
+emit "── F4 · auto-patch .obsidian/graph.json (best-effort) ──"
 
-cat <<'POST'
-── Manual follow-ups ────────────────────────────────────────────────────────
+GRAPH_JSON=".obsidian/graph.json"
+PYTHON_BIN=""
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+fi
 
-1. Append the following section to your existing wiki/SCHEMA.md (we
-   don't edit your file directly to avoid clobbering your customizations):
+if [ ! -f "$GRAPH_JSON" ]; then
+  emit "  skip  $GRAPH_JSON does not exist (Obsidian graph not configured) — no patch needed"
+elif [ -z "$PYTHON_BIN" ]; then
+  emit "  skip  $GRAPH_JSON exists but no python3 available to safely parse — manual patch needed; see wiki/OBSIDIAN-SETUP.md"
+else
+  GRAPH_BACKUP="${GRAPH_JSON}.lifeos-backup-$(date +%Y%m%d-%H%M%S)"
+  cp "$GRAPH_JSON" "$GRAPH_BACKUP" 2>/dev/null
 
-   ## Logging convention (v1.8.1 F1)
+  PATCH_RESULT="$("$PYTHON_BIN" - "$GRAPH_JSON" <<'PYEOF' 2>&1
+import json, sys, os
+path = sys.argv[1]
+try:
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+except Exception as e:
+    print("PARSE_ERROR:" + str(e))
+    sys.exit(1)
 
-   Every write to wiki/ MUST also append one line to `wiki/log.md`:
+if not isinstance(data, dict):
+    print("NOT_OBJECT")
+    sys.exit(1)
 
-       - [HH:MM] <action> | <wiki-path> | <summary>
+groups = data.get("colorGroups", [])
+if not isinstance(groups, list):
+    print("COLORGROUPS_NOT_LIST")
+    sys.exit(1)
 
-   Action enum: `created` | `updated` | `promoted` | `deprecated` |
-   `merged` | `renamed` | `rejected` | `bulk`
+# Already patched?
+for g in groups:
+    if isinstance(g, dict) and isinstance(g.get("query"), str) and "path:wiki/" in g["query"]:
+        print("ALREADY_PATCHED")
+        sys.exit(0)
 
-   The `/inbox-process` and `/research` slash commands do this
-   automatically. Manual edits should follow the same pattern.
+# Append wiki color group (blue, #4842cc = decimal 4737228)
+groups.append({
+    "query": "path:wiki/",
+    "color": {"a": 1, "rgb": 4737228}
+})
+data["colorGroups"] = groups
 
-   See `wiki/log.md` for current format + history.
+try:
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    # Re-read to validate
+    with open(path, "r", encoding="utf-8") as f:
+        json.load(f)
+    print("PATCHED")
+except Exception as e:
+    print("WRITE_ERROR:" + str(e))
+    sys.exit(1)
+PYEOF
+)"
 
-   ### research-generated tag
+  case "$PATCH_RESULT" in
+    PATCHED)
+      emit "  wrote $GRAPH_JSON (added wiki/ color group; backup at $GRAPH_BACKUP)"
+      CHANGED=$((CHANGED + 1))
+      ;;
+    ALREADY_PATCHED)
+      emit "  skip  $GRAPH_JSON already has a wiki/ color group — no change"
+      SKIPPED=$((SKIPPED + 1))
+      # No backup needed; remove the just-created one
+      rm -f "$GRAPH_BACKUP" 2>/dev/null
+      ;;
+    *)
+      # Anything else = failure; restore backup
+      if [ -f "$GRAPH_BACKUP" ]; then
+        mv "$GRAPH_BACKUP" "$GRAPH_JSON" 2>/dev/null
+      fi
+      emit "  skip  $GRAPH_JSON patch failed ($PATCH_RESULT) — original restored from backup, manual patch instructions in wiki/OBSIDIAN-SETUP.md"
+      ;;
+  esac
+fi
+emit ""
 
-   Entries with `tags: [..., research-generated]` were synthesized by
-   the `/research` multi-agent pipeline (default 5 agents, 8 with
-   --depth deep). Their default `confidence: 0.65` reflects multi-source
-   convergence; bump or trim per your judgment after review.
+# ─── Summary ─────────────────────────────────────────────────────────────────
+if [ "$SILENT" -eq 1 ]; then
+  # Hook-invoked path: only emit if anything changed.
+  if [ "$CHANGED" -gt 0 ]; then
+    echo "✨ Life OS v1.8.1 vault auto-bootstrap: wrote $CHANGED files (skipped $SKIPPED already-existing)" >&2
+  fi
+  exit 0
+fi
 
-2. (Optional) Open `.obsidian/graph.json` and add the wiki/ color group
-   block shown in `wiki/OBSIDIAN-SETUP.md` so wiki nodes stand out in
-   graph view.
+# Manual-invocation path: full status block.
+emit "─────────────────────────────────────────────"
+emit "✅ setup-secondbrain v1.8.1 done"
+emit "   wrote:   $CHANGED files"
+emit "   skipped: $SKIPPED files (already existed)"
+emit ""
+emit "Everything is now wired. No further manual steps required."
+emit ""
+emit "Quick verify:"
+emit "  1. Open a NEW Claude Code session in this vault"
+emit "  2. First response should mention what's overdue / inbox count if any"
+emit "  3. Drop a test file: echo '# test' > _meta/inbox/to-process/\$(date +%Y-%m-%d)_test.md"
+emit "  4. Reload session — should see '📥 Inbox: 1 items waiting'"
+emit "  5. Say '处理 inbox' to test the /inbox-process flow"
+emit ""
 
-3. Run `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh`
-   to generate a baseline link audit. Report goes to
-   `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`.
-
-4. Test the inbox flow:
-   - Drop a test file: `echo "# test" > _meta/inbox/to-process/$(date +%Y-%m-%d)_test.md`
-   - In a fresh Claude Code session, you should see "📥 Inbox: 1 items
-     waiting" in the first response.
-   - Say "处理 inbox" — Claude should invoke the /inbox-process flow.
-
-POST
 exit 0

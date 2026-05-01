@@ -17,9 +17,18 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 - **F3 · Inbox ingest pipeline** — new `_meta/inbox/to-process/` drop-zone, `/inbox-process` slash command + matching prompt at `scripts/prompts/inbox-process.md`. Triage loop: scan → propose disposition (accept→wiki / update→wiki / archive / reject / defer) → user confirm → execute → log. SessionStart hook (`session-start-inbox.sh`) now counts pending items and surfaces `📥 Inbox: N items waiting (run /inbox-process)` as one line; deferred items counted separately and not treated as actionable.
 - **F4 · `/research` multi-agent command** — `scripts/commands/research.md` + `scripts/prompts/research.md`. Spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent (+ mechanistic / data-statistics / meta-review). Synthesizes into a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section. Default counter-bias check launches 1 additional opposing-evidence agent; bumps confidence DOWN 0.1 if substantive opposition found. Total wall time target ≤ 7 min; cost ~$0.30-0.80 per run.
 
-### Added · `scripts/wiki/setup-secondbrain.sh`
+### Added · Zero-command vault auto-bootstrap (the v1.8.1 user-facing key change)
 
-One-time bootstrap script users run inside their second-brain vault on Mac. Idempotent, only writes missing files (never overwrites), refuses to run inside the Life OS dev repo. Creates: `wiki/log.md` initial header, `wiki/OBSIDIAN-SETUP.md`, `wiki/.templates/wiki-entry-template.md`, `_meta/inbox/to-process/.gitkeep`, `_meta/inbox/README.md`. Prints post-run instructions: SCHEMA logging-convention append snippet + `.obsidian/graph.json` color-group snippet + first-run smoke-test recipe.
+Users should not need to know any setup commands exist. v1.8.1 makes vault scaffolding **fully automatic**:
+
+- **`scripts/hooks/session-start-inbox.sh` is now also the auto-bootstrap entry point**. On every SessionStart in a vault (cwd has `_meta/`), the hook checks for sentinel files (`wiki/log.md` + `_meta/inbox/to-process/`). If either is missing, it locates the Life OS skill via standard candidate paths (`~/.claude/skills/life_OS` etc.) and invokes `scripts/wiki/setup-secondbrain.sh --silent` inline.
+- **`scripts/wiki/setup-secondbrain.sh --silent` mode** suppresses all banner / instructional text; only emits a single `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files (skipped M)` line to stderr if anything actually changed; emits nothing on full no-op.
+- **Auto-creates** (only if missing — never overwrites): `wiki/log.md` (with self-contained logging convention; no SCHEMA.md amendment required), `wiki/OBSIDIAN-SETUP.md`, `wiki/.templates/wiki-entry-template.md`, `_meta/inbox/to-process/.gitkeep`, `_meta/inbox/README.md`.
+- **Auto-patches `.obsidian/graph.json`** if it exists and has no wiki/ color group: parses safely via python3 `json` module, backs up to `.obsidian/graph.json.lifeos-backup-<timestamp>` before edit, validates resulting JSON after edit, restores backup on any failure. Adds `{ "query": "path:wiki/", "color": { "a": 1, "rgb": 4737228 } }` (blue #4842cc). Skips entirely if `.obsidian/graph.json` doesn't exist or python3 unavailable.
+- **`wiki/log.md` is now self-contained** — its header documents the logging convention inline, so no `wiki/SCHEMA.md` append is needed. Users who already have a custom SCHEMA.md don't have it touched.
+- **Manual invocation still supported**: `bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh` (no `--silent`) prints full banner + step-by-step status for users who want to re-bootstrap or test explicitly. Refuses to run inside the Life OS dev repo to prevent accidental dev-repo bootstrap.
+
+End-to-end smoke test (empty `wiki/` + empty `_meta/` + minimal `.obsidian/graph.json`) confirmed: first SessionStart wrote 6 files (5 scaffold + graph.json patch); second SessionStart was completely silent (idempotent no-op).
 
 ### Fixed · macOS portability (P0 from downstream user 4-day field report)
 
@@ -53,12 +62,32 @@ One-time bootstrap script users run inside their second-brain vault on Mac. Idem
 
 ### Migration
 
-If you're on v1.8.0:
-1. Update Life OS skill: `cd ~/.claude/skills/life_OS && git pull` (or re-install via skills.sh).
-2. Re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` — installs new `/inbox-process` and `/research` slash commands; updates `pre-bash-approval.sh` and `pre-write-scan.sh` hooks.
-3. **In your second-brain vault** (NOT this dev repo), one-time bootstrap: `cd ~/path/to/SecondBrain && bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`. Creates wiki/log.md, OBSIDIAN-SETUP.md, .templates/, _meta/inbox/to-process/, _meta/inbox/README.md. Idempotent — safe to re-run.
-4. (Optional) Apply the `wiki/SCHEMA.md` Logging convention append snippet (printed at end of setup-secondbrain.sh run) and the `.obsidian/graph.json` color-group snippet.
-5. Run `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` from vault root to generate baseline link audit.
+**Just upgrade the skill — vault scaffolding is now automatic.**
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # installs new /inbox-process + /research, updates hooks
+```
+
+Then open any Claude Code session inside your second-brain vault. The SessionStart hook auto-detects missing v1.8.1 scaffolding and creates it silently. You'll see one line:
+
+```
+✨ Life OS v1.8.1 vault auto-bootstrap: wrote 6 files (skipped 0 already-existing)
+```
+
+…the first time only. Subsequent sessions are silent. **No manual commands required.** No `wiki/SCHEMA.md` edits required. No `.obsidian/graph.json` edits required (auto-patched with backup).
+
+What gets created automatically:
+- `wiki/log.md` (activity timeline; self-contained convention in header)
+- `wiki/OBSIDIAN-SETUP.md` (Dataview queries, plugin recommendations)
+- `wiki/.templates/wiki-entry-template.md` (Templater target)
+- `_meta/inbox/to-process/.gitkeep` (drop-zone for /inbox-process)
+- `_meta/inbox/README.md` (inbox usage doc)
+- `.obsidian/graph.json` patch (wiki/ color group; only if file exists; backed up first)
+
+For users who want to re-bootstrap or test manually: `bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh` from vault root (without `--silent`). Idempotent. Refuses to run inside the Life OS dev repo.
+
+Optional: run `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` from vault root to generate baseline link audit at `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`. Or just say "扫一下 wiki" / `/wiki-decay` and ROUTER does the same.
 
 No second-brain data migration required. Existing wiki entries continue to work; new conventions apply to new writes.
 

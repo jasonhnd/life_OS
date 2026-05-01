@@ -17,9 +17,18 @@
 - **F3 · Inbox ingest 流水线** — 新增 `_meta/inbox/to-process/` drop 区，`/inbox-process` 命令 + 对应 prompt。Triage 循环：扫 → 提议 disposition (accept→wiki / update→wiki / archive / reject / defer) → 用户确认 → 执行 → 写日志。SessionStart hook (`session-start-inbox.sh`) 现在数 to-process 数量并以单行 `📥 Inbox: N items waiting` 呈现；defer 项分别计数不算 actionable。
 - **F4 · `/research` 多 agent 命令** — `scripts/commands/research.md` + `scripts/prompts/research.md`。并行起 5 个（`--depth deep` 8 个）`general-purpose` subagent 覆盖 academic / practitioner / contrarian / origin / adjacent (+ mechanistic / data-statistics / meta-review)。综合成 SCHEMA 兼容 wiki 草稿，含强制 `Counterpoints` 段。默认开启反 confirmation bias 检查（再起 1 个对立证据 agent）；找到反方证据则 confidence 下调 0.1。总 wall time ≤ 7 min；成本 ~$0.30-0.80/run。
 
-### 新增 · `scripts/wiki/setup-secondbrain.sh`
+### 新增 · 零命令 vault 自动 bootstrap（v1.8.1 用户面最关键改动）
 
-用户在 Mac 上 second-brain vault 内跑的一次性 bootstrap 脚本。幂等，只写不存在的文件（不覆盖），在 Life OS dev repo 内拒绝运行。创建：`wiki/log.md` 初始 header、`wiki/OBSIDIAN-SETUP.md`、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/.gitkeep`、`_meta/inbox/README.md`。运行后输出：SCHEMA logging-convention append snippet + `.obsidian/graph.json` color-group snippet + 首次 smoke-test 步骤。
+用户不应该需要知道任何 setup 命令存在。v1.8.1 让 vault 脚手架**完全自动**：
+
+- **`scripts/hooks/session-start-inbox.sh` 现在也是 auto-bootstrap 入口**。每次在 vault 内（cwd 有 `_meta/`）SessionStart 时，hook 检查 sentinel 文件（`wiki/log.md` + `_meta/inbox/to-process/`）。任一缺失则通过标准候选路径（`~/.claude/skills/life_OS` 等）找到 Life OS skill，inline 调用 `scripts/wiki/setup-secondbrain.sh --silent`。
+- **`scripts/wiki/setup-secondbrain.sh --silent` 模式**抑制所有 banner / 教学文字；只在确实写了文件时输出一行 `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files (skipped M)` 到 stderr；完全 no-op 时无输出。
+- **自动创建**（仅当缺失 — 永不覆盖）：`wiki/log.md`（含自包含 logging convention；不需要改 SCHEMA.md）、`wiki/OBSIDIAN-SETUP.md`、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/.gitkeep`、`_meta/inbox/README.md`。
+- **自动 patch `.obsidian/graph.json`**（如果存在且无 wiki/ color group）：通过 python3 `json` 模块安全 parse，编辑前备份到 `.obsidian/graph.json.lifeos-backup-<时间戳>`，编辑后重新校验 JSON，任何失败都从备份还原。加 `{ "query": "path:wiki/", "color": { "a": 1, "rgb": 4737228 } }`（蓝色 #4842cc）。`.obsidian/graph.json` 不存在或无 python3 时整个跳过。
+- **`wiki/log.md` 现在自包含** — 头部直接文档化 logging convention，不需要 append `wiki/SCHEMA.md`。已有自定义 SCHEMA.md 的用户文件不被动。
+- **手动调用仍支持**：`bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`（不带 `--silent`）打印完整 banner + 步骤状态，给想显式重 bootstrap 或测试的用户。在 Life OS dev repo 内拒绝运行，防止误碰。
+
+端到端 smoke 测过（空 `wiki/` + 空 `_meta/` + 最小 `.obsidian/graph.json`）：第一次 SessionStart 写 6 文件（5 脚手架 + graph.json patch）；第二次 SessionStart 完全静默（幂等 no-op）。
 
 ### 修复 · macOS 可移植性（下游用户 4 天实战 P0）
 
@@ -53,12 +62,32 @@
 
 ### 迁移
 
-如果你在 v1.8.0：
-1. 升级 Life OS skill：`cd ~/.claude/skills/life_OS && git pull`（或 skills.sh 重装）。
-2. 重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` — 装新 `/inbox-process` 和 `/research` slash 命令；更新 `pre-bash-approval.sh` 和 `pre-write-scan.sh` hook。
-3. **在 second-brain vault**（不是 dev repo）一次性 bootstrap：`cd ~/path/to/SecondBrain && bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`。创建 wiki/log.md、OBSIDIAN-SETUP.md、.templates/、_meta/inbox/to-process/、_meta/inbox/README.md。幂等，可重复跑。
-4.（可选）应用 setup-secondbrain.sh 输出的 `wiki/SCHEMA.md` Logging convention append snippet 和 `.obsidian/graph.json` color-group snippet。
-5. 在 vault 根跑 `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` 生成 baseline 链接审计。
+**只升级 skill 即可——vault 脚手架现在全自动。**
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research，更新 hook
+```
+
+然后在 second-brain vault 内开任意 Claude Code session。SessionStart hook 自动检测缺失的 v1.8.1 脚手架并静默创建。第一次会看到一行：
+
+```
+✨ Life OS v1.8.1 vault auto-bootstrap: wrote 6 files (skipped 0 already-existing)
+```
+
+仅第一次。之后 session 静默。**无需任何手动命令**。无需改 `wiki/SCHEMA.md`。无需改 `.obsidian/graph.json`（自动 patch + 备份）。
+
+自动创建的内容：
+- `wiki/log.md`（活动时间线；头部含自包含 convention）
+- `wiki/OBSIDIAN-SETUP.md`（Dataview 查询、插件建议）
+- `wiki/.templates/wiki-entry-template.md`（Templater 目标）
+- `_meta/inbox/to-process/.gitkeep`（/inbox-process 用的 drop 区）
+- `_meta/inbox/README.md`（inbox 用法文档）
+- `.obsidian/graph.json` patch（wiki/ color group；仅当文件存在；先备份）
+
+想显式 re-bootstrap 或测试的用户：在 vault 根跑 `bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`（不带 `--silent`）。幂等。在 Life OS dev repo 内拒绝运行。
+
+可选：在 vault 根跑 `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` 生成 baseline 链接审计到 `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`。或直接说"扫一下 wiki" / `/wiki-decay`，ROUTER 做同样的事。
 
 无 second-brain 数据迁移需求。现有 wiki 条目继续工作；新规范应用于新写入。
 

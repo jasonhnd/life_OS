@@ -92,7 +92,7 @@ v1.8.1 is **purely additive plus bugfixes** on top of v1.8.0. Four new wiki-mana
 - **`/inbox-process`** — drop any `.md` into `_meta/inbox/to-process/`, then say "处理 inbox" or `/inbox-process`. ROUTER scans, proposes per-item disposition (accept→wiki / update→wiki / archive / reject / defer), waits for your confirmation, executes, logs.
 - **`/research <topic>`** — spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent angles. Synthesizes a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section + automatic counter-bias check. Total wall time ≤ 7 min.
 - **`wiki/log.md` activity timeline convention** — every wiki Write/Edit/move appends one line with action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`). `/inbox-process` and `/research` write log entries automatically.
-- **`scripts/wiki/setup-secondbrain.sh`** — one-time bootstrap you run inside your second-brain vault. Idempotent; creates `wiki/log.md`, `wiki/OBSIDIAN-SETUP.md` (Dataview / Templater / graph-color-group recommendations), `wiki/.templates/wiki-entry-template.md`, `_meta/inbox/to-process/`. Plus `scripts/wiki/wiki-link-audit.sh` (pure bash, replaces deleted v1.7 `wiki_decay.py` auditor side).
+- **Zero-setup vault bootstrap** — the first time you open a Claude Code session in a vault on v1.8.1, the SessionStart hook **automatically detects** missing scaffolding (`wiki/log.md`, `wiki/.templates/`, `_meta/inbox/to-process/`, `wiki/OBSIDIAN-SETUP.md`) and creates them silently. You see one `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` line once, then nothing. If you have `.obsidian/graph.json` configured, a wiki-node color group is added automatically (with backup to `.obsidian/graph.json.lifeos-backup-<ts>` first; rolled back on any error). Plus `scripts/wiki/wiki-link-audit.sh` (pure bash, replaces deleted v1.7 `wiki_decay.py` auditor side).
 
 Critical bugfixes:
 - **macOS portability**: `pre-bash-approval.sh` had 5 bare `python -c` invocations. macOS 12+ removed bare `python` → hook fail-CLOSED → blocked every Bash command. R-1.8.0-020 commit title claimed this was fixed; it wasn't. Now uses portable `PYTHON=$(command -v python3 || command -v python)`.
@@ -100,7 +100,7 @@ Critical bugfixes:
 - **session-start-inbox UX**: 2 wrong task names (`auditor-patrol` → `auditor-mode-2`, `monthly-summary` → `eval-history-monthly`). NEVER_RUN bucket compressed from 8+ lines to 1 line.
 - **Notion sync was hardcoded to 4 entities** — now config-driven; reads `_meta/config.md`, only syncs configured entities.
 
-Migration: `cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`. Then in your vault: `bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`. See [CHANGELOG.md](CHANGELOG.md#181---2026-05-01) for full detail.
+Migration: just upgrade the skill (`cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`). Vault scaffolding is auto-created the next time you open a Claude Code session inside the vault — no manual commands required. See [CHANGELOG.md](CHANGELOG.md#181---2026-05-01) for full detail.
 
 ---
 

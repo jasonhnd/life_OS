@@ -28,6 +28,33 @@ if [ ! -d "_meta" ] && [ ! -d "$PWD/_meta" ]; then
   exit 0
 fi
 
+# ─── v1.8.1 auto-bootstrap (silent, idempotent) ─────────────────────────────
+# If this is a vault that hasn't been bootstrapped yet (no wiki/log.md, no
+# _meta/inbox/to-process/), auto-invoke setup-secondbrain.sh in --silent
+# mode. User shouldn't have to know any setup commands exist.
+#
+# Cheap sentinel check: wiki/log.md missing OR _meta/inbox/to-process/
+# missing → bootstrap needed. Vault must have wiki/ for the log to make
+# sense; if no wiki/ at all, this is probably a fresh vault — bootstrap
+# anyway (creates the dirs).
+if [ ! -f "wiki/log.md" ] || [ ! -d "_meta/inbox/to-process" ]; then
+  # Find Life OS skill root via standard candidate paths (handles user
+  # installs in ~/.claude/skills/life_OS or symlinked dev install)
+  for c in \
+    "$HOME/.claude/skills/life_OS" \
+    "$HOME/.claude/skills/lifeos" \
+    "$HOME/.claude/skills/Life_OS" \
+    "$(cd "$(dirname "$0")/../.." 2>/dev/null && pwd)"
+  do
+    if [ -n "$c" ] && [ -f "$c/scripts/wiki/setup-secondbrain.sh" ]; then
+      # Run silently; emits a single "✨ ... wrote N files" line to
+      # stderr only if anything changed; nothing on full no-op.
+      bash "$c/scripts/wiki/setup-secondbrain.sh" --silent || true
+      break
+    fi
+  done
+fi
+
 now_epoch="$(date +%s)"
 
 # Compute "days since latest file matching glob"; echoes integer or empty.

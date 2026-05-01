@@ -17,9 +17,18 @@
 - **F3 · Inbox インジェストパイプライン** — 新規 `_meta/inbox/to-process/` ドロップゾーン、`/inbox-process` slash コマンド + 対応 prompt。トリアージループ：スキャン → 配置提案（accept→wiki / update→wiki / archive / reject / defer）→ ユーザー確認 → 実行 → ログ。SessionStart hook (`session-start-inbox.sh`) は今 to-process 件数をカウントし `📥 Inbox: N items waiting` を 1 行で表示; defer 項目は別途カウントされ actionable 扱いしない。
 - **F4 · `/research` マルチエージェントコマンド** — `scripts/commands/research.md` + `scripts/prompts/research.md`。並列で 5（`--depth deep` で 8）の `general-purpose` subagent を起動し academic / practitioner / contrarian / origin / adjacent (+ mechanistic / data-statistics / meta-review) をカバー。SCHEMA 互換 wiki ドラフトに統合、強制 `Counterpoints` セクション付き。デフォルト反 confirmation bias チェック（追加 1 つの対立証拠 agent 起動）；実質的な対立が見つかれば confidence を 0.1 下げる。総 wall time ≤ 7 min；コスト ~$0.30-0.80/run。
 
-### 追加 · `scripts/wiki/setup-secondbrain.sh`
+### 追加 · コマンド不要の vault 自動 bootstrap（v1.8.1 ユーザー面の最重要変更）
 
-ユーザーが Mac の second-brain vault 内で実行する一回限りの bootstrap スクリプト。冪等、既存ファイルは上書きせず欠落のみ書き込み、Life OS dev repo 内では実行拒否。作成: `wiki/log.md` 初期ヘッダ、`wiki/OBSIDIAN-SETUP.md`、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/.gitkeep`、`_meta/inbox/README.md`。実行後表示: SCHEMA logging-convention append snippet + `.obsidian/graph.json` color-group snippet + 初回スモークテスト手順。
+ユーザーが setup コマンドの存在を知る必要はあってはいけない。v1.8.1 で vault スキャフォールディングを**完全自動化**：
+
+- **`scripts/hooks/session-start-inbox.sh` が auto-bootstrap エントリポイントも兼ねる**。vault 内（cwd に `_meta/`）の SessionStart ごとに、hook がセンチネルファイル（`wiki/log.md` + `_meta/inbox/to-process/`）をチェック。どちらかが欠落していれば、標準候補パス（`~/.claude/skills/life_OS` 等）から Life OS skill を見つけ、`scripts/wiki/setup-secondbrain.sh --silent` をインライン呼び出し。
+- **`--silent` モード**は全バナー/教育的テキストを抑制。ファイル変更があった場合のみ stderr に `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files (skipped M)` 1 行を出力。完全 no-op なら無出力。
+- **自動作成**（欠落時のみ — 上書きしない）: `wiki/log.md`（自己完結 logging convention 含む; SCHEMA.md 修正不要）、`wiki/OBSIDIAN-SETUP.md`、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/.gitkeep`、`_meta/inbox/README.md`。
+- **`.obsidian/graph.json` 自動パッチ**（存在し wiki/ カラーグループがない場合）: python3 `json` モジュールで安全にパース、編集前に `.obsidian/graph.json.lifeos-backup-<タイムスタンプ>` にバックアップ、編集後に JSON 再検証、失敗時はバックアップから復元。`{ "query": "path:wiki/", "color": { "a": 1, "rgb": 4737228 } }`（青 #4842cc）を追加。`.obsidian/graph.json` がない、または python3 が無い場合は完全スキップ。
+- **`wiki/log.md` は自己完結** — ヘッダで logging convention をインラインで文書化、`wiki/SCHEMA.md` への append 不要。カスタム SCHEMA.md を持つユーザーのファイルには触れない。
+- **手動呼び出しも依然サポート**: `bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`（`--silent` なし）で完全バナー + ステップ状態を出力、明示的に re-bootstrap またはテストしたいユーザー向け。Life OS dev repo 内では実行拒否。
+
+エンドツーエンドスモークテスト確認済み（空 `wiki/` + 空 `_meta/` + 最小 `.obsidian/graph.json`）：初回 SessionStart で 6 ファイル書き込み（5 スキャフォールディング + graph.json パッチ）；2 回目 SessionStart は完全無音（冪等 no-op）。
 
 ### 修正 · macOS 移植性（下流ユーザー 4 日間実戦 P0）
 
@@ -53,12 +62,32 @@
 
 ### マイグレーション
 
-v1.8.0 から：
-1. Life OS skill 更新: `cd ~/.claude/skills/life_OS && git pull`（または skills.sh 経由再インストール）。
-2. `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 再実行 — 新 `/inbox-process` と `/research` slash コマンドをインストール; `pre-bash-approval.sh` と `pre-write-scan.sh` hook を更新。
-3. **second-brain vault 内**（dev repo ではない）一回限り bootstrap: `cd ~/path/to/SecondBrain && bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`。wiki/log.md、OBSIDIAN-SETUP.md、.templates/、_meta/inbox/to-process/、_meta/inbox/README.md を作成。冪等で再実行安全。
-4.（オプション）setup-secondbrain.sh 実行末尾に表示される `wiki/SCHEMA.md` Logging convention append snippet と `.obsidian/graph.json` color-group snippet を適用。
-5. vault ルートで `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` を実行してベースラインリンク監査を生成。
+**skill をアップグレードするだけ — vault スキャフォールディングは自動。**
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 新 /inbox-process + /research をインストール、hook を更新
+```
+
+その後 second-brain vault 内で任意の Claude Code セッションを開く。SessionStart hook が欠落している v1.8.1 スキャフォールディングを自動検出してサイレントに作成。初回のみ 1 行表示：
+
+```
+✨ Life OS v1.8.1 vault auto-bootstrap: wrote 6 files (skipped 0 already-existing)
+```
+
+…のみ初回。以降のセッションは無音。**手動コマンド不要**。`wiki/SCHEMA.md` 編集不要。`.obsidian/graph.json` 編集不要（自動パッチ + バックアップ）。
+
+自動作成される内容：
+- `wiki/log.md`（活動タイムライン; 自己完結規約をヘッダに含む）
+- `wiki/OBSIDIAN-SETUP.md`（Dataview クエリ、プラグイン推奨）
+- `wiki/.templates/wiki-entry-template.md`（Templater ターゲット）
+- `_meta/inbox/to-process/.gitkeep`（/inbox-process 用ドロップゾーン）
+- `_meta/inbox/README.md`（inbox 使用文書）
+- `.obsidian/graph.json` パッチ（wiki/ カラーグループ; ファイルがある場合のみ; 先にバックアップ）
+
+明示的に re-bootstrap またはテストしたいユーザー: vault ルートで `bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`（`--silent` なし）を実行。冪等。Life OS dev repo 内では実行拒否。
+
+オプション: vault ルートで `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` を実行して `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md` にベースラインリンク監査を生成。または「扫一下 wiki」/ `/wiki-decay` で ROUTER に同じことをさせる。
 
 second-brain データのマイグレーション不要。既存 wiki エントリは引き続き動作; 新規規約は新規書き込みに適用。
 
