@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.1-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -82,6 +82,25 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.8.1 — Wiki pipeline + macOS portability + scanner regression-proof
+
+v1.8.1 is **purely additive plus bugfixes** on top of v1.8.0. Four new wiki-management features (Plan B):
+
+- **`/inbox-process`** — drop any `.md` into `_meta/inbox/to-process/`, then say "处理 inbox" or `/inbox-process`. ROUTER scans, proposes per-item disposition (accept→wiki / update→wiki / archive / reject / defer), waits for your confirmation, executes, logs.
+- **`/research <topic>`** — spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent angles. Synthesizes a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section + automatic counter-bias check. Total wall time ≤ 7 min.
+- **`wiki/log.md` activity timeline convention** — every wiki Write/Edit/move appends one line with action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`). `/inbox-process` and `/research` write log entries automatically.
+- **`scripts/wiki/setup-secondbrain.sh`** — one-time bootstrap you run inside your second-brain vault. Idempotent; creates `wiki/log.md`, `wiki/OBSIDIAN-SETUP.md` (Dataview / Templater / graph-color-group recommendations), `wiki/.templates/wiki-entry-template.md`, `_meta/inbox/to-process/`. Plus `scripts/wiki/wiki-link-audit.sh` (pure bash, replaces deleted v1.7 `wiki_decay.py` auditor side).
+
+Critical bugfixes:
+- **macOS portability**: `pre-bash-approval.sh` had 5 bare `python -c` invocations. macOS 12+ removed bare `python` → hook fail-CLOSED → blocked every Bash command. R-1.8.0-020 commit title claimed this was fixed; it wasn't. Now uses portable `PYTHON=$(command -v python3 || command -v python)`.
+- **Scanner false positive**: `pre-write-scan.sh` pattern #5 was blocking legitimate markdown inline code (`` `python -m tools.embed` ``). Tightened to require shell metacharacters inside backticks.
+- **session-start-inbox UX**: 2 wrong task names (`auditor-patrol` → `auditor-mode-2`, `monthly-summary` → `eval-history-monthly`). NEVER_RUN bucket compressed from 8+ lines to 1 line.
+- **Notion sync was hardcoded to 4 entities** — now config-driven; reads `_meta/config.md`, only syncs configured entities.
+
+Migration: `cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`. Then in your vault: `bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`. See [CHANGELOG.md](CHANGELOG.md#181---2026-05-01) for full detail.
 
 ---
 

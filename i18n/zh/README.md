@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -74,6 +74,25 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.8.1 新特性 — Wiki 流水线 + macOS 可移植性 + scanner 防回归
+
+v1.8.1 是 v1.8.0 之上的**纯加项 + bugfix**。4 项新 wiki 管理特性（Plan B）：
+
+- **`/inbox-process`** — 把任意 `.md` 拖到 `_meta/inbox/to-process/`，然后说"处理 inbox"或 `/inbox-process`。ROUTER 扫描，逐项提议处置（accept→wiki / update→wiki / archive / reject / defer），等你确认，执行，写日志。
+- **`/research <topic>`** — 并行起 5 个（`--depth deep` 8 个）`general-purpose` subagent 覆盖 academic / practitioner / contrarian / origin / adjacent 角度。综合成 SCHEMA 兼容 wiki 草稿，含强制 `Counterpoints` 段 + 自动反 confirmation bias 检查。总 wall time ≤ 7 min。
+- **`wiki/log.md` 活动时间线规范** — 每个 wiki Write/Edit/移动操作 append 一行 + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` 和 `/research` 自动写日志。
+- **`scripts/wiki/setup-secondbrain.sh`** — 你在 second-brain vault 内跑的一次性 bootstrap。幂等；创建 `wiki/log.md`、`wiki/OBSIDIAN-SETUP.md`（Dataview / Templater / graph-color-group 建议）、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/`。加 `scripts/wiki/wiki-link-audit.sh`（纯 bash，替代被删的 v1.7 `wiki_decay.py` 审计端）。
+
+关键 bug 修复：
+- **macOS 可移植性**：`pre-bash-approval.sh` 5 处裸 `python -c`。macOS 12+ 移除了裸 `python` → hook fail-CLOSED → 阻止所有 Bash。R-1.8.0-020 commit 标题声称修了；没修。现在用 portable `PYTHON=$(command -v python3 || command -v python)`。
+- **Scanner 误判**：`pre-write-scan.sh` pattern #5 之前会拦截 markdown 合法 inline code（`` `python -m tools.embed` ``）。收紧为 backtick 内必须含 shell 元字符。
+- **session-start-inbox UX**：2 个 task 名字写错（`auditor-patrol` → `auditor-mode-2`，`monthly-summary` → `eval-history-monthly`）。NEVER_RUN 桶从 8+ 行压成 1 行。
+- **Notion sync 硬编码 4 个 entity** — 现在 config-driven；读 `_meta/config.md`，只 sync 配过的。
+
+迁移：`cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`。然后在你的 vault 里：`bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`。详见 [CHANGELOG.md](./CHANGELOG.md#181---2026-05-01)。
 
 ---
 

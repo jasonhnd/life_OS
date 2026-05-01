@@ -190,7 +190,7 @@ COMMANDS_DEST="$HOME/.claude/commands"
 COMMANDS_SOURCE="$SOURCE_DIR/commands"
 mkdir -p "$COMMANDS_DEST"
 echo ""
-echo "📁 Installing v1.7.3 slash commands → $COMMANDS_DEST"
+echo "📁 Installing slash commands (v1.7.3 + v1.8.1 additions: /inbox-process /research) → $COMMANDS_DEST"
 if [ -d "$COMMANDS_SOURCE" ]; then
   for cmd in "$COMMANDS_SOURCE"/*.md; do
     if [ -f "$cmd" ]; then

@@ -6,6 +6,68 @@
 
 ---
 
+## [1.8.1] - 2026-05-01 - Wiki パイプライン · /research · /inbox-process · macOS 移植性 · scanner 回帰防止
+
+> **Plan B wiki 配信**。4 つの wiki 管理機能（活動ログ規約 / Obsidian 設定 / inbox トリアージパイプライン / マルチエージェント /research コマンド）を新規追加 + R-1.8.0-020 の commit タイトルが修正済みと主張したのに実際は未修正だった macOS 裸 `python` 移植性修正をついに着地。同時に v1.8.0 メンテナンスラインの R-1.8.0-021 / R-1.8.0-022 を 1.8.1 に正式に取り込み。
+
+### 追加 · Wiki 管理（Plan B）
+
+- **F1 · `wiki/log.md` 活動タイムライン規約** — append-only、wiki への各 Write/Edit/移動操作ごとに 1 行、action enum（`created` / `updated` / `promoted` / `deprecated` / `merged` / `renamed` / `rejected` / `bulk`）。`/inbox-process` と `/research` コマンドが自動でログを書く; 手動編集も同形式で append。規約テンプレートは `scripts/wiki/setup-secondbrain.sh` 出力 + SCHEMA append セクションが提供。
+- **F2 · Obsidian vault 設定推奨** — `wiki/OBSIDIAN-SETUP.md` テンプレート（Dataview クエリ、Graph Analysis、Templater、graph view カラーグループ）。`wiki/.templates/wiki-entry-template.md` SCHEMA 互換 stub で Templater 経由ワンキー生成。`scripts/wiki/wiki-link-audit.sh` — 純粋な bash + awk、Python 依存ゼロ、リンク健全性レポートを `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md` に出力。削除済みの v1.7 `tools/wiki_decay.py` 監査側を置換; LLM 駆動の半分は `scripts/prompts/wiki-decay.md` に。
+- **F3 · Inbox インジェストパイプライン** — 新規 `_meta/inbox/to-process/` ドロップゾーン、`/inbox-process` slash コマンド + 対応 prompt。トリアージループ：スキャン → 配置提案（accept→wiki / update→wiki / archive / reject / defer）→ ユーザー確認 → 実行 → ログ。SessionStart hook (`session-start-inbox.sh`) は今 to-process 件数をカウントし `📥 Inbox: N items waiting` を 1 行で表示; defer 項目は別途カウントされ actionable 扱いしない。
+- **F4 · `/research` マルチエージェントコマンド** — `scripts/commands/research.md` + `scripts/prompts/research.md`。並列で 5（`--depth deep` で 8）の `general-purpose` subagent を起動し academic / practitioner / contrarian / origin / adjacent (+ mechanistic / data-statistics / meta-review) をカバー。SCHEMA 互換 wiki ドラフトに統合、強制 `Counterpoints` セクション付き。デフォルト反 confirmation bias チェック（追加 1 つの対立証拠 agent 起動）；実質的な対立が見つかれば confidence を 0.1 下げる。総 wall time ≤ 7 min；コスト ~$0.30-0.80/run。
+
+### 追加 · `scripts/wiki/setup-secondbrain.sh`
+
+ユーザーが Mac の second-brain vault 内で実行する一回限りの bootstrap スクリプト。冪等、既存ファイルは上書きせず欠落のみ書き込み、Life OS dev repo 内では実行拒否。作成: `wiki/log.md` 初期ヘッダ、`wiki/OBSIDIAN-SETUP.md`、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/.gitkeep`、`_meta/inbox/README.md`。実行後表示: SCHEMA logging-convention append snippet + `.obsidian/graph.json` color-group snippet + 初回スモークテスト手順。
+
+### 修正 · macOS 移植性（下流ユーザー 4 日間実戦 P0）
+
+- **`scripts/hooks/pre-bash-approval.sh` に裸の `python -c` 5 箇所**（行 57/147/180/193/201）。macOS 12+ は裸の `python` を削除、`python3` のみ存在。Hook が macOS で fail-CLOSED し `python: command not found` で全 Bash コマンドをブロック → Claude Code デッドロック。R-1.8.0-020 commit タイトルは修正済みと主張したが、実際は未修正だった。先頭に portable な `PYTHON=$(command -v python3 || command -v python)` 検出を追加; 5 箇所の裸 `python` を `"$PYTHON"` に置換。
+
+### 修正 · scanner 回帰防止
+
+- **`scripts/hooks/pre-write-scan.sh` pattern #5（shell-injection-backticks）が過マッチ**: あらゆる backtick 内容をマッチ、`` `python -m tools.embed` `` のような正当な markdown インラインコードも含む。Wiki 書き込みが通常のドキュメントコンテンツで hook によりブロックされていた。Pattern を厳格化: backtick 内に shell メタ文字（`;` / `|` / `&&` / `>>` / `$(` / `$VAR` / または既知の危険コマンド名 `rm -rf` / `curl ` / `wget ` / `eval `）を要求。Markdown 識別子スタイルの backtick はパス; 本物の shell インジェクションペイロードは引き続きブロック。両方向スモークテスト済み。
+
+### 修正 · session-start-inbox UX（R-1.8.0-021 + R-1.8.0-022 を 1.8.1 にロールアップ）
+
+- **`TASKS_LINE` 配列の 2 つのタスク名間違い**: `auditor-patrol` → `auditor-mode-2`、`monthly-summary` → `eval-history-monthly`（`pro/CLAUDE.md` 権威 10-job テーブルと実 `scripts/prompts/*.md` ファイル名に整合）。
+- **NEVER_RUN バケットを OVERDUE から分離**: baseline のないタスクは現在 `## Available on-demand (do NOT proactively offer)` セクションに、ユーザーが尋ねない限り言及しないと明示; 以前は LLM が overdue 扱いし、ユーザーが要求していないジョブを能動的に提案。出力を 8+ 行から単一行カンマ区切りに圧縮（トークン予算）。
+
+### 修正 · Notion sync ハードコード（v1.8.0 メンテナンスラインからロールアップ）
+
+- **`pro/CLAUDE.md` Step 10a が 4 つの Notion entity をハードコード**（Status / Todo Board / Working Memory / Inbox）。実ユーザーの Notion レイアウトは多様; orchestrator が存在しない entity を "Working Memory: failed" と報告。設定駆動に変更: orchestrator は `_meta/config.md` を読み、設定済み entity のみ sync、Notion 未設定なら Step 10a 全体スキップ、checklist に false-fail 行なし。
+
+### 修正 · pre-bash-approval パターン透明性
+
+- **ブロックメッセージの `匹配模式: unknown` が頻発**。`approval.py` decision payload の `pattern_key` が時々欠落。`key=` + `matched=<実マッチサブストリング>` + `regex=<ソースパターン>` を抽出 + 連結; 4 フィールド全欠落時に明確な "decision payload missing all 4 fields" 診断。同時に文書注記: `export LIFEOS_YOLO_MODE=1` は Claude Code Bash tool 内インラインで動作しない（PreToolUse hook が export より先に env を評価）、永続 bypass は `~/.claude/settings.local.json` env ブロック編集が必要。
+
+### 検証（CI マトリックス）
+
+- 32 個の tracked .sh（新規 2 つの wiki スクリプト追加）`bash -n` → 全合格
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- `mypy --strict tools/` → 0 errors / 16 source files
+- `ruff check tools/ tests/` → クリーン
+- `pytest tests/` → 233 合格 / 3 deselected
+- retag 後 `bash scripts/verify-release.sh` → 7/7 ✅
+
+### マイグレーション
+
+v1.8.0 から：
+1. Life OS skill 更新: `cd ~/.claude/skills/life_OS && git pull`（または skills.sh 経由再インストール）。
+2. `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` 再実行 — 新 `/inbox-process` と `/research` slash コマンドをインストール; `pre-bash-approval.sh` と `pre-write-scan.sh` hook を更新。
+3. **second-brain vault 内**（dev repo ではない）一回限り bootstrap: `cd ~/path/to/SecondBrain && bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`。wiki/log.md、OBSIDIAN-SETUP.md、.templates/、_meta/inbox/to-process/、_meta/inbox/README.md を作成。冪等で再実行安全。
+4.（オプション）setup-secondbrain.sh 実行末尾に表示される `wiki/SCHEMA.md` Logging convention append snippet と `.obsidian/graph.json` color-group snippet を適用。
+5. vault ルートで `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` を実行してベースラインリンク監査を生成。
+
+second-brain データのマイグレーション不要。既存 wiki エントリは引き続き動作; 新規規約は新規書き込みに適用。
+
+### 削除
+
+- なし。v1.8.1 は純粋に追加 + bugfix のみ。
+
+---
+
 ## [1.8.0] - 2026-04-28 - Daily Cycle ハイブリッド化（cron + monitor + 上朝/退朝のソフト化）
 
 > **Life OS 史上最大の単一リリース**。lifeos を「反応型 chatbot」から「ハイブリッド OS」（reactive + autonomous）へ変革。3 つの直交モードが並存：ビジネス session（長期持続）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。

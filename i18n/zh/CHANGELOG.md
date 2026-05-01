@@ -6,6 +6,68 @@
 
 ---
 
+## [1.8.1] - 2026-05-01 - Wiki 流水线 · /research · /inbox-process · macOS 可移植性 · scanner 防回归
+
+> **Plan B wiki 交付**。新增 4 项 wiki 管理特性（活动日志规范 / Obsidian 配置 / inbox 三步走流水线 / 多 agent /research 命令）+ 落地 R-1.8.0-020 commit 标题写改了实际没改的 macOS 裸 `python` 可移植性修复。同时把 v1.8.0 维护线上的 R-1.8.0-021 / R-1.8.0-022 正式切到 1.8.1。
+
+### 新增 · Wiki 管理（Plan B）
+
+- **F1 · `wiki/log.md` 活动时间线规范** — append-only，每个 wiki 写/编辑/移动操作一行，action enum（`created` / `updated` / `promoted` / `deprecated` / `merged` / `renamed` / `rejected` / `bulk`）。`/inbox-process` 和 `/research` 命令自动写日志；手动编辑也按同样格式 append。规范模板由 `scripts/wiki/setup-secondbrain.sh` 输出 + SCHEMA append 段提供。
+- **F2 · Obsidian vault 配置建议** — `wiki/OBSIDIAN-SETUP.md` 模板（Dataview 查询、Graph Analysis、Templater、graph view 颜色组）。`wiki/.templates/wiki-entry-template.md` SCHEMA 兼容 stub 让 Templater 一键创建条目。`scripts/wiki/wiki-link-audit.sh` — 纯 bash + awk，零 Python 依赖，输出链接健康报告到 `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`。替代被删的 v1.7 `tools/wiki_decay.py` 审计端；LLM 驱动那半边在 `scripts/prompts/wiki-decay.md`。
+- **F3 · Inbox ingest 流水线** — 新增 `_meta/inbox/to-process/` drop 区，`/inbox-process` 命令 + 对应 prompt。Triage 循环：扫 → 提议 disposition (accept→wiki / update→wiki / archive / reject / defer) → 用户确认 → 执行 → 写日志。SessionStart hook (`session-start-inbox.sh`) 现在数 to-process 数量并以单行 `📥 Inbox: N items waiting` 呈现；defer 项分别计数不算 actionable。
+- **F4 · `/research` 多 agent 命令** — `scripts/commands/research.md` + `scripts/prompts/research.md`。并行起 5 个（`--depth deep` 8 个）`general-purpose` subagent 覆盖 academic / practitioner / contrarian / origin / adjacent (+ mechanistic / data-statistics / meta-review)。综合成 SCHEMA 兼容 wiki 草稿，含强制 `Counterpoints` 段。默认开启反 confirmation bias 检查（再起 1 个对立证据 agent）；找到反方证据则 confidence 下调 0.1。总 wall time ≤ 7 min；成本 ~$0.30-0.80/run。
+
+### 新增 · `scripts/wiki/setup-secondbrain.sh`
+
+用户在 Mac 上 second-brain vault 内跑的一次性 bootstrap 脚本。幂等，只写不存在的文件（不覆盖），在 Life OS dev repo 内拒绝运行。创建：`wiki/log.md` 初始 header、`wiki/OBSIDIAN-SETUP.md`、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/.gitkeep`、`_meta/inbox/README.md`。运行后输出：SCHEMA logging-convention append snippet + `.obsidian/graph.json` color-group snippet + 首次 smoke-test 步骤。
+
+### 修复 · macOS 可移植性（下游用户 4 天实战 P0）
+
+- **`scripts/hooks/pre-bash-approval.sh` 5 处裸 `python -c`**（行 57/147/180/193/201）。macOS 12+ 移除裸 `python`，只有 `python3`。Hook 在 macOS fail-CLOSED 报 `python: command not found` → 阻止所有 Bash → Claude Code 死锁。R-1.8.0-020 commit 标题声称修了；实际没修，直到现在。顶部加 portable `PYTHON=$(command -v python3 || command -v python)` 检测；5 处全换 `"$PYTHON"`。
+
+### 修复 · scanner 防回归
+
+- **`scripts/hooks/pre-write-scan.sh` pattern #5（shell-injection-backticks）误判** 任何 backtick 内容，包括 markdown 合法 inline code 如 `` `python -m tools.embed` ``。Wiki 写入因正常文档内容被 hook 阻止。Pattern 收紧为：backtick 内必须含 shell 元字符（`;` / `|` / `&&` / `>>` / `$(` / `$VAR` / 或已知危险命令名 `rm -rf` / `curl ` / `wget ` / `eval `）。Markdown 标识符样的 backtick 通过；真正的 shell 注入仍拦。两个方向 smoke 测过。
+
+### 修复 · session-start-inbox UX（把 R-1.8.0-021 + R-1.8.0-022 滚到 1.8.1）
+
+- **`TASKS_LINE` 数组 2 个 task 名字写错**：`auditor-patrol` → `auditor-mode-2`，`monthly-summary` → `eval-history-monthly`（对齐 `pro/CLAUDE.md` 权威 10-job 表 + 实际 `scripts/prompts/*.md` 文件名）。
+- **NEVER_RUN 桶从 OVERDUE 拆出**：没 baseline 的 task 现在归到 `## Available on-demand (do NOT proactively offer)` 段，明示除非用户问否则不提；之前 LLM 当作 overdue 主动建议用户从未要求过的 job。输出从 8+ 行压成 1 行逗号分隔（token 预算）。
+
+### 修复 · Notion sync 硬编码（v1.8.0 维护线滚入）
+
+- **`pro/CLAUDE.md` Step 10a 硬编码 4 个 Notion entity**（Status / Todo Board / Working Memory / Inbox）。真实用户 Notion 布局多种多样；orchestrator 把不存在的 entity 报"Working Memory: failed"。改为 config-driven：orchestrator 读 `_meta/config.md`，只 sync 配过的 entity，没配 Notion 时跳过整个 Step 10a，checklist 不再列 false-fail。
+
+### 修复 · pre-bash-approval pattern 透明度
+
+- **拦截消息 `匹配模式: unknown` 太频繁**。`approval.py` decision payload 有时缺 `pattern_key`。改为提取 + 拼接 `key=` + `matched=<实际匹配子串>` + `regex=<源 pattern>`；4 字段全缺时给清晰 "decision payload missing all 4 fields" 诊断。同时加文档：`export LIFEOS_YOLO_MODE=1` 在 Claude Code Bash tool inline 不工作（PreToolUse hook 在 export 之前读 env），持久 bypass 要改 `~/.claude/settings.local.json` env 块。
+
+### 验证（CI 矩阵）
+
+- 32 个 tracked .sh（新增 2 个 wiki 脚本）`bash -n` → 全过
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- `mypy --strict tools/` → 0 errors / 16 source files
+- `ruff check tools/ tests/` → 干净
+- `pytest tests/` → 233 通过 / 3 deselected
+- 重新打 tag 后 `bash scripts/verify-release.sh` → 7/7 ✅
+
+### 迁移
+
+如果你在 v1.8.0：
+1. 升级 Life OS skill：`cd ~/.claude/skills/life_OS && git pull`（或 skills.sh 重装）。
+2. 重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` — 装新 `/inbox-process` 和 `/research` slash 命令；更新 `pre-bash-approval.sh` 和 `pre-write-scan.sh` hook。
+3. **在 second-brain vault**（不是 dev repo）一次性 bootstrap：`cd ~/path/to/SecondBrain && bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`。创建 wiki/log.md、OBSIDIAN-SETUP.md、.templates/、_meta/inbox/to-process/、_meta/inbox/README.md。幂等，可重复跑。
+4.（可选）应用 setup-secondbrain.sh 输出的 `wiki/SCHEMA.md` Logging convention append snippet 和 `.obsidian/graph.json` color-group snippet。
+5. 在 vault 根跑 `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` 生成 baseline 链接审计。
+
+无 second-brain 数据迁移需求。现有 wiki 条目继续工作；新规范应用于新写入。
+
+### 删除
+
+- 无。v1.8.1 纯加项 + bugfix。
+
+---
+
 ## [1.8.0] - 2026-04-28 - Daily Cycle 混合化（cron + monitor + 软化上朝/退朝）
 
 > **Life OS 历史上最大的单次 release**。把 lifeos 从「反应式 chatbot」（必须由用户驱动）转变为「混合 OS」（reactive + autonomous）。三种正交模式并存：业务 session（长期持续）、monitor session（`/monitor`）、cron 自治（10 job + RunAtLoad）。

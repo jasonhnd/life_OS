@@ -213,7 +213,7 @@ scan 1  "prompt-injection-ignore-instructions" i 'ignore[[:space:]]+(all[[:space
   || scan 2  "prompt-injection-reveal-system" i '(reveal|output|print|show)[[:space:]]+(your|the)[[:space:]]+(system[[:space:]]+prompt|hidden[[:space:]]+instructions|initial[[:space:]]+prompt)' \
   || scan 3  "prompt-injection-role-override" i 'you[[:space:]]+are[[:space:]]+now|from[[:space:]]+now[[:space:]]+on[[:space:]]+you[[:space:]]+are|new[[:space:]]+identity|forget[[:space:]]+you[[:space:]]+are[[:space:]]+claude' \
   || scan 4  "shell-injection-command-sub"     x '\$\([^)]{1,100}\)' \
-  || scan 5  "shell-injection-backticks"       x '`[^`]{1,100}`' \
+  || scan 5  "shell-injection-backticks"       x '`[^`]*([;|&]{1,2}|\$\(|>>?|<<?|\$[A-Z_]{1,}|\brm[[:space:]]+-rf?|\bcurl[[:space:]]|\bwget[[:space:]]|\beval[[:space:]])[^`]*`' \
   || scan 6  "sql-injection-keywords"          i 'union[[:space:]]+select|drop[[:space:]]+table|delete[[:space:]]+from[[:space:]]+[a-z_]+[[:space:]]+where[[:space:]]+[0-9]' \
   || scan 7  "sql-injection-or-1-1"            x "('|\")[[:space:]]*[Oo][Rr][[:space:]]*('|\")?[0-9]+('|\")?[[:space:]]*=[[:space:]]*('|\")?[0-9]+" \
   || scan 8  "secret-high-entropy"             x '[A-Z0-9]{32,}' \

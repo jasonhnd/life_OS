@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.0-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -76,6 +76,25 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.8.1 の新機能 — Wiki パイプライン + macOS 移植性 + scanner 回帰防止
+
+v1.8.1 は v1.8.0 の上に**純粋に追加 + bugfix**。4 つの新規 wiki 管理機能（Plan B）：
+
+- **`/inbox-process`** — `_meta/inbox/to-process/` に任意の `.md` をドロップ、「処理 inbox」または `/inbox-process` と発話。ROUTER がスキャン、各項目の配置を提案（accept→wiki / update→wiki / archive / reject / defer）、確認を待ち、実行、ログ記録。
+- **`/research <topic>`** — 並列で 5 つ（`--depth deep` で 8 つ）の `general-purpose` subagent を起動し academic / practitioner / contrarian / origin / adjacent 角度をカバー。SCHEMA 互換 wiki ドラフトに統合、強制 `Counterpoints` セクション + 自動反 confirmation bias チェック付き。総 wall time ≤ 7 min。
+- **`wiki/log.md` 活動タイムライン規約** — 各 wiki Write/Edit/移動操作で 1 行 append + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` と `/research` が自動でログを書く。
+- **`scripts/wiki/setup-secondbrain.sh`** — second-brain vault 内で実行する一回限り bootstrap。冪等; `wiki/log.md`、`wiki/OBSIDIAN-SETUP.md`（Dataview / Templater / graph-color-group 推奨）、`wiki/.templates/wiki-entry-template.md`、`_meta/inbox/to-process/` を作成。`scripts/wiki/wiki-link-audit.sh` 追加（純 bash、削除済み v1.7 `wiki_decay.py` 監査側を置換）。
+
+クリティカル bugfix：
+- **macOS 移植性**：`pre-bash-approval.sh` 5 箇所の裸 `python -c`。macOS 12+ は裸 `python` を削除 → hook fail-CLOSED → 全 Bash コマンドブロック。R-1.8.0-020 commit タイトルは修正済みと主張したが、未修正。現在 portable `PYTHON=$(command -v python3 || command -v python)` を使用。
+- **Scanner false positive**：`pre-write-scan.sh` pattern #5 が正当な markdown インラインコード（`` `python -m tools.embed` ``）をブロックしていた。backtick 内に shell メタ文字を要求するよう厳格化。
+- **session-start-inbox UX**：2 つのタスク名間違い（`auditor-patrol` → `auditor-mode-2`、`monthly-summary` → `eval-history-monthly`）。NEVER_RUN バケットを 8+ 行から 1 行に圧縮。
+- **Notion sync が 4 entity をハードコード** — 設定駆動に変更; `_meta/config.md` を読み、設定済みのみ sync。
+
+マイグレーション：`cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`。その後 vault 内で：`bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`。詳細は [CHANGELOG.md](./CHANGELOG.md#181---2026-05-01) 参照。
 
 ---
 

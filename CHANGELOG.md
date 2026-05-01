@@ -6,6 +6,68 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.1] - 2026-05-01 - Wiki pipeline · /research · /inbox-process · macOS portability · scanner regression-proof
+
+> **Plan B wiki delivery**. Adds 4 new wiki-management features (activity log convention · Obsidian setup · inbox triage pipeline · multi-agent /research command) and lands the macOS bare-`python` portability fix that R-1.8.0-020 commit title claimed but never actually shipped. Also contains R-1.8.0-021 / R-1.8.0-022 fixes from the v1.8.0 maintenance line, now formally cut into 1.8.1.
+
+### Added · Wiki management (Plan B)
+
+- **F1 · `wiki/log.md` activity timeline convention** — append-only, one line per wiki Write/Edit/move op, action enum (`created` / `updated` / `promoted` / `deprecated` / `merged` / `renamed` / `rejected` / `bulk`). The `/inbox-process` and `/research` commands write log entries automatically. Manual edits should follow same pattern. Convention documented in `scripts/wiki/setup-secondbrain.sh` output and SCHEMA append template.
+- **F2 · Obsidian vault setup advice** — `wiki/OBSIDIAN-SETUP.md` template (Dataview queries, Graph Analysis, Templater, color group for graph view). Plus `wiki/.templates/wiki-entry-template.md` SCHEMA-compliant stub for one-keystroke entry creation. Plus `scripts/wiki/wiki-link-audit.sh` — pure bash + awk, zero Python deps, generates link health report at `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`. Replaces deleted v1.7 `tools/wiki_decay.py` auditor side; the LLM-driven half lives at `scripts/prompts/wiki-decay.md`.
+- **F3 · Inbox ingest pipeline** — new `_meta/inbox/to-process/` drop-zone, `/inbox-process` slash command + matching prompt at `scripts/prompts/inbox-process.md`. Triage loop: scan → propose disposition (accept→wiki / update→wiki / archive / reject / defer) → user confirm → execute → log. SessionStart hook (`session-start-inbox.sh`) now counts pending items and surfaces `📥 Inbox: N items waiting (run /inbox-process)` as one line; deferred items counted separately and not treated as actionable.
+- **F4 · `/research` multi-agent command** — `scripts/commands/research.md` + `scripts/prompts/research.md`. Spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent (+ mechanistic / data-statistics / meta-review). Synthesizes into a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section. Default counter-bias check launches 1 additional opposing-evidence agent; bumps confidence DOWN 0.1 if substantive opposition found. Total wall time target ≤ 7 min; cost ~$0.30-0.80 per run.
+
+### Added · `scripts/wiki/setup-secondbrain.sh`
+
+One-time bootstrap script users run inside their second-brain vault on Mac. Idempotent, only writes missing files (never overwrites), refuses to run inside the Life OS dev repo. Creates: `wiki/log.md` initial header, `wiki/OBSIDIAN-SETUP.md`, `wiki/.templates/wiki-entry-template.md`, `_meta/inbox/to-process/.gitkeep`, `_meta/inbox/README.md`. Prints post-run instructions: SCHEMA logging-convention append snippet + `.obsidian/graph.json` color-group snippet + first-run smoke-test recipe.
+
+### Fixed · macOS portability (P0 from downstream user 4-day field report)
+
+- **`scripts/hooks/pre-bash-approval.sh` had 5 bare `python -c` invocations** (lines 57/147/180/193/201). macOS 12+ removed bare `python`; only `python3` exists. Hook fail-CLOSED with `python: command not found` → blocked every Bash command → Claude Code deadlock. R-1.8.0-020 commit title claimed this was fixed; it wasn't until now. Added portable `PYTHON=$(command -v python3 || command -v python)` detection at top of script; replaced all 5 bare-python invocations with `"$PYTHON"`.
+
+### Fixed · scanner regression-proofing
+
+- **`scripts/hooks/pre-write-scan.sh` pattern #5 (shell-injection-backticks) over-matched** any backticked content, including legitimate markdown inline code like `` `python -m tools.embed` ``. Wiki writes were being blocked by the hook for normal documentation content. Pattern tightened to require shell-metacharacter content inside backticks (`;`, `|`, `&&`, `>>`, `$(`, `$VAR`, or known-dangerous command names like `rm -rf` / `curl ` / `wget ` / `eval `). Markdown identifier-style backticks now pass; real shell-injection payloads still block. Smoke-tested both directions.
+
+### Fixed · session-start-inbox UX (rolled-up R-1.8.0-021 + R-1.8.0-022 into the 1.8.1 cut)
+
+- **2 wrong task names in `TASKS_LINE` array**: `auditor-patrol` → `auditor-mode-2`, `monthly-summary` → `eval-history-monthly` (correct names per `pro/CLAUDE.md` canonical 10-job table and actual `scripts/prompts/*.md` filenames).
+- **NEVER_RUN bucket split from OVERDUE**: tasks with no baseline are now reported under `## Available on-demand (do NOT proactively offer)` with explicit instruction not to mention unless user asks; previously LLM treated them as overdue and proactively offered jobs the user never opted into. Output compressed from 8+ lines to 1 comma-separated line for token budget.
+
+### Fixed · Notion sync hardcoding (rolled-up from v1.8.0 maintenance line)
+
+- **`pro/CLAUDE.md` Step 10a was hardcoding 4 Notion entities** (Status / Todo Board / Working Memory / Inbox). Real users have varied layouts; orchestrator was reporting "Working Memory: failed" for entities that never existed. Now config-driven: orchestrator reads `_meta/config.md`, only syncs configured entities, skips Step 10a entirely if no Notion configured, no false-fail lines in checklist.
+
+### Fixed · pattern transparency in pre-bash-approval
+
+- **Blocked-command message said `匹配模式: unknown` too often**. `approval.py` decision payload sometimes lacked `pattern_key`. Now extracts and concatenates `key=` + `matched=<actual substring>` + `regex=<source pattern>`; clear "decision payload missing all 4 fields" diagnostic when nothing available. Added doc note that inline `export LIFEOS_YOLO_MODE=1` doesn't work in Claude Code Bash tool (PreToolUse hook reads env BEFORE export executes); persistent bypass requires `~/.claude/settings.local.json` env block.
+
+### Verification (CI matrix)
+
+- `bash -n` on all 32 tracked .sh files (added 2 new wiki scripts) → pass
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- `mypy --strict tools/` → 0 errors / 16 source files
+- `ruff check tools/ tests/` → All checks passed
+- `pytest tests/` → 233 passed / 3 deselected
+- `bash scripts/verify-release.sh` → 7/7 ✅ after retag
+
+### Migration
+
+If you're on v1.8.0:
+1. Update Life OS skill: `cd ~/.claude/skills/life_OS && git pull` (or re-install via skills.sh).
+2. Re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` — installs new `/inbox-process` and `/research` slash commands; updates `pre-bash-approval.sh` and `pre-write-scan.sh` hooks.
+3. **In your second-brain vault** (NOT this dev repo), one-time bootstrap: `cd ~/path/to/SecondBrain && bash ~/.claude/skills/life_OS/scripts/wiki/setup-secondbrain.sh`. Creates wiki/log.md, OBSIDIAN-SETUP.md, .templates/, _meta/inbox/to-process/, _meta/inbox/README.md. Idempotent — safe to re-run.
+4. (Optional) Apply the `wiki/SCHEMA.md` Logging convention append snippet (printed at end of setup-secondbrain.sh run) and the `.obsidian/graph.json` color-group snippet.
+5. Run `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` from vault root to generate baseline link audit.
+
+No second-brain data migration required. Existing wiki entries continue to work; new conventions apply to new writes.
+
+### Removed
+
+- Nothing. v1.8.1 is purely additive plus bugfixes.
+
+---
+
 ## [1.8.0] - 2026-04-28 - Daily Cycle Hybridization (cron + monitor + softened 上朝/退朝)
 
 > **Largest single release in Life OS history**. Transforms lifeos from a reactive chatbot (must-be-driven-by-user) into a hybrid OS (reactive + autonomous). Three orthogonal session/process modes now coexist: business session (long-lived), monitor session (`/monitor`), cron autonomy (10 jobs + RunAtLoad).

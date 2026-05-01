@@ -102,6 +102,34 @@ if [ -d "$MEMORY_DIR" ]; then
   fi
 fi
 
+# v1.8.1 F3: Count items in _meta/inbox/to-process/ (user-drop pipeline).
+# Items with `defer_until: <future-date>` in frontmatter are skipped (still
+# parked, not yet eligible for triage). Output: a single one-line summary
+# the LLM surfaces if non-zero ("📥 Inbox: N items waiting (run /inbox-process)").
+INBOX_TO_PROCESS_DIR="_meta/inbox/to-process"
+INBOX_PENDING_COUNT=0
+INBOX_DEFERRED_COUNT=0
+if [ -d "$INBOX_TO_PROCESS_DIR" ]; then
+  today_iso="$(date +%Y-%m-%d)"
+  for f in "$INBOX_TO_PROCESS_DIR"/*.md; do
+    [ -e "$f" ] || continue
+    # Skip the README (it's documentation, not a drop)
+    case "$(basename "$f")" in
+      README.md|readme.md|.gitkeep) continue ;;
+    esac
+    # Check frontmatter `defer_until: YYYY-MM-DD`. If present and future,
+    # count as deferred (still parked, not eligible). Otherwise pending.
+    defer_date="$(head -n 30 "$f" 2>/dev/null \
+      | awk '/^---/{n++; next} n==1 && /^defer_until:/ {gsub(/^defer_until:[[:space:]]*/, "", $0); gsub(/[[:space:]]+$/, "", $0); gsub(/"|'\''/, "", $0); print; exit}' \
+      || true)"
+    if [ -n "$defer_date" ] && [ "$defer_date" \> "$today_iso" ]; then
+      INBOX_DEFERRED_COUNT=$((INBOX_DEFERRED_COUNT + 1))
+    else
+      INBOX_PENDING_COUNT=$((INBOX_PENDING_COUNT + 1))
+    fi
+  done
+fi
+
 # v1.8.0 R-1.8.0-013: Async review queue (replaces scattered notifications)
 # Read _meta/review-queue.md and count open items by priority + capture latest summary.
 # Anchored regex: ^[[:space:]]*priority:[[:space:]]*P[012]\b — prevents false positives
@@ -154,8 +182,10 @@ fi
 
 # Skip output if nothing to surface. NEVER_RUN is intentionally NOT in this
 # guard — never-run-only output would be pure noise (no user action needed),
-# so the hook stays silent if OVERDUE / MEMORY / REVIEW_QUEUE are all empty.
-if [ -z "$OVERDUE" ] && [ -z "$MEMORY_TAIL" ] && [ -z "$REVIEW_QUEUE_SUMMARY" ]; then
+# so the hook stays silent if OVERDUE / MEMORY / REVIEW_QUEUE / INBOX are
+# all empty. Inbox pending IS in the guard because it represents user-drop
+# items waiting for triage — actionable signal, not noise.
+if [ -z "$OVERDUE" ] && [ -z "$MEMORY_TAIL" ] && [ -z "$REVIEW_QUEUE_SUMMARY" ] && [ "$INBOX_PENDING_COUNT" -eq 0 ]; then
   exit 0
 fi
 
@@ -196,6 +226,18 @@ if [ -n "$MEMORY_TAIL" ]; then
   echo "$MEMORY_TAIL"
   echo ""
   echo "Available to recall when relevant. Do not list to user unless asked."
+  echo ""
+fi
+
+if [ "$INBOX_PENDING_COUNT" -gt 0 ]; then
+  # v1.8.1 F3: surface inbox to-process count as ONE LINE. Do not list
+  # filenames — that's /inbox-process's job. Just signal "there's work
+  # waiting" so the user knows to invoke the triage flow.
+  if [ "$INBOX_DEFERRED_COUNT" -gt 0 ]; then
+    echo "## 📥 Inbox: $INBOX_PENDING_COUNT items waiting (+ $INBOX_DEFERRED_COUNT deferred). Run /inbox-process or say \"处理 inbox\"."
+  else
+    echo "## 📥 Inbox: $INBOX_PENDING_COUNT items waiting. Run /inbox-process or say \"处理 inbox\"."
+  fi
   echo ""
 fi
 
