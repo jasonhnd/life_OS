@@ -199,6 +199,31 @@
     2. T2 の偽 lockfile（5 分クールダウン、トランスクリプト 1 行目の sha でキー化）が T3/T4（同じ 1 行目 `User: 退朝`）の実行をブロック。各テストケース前に `rm -f $HOME/.cache/lifeos/stop-hook-*` クリーンアップを追加。結果：**11/11 hook テストケース合格**（8/11 から）。
   - **MEDIUM · 4 つの `test_export.py` 失敗、欠落しているオプション extras から**：以前は mypy が unused としてフラグ立てた `# type: ignore[import-untyped]` コメントで隠されていた。`TestExportHtml` クラスに `@pytest.mark.skipif(not find_spec("markdown_it"))` 追加、`TestExportAnki` に `find_spec("genanki")` 追加。デフォルトインストール：テストはきれいにスキップ。`uv sync --extra export` 時：通常実行。
 
+- **R-1.8.0-022 · macOS 移植性 + inbox トークン予算 + Notion sync 設定駆動 + パターン透明度（2026-05-01 下流ユーザー 4 日間実戦レポート後）**: 下流ユーザー（macOS 本番環境、4 日間 daily use）が完全な bug リストを提出。逐項検証; 確認できた 4 件の本物バグを修正、3 件の不成立クレームは理由付きで却下。
+
+  **検証 + 修正済み**:
+  1. **P0 — `pre-bash-approval.sh` に裸の `python -c` 5 箇所（行 57/133/166/179/187）**。macOS 12+ は裸の `python` バイナリを削除、`python3` のみ存在。Hook が macOS で fail-CLOSED し `python: command not found` で全 Bash コマンドをブロック → Claude Code デッドロック。修正: 先頭に portable な `PYTHON=$(command -v python3 || command -v python)` 検出を追加、5 箇所の裸 `python` を `"$PYTHON"` に置換。`/usr/bin/python` シンボリックリンクのない非 macOS Linux でも恩恵。R-1.8.0-020 が GitHub Release 整列 HARD RULE を導入したが、underlying hook bug は commit タイトル通りには修正されていなかった — 本ラウンドで補完。
+  2. **P1 — `session-start-inbox.sh` NEVER_RUN リストが session ごとに ~10 行の LLM context を浪費**。R-1.8.0-021 で NEVER_RUN を OVERDUE バケットから分離し LLM の誤提案を防いだが、複数行 bullet list は依然 Claude Code session ごとに token を占有。単一行カンマ区切りに圧縮（`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`）。10 個の権威 maintenance ジョブはすべて保持（下流ユーザーのジョブ削除提案は却下 — それらは v1.8.0 user-invoked の発見可能性面、権威リストは `pro/CLAUDE.md`）。
+  3. **P2 — `pro/CLAUDE.md` Step 10a が 4 つの Notion entity（Status / Todo / Working Memory / Inbox）をハードコード**。実ユーザーの Notion レイアウトは多様（下流ユーザーは 4 つのうち 2 つしか設定なし）; orchestrator が存在しない entity を "Working Memory: failed" と報告。設定駆動に書き換え: orchestrator は `_meta/config.md` を読み、設定済み entity のみ sync、Notion 未設定なら Step 10a 全体スキップ、checklist には設定済み entity のみリスト（"failed: not configured" 行なし）。
+  4. **P2 — `pre-bash-approval.sh` ブロックメッセージの "匹配模式: unknown" が頻発**。approval.py decision payload の `pattern_key` フィールドが時々欠落、リテラル `'unknown'` にフォールバック。改善: `key=` + `matched=`（実マッチサブストリング）+ `regex=`（pattern ソース）を抽出 + 連結、4 フィールド全欠落時は明確な "decision payload missing all 4 fields" 診断。同時に文書注記: `export LIFEOS_YOLO_MODE=1` は Claude Code Bash tool 内インラインで動作しない（PreToolUse hook が export より先に env を評価）、永続 bypass は `~/.claude/settings.local.json` env ブロック編集が必要。
+
+  **却下 + 理由**:
+  - **R-1.8.0-023（主張: 削除済みスクリプトへの spec 参照）** — 不成立。active spec 内の `setup-cron.sh` / `retrospective-mode-0.sh` / `archiver-briefing-skeleton.sh` / `archiver-phase-prefetch.sh` への全参照に明示的な "REMOVED in R-1.8.0-011 / Option A pivot で削除" マーカー + 説明コンテキストあり。Spec は何が削除され何が代替されたかを正しく文書化; scanner は CONTEXT_ALLOW で正しくスキップ。
+  - **R-1.8.0-024（主張: knowledge-extractor が Task agent として未登録）** — 古いインストールが原因の可能性大。`scripts/setup-hooks.sh` L303-308 が `register-claude-agents.sh` を呼び、`pro/agents/*.md` を反復処理して各ファイル（`knowledge-extractor.md` 含む）を `~/.claude/agents/lifeos-<name>.md` wrapper として書き出す。新規インストールは全セットを取得。下流ユーザーの環境に `lifeos-knowledge-extractor` がないのは v1.6.x からアップグレードしたため（当時 knowledge-extractor 未存在）; `bash scripts/setup-hooks.sh` 再実行で全部再登録される。短名エイリアス追加は他の Claude Code skill 共通名（`archiver` / `auditor` 等）と衝突リスク。
+  - **R-1.8.0-026（主張: LIFEOS_YOLO_MODE インライン bypass が動かない）** — 設計通り（セキュリティ）。PreToolUse hook はユーザーの `export` より先に env を読む; インライン bypass を許せば guard を回避することになる。文書修正は上記 #4 参照。
+
+  **検証**:
+  - 修正した 2 つの hook の `bash -n` → 合格
+  - Smoke: `pre-bash-approval.sh` + `LIFEOS_YOLO_MODE=1` + 無害コマンド → exit 0
+  - Smoke: `session-start-inbox.sh` + 5d INDEX.md fixture → 単一行 "Available on-demand: ..." 出力（以前は 8+ 行）
+  - `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+  - `mypy --strict tools/` → 0 errors / 16 files
+  - `ruff check tools/ tests/` → クリーン
+  - `pytest tests/` → 233 合格 / 3 deselected
+  - 31 個の tracked .sh `bash -n` → 全合格
+
+  3 言語 CHANGELOG 同期。v1.8.0 tag は pro/CLAUDE.md ルール #10 に従い force-realign。
+
 - **R-1.8.0-021 · session-start-inbox hook 修正: 2 つのタスク名間違い + "never run" を overdue 扱い（2026-05-01 ユーザー監査後）**: ユーザーが下流監査員の `scripts/hooks/session-start-inbox.sh` spec drift 指摘を転送 — 監査員の診断は 80% 間違い（6 つの v1.8.0 user-invoked メンテナンスジョブを "cron-only 残骸" と主張し削除を提案、それに従えば v1.8.0 の発見メカニズム自体が壊れる）だが、二次観察は本物の UX バグ。`pro/CLAUDE.md` 権威 10-job テーブルに照らして逐項検証。
   - **本物のバグ 2 件修正**: `TASKS_LINE` 配列の 2 つのタスク名が `scripts/prompts/*.md` 実ファイル + `pro/CLAUDE.md` 権威テーブルと不一致:
     - `auditor-patrol` → `auditor-mode-2`（実 prompt 名 + 権威リスト名）

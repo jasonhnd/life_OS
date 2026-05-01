@@ -37,6 +37,20 @@
 
 set -u
 
+# R-1.8.0-022 portable python detection. macOS 12+ removed the bare `python`
+# binary; only `python3` is available. If we hardcode `python -c`, this hook
+# fails-CLOSED with "python: command not found" → blocks every Bash command
+# → Claude Code deadlocks. Detect once at top, use $PYTHON everywhere below.
+# Order: prefer python3 (modern), fall back to python (older Linux), final
+# fallback is `python3` literal so the error message says what's missing.
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON="python"
+else
+  PYTHON="python3"
+fi
+
 INPUT="$(cat)"
 if [ -z "$INPUT" ]; then
   exit 0
@@ -54,7 +68,7 @@ if command -v jq >/dev/null 2>&1; then
   fi
 fi
 if [ "$PARSE_OK" -eq 0 ]; then
-  PARSED="$(printf '%s' "$INPUT" | python -c "
+  PARSED="$(printf '%s' "$INPUT" | "$PYTHON" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -130,7 +144,7 @@ fi
 
 # ─── Run approval check (FAIL-CLOSED on bridge error) ──────────────────────
 # Capture stderr so we can surface the cause if the bridge crashes.
-DECISION_JSON="$(cd "$LIFEOS_DIR" && LIFEOS_INTERACTIVE=1 python -c "
+DECISION_JSON="$(cd "$LIFEOS_DIR" && LIFEOS_INTERACTIVE=1 "$PYTHON" -c "
 import json, sys
 try:
     from tools.approval import check_dangerous_command
@@ -163,7 +177,7 @@ EOF
 fi
 
 # ─── Parse decision (FAIL-CLOSED on parse error) ───────────────────────────
-APPROVED="$(printf '%s' "$DECISION_JSON" | python -c "
+APPROVED="$(printf '%s' "$DECISION_JSON" | "$PYTHON" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -176,7 +190,7 @@ except Exception as e:
 " 2>/dev/null)"
 
 if [ "$APPROVED" = "false" ]; then
-  MESSAGE="$(printf '%s' "$DECISION_JSON" | python -c "
+  MESSAGE="$(printf '%s' "$DECISION_JSON" | "$PYTHON" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -184,13 +198,26 @@ try:
 except Exception:
     print('dangerous command pattern matched')
 " 2>/dev/null)"
-  PATTERN="$(printf '%s' "$DECISION_JSON" | python -c "
+  # R-1.8.0-022 pattern transparency fix: also extract the matched substring
+  # and the regex source so the user knows EXACTLY what triggered the block.
+  # Old behavior printed only `pattern_key`; when that was missing the
+  # message read "匹配模式: unknown" which gave the user no debugging signal.
+  PATTERN="$(printf '%s' "$DECISION_JSON" | "$PYTHON" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
-    print(d.get('pattern_key') or d.get('description') or 'unknown')
-except Exception:
-    print('unknown')
+    parts = []
+    key = d.get('pattern_key')
+    if key: parts.append('key=' + str(key))
+    matched = d.get('matched_substring') or d.get('match')
+    if matched: parts.append('matched=' + repr(matched))
+    regex = d.get('pattern') or d.get('regex')
+    if regex: parts.append('regex=' + str(regex))
+    desc = d.get('description')
+    if desc and not parts: parts.append(str(desc))
+    print(' / '.join(parts) if parts else 'unknown (approval.py decision payload missing pattern_key, matched_substring, regex, AND description)')
+except Exception as e:
+    print('unknown (decision payload parse error: ' + str(e) + ')')
 " 2>/dev/null)"
 
   cat >&2 <<EOF
@@ -204,6 +231,9 @@ except Exception:
   下一步:
     a) 改命令绕开此模式（推荐）
     b) 临时关闭守门人本会话: export LIFEOS_YOLO_MODE=1
+       注意: Claude Code 内 inline export 通常无效 (PreToolUse hook 在 export
+       之前求值 env)。要持久 bypass 改 ~/.claude/settings.local.json 的 env 块
+       添加 "LIFEOS_YOLO_MODE": "1"，然后重启 Claude Code session。
     c) 永久 allowlist 此 pattern: 编辑 tools/approval.py
 
   接入: 47 dangerous patterns from tools/approval.py (v1.7.3 wired)

@@ -200,25 +200,28 @@ _meta/runtime/<sid>/notion-sync.json
 
 This file records Notion sync attempt start/end times, tool availability, per-operation results, failures, and final checklist status using the audit trail schema in `references/audit-trail-spec.md`.
 
+**Sync targets are CONFIG-DRIVEN, not hardcoded.** The orchestrator MUST read `_meta/config.md` and only sync the Notion entities the user has actually configured. Previous v1.8.0 spec (pre R-1.8.0-022) hardcoded a 4-page list (`Status / Todo Board / Working Memory / Inbox`); real users often have a different layout (e.g. `status_page_id` + `mirror_page_id` + `inbox_database_id` only — no `Todo Board` or `Working Memory`). Hardcoding caused the orchestrator to report "Working Memory: failed" for entities that never existed.
+
 ```
-a. 🧠 Current Status page: overwrite with latest STATUS.md content
-b. 📋 Todo Board: sync tasks from this session (new → create, completed → check off)
-c. 📝 Working Memory: write session summary (subject, key conclusions, action items)
-d. 📬 Inbox: mark processed items as "Synced"
-e. If Notion MCP unavailable → report: "⚠️ Notion sync failed — mobile will not see updates"
-f. If a specific write fails → report which one, continue with others
+For each `*_page_id` / `*_database_id` field in _meta/config.md:
+  - status_page_id     → overwrite with latest _meta/STATUS.md content
+  - mirror_page_id     → overwrite with session summary (subject, key conclusions, action items)
+  - todo_database_id   → sync tasks from this session (new → create, completed → check off)
+  - inbox_database_id  → mark processed items as "Synced"
+  - <any other configured entity> → if a known semantic mapping exists in references/adapter-notion.md, apply it; otherwise skip with a one-line note in the checklist
+If a specific write fails → report which one, continue with others.
+If _meta/config.md has NO Notion entity configured → skip Step 10a entirely (no error, no warning), record skip reason in audit trail.
+If _meta/config.md HAS entities configured but Notion MCP unavailable at runtime → report: "⚠️ Notion sync failed — mobile will not see updates" with the list of entities that would have been synced.
 ```
 
-After Notion sync completes, output the Notion portion of the checklist:
+After Notion sync completes, output the Notion portion of the checklist with one line PER CONFIGURED entity (skip lines for unconfigured ones — do not list them as "failed"):
 ```
 🔄 Notion sync:
-- 🧠 Status: [updated / failed: {reason}]
-- 📋 Todo: [synced {N} items / failed: {reason}]
-- 📝 Working Memory: [written / failed: {reason}]
-- 📬 Inbox: [marked synced / no items / failed: {reason}]
+- <entity_name_1>: [updated / synced N items / failed: {reason} / skipped: not configured]
+- <entity_name_2>: ...
 ```
 
-Do NOT skip Notion sync silently. Do NOT say "Notion MCP not connected" without actually attempting to call the tools.
+Do NOT skip Notion sync silently when entities ARE configured. Do NOT say "Notion MCP not connected" without actually attempting to call the tools. Do NOT report "failed" for entities that were never configured — those should not appear in the checklist at all.
 
 ### 11. STRATEGIST — Hall of Human Wisdom (ask the user)
 

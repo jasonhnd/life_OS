@@ -199,6 +199,31 @@
     2. T2 的伪 lockfile（5 分钟冷却，按 transcript 第一行 sha 算）阻止 T3/T4（同样的第一行 `User: 退朝`）运行。每个测试用例前加 `rm -f $HOME/.cache/lifeos/stop-hook-*` 清理。结果：**11/11 hook 测试用例全过**（之前 8/11）。
   - **MEDIUM · 4 个 `test_export.py` 失败因为缺 optional extras**：之前被 mypy 标记为 unused 的 `# type: ignore[import-untyped]` 注释掩盖了。给 `TestExportHtml` 加 `@pytest.mark.skipif(not find_spec("markdown_it"))`，给 `TestExportAnki` 加 `find_spec("genanki")`。默认 install：测试干净跳过。`uv sync --extra export` 时：正常运行。
 
+- **R-1.8.0-022 · macOS 可移植性 + inbox token 预算 + Notion sync config-driven + pattern 透明度（2026-05-01 下游用户 4 天实战报告后）**：下游用户（macOS 生产环境，4 天 daily use）提交了一份完整 bug 清单。逐项验证；修了 4 个真 bug，3 个不成立的并附理由拒绝。
+
+  **验证 + 修了**：
+  1. **P0 — `pre-bash-approval.sh` 有 5 处裸 `python -c`（行 57/133/166/179/187）**。macOS 12+ 移除了裸 `python` 二进制；只有 `python3`。Hook 在 macOS 上 fail-CLOSED 报 `python: command not found`，阻止所有 Bash → Claude Code 死锁。修复：顶部加 portable `PYTHON=$(command -v python3 || command -v python)` 检测，5 处裸 `python` 全换 `"$PYTHON"`。任何没有 `/usr/bin/python` symlink 的非 macOS Linux 也受益。R-1.8.0-020 引入了 GitHub Release 对齐 HARD RULE 但底层 hook bug 标题写改了实际没改 — 这一轮补上。
+  2. **P1 — `session-start-inbox.sh` NEVER_RUN 列表每个 session 浪费 ~10 行 LLM context**。R-1.8.0-021 把 NEVER_RUN 从 OVERDUE 桶里拆出来防止 LLM 误报，但多行 bullet list 仍在每个 Claude Code session 占 token。压缩成单行逗号分隔（`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`）。10 个权威 maintenance job 全保留（下游用户提议删 job 被否 — 那是 v1.8.0 user-invoked 的可发现性面，权威清单在 `pro/CLAUDE.md`）。
+  3. **P2 — `pro/CLAUDE.md` Step 10a 硬编码 4 个 Notion entity（Status / Todo / Working Memory / Inbox）**。真实用户 Notion 布局多种多样（下游用户 4 个里只配了 2 个）；orchestrator 把不存在的 entity 报"Working Memory: failed"。改为 config-driven：orchestrator 读 `_meta/config.md`，只 sync 配过的 entity，没配 Notion 时整个 Step 10a 跳过，checklist 只列配过的 entity（不再列"failed: not configured"）。
+  4. **P2 — `pre-bash-approval.sh` 拦截消息 "匹配模式: unknown" 太频繁**。approval.py decision payload 的 `pattern_key` 字段有时缺失，落到字面 `'unknown'`。改为提取 + 拼接 `key=` + `matched=`（实际匹配子串）+ `regex=`（pattern 源），4 字段全缺时给清晰的"decision payload missing all 4 fields"诊断。同时加文档说明 `export LIFEOS_YOLO_MODE=1` 在 Claude Code Bash tool 里 inline 无效（PreToolUse hook 在 export 之前求值 env），持久 bypass 要改 `~/.claude/settings.local.json` env 块。
+
+  **拒绝 + 理由**：
+  - **R-1.8.0-023（声称：spec 引用已删脚本）** — 不成立。active spec 里 `setup-cron.sh` / `retrospective-mode-0.sh` / `archiver-briefing-skeleton.sh` / `archiver-phase-prefetch.sh` 全部引用都带显式"REMOVED in R-1.8.0-011 / Option A pivot 删除"标记 + 解释上下文。Spec 正确文档化了删什么 + 替代方案；scanner 通过 CONTEXT_ALLOW 正确跳过。
+  - **R-1.8.0-024（声称：knowledge-extractor 没注册成 Task agent）** — 大概率是用户旧装。`scripts/setup-hooks.sh` L303-308 调用 `register-claude-agents.sh` 遍历 `pro/agents/*.md` 把每个文件（含 `knowledge-extractor.md`）写为 `~/.claude/agents/lifeos-<name>.md` wrapper。新装拿到全套。下游用户环境少 `lifeos-knowledge-extractor` 是因为他们从 v1.6.x 升级，那时 knowledge-extractor 还不存在；重跑 `bash scripts/setup-hooks.sh` 会重新注册。加短名别名风险撞名（`archiver` / `auditor` 等是 Claude Code skill 公共命名）。
+  - **R-1.8.0-026（声称：LIFEOS_YOLO_MODE inline bypass 不工作）** — 设计如此（安全）。PreToolUse hook 读 env 早于用户的 `export`；允许 inline bypass 等于绕过 guard。文档修复见上面 #4。
+
+  **验证**：
+  - 两个修过的 hook `bash -n` → 通过
+  - Smoke：`pre-bash-approval.sh` + `LIFEOS_YOLO_MODE=1` + benign 命令 → exit 0
+  - Smoke：`session-start-inbox.sh` + 5d INDEX.md fixture → 输出单行 "Available on-demand: ..."（之前 8+ 行）
+  - `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+  - `mypy --strict tools/` → 0 errors / 16 files
+  - `ruff check tools/ tests/` → 干净
+  - `pytest tests/` → 233 通过 / 3 deselected
+  - 31 个 tracked .sh `bash -n` → 全过
+
+  三语 CHANGELOG 同步。v1.8.0 tag 按 pro/CLAUDE.md 规则 #10 force-realign。
+
 - **R-1.8.0-021 · 修 session-start-inbox hook：2 个 task 名字写错 + "never run" 被当作 overdue（2026-05-01 用户审计后）**：用户转发了一个下游审计员对 `scripts/hooks/session-start-inbox.sh` 的 spec drift 投诉——审计员的诊断 80% 是错的（说 6 个 v1.8.0 user-invoked maintenance job 是 "cron-only 残留"，建议删掉，按那个改会破坏 v1.8.0 的整个发现机制），但二次观察是真 UX bug。对照 `pro/CLAUDE.md` 权威 10-job 表逐项核对。
   - **2 个真 bug 修了**：`TASKS_LINE` 数组里 2 个 task 名字和 `scripts/prompts/*.md` 实际文件 + `pro/CLAUDE.md` 权威表对不上：
     - `auditor-patrol` → `auditor-mode-2`（实际 prompt 名 + 权威清单名）

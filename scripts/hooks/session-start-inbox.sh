@@ -181,13 +181,12 @@ if [ -n "$OVERDUE" ]; then
 fi
 
 if [ -n "$NEVER_RUN" ]; then
-  echo "## Available on-demand (never run yet — NOT overdue, do NOT proactively offer)"
-  printf "%b" "$NEVER_RUN"
-  echo ""
-  echo "These maintenance jobs have no prior run history. That means the user"
-  echo "has never asked for them — it does NOT mean they are due. Stay silent"
-  echo "about this list unless the user explicitly asks \"what maintenance is"
-  echo "available\" / \"有哪些维护任务\". Then list them and let user choose."
+  # R-1.8.0-022 token-budget fix: collapse the never-run list to a single
+  # comma-separated line. Previous multi-line printf wasted ~10 lines of
+  # LLM context on a list the LLM is explicitly told NOT to mention.
+  # Format: comma-joined task names, no leading bullets.
+  NEVER_RUN_FLAT="$(printf "%b" "$NEVER_RUN" | sed 's/^[[:space:]]*·[[:space:]]*//' | tr '\n' ',' | sed 's/,$//; s/,/, /g')"
+  echo "## Available on-demand (do NOT proactively offer): $NEVER_RUN_FLAT"
   echo ""
 fi
 
