@@ -51,6 +51,17 @@ age_days() {
 }
 
 # (task_name, glob_for_latest_report, expected_max_age_days)
+#
+# task_name MUST match an existing scripts/prompts/<task_name>.md file
+# AND the canonical 10-job table in pro/CLAUDE.md `Maintenance jobs`.
+# When user says "跑 <task_name>" / "run <task_name>" / "都跑", ROUTER reads
+# scripts/prompts/<task_name>.md and executes it. If the name here doesn't
+# match a real prompt file, ROUTER cannot resolve the user's request.
+#
+# review-queue is intentionally OMITTED from this array — it's handled by a
+# dedicated parser further down (REVIEW_QUEUE_FILE block) because it needs
+# priority-bucket counts, not just an age check. migrate-to-wikilinks is also
+# omitted — it's a one-time migration job, not an ongoing maintenance check.
 TASKS_LINE=(
   "reindex|_meta/sessions/INDEX.md|2"
   "daily-briefing|_meta/eval-history/daily-briefing-*.md|2"
@@ -58,18 +69,25 @@ TASKS_LINE=(
   "spec-compliance|_meta/eval-history/spec-compliance-*.md|14"
   "wiki-decay|_meta/eval-history/wiki-decay-*.md|30"
   "archiver-recovery|_meta/eval-history/recovery/*.md|2"
-  "auditor-patrol|_meta/eval-history/auditor-patrol/*.md|14"
+  "auditor-mode-2|_meta/eval-history/auditor-patrol/*.md|14"
   "advisor-monthly|_meta/eval-history/advisor-monthly-*.md|35"
-  "monthly-summary|_meta/eval-history/monthly-summary-*.md|35"
+  "eval-history-monthly|_meta/eval-history/monthly-summary-*.md|35"
   "strategic-consistency|_meta/eval-history/strategic-consistency-*.md|35"
 )
 
 OVERDUE=""
+NEVER_RUN=""
 for entry in "${TASKS_LINE[@]}"; do
   IFS='|' read -r name glob max <<< "$entry"
   age="$(age_days "$glob")"
   if [ -z "$age" ]; then
-    OVERDUE="${OVERDUE}  · ${name}: never run\n"
+    # Differentiate "never run" from "overdue". Without a baseline, "never
+    # run" is NOT debt — the user simply hasn't asked for this maintenance
+    # job yet. Reporting it as overdue every session causes the LLM to
+    # repeatedly suggest jobs the user never opted into (UX noise).
+    # Tracked separately so ROUTER can present it as on-demand availability,
+    # not as something to proactively remind about.
+    NEVER_RUN="${NEVER_RUN}  · ${name}\n"
   elif [ "$age" -gt "$max" ]; then
     OVERDUE="${OVERDUE}  · ${name}: ${age}d (target ≤ ${max}d)\n"
   fi
@@ -134,7 +152,9 @@ if [ -f "$REVIEW_QUEUE_FILE" ]; then
   fi
 fi
 
-# Skip output if nothing to surface
+# Skip output if nothing to surface. NEVER_RUN is intentionally NOT in this
+# guard — never-run-only output would be pure noise (no user action needed),
+# so the hook stays silent if OVERDUE / MEMORY / REVIEW_QUEUE are all empty.
 if [ -z "$OVERDUE" ] && [ -z "$MEMORY_TAIL" ] && [ -z "$REVIEW_QUEUE_SUMMARY" ]; then
   exit 0
 fi
@@ -157,6 +177,17 @@ if [ -n "$OVERDUE" ]; then
   echo "  → Read scripts/prompts/<task-name>.md and execute it."
   echo "If user says \"忽略\" / \"later\" or talks about something else:"
   echo "  → drop this thread, focus on user's actual ask."
+  echo ""
+fi
+
+if [ -n "$NEVER_RUN" ]; then
+  echo "## Available on-demand (never run yet — NOT overdue, do NOT proactively offer)"
+  printf "%b" "$NEVER_RUN"
+  echo ""
+  echo "These maintenance jobs have no prior run history. That means the user"
+  echo "has never asked for them — it does NOT mean they are due. Stay silent"
+  echo "about this list unless the user explicitly asks \"what maintenance is"
+  echo "available\" / \"有哪些维护任务\". Then list them and let user choose."
   echo ""
 fi
 
@@ -192,12 +223,14 @@ fi
 cat <<'EOF'
 ## How to surface to user
 
-Example one-liners (pick what fits):
+Example one-liners — only mention items from the "Overdue maintenance"
+section, NOT items from "Available on-demand":
 
 - "维护待办：reindex 5d / archiver 漏 04-28 / wiki 31d。要跑哪个？"
-- "Heads-up: backup 12 days old, advisor-monthly never run. Want me to run them?"
-- (if nothing very urgent and user opens with their own topic) → just answer
-  their question, mention status only if relevant.
+- "Heads-up: backup 12 days old, spec-compliance 14 days old. Want me to
+  run either?"  (only because both have a baseline that's actually overdue)
+- (if nothing overdue and user opens with their own topic) → just answer
+  their question, do NOT volunteer the on-demand list.
 
 If user says "ignore" or proceeds with their own topic, drop this thread.
 

@@ -199,6 +199,18 @@
     2. T2 的伪 lockfile（5 分钟冷却，按 transcript 第一行 sha 算）阻止 T3/T4（同样的第一行 `User: 退朝`）运行。每个测试用例前加 `rm -f $HOME/.cache/lifeos/stop-hook-*` 清理。结果：**11/11 hook 测试用例全过**（之前 8/11）。
   - **MEDIUM · 4 个 `test_export.py` 失败因为缺 optional extras**：之前被 mypy 标记为 unused 的 `# type: ignore[import-untyped]` 注释掩盖了。给 `TestExportHtml` 加 `@pytest.mark.skipif(not find_spec("markdown_it"))`，给 `TestExportAnki` 加 `find_spec("genanki")`。默认 install：测试干净跳过。`uv sync --extra export` 时：正常运行。
 
+- **R-1.8.0-021 · 修 session-start-inbox hook：2 个 task 名字写错 + "never run" 被当作 overdue（2026-05-01 用户审计后）**：用户转发了一个下游审计员对 `scripts/hooks/session-start-inbox.sh` 的 spec drift 投诉——审计员的诊断 80% 是错的（说 6 个 v1.8.0 user-invoked maintenance job 是 "cron-only 残留"，建议删掉，按那个改会破坏 v1.8.0 的整个发现机制），但二次观察是真 UX bug。对照 `pro/CLAUDE.md` 权威 10-job 表逐项核对。
+  - **2 个真 bug 修了**：`TASKS_LINE` 数组里 2 个 task 名字和 `scripts/prompts/*.md` 实际文件 + `pro/CLAUDE.md` 权威表对不上：
+    - `auditor-patrol` → `auditor-mode-2`（实际 prompt 名 + 权威清单名）
+    - `monthly-summary` → `eval-history-monthly`（同上）
+    没修之前，用户说"跑 auditor-patrol" ROUTER 找不到真实 prompt。eval-history glob 路径（扫 `_meta/eval-history/` 下旧文件名）没动——历史报告是按旧名写入的，task 名要和 prompt 对齐，report glob 要和历史 artifact 名对齐，两件事。
+  - **"never run" 语义拆分**：之前任何没有 baseline 的 task 都和 overdue 一起报 `<name>: never run`。LLM 把它当债务，主动建议用户跑从未要求过的 job。拆成两个桶：
+    - `OVERDUE` — 有 baseline 且 age > target。真债务；LLM 该提。
+    - `NEVER_RUN` — 没 baseline。归到"Available on-demand（never run yet — NOT overdue, do NOT proactively offer）"段，明示除非用户问"有哪些维护任务"否则不要提。同步更新"How to surface"示例，只举 overdue（有 baseline）项，不举 never-run。
+  - **注释收紧**：`TASKS_LINE` 旁加 contract 注释——task 名必须对齐 `scripts/prompts/<name>.md` + `pro/CLAUDE.md` 权威表；解释为什么 `review-queue`（专门 parser 处理）+ `migrate-to-wikilinks`（一次性迁移）故意不在数组里。
+  - **Smoke test**：用合成 stub（5d 前的 INDEX.md、12d 前的 spec-compliance 报告，其他无历史），现在 hook 输出 `## Overdue maintenance` 只列 `reindex: 5d`，`## Available on-demand` 单独列 8 个 never-run job 并附 do-NOT-offer 指令。同样 fixture 修复前会把 9 个 missing job 都报 overdue。
+  - **验证**：`bash -n scripts/hooks/session-start-inbox.sh` 通过；STRICT 扫描器无变化 exit 0；mypy / ruff / pytest 不受影响（没动 Python）。
+
 - **R-1.8.0-020 · GitHub Release 对齐 HARD RULE + verifier 脚本（2026-04-30 用户观察后）**：用户在 R-1.8.0-019 后截图 GitHub Releases 页面：**"Latest" 仍然显示 v1.7.3,即使 main + v1.8.0 tag 都在 `e51822e`**。根因：`git push --tags` 只更新 git 层；GitHub Releases 页面是另一个独立 UI，Latest 标志和 release notes 必须通过 `gh release create` 或 web UI **显式发布**。4-29 那个 v1.8.0 Draft 从来没 publish，所以 v1.7.3 一直是 Latest。用户原话："今后每次都要检查这个东西"。
   - **发布 v1.8.0 Release**：删掉过时的 4-29 Draft，在 `e51822e` 重新打 tag，跑 `gh release create v1.8.0 --latest` 附完整 release notes 涵盖 R-1.8.0-013..019。v1.8.0 现在是 GitHub Latest。
   - **新增 `scripts/verify-release.sh`**：发布后对齐检查。验证 (1) 工作树干净、(2) HEAD == origin/main、(3) 目标 tag 指向 HEAD、(4) tag 已推到 remote、(5) GitHub Release 存在、(6) 不是 Draft、(7) 在 GitHub 上被标为 Latest。任何漂移 exit 1 + 输出修复用的 `git` / `gh` 命令。默认检查最新 tag；`bash scripts/verify-release.sh v1.8.0` 检查指定 tag。

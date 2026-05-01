@@ -199,6 +199,18 @@
     2. T2 の偽 lockfile（5 分クールダウン、トランスクリプト 1 行目の sha でキー化）が T3/T4（同じ 1 行目 `User: 退朝`）の実行をブロック。各テストケース前に `rm -f $HOME/.cache/lifeos/stop-hook-*` クリーンアップを追加。結果：**11/11 hook テストケース合格**（8/11 から）。
   - **MEDIUM · 4 つの `test_export.py` 失敗、欠落しているオプション extras から**：以前は mypy が unused としてフラグ立てた `# type: ignore[import-untyped]` コメントで隠されていた。`TestExportHtml` クラスに `@pytest.mark.skipif(not find_spec("markdown_it"))` 追加、`TestExportAnki` に `find_spec("genanki")` 追加。デフォルトインストール：テストはきれいにスキップ。`uv sync --extra export` 時：通常実行。
 
+- **R-1.8.0-021 · session-start-inbox hook 修正: 2 つのタスク名間違い + "never run" を overdue 扱い（2026-05-01 ユーザー監査後）**: ユーザーが下流監査員の `scripts/hooks/session-start-inbox.sh` spec drift 指摘を転送 — 監査員の診断は 80% 間違い（6 つの v1.8.0 user-invoked メンテナンスジョブを "cron-only 残骸" と主張し削除を提案、それに従えば v1.8.0 の発見メカニズム自体が壊れる）だが、二次観察は本物の UX バグ。`pro/CLAUDE.md` 権威 10-job テーブルに照らして逐項検証。
+  - **本物のバグ 2 件修正**: `TASKS_LINE` 配列の 2 つのタスク名が `scripts/prompts/*.md` 実ファイル + `pro/CLAUDE.md` 権威テーブルと不一致:
+    - `auditor-patrol` → `auditor-mode-2`（実 prompt 名 + 権威リスト名）
+    - `monthly-summary` → `eval-history-monthly`（同上）
+    修正前: ユーザーが「跑 auditor-patrol」と言っても ROUTER は実 prompt ファイルを解決できなかった。eval-history glob パス（`_meta/eval-history/` 下の旧ファイル名スキャン）は変更なし — 履歴レポートは旧名で書かれているため、タスク名は prompt と整合させ、レポート glob は履歴 artifact 名と整合させる、別物。
+  - **"never run" セマンティック分離**: 以前は baseline のないタスクすべてを `<name>: never run` として overdue バケットに投入。LLM はそれを負債扱いし、ユーザーが要求していないジョブを能動的に提案。2 バケットに分離:
+    - `OVERDUE` — baseline あり かつ age > target。本物の負債; LLM が言及すべき。
+    - `NEVER_RUN` — baseline なし。"Available on-demand (never run yet — NOT overdue, do NOT proactively offer)" セクションに分離、ユーザーが「どんなメンテナンスタスクがあるか」と明示的に尋ねない限り沈黙する明示指示付き。"How to surface" 例も overdue（baseline 持ち）アイテムのみ引用、never-run は引用しないよう更新。
+  - **コメント厳格化**: `TASKS_LINE` 横に契約コメント追加 — タスク名は `scripts/prompts/<name>.md` + `pro/CLAUDE.md` 権威テーブルと整合必須; なぜ `review-queue`（専用パーサ処理）+ `migrate-to-wikilinks`（ワンタイム移行）が意図的に配列から除外されているか説明。
+  - **スモークテスト**: 合成スタブ（5d 前 INDEX.md、12d 前 spec-compliance レポート、他は履歴なし）で、hook は今 `## Overdue maintenance` に `reindex: 5d` のみ、`## Available on-demand` に 8 つの never-run ジョブを do-NOT-offer 指示付きで別出力。修正前は同フィクスチャで 9 つの missing ジョブすべてを overdue として報告していた。
+  - **検証**: `bash -n scripts/hooks/session-start-inbox.sh` 合格; STRICT スキャナ変化なし exit 0; mypy / ruff / pytest 影響なし（Python 未触）。
+
 - **R-1.8.0-020 · GitHub Release 整列 HARD RULE + verifier スクリプト（2026-04-30 ユーザー観察後）**: ユーザーが R-1.8.0-019 後に GitHub Releases ページをスクリーンショット: **"Latest" がまだ v1.7.3 を表示、main + v1.8.0 tag は両方 `e51822e` なのに**。根本原因: `git push --tags` は git レイヤのみ更新; GitHub の Releases ページは別 UI で、Latest バッジと release notes は `gh release create` または Web UI で**明示的にパブリッシュ**する必要がある。4-29 の v1.8.0 Draft はパブリッシュされなかったため、v1.7.3 が Latest のまま。ユーザー原文: "今后每次都要检查这个东西"（今後毎回これをチェックすること）。
   - **v1.8.0 Release パブリッシュ**: 古い 4-29 Draft を削除、`e51822e` で tag を再作成、`gh release create v1.8.0 --latest` を R-1.8.0-013..019 をカバーする完全 release notes と共に実行。v1.8.0 が GitHub Latest に。
   - **`scripts/verify-release.sh` 追加**: ポストリリースの整列チェック。(1) ワーキングツリーがクリーン、(2) HEAD == origin/main、(3) ターゲット tag が HEAD を指す、(4) tag が remote に push 済み、(5) GitHub Release が存在、(6) Draft でない、(7) GitHub で Latest としてマーク、を検証。ドリフトは exit 1 + 修正用 `git` / `gh` コマンドを出力。デフォルトは最新 tag をチェック; `bash scripts/verify-release.sh v1.8.0` で指定 tag。
