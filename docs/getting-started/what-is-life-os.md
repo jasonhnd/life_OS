@@ -250,15 +250,19 @@ STRATEGIST 不走 Draft-Review-Execute 流程，是独立的"思想启发"通道
 
   Hermes 用 42 条 dangerous pattern 正则保护自己不被 prompt injection 搞崩（`rm -rf /`、fork bomb、`curl | sh`、`git reset --hard` 全覆盖），Life OS 借鉴这个思路做 Privacy Filter 的具体正则列表——不做就永远是"手艺"，做了就是"规格"。
 
-- **Layer 4（Python 工具层）**：v1.8.0 R-1.8.0-011 改为按需调用（pull-based），不再预设 cron 定时。维护任务由编排层在合适时机直接 `python -m tools.<name>` 调用：
-  - `python -m tools.search`：跨 SOUL / wiki / sessions 检索（FTS5 思路的轻量版）
-  - `python -m tools.reconcile`：检测 wiki 互相矛盾的条目，输出冲突清单
-  - `python -m tools.embed`：concept / hippocampus 向量重建（按需调用）
-  - `python -m tools.stats`：统计 AUDITOR 召回率 / REVIEWER 否决率 / COUNCIL 触发率
-  - `python -m tools.export`：批量导出 sessions / SOUL 快照
-  - `python -m tools.sync_notion`：双向同步 Notion 镜像
+- **Layer 4（LLM 驱动 prompt 层 · v1.8.1+）**：原 Python 工具层在 v1.8.1 Wave 2（zero-python pivot, 2026-05-02）整体删除。维护任务现在全部由用户触发的 slash command + ROUTER 读 markdown prompt 直接执行，工具是 Read/Write/Glob/Grep（不是 Python 子进程）：
+  - `/search <query>` → `scripts/commands/search.md` + ROUTER 用 Glob+Grep 跨 SOUL / wiki / sessions 找
+  - `/wiki-decay` → `scripts/prompts/wiki-decay.md`：分类条目为 due-for-review / stale / borderline / active（用 last_tended + review_by + 5 桶 confidence enum）；可选 `+ link audit` 调起内嵌链接审计
+  - `/wiki-link-audit` → `scripts/prompts/wiki-link-audit.md`：单独的链接完整性扫描（broken wikilinks / 孤儿 / stale）
+  - `/extract-concepts` → 按需 LLM 抽取 concept（取代向量重建）
+  - `/eval-history-monthly` → `scripts/prompts/eval-history-monthly.md`：聚合 AUDITOR / REVIEWER / 完成率统计
+  - `/research <topic>` → `scripts/prompts/research.md`：5-8 agent 并行 + 反 confirmation bias + 解耦 CitationAgent（4 phases）
+  - `/inbox-process` → `scripts/prompts/inbox-process.md`：LLM 驱动去重 + manifest delta + 5 桶 confidence
+  - `/migrate-confidence` → `scripts/prompts/migrate-confidence.md`：legacy float → enum 一次性迁移
+  - `/method create|update|list` → `scripts/commands/method.md`：方法论库 CRUD
+  - Notion 同步：orchestrator 在 adjourn flow Step 10a 通过 MCP 直接做（`pro/CLAUDE.md` Step 10a）
 
-  v1.7 cron 时代的 `scripts/decay-audit.py / dream-trigger-check.py / monthly-review.py / session-index.py / wiki-conflict-check.py` 已在 R-1.8.0-011 删除，对应职能改由 `tools/*` 按需触发。Layer 4 不再绑定具体调度方式（cron / launchd / Actions），由用户按需手动调用。
+  v1.7 cron 时代的 `scripts/decay-audit.py / dream-trigger-check.py / monthly-review.py / session-index.py / wiki-conflict-check.py` 已在 R-1.8.0-011（v1.8.0 pivot）删除。v1.8.0–v1.8.1 之间存在过的 `tools/*.py` 包（11 个模块）也在 v1.8.1 Wave 2 整体删除。Layer 4 现在是 100% LLM 驱动，不需要 Python 运行时（jq 是 hook 优先 JSON parser；python3 仅作为 jq 缺失时的 stdin 解析回退）。
 
 **方法库**：类似 Hermes Skills 的程序性记忆——把"怎么做 X"本身做成可检索的 skill，Cortex 海马体能在相关场景下自动激活对应 skill。这是 Hermes 自学习闭环的本地版，但不需要 RL 训练，用"规则闭环学习"代替——规则自己不会变，但会被标记"这条规则最近在被违反"。
 

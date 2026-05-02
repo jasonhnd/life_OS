@@ -2,12 +2,21 @@
 status: legacy
 authoritative: false
 superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ package was deleted in v1.8.1 Wave 2 (zero-python pivot, 2026-05-02). Read for historical context only; current behavior in pro/CLAUDE.md + scripts/prompts/*.md (LLM-driven) + scripts/hooks/*.sh (bash-only)."
 ---
 
-# 执行层架构 · Shell Hooks (Layer 3) + Python Tools (Layer 4)
+# 执行层架构 · Shell Hooks (Layer 3) + Python Tools (Layer 4) — LEGACY
 
-> 本文档说明 Life OS 的执行层设计：如何让 HARD RULE 真正"hard"、如何让决策引擎不只在用户打字时才动起来。
+> ⚠️ **LEGACY (v1.7-era)**. **Layer 4 Python 工具层在 v1.8.1 Wave 2 (2026-05-02) 已整体删除**（zero-python pivot — 11 个 .py 模块 + 17 个 pytest 文件 + pyproject.toml 全砍）。本文档详细描述的 12 个核心 Python 工具（reindex/embed/research/...）**已不存在**。本文件保留作历史参考。
+>
+> **v1.8.1 当前架构（取代本文）：**
+> - **Layer 3 = bash hooks** — 仍在 `scripts/hooks/*.sh`（`pre-bash-approval.sh` 现含内联的 ~40 危险命令 pattern bash 数组，前身是已删的 `tools/approval.py`）
+> - **Layer 4 = LLM-driven prompts** — 不再是 Python；改为 `scripts/prompts/*.md`，ROUTER 读 prompt 用 Read/Write/Glob/Grep 直接做事
+> - **Slash commands** — `scripts/commands/*.md` + `scripts/prompts/*.md` 配对：`/inbox-process` `/research` `/wiki-decay` `/migrate-confidence` `/wiki-link-audit` `/method` `/search` `/memory` `/compress` 等
+>
+> 详见：`pro/CLAUDE.md`（编排合同）+ `SKILL.md`（系统定义）+ `CHANGELOG.md` v1.8.1 Wave 2 段。
+
+> 本文档（保留作历史参考）说明的是 v1.7 时代的执行层设计：如何让 HARD RULE 真正"hard"、如何让决策引擎不只在用户打字时才动起来。
 >
 > 精神参考：Hermes Agent（Nous Research，10 万 stars）。
 > 实现路径：Claude Code 宿主 + 纯本地 Shell 脚本 + 独立 Python 工具（markdown 输入 / markdown 输出）。

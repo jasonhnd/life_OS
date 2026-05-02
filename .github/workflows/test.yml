@@ -2,119 +2,55 @@ name: Tests
 
 # v1.8.1 zero-python pivot: Life OS is now a Claude Code skill made of
 # bash hooks + markdown prompts + agent definitions. The Python tools/
-# package was deleted. CI now runs ONLY shell-side checks:
-#   - bash -n syntax check on all .sh files
-#   - tests/hooks/*.sh integration suite
+# package was deleted. CI runs ONLY shell-side checks:
+#   - bash -n syntax check on every tracked .sh
+#   - tests/hooks/*.sh integration suite (8 suites, ~85 assertions)
 #   - scripts/check-spec-drift.sh
 #   - hook regex smoke test
-#   - compliance check fixture
+#
+# Matrix policy (Wave 2 tuned):
+#   - push to main      → ubuntu only (fast feedback, ~2 min)
+#   - pull_request      → ubuntu + macOS + windows (cross-platform sanity)
+#   - workflow_dispatch → ubuntu + macOS + windows (manual full-matrix)
+#
+# Public repos get unlimited Actions minutes, but limiting push-to-main to
+# ubuntu still saves ~3× wall time and keeps the dashboard green-fast.
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
-  bash-tests:
+  # Fast-path: every push to main runs only ubuntu (under 2 min wall)
+  bash-tests-ubuntu:
+    name: bash-tests (ubuntu-latest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run bash CI suite
+        run: bash .github/workflows/_bash-ci.sh
+
+  # Cross-platform sanity: PRs and manual dispatches verify macOS + windows
+  bash-tests-cross:
     name: bash-tests (${{ matrix.os }})
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # windows-latest (Windows Server) ships Git for Windows which
-        # includes a bash (MSYS2). All hook tests are verified portable
-        # on MSYS bash 5.x and run on every runner.
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest, windows-latest]
     defaults:
       run:
-        # Force bash on Windows too — actions/checkout's default shell on
-        # windows-latest is PowerShell.
+        # windows-latest's default shell is PowerShell; force bash (MSYS2
+        # ships with Git for Windows on the runner).
         shell: bash
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check bash syntax (all runners)
-        # Enumerate via `git ls-files '*.sh'` so any new shell file added
-        # under any directory is automatically checked.
-        run: |
-          failed=0
-          while IFS= read -r script; do
-            echo "Checking $script..."
-            if ! bash -n "$script"; then
-              failed=1
-            fi
-          done < <(git ls-files '*.sh')
-          exit $failed
-
-      - name: Run hook test suite (all runners)
-        run: |
-          chmod +x tests/hooks/*.sh || true
-          failed=0
-          for s in tests/hooks/test_*.sh; do
-            echo "── $s ──"
-            if ! bash "$s"; then
-              failed=1
-            fi
-          done
-          exit $failed
-
-      - name: Spec drift scan
-        # Scans active .md/.sh files for references to repo paths
-        # (e.g. `scripts/foo.sh`) and verifies the target exists.
-        # Forbidden-token check runs as warning only.
-        run: |
-          chmod +x scripts/check-spec-drift.sh || true
-          bash scripts/check-spec-drift.sh
-
-      - name: Verify pre-prompt-guard regex (all runners)
-        run: |
-          # Smoke test: hook should detect '上朝' as trigger
-          chmod +x scripts/lifeos-pre-prompt-guard.sh || true
-          OUTPUT=$(echo '{"prompt":"上朝"}' | bash scripts/lifeos-pre-prompt-guard.sh)
-          echo "$OUTPUT" | grep -q "HARD RULE" || (echo "❌ Hook did not inject reminder for '上朝'" && exit 1)
-          # Long pasted content should NOT trigger
-          LONG=$(printf '%.0sx' {1..600})
-          OUTPUT=$(echo "{\"prompt\":\"$LONG\"}" | bash scripts/lifeos-pre-prompt-guard.sh)
-          if echo "$OUTPUT" | grep -q "HARD RULE"; then
-            echo "❌ Hook fired on 600-char prompt (false positive)"
-            exit 1
-          fi
-          echo "✅ Hook regex OK"
-
-      - name: Verify compliance check (all runners)
-        # Smoke fixture for scripts/lifeos-compliance-check.sh — covers
-        # the start-session-compliance scenario with 6 H2 sections +
-        # version markers + Cortex status.
-        run: |
-          chmod +x scripts/lifeos-compliance-check.sh || true
-          tmpdir=$(mktemp -d)
-          cat > "$tmpdir/clean.md" <<'EOF'
-          🌅 Trigger: 上朝 → Theme: 三省六部 → Action: Launch(retrospective) Mode 0
-          ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation)
-          Step 2 DIRECTORY TYPE CHECK:
-          a) 连接到 second-brain
-          b) 开发模式
-          c) 新建 second-brain
-          [Local SKILL.md version: 1.8.1]
-          [Remote check (forced fresh): up-to-date]
-          [Cortex: skipped - per-message pull mode in v1.8.0]
-          ## 0. <display name> · 上朝准备
-          Ready
-
-          ## 1. 第二大脑同步状态
-          Clean
-
-          ## 2. SOUL Health 报告
-          No drift
-
-          ## 3. DREAM / 隔夜更新
-          None
-
-          ## 4. Today's Focus + 待陛下圣裁
-          Ready
-
-          ## 5. 系统状态
-          Green
-          EOF
-          bash scripts/lifeos-compliance-check.sh "$tmpdir/clean.md" start-session-compliance
+      - name: Run bash CI suite
+        run: bash .github/workflows/_bash-ci.sh
