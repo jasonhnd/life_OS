@@ -6,9 +6,11 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
-## [1.8.1] - 2026-05-01 - Wiki pipeline · /research · /inbox-process · macOS portability · scanner regression-proof
+## [1.8.1] - 2026-05-02 - Zero-Python pivot · Wiki Plan B+ · Counter-bias positioning
 
-> **Plan B wiki delivery**. Adds 4 new wiki-management features (activity log convention · Obsidian setup · inbox triage pipeline · multi-agent /research command) and lands the macOS bare-`python` portability fix that R-1.8.0-020 commit title claimed but never actually shipped. Also contains R-1.8.0-021 / R-1.8.0-022 fixes from the v1.8.0 maintenance line, now formally cut into 1.8.1.
+> **The largest reduction in Life OS history**. Wave 1 (May 1) shipped Plan B wiki + auto-bootstrap. Wave 2 (May 2) deletes the entire Layer 4 Python tools/ package (11 modules + 12 test files + pyproject.toml + uv.lock + integration.yml workflow + 9 eval scenarios) and ports the only security-critical Python (the 47 dangerous-command pattern guard) to a self-contained bash regex array. Wave 2 also delivers 9 wiki schema/pipeline improvements (aliases / sources plural / 5-bucket confidence enum / last_tended / review_by / provenance tags / manifest delta / LLM-based dedup / decoupled CitationAgent) plus a counter-bias positioning section explaining how Life OS Wiki differs from Anthropic / LangChain / GPT-Researcher / CrewAI / QX-Labs.
+>
+> Wave 1 also contains the macOS bare-`python` portability fix that R-1.8.0-020 commit title claimed but never actually shipped, plus rolled-up R-1.8.0-021 / R-1.8.0-022 fixes from the v1.8.0 maintenance line.
 
 ### Added · Wiki management (Plan B)
 
@@ -91,9 +93,101 @@ Optional: run `bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh` fr
 
 No second-brain data migration required. Existing wiki entries continue to work; new conventions apply to new writes.
 
-### Removed
+### Removed · Zero-Python pivot (Wave 2 · 2026-05-02)
 
-- Nothing. v1.8.1 is purely additive plus bugfixes.
+User feedback driving this: "我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。" Translated: the Layer 4 Python tools were carrying complexity (FTS5, vectors, mypy/ruff/pytest CI gates, 50+ optional deps, dual maintenance burden against the LLM-driven prompts) for capabilities the user never asked for or used. Wave 2 deletes every line of Python in the repo.
+
+**Deleted source files (11 .py + 5 lib .py)**:
+- `tools/approval.py` (1010 lines — security guard; ~40 dangerous patterns ported to bash, see "Changed · Security guard now bash-native" below)
+- `tools/embed.py`, `tools/export.py`, `tools/reconcile.py`, `tools/research.py`, `tools/search.py`, `tools/seed.py`, `tools/sync_notion.py`, `tools/skill_manager.py`, `tools/stats.py` (replaced earlier by LLM prompts; deleted now)
+- `tools/__init__.py` + `tools/lib/{__init__,config,llm,notion,second_brain}.py`
+- `tools/README.md` (no Python package to document)
+
+**Deleted test suite (12 test files + 5 lib tests)**:
+- `tests/test_{embed,export,reconcile,research,search,second_brain,seed,sync_notion,stats,stats_extend,compliance_check}.py`
+- `tests/lib/{__init__,conftest,test_config,test_llm,test_notion}.py`
+- `tests/__init__.py`
+
+**Deleted packaging**:
+- `pyproject.toml` (no Python package to publish)
+- `uv.lock` (no deps to lock)
+- `.python-version` (no runtime pin needed)
+- `.github/workflows/integration.yml` (integration tests targeted deleted Python research tool)
+
+**Deleted eval scenarios** (referenced now-deleted Python tools):
+- `evals/scenarios/tool-{embed,export,migrate,reconcile,research,search,seed,stats,sync_notion}.md`
+
+**Deleted bash that was a thin wrapper around the deleted Python**:
+- `scripts/wiki/wiki-link-audit.sh` (311 lines of bash + awk frontmatter parsing) — replaced by `scripts/prompts/wiki-link-audit.md` (LLM-driven Glob + Grep + Read).
+
+### Changed · Security guard now bash-native (Wave 2 · 2026-05-02)
+
+`scripts/hooks/pre-bash-approval.sh` previously bridged every Bash command to `tools/approval.py` via a Python subprocess. Wave 2 deletes that bridge entirely and embeds the dangerous-pattern corpus inline as a bash regex array (~40 entries; 5 Hermes-product-specific patterns dropped during port — gateway/cli.py/`hermes update` aren't relevant outside the upstream runtime). 100% pure bash; jq for JSON parsing (with python3 as universal fallback for stdin extraction only). Provenance kept: forked from NousResearch/hermes-agent (MIT) commit `59b56d4...` → was `tools/approval.py @ v1.7.3`.
+
+`scripts/hooks/pre-write-scan.sh` dropped its `scan_hermes_dangerous_patterns()` Python bridge for the same reason. The 15 prompt-injection / SQL / secret / PII regex patterns it directly executes remain unchanged.
+
+`tests/hooks/test_pre_bash_approval.sh` was rewritten for the new self-contained behavior: 7 tests / 9 assertions, all pass on Windows MSYS bash, macOS bash 3.2, and Linux bash 5.x. Smoke-tested with 17 fixture commands (10 base + 7 edge cases including case-insensitive RM, sudo prefix, find -exec rm, .env redirect, YOLO bypass).
+
+### Changed · CI workflow (Wave 2 · 2026-05-02)
+
+`.github/workflows/test.yml` rewritten: was pytest + mypy + ruff matrix across 3 OS × 2 Python versions = 6 jobs. Now a single `bash-tests` matrix across 3 OS (ubuntu / macOS / windows). Steps: `bash -n` syntax check on every `.sh` via `git ls-files '*.sh'`; tests/hooks/ bash suite; spec drift scan; pre-prompt-guard regex smoke; lifeos-compliance-check fixture. ~3× faster, no external Python toolchain to install.
+
+### Changed · Wiki frontmatter schema (Wave 2 · 2026-05-02)
+
+`scripts/wiki/setup-secondbrain.sh` template + `scripts/prompts/inbox-process.md` + `scripts/prompts/research.md` updated to emit v1.8.1 frontmatter:
+
+| Field | Old | New |
+|---|---|---|
+| `aliases` | (missing) | `[]` empty array; Obsidian uses for `[[wikilink]]` resolution |
+| `source` | scalar string | `sources: []` PLURAL array |
+| `confidence` | float `0.0–1.0` | enum `impossible \| unlikely \| possible \| likely \| certain` |
+| `last_tended` | (missing) | ISO date — last time you actively reviewed (vs cosmetic edit) |
+| `review_by` | (missing) | ISO date — when `wiki-decay` should re-surface this entry |
+
+Migration prompt: `scripts/prompts/migrate-confidence.md` (run `/migrate-confidence` from your vault). Idempotent. Bucket mapping: `< 0.3 → unlikely`, `0.3-0.6 → possible`, `0.6-0.85 → likely`, `>= 0.85 → certain`.
+
+`/wiki-decay` updated: classifies entries into `due-for-review` / `stale` / `borderline` / `active` using `last_tended` + `review_by` + 5-bucket `confidence`. Optional `+ link audit` branch. Legacy float `confidence` is auto-mapped on the fly so legacy entries keep working without forced migration.
+
+### Added · Wiki provenance + dedup + CitationAgent (Wave 2 · 2026-05-02)
+
+- **Provenance tags in `## Key facts`**: every bullet now carries `^[extracted]` (paraphrased from a `sources[]` URL), `^[inferred]` (your synthesis, not directly stated), or `^[ambiguous]` (sources disagree). Untagged defaults to `^[extracted]`. `/research` subagents emit per-bullet provenance; `/inbox-process` requires it for accept/update; downstream synthesis carries forward conservatively (extracted+extracted=extracted; conflict=demote to inferred or ambiguous; never upgrade).
+- **LLM-based dedup pre-pass in `/inbox-process`**: replaces SHA256 hashing (which catches byte-identical duplicates but misses paraphrased near-duplicates). For each inbox item: extract topic phrase → `Grep` candidate domain for keywords → `Read` candidate frontmatter + TL;DR → LLM judges topic overlap and claim overlap → propose `accept` / `update` / `merge` / `accept with related-link`. Pure LLM, no FTS5, no vector math.
+- **`_meta/inbox/manifest.json` delta tracking**: tracks which inbox items have been seen across runs. Each `/inbox-process` run marks proposal-table rows as Δ-new vs carried-over so the user can prioritize fresh material.
+- **Decoupled CitationAgent (Phase 4 of `/research`)**: pattern from Anthropic's multi-agent research-system architecture. Runs AFTER synthesis (not interleaved). One additional `general-purpose` subagent verifies every `^[extracted]` bullet maps to a fetchable source URL via WebFetch; reports verified / unverified / inferred-source-combos / ambiguous-disagreements. Unverified `^[extracted]` bullets are auto-downgraded to `^[inferred]`. If 30%+ of `^[extracted]` claims fail verification, `confidence` drops one bucket. Decoupling preserves analytical depth; interleaved citation tends to push the model toward shallow easy-to-cite facts. Opt out with `--no-citations`. Cost: +20-30% LLM calls vs counter-bias-only.
+
+### Added · Counter-bias positioning (Wave 2 · 2026-05-02)
+
+README sections in EN / ZH / JA explain how Life OS Wiki differs from each of the 6 major LLM-Wiki / multi-agent research projects we benchmarked against (Anthropic's research-system blog, LangChain `langgraph` agent supervisor, GPT-Researcher, CrewAI, QX-Labs, OpenAI Deep Research). Summary axes: (1) integrated wiki backing store vs ephemeral output; (2) per-bullet provenance tags; (3) decoupled CitationAgent; (4) 5-bucket calibrated confidence enum; (5) `last_tended`/`review_by` freshness model; (6) inbox-triage hand-off vs autonomous append; (7) zero-python deployment posture.
+
+### Verification (CI matrix) — UPDATED for Wave 2
+
+- `bash -n` on all 32 → 19 tracked .sh files (deletion of `wiki-link-audit.sh` + Wave 2 cleanup) → pass on Linux + macOS + Windows MSYS
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- `tests/hooks/*.sh` (8 suites, ~70 assertions) → all pass
+- `bash /c/tmp/run-hook-tests.sh` (17 dangerous + safe fixtures against new bash approval guard) → 17/17 pass
+- `bash scripts/verify-release.sh` → 7/7 ✅ after retag
+- mypy / ruff / pytest gates: **REMOVED** (no Python in repo)
+
+### Migration — UPDATED for Wave 2
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # installs new /inbox-process + /research + /migrate-confidence + /wiki-link-audit, updates hooks
+```
+
+Then open any Claude Code session inside your second-brain vault. The SessionStart hook auto-detects missing v1.8.1 scaffolding and creates it silently. Existing wiki entries with legacy float `confidence` keep working — `/wiki-decay` auto-maps. To permanently migrate, run `/migrate-confidence` from your vault (idempotent, with proposal preview before any write).
+
+For users who had been running any `python -m tools.<X>` invocation: those Python entrypoints no longer exist. Replacements:
+- `python -m tools.search` → `/search` slash command (or natural `搜一下 X`)
+- `python -m tools.embed` → no-op; concept indexing is now LLM-driven on-demand via `/extract-concepts`
+- `python -m tools.research` → `/research` slash command (multi-agent, with CitationAgent)
+- `python -m tools.export` → no replacement; raw markdown is the export
+- `python -m tools.reconcile` → no replacement; `/wiki-decay` surfaces freshness conflicts
+- `python -m tools.sync_notion` → orchestrator handles Notion sync via MCP in adjourn flow (Step 10a)
+- `python -m tools.stats` → `/eval-history-monthly` slash command
+- `python -m tools.skill_manager` → `/method create|update|list` slash command
+
+`uv` / `pip install -e .` no longer needed. No Python runtime installation required for the skill itself (jq is the preferred JSON parser for hooks; python3 is a graceful fallback if jq is missing).
 
 ---
 

@@ -368,9 +368,9 @@ Auto-execute (no user confirm) when:
 
 ### Search auto-trigger (already automatic via Cortex)
 
-`hippocampus` in Step 0.5 automatically calls `tools.session_search` (FTS5) for every Cortex-eligible message. ROUTER reads the retrieved sessions from the `[COGNITIVE CONTEXT]` block; the user does NOT need to type `/search`.
+`hippocampus` in Step 0.5 automatically performs spreading-activation retrieval over `_meta/sessions/INDEX.md` and the concept graph for every Cortex-eligible message (pure LLM, no FTS5/Python). ROUTER reads the retrieved sessions from the `[COGNITIVE CONTEXT]` block; the user does NOT need to type `/search`.
 
-The `/search <query>` slash command exists ONLY for: "I want to precisely search keyword X right now without going through Cortex". 95%+ of search needs are handled automatically.
+The `/search <query>` slash command (LLM-driven Glob+Grep, see `scripts/commands/search.md`) exists ONLY for: "I want to precisely search keyword X right now without going through Cortex". 95%+ of search needs are handled automatically.
 
 ### Method auto-create (already automatic via archiver Phase 2)
 

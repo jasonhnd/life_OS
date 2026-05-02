@@ -1,17 +1,16 @@
 #!/bin/bash
-# Tests for scripts/hooks/pre-bash-approval.sh (Round-3 audit coverage)
+# Tests for scripts/hooks/pre-bash-approval.sh (v1.8.1 zero-python)
 # ─────────────────────────────────────────────────────────────────────────────
-# Hook contract:
+# Hook contract (v1.8.1):
 #   Event:   PreToolUse
 #   Matcher: Bash
 #   Reads:   {tool_input.command} from stdin
 #   Behavior:
 #     - Safe command → exit 0 silently
 #     - Hardline pattern (e.g. rm -rf /) → exit 2, stderr blocks
-#     - approval.py crashes (bridge error) → exit 2 fail-CLOSED
-#     - Bridge JSON parse fails → exit 2 fail-CLOSED
-#     - approval.py source not found → exit 2 fail-CLOSED (Round-3 fix)
-#     - LIFEOS_YOLO_MODE=1 → exit 0 even if approval.py missing
+#     - Empty input or empty command → exit 0
+#     - Malformed JSON → exit 2 fail-CLOSED
+#     - LIFEOS_YOLO_MODE=1 → exit 0 even on dangerous command
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -u
@@ -48,12 +47,12 @@ echo "T2: hardline 'rm -rf /' → exit 2 (block)"
 out_t2="$(mkinput 'rm -rf /' | bash "$HOOK" 2>&1)"
 rc_t2=$?
 assert_exit "$rc_t2" "2" "hardline blocks with exit 2"
-if echo "$out_t2" | grep -qiE "blocked|hardline|guard"; then
+if echo "$out_t2" | grep -qiE "拦截|guard|blocked|root filesystem"; then
   TEST_PASS_COUNT=$((TEST_PASS_COUNT + 1))
-  echo "  PASS stderr mentions block/hardline/guard"
+  echo "  PASS stderr mentions block/拦截/guard"
 else
   TEST_FAIL_COUNT=$((TEST_FAIL_COUNT + 1))
-  echo "  FAIL stderr did not mention block/guard reason"
+  echo "  FAIL stderr did not mention block reason"
   echo "       stderr: $out_t2"
 fi
 
@@ -64,10 +63,7 @@ rc_t3=0
 echo "" | bash "$HOOK" >/dev/null 2>&1 || rc_t3=$?
 assert_exit "$rc_t3" "0" "empty input exits 0"
 
-# T4: malformed JSON → exit 2 fail-CLOSED (Round-5 audit fix)
-# Previously this case silently passed; now we fail-CLOSED because corrupt
-# payload means we can't trust ANY field — including whether the command
-# is actually empty vs the parser just failed.
+# T4: malformed JSON → exit 2 fail-CLOSED
 echo ""
 echo "T4: malformed JSON → exit 2 fail-CLOSED"
 rc_t4=0
@@ -82,45 +78,26 @@ else
   echo "       stderr: $out_t4"
 fi
 
-# T5: approval.py source missing → exit 2 fail-CLOSED (Round-3 audit fix)
+# T5: LIFEOS_YOLO_MODE=1 with dangerous command → exit 0 (explicit bypass)
 echo ""
-echo "T5: approval.py source missing → exit 2 fail-CLOSED"
-TMPDIR_T5="$(mktemp -d 2>/dev/null || mktemp -d -t 'lifeos-t5')"
-mkdir -p "$TMPDIR_T5/empty-home" "$TMPDIR_T5/fake/scripts/hooks"
-cp "$HOOK" "$TMPDIR_T5/fake/scripts/hooks/pre-bash-approval.sh"
-chmod +x "$TMPDIR_T5/fake/scripts/hooks/pre-bash-approval.sh"
-out_t5="$(printf '%s' "$(mkinput 'echo hello')" | HOME="$TMPDIR_T5/empty-home" bash "$TMPDIR_T5/fake/scripts/hooks/pre-bash-approval.sh" 2>&1)"
+echo "T5: LIFEOS_YOLO_MODE=1 with dangerous command → exit 0"
+out_t5="$(mkinput 'rm -rf /home/user' | LIFEOS_YOLO_MODE=1 bash "$HOOK" 2>&1)"
 rc_t5=$?
-assert_exit "$rc_t5" "2" "missing approval.py exits 2 (fail-CLOSED)"
-if echo "$out_t5" | grep -qE "approval.py|找不到|not found|fail-CLOSED"; then
-  TEST_PASS_COUNT=$((TEST_PASS_COUNT + 1))
-  echo "  PASS stderr explains approval.py is missing"
-else
-  TEST_FAIL_COUNT=$((TEST_FAIL_COUNT + 1))
-  echo "  FAIL stderr did not explain missing approval.py"
-  echo "       stderr: $out_t5"
-fi
-rm -rf "$TMPDIR_T5" 2>/dev/null || true
+assert_exit "$rc_t5" "0" "YOLO_MODE bypasses dangerous command"
 
-# T6: LIFEOS_YOLO_MODE=1 with missing source → exit 0 (explicit bypass)
+# T6: case-insensitive match (uppercase RM -RF) → exit 2
 echo ""
-echo "T6: LIFEOS_YOLO_MODE=1 with missing source → exit 0"
-TMPDIR_T6="$(mktemp -d 2>/dev/null || mktemp -d -t 'lifeos-t6')"
-mkdir -p "$TMPDIR_T6/empty-home" "$TMPDIR_T6/fake/scripts/hooks"
-cp "$HOOK" "$TMPDIR_T6/fake/scripts/hooks/pre-bash-approval.sh"
-chmod +x "$TMPDIR_T6/fake/scripts/hooks/pre-bash-approval.sh"
-out_t6="$(printf '%s' "$(mkinput 'echo hello')" | HOME="$TMPDIR_T6/empty-home" LIFEOS_YOLO_MODE=1 bash "$TMPDIR_T6/fake/scripts/hooks/pre-bash-approval.sh" 2>&1)"
+echo "T6: case-insensitive RM -RF /etc → exit 2"
+out_t6="$(mkinput 'RM -RF /etc/passwd' | bash "$HOOK" 2>&1)"
 rc_t6=$?
-assert_exit "$rc_t6" "0" "YOLO_MODE bypass exits 0"
-if echo "$out_t6" | grep -qE "YOLO|skipping guard"; then
-  TEST_PASS_COUNT=$((TEST_PASS_COUNT + 1))
-  echo "  PASS stderr acknowledges YOLO bypass"
-else
-  TEST_FAIL_COUNT=$((TEST_FAIL_COUNT + 1))
-  echo "  FAIL stderr did not acknowledge YOLO bypass"
-  echo "       stderr: $out_t6"
-fi
-rm -rf "$TMPDIR_T6" 2>/dev/null || true
+assert_exit "$rc_t6" "2" "case-insensitive match blocks"
+
+# T7: empty command field (valid JSON, no command) → exit 0
+echo ""
+echo "T7: empty command field → exit 0 silent"
+rc_t7=0
+mkinput '' | bash "$HOOK" >/dev/null 2>&1 || rc_t7=$?
+assert_exit "$rc_t7" "0" "empty command exits 0"
 
 echo ""
 echo "-- ${TEST_NAME}: ${TEST_PASS_COUNT} passed, ${TEST_FAIL_COUNT} failed --"

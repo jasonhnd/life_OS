@@ -19,7 +19,7 @@
 
 ---
 
-> **Hermes Local** 是 Life OS 本地防护与自动化执行面的用户可见名称：Layer 3 hooks + Layer 4 Python tools。内部标签仍保持 `execution layer`、`Layer 3`、`Layer 4`。部分本地工具模式借鉴 / fork 自 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）。
+> **Hermes Local** 是 Life OS 当年还带着 Layer 4 Python tools/ 包时的用户面名称。在 **v1.8.1 Wave 2（zero-python pivot）**之后 Layer 4 没了，整个 skill 就是 bash hook + markdown prompt + agent 定义。危险命令 pattern guard（~40 条）现在 inline 嵌在 `scripts/hooks/pre-bash-approval.sh`。Pattern 出处保留：fork 自 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）。
 
 ## 一套引擎，三种文化，你来选
 
@@ -77,22 +77,75 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 ---
 
-## v1.8.1 新特性 — Wiki 流水线 + macOS 可移植性 + scanner 防回归
+## v1.8.1 新特性 — Zero-Python pivot + Wiki Plan B + 反 confirmation bias 定位
 
-v1.8.1 是 v1.8.0 之上的**纯加项 + bugfix**。4 项新 wiki 管理特性（Plan B）：
+v1.8.1 是 **Life OS 历史上最大的「减法」**。两波 5 月 1-2 日交付，都在同一个 v1.8.1 tag 下：
 
-- **`/inbox-process`** — 把任意 `.md` 拖到 `_meta/inbox/to-process/`，然后说"处理 inbox"或 `/inbox-process`。ROUTER 扫描，逐项提议处置（accept→wiki / update→wiki / archive / reject / defer），等你确认，执行，写日志。
-- **`/research <topic>`** — 并行起 5 个（`--depth deep` 8 个）`general-purpose` subagent 覆盖 academic / practitioner / contrarian / origin / adjacent 角度。综合成 SCHEMA 兼容 wiki 草稿，含强制 `Counterpoints` 段 + 自动反 confirmation bias 检查。总 wall time ≤ 7 min。
-- **`wiki/log.md` 活动时间线规范** — 每个 wiki Write/Edit/移动操作 append 一行 + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` 和 `/research` 自动写日志。
-- **零命令 vault 自动 bootstrap** — v1.8.1 之后第一次在 vault 内开 Claude Code session 时，SessionStart hook **自动检测**缺失的脚手架（`wiki/log.md`、`wiki/.templates/`、`_meta/inbox/to-process/`、`wiki/OBSIDIAN-SETUP.md`）并静默创建。只在第一次看到一行 `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files`，之后无输出。如果你有 `.obsidian/graph.json`，wiki 节点的 color group 会自动加（编辑前先备份到 `.obsidian/graph.json.lifeos-backup-<ts>`；任何失败都回滚）。加 `scripts/wiki/wiki-link-audit.sh`（纯 bash，替代被删的 v1.7 `wiki_decay.py` 审计端）。
+### Wave 1 · Plan B wiki + auto-bootstrap（5 月 1 日）
 
-关键 bug 修复：
-- **macOS 可移植性**：`pre-bash-approval.sh` 5 处裸 `python -c`。macOS 12+ 移除了裸 `python` → hook fail-CLOSED → 阻止所有 Bash。R-1.8.0-020 commit 标题声称修了；没修。现在用 portable `PYTHON=$(command -v python3 || command -v python)`。
-- **Scanner 误判**：`pre-write-scan.sh` pattern #5 之前会拦截 markdown 合法 inline code（`` `python -m tools.embed` ``）。收紧为 backtick 内必须含 shell 元字符。
-- **session-start-inbox UX**：2 个 task 名字写错（`auditor-patrol` → `auditor-mode-2`，`monthly-summary` → `eval-history-monthly`）。NEVER_RUN 桶从 8+ 行压成 1 行。
-- **Notion sync 硬编码 4 个 entity** — 现在 config-driven；读 `_meta/config.md`，只 sync 配过的。
+- **`/inbox-process`** — 把任意 `.md` 拖到 `_meta/inbox/to-process/`，然后说"处理 inbox"或 `/inbox-process`。ROUTER 扫描、逐项提议处置（accept→wiki / update→wiki / archive / reject / defer / merge）、等确认、执行、写日志。Wave 2 加了 LLM 驱动重复检测（无 SHA256，无 FTS5）+ `_meta/inbox/manifest.json` delta 跟踪。
+- **`/research <topic>`** — 并行起 5 个（`--depth deep` 8 个）`general-purpose` subagent 覆盖 academic / practitioner / contrarian / origin / adjacent 角度。综合成 SCHEMA 兼容 wiki 草稿，含强制 `Counterpoints` 段 + 自动反 confirmation bias 检查。Wave 2 加了解耦 CitationAgent（Phase 4，Anthropic 模式）。带 citation verifier 总 wall time ≤ 9 min。
+- **`wiki/log.md` 活动时间线规范** — 每个 wiki Write/Edit/移动 append 一行 + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` 和 `/research` 自动写日志。
+- **零命令 vault 自动 bootstrap** — v1.8.1 之后第一次在 vault 内开 Claude Code session 时，SessionStart hook 自动检测缺失的脚手架并静默创建。只看到一行 `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files`，之后无输出。`.obsidian/graph.json` 自动 patch（先备份）。
 
-迁移：升级 skill 即可（`cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`）。Vault 脚手架在你下次在 vault 内开 Claude Code session 时自动创建——无需手动跑任何命令。详见 [CHANGELOG.md](./CHANGELOG.md#181---2026-05-01)。
+### Wave 2 · Zero-Python pivot（5 月 2 日）
+
+驱动 Wave 2 的用户原话："我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。" — 整个 Layer 4 Python tools/ 包背着用户从未要求或使用的复杂度（FTS5、向量、mypy/ruff/pytest CI 门、50+ 可选依赖）。Wave 2 删掉仓库每一行 Python：
+
+- **删 11 个 Python 模块**：`tools/{approval,embed,export,reconcile,research,search,seed,sync_notion,skill_manager,stats,__init__}.py` 加 `tools/lib/{__init__,config,llm,notion,second_brain}.py` 和该包的 README。
+- **删 17 个 pytest 测试文件**（对应被删的模块）。
+- **删打包**：`pyproject.toml`、`uv.lock`、`.python-version`、`.github/workflows/integration.yml`、9 个 `evals/scenarios/tool-*.md` eval 场景。
+- **安全 guard 现在 bash 原生**：唯一安全关键的 Python（来自 `tools/approval.py` 的 ~40 危险命令 pattern guard）port 成 `scripts/hooks/pre-bash-approval.sh` 内的 bash 正则数组。100% 纯 bash；jq 做 JSON parse（python3 仅作为 stdin 抽取的回退）。出处保留：fork 自 NousResearch/hermes-agent (MIT) commit `59b56d4...`。17 个 fixture（10 基础 + 7 边界）smoke 测过。
+- **CI workflow 重写**：`.github/workflows/test.yml` 原是 6 个 job（pytest + mypy + ruff × 3 OS × 2 Python）。现在 3 个 job（`bash -n` + tests/hooks/ + spec drift，跨 ubuntu/macOS/windows）。快了 ~3 倍，无需安装 Python 工具链。
+- **删被 bash 包了一层的 Python**：`scripts/wiki/wiki-link-audit.sh`（311 行 bash + awk frontmatter parsing）→ 替换为 `scripts/prompts/wiki-link-audit.md`（LLM 驱动 Glob + Grep + Read）。
+
+### Wave 2 · 9 项 wiki schema/流水线改进（5 月 2 日）
+
+| Wiki 改进 | 改了什么 |
+|---|---|
+| `aliases: []` 字段 | Obsidian 用于 `[[wikilink]]` 解析 |
+| `source` → `sources: []` | 复数数组；列出每个贡献的 URL/citation |
+| `confidence` 改 5 桶 enum | `impossible \| unlikely \| possible \| likely \| certain`（之前是 `0.0–1.0` float）。跑 `/migrate-confidence` 转换遗留条目；`/wiki-decay` 扫的时候自动映射。 |
+| `last_tended` 字段 | ISO 日期 — 上次主动 review（不是 cosmetic 编辑） |
+| `review_by` 字段 | ISO 日期 — `wiki-decay` 何时该重新提醒此条目 |
+| 每条事实的出处标记 | `^[extracted]`（从源转述）、`^[inferred]`（你的综合）、`^[ambiguous]`（源不一致）。`/research` agent 输出强制；`/inbox-process` accept/update 强制。 |
+| `/inbox-process` LLM 去重 | 替代 SHA256 hash — 抓到释义性近似重复，不只字节相同。纯 LLM 用 grep + Read 判断。 |
+| `_meta/inbox/manifest.json` delta 跟踪 | 每次 `/inbox-process` 在提议表里标 Δ-new vs carried-over。 |
+| `/research` 解耦 CitationAgent | Anthropic 模式 Phase 4：通过 WebFetch 验证每个 `^[extracted]` claim 对得上 `sources[]`。未验证的自动降级。30%+ 失败则 confidence 降一桶。`--no-citations` 可关。 |
+
+### Life OS Wiki 与其他项目的本质区别（反 confirmation bias 定位）
+
+我们 benchmark 过 6 个主流 LLM-Wiki / 多 agent research 项目（Anthropic research-system 博客、LangChain `langgraph` agent supervisor、GPT-Researcher、CrewAI、QX-Labs、OpenAI Deep Research），没有一个把这些都做了：
+
+| 维度 | Life OS Wiki | 大多数项目 |
+|---|---|---|
+| 持久化存储 | 集成 wiki（markdown + frontmatter），跨 session 留存 | 临时聊天输出 |
+| 每条出处标记 | 强制 `^[extracted]`/`^[inferred]`/`^[ambiguous]` | 没有，或只到 run 级别 |
+| Citation 验证 | 解耦 CitationAgent 在合成**之后**跑（保留分析深度） | 交错（推动模型走向浅显易引证的事实） |
+| Confidence 校准 | 5 桶 enum 强制诚实评估 | float（虚假精度）或不说 |
+| 新鲜度模型 | `last_tended` + `review_by` + `/wiki-decay` 重新提醒 | append-only，无 decay 模型 |
+| Inbox 交接 | 用户用完整提议表 triage，写之前先确认 | 自治 append（你后来才知道） |
+| 部署姿态 | 零 Python（仅 bash + markdown） | Pip / npm / requirements.txt |
+
+这不是批评那些项目 — 它们解决不同的问题。但如果你试过 "LLM wiki" 或 "多 agent research" 工具发现 (a) 输出消失 (b) 分不清什么是真源什么是综合 (c) agent 自信地引用根本不说它声称内容的 URL — 那些就是 Life OS Wiki 要堵的洞。
+
+### 关键 bug 修复（Wave 1）
+
+- **macOS 可移植性**：`pre-bash-approval.sh` 5 处裸 `python -c`。macOS 12+ 移除了裸 `python` → hook fail-CLOSED → 阻止所有 Bash。R-1.8.0-020 commit 标题声称修了；直到 Wave 1 才修。
+- **Scanner 误判**：`pre-write-scan.sh` pattern #5 之前会拦截 markdown 合法 inline code。收紧为 backtick 内必须含 shell 元字符。
+- **session-start-inbox UX**：2 个 task 名字写错；NEVER_RUN 桶从 8+ 行压成 1 行。
+- **Notion sync 硬编码 4 个 entity** — 现在 config-driven；读 `_meta/config.md`。
+
+### 迁移
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-confidence + /wiki-link-audit
+```
+
+然后在 second-brain vault 内开任意 Claude Code session。Vault 脚手架自动创建。带 float `confidence` 的遗留 wiki 条目继续工作 — `/wiki-decay` 自动映射。永久迁移到 enum：在 vault 内跑 `/migrate-confidence`（幂等，写之前先预览）。
+
+跑过 `python -m tools.<X>` 的用户：那些 Python 入口已不存在。完整替代表见 [CHANGELOG.md](./CHANGELOG.md#181---2026-05-02)。
 
 ---
 

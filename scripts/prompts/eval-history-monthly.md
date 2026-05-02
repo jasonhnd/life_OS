@@ -1,32 +1,40 @@
-# User-invoked prompt · eval-history-monthly summary (v1.8.0)
+# User-invoked prompt · eval-history-monthly summary (v1.8.1 · zero-python)
 
 > v1.8.0 pivot: this used to fire from launchd cron monthly 1st at 07:00.
-> Cron is gone. ROUTER reads this when the user asks for a monthly system
-> performance summary, then runs the aggregation directly.
+> Cron is gone. v1.8.1 also dropped the `tools/stats.py` middleware —
+> ROUTER now reads this prompt and does the aggregation 100% via LLM
+> tools (Read/Glob/Grep/Write).
 
 ## Trigger keywords
 
 - `统计这个月` / `monthly summary` / `月度统计`
 - `eval history` / `系统表现总结`
-- session-start-inbox hook reports `monthly-summary Nd` and user says "跑一下"
+- session-start-inbox hook reports `eval-history-monthly Nd` and user says "跑一下"
 
 ## Context
 
-`_meta/eval-history/` accumulates per-session evaluation data: AUDITOR scores, REVIEWER decisions, archiver completions, cron runs, etc. This prompt aggregates them into a one-file monthly view.
+`_meta/eval-history/` accumulates per-session evaluation data: AUDITOR
+scores, REVIEWER decisions, archiver completions, etc. This prompt
+aggregates them into a one-file monthly view, doing all the counting
+inline via Glob + Read + simple text scan.
 
-## Required actions
+## Required actions (100% LLM, no python)
 
-This is mostly a python-tool-call prompt. Run `tools/stats.py` with monthly aggregation:
-
-```bash
-python -m tools.stats --month-summary --output _meta/eval-history/monthly-summary-{YYYY-MM}.md --root .
-```
-
-If `tools/stats.py` does not yet support `--month-summary` flag (v1.8.0 may need to add it):
-
-1. Read `_meta/eval-history/` for the past calendar month.
-2. Aggregate into the report below.
-3. Write directly to the output path.
+1. Determine the target month: `YYYY-MM` of the previous calendar month
+   (or current month if user explicitly says "这个月").
+2. `Glob` `_meta/eval-history/**/*.md` and `_meta/journal/**/*.md`
+   filtering to the target month by mtime (use `Bash` with `find ...
+   -newermt "$YYYY-MM-01" ! -newermt "$YYYY-MM+1-01"` to get the
+   filtered file list — this is the ONLY shell call needed).
+3. For each file, `Read` the frontmatter and key sections; tally:
+   - `outcome_score` values (sum + count for average)
+   - `archiver_phase_4_completed: true|false` (completion rate)
+   - `auditor_violations:` count by class (A/B/C/D/E)
+   - REVIEWER veto count (search "veto" / "封驳" in journal)
+   - decision count by domain (frontmatter `domain:`)
+4. Also `Glob` `pro/compliance/violations.md` (single file) and `Read`
+   it; tally violation rows that fall within the target month.
+5. Aggregate into the report below; write directly to output path.
 
 ## Aggregations to compute
 

@@ -19,10 +19,13 @@
 
 ---
 
-> **Hermes Local** is the user-facing name for Life OS's local safeguards and
-> automation: Layer 3 hooks plus Layer 4 Python tools. Internal labels remain
-> `execution layer`, `Layer 3`, and `Layer 4`. Selected local-tool patterns are
-> borrowed/forked from [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+> **Hermes Local** was the user-facing name for Life OS's local safeguards
+> when the project still shipped a Layer 4 Python tools/ package. As of
+> **v1.8.1 Wave 2 (zero-python pivot)**, Layer 4 is gone; the entire skill
+> is bash hooks + markdown prompts + agent definitions. The dangerous-
+> command pattern guard (~40 patterns) lives inline in
+> `scripts/hooks/pre-bash-approval.sh`. Pattern provenance preserved:
+> forked from [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
 > under the MIT License.
 
 ## One engine. Nine worlds. Your call.
@@ -85,22 +88,75 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 
 ---
 
-## What's New in v1.8.1 — Wiki pipeline + macOS portability + scanner regression-proof
+## What's New in v1.8.1 — Zero-Python pivot + Wiki Plan B + Counter-bias positioning
 
-v1.8.1 is **purely additive plus bugfixes** on top of v1.8.0. Four new wiki-management features (Plan B):
+v1.8.1 is the **largest reduction in Life OS history**. Two waves shipped May 1-2, both under the same v1.8.1 tag:
 
-- **`/inbox-process`** — drop any `.md` into `_meta/inbox/to-process/`, then say "处理 inbox" or `/inbox-process`. ROUTER scans, proposes per-item disposition (accept→wiki / update→wiki / archive / reject / defer), waits for your confirmation, executes, logs.
-- **`/research <topic>`** — spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent angles. Synthesizes a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section + automatic counter-bias check. Total wall time ≤ 7 min.
+### Wave 1 · Plan B wiki + auto-bootstrap (May 1)
+
+- **`/inbox-process`** — drop any `.md` into `_meta/inbox/to-process/`, then say "处理 inbox" or `/inbox-process`. ROUTER scans, proposes per-item disposition (accept→wiki / update→wiki / archive / reject / defer / merge), waits for confirmation, executes, logs. v1.8.1 Wave 2 added LLM-based duplicate detection (no SHA256, no FTS5) + delta tracking via `_meta/inbox/manifest.json`.
+- **`/research <topic>`** — spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent angles. Synthesizes a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section + automatic counter-bias check. v1.8.1 Wave 2 added decoupled CitationAgent (Phase 4, Anthropic pattern). Total wall time ≤ 9 min with citation verifier.
 - **`wiki/log.md` activity timeline convention** — every wiki Write/Edit/move appends one line with action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`). `/inbox-process` and `/research` write log entries automatically.
-- **Zero-setup vault bootstrap** — the first time you open a Claude Code session in a vault on v1.8.1, the SessionStart hook **automatically detects** missing scaffolding (`wiki/log.md`, `wiki/.templates/`, `_meta/inbox/to-process/`, `wiki/OBSIDIAN-SETUP.md`) and creates them silently. You see one `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` line once, then nothing. If you have `.obsidian/graph.json` configured, a wiki-node color group is added automatically (with backup to `.obsidian/graph.json.lifeos-backup-<ts>` first; rolled back on any error). Plus `scripts/wiki/wiki-link-audit.sh` (pure bash, replaces deleted v1.7 `wiki_decay.py` auditor side).
+- **Zero-setup vault bootstrap** — the first time you open a Claude Code session in a vault on v1.8.1, the SessionStart hook automatically detects missing scaffolding and creates it silently. You see one `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` line, then nothing. `.obsidian/graph.json` is auto-patched (with backup) if present.
 
-Critical bugfixes:
-- **macOS portability**: `pre-bash-approval.sh` had 5 bare `python -c` invocations. macOS 12+ removed bare `python` → hook fail-CLOSED → blocked every Bash command. R-1.8.0-020 commit title claimed this was fixed; it wasn't. Now uses portable `PYTHON=$(command -v python3 || command -v python)`.
-- **Scanner false positive**: `pre-write-scan.sh` pattern #5 was blocking legitimate markdown inline code (`` `python -m tools.embed` ``). Tightened to require shell metacharacters inside backticks.
-- **session-start-inbox UX**: 2 wrong task names (`auditor-patrol` → `auditor-mode-2`, `monthly-summary` → `eval-history-monthly`). NEVER_RUN bucket compressed from 8+ lines to 1 line.
-- **Notion sync was hardcoded to 4 entities** — now config-driven; reads `_meta/config.md`, only syncs configured entities.
+### Wave 2 · Zero-Python pivot (May 2)
 
-Migration: just upgrade the skill (`cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`). Vault scaffolding is auto-created the next time you open a Claude Code session inside the vault — no manual commands required. See [CHANGELOG.md](CHANGELOG.md#181---2026-05-01) for full detail.
+User feedback driving Wave 2: "我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。" — the entire Layer 4 Python tools/ package was carrying complexity (FTS5, vectors, mypy/ruff/pytest CI gates, 50+ optional deps) for capabilities the user never asked for or used. Wave 2 deletes every line of Python in the repo:
+
+- **11 Python modules deleted**: `tools/{approval,embed,export,reconcile,research,search,seed,sync_notion,skill_manager,stats,__init__}.py` plus `tools/lib/{__init__,config,llm,notion,second_brain}.py` and the package README.
+- **17 pytest test files deleted** (matching the deleted modules).
+- **Packaging deleted**: `pyproject.toml`, `uv.lock`, `.python-version`, `.github/workflows/integration.yml`, 9 `evals/scenarios/tool-*.md` eval scenarios.
+- **Security guard now bash-native**: the only security-critical Python (~40 dangerous-command pattern guard from `tools/approval.py`) was ported inline into `scripts/hooks/pre-bash-approval.sh` as a bash regex array. 100% pure bash; jq for JSON parsing (python3 fallback for stdin extraction only). Provenance preserved: forked from NousResearch/hermes-agent (MIT) commit `59b56d4...`. Smoke-tested with 17 fixtures (10 base + 7 edge cases).
+- **CI workflow rewrite**: `.github/workflows/test.yml` was 6 jobs (pytest + mypy + ruff × 3 OS × 2 Python). Now 3 jobs (`bash -n` + tests/hooks/ + spec drift, across ubuntu/macOS/windows). ~3× faster, no Python toolchain to install.
+- **Bash-that-wrapped-Python deleted**: `scripts/wiki/wiki-link-audit.sh` (311 lines of bash + awk frontmatter parsing) replaced by `scripts/prompts/wiki-link-audit.md` (LLM-driven Glob + Grep + Read).
+
+### Wave 2 · 9 wiki schema/pipeline improvements (May 2)
+
+| Wiki improvement | What changed |
+|---|---|
+| `aliases: []` field | Obsidian uses for `[[wikilink]]` resolution |
+| `source` → `sources: []` | Plural array; list every contributing URL/citation |
+| `confidence` is now a 5-bucket enum | `impossible \| unlikely \| possible \| likely \| certain` (was `0.0–1.0` float). Run `/migrate-confidence` to convert legacy entries; `/wiki-decay` auto-maps on the fly. |
+| `last_tended` field | ISO date — last time you actively reviewed (vs cosmetic edit) |
+| `review_by` field | ISO date — when `wiki-decay` should re-surface this entry |
+| Provenance tags on every fact | `^[extracted]` (paraphrased from a source), `^[inferred]` (your synthesis), `^[ambiguous]` (sources disagree). Required by `/research` agents and `/inbox-process` accept/update. |
+| LLM-based dedup in `/inbox-process` | Replaces SHA256 hashing — catches paraphrased near-duplicates, not just byte-identical. Pure LLM judgment using grep + Read. |
+| `_meta/inbox/manifest.json` delta tracking | Each `/inbox-process` run marks proposal-table rows as Δ-new vs carried-over. |
+| Decoupled CitationAgent in `/research` | Anthropic-pattern Phase 4: WebFetch-verifies every `^[extracted]` claim against `sources[]`. Auto-downgrades unverified claims. Confidence drops one bucket if 30%+ unverified. Opt-out with `--no-citations`. |
+
+### How Life OS Wiki differs (counter-bias positioning)
+
+Across the 6 major LLM-Wiki / multi-agent research projects we benchmarked against (Anthropic's research-system blog post, LangChain `langgraph` agent supervisor, GPT-Researcher, CrewAI, QX-Labs, OpenAI Deep Research), no single one combines all of these:
+
+| Axis | Life OS Wiki | Most others |
+|---|---|---|
+| Persistent backing store | Integrated wiki (markdown + frontmatter), survives sessions | Ephemeral chat output |
+| Per-bullet provenance | `^[extracted]`/`^[inferred]`/`^[ambiguous]` required | None or run-level only |
+| Citation verification | Decoupled CitationAgent runs AFTER synthesis (preserves analytical depth) | Interleaved (drives toward shallow easy-to-cite facts) |
+| Confidence calibration | 5-bucket enum forces honest assessment | Float (illusory precision) or unstated |
+| Freshness model | `last_tended` + `review_by` + `/wiki-decay` re-surfacing | Append-only, no decay model |
+| Inbox handoff | User triages with full proposal table, confirms before write | Autonomous append (you find out later) |
+| Deployment posture | Zero Python (bash + markdown only) | Pip / npm / requirements.txt |
+
+This is not a critique of those projects — they solve different problems. But if you've tried "LLM wiki" or "multi-agent research" tools and found that (a) the output disappears, (b) you can't tell what's a real source vs a synthesis, or (c) the agent confidently cites URLs that don't say what it claims — those are the gaps Life OS Wiki is built to close.
+
+### Critical bugfixes (Wave 1)
+
+- **macOS portability**: `pre-bash-approval.sh` had 5 bare `python -c` invocations. macOS 12+ removed bare `python` → hook fail-CLOSED → blocked every Bash command. R-1.8.0-020 commit title claimed this was fixed; it wasn't until Wave 1.
+- **Scanner false positive**: `pre-write-scan.sh` pattern #5 was blocking legitimate markdown inline code. Tightened to require shell metacharacters inside backticks.
+- **session-start-inbox UX**: 2 wrong task names; NEVER_RUN bucket compressed from 8+ lines to 1.
+- **Notion sync was hardcoded to 4 entities** — now config-driven; reads `_meta/config.md`.
+
+### Migration
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # installs new /inbox-process + /research + /migrate-confidence + /wiki-link-audit
+```
+
+Then open any Claude Code session inside your second-brain vault. Vault scaffolding is auto-created. Existing wiki entries with legacy float `confidence` keep working — `/wiki-decay` auto-maps. To permanently migrate to the enum, run `/migrate-confidence` from your vault (idempotent, with proposal preview).
+
+For users who had `python -m tools.<X>` invocations: those Python entrypoints no longer exist. See [CHANGELOG.md](CHANGELOG.md#181---2026-05-02) for the full replacement table.
 
 ---
 

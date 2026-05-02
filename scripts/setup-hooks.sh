@@ -277,7 +277,7 @@ register_hook "PreToolUse" "$HOOK_PRE_READ_ID" "Read" \
 
 register_hook "PreToolUse" "$HOOK_PRE_BASH_APPROVAL_ID" "Bash" \
   "$V17_PRE_BASH_APPROVAL_DEST" 5 \
-  "v1.7.3 · Approval guard wrapping tools/approval.py (47 dangerous patterns + hardline + optional tirith if installed)"
+  "v1.8.1 · Approval guard with ~40 dangerous-command bash regex patterns (ported from former tools/approval.py — zero-python self-contained)"
 
 # ─── Register v1.8.0 hooks ──────────────────────────────────────────────────
 register_hook "SessionStart" "$HOOK_SESSION_START_INBOX_ID" "*" \

@@ -19,7 +19,7 @@
 
 ---
 
-> **Hermes Local** は、Life OS のローカル防護と自動化実行面に対するユーザー向け名称です。Layer 3 hooks と Layer 4 Python tools を指し、内部ラベルは引き続き `execution layer`、`Layer 3`、`Layer 4` のままです。一部のローカルツール設計は [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）から借用 / fork しています。
+> **Hermes Local** は、Life OS が Layer 4 Python tools/ パッケージを出荷していた時代のユーザー向け名称でした。**v1.8.1 Wave 2（zero-python pivot）**以降、Layer 4 はなくなり、skill 全体が bash hook + markdown prompt + agent 定義のみとなりました。危険コマンド pattern guard（~40 個）は `scripts/hooks/pre-bash-approval.sh` 内にインライン埋め込み。Pattern 出処は保持：[NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）から fork。
 
 ## ひとつのエンジン。九つの世界。選ぶのはあなた。
 
@@ -79,22 +79,75 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 ---
 
-## v1.8.1 の新機能 — Wiki パイプライン + macOS 移植性 + scanner 回帰防止
+## v1.8.1 の新機能 — Zero-Python pivot + Wiki Plan B + 確証バイアス対抗ポジショニング
 
-v1.8.1 は v1.8.0 の上に**純粋に追加 + bugfix**。4 つの新規 wiki 管理機能（Plan B）：
+v1.8.1 は **Life OS 史上最大の「引き算」**。5 月 1-2 日に 2 つの wave で配信、両方とも同じ v1.8.1 タグの下：
 
-- **`/inbox-process`** — `_meta/inbox/to-process/` に任意の `.md` をドロップ、「処理 inbox」または `/inbox-process` と発話。ROUTER がスキャン、各項目の配置を提案（accept→wiki / update→wiki / archive / reject / defer）、確認を待ち、実行、ログ記録。
-- **`/research <topic>`** — 並列で 5 つ（`--depth deep` で 8 つ）の `general-purpose` subagent を起動し academic / practitioner / contrarian / origin / adjacent 角度をカバー。SCHEMA 互換 wiki ドラフトに統合、強制 `Counterpoints` セクション + 自動反 confirmation bias チェック付き。総 wall time ≤ 7 min。
+### Wave 1 · Plan B wiki + auto-bootstrap（5 月 1 日）
+
+- **`/inbox-process`** — `_meta/inbox/to-process/` に任意の `.md` をドロップ、「処理 inbox」または `/inbox-process` と発話。ROUTER がスキャン、各項目の配置（accept→wiki / update→wiki / archive / reject / defer / merge）を提案、確認を待ち、実行、ログ記録。Wave 2 で LLM ベース重複検出（SHA256 なし、FTS5 なし）+ `_meta/inbox/manifest.json` デルタ追跡を追加。
+- **`/research <topic>`** — 並列で 5 つ（`--depth deep` で 8 つ）の `general-purpose` subagent を起動し academic / practitioner / contrarian / origin / adjacent 角度をカバー。SCHEMA 互換 wiki ドラフトに統合、強制 `Counterpoints` セクション + 自動反 confirmation bias チェック付き。Wave 2 で切り離された CitationAgent（Phase 4、Anthropic パターン）を追加。citation verifier 込みで総 wall time ≤ 9 min。
 - **`wiki/log.md` 活動タイムライン規約** — 各 wiki Write/Edit/移動操作で 1 行 append + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` と `/research` が自動でログを書く。
-- **コマンド不要の vault 自動 bootstrap** — v1.8.1 で初めて vault 内で Claude Code セッションを開くとき、SessionStart hook が**欠落しているスキャフォールディング**（`wiki/log.md`、`wiki/.templates/`、`_meta/inbox/to-process/`、`wiki/OBSIDIAN-SETUP.md`）を**自動検出**してサイレントに作成。初回のみ `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` の 1 行が表示され、以降は無出力。`.obsidian/graph.json` が存在すれば wiki ノードのカラーグループも自動追加（編集前に `.obsidian/graph.json.lifeos-backup-<ts>` にバックアップ; エラー時はロールバック）。`scripts/wiki/wiki-link-audit.sh` 追加（純 bash、削除済み v1.7 `wiki_decay.py` 監査側を置換）。
+- **コマンド不要の vault 自動 bootstrap** — v1.8.1 で初めて vault 内で Claude Code セッションを開くとき、SessionStart hook が欠落しているスキャフォールディングを自動検出してサイレントに作成。`✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` の 1 行のみ表示。`.obsidian/graph.json` も自動パッチ（先にバックアップ）。
 
-クリティカル bugfix：
-- **macOS 移植性**：`pre-bash-approval.sh` 5 箇所の裸 `python -c`。macOS 12+ は裸 `python` を削除 → hook fail-CLOSED → 全 Bash コマンドブロック。R-1.8.0-020 commit タイトルは修正済みと主張したが、未修正。現在 portable `PYTHON=$(command -v python3 || command -v python)` を使用。
-- **Scanner false positive**：`pre-write-scan.sh` pattern #5 が正当な markdown インラインコード（`` `python -m tools.embed` ``）をブロックしていた。backtick 内に shell メタ文字を要求するよう厳格化。
-- **session-start-inbox UX**：2 つのタスク名間違い（`auditor-patrol` → `auditor-mode-2`、`monthly-summary` → `eval-history-monthly`）。NEVER_RUN バケットを 8+ 行から 1 行に圧縮。
-- **Notion sync が 4 entity をハードコード** — 設定駆動に変更; `_meta/config.md` を読み、設定済みのみ sync。
+### Wave 2 · Zero-Python pivot（5 月 2 日）
 
-マイグレーション：skill をアップグレードするだけ（`cd ~/.claude/skills/life_OS && git pull` + `bash scripts/setup-hooks.sh`）。Vault スキャフォールディングは次回 vault 内で Claude Code セッションを開いたときに自動作成 — 手動コマンド不要。詳細は [CHANGELOG.md](./CHANGELOG.md#181---2026-05-01) 参照。
+Wave 2 を駆動したユーザーの原文：「我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。」 — Layer 4 Python tools/ パッケージ全体がユーザーが要求も使用もしていない複雑度（FTS5、ベクトル、mypy/ruff/pytest CI gate、50+ オプショナル依存）を背負っていた。Wave 2 はリポジトリの Python を一行残らず削除：
+
+- **11 個の Python モジュール削除**：`tools/{approval,embed,export,reconcile,research,search,seed,sync_notion,skill_manager,stats,__init__}.py` と `tools/lib/{__init__,config,llm,notion,second_brain}.py` とそのパッケージ README。
+- **17 個の pytest テストファイル削除**（削除されたモジュールに対応）。
+- **パッケージング削除**：`pyproject.toml`、`uv.lock`、`.python-version`、`.github/workflows/integration.yml`、9 個の `evals/scenarios/tool-*.md` eval シナリオ。
+- **セキュリティ guard が bash ネイティブに**：唯一セキュリティクリティカルな Python（`tools/approval.py` からの ~40 危険コマンドパターン guard）を `scripts/hooks/pre-bash-approval.sh` 内に bash 正規表現配列としてインライン port。100% 純 bash；jq で JSON parse（python3 は stdin 抽出フォールバックのみ）。出処保持：NousResearch/hermes-agent (MIT) commit `59b56d4...` から fork。17 フィクスチャ（10 基本 + 7 エッジ）スモークテスト済み。
+- **CI workflow 書き直し**：`.github/workflows/test.yml` は元 6 ジョブ（pytest + mypy + ruff × 3 OS × 2 Python）。今は 3 ジョブ（`bash -n` + tests/hooks/ + spec drift、ubuntu/macOS/windows 横断）。~3 倍速、Python ツールチェーン不要。
+- **Python のラッパーだった bash 削除**：`scripts/wiki/wiki-link-audit.sh`（311 行の bash + awk frontmatter parsing）→ `scripts/prompts/wiki-link-audit.md`（LLM 駆動 Glob + Grep + Read）に置換。
+
+### Wave 2 · 9 つの wiki スキーマ／パイプライン改善（5 月 2 日）
+
+| Wiki 改善 | 何が変わったか |
+|---|---|
+| `aliases: []` フィールド | Obsidian が `[[wikilink]]` 解決に使用 |
+| `source` → `sources: []` | 複数配列；貢献した URL/citation すべてをリスト |
+| `confidence` を 5 段階 enum に | `impossible \| unlikely \| possible \| likely \| certain`（以前は `0.0–1.0` float）。`/migrate-confidence` でレガシーエントリ変換；`/wiki-decay` がスキャン時に自動マッピング。 |
+| `last_tended` フィールド | ISO 日付 — 最後に能動的に review した時点（cosmetic 編集ではなく） |
+| `review_by` フィールド | ISO 日付 — `wiki-decay` がこのエントリを再表示すべき時点 |
+| 各事実の出処タグ | `^[extracted]`（ソースから言い換え）、`^[inferred]`（自分の合成）、`^[ambiguous]`（ソース不一致）。`/research` agent 出力で必須；`/inbox-process` accept/update で必須。 |
+| `/inbox-process` LLM ベース重複検出 | SHA256 ハッシュを置換 — バイト一致だけでなく言い換え近似重複も捕捉。grep + Read を使った純 LLM 判断。 |
+| `_meta/inbox/manifest.json` デルタ追跡 | 各 `/inbox-process` 実行が提案テーブルの行に Δ-new vs carried-over をマーク。 |
+| `/research` 切り離された CitationAgent | Anthropic パターン Phase 4：WebFetch で各 `^[extracted]` claim が `sources[]` に対応するか検証。未検証は自動降格。30%+ 失敗で confidence が一段階下がる。`--no-citations` でオプトアウト可。 |
+
+### Life OS Wiki が他とどう違うか（確証バイアス対抗ポジショニング）
+
+我々がベンチマークした 6 つの主要 LLM-Wiki / マルチエージェント research プロジェクト（Anthropic research-system ブログ、LangChain `langgraph` agent supervisor、GPT-Researcher、CrewAI、QX-Labs、OpenAI Deep Research）のうち、これらすべてを兼ね備えるものはありません：
+
+| 軸 | Life OS Wiki | 大半の他者 |
+|---|---|---|
+| 永続化ストレージ | 統合 wiki（markdown + frontmatter）、セッション横断で残る | 一時的なチャット出力 |
+| bullet ごとの出処 | `^[extracted]`/`^[inferred]`/`^[ambiguous]` 必須 | なし、または run レベルのみ |
+| Citation 検証 | 切り離された CitationAgent が合成**後**に実行（分析の深さを保つ） | インターリーブ（モデルを浅く引用しやすい事実に押しやる） |
+| Confidence 校正 | 5 段階 enum が誠実な評価を強制 | float（虚偽の精度）または不明示 |
+| 鮮度モデル | `last_tended` + `review_by` + `/wiki-decay` 再表示 | append-only、decay モデルなし |
+| Inbox 引き渡し | ユーザーが完全な提案テーブルでトリアージ、書き込み前に確認 | 自治追加（後で気づく） |
+| デプロイ姿勢 | Zero Python（bash + markdown のみ） | Pip / npm / requirements.txt |
+
+これは他プロジェクトへの批判ではありません — 異なる問題を解いています。ただし「LLM wiki」「マルチエージェント research」ツールを試して (a) 出力が消える (b) 真のソースと合成の区別がつかない (c) agent が主張内容に言及していない URL を自信ありげに引用する、と感じたなら — それらが Life OS Wiki が塞ごうとしているギャップです。
+
+### クリティカル bugfix（Wave 1）
+
+- **macOS 移植性**：`pre-bash-approval.sh` に裸 `python -c` 5 箇所。macOS 12+ は裸 `python` を削除 → hook fail-CLOSED → 全 Bash コマンドブロック。R-1.8.0-020 commit タイトルは修正済みと主張したが、Wave 1 まで未修正だった。
+- **Scanner 誤判定**：`pre-write-scan.sh` pattern #5 が正当な markdown インラインコードをブロック。backtick 内に shell メタ文字を要求するよう厳格化。
+- **session-start-inbox UX**：2 つのタスク名間違い；NEVER_RUN バケットを 8+ 行から 1 行に圧縮。
+- **Notion sync が 4 entity をハードコード** — 設定駆動に変更；`_meta/config.md` を読む。
+
+### マイグレーション
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confidence + /wiki-link-audit をインストール
+```
+
+その後 second-brain vault 内で任意の Claude Code セッションを開く。Vault スキャフォールディング自動作成。レガシー float `confidence` を持つ既存 wiki エントリは引き続き動作 — `/wiki-decay` が自動マッピング。永続的に enum へマイグレーション：vault 内で `/migrate-confidence` を実行（冪等、書き込み前に提案プレビュー）。
+
+`python -m tools.<X>` を実行していたユーザー：それらの Python エントリポイントはもう存在しません。完全な代替表は [CHANGELOG.md](./CHANGELOG.md#181---2026-05-02) を参照。
 
 ---
 

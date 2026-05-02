@@ -124,8 +124,9 @@ Manual edits should also append (one line per operation).
 
 The \`research-generated\` tag (in any wiki entry's \`tags:\`) means the
 entry was synthesized by the \`/research\` multi-agent pipeline. Default
-\`confidence: 0.65\` reflects multi-source convergence; bump or trim per
-your judgment after review.
+\`confidence: possible\` (5-bucket enum, v1.8.1+) reflects multi-source
+convergence; bump to \`likely\` after personal review, or to \`unlikely\`
+if you find counter-evidence.
 
 ---
 
@@ -154,7 +155,7 @@ subtree a first-class graph citizen alongside the rest of your second-brain.
 
 | Plugin | Why | Source |
 |---|---|---|
-| **Dataview** | Query frontmatter: list all `confidence < 0.7`, sort by `last_updated`, group by `status`. The single biggest UX win for the wiki. | Community Plugins → "Dataview" |
+| **Dataview** | Query frontmatter: list all entries where `confidence` is `unlikely` or `possible`, sort by `last_tended`, group by `status`. The single biggest UX win for the wiki. | Community Plugins → "Dataview" |
 | **Graph Analysis** | Find hub entries (high in-degree) and orphan entries (zero links). Use to plan link-density improvements. | Community Plugins → "Graph Analysis" |
 | **Templater** | Spawn new wiki entries from `wiki/.templates/wiki-entry-template.md` with one keystroke (vs hand-typing frontmatter every time). | Community Plugins → "Templater" |
 | Excalidraw (optional) | Hand-drawn diagrams attached to wiki entries. Use when text alone won't carry the model. | Community Plugins → "Excalidraw" |
@@ -182,10 +183,10 @@ To revert: restore the backup file `.obsidian/graph.json.lifeos-backup-*`.
 ## Useful Dataview queries (paste into any note)
 
 ```dataview
-TABLE confidence, last_updated, status
+TABLE confidence, last_tended, status
 FROM "wiki"
-WHERE confidence < 0.7 AND status = "candidate"
-SORT last_updated DESC
+WHERE (confidence = "unlikely" OR confidence = "possible") AND status = "candidate"
+SORT last_tended DESC
 ```
 
 ```dataview
@@ -197,12 +198,22 @@ WHERE length(file.outlinks) = 0 AND length(file.inlinks) = 0
 better integration or deprecation)
 
 ```dataview
-TABLE last_updated
+TABLE last_tended, review_by
 FROM "wiki"
-WHERE date(today) - date(last_updated) > dur(180 days)
-SORT last_updated ASC
+WHERE review_by != null AND date(review_by) <= date(today)
+SORT review_by ASC
 ```
-(stale entries — not touched in 180+ days; review for freshness)
+(entries flagged for review — `wiki-decay` re-surfaces these on next run.
+Empty result = nothing currently due.)
+
+```dataview
+TABLE last_tended
+FROM "wiki"
+WHERE date(today) - date(last_tended) > dur(180 days)
+SORT last_tended ASC
+```
+(stale entries — not actively reviewed in 180+ days; consider re-tending or
+deprecating.)
 
 ## Template usage
 
@@ -213,16 +224,19 @@ inserting a new wiki entry becomes one keystroke.
 
 ## Audit your link graph
 
-The `/wiki-decay` slash command (or natural-language "扫一下 wiki") runs
-the bash audit script and walks you through the report. Or invoke
-directly:
+The `/wiki-decay` slash command (or natural-language "扫一下 wiki") walks
+your wiki and proposes deprecate / merge / refresh actions; add `+ link
+audit` to also include link integrity (broken `[[wikilinks]]`, broken
+`[t](path.md)` markdown links, orphan entries).
 
-```bash
-bash ~/.claude/skills/life_OS/scripts/wiki/wiki-link-audit.sh
-```
+For a standalone link-only pass:
 
-Report goes to `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`. Pure
-bash, no Python dependency. Run monthly or after large edits.
+- Slash command: `/wiki-link-audit`
+- Natural language: "wiki link audit" / "查 wiki 哪些链接断了"
+
+Both write to `_meta/eval-history/wiki-link-audit-YYYY-MM-DD.md`. Pure
+LLM (Glob + Grep + Read) — no Python, no fragile bash regex parsing.
+Run monthly or after large edits.
 
 ## What this doesn't do
 
@@ -238,14 +252,16 @@ emit ""
 write_if_missing "wiki/.templates/wiki-entry-template.md" "new-entry stub (Templater target)" <<'EOF'
 ---
 title: "<one-line title; max 80 chars>"
+aliases: []                # alternative names — Obsidian uses these for [[wikilink]] resolution
 domain: <domain-from-existing-list>
 created: <%+ tp.date.now("YYYY-MM-DD") %>
 last_updated: <%+ tp.date.now("YYYY-MM-DD") %>
-confidence: 0.5
+last_tended: <%+ tp.date.now("YYYY-MM-DD") %>   # last time you actively reviewed this entry (vs cosmetic edit)
+review_by: <%+ tp.date.now("YYYY-MM-DD") %>     # when wiki-decay should re-surface this entry; default = +180d
+confidence: possible       # enum: impossible | unlikely | possible | likely | certain  (was 0.0–1.0 float in v1.7)
 tags: [<domain>, <topic-tag>]
-status: candidate
-source: |
-  - <url-or-citation>
+status: candidate          # candidate | confirmed | deprecated
+sources: []                # plural array — list every URL / citation / conversation that contributed
 ---
 
 # <title>
@@ -254,8 +270,15 @@ source: |
 <2-3 sentences>
 
 ## Key facts
-- <fact-1>
-- <fact-2>
+<!--
+Each fact may be tagged with a provenance marker:
+  ^[extracted]  — quoted/paraphrased verbatim from a sources[] entry
+  ^[inferred]   — your synthesis, not directly stated in any source
+  ^[ambiguous]  — sources disagree or evidence is mixed
+Untagged claims default to ^[extracted].
+-->
+- <fact-1> ^[extracted]
+- <fact-2> ^[inferred]
 
 ## Mechanism / How it works
 <paragraph>
@@ -274,6 +297,7 @@ source: |
 - [[<other-wiki-entry>]]
 
 ## Sources
+<!-- Mirror the sources[] frontmatter array as a human-readable list. -->
 - <full URL or citation>
 EOF
 emit ""

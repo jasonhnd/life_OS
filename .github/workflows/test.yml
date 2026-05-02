@@ -1,5 +1,14 @@
 name: Tests
 
+# v1.8.1 zero-python pivot: Life OS is now a Claude Code skill made of
+# bash hooks + markdown prompts + agent definitions. The Python tools/
+# package was deleted. CI now runs ONLY shell-side checks:
+#   - bash -n syntax check on all .sh files
+#   - tests/hooks/*.sh integration suite
+#   - scripts/check-spec-drift.sh
+#   - hook regex smoke test
+#   - compliance check fixture
+
 on:
   push:
     branches: [main]
@@ -7,60 +16,15 @@ on:
     branches: [main]
 
 jobs:
-  pytest:
-    name: pytest (${{ matrix.os }} · Python ${{ matrix.python-version }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install uv
-        run: pip install uv
-
-      - name: Install dependencies
-        run: |
-          uv sync --all-extras
-
-      - name: Run pytest
-        run: |
-          uv run pytest tests/ -v --tb=short -m "not integration"
-
-      - name: Mypy strict on tools/
-        # Gate added R4.4 (v1.7): see references/tools-spec.md §10 coverage invariant.
-        # R3.8 closed 14 → 0 errors across 28 source files; this gate prevents regression.
-        # Runs ubuntu + 3.12 only — mypy results are OS-independent; pinning Python
-        # version avoids cross-version typing module drift and saves 5× CI time.
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
-        run: |
-          uv run mypy --strict tools/
-
-      - name: Run ruff (lint)
-        # R-1.8.0-013 deep-audit fix: removed continue-on-error so lint
-        # regressions block the merge. Existing baseline must stay clean;
-        # if ruff fails, fix the lint or update the rule config — don't
-        # silently let it through.
-        run: |
-          uv run ruff check tools/ tests/
-
-  bash-syntax:
-    name: Bash scripts (${{ matrix.os }})
+  bash-tests:
+    name: bash-tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         # windows-latest (Windows Server) ships Git for Windows which
         # includes a bash (MSYS2). All hook tests are verified portable
-        # on MSYS bash 5.x and run on every runner (R3.6, v1.7).
+        # on MSYS bash 5.x and run on every runner.
         os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
@@ -71,12 +35,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check bash syntax (all runners)
-        # R-1.8.0-013 deep-audit fix: enumerate via `git ls-files '*.sh'`
-        # so any new shell file added under any directory (including
-        # scripts/lib/, scripts/cron/, future dirs) is automatically
-        # checked. Previous fixed-glob approach silently skipped
-        # scripts/lib/*.sh which contained real shell logic (audit-trail.sh,
-        # sha-fallback.sh).
+        # Enumerate via `git ls-files '*.sh'` so any new shell file added
+        # under any directory is automatically checked.
         run: |
           failed=0
           while IFS= read -r script; do
@@ -99,16 +59,15 @@ jobs:
           done
           exit $failed
 
-      - name: Spec drift scan (R-1.8.0-013 round-6)
-        # Scans active .md/.py/.sh files for references to repo paths
-        # (e.g. `scripts/foo.sh`) and verifies the target exists. Catches
-        # cases like spec files pointing at scripts that were deleted in
-        # R-1.8.0-011 pivot. Forbidden-token check runs as warning only.
+      - name: Spec drift scan
+        # Scans active .md/.sh files for references to repo paths
+        # (e.g. `scripts/foo.sh`) and verifies the target exists.
+        # Forbidden-token check runs as warning only.
         run: |
           chmod +x scripts/check-spec-drift.sh || true
           bash scripts/check-spec-drift.sh
 
-      - name: Verify hook script regex (all runners)
+      - name: Verify pre-prompt-guard regex (all runners)
         run: |
           # Smoke test: hook should detect '上朝' as trigger
           chmod +x scripts/lifeos-pre-prompt-guard.sh || true
@@ -124,12 +83,9 @@ jobs:
           echo "✅ Hook regex OK"
 
       - name: Verify compliance check (all runners)
-        # R-1.8.0-013 round-5 audit fix: fixture must include the 6 H2
-        # sections + version markers + Cortex status (matches what
-        # tests/test_compliance_check.py uses post-R-1.8.0-013, which
-        # itself was caught failing in round-4 audit). Otherwise the
-        # checker bails on `C (P0): briefing-completeness failed` and
-        # this CI step turns red.
+        # Smoke fixture for scripts/lifeos-compliance-check.sh — covers
+        # the start-session-compliance scenario with 6 H2 sections +
+        # version markers + Cortex status.
         run: |
           chmod +x scripts/lifeos-compliance-check.sh || true
           tmpdir=$(mktemp -d)
@@ -140,7 +96,7 @@ jobs:
           a) 连接到 second-brain
           b) 开发模式
           c) 新建 second-brain
-          [Local SKILL.md version: 1.8.0]
+          [Local SKILL.md version: 1.8.1]
           [Remote check (forced fresh): up-to-date]
           [Cortex: skipped - per-message pull mode in v1.8.0]
           ## 0. <display name> · 上朝准备

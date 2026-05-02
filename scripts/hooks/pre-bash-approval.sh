@@ -1,5 +1,5 @@
 #!/bin/bash
-# Life OS · pre-bash-approval.sh (v1.7.3)
+# Life OS · pre-bash-approval.sh (v1.8.1 · zero-python pattern guard)
 # ─────────────────────────────────────────────────────────────────────────────
 # Event:   PreToolUse
 # Matcher: Bash
@@ -7,48 +7,41 @@
 # Timeout: 5s
 #
 # Purpose
-#   Bridge Claude Code Bash invocations to tools/approval.py.
-#   Closes the v1.7.2 gap where 47 dangerous-command patterns sat in
-#   approval.py with 0 callers. Now every Bash command is screened.
+#   Screen every Bash command against ~40 dangerous-command patterns BEFORE
+#   it executes. Replaces the v1.7.x Python bridge to tools/approval.py
+#   (deleted in v1.8.1 zero-python pivot).
 #
 # Behaviour
 #   - Reads JSON from stdin (Claude Code hook protocol)
-#   - Extracts tool_input.command
-#   - Calls tools.approval.check_dangerous_command via inline python
-#   - exit 0 silently if approved (no UI noise on safe commands)
-#   - exit 2 with stderr message if blocked (Claude shows reason to user)
+#   - Extracts tool_input.command via jq (preferred) or python3 (fallback)
+#   - Lowercases command, then iterates ~40 dangerous regex patterns
+#   - exit 0 silently if no match (no UI noise on safe commands)
+#   - exit 2 with bilingual stderr message if matched
 #
 # Bypass switch
 #   - export LIFEOS_YOLO_MODE=1   # one-session bypass (use sparingly)
+#     Note: Claude Code env is evaluated BEFORE PreToolUse fires, so inline
+#     `export` inside a previous Bash call doesn't take effect for the next
+#     call. Persist via ~/.claude/settings.local.json env block for real bypass.
 #
-# Safety design (R-1.8.0-013 deep-audit fix · was fail-OPEN before)
-#   - **Fail-CLOSED on approval-bridge errors**: if approval.py raises,
-#     JSON parsing fails, or the decision payload is malformed, BLOCK the
-#     command and surface the cause to the user. Previous fail-OPEN
-#     behavior let dangerous commands through silently when the guard
-#     itself broke. The user can still bypass via LIFEOS_YOLO_MODE=1 if
-#     they consciously accept the risk.
-#   - **Setup-not-installed exception**: if lifeos source can't be located
-#     anywhere on disk (no approval.py exists at any candidate path), exit
-#     0 — we can't enforce a guard that isn't installed; this prevents a
-#     missing install from locking the user out of their own shell entirely.
-#   - Searches for lifeos source in 3 standard locations
+# Provenance
+#   The pattern corpus is forked from NousResearch/hermes-agent (MIT) commit
+#   59b56d445c34e1d4bf797f5345b802c7b5986c72 → was tools/approval.py @ v1.7.3.
+#   v1.8.1 ports them to a bash regex array; 5 Hermes-product-specific
+#   patterns dropped (gateway/cli.py/hermes update — Life OS doesn't ship
+#   that runtime). Net pattern count: ~42 → ~40.
+#
+# Safety design
+#   - Fail-CLOSED on JSON parse error (block, surface cause)
+#   - Fail-CLOSED on missing parser tools (block, instruct user)
+#   - Fail-OPEN ONLY when LIFEOS_YOLO_MODE=1 (explicit user override)
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -u
 
-# R-1.8.0-022 portable python detection. macOS 12+ removed the bare `python`
-# binary; only `python3` is available. If we hardcode `python -c`, this hook
-# fails-CLOSED with "python: command not found" → blocks every Bash command
-# → Claude Code deadlocks. Detect once at top, use $PYTHON everywhere below.
-# Order: prefer python3 (modern), fall back to python (older Linux), final
-# fallback is `python3` literal so the error message says what's missing.
-if command -v python3 >/dev/null 2>&1; then
-  PYTHON="python3"
-elif command -v python >/dev/null 2>&1; then
-  PYTHON="python"
-else
-  PYTHON="python3"
+# ─── YOLO bypass (early exit, before any expensive work) ────────────────────
+if [ "${LIFEOS_YOLO_MODE:-0}" = "1" ]; then
+  exit 0
 fi
 
 INPUT="$(cat)"
@@ -56,10 +49,16 @@ if [ -z "$INPUT" ]; then
   exit 0
 fi
 
+# ─── Detect python3 (used only for JSON parsing fallback if jq missing) ─────
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON="python"
+else
+  PYTHON=""
+fi
+
 # ─── Extract command from hook JSON ─────────────────────────────────────────
-# Round-5 audit fix: distinguish "JSON parse failed" (fail-CLOSED — bad
-# input means we can't trust anything) from "valid JSON but command is
-# empty" (legit pass-through, e.g., a Bash hook fired with no command).
 COMMAND=""
 PARSE_OK=0
 if command -v jq >/dev/null 2>&1; then
@@ -67,32 +66,29 @@ if command -v jq >/dev/null 2>&1; then
     PARSE_OK=1
   fi
 fi
-if [ "$PARSE_OK" -eq 0 ]; then
+if [ "$PARSE_OK" -eq 0 ] && [ -n "$PYTHON" ]; then
   PARSED="$(printf '%s' "$INPUT" | "$PYTHON" -c "
 import json, sys
 try:
     d = json.load(sys.stdin)
     cmd = d.get('tool_input', {}).get('command', '')
-    print('OK\x1f' + (cmd if isinstance(cmd, str) else ''))
-except Exception as e:
-    print('FAIL\x1f' + str(e), file=sys.stderr)
+    print(cmd if isinstance(cmd, str) else '')
+except Exception:
     sys.exit(1)
 " 2>/dev/null)"
-  if [ -n "$PARSED" ]; then
+  if [ $? -eq 0 ]; then
     PARSE_OK=1
-    COMMAND="${PARSED#OK?}"   # strip 'OK' + 0x1f separator
-    [ "$COMMAND" = "$PARSED" ] && COMMAND=""
+    COMMAND="$PARSED"
   fi
 fi
 
 if [ "$PARSE_OK" -eq 0 ]; then
-  # Both jq and python failed to parse the input — corrupt payload.
-  # Fail-CLOSED so unscanned commands don't slip through.
-  cat >&2 <<EOF
+  cat >&2 <<'EOF'
 🛡️ Life OS 守门人 · 输入 JSON 无法解析（fail-CLOSED）
 
-  原因: jq 和 python 都无法解析 stdin。Approval guard 拒绝放行未扫描命令。
-  补救: 检查 Claude Code hook input 格式；或设置 LIFEOS_YOLO_MODE=1 暂时绕过
+  原因: 既无 jq 也无 python3 可用，无法从 hook input 中提取 command。
+  补救: brew install jq / apt install jq 或安装 python3；
+        或 export LIFEOS_YOLO_MODE=1 暂时绕过（仅在你确认风险可控时使用）
 EOF
   exit 2
 fi
@@ -102,131 +98,196 @@ if [ -z "$COMMAND" ]; then
   exit 0
 fi
 
-# ─── Locate lifeos source (where tools/approval.py lives) ───────────────────
-LIFEOS_DIR=""
-SEARCHED_PATHS=""
-for candidate in \
-  "$(cd "$(dirname "$0")/../.." 2>/dev/null && pwd)" \
-  "$HOME/.claude/skills/life_OS" \
-  "$HOME/.claude/skills/lifeos"; do
-  SEARCHED_PATHS="${SEARCHED_PATHS}    ${candidate}/tools/approval.py
-"
-  if [ -n "$candidate" ] && [ -f "$candidate/tools/approval.py" ]; then
-    LIFEOS_DIR="$candidate"
-    break
-  fi
-done
-# Round-3 audit fix (was: silent exit 0 = approve when source not found):
-# This is the security guard's source code — if it's not on disk, the
-# guard isn't installed, and that's a critical state, not a benign one.
-# Fail-CLOSED so the user notices the misinstall instead of running with
-# silent unenforced policy. LIFEOS_YOLO_MODE=1 escape hatch still works.
-if [ -z "$LIFEOS_DIR" ]; then
-  if [ "${LIFEOS_YOLO_MODE:-0}" = "1" ]; then
-    echo "[approval] LIFEOS_YOLO_MODE=1 — skipping guard despite missing approval.py" >&2
-    exit 0
-  fi
-  cat >&2 <<EOF
-🛡️ Life OS 守门人 · approval.py 找不到（fail-CLOSED）
+# ─── Normalize command (strip ANSI, lowercase) ──────────────────────────────
+# approval.py used Python: strip ANSI + NFKC + lowercase. The bash port keeps
+# ANSI-strip + lowercase; full NFKC is overkill for shell-level matching.
+NORM="$(printf '%s' "$COMMAND" \
+  | sed -E $'s/\x1b\\[[0-9;]*[A-Za-z]//g' \
+  | tr 'A-Z' 'a-z')"
 
-  命令: $COMMAND
-  搜索过的路径:
-$SEARCHED_PATHS
-  原因: lifeos source 不在任何标准位置，approval guard 无法运行。
-        为安全起见命令被阻止。
-  补救: (1) 重新跑 \`bash scripts/setup-hooks.sh\` 确保 lifeos 安装到
-            ~/.claude/skills/life_OS/
-        (2) 或设置 LIFEOS_YOLO_MODE=1 临时跳过 guard（仅在你确认
-            风险可控时使用）
-EOF
-  exit 2
-fi
+# ─── Dangerous-command pattern list ─────────────────────────────────────────
+# Each entry is two consecutive array slots: [pattern, description].
+# Ported from tools/approval.py @ v1.7.3 (HARDLINE + DANGEROUS combined).
+# `\s` → `[[:space:]]` and `\S` → `[^[:space:]]` for portability across
+# GNU and BSD grep -E. `\b` is kept because both modern grep variants
+# support it as a word-boundary extension.
+PATTERNS=(
+  # ─ Filesystem destruction (was HARDLINE) ─
+  '\brm[[:space:]]+(-[^[:space:]]*[[:space:]]+)*(/|/\*)([[:space:]]|$)'
+  'rm targeting root filesystem (/)'
 
-# ─── Run approval check (FAIL-CLOSED on bridge error) ──────────────────────
-# Capture stderr so we can surface the cause if the bridge crashes.
-DECISION_JSON="$(cd "$LIFEOS_DIR" && LIFEOS_INTERACTIVE=1 "$PYTHON" -c "
-import json, sys
-try:
-    from tools.approval import check_dangerous_command
-    result = check_dangerous_command(sys.argv[1], 'host')
-    print(json.dumps(result))
-except Exception as e:
-    # Fail-CLOSED: explicit denial, not silent approval. The wrapper below
-    # treats any exception payload as 'block + show cause to user'.
-    print(json.dumps({'approved': False, 'message': f'approval bridge error: {e}', 'pattern_key': 'bridge-error', 'description': type(e).__name__}))
-    sys.exit(0)
-" "$COMMAND" 2>/tmp/lifeos-approval-stderr.$$)"
-BRIDGE_RC=$?
-BRIDGE_STDERR="$(cat /tmp/lifeos-approval-stderr.$$ 2>/dev/null || true)"
-rm -f /tmp/lifeos-approval-stderr.$$ 2>/dev/null || true
+  '\brm[[:space:]]+(-[^[:space:]]*[[:space:]]+)*(/home|/root|/etc|/usr|/var|/bin|/sbin|/boot|/lib)([[:space:]]|/|$)'
+  'rm targeting system directory'
 
-if [ -z "$DECISION_JSON" ]; then
-  # Bridge produced no output — possibly Python missing or sandbox killed it.
-  # Fail-CLOSED with diagnostic.
-  cat >&2 <<EOF
-🛡️ Life OS 守门人 · approval bridge 异常（fail-CLOSED）
+  '\brm[[:space:]]+(-[^[:space:]]*[[:space:]]+)*(~|\$home)(/?|/\*)?([[:space:]]|$)'
+  'rm targeting home directory'
 
-  命令: $COMMAND
-  状态: bridge no-output (rc=$BRIDGE_RC)
-  stderr: ${BRIDGE_STDERR:-<none>}
+  '\bmkfs(\.[a-z0-9]+)?\b'
+  'format filesystem (mkfs)'
 
-  原因: approval guard 自身崩溃。为安全起见命令被阻止。
-  绕过: 设置 LIFEOS_YOLO_MODE=1 后重试（仅在你确认风险可控时使用）
-EOF
-  exit 2
-fi
+  '\bdd\b[^\n]*\bof=/dev/(sd|nvme|hd|mmcblk|vd|xvd)[a-z0-9]*'
+  'dd writing to raw block device'
 
-# ─── Parse decision (FAIL-CLOSED on parse error) ───────────────────────────
-APPROVED="$(printf '%s' "$DECISION_JSON" | "$PYTHON" -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    # Default to FALSE (block) when 'approved' key is missing — fail-CLOSED.
-    print('true' if d.get('approved', False) else 'false')
-except Exception as e:
-    # JSON parse failed — corrupt bridge output. Block and report cause.
-    print('false')
-    print(f'parse-error: {e}', file=sys.stderr)
-" 2>/dev/null)"
+  '>[[:space:]]*/dev/(sd|nvme|hd|mmcblk|vd|xvd)[a-z0-9]*'
+  'redirect to raw block device'
 
-if [ "$APPROVED" = "false" ]; then
-  MESSAGE="$(printf '%s' "$DECISION_JSON" | "$PYTHON" -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    print(d.get('message') or d.get('description') or 'dangerous command pattern matched')
-except Exception:
-    print('dangerous command pattern matched')
-" 2>/dev/null)"
-  # R-1.8.0-022 pattern transparency fix: also extract the matched substring
-  # and the regex source so the user knows EXACTLY what triggered the block.
-  # Old behavior printed only `pattern_key`; when that was missing the
-  # message read "匹配模式: unknown" which gave the user no debugging signal.
-  PATTERN="$(printf '%s' "$DECISION_JSON" | "$PYTHON" -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    parts = []
-    key = d.get('pattern_key')
-    if key: parts.append('key=' + str(key))
-    matched = d.get('matched_substring') or d.get('match')
-    if matched: parts.append('matched=' + repr(matched))
-    regex = d.get('pattern') or d.get('regex')
-    if regex: parts.append('regex=' + str(regex))
-    desc = d.get('description')
-    if desc and not parts: parts.append(str(desc))
-    print(' / '.join(parts) if parts else 'unknown (approval.py decision payload missing pattern_key, matched_substring, regex, AND description)')
-except Exception as e:
-    print('unknown (decision payload parse error: ' + str(e) + ')')
-" 2>/dev/null)"
+  ':\(\)[[:space:]]*\{[[:space:]]*:[[:space:]]*\|[[:space:]]*:[[:space:]]*&[[:space:]]*\}[[:space:]]*;[[:space:]]*:'
+  'fork bomb'
 
-  cat >&2 <<EOF
+  '\bkill[[:space:]]+(-[^[:space:]]+[[:space:]]+)*-1\b'
+  'kill -1 (kill all processes)'
+
+  '(^|[;&|`]|\$\()[[:space:]]*(sudo[[:space:]]+)?(shutdown|reboot|halt|poweroff)\b'
+  'system shutdown/reboot'
+
+  '(^|[;&|`]|\$\()[[:space:]]*(sudo[[:space:]]+)?init[[:space:]]+[06]\b'
+  'init 0/6 (shutdown/reboot)'
+
+  '\bsystemctl[[:space:]]+(poweroff|reboot|halt|kexec)\b'
+  'systemctl poweroff/reboot/halt/kexec'
+
+  '\btelinit[[:space:]]+[06]\b'
+  'telinit 0/6 (shutdown/reboot)'
+
+  # ─ Recursive rm (was DANGEROUS) ─
+  '\brm[[:space:]]+(-[^[:space:]]*[[:space:]]+)*/'
+  'rm in root path'
+
+  '\brm[[:space:]]+-[^[:space:]]*r'
+  'recursive rm (-r/-rf/-Rf)'
+
+  '\brm[[:space:]]+--recursive\b'
+  'recursive rm (--recursive)'
+
+  # ─ Permission disasters ─
+  '\bchmod[[:space:]]+(-[^[:space:]]*[[:space:]]+)*(777|666|o\+[rwx]*w|a\+[rwx]*w)\b'
+  'world/other-writable chmod'
+
+  '\bchmod[[:space:]]+--recursive\b.*(777|666|o\+[rwx]*w|a\+[rwx]*w)'
+  'recursive world-writable chmod'
+
+  '\bchown[[:space:]]+(-[^[:space:]]*[[:space:]]+)*r[[:space:]]+root'
+  'recursive chown to root'
+
+  '\bchown[[:space:]]+--recursive\b.*root'
+  'recursive chown to root (--recursive)'
+
+  # ─ Disk / device writes ─
+  '\bdd[[:space:]]+.*if='
+  'dd disk copy (if=...)'
+
+  # ─ SQL destruction ─
+  '\bdrop[[:space:]]+(table|database)\b'
+  'SQL DROP TABLE/DATABASE'
+
+  '\bdelete[[:space:]]+from\b'
+  'SQL DELETE FROM (review for missing WHERE)'
+
+  '\btruncate[[:space:]]+(table[[:space:]]+)?[a-z_][a-z_0-9]*'
+  'SQL TRUNCATE'
+
+  # ─ System config writes ─
+  '>[[:space:]]*/etc/'
+  'overwrite under /etc/'
+
+  '\bsystemctl[[:space:]]+(-[^[:space:]]+[[:space:]]+)*(stop|restart|disable|mask)\b'
+  'systemctl stop/restart/disable/mask'
+
+  '\bpkill[[:space:]]+-9\b'
+  'pkill -9 (force kill)'
+
+  # ─ Shell / script execution ─
+  '\b(bash|sh|zsh|ksh)[[:space:]]+-[^[:space:]]*c([[:space:]]+|$)'
+  'shell -c command execution'
+
+  '\b(python[23]?|perl|ruby|node)[[:space:]]+-[ec][[:space:]]+'
+  'script -e/-c execution'
+
+  '\b(curl|wget)\b.*\|[[:space:]]*(ba)?sh\b'
+  'pipe remote content to shell (curl|sh)'
+
+  '\b(bash|sh|zsh|ksh)[[:space:]]+<[[:space:]]*<?[[:space:]]*\([[:space:]]*(curl|wget)\b'
+  'execute remote script via process substitution'
+
+  '\b(python[23]?|perl|ruby|node)[[:space:]]+<<'
+  'script execution via heredoc'
+
+  # ─ Sensitive-target writes ─
+  '\btee\b.*("|'\'')?(/etc/|/dev/sd|~/\.ssh/|\$home/\.ssh/)'
+  'tee writing to system/ssh path'
+
+  '>>?[[:space:]]*("|'\'')?(/etc/|/dev/sd|~/\.ssh/|\$home/\.ssh/)'
+  'redirect to system/ssh path'
+
+  '\btee\b.*("|'\'')?[^[:space:]"\'\'']*\.env(\.[^[:space:]"\'\''/]+)?($|[[:space:]]|;|&|\|)'
+  'tee writing to .env file'
+
+  '>>?[[:space:]]*("|'\'')?[^[:space:]"\'\'']*\.env(\.[^[:space:]"\'\''/]+)?($|[[:space:]]|;|&|\|)'
+  'redirect to .env file'
+
+  '\b(cp|mv|install)\b.*[[:space:]]/etc/'
+  'cp/mv/install into /etc/'
+
+  '\bsed[[:space:]]+-[^[:space:]]*i.*[[:space:]]/etc/'
+  'sed -i on /etc/'
+
+  '\bsed[[:space:]]+--in-place\b.*[[:space:]]/etc/'
+  'sed --in-place on /etc/'
+
+  # ─ Find / xargs destruction ─
+  '\bxargs[[:space:]]+.*\brm\b'
+  'xargs piped into rm'
+
+  '\bfind\b.*-exec[[:space:]]+(/[^[:space:]]*/)?rm\b'
+  'find -exec rm'
+
+  '\bfind\b.*-delete\b'
+  'find -delete'
+
+  # ─ Process self-termination ─
+  '\bkill\b.*\$\([[:space:]]*pgrep\b'
+  'kill $(pgrep ...) self-termination risk'
+
+  '\bkill\b.*`[[:space:]]*pgrep\b'
+  'kill `pgrep ...` self-termination risk'
+
+  # ─ Git destruction ─
+  '\bgit[[:space:]]+reset[[:space:]]+--hard\b'
+  'git reset --hard (destroys uncommitted)'
+
+  '\bgit[[:space:]]+push\b.*--force\b'
+  'git push --force (rewrites remote history)'
+
+  '\bgit[[:space:]]+push\b.*[[:space:]]-f([[:space:]]|$)'
+  'git push -f (rewrites remote history)'
+
+  '\bgit[[:space:]]+clean[[:space:]]+-[^[:space:]]*f'
+  'git clean -f (deletes untracked)'
+
+  '\bgit[[:space:]]+branch[[:space:]]+-d\b'
+  'git branch -D (force delete branch)'
+
+  # ─ chmod-then-execute combo ─
+  '\bchmod[[:space:]]+\+x\b.*[;&|]+[[:space:]]*\./'
+  'chmod +x followed by immediate ./ execution'
+)
+
+# ─── Iterate patterns ───────────────────────────────────────────────────────
+i=0
+LEN=${#PATTERNS[@]}
+while [ "$i" -lt "$LEN" ]; do
+  PATTERN="${PATTERNS[$i]}"
+  DESCRIPTION="${PATTERNS[$((i+1))]}"
+
+  if printf '%s' "$NORM" | grep -qiE -e "$PATTERN" 2>/dev/null; then
+    MATCHED="$(printf '%s' "$NORM" | grep -oiE -e "$PATTERN" 2>/dev/null | head -1)"
+    cat >&2 <<EOF
 🛡️ Life OS 守门人 · 危险命令拦截
 
   命令: $COMMAND
-  匹配模式: $PATTERN
-
-  原因: $MESSAGE
+  描述: $DESCRIPTION
+  匹配: ${MATCHED:-(unable to extract substring)}
+  正则: $PATTERN
 
   下一步:
     a) 改命令绕开此模式（推荐）
@@ -234,11 +295,13 @@ except Exception as e:
        注意: Claude Code 内 inline export 通常无效 (PreToolUse hook 在 export
        之前求值 env)。要持久 bypass 改 ~/.claude/settings.local.json 的 env 块
        添加 "LIFEOS_YOLO_MODE": "1"，然后重启 Claude Code session。
-    c) 永久 allowlist 此 pattern: 编辑 tools/approval.py
+    c) 永久 allowlist 此 pattern: 编辑 scripts/hooks/pre-bash-approval.sh
 
-  接入: 47 dangerous patterns from tools/approval.py (v1.7.3 wired)
+  Provenance: ~40 patterns ported from NousResearch/hermes-agent (MIT) → bash @ v1.8.1
 EOF
-  exit 2
-fi
+    exit 2
+  fi
+  i=$((i+2))
+done
 
 exit 0

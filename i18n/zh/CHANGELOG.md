@@ -6,9 +6,11 @@
 
 ---
 
-## [1.8.1] - 2026-05-01 - Wiki 流水线 · /research · /inbox-process · macOS 可移植性 · scanner 防回归
+## [1.8.1] - 2026-05-02 - Zero-Python pivot · Wiki Plan B+ · 反 confirmation bias 定位
 
-> **Plan B wiki 交付**。新增 4 项 wiki 管理特性（活动日志规范 / Obsidian 配置 / inbox 三步走流水线 / 多 agent /research 命令）+ 落地 R-1.8.0-020 commit 标题写改了实际没改的 macOS 裸 `python` 可移植性修复。同时把 v1.8.0 维护线上的 R-1.8.0-021 / R-1.8.0-022 正式切到 1.8.1。
+> **Life OS 历史上最大的「减法」**。Wave 1（5 月 1 日）交付 Plan B wiki + auto-bootstrap。Wave 2（5 月 2 日）删除整个 Layer 4 Python tools/ 包（11 模块 + 12 测试 + pyproject.toml + uv.lock + integration.yml workflow + 9 eval 场景），并把唯一剩下的安全关键 Python（47 危险命令 pattern guard）port 成自包含 bash 正则数组。Wave 2 同时交付 9 个 wiki schema/流水线改进（aliases / sources 复数 / 5 桶 confidence enum / last_tended / review_by / 出处 tag / manifest delta / LLM 驱动去重 / 解耦 CitationAgent）+ 反 confirmation bias 定位段，说明 Life OS Wiki 与 Anthropic / LangChain / GPT-Researcher / CrewAI / QX-Labs 的本质区别。
+>
+> Wave 1 同时落地 R-1.8.0-020 commit 标题写改了实际没改的 macOS 裸 `python` 可移植性修复，并把 v1.8.0 维护线上的 R-1.8.0-021 / R-1.8.0-022 正式切到 1.8.1。
 
 ### 新增 · Wiki 管理（Plan B）
 
@@ -91,9 +93,101 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research，更新 hook
 
 无 second-brain 数据迁移需求。现有 wiki 条目继续工作；新规范应用于新写入。
 
-### 删除
+### 删除 · Zero-Python pivot（Wave 2 · 2026-05-02）
 
-- 无。v1.8.1 纯加项 + bugfix。
+驱动这次清理的用户原话："我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。" 翻译过来：Layer 4 Python 工具背着用户从未要求或使用的复杂度（FTS5、向量数学、mypy/ruff/pytest CI 门、50+ 可选依赖、与 LLM 驱动 prompt 的双重维护负担）。Wave 2 删掉仓库里每一行 Python。
+
+**删除的源文件（11 .py + 5 lib .py）**：
+- `tools/approval.py`（1010 行 — 安全 guard；~40 危险 pattern port 成 bash，见下面"修改 · 安全 guard 现在 bash 原生"）
+- `tools/embed.py`、`tools/export.py`、`tools/reconcile.py`、`tools/research.py`、`tools/search.py`、`tools/seed.py`、`tools/sync_notion.py`、`tools/skill_manager.py`、`tools/stats.py`（之前已被 LLM prompt 替代；现在删掉）
+- `tools/__init__.py` + `tools/lib/{__init__,config,llm,notion,second_brain}.py`
+- `tools/README.md`（没 Python 包要文档化）
+
+**删除的测试套件（12 测试 + 5 lib 测试）**：
+- `tests/test_{embed,export,reconcile,research,search,second_brain,seed,sync_notion,stats,stats_extend,compliance_check}.py`
+- `tests/lib/{__init__,conftest,test_config,test_llm,test_notion}.py`
+- `tests/__init__.py`
+
+**删除的打包**：
+- `pyproject.toml`（没 Python 包要发布）
+- `uv.lock`（没依赖要锁）
+- `.python-version`（运行时不需要 pin）
+- `.github/workflows/integration.yml`（integration 测试针对的是被删的 Python research 工具）
+
+**删除的 eval 场景**（针对的是已删的 Python 工具）：
+- `evals/scenarios/tool-{embed,export,migrate,reconcile,research,search,seed,stats,sync_notion}.md`
+
+**删除的「bash 包了一层 Python」脚本**：
+- `scripts/wiki/wiki-link-audit.sh`（311 行 bash + awk frontmatter parsing）— 替代为 `scripts/prompts/wiki-link-audit.md`（LLM 驱动 Glob + Grep + Read）。
+
+### 修改 · 安全 guard 现在 bash 原生（Wave 2 · 2026-05-02）
+
+`scripts/hooks/pre-bash-approval.sh` 之前桥接每条 Bash 命令到 `tools/approval.py` Python 子进程。Wave 2 整个删掉这层桥，把危险 pattern 词典 inline 嵌入为 bash 正则数组（~40 条；port 时砍 5 条 Hermes 产品专属 pattern — gateway/cli.py/`hermes update` 在上游 runtime 之外没意义）。100% 纯 bash；jq 做 JSON parse（带 python3 普适回退仅用于 stdin 提取）。出处保留：fork 自 NousResearch/hermes-agent (MIT) commit `59b56d4...` → 之前是 `tools/approval.py @ v1.7.3`。
+
+`scripts/hooks/pre-write-scan.sh` 出于同样理由删掉 `scan_hermes_dangerous_patterns()` Python 桥。它直接执行的 15 个 prompt-injection / SQL / secret / PII 正则 pattern 不变。
+
+`tests/hooks/test_pre_bash_approval.sh` 重写适配新自包含行为：7 测试 / 9 断言，全过 Windows MSYS bash、macOS bash 3.2、Linux bash 5.x。Smoke 测过 17 个 fixture 命令（10 基础 + 7 边界含大写 RM / sudo 前缀 / find -exec rm / .env 重定向 / YOLO bypass）。
+
+### 修改 · CI workflow（Wave 2 · 2026-05-02）
+
+`.github/workflows/test.yml` 重写：原来是 pytest + mypy + ruff 矩阵跨 3 OS × 2 Python = 6 job。现在单一 `bash-tests` 矩阵跨 3 OS（ubuntu / macOS / windows）。步骤：通过 `git ls-files '*.sh'` 对每个 `.sh` 跑 `bash -n`；tests/hooks/ bash 套件；spec drift 扫；pre-prompt-guard 正则 smoke；lifeos-compliance-check fixture。快了 ~3 倍，无需安装外部 Python 工具链。
+
+### 修改 · Wiki frontmatter schema（Wave 2 · 2026-05-02）
+
+`scripts/wiki/setup-secondbrain.sh` 模板 + `scripts/prompts/inbox-process.md` + `scripts/prompts/research.md` 更新为 v1.8.1 frontmatter：
+
+| 字段 | 旧 | 新 |
+|---|---|---|
+| `aliases` | (缺失) | `[]` 空数组；Obsidian 用于 `[[wikilink]]` 解析 |
+| `source` | scalar 字符串 | `sources: []` 复数数组 |
+| `confidence` | float `0.0–1.0` | enum `impossible \| unlikely \| possible \| likely \| certain` |
+| `last_tended` | (缺失) | ISO 日期 — 上次主动 review（不是 cosmetic 编辑） |
+| `review_by` | (缺失) | ISO 日期 — `wiki-decay` 何时该重新提醒此条目 |
+
+迁移 prompt：`scripts/prompts/migrate-confidence.md`（在 vault 内跑 `/migrate-confidence`）。幂等。映射：`< 0.3 → unlikely`、`0.3-0.6 → possible`、`0.6-0.85 → likely`、`>= 0.85 → certain`。
+
+`/wiki-decay` 更新：用 `last_tended` + `review_by` + 5 桶 `confidence` 把条目分类成 `due-for-review` / `stale` / `borderline` / `active`。可选 `+ link audit` 分支。遗留 float `confidence` 在扫的时候自动映射，所以遗留条目不强制迁移也能用。
+
+### 新增 · Wiki 出处标记 + 去重 + CitationAgent（Wave 2 · 2026-05-02）
+
+- **`## Key facts` 段出处标记**：每个 bullet 现在带 `^[extracted]`（从 `sources[]` URL 转述）、`^[inferred]`（你的综合，没在任何源里直接说过）、或 `^[ambiguous]`（源之间不一致）。无 tag 默认 `^[extracted]`。`/research` subagent 输出每 bullet 带出处；`/inbox-process` accept/update 时强制要求；下游综合保守传递（extracted+extracted=extracted；冲突=降级到 inferred 或 ambiguous；从不向上升级）。
+- **`/inbox-process` LLM 驱动去重前置**：替代 SHA256 hash（只能抓字节相同的重复，错过释义性的近似重复）。每个 inbox 项：抽 topic 短语 → `Grep` 候选 domain 关键字 → `Read` 候选 frontmatter + TL;DR → LLM 判断 topic 重叠和 claim 重叠 → 提议 `accept` / `update` / `merge` / `accept 加 related-link`。纯 LLM，无 FTS5，无向量数学。
+- **`_meta/inbox/manifest.json` delta 跟踪**：跨运行跟踪哪些 inbox 项已经看过。每次 `/inbox-process` 在提议表里标 Δ-new vs carried-over，用户可以优先看新进来的。
+- **解耦 CitationAgent（`/research` 的 Phase 4）**：模式来自 Anthropic 的 multi-agent research-system 架构。综合**之后**跑（不交错）。1 个额外 `general-purpose` subagent 通过 WebFetch 验证每个 `^[extracted]` bullet 是否对得上某个可 fetch 的 source URL；报告 verified / unverified / inferred-source-combos / ambiguous-disagreements。未验证的 `^[extracted]` bullet 自动降级到 `^[inferred]`。如果 30%+ `^[extracted]` claim 验证失败，`confidence` 整体降一桶。解耦保留分析深度；交错的 citation 倾向把模型推向浅显易引证的事实。`--no-citations` 可关。成本：vs counter-bias-only 加 20-30% LLM 调用。
+
+### 新增 · 反 confirmation bias 定位（Wave 2 · 2026-05-02）
+
+EN / ZH / JA 三语 README 加段，说明 Life OS Wiki 与 6 个主流 LLM-Wiki / 多 agent research 项目（Anthropic research-system 博客、LangChain `langgraph` agent supervisor、GPT-Researcher、CrewAI、QX-Labs、OpenAI Deep Research）每一个的本质区别。轴线：(1) 集成 wiki backing store vs 临时输出；(2) 每 bullet 出处标记；(3) 解耦 CitationAgent；(4) 5 桶校准的 confidence enum；(5) `last_tended`/`review_by` 新鲜度模型；(6) inbox 三步走交接 vs 自治追加；(7) zero-python 部署姿态。
+
+### 验证（CI 矩阵）— Wave 2 更新
+
+- 32 → 19 个 tracked .sh（删 `wiki-link-audit.sh` + Wave 2 清理）`bash -n` → 全过 Linux + macOS + Windows MSYS
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- `tests/hooks/*.sh`（8 套，~70 断言）→ 全过
+- `bash /c/tmp/run-hook-tests.sh`（17 个危险 + 安全 fixture 跑新 bash approval guard）→ 17/17 过
+- 重新打 tag 后 `bash scripts/verify-release.sh` → 7/7 ✅
+- mypy / ruff / pytest 门：**移除**（仓库无 Python）
+
+### 迁移 — Wave 2 更新
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-confidence + /wiki-link-audit，更新 hook
+```
+
+然后在 second-brain vault 内开任意 Claude Code session。SessionStart hook 自动检测缺失的 v1.8.1 脚手架并静默创建。遗留 wiki 条目带 float `confidence` 继续工作 — `/wiki-decay` 自动映射。要永久迁移：在 vault 内跑 `/migrate-confidence`（幂等，写之前先预览提议）。
+
+跑过任何 `python -m tools.<X>` 的用户：那些 Python 入口已不存在。替代：
+- `python -m tools.search` → `/search` 命令（或自然语言"搜一下 X"）
+- `python -m tools.embed` → no-op；concept 索引现在按需 LLM 驱动 via `/extract-concepts`
+- `python -m tools.research` → `/research` 命令（多 agent，带 CitationAgent）
+- `python -m tools.export` → 无替代；裸 markdown 就是 export
+- `python -m tools.reconcile` → 无替代；`/wiki-decay` 显示新鲜度冲突
+- `python -m tools.sync_notion` → orchestrator 通过 MCP 在 adjourn flow Step 10a 处理 Notion sync
+- `python -m tools.stats` → `/eval-history-monthly` 命令
+- `python -m tools.skill_manager` → `/method create|update|list` 命令
+
+`uv` / `pip install -e .` 不再需要。skill 本身不需要 Python 运行时安装（jq 是 hook 首选 JSON parser；python3 是 jq 缺失时的优雅回退）。
 
 ---
 

@@ -1,8 +1,8 @@
 # User-invoked prompt · research (v1.8.1)
 
 > Multi-agent parallel research → synthesized wiki draft with built-in
-> counter-bias check. ROUTER reads this when the user wants to seed a
-> new wiki entry from external sources.
+> counter-bias check + decoupled CitationAgent verification. ROUTER reads
+> this when the user wants to seed a new wiki entry from external sources.
 
 ## Trigger keywords
 
@@ -29,10 +29,10 @@ Limit clarification to ONE round to keep total time ≤ 7 minutes.
 2. Read `wiki/SCHEMA.md` to confirm frontmatter contract.
 3. List `wiki/` domain directories. Cache list — synthesis must place the
    draft under one of these (or explicitly create new with user approval).
-4. Estimate cost upfront: tell user "Spawning N agents — estimated 5-7
-   min and ~$0.30-0.80 in API tokens. Continue?" Wait for "yes" or "go".
-   (Skip estimate prompt if user explicitly typed `/research`; that's
-   already opt-in.)
+4. Estimate cost upfront: tell user "Spawning N agents — estimated 6-9
+   min and ~$0.40-1.00 in API tokens (includes citation verifier).
+   Continue?" Wait for "yes" or "go". (Skip estimate prompt if user
+   explicitly typed `/research`; that's already opt-in.)
 
 ## Phase 1 · Decompose (main context, ~30 sec)
 
@@ -82,7 +82,14 @@ Your job:
    ## <angle name>
 
    ### Key findings (3-5 bullets)
+   - <finding> ^[extracted | inferred | ambiguous]
    - ...
+
+   PROVENANCE: every bullet MUST carry one tag.
+     ^[extracted]  — directly stated/paraphrased from a fetched source
+     ^[inferred]   — your synthesis from multiple sources or background knowledge
+     ^[ambiguous]  — sources disagree or evidence is mixed
+   This is non-negotiable — downstream synthesis depends on it.
 
    ### Sources (3-5 URLs with 1-line each)
    - <url> — <what's there>
@@ -125,20 +132,23 @@ domain. Never invent silently.
 
 Lowercase kebab-case, ≤ 50 chars, derived from the topic.
 
-### Frontmatter (SCHEMA-compliant)
+### Frontmatter (SCHEMA-compliant, v1.8.1 fields)
 
 ```yaml
 ---
 title: "<one-line title; max 80 chars>"
+aliases: []                    # alternative names this entry might be linked as
 domain: <domain>
-created: <YYYY-MM-DD>            # today
-last_updated: <YYYY-MM-DD>       # same as created
-confidence: 0.65                 # default; bump to 0.75 if 4+ agents converge
+created: <YYYY-MM-DD>          # today
+last_updated: <YYYY-MM-DD>     # same as created
+last_tended: <YYYY-MM-DD>      # same as created
+review_by: <YYYY-MM-DD>        # today + 180d default
+confidence: possible           # 5-bucket enum default; bump to `likely` if 4+ agents converge
 tags: [<domain>, research-generated]
 status: candidate
-source: |
-  - <url-1> (<angle-1>)
-  - <url-2> (<angle-2>)
+sources:                       # PLURAL array
+  - <url-1>                    # angle: <angle-1>
+  - <url-2>                    # angle: <angle-2>
   - ...
 research_run:
   agents: <N>
@@ -157,10 +167,16 @@ research_run:
 <2-3 sentence summary distilled from all N agents>
 
 ## Key facts
-- <fact-1, with source ref>
-- <fact-2, with source ref>
-- <fact-3, with source ref>
+- <fact-1> ^[extracted]
+- <fact-2> ^[extracted]
+- <fact-3> ^[inferred]
+- <fact-4> ^[ambiguous]
 (5-8 bullets total; each ≤ 25 words)
+
+PROVENANCE: synthesis carries forward the agent-level tags. If two agents
+agree on a claim and both say `^[extracted]`, keep `^[extracted]`. If
+their tags conflict (one extracted, one inferred), demote to `^[inferred]`
+or `^[ambiguous]` — never upgrade to `^[extracted]` during synthesis.
 
 ## Mechanism / How it works
 <2-4 paragraphs. Pull from `practitioner` + `mechanistic` (if deep) angles>
@@ -181,7 +197,7 @@ critiques.">
 <2-4 bullets — questions the research couldn't answer. Honest gaps.>
 
 ## Sources
-<full URL list grouped by angle, deduplicated>
+<full URL list grouped by angle, deduplicated; mirrors frontmatter sources[]>
 ```
 
 ## Phase 3.5 · Counter-bias check (default ON; off only if `--no-bias-check`)
@@ -217,11 +233,79 @@ Draft:
 ```
 
 If counter-bias agent returns substantive opposition, splice it into the
-`Counterpoints` section of the draft and BUMP `confidence` DOWN by 0.1.
-If it returns "none found", leave the draft confidence as-is and keep the
-honest "no substantive opposition found" note in `Counterpoints`.
+`Counterpoints` section of the draft and DOWNGRADE `confidence` one
+bucket (`certain` → `likely`, `likely` → `possible`, etc.). If it returns
+"none found", leave confidence as-is and keep the honest "no substantive
+opposition found" note in `Counterpoints`.
 
-## Phase 4 · User review (interactive)
+## Phase 4 · CitationAgent · decoupled verification (default ON; off only if `--no-citations`)
+
+> Pattern source: Anthropic's multi-agent research system architecture
+> (decoupled citation verifier — runs AFTER synthesis, not interleaved).
+
+Launch ONE additional `general-purpose` subagent with this prompt:
+
+```
+You are the CitationAgent. Your single job: verify every quoted/extracted
+claim in the draft below maps to a fetchable source URL that supports it.
+
+Draft (with frontmatter and ^[extracted]/^[inferred]/^[ambiguous] tags):
+<paste full draft + sources[] list>
+
+Process:
+1. For every bullet tagged ^[extracted], identify which source URL from
+   sources[] supports it. WebFetch that URL (1 retry on rate-limit) and
+   confirm the claim is present.
+2. For every bullet tagged ^[inferred], note which 2+ sources combine to
+   support the inference (no need to WebFetch — just note the source
+   combination from the agent outputs).
+3. For every bullet tagged ^[ambiguous], note which sources disagree.
+
+Output strictly in this format (≤ 400 words):
+
+  ## Citation verification report
+
+  ### Verified ^[extracted] claims (N)
+  - <claim 1> → <url> ✓ (paraphrase confirmed)
+  - <claim 2> → <url> ✓
+  - ...
+
+  ### UNVERIFIED ^[extracted] claims (downgrade required) (M)
+  - <claim 3> → <url> ✗ (URL fetched but claim not present)
+  - <claim 4> → ??? (no source URL identified)
+
+  ### Inferred claims (P) — source combinations noted
+  - <claim 5> ← <source-A> + <source-B>
+
+  ### Ambiguous claims (Q) — disagreement noted
+  - <claim 6> ← <source-A> says X, <source-B> says Y
+
+Do NOT modify the draft. Do NOT propose edits. Just report.
+Time budget: 4 minutes hard cap. If WebFetch fails repeatedly, mark
+those claims as "unverified-network" and continue.
+```
+
+After CitationAgent returns:
+
+1. **If `UNVERIFIED ^[extracted]` count > 0**: main context retags those
+   bullets from `^[extracted]` → `^[inferred]` (honest downgrade) and
+   adds a note in `## Open questions`: "N claims could not be verified
+   against cited URLs in this run — consider re-fetching or marking
+   speculative."
+2. **If `UNVERIFIED ^[extracted]` count >= 30% of total `^[extracted]`
+   bullets**: also downgrade `confidence` one bucket and surface this in
+   the user-review summary.
+3. **If CitationAgent itself fails entirely** (network out, rate limit,
+   timeout): proceed without it but flag `citation_check: skipped` in the
+   user-review summary so the user knows verification is missing.
+
+The key insight (from Anthropic's research-system blogpost): citation
+verification interleaved with synthesis tends to push the model toward
+shallower facts that are easy to cite. Decoupled verification AFTER
+synthesis preserves analytical depth while still catching unsourced
+claims.
+
+## Phase 5 · User review (interactive)
 
 Show user:
 
@@ -232,12 +316,13 @@ Proposed wiki entry: wiki/<domain>/<slug>.md
 
 [paste full frontmatter + body here]
 
-Sources used: <count> URLs across <N> angles
-Counter-bias check: <found-opposition | no-opposition-found | skipped>
+Sources used:           <count> URLs across <N> angles
+Counter-bias check:     <found-opposition | no-opposition-found | skipped>
+Citation verification:  <X/Y ^[extracted] claims verified | skipped>
 
 Choose:
   accept       — write file, append wiki/log.md, update wiki/INDEX.md
-  edit <X>     — re-show with X changed (e.g. "edit confidence=0.55",
+  edit <X>     — re-show with X changed (e.g. "edit confidence=unlikely",
                  "edit domain=banking", "edit drop counterpoints-section-3")
   reject       — discard; nothing written
   defer        — write to _meta/inbox/to-process/<date>_research-<slug>.md
@@ -248,7 +333,7 @@ Type your choice:
 
 Wait for explicit choice. Do NOT execute on assumption.
 
-## Phase 5 · Write (only on accept)
+## Phase 6 · Write (only on accept)
 
 1. Write `wiki/<domain>/<slug>.md` (Write tool, full content from synthesized
    draft).
@@ -260,10 +345,11 @@ Wait for explicit choice. Do NOT execute on assumption.
 4. Report:
    ```
    ✅ Wrote wiki/<domain>/<slug>.md
-      confidence: <X>
+      confidence: <enum>
       tags: [<domain>, research-generated]
       sources: <N> URLs
       counter-bias: <result>
+      citation-verify: <X/Y verified>
    ```
 
 If accept fails (disk full, permissions, schema validation): rollback
@@ -282,13 +368,19 @@ user can retry.
 - **Topic too broad** (agents return wildly divergent material):
   synthesize anyway but flag in `Open questions`; suggest a narrower
   follow-up `/research`.
+- **CitationAgent fails entirely**: skip phase 4; flag `citation_check:
+  skipped` in summary.
 
 ## Cost guidance
 
-Rough estimates:
-- 5 agents × (2-4 WebSearch + 1-3 WebFetch each) ≈ 15-35 tool calls
-- Plus 1 synthesis + 1 counter-bias = ~20-40 LLM calls total
-- Token usage: ~80k-150k input + ~10k-20k output
-- USD cost: ~$0.30-0.80 per `/research` run (Claude opus pricing)
+Rough estimates (v1.8.1 with CitationAgent):
+- 5 research agents × (2-4 WebSearch + 1-3 WebFetch each) ≈ 15-35 tool calls
+- Plus 1 synthesis + 1 counter-bias + 1 citation-verifier = ~22-42 LLM calls
+- Token usage: ~100k-180k input + ~12k-22k output
+- USD cost: ~$0.40-1.00 per `/research` run (Claude opus pricing)
 
-If user runs `/research` 10x/day, that's $3-8/day. Budget accordingly.
+If user runs `/research` 10x/day, that's $4-10/day. Budget accordingly.
+
+To skip the verifier and stay closer to v1.7-era cost: pass
+`--no-citations`. Counter-bias remains on by default; opt out separately
+with `--no-bias-check`.
