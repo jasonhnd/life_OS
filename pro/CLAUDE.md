@@ -494,6 +494,13 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
     3. `gh release create v<X.Y.Z> --title "..." --notes-file <RELEASE_NOTES> --latest`
     4. **Run `bash scripts/verify-release.sh`** — must exit 0 with all ✅ checks (HEAD == origin/main, tag points to HEAD, tag on remote, GitHub Release exists, not Draft, marked as Latest). Any ❌ means the release is incomplete. HARD RULE.
 
+11. **Obsidian readability for ALL human-readable .md output (rule #11, v1.8.2)** · Every `.md` file Life OS produces that a human will read in Obsidian — wiki entries, session archives, retrospective Mode 0 briefings, archiver Phase outputs, daily-briefing, wiki-decay reports, eval-history aggregates, compliance logs, method library entries, DREAM entries, SOUL snapshots, all slash command outputs — MUST follow `references/obsidian-style.md`. The 3 non-negotiables:
+    - **Callouts** (`> [!info]`, `> [!warning]`, `> [!question]`, `> [!tip]`, etc.) for any semantic block (TL;DR, Counterpoints, Open questions, Mandatory sections). Plain headings for these blocks render as flat text and are a HARD RULE violation.
+    - **Wikilinks** (`[[entry]]`) for in-vault references. Markdown links `[text](path.md)` for in-vault references break Obsidian's graph view + backlinks panel and are a HARD RULE violation.
+    - **Nested tags** (`fintech/stablecoin`) over flat tags (`[fintech, stablecoin]`) for any frontmatter `tags:` array.
+
+    Out of scope: pure data files (`.json`, `.yaml`, `.csv`), source code, agent definition files in `pro/agents/*.md`. Migration tool: `/wiki-obsidian-upgrade` for legacy wiki entries; non-wiki files migrate organically as the user touches them. **Full style guide: `references/obsidian-style.md`.** HARD RULE.
+
 ## Subagent Output Display (Recommended · v1.7.2.1)
 
 Subagent returns may appear naturally in the host transcript, or ROUTER may group them with a lightweight wrapper when it improves readability. Heavy-line wrappers, verbatim repaste, token/duration/cost receipts, and a separate transactional receipt are not compliance gates.

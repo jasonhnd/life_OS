@@ -6,6 +6,124 @@
 
 ---
 
+## [1.8.2] - 2026-05-04 - グローバル Obsidian 可読性 · バイナリ出力を ~/Downloads にリダイレクト
+
+> **vault 全体が Obsidian で美しくレンダリングされるようになった。** v1.8.2 は Obsidian 可読性を「wiki 限定」から「グローバル HARD RULE」に格上げし、Life OS が生成するすべての人間可読 `.md` ファイル（wiki / セッションアーカイブ / 簡報 / レポート / SOUL スナップショット / DREAM エントリ / eval-history 集計 / コンプライアンスログ / メソッドライブラリ / 全 slash command 出力）に適用。同時に、新規 PreToolUse hook がバイナリ / ユーザー向け出力（HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4 等）を `~/Downloads/lifeos-export-<日付>/` に自動リダイレクトし、vault を散らかさないように。
+
+### 追加 · `references/obsidian-style.md` 公式スタイルガイド
+
+Obsidian 互換 markdown 規約の単一権威ソース。網羅：
+
+- **Callout**（`> [!info]`、`> [!warning]`、`> [!question]`、`> [!tip]`、`> [!important]`、`> [!quote]`、`> [!success]`、`> [!failure]`、`> [!example]`、`> [!note]`、`> [!bug]`、`> [!danger]`）—— セマンティックブロック（TL;DR / Counterpoints / Open questions / Mandatory sections）に必須。プレーン `## heading` でこれらを表現するのは HARD RULE 違反。
+- **Wikilinks** `[[entry]]` —— vault 内参照に必須；`[text](path.md)` は HARD RULE 違反（Obsidian グラフビュー + バックリンクパネルを破壊）。
+- **入れ子タグ** `fintech/stablecoin` をフラット `[fintech, stablecoin]` より優先 —— Obsidian タグツリー。
+- **Mermaid 図** フロー / プロセス / 決定木コンテンツに使用。
+- **脚注** `[^id]` 段落内の細かい引用に使用。
+- **Block ID** `^block-id` 安定参照に使用。
+- **CSS class** `cssclasses: [decision, important]` エントリごとのビジュアルスタイリング（高度）。
+- 12 項目の LLM チェックリスト、アンチパターンリスト、マイグレーションツールへのポインタ。
+
+### 追加 · `pro/CLAUDE.md` HARD RULE #11（GEMINI.md / AGENTS.md にもミラー）
+
+Obsidian 可読性要件をオーケストレーション層で固定化。スコープ外：純粋データファイル（`.json` / `.yaml` / `.csv`）、ソースコード、`pro/agents/*.md` agent 定義。マイグレーションツール：legacy wiki 用 `/wiki-obsidian-upgrade`。
+
+### 追加 · 4 つの新規 wiki テンプレート（v1.8.2 `kind:` フィールド）
+
+`scripts/wiki/setup-secondbrain.sh` は現在 5 テンプレートを書き込み（以前は 1 つ）：
+
+| テンプレート | `kind:` | 特殊フィールド |
+|---|---|---|
+| `wiki-entry-template.md`（デフォルト） | `knowledge` | callout / wikilinks / mermaid / 脚注 |
+| `method-template.md` | `method` | `times_used`、`last_used`、`inputs`、`outputs`、status: tentative/proven/deprecated |
+| `decision-template.md` | `decision` | `decision_date`、`outcome_review_date`、選択肢テーブル、結果トレイル付き Counterpoints |
+| `lesson-template.md` | `lesson` | `trigger_event`、`recurrence`、命令文一行 callout |
+| `config-template.md` | `config` | 逐語的設定スニペット、副作用警告 |
+
+各テンプレートはデフォルトで Obsidian callout、wikilinks、入れ子タグ、`kind:` フィールドを使用。
+
+### 追加 · `cssclasses: []` および `kind:` frontmatter フィールド
+
+- `kind: knowledge | method | decision | lesson | config` —— `wiki-decay` の kind 別分類 + テンプレート別動作を駆動
+- `cssclasses: []` —— エントリごとの Obsidian CSS class でビジュアルスタイリング（オプショナル）
+
+### 追加 · `/wiki-obsidian-upgrade` slash コマンド + prompt
+
+レガシー wiki エントリを v1.8.2 形式へ一括アップグレード：
+- 既存コンテンツから `kind:` を検出（H2 見出しヒューリスティック）
+- 欠落している v1.8.2 frontmatter フィールドを補填
+- `[name](path.md)` → `[[wikilink]]` 変換
+- 既知 H2 セクションを対応 callout でラップ（`## TL;DR` → `> [!info] TL;DR` 等）
+- フラットタグを入れ子に変換
+- `last_tended` を bump し `wiki/log.md` にログ
+- 冪等（既に v1.8.2 のエントリはスキップ）
+- 書き込み前にプラン プレビュー、ユーザーが行ごと確認
+
+### 追加 · PreToolUse Write hook · `pre-write-output-redirect.sh`
+
+skill / agent がバイナリ / ユーザー向け出力ファイル（HTML、PDF、DOCX、XLSX、ZIP、画像、音声、動画、ebook、フォント）を vault 内パスに書き込もうとするのをキャッチ。`~/Downloads/lifeos-export-<日付>/<ファイル名>` にリダイレクトし、ユーザー向けエクスポートをユーザーが探す場所に着地させる —— `_meta/` や vault サブディレクトリに埋もれさせない。
+
+- **検出フォーマット**（~30 個の拡張子）：pdf、docx、xlsx、pptx、odt、html、zip、tar.gz、png、jpg、svg、mp3、mp4、webm、epub、mobi、ttf 等
+- **クロスプラットフォーム Downloads 検出**：`$XDG_DOWNLOAD_DIR` → `$HOME/Downloads` → `$USERPROFILE/Downloads`（Windows MSYS）→ `/tmp` フォールバック
+- **vault 内バイナリ allowlist**（リダイレクトしない）：`wiki/.attachments/*`、`wiki/*/attachments/*`、`_meta/inbox/to-process/*`、`_meta/inbox/archive/*`、`assets/*`
+- **バイパス**：`export LIFEOS_OUTPUT_REDIRECT_OFF=1`（セッションごと）
+- **既に Downloads に向かっている場合**：`$HOME/Downloads/*` または任意の `*/Downloads/*` パスはそのままパス
+
+exit 2 + バイリンガルブロックメッセージ + 推奨リダイレクトパス。AI は提案を見て推奨パスへ Write を再発行する。
+
+25 個のフィクスチャでスモークテスト済み（テキスト形式 / バイナリ形式 / allowlist / バイパス / 大文字小文字非区別 / Edit 無視 / 空 stdin）—— 25/25 全合格。
+
+### 更新 · 21 個の prompt が HARD RULE #11 を適用
+
+すべての `scripts/prompts/*.md` に v1.8.2 可読性参照を追加：
+
+- `wiki-decay.md` —— 完全な Obsidian スタイルレポートテンプレート、`> [!important]` / `> [!warning]` / `> [!note]` / `> [!tip]` callout、エントリ参照は `[[wikilinks]]`
+- `daily-briefing.md` —— `> [!info]` 概要、`> [!tip]` inbox サーフェイス + 推奨アクション
+- `inbox-process.md` —— accept/update/merge 書き込みは完全 Obsidian スタイル；新規 `kind:` フィールド選択ステップ
+- `research.md` —— Wave-2 + v1.8.2 wiki エントリ本文テンプレートが `> [!info] TL;DR` / `> [!warning] Counterpoints` / `> [!question] Open questions` callout を使用；mermaid ブロックは条件付き
+- `eval-history-monthly.md` / `auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `spec-compliance.md` / `archiver-recovery.md` / `review-queue.md` / `backup.md` / `migrate-confidence.md` / `snapshot-cleanup.md` / `extract-concepts.md` / `wiki-link-audit.md` / `reindex.md` / `rebuild-concept-index.md` / `rebuild-session-index.md` / `migrate-from-v1.6.md` / `migrate-to-wikilinks.md` —— ヘッダーに HARD RULE #11 参照
+
+### 更新 · 2 つの agent ファイルが HARD RULE #11 を言及
+
+- `pro/agents/retrospective.md` —— Mode 0/2 簡報が `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]` を使用
+- `pro/agents/archiver.md` —— Phase 出力（セッションアーカイブ / wiki エントリ / SOUL スナップショット / DREAM / Completion Checklist）すべてスタイルガイドに従う；Phase 2 wiki 抽出は `wiki/.templates/` を必須使用
+
+### 更新 · `wiki/OBSIDIAN-SETUP.md` テンプレート（自動書き込み）
+
+- 9 プラグイン推奨（以前 4）—— Linter / Iconize / Periodic Notes / Tag Wrangler / MetaEdit を追加
+- 6 つの v1.8.2 可読性機能をインライン文書化（callout / wikilinks / mermaid / 入れ子タグ / 脚注 / CSS class）
+- 7 つの Dataview クエリ（以前 3）—— 結果待ちの open decision / method 使用トレイル / lesson 再発頻度 を追加
+
+### 検証（CI マトリックス）
+
+- 23 個の tracked .sh `bash -n`（`pre-write-output-redirect.sh` + `test_pre_write_output_redirect.sh` 追加）→ 全合格
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- 9 套 `tests/hooks/*.sh`（v1.8.1 は 8 套；`test_pre_write_output_redirect.sh` 25 アサーション追加）—— 合計 ~120 アサーション全合格
+- retag 後 `bash scripts/verify-release.sh` → 7/7 ✅
+
+### マイグレーション
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 新 pre-write-output-redirect hook + 新テンプレート登録
+```
+
+その後 second-brain vault 内で任意の Claude Code セッションを開く。SessionStart hook が v1.8.2 スキャフォールディング追加（4 つの新テンプレート + アップグレード版 OBSIDIAN-SETUP.md）を自動検出し、欠落していればサイレントに作成。既存の v1.8.1 テンプレートとエントリは**自動的に変更されない**；新規書き込みは v1.8.2 可読性規約に従う。
+
+既存の wiki エントリを v1.8.2 Obsidian スタイル（callout、wikilinks、入れ子タグ、`kind:` フィールド）にアップグレードするには、vault 内で：
+
+```
+/wiki-obsidian-upgrade
+```
+
+冪等。書き込み前にプラン プレビュー。コンパニオン：legacy float `confidence` → enum 用の `/migrate-confidence`。
+
+### スコープ外（意図的）
+
+- 非 wiki ファイル（sessions / SOUL スナップショット / DREAM エントリ / eval-history レポート）は v1.8.2 規約に従う **for NEW writes**（per HARD RULE #11）が、**バッチアップグレードしない** —— ユーザーが触れたときに有機的にマイグレート。
+- 純粋データファイル（`.json` / `.yaml` / `.csv`）、ソースコード、agent 定義ファイル（`pro/agents/*.md`）は HARD RULE #11 から除外。
+
+---
+
 ## [1.8.1] - 2026-05-02 - Zero-Python pivot · Wiki Plan B+ · 確証バイアス対抗ポジショニング
 
 > **Life OS 史上最大の「引き算」**。Wave 1（5 月 1 日）は Plan B wiki + auto-bootstrap を配信。Wave 2（5 月 2 日）は Layer 4 Python tools/ パッケージ全体（11 モジュール + 12 テスト + pyproject.toml + uv.lock + integration.yml workflow + 9 eval シナリオ）を削除し、唯一残ったセキュリティクリティカルな Python（47 危険コマンドパターン guard）を自己完結 bash 正規表現配列に port。Wave 2 は同時に 9 つの wiki スキーマ／パイプライン改善（aliases / sources 複数 / 5 段階 confidence enum / last_tended / review_by / 出処タグ / manifest デルタ / LLM ベース重複検出 / 切り離された CitationAgent）+ Anthropic / LangChain / GPT-Researcher / CrewAI / QX-Labs との Life OS Wiki の本質的差分を説明する確証バイアス対抗ポジショニングセクションも配信。

@@ -53,6 +53,9 @@ HOOK_SESSION_START_INBOX_ID="life-os-session-start-inbox"
 HOOK_PRE_TASK_LAUNCH_ID="life-os-pre-task-launch"
 HOOK_POST_TASK_AUDIT_TRAIL_ID="life-os-post-task-audit-trail"
 
+# v1.8.2 hook IDs
+HOOK_PRE_WRITE_OUTPUT_REDIRECT_ID="life-os-pre-write-output-redirect"
+
 # Source paths inside the skill package
 V17_LIB_SOURCE="$SOURCE_DIR/hooks/_lib.sh"
 V17_PRE_PROMPT_SOURCE="$SOURCE_DIR/hooks/pre-prompt-guard.sh"
@@ -67,6 +70,9 @@ V18_SESSION_START_INBOX_SOURCE="$SOURCE_DIR/hooks/session-start-inbox.sh"
 V18_PRE_TASK_LAUNCH_SOURCE="$SOURCE_DIR/hooks/pre-task-launch.sh"
 V18_POST_TASK_AUDIT_TRAIL_SOURCE="$SOURCE_DIR/hooks/post-task-audit-trail.sh"
 
+# v1.8.2 hook source paths
+V182_PRE_WRITE_OUTPUT_REDIRECT_SOURCE="$SOURCE_DIR/hooks/pre-write-output-redirect.sh"
+
 # Dest paths inside ~/.claude/scripts/hooks
 V17_LIB_DEST="$HOOKS_SUBDIR/_lib.sh"
 V17_PRE_PROMPT_DEST="$HOOKS_SUBDIR/pre-prompt-guard.sh"
@@ -80,6 +86,9 @@ V17_PRE_BASH_APPROVAL_DEST="$HOOKS_SUBDIR/pre-bash-approval.sh"
 V18_SESSION_START_INBOX_DEST="$HOOKS_SUBDIR/session-start-inbox.sh"
 V18_PRE_TASK_LAUNCH_DEST="$HOOKS_SUBDIR/pre-task-launch.sh"
 V18_POST_TASK_AUDIT_TRAIL_DEST="$HOOKS_SUBDIR/post-task-audit-trail.sh"
+
+# v1.8.2 hook dest paths
+V182_PRE_WRITE_OUTPUT_REDIRECT_DEST="$HOOKS_SUBDIR/pre-write-output-redirect.sh"
 
 # ─── Uninstall mode ─────────────────────────────────────────────────────────
 uninstall_all() {
@@ -184,6 +193,7 @@ copy_exec "$V17_PRE_BASH_APPROVAL_SOURCE" "$V17_PRE_BASH_APPROVAL_DEST"
 copy_exec "$V18_SESSION_START_INBOX_SOURCE" "$V18_SESSION_START_INBOX_DEST"
 copy_exec "$V18_PRE_TASK_LAUNCH_SOURCE" "$V18_PRE_TASK_LAUNCH_DEST"
 copy_exec "$V18_POST_TASK_AUDIT_TRAIL_SOURCE" "$V18_POST_TASK_AUDIT_TRAIL_DEST"
+copy_exec "$V182_PRE_WRITE_OUTPUT_REDIRECT_SOURCE" "$V182_PRE_WRITE_OUTPUT_REDIRECT_DEST"
 
 # ─── Copy v1.7.3 slash commands → ~/.claude/commands ────────────────────────
 COMMANDS_DEST="$HOME/.claude/commands"
@@ -291,6 +301,11 @@ register_hook "PreToolUse" "$HOOK_PRE_TASK_LAUNCH_ID" "Task" \
 register_hook "PostToolUse" "$HOOK_POST_TASK_AUDIT_TRAIL_ID" "Task" \
   "$V18_POST_TASK_AUDIT_TRAIL_DEST" 3 \
   "v1.8.0 · Verify R11 audit trail written by Cortex/archiver/knowledge-extractor subagents (immediate check, not session-end)"
+
+# ─── Register v1.8.2 hooks ──────────────────────────────────────────────────
+register_hook "PreToolUse" "$HOOK_PRE_WRITE_OUTPUT_REDIRECT_ID" "Write" \
+  "$V182_PRE_WRITE_OUTPUT_REDIRECT_DEST" 5 \
+  "v1.8.2 · Redirect binary/user-facing output writes (HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4/etc) to ~/Downloads/lifeos-export-<date>/ instead of letting them land inside the vault. Bypass: LIFEOS_OUTPUT_REDIRECT_OFF=1"
 
 register_hook "PostToolUse" "$HOOK_POST_RESPONSE_ID" "Task|Bash|Write|Edit" \
   "$V17_POST_RESPONSE_DEST" 5 \

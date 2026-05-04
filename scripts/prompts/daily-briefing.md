@@ -1,7 +1,11 @@
-# User-invoked prompt · daily-briefing (v1.8.0)
+# User-invoked prompt · daily-briefing (v1.8.2 · Obsidian-style)
 
 > Replaces the deleted `tools/daily_briefing.py`. ROUTER reads this when the
 > user wants a morning briefing.
+>
+> **v1.8.2 HARD RULE #11**: Output renders in Obsidian. Apply
+> `references/obsidian-style.md` — callouts for semantic blocks, `[[wikilinks]]`
+> for in-vault references, nested tags.
 
 ## Trigger keywords
 
@@ -28,34 +32,52 @@ starts the session knowing what's active, what's pending, what changed.
 - _meta/eval-history/recovery/ (last 7 days)  → recent archiver activity
 ```
 
-### 2. Compose briefing
+### 2. Compose briefing (v1.8.2 Obsidian-style)
 
-Write `_meta/eval-history/daily-briefing-{YYYY-MM-DD}.md`:
+Write `_meta/eval-history/daily-briefing-{YYYY-MM-DD}.md` per `references/obsidian-style.md`:
 
 ```markdown
+---
+title: "Daily briefing · {YYYY-MM-DD}"
+tags: [eval-history/daily-briefing]
+created: {YYYY-MM-DD}
+---
+
 # Daily briefing · {YYYY-MM-DD}
 
-## At a glance
-- {N} active projects, {M} inbox items, {K} sessions in last 7d
-- SOUL: {top 3 active dimensions with last-update age}
+> [!info] At a glance
+> - {N} active projects · {M} inbox items · {K} sessions in last 7d
+> - SOUL top 3 active: {dim-1} ({age}) · {dim-2} ({age}) · {dim-3} ({age})
 
 ## Active projects
-- {project_name} · last touched {age} · {one-line status}
-- ...
+
+- [[{project-name}]] · last touched {age} · {one-line status}
+- [[{project-name}]] · ...
 
 ## Inbox ({N} items)
+
+> [!tip] Drop-zone surfacing
+> Run `/inbox-process` to triage. Items here haven't been categorized yet.
+
 - {one-line per inbox item}
 
 ## SOUL state
+
 - {dimension}: {confidence}, {evidence}/{challenges}, last validated {age}
 - ...
 
 ## Recent sessions
-- {sid} · {title} · score {score}
-- ...
+
+- [[{sid}]] · {title} · score {score}
+- [[{sid}]] · ...
 
 ## Suggested actions for today
-- {derived from inbox + project staleness + SOUL drift signals}
+
+> [!tip] Derived signals
+> Pulled from inbox volume + project staleness + SOUL drift markers. Not commands; just suggestions.
+
+- {action-1}
+- {action-2}
 ```
 
 ### 3. Report to user

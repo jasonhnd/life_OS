@@ -68,56 +68,71 @@ A `due-for-review` entry takes precedence over `stale`/`borderline` even
 if other criteria also match — this is what the user asked the system to
 remind them of.
 
-### 3. Write report
+### 3. Write report (v1.8.2 Obsidian-style)
 
-Write `_meta/eval-history/wiki-decay-{YYYY-MM-DD}.md`:
+Write `_meta/eval-history/wiki-decay-{YYYY-MM-DD}.md` per `references/obsidian-style.md` (rule #11):
 
 ```markdown
+---
+title: "Wiki decay scan · {YYYY-MM-DD}"
+tags: [eval-history/wiki-decay]
+created: {YYYY-MM-DD}
+---
+
 # Wiki decay scan · {YYYY-MM-DD}
 
-## Summary
-- Total entries:    {N}
-- Due for review:   {D}  (you set review_by; date passed)
-- Stale:            {S}  (180+ days untouched + low confidence)
-- Borderline:       {B}  (90-180 days OR low confidence OR missing last_tended)
-- Active:           {A}  (no action)
+> [!info] Summary
+> - Total entries:    {N}
+> - Due for review:   {D}  (you set review_by; date passed)
+> - Stale:            {S}  (180+ days untouched + low confidence)
+> - Borderline:       {B}  (90-180 days OR low confidence OR missing last_tended)
+> - Active:           {A}  (no action)
 
 ## Due for review ({D}) — HIGHEST PRIORITY
-- {entry_path} · review_by={date} · confidence={enum} · age_tended={age}d
+
+> [!important] You explicitly flagged these for re-surfacing
+> Set `review_by` arrived. Each one needs a decision: keep / update / deprecate.
+
+- [[{entry-name}]] · review_by={date} · confidence={enum} · age_tended={age}d
   hint: {1-line from TL;DR}
-...
+- [[{entry-name}]] · ...
 
 ## Stale ({S})
-- {entry_path} · last_tended={date} ({age}d ago) · confidence={enum}
-  reason: 180+ days untouched, confidence not certain
-...
+
+> [!warning] 180+ days untouched + low confidence
+> System didn't flag these explicitly (no review_by set), but they're old AND low-confidence — most benefit from revalidation or deprecation.
+
+- [[{entry-name}]] · last_tended={date} ({age}d ago) · confidence={enum}
+- [[{entry-name}]] · ...
 
 ## Borderline ({B})
-- {entry_path} · last_tended={date or "missing"} · confidence={enum}
+
+> [!note] Maintenance tier
+> 90-180 days OR low confidence OR missing `last_tended`. Quick scan; if still trustworthy, bump `last_tended` for free freshness signal.
+
+- [[{entry-name}]] · last_tended={date or "missing"} · confidence={enum}
   reason: {age 90-180d | low confidence | no last_tended}
-...
+- [[{entry-name}]] · ...
 
 ## Active ({A})
+
 (omit list — just count, user doesn't need to see them)
-
-## Link audit summary
-
-(See section "Link audit" below — invoked inline if user adds
-`+ link-audit` to the trigger.)
 
 ## Recommended actions
 
-- **Due for review**: re-read the entry, decide:
-    - keep as-is → bump `last_tended` to today, push `review_by` to +180d
-    - update content → bump both, possibly adjust `confidence`
-    - deprecate → set `status: deprecated`, archive sources to `archive/`
-- **Stale**: same options, but the system didn't flag these — you set no
-  review_by, so confidence is low and time has passed. Most stale entries
-  benefit from either revalidation or deprecation.
-- **Borderline**: quick scan; if still trustworthy, just bump
-  `last_tended` (free freshness signal). If `last_tended` is missing,
-  backfill it.
+> [!tip] Decision tree
+> - **Due for review** → re-read, then: keep-as-is (bump `last_tended` + push `review_by` +180d) / update-content (bump both, adjust `confidence`) / deprecate (`status: deprecated`, archive sources)
+> - **Stale** → same options but you weren't expecting it; default action is revalidation or deprecation
+> - **Borderline** → quick scan; if still trustworthy just bump `last_tended` (free freshness signal); if `last_tended` is missing, backfill it
 ```
+
+### Obsidian-readability HARD RULE (v1.8.2)
+
+This report renders in Obsidian. Apply `references/obsidian-style.md`:
+
+- Use `[[wikilink]]` for entry references (NOT `[name](path/to/entry.md)`)
+- Use `> [!info|warning|important|note|tip]` callouts for semantic blocks
+- Use nested tags `eval-history/wiki-decay` (not flat `[eval-history, wiki-decay]`)
 
 ### 4. Optional · Link audit (replaces deleted `scripts/wiki/wiki-link-audit.sh`)
 

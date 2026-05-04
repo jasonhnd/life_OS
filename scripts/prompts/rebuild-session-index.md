@@ -1,7 +1,11 @@
-# User-invoked prompt · rebuild-session-index (v1.8.0 Option A)
+# User-invoked prompt · rebuild-session-index (v1.8.2 · Obsidian-style)
 
 > Replaces deleted `tools/rebuild_session_index.py`. ROUTER reads this when user
 > asks for manual session INDEX rebuild outside of retrospective Mode 0.
+>
+> **v1.8.2 HARD RULE #11**: Session INDEX renders in Obsidian. Apply
+> `references/obsidian-style.md` — session rows use `[[sid]]` wikilinks,
+> `> [!info]` summary callout, nested tags.
 
 ## Trigger keywords
 

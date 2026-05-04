@@ -1,7 +1,12 @@
-# User-invoked prompt · review-queue walker (v1.8.0 R-1.8.0-013)
+# User-invoked prompt · review-queue walker (v1.8.2 · Obsidian-style)
 
 > Borrowed from llm_wiki async review pattern. Single entry point for
 > "things that need user attention" across all maintenance tasks.
+>
+> **v1.8.2 HARD RULE #11**: Queue walk output renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!important]` for items needing
+> decision, `> [!tip]` for suggested actions, `[[wikilinks]]` for refs,
+> nested tags.
 
 ## Trigger keywords
 

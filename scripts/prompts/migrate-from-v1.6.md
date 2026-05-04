@@ -1,7 +1,11 @@
-# User-invoked prompt · migrate-from-v1.6 (v1.8.0 Option A)
+# User-invoked prompt · migrate-from-v1.6 (v1.8.2 · Obsidian-style)
 
 > Replaces deleted `tools/migrate.py` (903 lines). ROUTER reads this when user
 > upgrades from a v1.6.x second-brain to v1.7+ schema.
+>
+> **v1.8.2 HARD RULE #11**: Migration plan + report render in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!warning]` for breaking changes,
+> `> [!success]` for per-step results, `[[wikilinks]]` for entry refs.
 
 ## Trigger keywords
 

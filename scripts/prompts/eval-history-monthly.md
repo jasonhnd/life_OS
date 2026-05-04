@@ -1,9 +1,14 @@
-# User-invoked prompt · eval-history-monthly summary (v1.8.1 · zero-python)
+# User-invoked prompt · eval-history-monthly summary (v1.8.2 · Obsidian-style)
 
 > v1.8.0 pivot: this used to fire from launchd cron monthly 1st at 07:00.
 > Cron is gone. v1.8.1 also dropped the `tools/stats.py` middleware —
 > ROUTER now reads this prompt and does the aggregation 100% via LLM
 > tools (Read/Glob/Grep/Write).
+>
+> **v1.8.2 HARD RULE #11**: Output renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!info]` callout for "At a glance",
+> `> [!warning]` for anomalies, `[[wikilinks]]` for entry/session refs,
+> nested tags (e.g. `eval-history/monthly`).
 
 ## Trigger keywords
 

@@ -1,8 +1,13 @@
-# User-invoked prompt · spec-compliance (v1.8.0)
+# User-invoked prompt · spec-compliance (v1.8.2 · Obsidian-style)
 
 > Replaces the deleted `tools/spec_compliance_report.py`. ROUTER reads this
 > when the user wants to audit "what does the spec promise vs what's
 > actually happening".
+>
+> **v1.8.2 HARD RULE #11**: Compliance report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!info]` for the ratio summary,
+> `> [!warning]` for unfulfilled promises, `> [!success]` for fulfilled,
+> `[[wikilinks]]` for spec refs, nested tags.
 
 ## Trigger keywords
 

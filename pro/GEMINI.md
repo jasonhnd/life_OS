@@ -316,6 +316,8 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
 7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). All-pass output: `🔱 [theme: auditor] · ✅ Compliance Patrol passed`. Cannot be skipped. HARD RULE.
 
+8. **Obsidian readability for ALL human-readable .md output (v1.8.2)** · Every `.md` file Life OS produces that a human will read in Obsidian — wiki entries, session archives, retrospective Mode 0 briefings, archiver Phase outputs, daily-briefing, wiki-decay reports, eval-history aggregates, compliance logs, method library entries, DREAM entries, SOUL snapshots, all slash command outputs — MUST follow `references/obsidian-style.md`. The 3 non-negotiables: callouts (`> [!info]`, `> [!warning]`, etc.) for semantic blocks; `[[wikilinks]]` for in-vault references; nested tags (`fintech/stablecoin`) over flat tags. Out of scope: pure data files, source code, agent definition files. HARD RULE.
+
 ## Workflow State Machine
 
 Legal state transitions. Any violation = process error, AUDITOR must flag it.

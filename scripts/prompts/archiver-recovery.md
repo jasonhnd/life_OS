@@ -1,8 +1,13 @@
-# User-invoked prompt · archiver-recovery (v1.8.0)
+# User-invoked prompt · archiver-recovery (v1.8.2 · Obsidian-style)
 
 > v1.8.0 pivot: this used to fire from launchd cron daily 23:30. Cron is gone.
 > ROUTER reads this when the user says they missed an adjourn, then performs
 > the recovery directly using Read/Write/Bash tools and Task subagents.
+>
+> **v1.8.2 HARD RULE #11**: Recovery report + recovered session archives
+> render in Obsidian. Apply `references/obsidian-style.md` — callouts for
+> Recovery Status / Phase results, `[[wikilinks]]` for session/wiki refs,
+> nested tags.
 
 ## Trigger keywords
 

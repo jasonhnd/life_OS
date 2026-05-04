@@ -135,27 +135,42 @@ For each confirmed row, in order:
 
 1. Compute slug: lowercase, kebab-case, ≤ 50 chars, derived from filename
    topic (strip date prefix).
-2. Build frontmatter per `wiki/SCHEMA.md` (v1.8.1 fields):
+2. Determine the entry **`kind:`** (v1.8.2):
+   - `knowledge` — explanatory/factual content (default for most inbox drops)
+   - `method` — repeatable how-to / SOP
+   - `decision` — a choice with rationale (use `wiki/.templates/decision-template.md`)
+   - `lesson` — post-mortem / what-not-to-do (use `wiki/.templates/lesson-template.md`)
+   - `config` — verifiable settings / config snapshot
+3. Build frontmatter per `wiki/SCHEMA.md` (v1.8.2 fields):
    ```yaml
    ---
    title: "<one-line title>"
    aliases: []                    # other names this entry might be linked as
    domain: <domain>
+   kind: <knowledge|method|decision|lesson|config>   # v1.8.2 — pick from above
    created: <YYYY-MM-DD>          # today
    last_updated: <YYYY-MM-DD>     # same as created
    last_tended: <YYYY-MM-DD>      # same as created (you just tended it)
    review_by: <YYYY-MM-DD>        # today + 180d default
    confidence: <enum>             # impossible | unlikely | possible | likely | certain
-   tags: [<domain>, inbox-ingested]
+   tags: [<domain>/<sub-topic>, inbox-ingested]   # v1.8.2 — nested-tag style
    status: candidate
    sources:                       # PLURAL — list every contributing source
      - _meta/inbox/archive/<original-filename>
    ---
    ```
-3. Body: rewrite source content to wiki style (no first-person, no
+4. Body: rewrite source content to wiki style (no first-person, no
    ephemeral framing, no "I read this today"). Preserve URLs, citations,
    numbers verbatim. Keep ≤ 800 words for first version.
-4. **Provenance tagging in `## Key facts`**: every bullet should carry one
+5. **v1.8.2 Obsidian readability HARD RULES** when writing the body:
+   - **TL;DR** as `> [!info] TL;DR` callout (not plain heading)
+   - **Counterpoints** as `> [!warning]` callout (mandatory section)
+   - **Open questions** as `> [!question]` callout
+   - **In-vault links** use `[[wikilink]]` not `[name](path.md)`
+   - **External URLs** use standard markdown `[text](https://...)`
+   - **Mermaid diagrams** allowed via ` ```mermaid ` blocks if mechanism is naturally diagrammable
+   - **Footnotes** `[^id]` allowed for fine-grained citations
+6. **Provenance tagging in `## Key facts`**: every bullet should carry one
    marker:
    - `^[extracted]` — paraphrased verbatim from a source[]
    - `^[inferred]`  — your synthesis, not stated in any source
@@ -163,7 +178,7 @@ For each confirmed row, in order:
    Untagged claims default to `^[extracted]`. Be honest — `^[inferred]`
    is not a demerit; it's information for future-you and downstream
    audits.
-5. Write `wiki/<domain>/<slug>.md`.
+7. Write `wiki/<domain>/<slug>.md`.
 6. Move `_meta/inbox/to-process/<original>.md` →
    `_meta/inbox/archive/<original>.md` via `mv` (Bash tool).
 7. Append one line to `wiki/log.md`:

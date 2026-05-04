@@ -1,7 +1,11 @@
-# User-invoked prompt · rebuild-concept-index (v1.8.0 Option A)
+# User-invoked prompt · rebuild-concept-index (v1.8.2 · Obsidian-style)
 
 > Replaces deleted `tools/rebuild_concept_index.py`. ROUTER reads this when
 > user asks for manual concept INDEX rebuild.
+>
+> **v1.8.2 HARD RULE #11**: Concept INDEX renders in Obsidian. Apply
+> `references/obsidian-style.md` — concept rows use `[[wikilinks]]`,
+> `> [!info]` summary callout, nested tags.
 
 ## Trigger keywords
 

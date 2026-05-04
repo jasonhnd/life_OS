@@ -6,6 +6,124 @@
 
 ---
 
+## [1.8.2] - 2026-05-04 - 全局 Obsidian 可读 · 二进制输出转 ~/Downloads
+
+> **整个 vault 现在在 Obsidian 里读起来都很美。** v1.8.2 把 Obsidian 可读性从「只针对 wiki」升级为「全局 HARD RULE」，覆盖 Life OS 产出的每个人类可读 `.md` 文件（wiki / 会话归档 / 简报 / 报告 / SOUL 快照 / DREAM 条目 / eval-history 汇总 / compliance 日志 / method 库 / 所有 slash command 输出）。同时新增 PreToolUse hook 自动把二进制 / 用户面输出（HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4 等）转写到 `~/Downloads/lifeos-export-<日期>/`，不再让它们污染 vault。
+
+### 新增 · `references/obsidian-style.md` 权威风格指南
+
+Obsidian 友好 markdown 规约的单一权威源。覆盖：
+
+- **Callout**（`> [!info]`、`> [!warning]`、`> [!question]`、`> [!tip]`、`> [!important]`、`> [!quote]`、`> [!success]`、`> [!failure]`、`> [!example]`、`> [!note]`、`> [!bug]`、`> [!danger]`）—— 任何语义块（TL;DR / Counterpoints / Open questions / Mandatory sections）必须用。普通 `## heading` 用于这些块是 HARD RULE 违规。
+- **Wikilinks** `[[entry]]` —— vault 内引用必须用；`[text](path.md)` 是 HARD RULE 违规（破坏 Obsidian 图视图 + 反向链接面板）。
+- **嵌套 tag** `fintech/stablecoin` 优先于扁平 `[fintech, stablecoin]` —— Obsidian 标签树。
+- **Mermaid 图** 用于流程 / 处理 / 决策树类内容。
+- **脚注** `[^id]` 用于段落内细粒度引用。
+- **Block ID** `^block-id` 用于稳定引用。
+- **CSS class** `cssclasses: [decision, important]` 给条目加视觉样式（高级）。
+- 12 项 LLM 检查清单、反模式列表、迁移工具指针。
+
+### 新增 · `pro/CLAUDE.md` HARD RULE #11（同步到 GEMINI.md / AGENTS.md）
+
+在编排层固化 Obsidian 可读性要求。范围外：纯数据文件（`.json` / `.yaml` / `.csv`）、源代码、`pro/agents/*.md` agent 定义。迁移工具：legacy wiki 用 `/wiki-obsidian-upgrade`。
+
+### 新增 · 4 个新 wiki 模板（v1.8.2 `kind:` 字段）
+
+`scripts/wiki/setup-secondbrain.sh` 现在写 5 个模板（之前是 1 个）：
+
+| 模板 | `kind:` | 特殊字段 |
+|---|---|---|
+| `wiki-entry-template.md`（默认） | `knowledge` | callout / wikilinks / mermaid / 脚注 |
+| `method-template.md` | `method` | `times_used`、`last_used`、`inputs`、`outputs`、status: tentative/proven/deprecated |
+| `decision-template.md` | `decision` | `decision_date`、`outcome_review_date`、选项表、含结果回溯的 Counterpoints |
+| `lesson-template.md` | `lesson` | `trigger_event`、`recurrence`、祈使句一行 callout |
+| `config-template.md` | `config` | 逐字配置片段、副作用警告 |
+
+每个模板默认用 Obsidian callout、wikilinks、嵌套 tag、`kind:` 字段。
+
+### 新增 · `cssclasses: []` 和 `kind:` frontmatter 字段
+
+- `kind: knowledge | method | decision | lesson | config` —— 驱动 `wiki-decay` 按 kind 分类 + 各模板特定行为
+- `cssclasses: []` —— 可选 Obsidian CSS class 用于条目视觉样式
+
+### 新增 · `/wiki-obsidian-upgrade` slash 命令 + prompt
+
+一次性批量升级 legacy wiki 条目到 v1.8.2 格式：
+- 从现有内容检测 `kind:`（启发式：H2 标题）
+- 补齐缺失的 v1.8.2 frontmatter 字段
+- 转换 `[name](path.md)` → `[[wikilink]]`
+- 把已知 H2 段包成对应 callout（`## TL;DR` → `> [!info] TL;DR` 等）
+- 扁平 tag 转嵌套
+- bump `last_tended` 并 log 到 `wiki/log.md`
+- 幂等（已 v1.8.2 的条目跳过）
+- 写之前先预览方案，用户逐行确认
+
+### 新增 · PreToolUse Write hook · `pre-write-output-redirect.sh`
+
+捕获 skill / agent 写二进制 / 用户面输出文件（HTML、PDF、DOCX、XLSX、ZIP、图像、音频、视频、ebook、字体）到 vault 内路径的情况。重定向到 `~/Downloads/lifeos-export-<日期>/<文件名>`，让用户面导出文件落到用户找得到的地方 —— 而不是埋在 `_meta/` 或 vault 子目录里。
+
+- **检测格式**（~30 个扩展名）：pdf、docx、xlsx、pptx、odt、html、zip、tar.gz、png、jpg、svg、mp3、mp4、webm、epub、mobi、ttf 等
+- **跨平台 Downloads 检测**：`$XDG_DOWNLOAD_DIR` → `$HOME/Downloads` → `$USERPROFILE/Downloads`（Windows MSYS）→ `/tmp` 兜底
+- **vault 内二进制 allowlist**（不重定向）：`wiki/.attachments/*`、`wiki/*/attachments/*`、`_meta/inbox/to-process/*`、`_meta/inbox/archive/*`、`assets/*`
+- **绕过**：`export LIFEOS_OUTPUT_REDIRECT_OFF=1`（每会话）
+- **已经在 Downloads 检测**：`$HOME/Downloads/*` 或任何 `*/Downloads/*` 路径直接放行
+
+exit 2 + 双语拦截信息 + 建议重定向路径。AI 看到建议会重新发起 Write 到建议路径。
+
+25 fixture smoke 测过（文本格式 / 二进制格式 / allowlist / 绕过 / 大小写不敏感 / Edit 忽略 / 空 stdin）—— 25/25 全过。
+
+### 更新 · 21 个 prompt 应用 HARD RULE #11
+
+所有 `scripts/prompts/*.md` 加 v1.8.2 可读性引用：
+
+- `wiki-decay.md` —— 完整 Obsidian 风格报告模板，含 `> [!important]` / `> [!warning]` / `> [!note]` / `> [!tip]` callout、`[[wikilinks]]` 条目引用
+- `daily-briefing.md` —— `> [!info]` 概览、`> [!tip]` inbox 提示和建议行动
+- `inbox-process.md` —— accept/update/merge 写入用完整 Obsidian 风格；新增 `kind:` 字段选择步骤
+- `research.md` —— Wave-2 + v1.8.2 wiki 条目正文模板用 `> [!info] TL;DR` / `> [!warning] Counterpoints` / `> [!question] Open questions` callout；mermaid 块按需嵌入
+- `eval-history-monthly.md` / `auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `spec-compliance.md` / `archiver-recovery.md` / `review-queue.md` / `backup.md` / `migrate-confidence.md` / `snapshot-cleanup.md` / `extract-concepts.md` / `wiki-link-audit.md` / `reindex.md` / `rebuild-concept-index.md` / `rebuild-session-index.md` / `migrate-from-v1.6.md` / `migrate-to-wikilinks.md` —— 头部 HARD RULE #11 引用
+
+### 更新 · 2 个 agent 文件提到 HARD RULE #11
+
+- `pro/agents/retrospective.md` —— Mode 0/2 简报用 `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]`
+- `pro/agents/archiver.md` —— Phase 输出（会话归档 / wiki 条目 / SOUL 快照 / DREAM / Completion Checklist）全跟随风格指南；Phase 2 wiki 提取必须用 `wiki/.templates/`
+
+### 更新 · `wiki/OBSIDIAN-SETUP.md` 模板（自动写）
+
+- 9 插件推荐（之前 4）—— 加 Linter / Iconize / Periodic Notes / Tag Wrangler / MetaEdit
+- 6 项 v1.8.2 可读性特性 inline 文档化（callout / wikilinks / mermaid / 嵌套 tag / 脚注 / CSS class）
+- 7 个 Dataview 查询（之前 3）—— 加：待结果回顾的开放决策、method 使用 trail、lesson 重复频率
+
+### 验证（CI 矩阵）
+
+- 23 个 tracked .sh `bash -n`（加 `pre-write-output-redirect.sh` + `test_pre_write_output_redirect.sh`）→ 全过
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- 9 套 `tests/hooks/*.sh`（v1.8.1 是 8 套；加 `test_pre_write_output_redirect.sh` 25 断言）—— 总共 ~120 断言全过
+- 重新打 tag 后 `bash scripts/verify-release.sh` → 7/7 ✅
+
+### 迁移
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 注册新 pre-write-output-redirect hook + 新模板
+```
+
+然后在 second-brain vault 内开任意 Claude Code session。SessionStart hook 自动检测 v1.8.2 脚手架补充（4 个新模板 + 升级版 OBSIDIAN-SETUP.md）并静默创建（缺失才创建）。已有的 v1.8.1 模板和条目**不会自动改动**；新写入跟随 v1.8.2 可读性约定。
+
+要把现有 wiki 条目升级到 v1.8.2 Obsidian 风格（callout、wikilinks、嵌套 tag、`kind:` 字段），在 vault 内跑：
+
+```
+/wiki-obsidian-upgrade
+```
+
+幂等。写之前先预览方案。配套：`/migrate-confidence` 处理 legacy float `confidence` → enum。
+
+### 范围外（有意为之）
+
+- 非 wiki 文件（sessions / SOUL 快照 / DREAM 条目 / eval-history 报告）跟随 v1.8.2 约定 **for NEW writes**（per HARD RULE #11），但**不批量升级** —— 用户接触时有机迁移。
+- 纯数据文件（`.json` / `.yaml` / `.csv`）、源代码、agent 定义文件（`pro/agents/*.md`）豁免 HARD RULE #11。
+
+---
+
 ## [1.8.1] - 2026-05-02 - Zero-Python pivot · Wiki Plan B+ · 反 confirmation bias 定位
 
 > **Life OS 历史上最大的「减法」**。Wave 1（5 月 1 日）交付 Plan B wiki + auto-bootstrap。Wave 2（5 月 2 日）删除整个 Layer 4 Python tools/ 包（11 模块 + 12 测试 + pyproject.toml + uv.lock + integration.yml workflow + 9 eval 场景），并把唯一剩下的安全关键 Python（47 危险命令 pattern guard）port 成自包含 bash 正则数组。Wave 2 同时交付 9 个 wiki schema/流水线改进（aliases / sources 复数 / 5 桶 confidence enum / last_tended / review_by / 出处 tag / manifest delta / LLM 驱动去重 / 解耦 CitationAgent）+ 反 confirmation bias 定位段，说明 Life OS Wiki 与 Anthropic / LangChain / GPT-Researcher / CrewAI / QX-Labs 的本质区别。

@@ -6,6 +6,124 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.2] - 2026-05-04 - Obsidian-readable everything · binary output redirect to ~/Downloads
+
+> **The whole vault now reads beautifully in Obsidian.** v1.8.2 elevates Obsidian readability from a wiki-only convention to a global HARD RULE applying to every human-readable `.md` file Life OS produces (wiki entries, session archives, briefings, reports, SOUL snapshots, DREAM entries, eval-history aggregates, compliance logs, method library entries, all slash command outputs). Plus: a new PreToolUse hook automatically redirects binary/user-facing output writes (HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4/etc.) to `~/Downloads/lifeos-export-<date>/` instead of letting them clutter the vault.
+
+### Added · `references/obsidian-style.md` canonical style guide (v1.8.2)
+
+Single source of truth for Obsidian-friendly markdown conventions. Covers:
+
+- **Callouts** (`> [!info]`, `> [!warning]`, `> [!question]`, `> [!tip]`, `> [!important]`, `> [!quote]`, `> [!success]`, `> [!failure]`, `> [!example]`, `> [!note]`, `> [!bug]`, `> [!danger]`) — required for any semantic block (TL;DR, Counterpoints, Open questions, Mandatory sections). Plain `## headings` for these are HARD RULE violations.
+- **Wikilinks** `[[entry]]` — required for in-vault references; `[text](path.md)` is a HARD RULE violation (breaks Obsidian graph view + backlinks panel).
+- **Nested tags** `fintech/stablecoin` over flat `[fintech, stablecoin]` — gives Obsidian a tag tree.
+- **Mermaid diagrams** for flow / process / decision-tree content.
+- **Footnotes** `[^id]` for fine-grained citations inside paragraphs.
+- **Block IDs** `^block-id` for stable references.
+- **CSS classes** `cssclasses: [decision, important]` for per-entry visual styling (advanced).
+- 12-item LLM checklist, anti-pattern list, migration tooling pointer.
+
+### Added · HARD RULE #11 in `pro/CLAUDE.md` (and mirrored to GEMINI.md / AGENTS.md)
+
+Codifies the Obsidian readability requirement at the orchestration layer. Out of scope: pure data files (`.json`, `.yaml`, `.csv`), source code, agent definition files in `pro/agents/*.md`. Migration tool: `/wiki-obsidian-upgrade` for legacy wiki entries.
+
+### Added · 4 new wiki entry templates (v1.8.2 `kind:` field)
+
+`scripts/wiki/setup-secondbrain.sh` now writes 5 templates instead of 1:
+
+| Template | `kind:` | Special fields |
+|---|---|---|
+| `wiki-entry-template.md` (default) | `knowledge` | callouts, wikilinks, mermaid, footnote |
+| `method-template.md` | `method` | `times_used`, `last_used`, `inputs`, `outputs`, status: tentative/proven/deprecated |
+| `decision-template.md` | `decision` | `decision_date`, `outcome_review_date`, options table, Counterpoints with outcome trail |
+| `lesson-template.md` | `lesson` | `trigger_event`, `recurrence`, imperative one-line callout |
+| `config-template.md` | `config` | verbatim config snippet, side-effects warning |
+
+Each template uses Obsidian callouts, wikilinks, nested tags, and the `kind:` field by default.
+
+### Added · `cssclasses: []` and `kind:` frontmatter fields
+
+- `kind: knowledge | method | decision | lesson | config` — drives `wiki-decay` per-kind classification and per-template behavior
+- `cssclasses: []` — optional Obsidian CSS class per entry for visual styling
+
+### Added · `/wiki-obsidian-upgrade` slash command + prompt
+
+One-shot batch upgrade of legacy wiki entries to v1.8.2 format:
+- Detects `kind:` from existing content (heuristics: H2 headings present)
+- Adds missing v1.8.2 frontmatter fields
+- Converts `[name](path.md)` → `[[wikilink]]`
+- Wraps known H2 sections in matching callouts (`## TL;DR` → `> [!info] TL;DR`, etc.)
+- Converts flat tags to nested
+- Bumps `last_tended` and logs to `wiki/log.md`
+- Idempotent (entries already v1.8.2 are skipped)
+- Plan-preview before any write; user confirms each row
+
+### Added · PreToolUse Write hook · `pre-write-output-redirect.sh`
+
+Catches when a skill or agent tries to write a binary/user-facing output file (HTML, PDF, DOCX, XLSX, ZIP, image, audio, video, ebook, font) to a path inside the vault. Redirects to `~/Downloads/lifeos-export-<date>/<filename>` so user-facing exports land where the user looks for them — not buried inside `_meta/` or vault subdirectories.
+
+- **Detected formats** (~30 extensions): pdf, docx, xlsx, pptx, odt, html, zip, tar.gz, png, jpg, svg, mp3, mp4, webm, epub, mobi, ttf, etc.
+- **Cross-platform Downloads detection**: `$XDG_DOWNLOAD_DIR` → `$HOME/Downloads` → `$USERPROFILE/Downloads` (Windows MSYS) → `/tmp` fallback
+- **In-vault binary allowlist** (NOT redirected): `wiki/.attachments/*`, `wiki/*/attachments/*`, `_meta/inbox/to-process/*`, `_meta/inbox/archive/*`, `assets/*`
+- **Bypass**: `export LIFEOS_OUTPUT_REDIRECT_OFF=1` (per-session)
+- **Already-in-Downloads detection**: paths under `$HOME/Downloads/*` or any `*/Downloads/*` pass through
+
+Exit 2 with bilingual block message + suggested redirect path. AI sees the suggestion and re-issues Write to the suggested path.
+
+Smoke-tested with 25 fixtures (text formats / binary formats / allowlist / bypass / case-insensitivity / Edit ignored / empty stdin) — all 25/25 pass.
+
+### Updated · 21 prompts now apply HARD RULE #11
+
+All `scripts/prompts/*.md` updated with v1.8.2 readability reference:
+
+- `wiki-decay.md` — full Obsidian-style report template with `> [!important]` / `> [!warning]` / `> [!note]` / `> [!tip]` callouts, `[[wikilinks]]` for entry refs
+- `daily-briefing.md` — `> [!info]` for At-a-glance, `> [!tip]` for inbox surfacing & suggested actions
+- `inbox-process.md` — accept/update/merge writes use full Obsidian style; new `kind:` field selection step
+- `research.md` — Wave-2 + v1.8.2 wiki entry body template uses `> [!info] TL;DR` / `> [!warning] Counterpoints` / `> [!question] Open questions` callouts; mermaid block conditional
+- `eval-history-monthly.md` / `auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `spec-compliance.md` / `archiver-recovery.md` / `review-queue.md` / `backup.md` / `migrate-confidence.md` / `snapshot-cleanup.md` / `extract-concepts.md` / `wiki-link-audit.md` / `reindex.md` / `rebuild-concept-index.md` / `rebuild-session-index.md` / `migrate-from-v1.6.md` / `migrate-to-wikilinks.md` — header HARD RULE #11 reference
+
+### Updated · 2 agent files now mention HARD RULE #11
+
+- `pro/agents/retrospective.md` — Mode 0/2 briefings use `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]`
+- `pro/agents/archiver.md` — Phase outputs (session archives / wiki entries / SOUL snapshots / DREAM / Completion Checklist) all follow the style guide; Phase 2 wiki extraction MUST use `wiki/.templates/`
+
+### Updated · `wiki/OBSIDIAN-SETUP.md` template (auto-written)
+
+- 9-plugin recommendation list (was 4) — adds Linter, Iconize, Periodic Notes, Tag Wrangler, MetaEdit
+- 6 v1.8.2 readability features documented inline (callouts, wikilinks, mermaid, nested tags, footnotes, CSS classes)
+- 7 Dataview queries (was 3) — adds: open decisions awaiting outcome, method usage trail, lesson recurrence
+
+### Verification (CI matrix)
+
+- `bash -n` on all 23 tracked .sh files (added `pre-write-output-redirect.sh` + `test_pre_write_output_redirect.sh`) → pass
+- `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0
+- 9 `tests/hooks/*.sh` suites (was 8 in v1.8.1; added `test_pre_write_output_redirect.sh` 25 assertions) — total ~120 assertions, all pass
+- `bash scripts/verify-release.sh` → 7/7 ✅ after retag
+
+### Migration
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # registers new pre-write-output-redirect hook + new templates
+```
+
+Then open any Claude Code session inside your second-brain vault. The SessionStart hook auto-detects v1.8.2 scaffolding additions (4 new templates + upgraded OBSIDIAN-SETUP.md) and creates them silently if missing. Existing v1.8.1 templates and entries are NOT touched automatically; new writes follow v1.8.2 readability conventions.
+
+To upgrade existing wiki entries to v1.8.2 Obsidian style (callouts, wikilinks, nested tags, `kind:` field), run inside your vault:
+
+```
+/wiki-obsidian-upgrade
+```
+
+Idempotent. Plan-preview before any write. Companion: `/migrate-confidence` for legacy float `confidence` → enum.
+
+### Out of scope (intentional)
+
+- Non-wiki files (sessions, SOUL snapshots, DREAM entries, eval-history reports) follow v1.8.2 conventions for NEW writes (per HARD RULE #11) but are NOT batch-upgraded — they migrate organically as the user touches them.
+- Pure data files (`.json`, `.yaml`, `.csv`), source code, and agent definition files (`pro/agents/*.md`) are exempt from HARD RULE #11.
+
+---
+
 ## [1.8.1] - 2026-05-02 - Zero-Python pivot · Wiki Plan B+ · Counter-bias positioning
 
 > **The largest reduction in Life OS history**. Wave 1 (May 1) shipped Plan B wiki + auto-bootstrap. Wave 2 (May 2) deletes the entire Layer 4 Python tools/ package (11 modules + 12 test files + pyproject.toml + uv.lock + integration.yml workflow + 9 eval scenarios) and ports the only security-critical Python (the 47 dangerous-command pattern guard) to a self-contained bash regex array. Wave 2 also delivers 9 wiki schema/pipeline improvements (aliases / sources plural / 5-bucket confidence enum / last_tended / review_by / provenance tags / manifest delta / LLM-based dedup / decoupled CitationAgent) plus a counter-bias positioning section explaining how Life OS Wiki differs from Anthropic / LangChain / GPT-Researcher / CrewAI / QX-Labs.

@@ -1,7 +1,11 @@
-# User-invoked prompt · backup (v1.8.0)
+# User-invoked prompt · backup (v1.8.2 · Obsidian-style)
 
 > Replaces the deleted `tools/backup.py`. ROUTER reads this when the user
 > wants to snapshot the second-brain.
+>
+> **v1.8.2 HARD RULE #11**: Backup report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!success]` for completion,
+> `> [!warning]` for partial backup or skipped paths, nested tags.
 
 ## Trigger keywords
 

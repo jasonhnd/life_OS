@@ -1,8 +1,12 @@
-# User-invoked prompt · extract-concepts (v1.8.0 Option A)
+# User-invoked prompt · extract-concepts (v1.8.2 · Obsidian-style)
 
 > Replaces deleted `tools/extract.py` and `tools/lib/cortex/extraction.py`
 > helpers. ROUTER reads this when user manually wants to run concept candidate
 > extraction outside of archiver Phase 2.
+>
+> **v1.8.2 HARD RULE #11**: Concept candidates + extraction report render
+> in Obsidian. Apply `references/obsidian-style.md` — concept entries use
+> wiki frontmatter (kind: knowledge), report uses callouts + `[[wikilinks]]`.
 
 ## Trigger keywords
 

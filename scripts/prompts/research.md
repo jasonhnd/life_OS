@@ -132,19 +132,20 @@ domain. Never invent silently.
 
 Lowercase kebab-case, ≤ 50 chars, derived from the topic.
 
-### Frontmatter (SCHEMA-compliant, v1.8.1 fields)
+### Frontmatter (SCHEMA-compliant, v1.8.2 fields)
 
 ```yaml
 ---
 title: "<one-line title; max 80 chars>"
 aliases: []                    # alternative names this entry might be linked as
 domain: <domain>
+kind: knowledge                # v1.8.2 — research output is `knowledge` kind by default
 created: <YYYY-MM-DD>          # today
 last_updated: <YYYY-MM-DD>     # same as created
 last_tended: <YYYY-MM-DD>      # same as created
 review_by: <YYYY-MM-DD>        # today + 180d default
 confidence: possible           # 5-bucket enum default; bump to `likely` if 4+ agents converge
-tags: [<domain>, research-generated]
+tags: [<domain>/<sub-topic>, research-generated]   # nested-tag style for Obsidian tag tree
 status: candidate
 sources:                       # PLURAL array
   - <url-1>                    # angle: <angle-1>
@@ -158,15 +159,16 @@ research_run:
 ---
 ```
 
-### Body (≤ 1200 words first version)
+### Body (≤ 1200 words first version) — Obsidian-friendly v1.8.2
 
 ```markdown
 # <title>
 
-## TL;DR
-<2-3 sentence summary distilled from all N agents>
+> [!info] TL;DR
+> <2-3 sentence summary distilled from all N agents — Obsidian renders this as a styled callout box>
 
 ## Key facts
+
 - <fact-1> ^[extracted]
 - <fact-2> ^[extracted]
 - <fact-3> ^[inferred]
@@ -181,6 +183,16 @@ or `^[ambiguous]` — never upgrade to `^[extracted]` during synthesis.
 ## Mechanism / How it works
 <2-4 paragraphs. Pull from `practitioner` + `mechanistic` (if deep) angles>
 
+If the mechanism is naturally a flow / system, embed a mermaid diagram:
+
+```mermaid
+flowchart LR
+    A[Input] --> B[Process step]
+    B --> C[Output]
+```
+
+(Skip the diagram if the mechanism is purely conceptual; don't force.)
+
 ## Origin & evolution
 <1-2 paragraphs. Pull from `origin` angle>
 
@@ -188,17 +200,43 @@ or `^[ambiguous]` — never upgrade to `^[extracted]` during synthesis.
 <1-2 paragraphs. Pull from `practitioner` + `data-statistics` (if deep) angles>
 
 ## Counterpoints
-<2-4 bullets. Pull from `contrarian` angle. THIS SECTION IS MANDATORY —
-even if all agents converged, write "No substantive opposition found in
-this run; agents <list> all aligned. Re-test in 3 months for new
-critiques.">
+
+> [!warning] Mandatory section — even if all agents converged
+> Write "No substantive opposition found in this run; agents <list> all aligned.
+> Re-test in 3 months for new critiques."
+
+- <counterpoint-1>
+- <counterpoint-2>
+- <counterpoint-3>
 
 ## Open questions
-<2-4 bullets — questions the research couldn't answer. Honest gaps.>
+
+> [!question]
+> - <question-1 — what the research couldn't answer>
+> - <question-2 — honest gap>
+
+## Related
+
+<!-- v1.8.2 — Obsidian wikilinks (graph-aware) for in-vault links: -->
+
+- [[<related-wiki-entry>]]
+- [[<related-wiki-entry>|alternative display]]
 
 ## Sources
+
 <full URL list grouped by angle, deduplicated; mirrors frontmatter sources[]>
 ```
+
+### Obsidian-readability HARD RULES (v1.8.2)
+
+When writing the body:
+
+1. **TL;DR / Counterpoints / Open questions MUST be Obsidian callouts** (`> [!info]` / `> [!warning]` / `> [!question]`). Plain headings render flat; callouts render as visually distinct boxes.
+2. **Inline links to other wiki entries MUST be `[[wikilink]]` style** (not `[text](path.md)`). Wikilinks are graph-aware; markdown links break Obsidian's graph view.
+3. **Nested tags** for the `tags:` array (`fintech/stablecoin` instead of `fintech, stablecoin`) — gives Obsidian a tag tree.
+4. **External URLs use standard markdown** `[text](https://...)` — only intra-vault links are wikilinks.
+5. **Mermaid blocks ARE rendered natively** by Obsidian — use them when a flow/system is naturally diagrammable, but don't force a diagram into purely conceptual content.
+6. **Footnotes** (`[^id]`) for fine-grained citations inside paragraphs — Obsidian renders them as backlinks at the bottom.
 
 ## Phase 3.5 · Counter-bias check (default ON; off only if `--no-bias-check`)
 

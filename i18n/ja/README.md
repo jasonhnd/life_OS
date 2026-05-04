@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.2-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -76,6 +76,65 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 **トリガーワード自動推論**：「閣議開始」と入力すれば霞が関テーマが自動選択される。「上朝」なら三省六部。文化固有のトリガーワードがない汎用的な開始語（「はじめる」「开始」"start" など）の場合は、その言語の3つのサブ選択肢が表示される。
 
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
+
+---
+
+## v1.8.2 の新機能 — グローバル Obsidian 可読性 + バイナリ出力を ~/Downloads にリダイレクト
+
+vault 全体が Obsidian で美しくレンダリングされるようになった。v1.8.2 は Obsidian 可読性を「wiki 限定」から**グローバル HARD RULE** に格上げし、Life OS が生成するすべての人間可読 `.md` ファイル（wiki / セッションアーカイブ / 簡報 / レポート / SOUL スナップショット / DREAM エントリ / eval-history 集計 / コンプライアンスログ / メソッドライブラリ / 全 slash command 出力）に適用。
+
+### 譲れない 3 つ（HARD RULE #11）
+
+1. **Callout**（`> [!info]`、`> [!warning]`、`> [!question]`、`> [!tip]`、`> [!important]`、`> [!quote]`）—— セマンティックブロック（TL;DR / Counterpoints / Open questions / Mandatory sections）に必須。プレーン `## heading` でこれらを表現するのは違反。
+2. **Wikilinks** `[[entry]]` —— vault 内参照に必須。`[text](path.md)` は Obsidian グラフビューを破壊。
+3. **入れ子タグ** `fintech/stablecoin` をフラット `[fintech, stablecoin]` より優先 —— Obsidian タグツリー。
+
+加えて：mermaid 図、脚注 `[^id]`、Block ID `^block-id`、オプショナル CSS class。完全な公式ガイド：[`references/obsidian-style.md`](references/obsidian-style.md)。
+
+### 新規：4 つの専用 wiki テンプレート（`kind:` フィールド）
+
+`scripts/wiki/setup-secondbrain.sh` は現在 5 テンプレートを書き込み（以前は 1 つ）：
+
+| テンプレート | `kind:` | 何を追加 |
+|---|---|---|
+| `wiki-entry-template.md`（デフォルト） | `knowledge` | callout、wikilinks、mermaid |
+| `method-template.md` | `method` | `times_used`、`last_used`、status: tentative/proven |
+| `decision-template.md` | `decision` | `decision_date`、`outcome_review_date`、**Counterpoints の結果トレイル** |
+| `lesson-template.md` | `lesson` | `trigger_event`、`recurrence`、命令文一行 |
+| `config-template.md` | `config` | 逐語的スニペット、副作用警告 |
+
+`decision-template.md` がキラー —— 意思決定時に挙げた各 Counterpoint が `outcome_review_date` で再訪される。本当に起きた？それとも当時の心配しすぎ？**これが Life OS が「あなたの心配モードがキャリブレーション済みかどうか」を学ぶ仕組み。**
+
+### 新規：`/wiki-obsidian-upgrade` 一括アップグレード
+
+レガシー wiki エントリを 1 コマンドで v1.8.2 にアップグレード。既存コンテンツから `kind:` を検出、`[name](path.md)` → `[[wikilink]]` 変換、既知 H2 セクションを callout でラップ（`## TL;DR` → `> [!info] TL;DR`）、フラットタグを入れ子に変換。冪等。書き込み前にプラン プレビュー。
+
+### 新規：PreToolUse hook がバイナリ出力を `~/Downloads/` に自動リダイレクト
+
+skill / agent がバイナリ / ユーザー向け出力ファイル（HTML、PDF、DOCX、XLSX、ZIP、画像、音声、動画、ebook、フォント）を vault パスに書き込もうとすると、`pre-write-output-redirect.sh` がブロックして `~/Downloads/lifeos-export-<日付>/<ファイル名>` を提案。
+
+- ~30 個のバイナリフォーマット検出
+- クロスプラットフォーム Downloads 検出（macOS / Linux / Windows MSYS）
+- vault 内バイナリ allowlist：`wiki/.attachments/*`、`_meta/inbox/to-process/*`、`assets/*`
+- バイパス：`LIFEOS_OUTPUT_REDIRECT_OFF=1`
+- 25/25 フィクスチャでスモークテスト済み
+
+ユーザー向けエクスポートファイルがユーザーの探す場所に着地 —— vault に埋もれない。
+
+### マイグレーション
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # pre-write-output-redirect + 新テンプレート登録
+```
+
+既存 wiki エントリは引き続き動作。v1.8.2 可読性にアップグレードするには、vault 内で：
+
+```
+/wiki-obsidian-upgrade
+```
+
+コンパニオン：legacy float `confidence` → 5 段階 enum 用の `/migrate-confidence`。両方とも冪等。詳細は [CHANGELOG.md](./CHANGELOG.md#182---2026-05-04) を参照。
 
 ---
 

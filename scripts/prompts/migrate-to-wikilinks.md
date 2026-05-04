@@ -1,8 +1,15 @@
-# User-invoked prompt · migrate existing content to wikilinks (v1.8.0 R-1.8.0-013)
+# User-invoked prompt · migrate existing content to wikilinks (v1.8.2 · Obsidian-style)
 
 > One-time migration of legacy content to Obsidian-style `[[wikilinks]]`.
 > User chose "4 (全, 完整)" — full migration of all existing content, not
 > just new writes.
+>
+> **v1.8.2 HARD RULE #11**: Migration plan + report render in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!info]` for plan summary,
+> `> [!success]` for completion. (This prompt is itself the wikilink
+> half of the same v1.8.2 readability initiative — companion to
+> `wiki-obsidian-upgrade.md` for the full callout/wikilink/nested-tag/kind
+> upgrade.)
 
 ## Trigger keywords
 

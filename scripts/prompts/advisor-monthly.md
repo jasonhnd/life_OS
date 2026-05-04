@@ -1,8 +1,13 @@
-# User-invoked prompt · advisor-monthly SOUL Drift Review (v1.8.0)
+# User-invoked prompt · advisor-monthly SOUL Drift Review (v1.8.2 · Obsidian-style)
 
 > v1.8.0 pivot: this used to fire from launchd cron monthly 1st at 06:00.
 > Cron is gone. ROUTER reads this when the user asks for a monthly self-
 > review, then launches the `advisor` subagent directly.
+>
+> **v1.8.2 HARD RULE #11**: Drift report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!important]` for the verdict,
+> `> [!warning]` for drift signals, `> [!quote]` for one-line lessons,
+> `[[wikilinks]]` for SOUL dimension refs, nested tags.
 
 ## Trigger keywords
 

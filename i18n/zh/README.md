@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.2-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -74,6 +74,65 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 主题随时可以切换。引擎不变——只是换了一个声音。
 
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
+
+---
+
+## v1.8.2 新特性 — 全局 Obsidian 可读 + 二进制输出转 ~/Downloads
+
+整个 vault 现在在 Obsidian 里读起来都很美。v1.8.2 把 Obsidian 可读性从「只针对 wiki」升级为**全局 HARD RULE**，覆盖 Life OS 产出的每个人类可读 `.md` 文件（wiki / 会话归档 / 简报 / 报告 / SOUL 快照 / DREAM 条目 / eval-history 汇总 / compliance 日志 / method 库 / 所有 slash command 输出）。
+
+### 三条不可妥协（HARD RULE #11）
+
+1. **Callout**（`> [!info]`、`> [!warning]`、`> [!question]`、`> [!tip]`、`> [!important]`、`> [!quote]`）—— 任何语义块（TL;DR / Counterpoints / Open questions / Mandatory sections）必须用。普通 `## heading` 用于这些块算违规。
+2. **Wikilinks** `[[entry]]` —— vault 内引用必须用。`[text](path.md)` 用于 vault 内引用破坏 Obsidian 图视图。
+3. **嵌套 tag** `fintech/stablecoin` 优先于扁平 `[fintech, stablecoin]` —— Obsidian 标签树。
+
+加上：mermaid 图、脚注 `[^id]`、Block ID `^block-id`、可选 CSS class。完整权威指南：[`references/obsidian-style.md`](references/obsidian-style.md)。
+
+### 新增：4 个专门 wiki 模板（`kind:` 字段）
+
+`scripts/wiki/setup-secondbrain.sh` 现在写 5 个模板（之前是 1 个）：
+
+| 模板 | `kind:` | 加了什么 |
+|---|---|---|
+| `wiki-entry-template.md`（默认） | `knowledge` | callout、wikilinks、mermaid |
+| `method-template.md` | `method` | `times_used`、`last_used`、status: tentative/proven |
+| `decision-template.md` | `decision` | `decision_date`、`outcome_review_date`、**Counterpoints 结果回溯** |
+| `lesson-template.md` | `lesson` | `trigger_event`、`recurrence`、祈使句一行 |
+| `config-template.md` | `config` | 逐字片段、副作用警告 |
+
+`decision-template.md` 是杀手锏 —— 决策时提的每个 Counterpoint 在 `outcome_review_date` 到期时被重新拿出来回顾。它是真的发生了？还是当时焦虑过头？**这是 Life OS 学习"你的担忧模式准不准"的方式。**
+
+### 新增：`/wiki-obsidian-upgrade` 一次性批量升级
+
+Legacy wiki 条目一条命令升级到 v1.8.2。从现有内容检测 `kind:`，转换 `[name](path.md)` → `[[wikilink]]`，把已知 H2 段包成 callout（`## TL;DR` → `> [!info] TL;DR`），扁平 tag 转嵌套。幂等。写之前先预览。
+
+### 新增：PreToolUse hook 自动把二进制输出转到 `~/Downloads/`
+
+当 skill / agent 尝试把二进制 / 用户面输出文件（HTML、PDF、DOCX、XLSX、ZIP、图像、音频、视频、ebook、字体）写到 vault 路径时，`pre-write-output-redirect.sh` 会拦截并建议改写到 `~/Downloads/lifeos-export-<日期>/<文件名>`。
+
+- 检测 ~30 种二进制格式
+- 跨平台 Downloads 检测（macOS / Linux / Windows MSYS）
+- vault 内二进制 allowlist：`wiki/.attachments/*`、`_meta/inbox/to-process/*`、`assets/*`
+- 绕过：`LIFEOS_OUTPUT_REDIRECT_OFF=1`
+- 25/25 fixture smoke 测过
+
+用户面导出文件现在落到用户找得到的地方 —— 不再埋在 vault 里。
+
+### 迁移
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # 注册 pre-write-output-redirect + 新模板
+```
+
+现有 wiki 条目继续工作。要把它们升级到 v1.8.2 可读性，在 vault 内跑：
+
+```
+/wiki-obsidian-upgrade
+```
+
+配套：legacy float `confidence` → 5 桶 enum 的 `/migrate-confidence`。两个都幂等。详见 [CHANGELOG.md](./CHANGELOG.md#182---2026-05-04)。
 
 ---
 

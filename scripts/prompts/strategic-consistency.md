@@ -1,8 +1,12 @@
-# User-invoked prompt · strategic-consistency check (v1.8.0)
+# User-invoked prompt · strategic-consistency check (v1.8.2 · Obsidian-style)
 
 > v1.8.0 pivot: this used to fire from launchd cron monthly 1st at 08:00.
 > Cron is gone. ROUTER reads this when the user asks for a strategic
 > consistency check, then performs the analysis directly.
+>
+> **v1.8.2 HARD RULE #11**: Consistency report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!warning]` for cross-project conflicts,
+> `[[wikilinks]]` for project refs, nested tags.
 
 ## Trigger keywords
 

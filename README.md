@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.1-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.2-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -85,6 +85,65 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 **Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
 
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+
+---
+
+## What's New in v1.8.2 — Obsidian-readable everything + binary output redirect
+
+The whole vault now reads beautifully in Obsidian. v1.8.2 elevates Obsidian readability from a wiki-only convention to a **global HARD RULE** applying to every human-readable `.md` file Life OS produces (wiki entries, session archives, briefings, reports, SOUL snapshots, DREAM entries, eval-history aggregates, compliance logs, method library entries, all slash command outputs).
+
+### Three non-negotiables (HARD RULE #11)
+
+1. **Callouts** (`> [!info]`, `> [!warning]`, `> [!question]`, `> [!tip]`, `> [!important]`, `> [!quote]`) for any semantic block (TL;DR, Counterpoints, Open questions, Mandatory sections). Plain `## headings` for these are violations.
+2. **Wikilinks** `[[entry]]` for in-vault references. Markdown links `[text](path.md)` for in-vault refs break Obsidian's graph view.
+3. **Nested tags** `fintech/stablecoin` over flat `[fintech, stablecoin]` — gives Obsidian a tag tree.
+
+Plus: mermaid diagrams, footnotes `[^id]`, block IDs `^block-id`, optional CSS classes. Full canonical guide: [`references/obsidian-style.md`](references/obsidian-style.md).
+
+### New: 4 specialized wiki templates (`kind:` field)
+
+`scripts/wiki/setup-secondbrain.sh` now writes 5 templates instead of 1:
+
+| Template | `kind:` | What it adds |
+|---|---|---|
+| `wiki-entry-template.md` (default) | `knowledge` | callouts, wikilinks, mermaid |
+| `method-template.md` | `method` | `times_used`, `last_used`, status: tentative/proven |
+| `decision-template.md` | `decision` | `decision_date`, `outcome_review_date`, **outcome trail** for Counterpoints |
+| `lesson-template.md` | `lesson` | `trigger_event`, `recurrence`, imperative one-line |
+| `config-template.md` | `config` | verbatim snippet, side-effects warning |
+
+The `decision-template.md` is the killer one — every Counterpoint raised at decision time gets revisited at `outcome_review_date`. Did it materialize? Was it real or paranoia? **This is how Life OS learns whether your worry-mode is calibrated.**
+
+### New: `/wiki-obsidian-upgrade` — one-shot batch upgrade
+
+Legacy wiki entries upgrade to v1.8.2 with one command. Detects `kind:` from existing content, converts `[name](path.md)` → `[[wikilink]]`, wraps known H2 sections in callouts (`## TL;DR` → `> [!info] TL;DR`), converts flat tags to nested. Idempotent. Plan-preview before any write.
+
+### New: PreToolUse hook auto-redirects binary outputs to `~/Downloads/`
+
+When a skill or agent tries to write a binary/user-facing output file (HTML, PDF, DOCX, XLSX, ZIP, image, audio, video, ebook, font) to a vault path, `pre-write-output-redirect.sh` blocks the write and suggests `~/Downloads/lifeos-export-<date>/<filename>` instead.
+
+- ~30 binary formats detected
+- Cross-platform Downloads detection (macOS / Linux / Windows MSYS)
+- In-vault binary allowlist: `wiki/.attachments/*`, `_meta/inbox/to-process/*`, `assets/*`
+- Bypass: `LIFEOS_OUTPUT_REDIRECT_OFF=1`
+- 25/25 fixture smoke tests pass
+
+User-facing exports now land where the user looks for them — not buried inside the vault.
+
+### Migration
+
+```bash
+cd ~/.claude/skills/life_OS && git pull
+bash scripts/setup-hooks.sh   # registers pre-write-output-redirect + new templates
+```
+
+Existing wiki entries continue to work. To upgrade them to v1.8.2 readability, run inside your vault:
+
+```
+/wiki-obsidian-upgrade
+```
+
+Companion: `/migrate-confidence` for legacy float `confidence` → 5-bucket enum. Both idempotent. See [CHANGELOG.md](CHANGELOG.md#182---2026-05-04) for full detail.
 
 ---
 

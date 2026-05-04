@@ -1,8 +1,12 @@
-# User-invoked prompt · reindex (v1.8.0)
+# User-invoked prompt · reindex (v1.8.2 · Obsidian-style)
 
 > Replaces the deleted `tools/reindex.py`. ROUTER reads this when the user
 > asks for an index rebuild, then performs the steps directly using
 > Read/Write/Glob/Grep tools.
+>
+> **v1.8.2 HARD RULE #11**: Rebuilt INDEX.md files render in Obsidian. Apply
+> `references/obsidian-style.md` — entry rows use `[[wikilinks]]`, optional
+> `> [!info]` summary callout at top, nested tags.
 
 ## Trigger keywords
 

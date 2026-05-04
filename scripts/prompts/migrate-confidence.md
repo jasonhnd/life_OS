@@ -1,8 +1,12 @@
-# User-invoked prompt · migrate-confidence (v1.8.1)
+# User-invoked prompt · migrate-confidence (v1.8.2 · Obsidian-style)
 
 > One-shot batch migration of legacy `confidence: <float>` (0.0–1.0) wiki
 > frontmatter to the v1.8.1 5-bucket enum (`impossible | unlikely |
 > possible | likely | certain`). ROUTER reads this when the user wants to
+>
+> **v1.8.2 HARD RULE #11**: Plan/Report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!info]` for plan summary,
+> `> [!success]`/`> [!warning]` for per-row results, `[[wikilinks]]` for entry refs.
 > upgrade a legacy second-brain to the v1.8.1 confidence schema.
 
 ## Trigger keywords

@@ -1,8 +1,12 @@
-# User-invoked prompt · snapshot-cleanup (v1.8.0 Option A)
+# User-invoked prompt · snapshot-cleanup (v1.8.2 · Obsidian-style)
 
 > Replaces `tools/lib/cortex/snapshot.py:should_archive()` / `should_delete()`
 > retention logic, deleted in Option A pivot. ROUTER reads this when user
 > asks for SOUL snapshot cleanup, otherwise snapshots accumulate forever.
+>
+> **v1.8.2 HARD RULE #11**: Cleanup report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!info]` for retention plan,
+> `> [!success]` for cleanup result, nested tags.
 
 ## Trigger keywords
 

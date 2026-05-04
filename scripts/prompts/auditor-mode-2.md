@@ -1,8 +1,12 @@
-# User-invoked prompt · auditor-mode-2 Patrol Inspection (v1.8.0)
+# User-invoked prompt · auditor-mode-2 Patrol Inspection (v1.8.2 · Obsidian-style)
 
 > v1.8.0 pivot: this used to fire from launchd cron weekly Sunday 21:00. Cron
 > is gone. ROUTER reads this when the user asks for a jurisdiction patrol,
 > then launches the `auditor` subagent directly.
+>
+> **v1.8.2 HARD RULE #11**: Patrol report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!warning]` callouts for violations,
+> `> [!success]` for clean pass, `[[wikilinks]]` for entry refs, nested tags.
 
 ## Trigger keywords
 

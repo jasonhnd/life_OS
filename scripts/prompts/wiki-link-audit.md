@@ -1,8 +1,13 @@
-# User-invoked prompt · wiki-link-audit (v1.8.1)
+# User-invoked prompt · wiki-link-audit (v1.8.2 · Obsidian-style)
 
 > Standalone link-audit pass over `wiki/`. Replaces the 311-line bash
 > script `scripts/wiki/wiki-link-audit.sh` (deleted in v1.8.1). The same
 > audit also runs as the optional "+ link audit" branch inside
+>
+> **v1.8.2 HARD RULE #11**: Audit report renders in Obsidian. Apply
+> `references/obsidian-style.md` — `> [!info]` for summary counts,
+> `> [!warning]` for broken-link sections, `[[wikilinks]]` for entry refs,
+> nested tags.
 > `scripts/prompts/wiki-decay.md`.
 
 ## Trigger keywords

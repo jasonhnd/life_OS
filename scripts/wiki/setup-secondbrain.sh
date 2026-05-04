@@ -151,16 +151,100 @@ subtree a first-class graph citizen alongside the rest of your second-brain.
 > `.obsidian/graph.json.lifeos-backup-<timestamp>` before any edit.
 > If you don't use Obsidian's graph view, this is a no-op.
 
-## Recommended plugin set
+## Recommended plugin set (v1.8.2 expanded)
 
 | Plugin | Why | Source |
 |---|---|---|
-| **Dataview** | Query frontmatter: list all entries where `confidence` is `unlikely` or `possible`, sort by `last_tended`, group by `status`. The single biggest UX win for the wiki. | Community Plugins → "Dataview" |
+| **Dataview** | Query frontmatter: list all entries where `confidence` is `unlikely` or `possible`, sort by `last_tended`, group by `kind`. **The single biggest UX win for the wiki.** | Community Plugins → "Dataview" |
+| **Templater** | Spawn new wiki entries from one of the 5 templates in `wiki/.templates/` with one keystroke. Bind each template (knowledge/method/decision/lesson/config) to a separate hotkey. | Community Plugins → "Templater" |
 | **Graph Analysis** | Find hub entries (high in-degree) and orphan entries (zero links). Use to plan link-density improvements. | Community Plugins → "Graph Analysis" |
-| **Templater** | Spawn new wiki entries from `wiki/.templates/wiki-entry-template.md` with one keystroke (vs hand-typing frontmatter every time). | Community Plugins → "Templater" |
-| Excalidraw (optional) | Hand-drawn diagrams attached to wiki entries. Use when text alone won't carry the model. | Community Plugins → "Excalidraw" |
+| **Linter** | Auto-format wiki entries on save: enforce frontmatter field order, blank lines around headings, list indentation. Stops "is the YAML valid?" friction. | Community Plugins → "Linter" |
+| **Iconize** (formerly Obsidian Icon Folder) | Per-folder icons in file explorer (e.g. 📚 for `wiki/`, 🧠 for `_meta/`, 📥 for `_meta/inbox/`). Tiny but noticeable readability win. | Community Plugins → "Iconize" |
+| **Periodic Notes** | If you also keep daily/weekly notes alongside wiki, this manages them. Optional. | Community Plugins → "Periodic Notes" |
+| **Tag Wrangler** | Rename a tag across all entries safely (e.g. `fintech` → `fintech/stablecoin`). Pairs with the v1.8.2 nested-tag style. | Community Plugins → "Tag Wrangler" |
+| **MetaEdit** (or built-in Properties view) | Edit frontmatter via UI rather than YAML hand-editing. Obsidian 1.4+ has a native Properties view that handles this; MetaEdit is the older alternative. | Community Plugins → "MetaEdit" |
+| **Excalidraw** (optional) | Hand-drawn diagrams attached to wiki entries. Use when text alone won't carry the model. | Community Plugins → "Excalidraw" |
 
 Install via Settings → Community Plugins → Browse → search the name.
+
+## v1.8.2 readability features (in templates by default)
+
+The wiki entry templates use these Obsidian-native features for human readability:
+
+### 1. Callouts (admonitions)
+
+```markdown
+> [!info] TL;DR
+> Short summary as a styled box.
+
+> [!warning] Mandatory section
+> Counter-bias HARD RULE...
+
+> [!tip] When to use
+> Trigger condition...
+
+> [!question]
+> Open questions
+
+> [!important]
+> The decision in plain language
+
+> [!quote] One-line lesson
+> Imperative form
+```
+
+Available types: `note`, `info`, `tip`, `success`, `question`, `warning`, `failure`,
+`danger`, `bug`, `example`, `quote`, `important`. Each renders with a distinct
+icon and color in Obsidian's reading view.
+
+### 2. Wikilinks (preferred over markdown links inside the vault)
+
+| Style | Use when |
+|---|---|
+| `[[entry-name]]` | Standard intra-vault link; counts toward graph |
+| `[[entry-name\|display]]` | Alias display text |
+| `[[entry-name#Section]]` | Link to specific H2 section |
+| `[[entry-name#^block-id]]` | Link to specific block (Obsidian native) |
+| `![[entry-name]]` | **Embed** the other entry inline |
+| `![[image.png]]` | Embed image stored in the vault |
+| `[Anthropic blog](https://...)` | External URL — keep markdown style |
+
+### 3. Mermaid diagrams (native in Obsidian)
+
+````markdown
+```mermaid
+flowchart LR
+    A[Decision] --> B{Confidence?}
+    B -->|likely| C[Execute]
+    B -->|possible| D[Verify first]
+    B -->|unlikely| E[Defer]
+```
+````
+
+### 4. Nested tags
+
+```yaml
+tags: [fintech/stablecoin, fintech/b2b]
+```
+
+Obsidian renders nested tags as a tree in the tag pane and `#fintech/*`
+queries them all. Better than flat `[fintech, stablecoin, b2b]` because
+the hierarchy survives.
+
+### 5. Footnotes
+
+```markdown
+This claim was originally proposed in 1972[^einstein-72] but later refined[^bell-90].
+
+[^einstein-72]: Einstein, A. (1972). *Title*. Source URL.
+[^bell-90]: Bell, J. (1990). *Title*. Source URL.
+```
+
+### 6. CSS classes (advanced)
+
+Add `cssclasses: [lesson, important]` to frontmatter and define styles in
+`.obsidian/snippets/lifeos.css` to make lesson entries visually distinct
+from knowledge entries. Optional — most users skip this.
 
 ## What the auto-applied graph color group does
 
@@ -182,38 +266,78 @@ To revert: restore the backup file `.obsidian/graph.json.lifeos-backup-*`.
 
 ## Useful Dataview queries (paste into any note)
 
+### Low-confidence candidates (most useful daily query)
+
 ```dataview
-TABLE confidence, last_tended, status
+TABLE kind, confidence, last_tended, status
 FROM "wiki"
 WHERE (confidence = "unlikely" OR confidence = "possible") AND status = "candidate"
 SORT last_tended DESC
 ```
 
-```dataview
-TABLE length(file.outlinks) as outlinks, length(file.inlinks) as inlinks
-FROM "wiki"
-WHERE length(file.outlinks) = 0 AND length(file.inlinks) = 0
-```
-(orphan entries — no incoming or outgoing wikilinks; candidates for either
-better integration or deprecation)
+### Orphan entries
 
 ```dataview
-TABLE last_tended, review_by
+TABLE length(file.outlinks) as outlinks, length(file.inlinks) as inlinks, kind
+FROM "wiki"
+WHERE length(file.outlinks) = 0 AND length(file.inlinks) = 0
+SORT kind ASC
+```
+(no incoming or outgoing wikilinks — candidates for either better integration
+or deprecation)
+
+### Due for review (priority queue)
+
+```dataview
+TABLE kind, last_tended, review_by
 FROM "wiki"
 WHERE review_by != null AND date(review_by) <= date(today)
 SORT review_by ASC
 ```
-(entries flagged for review — `wiki-decay` re-surfaces these on next run.
+(entries flagged for review — `/wiki-decay` re-surfaces these on next run.
 Empty result = nothing currently due.)
 
+### Stale entries (180+ days untouched)
+
 ```dataview
-TABLE last_tended
+TABLE kind, last_tended
 FROM "wiki"
 WHERE date(today) - date(last_tended) > dur(180 days)
 SORT last_tended ASC
 ```
-(stale entries — not actively reviewed in 180+ days; consider re-tending or
-deprecating.)
+
+### v1.8.2 — All open decisions awaiting outcome
+
+```dataview
+TABLE decision_date, outcome_review_date
+FROM "wiki"
+WHERE kind = "decision" AND status = "open"
+SORT outcome_review_date ASC
+```
+(every decision that hasn't been closed-with-outcome — review when its
+`outcome_review_date` arrives to log what actually happened vs the
+Counterpoints raised at decision time)
+
+### v1.8.2 — Method usage trail
+
+```dataview
+TABLE times_used, last_used, status
+FROM "wiki"
+WHERE kind = "method"
+SORT times_used DESC
+```
+(see which methods you actually rely on; `times_used: 0` after 6 months =
+candidate for deprecation; high `times_used` candidates for `status: proven`)
+
+### v1.8.2 — Lesson recurrence (which mistakes you keep almost-making)
+
+```dataview
+TABLE recurrence, trigger_event
+FROM "wiki"
+WHERE kind = "lesson" AND recurrence > 1
+SORT recurrence DESC
+```
+(if a lesson keeps re-occurring, you haven't internalized it yet — escalate)
 
 ## Template usage
 
@@ -241,64 +365,347 @@ Run monthly or after large edits.
 ## What this doesn't do
 
 - Doesn't reorganize your existing wiki/ tree
-- Doesn't enforce wikilinks (you can keep using markdown `[name](path.md)`
-  if you prefer; Obsidian renders both)
 - Doesn't change your `.obsidian/app.json` or `.obsidian/appearance.json`
 - Doesn't install plugins for you (Obsidian community plugins are user-
   consent only; you decide what runs in your vault)
+- Doesn't auto-rewrite legacy entries to use callouts/wikilinks/nested-tags
+  — for batch upgrade run `/wiki-obsidian-upgrade` (v1.8.2)
+
+## v1.8.2 readability conventions (preferred but not enforced)
+
+- **Wikilinks over markdown links** for in-vault navigation
+  (`[[entry]]` not `[name](path.md)`) — for graph traversal
+- **Callouts** (`> [!info]`, `> [!warning]`, etc.) for TL;DR / Counterpoints / Open questions
+- **Nested tags** (`fintech/stablecoin`) over flat tags — for tag tree
+- **Mermaid blocks** for mechanism diagrams
+- **Footnotes** for fine-grained citations inside paragraphs
+- **`kind:` frontmatter field** to classify entries (knowledge / method / decision / lesson / config)
 EOF
 emit ""
 
-write_if_missing "wiki/.templates/wiki-entry-template.md" "new-entry stub (Templater target)" <<'EOF'
+write_if_missing "wiki/.templates/wiki-entry-template.md" "new-entry stub · knowledge kind (Templater target)" <<'EOF'
 ---
 title: "<one-line title; max 80 chars>"
 aliases: []                # alternative names — Obsidian uses these for [[wikilink]] resolution
 domain: <domain-from-existing-list>
+kind: knowledge            # knowledge | method | decision | lesson | config (v1.8.2 — drives wiki-decay categorization)
 created: <%+ tp.date.now("YYYY-MM-DD") %>
 last_updated: <%+ tp.date.now("YYYY-MM-DD") %>
 last_tended: <%+ tp.date.now("YYYY-MM-DD") %>   # last time you actively reviewed this entry (vs cosmetic edit)
 review_by: <%+ tp.date.now("YYYY-MM-DD") %>     # when wiki-decay should re-surface this entry; default = +180d
-confidence: possible       # enum: impossible | unlikely | possible | likely | certain  (was 0.0–1.0 float in v1.7)
-tags: [<domain>, <topic-tag>]
+confidence: possible       # enum: impossible | unlikely | possible | likely | certain
+tags: [<domain>/<sub-topic>]   # nested-tag style for Obsidian tag tree (e.g. fintech/stablecoin)
 status: candidate          # candidate | confirmed | deprecated
 sources: []                # plural array — list every URL / citation / conversation that contributed
+cssclasses: []             # optional Obsidian CSS classes for per-entry styling
 ---
 
 # <title>
 
-## TL;DR
-<2-3 sentences>
+> [!info] TL;DR
+> <2-3 sentence summary — Obsidian renders this as a callout box>
 
 ## Key facts
-<!--
-Each fact may be tagged with a provenance marker:
-  ^[extracted]  — quoted/paraphrased verbatim from a sources[] entry
-  ^[inferred]   — your synthesis, not directly stated in any source
-  ^[ambiguous]  — sources disagree or evidence is mixed
-Untagged claims default to ^[extracted].
--->
+
+> [!note] Provenance tagging
+> Each fact bullet may carry one marker:
+> - `^[extracted]` — quoted/paraphrased from a `sources[]` entry
+> - `^[inferred]` — your synthesis, not directly stated
+> - `^[ambiguous]` — sources disagree or evidence is mixed
+> Untagged claims default to `^[extracted]`.
+
 - <fact-1> ^[extracted]
 - <fact-2> ^[inferred]
+- <fact-3> ^[ambiguous]
 
 ## Mechanism / How it works
-<paragraph>
+
+<paragraph explaining how the thing works>
+
+<!-- Optional: Obsidian renders mermaid blocks natively. Delete if not needed. -->
+
+```mermaid
+flowchart LR
+    A[Input] --> B[Process]
+    B --> C[Output]
+```
 
 ## Origin & evolution
-<paragraph>
+
+<1-2 paragraphs on history; who invented this, when, why it matters>
 
 ## Counterpoints
-<2-4 bullets — what's the opposing view? Even if "none found", note that.>
+
+> [!warning] Mandatory section — even if "none found"
+> Counter-confirmation-bias HARD RULE. If all sources converge, write that
+> explicitly: "No substantive opposition found in this run; re-test in 3 months."
+
+- <counterpoint-1>
+- <counterpoint-2>
 
 ## Open questions
-<2-4 bullets — what this entry can't answer>
+
+> [!question]
+> - <question-1 the entry can't answer>
+> - <question-2 the entry can't answer>
 
 ## Related
+
+<!--
+v1.8.2 — Prefer Obsidian wikilinks over markdown links for in-vault navigation:
+  ✅  [[wiki-entry-name]]                  ← Obsidian native, graph-aware
+  ✅  [[wiki-entry-name|display label]]    ← with custom display text
+  ✅  [[wiki-entry-name#Section heading]]  ← link to section
+  ❌  [text](path/to/wiki-entry-name.md)   ← works but no graph traversal
+
+External URLs use standard markdown:
+  ✅  [Anthropic blog post](https://www.anthropic.com/research/...)
+-->
+
 - [[<other-wiki-entry>]]
-- [[<other-wiki-entry>]]
+- [[<other-wiki-entry>|alternative display name]]
 
 ## Sources
+
 <!-- Mirror the sources[] frontmatter array as a human-readable list. -->
-- <full URL or citation>
+
+1. <full URL or citation>
+2. <full URL or citation>
+
+## Footnotes
+
+<!-- Obsidian renders [^1]-style footnotes natively. Useful for fine-grained citations inside paragraphs. -->
+
+[^1]: <footnote text>
+EOF
+emit ""
+
+# ─── v1.8.2 · 4 specialized templates by `kind:` ────────────────────────────
+# Different wiki entry kinds need different shapes. Templater can bind each
+# template to its own hotkey, or you can copy-paste manually.
+
+write_if_missing "wiki/.templates/method-template.md" "method/SOP template" <<'EOF'
+---
+title: "<method name>"
+aliases: []
+domain: <domain>
+kind: method                       # v1.8.2 kind enum
+created: <%+ tp.date.now("YYYY-MM-DD") %>
+last_updated: <%+ tp.date.now("YYYY-MM-DD") %>
+last_tended: <%+ tp.date.now("YYYY-MM-DD") %>
+review_by: <%+ tp.date.now("YYYY-MM-DD") %>
+confidence: possible
+tags: [<domain>/method]
+status: tentative                  # tentative | proven | deprecated
+sources: []
+times_used: 0                      # increment each time you actually run this method
+last_used: null                    # ISO date of last application
+inputs: []                         # what you need before starting
+outputs: []                        # what you get when done
+---
+
+# <method name>
+
+> [!tip] When to use
+> <2-3 lines on the trigger condition — what situation does this method fit?>
+
+## Steps
+
+1. <step-1>
+2. <step-2>
+3. <step-3>
+
+## Failure modes
+
+> [!warning]
+> - <failure-1: when this method does NOT work>
+> - <failure-2>
+
+## Variants
+
+- <variant-1>
+- <variant-2>
+
+## Related methods
+
+- [[<other-method>]]
+- [[<other-method>]]
+
+## Sources
+
+1. <citation>
+EOF
+emit ""
+
+write_if_missing "wiki/.templates/decision-template.md" "decision template (with Counterpoint trail)" <<'EOF'
+---
+title: "<decision title — what was decided>"
+aliases: []
+domain: <domain>
+kind: decision                     # v1.8.2 kind enum
+created: <%+ tp.date.now("YYYY-MM-DD") %>
+last_updated: <%+ tp.date.now("YYYY-MM-DD") %>
+last_tended: <%+ tp.date.now("YYYY-MM-DD") %>
+review_by: <%+ tp.date.now("YYYY-MM-DD") %>     # set deliberately for outcome-review (e.g. +90d for medium decisions)
+confidence: possible
+tags: [<domain>/decision]
+status: open                       # open | closed-with-outcome | reversed
+sources: []
+decision_date: <%+ tp.date.now("YYYY-MM-DD") %>
+outcome_review_date: null          # set when status moves to closed-with-outcome
+---
+
+# <decision title>
+
+> [!important] What was decided
+> <one paragraph: the decision in plain language>
+
+## Context at decision time
+
+<what was true / known / believed when this was decided>
+
+## Options considered
+
+| Option | Pros | Cons | Score |
+|---|---|---|---|
+| <option-A> | ... | ... | <0-10> |
+| <option-B> | ... | ... | <0-10> |
+| <option-C> | ... | ... | <0-10> |
+
+## Counterpoints raised
+
+<!--
+v1.8.2 outcome-trail: every Counterpoint here gets revisited at outcome_review_date.
+Did it actually materialize? Was it a real risk or paranoia? This is how Life OS
+learns whether your worry-mode is calibrated.
+-->
+
+- <counterpoint-1>: <how serious it seemed at decision time>
+- <counterpoint-2>: <how serious it seemed at decision time>
+
+## Decision rationale
+
+<why option X was chosen despite the counterpoints>
+
+## Outcome (filled in at review time)
+
+> [!info] Status: open
+> Fill this in when `outcome_review_date` arrives or `status` flips to `closed-with-outcome`.
+
+- **What actually happened**: <to fill>
+- **Counterpoints that materialized**: <which ones from above came true>
+- **Counterpoints that didn't**: <which ones were paranoia>
+- **Calibration note**: <was the original confidence right? Lower? Higher?>
+
+## Related decisions
+
+- [[<other-decision>]]
+
+## Sources
+
+1. <citation>
+EOF
+emit ""
+
+write_if_missing "wiki/.templates/lesson-template.md" "lesson template (post-mortem)" <<'EOF'
+---
+title: "<lesson — short imperative phrase>"
+aliases: []
+domain: <domain>
+kind: lesson                       # v1.8.2 kind enum
+created: <%+ tp.date.now("YYYY-MM-DD") %>
+last_updated: <%+ tp.date.now("YYYY-MM-DD") %>
+last_tended: <%+ tp.date.now("YYYY-MM-DD") %>
+review_by: <%+ tp.date.now("YYYY-MM-DD") %>
+confidence: likely                 # lessons usually start "likely" — proven by experience
+tags: [<domain>/lesson]
+status: candidate
+sources: []
+trigger_event: ""                  # what specific event triggered this lesson
+recurrence: 1                      # how many times this lesson reappeared (bump on repeat)
+---
+
+# <lesson>
+
+> [!quote] One-line lesson
+> <imperative form — "Always check X before Y", "Never trust Z without W">
+
+## Trigger event
+
+<what specifically happened that crystallized this lesson>
+
+## Why it matters
+
+<the cost of forgetting this lesson — concrete consequence>
+
+## How to apply
+
+- <action-1: when you see signal X, do Y>
+- <action-2>
+
+## Related lessons / methods
+
+- [[<related-lesson>]]
+- [[<related-method>]]
+
+## Recurrence log
+
+<!-- Each time this lesson re-applies (i.e. you almost forgot it), append a line here. -->
+
+- <YYYY-MM-DD>: first observed
+EOF
+emit ""
+
+write_if_missing "wiki/.templates/config-template.md" "config/reference template" <<'EOF'
+---
+title: "<config or reference name>"
+aliases: []
+domain: <domain>
+kind: config                       # v1.8.2 kind enum
+created: <%+ tp.date.now("YYYY-MM-DD") %>
+last_updated: <%+ tp.date.now("YYYY-MM-DD") %>
+last_tended: <%+ tp.date.now("YYYY-MM-DD") %>
+review_by: <%+ tp.date.now("YYYY-MM-DD") %>
+confidence: certain                # configs are usually verifiable
+tags: [<domain>/config]
+status: confirmed
+sources: []
+---
+
+# <config name>
+
+> [!info] What this is
+> <one paragraph — what this config controls / where it lives>
+
+## Current value
+
+```yaml
+<verbatim config snippet>
+```
+
+## Where it's set
+
+- File: `<path>`
+- Format: <yaml | json | env | ...>
+
+## Why it's set this way
+
+<rationale — why this value vs alternatives>
+
+## How to change it
+
+1. <step>
+2. <step>
+
+## Side effects
+
+> [!warning] Changing this affects
+> - <downstream-1>
+> - <downstream-2>
+
+## Related configs
+
+- [[<other-config>]]
 EOF
 emit ""
 
