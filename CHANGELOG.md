@@ -6,6 +6,70 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.3] - 2026-05-09 - Outbound boundary gate · Notion writes now scanned for PII
+
+> **Closing the outbound privacy gap.** v1.8.2 hardened the inbound knowledge layer (`pre-write-scan.sh` defends `SOUL.md`/`wiki/`/`_meta/concepts/`/`user-patterns.md` against secrets, prompt injection, invisible Unicode). But Decision/Task/Journal bodies — full of raw user prose, third-party names, specific amounts — were synced from `_meta/outbox/<sid>/` straight to Notion at Step 10a with **no privacy gate at all**. Notion may be a shared workspace, AI-indexed, mobile-readable, or breach-prone; "what may safely live in your local outbox under git" and "what should travel to Notion" are not the same threat model. v1.8.3 introduces the outbound counterpart: a PreToolUse hook that intercepts every Notion MCP write call and applies a three-tier action model.
+
+### Added · `scripts/hooks/pre-notion-write.sh` (the outbound boundary)
+
+A new PreToolUse hook with matcher `notion-(create|update|move).*|mcp__notion.*-(create|update|move).*|.*[Nn]otion.*[Cc]reate.*|.*[Nn]otion.*[Uu]pdate.*|.*[Nn]otion.*[Mm]ove.*`. On every Notion write call:
+
+1. Strips structural ID fields (`page_id`, `database_id`, `parent_id`, `id`, `ids`, `page_ids`, `icon`, `cover`) from `tool_input` via `jq` walk so they don't false-positive on Group A9 high-entropy.
+2. Scans the remaining serialized content against the 5-group pattern catalogue in `references/outbound-pii-patterns.md`.
+3. Always writes audit trail `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` with `matched_patterns` block (category IDs only, never raw content) so AUDITOR Mode 3 can track outbound risk frequency.
+4. Dispatches by verdict.
+
+Three-tier action model:
+
+| Group hit | Verdict | Hook action | Orchestrator response |
+|-----------|---------|-------------|------------------------|
+| A (private key, AWS/GitHub/Slack token, full credit-card, SSN, JP MyNumber, high-entropy ≥ 40 chars) | `block` | exit 2 + `<system-reminder>` + `CLASS_F` violation | MUST NOT bypass; surface leak; rotate credential |
+| B (third-party name + sensitive event), C (company + amount, bank account), D (email/phone/postal) | `warn` | exit 0 + `<system-reminder>` listing matched IDs | MUST pause once; ask user `(a) sanitize / (b) skip / (c) override` |
+| E (URL trackers, JWT-shape) | `info` | exit 0 + quiet (no reminder) | proceeds normally |
+| no hit | `pass` | exit 0 silently | proceeds normally |
+
+Three-tier JSON parser (jq → python → raw fallback) matches `pre-write-scan.sh` for consistency.
+
+### Added · `references/outbound-pii-patterns.md` (pattern catalogue)
+
+5-group catalogue with regex, mode, and notes per pattern:
+
+- **Group A · Hard Secrets (block)** — A1 private-key-block, A2 aws-access-key, A3 github-token, A4 slack-token, A5 secret-prefix-token (sk_/pk_/api_/secret_/token_), A6 full-credit-card, A7 ssn-us, A8 jp-mynumber, A9 high-entropy-key.
+- **Group B · Personal Identifier (warn)** — B1 family-relation + sensitive event (老婆/老公/wife/mom/dad + 出轨/破产/被裁/divorced/fired); B2 named-person-event (Western "FirstName LastName" + sensitive verb); B3 cn-name-event (rare Chinese predicate verbs).
+- **Group C · Financial Specifics (warn)** — C1 company-amount, C2 bank-account-shaped (with banking keyword), C3 jp-bank-detail.
+- **Group D · Contact Info (warn)** — D1 email, D2 international phone, D3 jp-mobile, D4 cn-mobile, D5 jp-postal-address.
+- **Group E · Soft Signals (info)** — E1 URL with utm/fbclid/gclid, E2 JWT shape.
+
+Pattern order contract documented in §4: `D` and `A8` order swapped to avoid phone-vs-mynumber collision. Audit trail schema in §5. Maintenance rules in §6.
+
+### Updated · `pro/CLAUDE.md` Step 10a · outbound boundary gate
+
+Added a third HARD RULE block to Step 10a:
+
+- **pass** verdict: Notion call proceeds (no-ask default applies).
+- **warn** verdict: orchestrator MUST pause exactly once and ask the user `(a) sanitize / (b) skip / (c) override`. This **overrides the no-ask default** of Step 10a — silently retrying a warned call is a process violation.
+- **block** verdict: Notion MCP call cancelled; orchestrator MUST NOT bypass via different MCP tool; MUST surface leak.
+
+Local outbox is unaffected by any verdict — the gate is on the outbound mirror only.
+
+### Updated · `references/hooks-spec.md` §5.6 · v1.8.3 hook documentation
+
+New section §5.6 documents `pre-notion-write.sh` event/matcher/contract/three-tier action model. §8 severity mapping table extended with `CLASS_F` (critical · hard-secret pattern in outbound write).
+
+### Updated · `scripts/setup-hooks.sh` · v1.8.3 hook registration
+
+Adds `HOOK_PRE_NOTION_WRITE_ID="life-os-pre-notion-write"` registration as a PreToolUse hook, with proper source/dest path declarations and pre-flight check inclusion. `--uninstall` continues to work via the existing `life-os-*` prefix removal.
+
+### Why advisory `warn` instead of hard-block
+
+Group B/C/D patterns have non-zero false-positive rates — bash POSIX regex can't cleanly express CJK ranges, so B3 relies on rare predicate verbs alone; C2 bank-account-shaped digits are inherently ambiguous. Hard-blocking would cause adjourn flow regression. Advisory warns let the user see the matched category and choose. Group A patterns are unambiguous and hard-block correctly.
+
+### Why no `strip` mode
+
+Claude Code PreToolUse hooks cannot rewrite `tool_input` — they can only pass, block, or inject a reminder. Sanitization happens one level up: orchestrator reads the warn reminder, generates a sanitized version, re-issues the Notion call. Hook is the detector, not the rewriter.
+
+---
+
 ## [1.8.2] - 2026-05-04 - Obsidian-readable everything · binary output redirect to ~/Downloads
 
 > **The whole vault now reads beautifully in Obsidian.** v1.8.2 elevates Obsidian readability from a wiki-only convention to a global HARD RULE applying to every human-readable `.md` file Life OS produces (wiki entries, session archives, briefings, reports, SOUL snapshots, DREAM entries, eval-history aggregates, compliance logs, method library entries, all slash command outputs). Plus: a new PreToolUse hook automatically redirects binary/user-facing output writes (HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4/etc.) to `~/Downloads/lifeos-export-<date>/` instead of letting them clutter the vault.

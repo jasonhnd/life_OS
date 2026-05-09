@@ -6,6 +6,70 @@
 
 ---
 
+## [1.8.3] - 2026-05-09 - 出境闸门 · Notion 写入前 PII 扫描
+
+> **补上「外发」的隐私缺口。** v1.8.2 守住了入境知识层（`pre-write-scan.sh` 防 SOUL/wiki/concepts/user-patterns 被 secret、prompt injection、隐藏 Unicode 污染）。但 Decision/Task/Journal 这些含用户原话、第三人姓名、具体金额的内容，从 `_meta/outbox/<sid>/` 直接同步到 Notion 的 Step 10a 阶段——**完全没有任何隐私闸门**。Notion 可能是共享 workspace、被 Notion AI 索引、手机端可读、有泄露先例；「本地 outbox 在你 git 里能放什么」和「能往 Notion 推什么」不是同一个威胁模型。v1.8.3 引入对称的出境守卫：拦截每次 Notion MCP 写调用的 PreToolUse hook，按三档行动模型处理。
+
+### 新增 · `scripts/hooks/pre-notion-write.sh`（出境闸门本体）
+
+新的 PreToolUse hook，matcher 为 `notion-(create|update|move).*|mcp__notion.*-(create|update|move).*|.*[Nn]otion.*[Cc]reate.*|.*[Nn]otion.*[Uu]pdate.*|.*[Nn]otion.*[Mm]ove.*`。每次 Notion 写调用时：
+
+1. 通过 `jq` walk 剥离结构性 ID 字段（`page_id`、`database_id`、`parent_id`、`id`、`ids`、`page_ids`、`icon`、`cover`），避免它们误中 Group A9 高熵规则。
+2. 把剩下的 `tool_input` 序列化成 JSON 后，按 `references/outbound-pii-patterns.md` 的 5 组模式扫描。
+3. 始终把审计记录写到 `_meta/runtime/<sid>/notion-pii-scan-<ts>.json`，含 `matched_patterns` 块（**只记类别 ID，不记原文**），便于 AUDITOR Mode 3 巡检追踪出境风险频次。
+4. 按 verdict 分发动作。
+
+三档行动模型：
+
+| 命中组 | Verdict | Hook 动作 | 编排层响应 |
+|--------|---------|-----------|------------|
+| A（私钥/AWS/GitHub/Slack token、完整信用卡号、SSN、JP マイナンバー、≥40 字符高熵） | `block` | exit 2 + `<system-reminder>` + `CLASS_F` 违规记录 | 不得绕过；告知用户泄露；轮换凭证 |
+| B（第三人姓名 + 敏感事件）、C（公司 + 金额、银行账号）、D（邮箱/电话/邮政地址） | `warn` | exit 0 + `<system-reminder>` 列出命中类别 | **必须暂停一次**询问用户 `(a) 净化 / (b) 跳过 / (c) 强行执行` |
+| E（URL trackers、JWT 形状） | `info` | exit 0 + 静默（不弹 reminder） | 正常进行 |
+| 无命中 | `pass` | exit 0 静默 | 正常进行 |
+
+JSON 解析三层 fallback（jq → python → raw），与 `pre-write-scan.sh` 对称。
+
+### 新增 · `references/outbound-pii-patterns.md`（模式目录）
+
+5 组模式目录，每条带 regex / mode / 说明：
+
+- **Group A · 硬密钥（block）** — A1 私钥块、A2 aws-access-key、A3 github-token、A4 slack-token、A5 secret 前缀 token（sk_/pk_/api_/secret_/token_）、A6 完整信用卡号、A7 SSN、A8 日本マイナンバー、A9 高熵 key。
+- **Group B · 个人识别信息（warn）** — B1 家人称谓 + 敏感事件（老婆/老公/wife/mom/dad + 出轨/破产/被裁/divorced/fired）；B2 西方 "FirstName LastName" + 敏感动词；B3 中文姓名 + 敏感谓词。
+- **Group C · 财务具体（warn）** — C1 公司名 + 金额、C2 银行账号形（带银行关键词）、C3 日本银行 + 数字。
+- **Group D · 联系信息（warn）** — D1 邮箱、D2 国际电话、D3 日本手机、D4 中国手机、D5 日本邮政地址。
+- **Group E · 软信号（info）** — E1 含 utm/fbclid/gclid 的 URL、E2 JWT 三段形。
+
+模式扫描顺序契约见 §4：`D` 和 `A8` 顺序对调，避免电话与マイナンバー碰撞。审计 schema 见 §5，维护规则见 §6。
+
+### 更新 · `pro/CLAUDE.md` Step 10a · 出境闸门段
+
+Step 10a 加入第三块 HARD RULE：
+
+- **pass** verdict：Notion 调用照常进行（no-ask 默认依然适用）。
+- **warn** verdict：编排层**必须暂停一次**询问用户 `(a) 净化 / (b) 跳过 / (c) 强行执行`。这条**覆盖 Step 10a 的 no-ask 默认**——静默重试 warn 调用 = 流程违规。
+- **block** verdict：Notion MCP 调用被取消；编排层**不得**通过其他 MCP 工具绕过；**必须**告知用户泄露发生。
+
+不论选哪个，本地 outbox 都不受影响——闸门只在出境镜像那一步生效。
+
+### 更新 · `references/hooks-spec.md` §5.6
+
+新增 §5.6 章节，文档化 `pre-notion-write.sh` 的 event/matcher/contract/三档行动模型。§8 严重程度表加入 `CLASS_F`（critical · 出境写入命中硬密钥模式）。
+
+### 更新 · `scripts/setup-hooks.sh`
+
+新增 `HOOK_PRE_NOTION_WRITE_ID="life-os-pre-notion-write"`，作为 PreToolUse hook 注册。包括 source/dest 路径声明 + pre-flight 校验。`--uninstall` 通过现有 `life-os-*` 前缀清除继续生效。
+
+### 为什么是 `warn` 软告警而非 `block` 硬阻断
+
+Group B/C/D 模式有非零误报率——bash POSIX regex 难以干净表达 CJK 字符范围，B3 只能依赖罕见谓词动词；C2 银行账号形数字本身就有歧义。硬阻断会导致 adjourn 流程频繁卡住。软告警让用户看到命中类别后自己选。Group A 模式无歧义，硬阻断正确。
+
+### 为什么没有 `strip` 模式
+
+Claude Code 的 PreToolUse hook 不能改写 `tool_input`——只能 pass / block / 注入 reminder。净化必须在上一层做：编排层读到 warn reminder，自己生成净化版本，再重发 Notion 调用。Hook 只是检测器，不是改写器。
+
+---
+
 ## [1.8.2] - 2026-05-04 - 全局 Obsidian 可读 · 二进制输出转 ~/Downloads
 
 > **整个 vault 现在在 Obsidian 里读起来都很美。** v1.8.2 把 Obsidian 可读性从「只针对 wiki」升级为「全局 HARD RULE」，覆盖 Life OS 产出的每个人类可读 `.md` 文件（wiki / 会话归档 / 简报 / 报告 / SOUL 快照 / DREAM 条目 / eval-history 汇总 / compliance 日志 / method 库 / 所有 slash command 输出）。同时新增 PreToolUse hook 自动把二进制 / 用户面输出（HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4 等）转写到 `~/Downloads/lifeos-export-<日期>/`，不再让它们污染 vault。

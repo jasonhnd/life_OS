@@ -184,6 +184,35 @@ This regex scan is the cheap first-pass. The LLM-based privacy check (user decis
 
 **Allowlist (overrides anything):** `$cwd/**`, `~/.claude/skills/life_OS/**`, `~/.claude/scripts/**`, `~/.cache/lifeos/**`.
 
+### 5.6 `pre-notion-write.sh` (v1.8.3 outbound boundary)
+
+- **Event:** `PreToolUse`, matcher `notion-(create|update|move).*|mcp__notion.*-(create|update|move).*|.*[Nn]otion.*[Cc]reate.*|.*[Nn]otion.*[Uu]pdate.*|.*[Nn]otion.*[Mm]ove.*`
+- **Purpose:** Outbound boundary scan — every Notion MCP write call is intercepted; `tool_input` is scanned against `references/outbound-pii-patterns.md` Groups A through E.
+- **Solves:** Decision body contents written by archiver Phase 1 (raw user prose, names, amounts) being mirrored to Notion (a third-party storage layer that may be shared, AI-indexed, or breach-prone) without any privacy gate. The pre-existing `pre-write-scan.sh` defends inbound knowledge files; this hook defends the outbound mirror path.
+
+**Contract:** Parse `tool_name` + `tool_input` from stdin. If `tool_name` is not a Notion write, exit 0 (defense-in-depth — settings.json matcher already filters, but the hook double-checks). Otherwise serialize `tool_input` (with structural-ID fields stripped via `jq` walk: `page_id`, `database_id`, `parent_id`, `id`, `ids`, `page_ids`, `icon`, `cover`) and run the Group A → D → A8 → B → C → E scan order from `references/outbound-pii-patterns.md`. Always write `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` with the `matched_patterns` block (category IDs only, never raw content). Then dispatch action by verdict.
+
+**Three-tier action model:**
+
+| Group hit | Verdict | Hook action | Orchestrator response |
+|-----------|---------|-------------|------------------------|
+| A (hard secret) | `block` | exit 2 + `<system-reminder>` + log `CLASS_F` | MUST NOT bypass; surface the leak to the user; rotate the credential |
+| B / C / D (named third party / financial specifics / contact info) | `warn` | exit 0 + `<system-reminder>` listing matched group IDs | MUST pause once and ask user `(a) sanitize / (b) skip / (c) override` (overrides Step 10a no-ask default) |
+| E only (soft signal) | `info` | exit 0 + quiet (no reminder) | proceeds normally; audit trail still records |
+| no hit | `pass` | exit 0 silently | proceeds normally |
+
+**Why no `strip` mode:** Claude Code PreToolUse hooks cannot rewrite `tool_input`. Sanitization must happen one level up — see `pro/CLAUDE.md` Step 10a outbound boundary gate (orchestrator reads the reminder, generates a sanitized version, re-issues the Notion MCP call). The hook is the detector, not the rewriter.
+
+**Why advisory `warn` instead of hard-block:** Group B/C/D patterns have non-zero false-positive rates (B3 Chinese name detection relies only on predicate verbs because bash POSIX regex can't easily match CJK ranges; C2 bank-account-shaped numbers can be ambiguous). Hard-blocking would cause adjourn flow regression. Advisory warns let the user see the category and decide. Group A patterns are unambiguous and hard-block correctly.
+
+**JSON parser tiers** (same pattern as `pre-write-scan.sh`):
+
+1. `jq` if available (preferred — clean structural strip of ID fields)
+2. `python` / `python3` if available (parses with same ID-field strip logic)
+3. raw `INPUT` fallback (best-effort scan; audit trail notes degraded mode)
+
+**Exit code handling:** ROUTER expects the warn reminder verbatim — the orchestrator code path that responds to `<system-reminder>` blocks already handles this. Exit 2 (block) is treated by Claude Code as tool cancellation; orchestrator sees the cancellation and the stderr message and reports to user.
+
 ---
 
 ## 6 · Compliance Path Auto-Detection (User Decision #14)
@@ -266,6 +295,7 @@ Hooks append rows; `stats.py` (Layer 4) drives escalation decisions.
 | `CLASS_C` | high | Adjourn ends without Completion Checklist |
 | `CLASS_D` | critical | Injection pattern in proposed Write to SOUL/wiki |
 | `CLASS_E` | high | Read attempt on denylist path |
+| `CLASS_F` | critical | Hard-secret pattern in proposed Notion outbound write (v1.8.3) |
 
 Escalation is deterministic: `stats.py` computes it on demand from `violations.md`; hooks only append rows. This keeps hooks fast (< 100ms) and escalation inspectable.
 

@@ -192,6 +192,14 @@ The archiver subagent cannot access Notion MCP tools (they are environment-speci
 
 **Step 10a no ask (HARD RULE):** The orchestrator MUST automatically execute Notion sync immediately after the archiver subagent returns. It MUST NOT ask the user for permission, pause for confirmation, defer sync to a later prompt, or stop between archiver return and Notion sync. Pausing or asking before executing Step 10a is a process violation.
 
+**Step 10a outbound boundary gate (HARD RULE · v1.8.3):** Every Notion MCP write call (`notion-create-pages`, `notion-update-page`, `notion-move-pages`) is intercepted by `scripts/hooks/pre-notion-write.sh` (PreToolUse). This hook scans `tool_input` against `references/outbound-pii-patterns.md` and emits one of three verdicts:
+
+- **pass** — orchestrator proceeds with the Notion call uninterrupted (the no-ask default applies).
+- **warn** — hook emits a `<system-reminder>` listing matched Group B/C/D categories. Orchestrator MUST pause exactly once to ask the user `(a) sanitize / (b) skip / (c) override`. This override of the no-ask default is REQUIRED by the hook's reminder; ignoring the reminder and silently retrying is a process violation. The local outbox is unaffected regardless of choice — only the Notion mirror changes.
+- **block** — hook returns exit 2 (Group A hard secret detected). The Notion MCP call is cancelled by Claude Code. Orchestrator MUST NOT bypass the block via a different MCP tool, MUST NOT proxy the same content through a non-blocked path, and MUST surface the leak so the user can rotate the credential and rewrite. Logged as `CLASS_F` violation.
+
+The hook always writes `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` with the matched-pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time. See `references/outbound-pii-patterns.md` §5 for the audit schema.
+
 The orchestrator MUST write the Step 10a audit trail to:
 
 ```text

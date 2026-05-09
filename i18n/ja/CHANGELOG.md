@@ -6,6 +6,70 @@
 
 ---
 
+## [1.8.3] - 2026-05-09 - アウトバウンド境界ゲート · Notion 書き込み前の PII スキャン
+
+> **「外向き」プライバシーの隙を塞ぐ。** v1.8.2 はインバウンド知識層を守り抜いた（`pre-write-scan.sh` が SOUL/wiki/concepts/user-patterns を secret・prompt injection・不可視 Unicode 汚染から守る）。だが Decision/Task/Journal の本文——ユーザーの生の言葉、第三者の名前、具体的な金額を含む——は `_meta/outbox/<sid>/` から Notion へと Step 10a で同期されるとき、**何のプライバシーゲートも通っていなかった**。Notion は共有 workspace の可能性、Notion AI による索引化、モバイル端末で閲覧可能、漏洩前例あり；「ローカル outbox に git で持っていてよいもの」と「Notion に送ってよいもの」は同じ脅威モデルではない。v1.8.3 は対称的なアウトバウンド守衛を導入する：あらゆる Notion MCP 書き込み呼び出しを傍受する PreToolUse hook が、3 段階のアクションモデルで処理する。
+
+### 追加 · `scripts/hooks/pre-notion-write.sh`（アウトバウンドゲート本体）
+
+新しい PreToolUse hook、matcher は `notion-(create|update|move).*|mcp__notion.*-(create|update|move).*|.*[Nn]otion.*[Cc]reate.*|.*[Nn]otion.*[Uu]pdate.*|.*[Nn]otion.*[Mm]ove.*`。Notion 書き込み呼び出しごとに：
+
+1. `jq` walk で構造的 ID フィールド（`page_id`、`database_id`、`parent_id`、`id`、`ids`、`page_ids`、`icon`、`cover`）を剥離し、Group A9 高エントロピーへの誤検知を防ぐ。
+2. 残りの `tool_input` を JSON シリアライズし、`references/outbound-pii-patterns.md` の 5 グループパターンに対してスキャン。
+3. 必ず監査記録を `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` に書く。`matched_patterns` ブロック含む（**カテゴリ ID のみ、生コンテンツは記録しない**）。AUDITOR Mode 3 巡検でアウトバウンドリスク頻度を追跡可能。
+4. verdict によりアクション分岐。
+
+3 段階アクションモデル：
+
+| 命中グループ | Verdict | Hook 動作 | オーケストレーター応答 |
+|--------------|---------|-----------|------------------------|
+| A（秘密鍵/AWS/GitHub/Slack トークン、完全クレカ番号、SSN、マイナンバー、≥40 文字の高エントロピー） | `block` | exit 2 + `<system-reminder>` + `CLASS_F` 違反記録 | バイパス禁止；漏洩を告知；資格情報をローテート |
+| B（第三者氏名 + 敏感イベント）、C（社名 + 金額、銀行口座）、D（メール/電話/郵便番号） | `warn` | exit 0 + `<system-reminder>` で命中カテゴリ列挙 | **必ず一度停止して**ユーザーに尋ねる `(a) サニタイズ / (b) スキップ / (c) 強行` |
+| E（URL トラッカー、JWT 形状） | `info` | exit 0 + 静か（reminder なし） | 通常進行 |
+| 命中なし | `pass` | exit 0 静か | 通常進行 |
+
+JSON パーサーは 3 層 fallback（jq → python → 生入力）、`pre-write-scan.sh` と対称。
+
+### 追加 · `references/outbound-pii-patterns.md`（パターンカタログ）
+
+5 グループのパターンカタログ、各エントリに regex / mode / 注記：
+
+- **Group A · 硬秘密（block）** — A1 秘密鍵ブロック、A2 aws-access-key、A3 github-token、A4 slack-token、A5 secret プレフィックス token（sk_/pk_/api_/secret_/token_）、A6 完全クレカ番号、A7 SSN、A8 マイナンバー、A9 高エントロピーキー。
+- **Group B · 個人識別情報（warn）** — B1 家族称呼 + 敏感イベント（老婆/老公/wife/mom/dad + 出轨/破产/被裁/divorced/fired）；B2 西洋 "FirstName LastName" + 敏感動詞；B3 中国語氏名 + 敏感述語。
+- **Group C · 金融具体（warn）** — C1 社名 + 金額、C2 銀行口座形（銀行キーワード付き）、C3 日本の銀行名 + 数字。
+- **Group D · 連絡先情報（warn）** — D1 メール、D2 国際電話、D3 日本携帯、D4 中国携帯、D5 日本郵便番号。
+- **Group E · ソフトシグナル（info）** — E1 utm/fbclid/gclid 含む URL、E2 JWT 3 段形。
+
+スキャン順序契約は §4 参照：`D` と `A8` の順序を入れ替え、電話番号とマイナンバーの衝突を回避。監査スキーマは §5、保守ルールは §6。
+
+### 更新 · `pro/CLAUDE.md` Step 10a · アウトバウンドゲート段
+
+Step 10a に第三 HARD RULE ブロックを追加：
+
+- **pass** verdict：Notion 呼び出しは通常進行（no-ask デフォルト適用）。
+- **warn** verdict：オーケストレーター**必ず一度停止**してユーザーに `(a) サニタイズ / (b) スキップ / (c) 強行` を聞く。これは **Step 10a no-ask デフォルトを上書き**——warn 呼び出しを静かにリトライ = プロセス違反。
+- **block** verdict：Notion MCP 呼び出しキャンセル；オーケストレーター**禁止**：別 MCP ツールでバイパス；**必須**：漏洩をユーザーに告知。
+
+どの選択でもローカル outbox は影響なし——ゲートはアウトバウンドミラーのみ。
+
+### 更新 · `references/hooks-spec.md` §5.6
+
+新セクション §5.6 で `pre-notion-write.sh` の event/matcher/contract/3 段階アクションモデルを文書化。§8 重大度マッピング表に `CLASS_F`（critical · アウトバウンド書き込みでの硬秘密パターン）追加。
+
+### 更新 · `scripts/setup-hooks.sh`
+
+`HOOK_PRE_NOTION_WRITE_ID="life-os-pre-notion-write"` 登録追加（PreToolUse hook として）。source/dest パス宣言 + pre-flight チェック含む。`--uninstall` は既存 `life-os-*` プレフィックス削除を継続使用。
+
+### なぜ `warn` 諮問型で `block` 強制ブロックでないか
+
+Group B/C/D パターンは非ゼロの誤検知率を持つ——bash POSIX regex で CJK 範囲を綺麗に表現できず、B3 は珍しい述語動詞のみに依存；C2 銀行口座形数字は本質的に曖昧。強制ブロックは adjourn フローを頻繁に止める。諮問型 warn ならユーザーが命中カテゴリを見て選べる。Group A パターンは曖昧性なし、強制ブロックは正解。
+
+### なぜ `strip` モードがないか
+
+Claude Code の PreToolUse hook は `tool_input` を書き換えられない——pass / block / reminder 注入のみ可能。サニタイズは一段上で行う：オーケストレーターが warn reminder を読み、サニタイズ版を生成し、Notion 呼び出しを再発行。Hook は検出器であって書き換え器ではない。
+
+---
+
 ## [1.8.2] - 2026-05-04 - グローバル Obsidian 可読性 · バイナリ出力を ~/Downloads にリダイレクト
 
 > **vault 全体が Obsidian で美しくレンダリングされるようになった。** v1.8.2 は Obsidian 可読性を「wiki 限定」から「グローバル HARD RULE」に格上げし、Life OS が生成するすべての人間可読 `.md` ファイル（wiki / セッションアーカイブ / 簡報 / レポート / SOUL スナップショット / DREAM エントリ / eval-history 集計 / コンプライアンスログ / メソッドライブラリ / 全 slash command 出力）に適用。同時に、新規 PreToolUse hook がバイナリ / ユーザー向け出力（HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4 等）を `~/Downloads/lifeos-export-<日付>/` に自動リダイレクトし、vault を散らかさないように。

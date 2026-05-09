@@ -56,6 +56,9 @@ HOOK_POST_TASK_AUDIT_TRAIL_ID="life-os-post-task-audit-trail"
 # v1.8.2 hook IDs
 HOOK_PRE_WRITE_OUTPUT_REDIRECT_ID="life-os-pre-write-output-redirect"
 
+# v1.8.3 hook IDs
+HOOK_PRE_NOTION_WRITE_ID="life-os-pre-notion-write"
+
 # Source paths inside the skill package
 V17_LIB_SOURCE="$SOURCE_DIR/hooks/_lib.sh"
 V17_PRE_PROMPT_SOURCE="$SOURCE_DIR/hooks/pre-prompt-guard.sh"
@@ -73,6 +76,9 @@ V18_POST_TASK_AUDIT_TRAIL_SOURCE="$SOURCE_DIR/hooks/post-task-audit-trail.sh"
 # v1.8.2 hook source paths
 V182_PRE_WRITE_OUTPUT_REDIRECT_SOURCE="$SOURCE_DIR/hooks/pre-write-output-redirect.sh"
 
+# v1.8.3 hook source paths
+V183_PRE_NOTION_WRITE_SOURCE="$SOURCE_DIR/hooks/pre-notion-write.sh"
+
 # Dest paths inside ~/.claude/scripts/hooks
 V17_LIB_DEST="$HOOKS_SUBDIR/_lib.sh"
 V17_PRE_PROMPT_DEST="$HOOKS_SUBDIR/pre-prompt-guard.sh"
@@ -89,6 +95,9 @@ V18_POST_TASK_AUDIT_TRAIL_DEST="$HOOKS_SUBDIR/post-task-audit-trail.sh"
 
 # v1.8.2 hook dest paths
 V182_PRE_WRITE_OUTPUT_REDIRECT_DEST="$HOOKS_SUBDIR/pre-write-output-redirect.sh"
+
+# v1.8.3 hook dest paths
+V183_PRE_NOTION_WRITE_DEST="$HOOKS_SUBDIR/pre-notion-write.sh"
 
 # ─── Uninstall mode ─────────────────────────────────────────────────────────
 uninstall_all() {
@@ -148,7 +157,8 @@ fi
 for src in \
   "$VERSION_SOURCE" "$LEGACY_GUARD_SOURCE" \
   "$V17_LIB_SOURCE" "$V17_PRE_PROMPT_SOURCE" "$V17_POST_RESPONSE_SOURCE" \
-  "$V17_PRE_WRITE_SOURCE" "$V17_STOP_SOURCE" "$V17_PRE_READ_SOURCE"; do
+  "$V17_PRE_WRITE_SOURCE" "$V17_STOP_SOURCE" "$V17_PRE_READ_SOURCE" \
+  "$V183_PRE_NOTION_WRITE_SOURCE"; do
   if [ ! -f "$src" ]; then
     echo "❌ Source script not found: $src"
     echo "   Your install may be from an older Life OS version. Re-run: /install-skill"
@@ -194,6 +204,7 @@ copy_exec "$V18_SESSION_START_INBOX_SOURCE" "$V18_SESSION_START_INBOX_DEST"
 copy_exec "$V18_PRE_TASK_LAUNCH_SOURCE" "$V18_PRE_TASK_LAUNCH_DEST"
 copy_exec "$V18_POST_TASK_AUDIT_TRAIL_SOURCE" "$V18_POST_TASK_AUDIT_TRAIL_DEST"
 copy_exec "$V182_PRE_WRITE_OUTPUT_REDIRECT_SOURCE" "$V182_PRE_WRITE_OUTPUT_REDIRECT_DEST"
+copy_exec "$V183_PRE_NOTION_WRITE_SOURCE" "$V183_PRE_NOTION_WRITE_DEST"
 
 # ─── Copy v1.7.3 slash commands → ~/.claude/commands ────────────────────────
 COMMANDS_DEST="$HOME/.claude/commands"
@@ -307,6 +318,11 @@ register_hook "PreToolUse" "$HOOK_PRE_WRITE_OUTPUT_REDIRECT_ID" "Write" \
   "$V182_PRE_WRITE_OUTPUT_REDIRECT_DEST" 5 \
   "v1.8.2 · Redirect binary/user-facing output writes (HTML/PDF/DOCX/XLSX/ZIP/PNG/MP4/etc) to ~/Downloads/lifeos-export-<date>/ instead of letting them land inside the vault. Bypass: LIFEOS_OUTPUT_REDIRECT_OFF=1"
 
+# ─── Register v1.8.3 hooks ──────────────────────────────────────────────────
+register_hook "PreToolUse" "$HOOK_PRE_NOTION_WRITE_ID" "notion-(create|update|move).*|mcp__notion.*-(create|update|move).*|.*[Nn]otion.*[Cc]reate.*|.*[Nn]otion.*[Uu]pdate.*|.*[Nn]otion.*[Mm]ove.*" \
+  "$V183_PRE_NOTION_WRITE_DEST" 5 \
+  "v1.8.3 · Outbound boundary scan for Notion MCP write calls. Group A (hard secrets) → block; Group B/C/D (third-party names, financial specifics, contact info) → warn via system-reminder; Group E → quiet info. Pattern catalogue: references/outbound-pii-patterns.md"
+
 register_hook "PostToolUse" "$HOOK_POST_RESPONSE_ID" "Task|Bash|Write|Edit" \
   "$V17_POST_RESPONSE_DEST" 5 \
   "v1.7 · Verify trigger-word → correct Task(subagent) first call"
@@ -377,12 +393,13 @@ install_date: \"$install_date\"
 write_install_sha
 
 echo ""
-echo "🏛️ Setup complete. Life OS v1.8.0 hooks active:"
+echo "🏛️ Setup complete. Life OS v1.8.3 hooks active:"
 echo "   · SessionStart      $VERSION_HOOK_ID"
 echo "   · UserPromptSubmit  $LEGACY_GUARD_HOOK_ID (legacy)"
 echo "   · UserPromptSubmit  $HOOK_PRE_PROMPT_ID"
 echo "   · PreToolUse(Write|Edit)  $HOOK_PRE_WRITE_ID"
 echo "   · PreToolUse(Read)  $HOOK_PRE_READ_ID"
+echo "   · PreToolUse(Notion MCP write)  $HOOK_PRE_NOTION_WRITE_ID  (v1.8.3 outbound gate)"
 echo "   · PostToolUse(Task|Bash|Write|Edit)  $HOOK_POST_RESPONSE_ID"
 echo "   · Stop              $HOOK_STOP_ID"
 echo ""

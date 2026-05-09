@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.2-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.3-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -88,62 +88,56 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 
 ---
 
-## What's New in v1.8.2 — Obsidian-readable everything + binary output redirect
+## What's New in v1.8.3 — Outbound boundary gate for Notion writes
 
-The whole vault now reads beautifully in Obsidian. v1.8.2 elevates Obsidian readability from a wiki-only convention to a **global HARD RULE** applying to every human-readable `.md` file Life OS produces (wiki entries, session archives, briefings, reports, SOUL snapshots, DREAM entries, eval-history aggregates, compliance logs, method library entries, all slash command outputs).
+**Closing the privacy gap on the way out.** v1.8.2 hardened what *enters* your vault (`pre-write-scan.sh` defends `SOUL.md`, `wiki/`, `_meta/concepts/`, `user-patterns.md` against secrets, prompt injection, invisible Unicode). But v1.8.2 said nothing about what *leaves* it. Decision/Task/Journal bodies — full of raw user prose, third-party names, specific amounts — were synced from `_meta/outbox/<sid>/` straight to Notion at Step 10a with **no privacy gate at all**. v1.8.3 adds the missing outbound counterpart.
 
-### Three non-negotiables (HARD RULE #11)
+### Why your local outbox and Notion are not the same threat model
 
-1. **Callouts** (`> [!info]`, `> [!warning]`, `> [!question]`, `> [!tip]`, `> [!important]`, `> [!quote]`) for any semantic block (TL;DR, Counterpoints, Open questions, Mandatory sections). Plain `## headings` for these are violations.
-2. **Wikilinks** `[[entry]]` for in-vault references. Markdown links `[text](path.md)` for in-vault refs break Obsidian's graph view.
-3. **Nested tags** `fintech/stablecoin` over flat `[fintech, stablecoin]` — gives Obsidian a tag tree.
+What can safely live in `_meta/outbox/<sid>/decisions/` under your private git repo is not the same as what should travel to Notion:
 
-Plus: mermaid diagrams, footnotes `[^id]`, block IDs `^block-id`, optional CSS classes. Full canonical guide: [`references/obsidian-style.md`](references/obsidian-style.md).
+- Notion workspaces may be shared (team Notion, accidental public link)
+- Notion AI may index page content for org-wide assistants
+- Mobile-device theft exposes the Notion app
+- Notion has had data-breach incidents historically
 
-### New: 4 specialized wiki templates (`kind:` field)
+The same sentence ("我老婆觉得 X 公司给的 ¥850 万 …") can be acceptable in your private journal and unacceptable on Notion's servers. v1.8.3 treats them differently.
 
-`scripts/wiki/setup-secondbrain.sh` now writes 5 templates instead of 1:
+### The new `pre-notion-write.sh` hook
 
-| Template | `kind:` | What it adds |
+Every Notion MCP write call is intercepted. The hook scans `tool_input` against [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) and applies a three-tier action model:
+
+| Group hit | Verdict | Action |
 |---|---|---|
-| `wiki-entry-template.md` (default) | `knowledge` | callouts, wikilinks, mermaid |
-| `method-template.md` | `method` | `times_used`, `last_used`, status: tentative/proven |
-| `decision-template.md` | `decision` | `decision_date`, `outcome_review_date`, **outcome trail** for Counterpoints |
-| `lesson-template.md` | `lesson` | `trigger_event`, `recurrence`, imperative one-line |
-| `config-template.md` | `config` | verbatim snippet, side-effects warning |
+| **A** — private key, AWS / GitHub / Slack token, full credit-card, SSN, JP MyNumber, ≥40-char high-entropy | `block` | exit 2, cancels the call, logs `CLASS_F` violation |
+| **B** — third-party name + sensitive event (出轨/破产/被裁/divorced/fired) | `warn` | reminder; orchestrator MUST pause and ask `(a) sanitize / (b) skip / (c) override` |
+| **C** — company name + specific amount, bank-account-shaped numbers | `warn` | same |
+| **D** — email / international phone / JP+CN mobile / JP postal address | `warn` | same |
+| **E** — URL trackers, JWT shape | `info` | quiet log only |
+| no hit | `pass` | proceeds normally |
 
-The `decision-template.md` is the killer one — every Counterpoint raised at decision time gets revisited at `outcome_review_date`. Did it materialize? Was it real or paranoia? **This is how Life OS learns whether your worry-mode is calibrated.**
+Audit trail at `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` records the matched pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time — if you keep triggering Group B in 40 % of adjourns, that's a behavioral signal worth reviewing.
 
-### New: `/wiki-obsidian-upgrade` — one-shot batch upgrade
+### Why advisory `warn`, not hard-block, for B/C/D
 
-Legacy wiki entries upgrade to v1.8.2 with one command. Detects `kind:` from existing content, converts `[name](path.md)` → `[[wikilink]]`, wraps known H2 sections in callouts (`## TL;DR` → `> [!info] TL;DR`), converts flat tags to nested. Idempotent. Plan-preview before any write.
+Group A patterns are unambiguous; hard-blocking is correct. Groups B/C/D have non-zero false-positive rates — bash POSIX regex can't cleanly express CJK ranges, so B3 (Chinese name + sensitive predicate) relies on the rare predicate verbs alone; C2 (bank-account-shaped digits) is inherently ambiguous. Hard-blocking those would derail every adjourn. Advisory warns let you see the matched category and choose.
 
-### New: PreToolUse hook auto-redirects binary outputs to `~/Downloads/`
+### Why no `strip` mode
 
-When a skill or agent tries to write a binary/user-facing output file (HTML, PDF, DOCX, XLSX, ZIP, image, audio, video, ebook, font) to a vault path, `pre-write-output-redirect.sh` blocks the write and suggests `~/Downloads/lifeos-export-<date>/<filename>` instead.
-
-- ~30 binary formats detected
-- Cross-platform Downloads detection (macOS / Linux / Windows MSYS)
-- In-vault binary allowlist: `wiki/.attachments/*`, `_meta/inbox/to-process/*`, `assets/*`
-- Bypass: `LIFEOS_OUTPUT_REDIRECT_OFF=1`
-- 25/25 fixture smoke tests pass
-
-User-facing exports now land where the user looks for them — not buried inside the vault.
+Claude Code PreToolUse hooks cannot rewrite `tool_input`. Sanitization happens one level up: orchestrator reads the warn reminder, generates a sanitized version, and re-issues the Notion call. The hook is the **detector**, not the rewriter. The orchestration contract for that handoff lives in [`pro/CLAUDE.md` Step 10a](pro/CLAUDE.md).
 
 ### Migration
 
 ```bash
 cd ~/.claude/skills/life_OS && git pull
-bash scripts/setup-hooks.sh   # registers pre-write-output-redirect + new templates
+bash scripts/setup-hooks.sh   # registers pre-notion-write
 ```
 
-Existing wiki entries continue to work. To upgrade them to v1.8.2 readability, run inside your vault:
+Idempotent — running twice is a no-op. To uninstall: `bash scripts/setup-hooks.sh --uninstall`.
 
-```
-/wiki-obsidian-upgrade
-```
+For full detail (5 pattern groups, audit schema, JSON parser tiers): see [CHANGELOG.md](CHANGELOG.md#183---2026-05-09).
 
-Companion: `/migrate-confidence` for legacy float `confidence` → 5-bucket enum. Both idempotent. See [CHANGELOG.md](CHANGELOG.md#182---2026-05-04) for full detail.
+> **Previously in v1.8.2** — global Obsidian readability HARD RULE (#11), 4 specialized wiki templates (`kind:` field), `/wiki-obsidian-upgrade` batch migrator, binary output redirect to `~/Downloads/`. See CHANGELOG for the v1.8.2 detail.
 
 ---
 
