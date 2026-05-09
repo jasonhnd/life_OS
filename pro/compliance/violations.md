@@ -124,3 +124,9 @@ An entry transitions to `Resolved: true` when all three conditions hold:
 | 2026-05-02T11:52:06+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
 | 2026-05-02T16:21:21+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
 | 2026-05-04T10:58:05+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
+| 2026-05-04T12:19:49+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
+| 2026-05-04T12:25:27+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-05-09T13:05:43+09:00 | CLASS_C | high | archiver | missing_phases=1 2 3 4  | stop-session-verify | open |
+| 2026-05-09T13:20:41+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
+| 2026-05-09T13:30:40+09:00 | CLASS_C | high | archiver | placeholder_phases=3 | stop-session-verify | open |
+| 2026-05-09T13:55:36+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
