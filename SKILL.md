@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.8.3"
+version: "1.8.4"
 commit_sha: "PLACEHOLDER"
 install_date: "PLACEHOLDER"
 description: "A personal decision engine with multiple independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
@@ -199,6 +199,8 @@ After retrospective/archiver subagent returns briefing, BEFORE showing to user, 
 6. SOUL snapshot claims: for every SOUL snapshot path mentioned, ROUTER calls Bash `test -f <path>`. Non-existent snapshot paths -> ROUTER strikes the line + inserts `[⚠️ SOUL snapshot not found]`.
 
 7. Subagent output visibility: before showing any optional summary, ROUTER checks that each completed subagent has a user-visible result path, either through the host's natural transcript output or an optional clarity wrapper. R11 audit trail links should be shown when available. ROUTER should not insert synthetic heavy-line wrappers or duplicate full subagent text solely to satisfy a wrapper count.
+
+8. **Maintenance overdue claims (v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix)**: ROUTER MUST grep briefing for `[Maintenance overdue: ` marker. To verify, ROUTER 自己跑一次 `bash scripts/hooks/session-start-inbox.sh 2>/dev/null` 提取当前的 `## Overdue maintenance` 块,跟 marker 内容 byte-equal 比对(忽略 marker 末尾的 `· source=subagent-recompute@...` 时间戳尾巴)。任何 day-count 差异 → strike marker 行并替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing 直到 subagent 重跑 Step 0.5。Beyond marker 自身,ROUTER 还要在 briefing 的 "系统状态 / Compliance Watch / Today's Focus" **三个 section 内**(不要扫全文,避免误伤 ADVISOR / review queue 等无关文本)扫描 `\d+\s*d(ays)?\s*overdue` 模式邻接 10 个 maintenance 任务名(reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency);任何冲突值视为 confabulation 并 strike。Originating bug: 2026-05-16 briefing 自由发挥 `13d`,hook 实际只有 `3d`。**Wrapper handling (v1.8.4 Wave 1.5)**: 实际 stdout 被 `<system-reminder>...</system-reminder>` tag 包裹,ROUTER 在 byte-equal 比对前 MUST strip 同样的 wrapper 后再比 inner content(否则永远 mismatch)。
 
 Additional display verification: there is no wrapper-count gate; one completed subagent call does not require a heavy-line wrapper pair or a transactional receipt. Audit trail requirements remain governed by R11.
 

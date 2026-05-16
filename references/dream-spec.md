@@ -264,6 +264,10 @@ triggered_actions:
     action: "flag-next-briefing"
     surfaces_at: "next-start-session"
     auditor_review: false  # true if mode=soft
+    task_ref:              # optional · v1.8.4 · R-DREAM-STALE-TASK · set only when trigger references a specific user task; behavioral triggers (decision-fatigue, dormant-soul, etc.) omit this field
+      task_path: "projects/<p>/tasks/<filename>.md"  # preferred when known
+      task_slug: "<slug>"                             # fallback when only slug is known
+      project: "<project-name>"                       # to scope fuzzy match
 ---
 ```
 

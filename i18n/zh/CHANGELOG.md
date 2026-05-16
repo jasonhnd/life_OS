@@ -6,6 +6,50 @@
 
 ---
 
+## [1.8.4] - 2026-05-16 - 反幻觉:DREAM 已闭任务校验 + 维护 overdue 单一真源
+
+> **两个外科手术式修复,补 2026-05-16 当天发现的两个 briefing 自由发挥漏洞。** 两个 bug 都属 **B 类(LLM 凭空编造证据)**——subagent 没读 primary source,自己估了数字/状态。v1.8.4 把每个 source-of-truth 都"抬"成"subagent 必须主动去调"的东西(脚本 / 任务 frontmatter 文件),并强制 ROUTER 在 briefing 出给用户前自己再核一遍。
+
+### Bug R-DREAM-STALE-TASK · DREAM trigger 有效性再校验
+
+DREAM 报告是隔夜异步快照。N-1 晚上写的 HARD trigger,在 N 这次 session 启动前可能已经被用户手动关掉了——但 `retrospective` Step 16 不查任务实际状态,闷头把它 promote 到今天 P0。2026-05-16 的 briefing 把 `8938 revenue-uplift task closure` 列为 P0 跟进项,而那个任务前一天就已经写了 `status: closed-superseded`。
+
+修复 · `pro/agents/retrospective.md` Step 16 加 **TRIGGER VALIDITY RE-CHECK** HARD RULE。对每一个指向具体 task path / slug 的 HARD trigger,subagent 在 promote 之前 MUST `Read` 对应 task 文件的 frontmatter,看 `status:` 字段:
+
+- `closed` / `done` / `failed` / `archived` / `superseded` / `closed-*` → 渲染为 `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>`,不再 promote。
+- 文件不存在 → 按 slug 在 `projects/**/tasks/` 下 fuzzy match;renamed → 仍校验 status;真找不到 → promote 并注明 `task slug not found on disk, treating as still-actionable`。
+
+Step 16 R11 audit trail JSON 新增字段 `dream_triggers_validated: [{trigger_id, trigger_type, task_path, task_status, task_lookup, promoted_to_focus, reason}]`(一条 HARD trigger 一项;零条则空数组),便于 AUDITOR Mode 3 事后审计 promote 决策是否有据。
+
+**Wave 1.5 spec 漏洞补丁** · `references/dream-spec.md` 的 triggered_actions schema 加 **optional** `task_ref: { task_path, task_slug, project }` 字段——只在 DREAM 检测到指向具体用户任务的 trigger 时填。行为型 trigger(decision-fatigue / dormant-soul 等)省略此字段,直接 skip 校验(`task_lookup: not_applicable`)。Step 16 解析顺序:(a) `task_ref.task_path` 直接 read → (b) `task_ref.task_slug` + `project` fuzzy match → (c) LLM-parse `detection.hard_signals` / `action` 文本做兜底 fuzzy match → (d) 标记 `not_found` 并 promote 同时附注 `still-actionable`(无错)。三语同步:`references/dream-spec.md`、`i18n/zh/references/dream-spec.md`、`i18n/ja/references/dream-spec.md` 同步更新。
+
+### Bug R-MAINT-OVERDUE-HALLUCINATION · 维护 overdue 单一真源
+
+2026-05-16 的 briefing 报了 `archiver-recovery 13d overdue`,而**同一次 session 自己的** `session-start-inbox.sh` hook 实际只输出了 `3d`。subagent 没跑脚本,自己凭印象估了个天数。最差的情况:Mode 2 / 跨午夜的长 session,SessionStart 时注入的 `<system-reminder>` 已经过期,直接 copy 旧值会让漂移叠加。
+
+修复 · 两层防御:
+
+1. **subagent 层** · `pro/agents/retrospective.md` Step 0.5 marker 列表加第 4 个 literal marker:`[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`。新 HARD RULE 明文禁止"从 transcript byte-copy 旧值"和"重新估天数";`session-start-inbox.sh` 被宣告为**唯一** source of truth,subagent 是它的 caller。
+2. **ROUTER 层** · `SKILL.md` ROUTER fact-check 加 **rule 8**:ROUTER 自己再跑一次同样的脚本,byte-equal 比对 `## Overdue maintenance` 块跟 marker 内容(忽略 marker 末尾的 `· source=subagent-recompute@...` 时间戳)。不匹配 → strike marker,替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing。Marker 之外,ROUTER 还在 briefing 的 `系统状态 / Compliance Watch / Today's Focus` **三个 section 内**(不扫全文,避免误伤 ADVISOR / review queue 等无关文本)扫描 `\d+\s*d(ays)?\s*overdue` 邻接 10 个维护任务名;任何冲突值视为 confabulation 并 strike。
+
+**Wave 1.5 spec 漏洞补丁**:
+- **Mode 2(Review)继承同样的 marker 契约**。Mode 2 Data Sources 加第 7 步:跑 `session-start-inbox.sh`、strip wrapper、原样 paste 为 `[Maintenance overdue: ...]`。Mode 2 review 跨的时间窗口往往比 Mode 0 更长,**更**容易 drift,所以 marker 在这里也是强制的——之前 Mode 2 完全不接触 Step 0.5,会继续幻觉。
+- **`<system-reminder>` wrapper 处理**。`session-start-inbox.sh` 的 stdout 实际被 `<system-reminder>...</system-reminder>` tag 包裹(SessionStart hook 注入路径)。subagent(Step 0.5 / Mode 2 step 7)与 ROUTER(rule 8)都 MUST 在提取 `## Overdue maintenance` 块前 strip 这层 wrapper;否则 ROUTER 的 byte-equal 比对永远 mismatch,rule 8 退化成"永远 override-on-warn"。
+
+### 改动文件
+
+- `pro/agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`;Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip;Mode 2 Data Sources step 7(maintenance marker 契约)。
+- `SKILL.md` — frontmatter version → 1.8.4;ROUTER fact-check rule 8 + wrapper-strip 说明。
+- `references/dream-spec.md`、`i18n/zh/references/dream-spec.md`、`i18n/ja/references/dream-spec.md` — triggered_actions schema 加 optional `task_ref` 字段。
+- `README.md`、`i18n/zh/README.md`、`i18n/ja/README.md` — version badge → 1.8.4。
+- `CHANGELOG.md`、`i18n/zh/CHANGELOG.md`、`i18n/ja/CHANGELOG.md` — 本条目。
+
+### 零新基础设施
+
+v1.8.0 Zero-Python / Zero-new-script 原则保持。没有新增任何 SH/PY 文件。复用已有的 `scripts/hooks/session-start-inbox.sh`(v1.8.0 引入)与已有的 `scripts/verify-release.sh` 发布闸门(R-1.8.0-019 之后引入)。
+
+---
+
 ## [1.8.3] - 2026-05-09 - 出境闸门 · Notion 写入前 PII 扫描
 
 > **补上「外发」的隐私缺口。** v1.8.2 守住了入境知识层（`pre-write-scan.sh` 防 SOUL/wiki/concepts/user-patterns 被 secret、prompt injection、隐藏 Unicode 污染）。但 Decision/Task/Journal 这些含用户原话、第三人姓名、具体金额的内容，从 `_meta/outbox/<sid>/` 直接同步到 Notion 的 Step 10a 阶段——**完全没有任何隐私闸门**。Notion 可能是共享 workspace、被 Notion AI 索引、手机端可读、有泄露先例；「本地 outbox 在你 git 里能放什么」和「能往 Notion 推什么」不是同一个威胁模型。v1.8.3 引入对称的出境守卫：拦截每次 Notion MCP 写调用的 PreToolUse hook，按三档行动模型处理。

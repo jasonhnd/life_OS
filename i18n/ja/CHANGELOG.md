@@ -6,6 +6,50 @@
 
 ---
 
+## [1.8.4] - 2026-05-16 - 反幻覚:DREAM 完了タスク検証 + メンテ overdue 単一情報源
+
+> **2026-05-16 に発見された briefing 自由生成漏れを塞ぐ、外科手術的な 2 つの修正。** 両 bug とも **B クラス(LLM による証拠捏造)**——subagent が一次情報源を読まず、数値や状態を自分で推測した。v1.8.4 は各情報源を「subagent が必ず呼び出す対象」(スクリプト、タスク frontmatter ファイル)に格上げし、briefing をユーザーに見せる前に ROUTER 自身に再検証させる。
+
+### Bug R-DREAM-STALE-TASK · DREAM トリガー有効性再検証
+
+DREAM レポートは夜間の非同期スナップショット。N-1 の adjourn 時に書かれた HARD トリガーは、N の session 起動までにユーザーが既に手動で閉じている可能性がある——しかし `retrospective` Step 16 はタスクの実状態を確認せず、そのまま今日の P0 に promote していた。2026-05-16 の briefing は `8938 revenue-uplift task closure` を P0 フォローアップに上げていたが、当該タスクは前日に既に `status: closed-superseded` と書かれていた。
+
+修正 · `pro/agents/retrospective.md` Step 16 に **TRIGGER VALIDITY RE-CHECK** HARD RULE を追加。task path / slug を指す各 HARD トリガーに対し、subagent は promote 前に対応 task ファイルの frontmatter を `Read` し、`status:` を検査する必要がある:
+
+- `closed` / `done` / `failed` / `archived` / `superseded` / `closed-*` → `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>` として描画、promote しない。
+- ファイル不在 → `projects/**/tasks/` 配下で slug の fuzzy match;renamed → status を引き続き検証;真に見つからない → promote しつつ `task slug not found on disk, treating as still-actionable` と注記。
+
+Step 16 R11 監査記録 JSON に新フィールド `dream_triggers_validated: [{trigger_id, trigger_type, task_path, task_status, task_lookup, promoted_to_focus, reason}]`(HARD トリガー 1 件につき 1 項目;ゼロの場合は空配列)を追加。AUDITOR Mode 3 が事後に promote 判断の根拠を監査できる。
+
+**Wave 1.5 spec ギャップ修正** · `references/dream-spec.md` の triggered_actions schema に **オプション** `task_ref: { task_path, task_slug, project }` フィールドを追加——DREAM が具体的なユーザータスクを指す trigger を検出した場合のみ設定。行動型 trigger(decision-fatigue / dormant-soul 等)はこのフィールドを省略し、検証を完全にスキップ(`task_lookup: not_applicable`)。Step 16 解決順:(a) `task_ref.task_path` 直接 read → (b) `task_ref.task_slug` + `project` fuzzy match → (c) `detection.hard_signals` / `action` テキストを LLM-parse して最終手段の fuzzy match → (d) `not_found` とマークし `still-actionable` 注記付きで promote(エラーなし)。3 言語同期:`references/dream-spec.md`、`i18n/zh/references/dream-spec.md`、`i18n/ja/references/dream-spec.md` を同時更新。
+
+### Bug R-MAINT-OVERDUE-HALLUCINATION · メンテ overdue 単一情報源
+
+2026-05-16 の briefing は `archiver-recovery 13d overdue` と報告したが、**同じ session 自身の** `session-start-inbox.sh` hook は実際には `3d` しか出していなかった。subagent はスクリプトを実行せず、印象で日数を推測した。最悪のケース:Mode 2 / 真夜中をまたぐ長 session では、SessionStart 時に注入された `<system-reminder>` が古くなっており、そのまま値をコピーすると drift が累積する。
+
+修正 · 2 層防御:
+
+1. **subagent 層** · `pro/agents/retrospective.md` Step 0.5 marker リストに 4 番目のリテラル marker を追加:`[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`。新 HARD RULE は「transcript から古い値を byte-copy する」「日数を再推定する」を明示的に禁止;`session-start-inbox.sh` を**唯一**の情報源と宣告し、subagent はその呼び出し側であると定義する。
+2. **ROUTER 層** · `SKILL.md` ROUTER fact-check に **rule 8** を追加:ROUTER 自身が同じスクリプトを再度実行し、marker 内容と `## Overdue maintenance` ブロックを byte-equal 比較(marker 末尾の `· source=subagent-recompute@...` タイムスタンプは無視)。不一致 → marker を打ち消し `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]` に置換。Marker 欠落 → ROUTER は briefing 表示を拒否。Marker 以外にも、ROUTER は briefing の `系統状態 / Compliance Watch / Today's Focus` **3 つの section 内**(ADVISOR / review queue 等の無関係テキストへの誤検知回避のため全文スキャンしない)で `\d+\s*d(ays)?\s*overdue` パターンが 10 個のメンテタスク名に隣接していないか走査;矛盾値はすべて confabulation として打ち消す。
+
+**Wave 1.5 spec ギャップ修正**:
+- **Mode 2(Review)も同じ marker 契約を継承**。Mode 2 Data Sources にステップ 7 を追加:`session-start-inbox.sh` 実行、wrapper を strip、`[Maintenance overdue: ...]` として原文 paste。Mode 2 レビューは Mode 0 より長い時間窓を扱う傾向があり、**より** drift を起こしやすいため、marker はここでも必須——以前は Mode 2 が Step 0.5 に一切触れず、幻覚を継続していた。
+- **`<system-reminder>` wrapper 処理**。`session-start-inbox.sh` の stdout は `<system-reminder>...</system-reminder>` タグで包まれている(SessionStart hook 注入経路による)。subagent(Step 0.5 / Mode 2 step 7)と ROUTER(rule 8)の両方が `## Overdue maintenance` ブロック抽出前にこの wrapper を必ず strip する必要がある;さもなければ ROUTER の byte-equal 比較は永遠に mismatch となり、rule 8 は「常に override-on-warn」状態に退化する。
+
+### 変更ファイル
+
+- `pro/agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`;Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip;Mode 2 Data Sources step 7(maintenance marker 契約)。
+- `SKILL.md` — frontmatter version → 1.8.4;ROUTER fact-check rule 8 + wrapper-strip 注記。
+- `references/dream-spec.md`、`i18n/zh/references/dream-spec.md`、`i18n/ja/references/dream-spec.md` — triggered_actions schema に optional `task_ref` フィールド追加。
+- `README.md`、`i18n/zh/README.md`、`i18n/ja/README.md` — version バッジ → 1.8.4。
+- `CHANGELOG.md`、`i18n/zh/CHANGELOG.md`、`i18n/ja/CHANGELOG.md` — 本エントリ。
+
+### 新規インフラなし
+
+v1.8.0 Zero-Python / Zero-new-script の不変条件を維持。新規 SH/PY ファイルなし。既存の `scripts/hooks/session-start-inbox.sh`(v1.8.0 導入)と既存の `scripts/verify-release.sh` リリースゲート(R-1.8.0-019 以降に導入)を再利用。
+
+---
+
 ## [1.8.3] - 2026-05-09 - アウトバウンド境界ゲート · Notion 書き込み前の PII スキャン
 
 > **「外向き」プライバシーの隙を塞ぐ。** v1.8.2 はインバウンド知識層を守り抜いた（`pre-write-scan.sh` が SOUL/wiki/concepts/user-patterns を secret・prompt injection・不可視 Unicode 汚染から守る）。だが Decision/Task/Journal の本文——ユーザーの生の言葉、第三者の名前、具体的な金額を含む——は `_meta/outbox/<sid>/` から Notion へと Step 10a で同期されるとき、**何のプライバシーゲートも通っていなかった**。Notion は共有 workspace の可能性、Notion AI による索引化、モバイル端末で閲覧可能、漏洩前例あり；「ローカル outbox に git で持っていてよいもの」と「Notion に送ってよいもの」は同じ脅威モデルではない。v1.8.3 は対称的なアウトバウンド守衛を導入する：あらゆる Notion MCP 書き込み呼び出しを傍受する PreToolUse hook が、3 段階のアクションモデルで処理する。

@@ -6,6 +6,50 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.4] - 2026-05-16 - Anti-confabulation: DREAM stale-task validation + maintenance overdue source-of-truth
+
+> **Two surgical fixes for briefing free-form-generation holes detected on 2026-05-16.** Both bugs are class **B (LLM fabrication of evidence)** — the subagent invented numeric/state claims instead of reading primary source. v1.8.4 lifts each source-of-truth into something the subagent must call (a script, or a task frontmatter file) and forces ROUTER to re-verify before showing the briefing.
+
+### Bug R-DREAM-STALE-TASK · DREAM trigger validity re-check
+
+DREAM journals are async overnight snapshots. A HARD trigger written at N-1's adjourn can already be resolved by the user before N's session boot — but `retrospective` Step 16 promoted it to today's P0 anyway, because it never checked whether the task it pointed to was still open. The 2026-05-16 briefing surfaced `8938 revenue-uplift task closure` as a P0 follow-up even though the task had `status: closed-superseded` written the day before.
+
+Fix · `pro/agents/retrospective.md` Step 16 gains a **TRIGGER VALIDITY RE-CHECK** HARD RULE. For every HARD trigger that names a task path or slug, the subagent MUST `Read` the referenced task frontmatter and inspect `status:` BEFORE promotion:
+
+- `closed` / `done` / `failed` / `archived` / `superseded` / `closed-*` → render as `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>` and DO NOT promote.
+- File missing → fuzzy match by slug under `projects/**/tasks/`; renamed → still validate status; truly not found → promote with note `task slug not found on disk, treating as still-actionable`.
+
+Step 16 R11 audit trail JSON gains `dream_triggers_validated: [{trigger_id, trigger_type, task_path, task_status, task_lookup, promoted_to_focus, reason}]` (one entry per HARD trigger; empty array when zero), so AUDITOR Mode 3 can later audit whether promotion decisions were grounded.
+
+**Wave 1.5 spec gap closure** · `references/dream-spec.md` triggered_actions schema gains an **optional** `task_ref: { task_path, task_slug, project }` field — set only when DREAM detected a trigger that points to a specific user task. Behavioral triggers (decision-fatigue, dormant-soul, etc.) omit this field and skip validation entirely (`task_lookup: not_applicable`). Step 16 resolution order: (a) `task_ref.task_path` direct read → (b) `task_ref.task_slug` + `project` fuzzy match → (c) LLM-parse `detection.hard_signals` / `action` text as last-resort fuzzy match → (d) mark `not_found` and promote with `still-actionable` note (no error). Three-language sync: `references/dream-spec.md`, `i18n/zh/references/dream-spec.md`, `i18n/ja/references/dream-spec.md` updated in lockstep.
+
+### Bug R-MAINT-OVERDUE-HALLUCINATION · maintenance overdue single source of truth
+
+The 2026-05-16 briefing reported `archiver-recovery 13d overdue` while the **same session's** `session-start-inbox.sh` hook had emitted `3d`. The subagent free-form-estimated a day count instead of running the script. Worst case: in Mode 2 / long sessions crossing midnight, the `<system-reminder>` injected at SessionStart goes stale, and copying its old value compounds the drift.
+
+Fix · two-layer defense:
+
+1. **Subagent layer** · `pro/agents/retrospective.md` Step 0.5 marker list gains a 4th literal marker: `[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`. The new HARD RULE explicitly forbids byte-copying the transcript's stale value or re-estimating the day count; `session-start-inbox.sh` is declared the **only** source of truth; subagent is its caller.
+2. **ROUTER layer** · `SKILL.md` ROUTER fact-check gains **rule 8**: ROUTER re-runs the same script and byte-equal compares the `## Overdue maintenance` block against the marker (ignoring the `· source=subagent-recompute@...` timestamp tail). Mismatch → strike marker and replace with `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`. Marker missing → ROUTER refuses to show the briefing. Beyond the marker, ROUTER scans the briefing's `系统状态 / Compliance Watch / Today's Focus` sections (NOT the whole file, to avoid false-positives in ADVISOR / review queue text) for `\d+\s*d(ays)?\s*overdue` adjacent to any of the 10 maintenance task names; any conflict is treated as confabulation and struck.
+
+**Wave 1.5 spec gap closures**:
+- **Mode 2 (Review) inherits the same marker contract**. Mode 2 Data Sources gains step 7: run `session-start-inbox.sh`, strip wrapper, paste verbatim as `[Maintenance overdue: ...]`. Mode 2 reviews tend to span longer time windows than Mode 0 and are *more* vulnerable to drift, so the marker is mandatory there too — previously Mode 2 had no exposure to Step 0.5 and would have continued to confabulate.
+- **`<system-reminder>` wrapper handling**. `session-start-inbox.sh` stdout is wrapped in `<system-reminder>...</system-reminder>` tags (SessionStart hook injection path). Both subagent (Step 0.5 / Mode 2 step 7) and ROUTER (rule 8) MUST strip this wrapper before extracting the `## Overdue maintenance` block; otherwise ROUTER's byte-equal comparison would always mismatch and rule 8 would degrade into permanent override-on-warn.
+
+### Changed files
+
+- `pro/agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`; Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip; Mode 2 Data Sources step 7 (maintenance marker contract).
+- `SKILL.md` — frontmatter version → 1.8.4; ROUTER fact-check rule 8 + wrapper-strip note.
+- `references/dream-spec.md`, `i18n/zh/references/dream-spec.md`, `i18n/ja/references/dream-spec.md` — triggered_actions schema gains optional `task_ref` field.
+- `README.md`, `i18n/zh/README.md`, `i18n/ja/README.md` — version badge → 1.8.4.
+- `CHANGELOG.md`, `i18n/zh/CHANGELOG.md`, `i18n/ja/CHANGELOG.md` — this entry.
+
+### Zero new infrastructure
+
+v1.8.0 Zero-Python / Zero-new-script invariant preserved. No new SH/PY files. Reuses the existing `scripts/hooks/session-start-inbox.sh` (introduced in v1.8.0) and the existing `scripts/verify-release.sh` release-gate (introduced post-R-1.8.0-019).
+
+---
+
 ## [1.8.3] - 2026-05-09 - Outbound boundary gate · Notion writes now scanned for PII
 
 > **Closing the outbound privacy gap.** v1.8.2 hardened the inbound knowledge layer (`pre-write-scan.sh` defends `SOUL.md`/`wiki/`/`_meta/concepts/`/`user-patterns.md` against secrets, prompt injection, invisible Unicode). But Decision/Task/Journal bodies — full of raw user prose, third-party names, specific amounts — were synced from `_meta/outbox/<sid>/` straight to Notion at Step 10a with **no privacy gate at all**. Notion may be a shared workspace, AI-indexed, mobile-readable, or breach-prone; "what may safely live in your local outbox under git" and "what should travel to Notion" are not the same threat model. v1.8.3 introduces the outbound counterpart: a PreToolUse hook that intercepts every Notion MCP write call and applies a three-tier action model.

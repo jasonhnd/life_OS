@@ -262,6 +262,10 @@ triggered_actions:
     action: "flag-next-briefing"
     surfaces_at: "next-start-session"
     auditor_review: false  # true if mode=soft
+    task_ref:              # 可选 · v1.8.4 · R-DREAM-STALE-TASK · 仅当 trigger 指向具体用户任务时设置;行为型 trigger(decision-fatigue / dormant-soul 等)省略此字段
+      task_path: "projects/<p>/tasks/<filename>.md"  # 已知时优先
+      task_slug: "<slug>"                             # 仅知 slug 时的 fallback
+      project: "<project-name>"                       # 限定 fuzzy match 范围
 ---
 ```
 

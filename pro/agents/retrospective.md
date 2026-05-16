@@ -198,6 +198,7 @@ The briefing MUST include these literal primary-source count markers, using valu
 - `[Wiki count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
 - `[Sessions count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
 - `[Concepts count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
+- `[Maintenance overdue: <verbatim multi-line copy from `bash scripts/hooks/session-start-inbox.sh` 的 '## Overdue maintenance' 块 · OR 'none' when 输出 reported no overdue items · source=subagent-recompute@<ISO8601>]`
 
 Rules:
 - R8 marker disambiguation supersedes older R5 wording: `Y1` is the `_meta/STATUS.md` snapshot claim, `Y2` is the `INDEX.md` claim, and `Δ` is always computed as `X - Y2`.
@@ -205,6 +206,7 @@ Rules:
 - If `|Δ| >= 3`, append `⚠️ DRIFT` to that marker line.
 - Do not paste only `X` without `Y`.
 - Do not say `measured consistent` / `实测一致` without concrete numbers.
+- **Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix)**: subagent MUST 主动跑 `bash scripts/hooks/session-start-inbox.sh 2>/dev/null`,从 stdout 提取 `## Overdue maintenance` 块,原样 paste 进 marker。**不要** byte-copy transcript 里 SessionStart hook 写过的旧值(Mode 2 / 长 session 跨午夜会 stale)。**不要**重新估算、增量、改写 day count。`session-start-inbox.sh` 是唯一 source of truth;subagent 是它的 caller。Hook 在 SessionStart 时的 inject 仅作为友好启动提示,不参与 marker 校验。Originating bug: 2026-05-16 briefing reported `archiver-recovery 13d` while same session hook had emitted `3d` —— subagent 自己 free-form-estimate 而不是跑脚本。**Output wrapper handling (v1.8.4 Wave 1.5)**: `session-start-inbox.sh` 的 stdout 实际被 `<system-reminder>...</system-reminder>` tag 包裹(SessionStart hook 注入路径所致)。Subagent 在提取 `## Overdue maintenance` 块前 MUST strip 这层 wrapper:取 `<system-reminder>` 与 `</system-reminder>` 之间的内容,再 grep `## Overdue maintenance` 到下一个 `## ` 之间的行。若 wrapper 不存在(直接 stdout 调用)则按原 stdout 处理。
 
 ```bash
 # STATUS.md staleness check (HARD RULE · v1.7.0.1)
@@ -485,7 +487,8 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - Note discarded candidates with reasons (6-criteria failures, privacy-filter strips)
     - Mark as presented
     - Read the triggered_actions YAML block from last dream journal. These feed the DREAM Auto-Triggers section of the briefing (always shown, fixed position).
-    - R11 AUDIT TRAIL: before proceeding to Step 17, write `_meta/runtime/<sid>/retrospective-step-16.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
+    - **TRIGGER VALIDITY RE-CHECK (HARD RULE · v1.8.4 · Bug R-DREAM-STALE-TASK fix)**: DREAM journals are async overnight snapshots. A trigger that was valid when the DREAM was written may have already been resolved by the user before the next session start. For each HARD trigger that names a specific task path or task slug, the subagent MUST `Read` the referenced task file's frontmatter and inspect the `status:` field BEFORE promoting the trigger to Today's Focus. Match logic: if `status:` matches `closed`, `done`, `failed`, `archived`, `superseded`, or any prefix `closed-*`, render the trigger as `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>, no action needed.` and DO NOT promote to Today's Focus / P0. If task file does not exist on disk, attempt fuzzy match by slug under `projects/**/tasks/`; if found at a different path, treat as `renamed_candidate` (still validate status); if not found anywhere, promote with note `task slug not found on disk, treating as still-actionable`. Originating bug: 2026-05-16 briefing promoted `8938 revenue-uplift task closure` to P0 even though it had `status: closed-superseded` written the day before. Trigger `task_ref` field (defined in `references/dream-spec.md` triggered_actions schema, v1.8.4) is **optional** — only set when DREAM detected a trigger that points to a specific user task. Resolution order: (a) if `task_ref.task_path` present → `Read` that exact path; (b) elif `task_ref.task_slug` + `task_ref.project` present → fuzzy match under `projects/<project>/tasks/`; (c) elif neither, attempt LLM-parse of `detection.hard_signals` / `action` text for task-name mentions and fuzzy match under `projects/**/tasks/`; (d) if all three fail → mark `task_lookup: not_found` and promote with note `no task_ref on this trigger, treating as still-actionable` (no error). Behavioral triggers (e.g. trigger_id 4 dormant-SOUL, trigger_id 6 decision-fatigue) have no task to validate — skip this check entirely and record `task_lookup: not_applicable` in audit trail.
+    - R11 AUDIT TRAIL: before proceeding to Step 17, write `_meta/runtime/<sid>/retrospective-step-16.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. Audit trail JSON MUST additionally include `dream_triggers_validated: [{trigger_id: N, trigger_type: HARD|SOFT, task_path: ..., task_status: ..., task_lookup: found_at_path|renamed_candidate|not_found, promoted_to_focus: true|false, reason: "..."}]` — one entry per HARD trigger; empty array `dream_triggers_validated: []` when zero HARD triggers.
 
 17. WIKI HEALTH CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
     a. wiki/ empty or doesn't exist → skip silently
@@ -671,6 +674,7 @@ Prepare with whatever data you can access. Note what you cannot:
 4. Read ~/second-brain/_meta/journal/ for recent logs
 5. Read ~/second-brain/projects/*/journal/ for project-specific logs
 6. Read _meta/STRATEGIC-MAP.md for strategic line health trends (if exists)
+7. Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix): run `bash scripts/hooks/session-start-inbox.sh 2>/dev/null` itself, strip the `<system-reminder>` wrapper, extract the `## Overdue maintenance` block verbatim, and include it in the Review briefing as `[Maintenance overdue: <verbatim block> · source=subagent-recompute@<ISO8601>]`. Same source-of-truth contract as Mode 0 Step 0.5: do NOT byte-copy transcript stale values, do NOT re-estimate day count. Mode 2 reviews tend to span longer time windows than Mode 0 and are more vulnerable to drift, so the marker contract is mandatory here too.
 ```
 
 ### Decision Tracking
