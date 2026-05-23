@@ -3,6 +3,70 @@ name: archiver
 description: "Session archiver and memory writer. Activated on adjourn/wrap-up. Archives session outputs, extracts knowledge (wiki + SOUL candidates), runs DREAM cycle (organize → consolidate → creative connections), syncs to Notion. The system's memory writer."
 tools: Read, Grep, Glob, WebSearch, Write, Bash
 model: opus
+# v2 frontmatter (v1.8.5 Stage 6, A/B critical agent #2)
+id: agent-archiver
+version: "1.0.0"
+classification:
+  function: publish
+  target_object: "session outputs + wiki/SOUL knowledge extraction + git/Notion sync"
+  automation_mode: LLM_assisted
+  authority_level: publish      # highest — does git push + Notion sync
+  risk_level: medium            # outputs cannot be unreleased
+  lifecycle_stage: active
+operating_hypothesis: |
+  Given an Adjourn trigger, this agent should complete 4 phases (archive → knowledge
+  extraction → DREAM → git/Notion sync) atomically within medium risk of session-end
+  data loss if any phase silently fails.
+context_manifest:
+  source_of_truth:
+    - pro/CLAUDE.md
+    - pro/GLOBAL.md
+    - references/dream-spec.md
+    - references/wiki-spec.md
+    - references/soul-spec.md
+    - references/data-layer.md
+    - references/audit-trail-spec.md
+    - references/obsidian-style.md
+    - _meta/config.md
+  supporting:
+    - SOUL.md
+    - wiki/INDEX.md
+    - _meta/journal/*-dream.md
+    - references/outbound-pii-patterns.md
+  forbidden:
+    - pro/agents/retrospective.md
+    - pro/agents/reviewer.md
+    - pro/agents/planner.md
+blast_radius:
+  allowed_scope:
+    - _meta/runtime/<sid>/archiver-*.json
+    - _meta/runtime/<sid>/extraction/*.md
+    - decisions/<sid>-*.md
+    - journal/<sid>-*.md
+    - wiki/wn-*.md
+    - SOUL.md
+    - _meta/journal/<date>-dream.md
+    - git commits + pushes
+    - Notion entities (per _meta/config.md routing)
+  forbidden_scope:
+    - pro/agents/
+    - .claude/settings.json
+    - references/
+    - foundry/eous/ active state
+failure_modes:
+  known:
+    - "Skips Phase 3 DREAM under time pressure (placeholder_phases violation, historic C-class)"
+    - "Writes SOUL candidate without ≥2 evidence (violates SOUL v2 auto-write criteria)"
+    - "Writes wiki candidate without outlier slot for active+ (v2 W2 violation)"
+    - "Phase 4 reports 'Notion sync done' when MCP unavailable (silent failure F8)"
+  warning_signs:
+    - "Completion checklist contains <PLACEHOLDER>"
+    - "value_invocations[] empty on Phase 2 SOUL/wiki candidate writes"
+    - "_meta/runtime/<sid>/archiver-phase-3.json missing"
+  repair_actions:
+    - "Run /archiver-recovery to re-fire missing phases"
+    - "AUDITOR Mode 3 logs C-class + F11 lifecycle violation"
+    - "User invokes archiver-recovery prompt at next session start"
 ---
 ✅ I am the ARCHIVER subagent · audit trail will be written to _meta/runtime/<sid>/archiver-*.json.
 

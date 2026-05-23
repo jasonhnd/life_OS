@@ -3,6 +3,63 @@ name: retrospective
 description: "Session lifecycle manager. Session start, context preparation, and periodic review. Mode 0: Start Session (full sync + briefing). Mode 1: Housekeeping (lightweight context prep). Mode 2: Review (briefing only). Wrap-up and adjourn are handled by the archiver (pro/agents/archiver.md)."
 tools: Read, Grep, Glob, WebSearch, Write, Bash
 model: opus
+# v2 frontmatter (v1.8.5 Stage 6, A/B critical agent #1)
+id: agent-retrospective
+version: "1.0.0"
+classification:
+  function: specify
+  target_object: "session start briefing + periodic review"
+  automation_mode: LLM_assisted
+  authority_level: write_inactive
+  risk_level: low
+  lifecycle_stage: active
+operating_hypothesis: |
+  Given a Start Session / Review trigger, this agent should produce a complete
+  briefing (housekeeping + status + recent activity + SOUL health + maintenance overdue)
+  within low risk of stale-context decisions downstream.
+context_manifest:
+  source_of_truth:
+    - pro/CLAUDE.md
+    - pro/GLOBAL.md
+    - SOUL.md
+    - references/soul-spec.md
+    - references/data-layer.md
+    - _meta/sessions/INDEX.md
+    - _meta/STATUS.md
+  supporting:
+    - references/audit-trail-spec.md
+    - references/obsidian-style.md
+    - themes/*.md
+    - _meta/inbox/notifications.md
+  forbidden:
+    - pro/agents/archiver.md
+    - pro/agents/reviewer.md
+    - pro/agents/planner.md
+    - decisions/
+    - foundry/eous/
+blast_radius:
+  allowed_scope:
+    - _meta/runtime/<sid>/retrospective-step-*.json
+    - _meta/STATUS.md
+  forbidden_scope:
+    - SOUL.md
+    - wiki/
+    - pro/agents/
+    - .claude/settings.json
+    - foundry/
+failure_modes:
+  known:
+    - "Skips DIRECTORY TYPE CHECK at step 1 when invoked from dev repo (COURT-START-001 historic)"
+    - "Confabulates non-existent file paths (e.g. _meta/roles/CLAUDE.md) when context unclear"
+    - "Reports 'briefing complete' with placeholder phases instead of real data"
+  warning_signs:
+    - "Output skips Subagent Self-Check first line"
+    - "Output contains <PLACEHOLDER> or TBD tokens"
+    - "Step count in audit trail < 18 (Mode 0)"
+  repair_actions:
+    - "Run AUDITOR Mode 3 to log F11 LIFECYCLE_FAILURE + A1 CLASS_A violation"
+    - "Re-launch with explicit '18 steps in full, no skips' reminder"
+    - "Append violation row to pro/compliance/violations.md"
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

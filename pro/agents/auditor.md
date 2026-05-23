@@ -617,3 +617,78 @@ VERDICT: PASS | WARN | FAIL
 - Session-end auto-trigger: Mode 3 patrol runs Mode 5 as scenario 1 (after Mode 4 SOUL).
 - archiver Phase 2 candidate writes: every newly-written wiki candidate is validated via Mode 5 before commit.
 - Manual: `/audit --mode 5` for explicit health check.
+
+---
+
+## Mode 6: Agent v2 Frontmatter Compliance (v1.8.5 new, per RFC Stage 6)
+
+Audits all `pro/agents/*.md` files against `references/agent-spec.md` v2 standard. Triggered:
+- Manually via `/audit --mode 6`
+- Automatically as scenario 2 of Mode 3 session-end patrol (after Mode 4 SOUL, Mode 5 wiki)
+- Pre-release: required before any agent definition change merges
+
+### Checks (run in order)
+
+#### A1: Every agent has all v2 required fields
+
+For each `pro/agents/*.md` file:
+- Read frontmatter
+- Verify presence of:
+  1. v1 base: `name`, `description`, `tools`, `model`
+  2. v2 identity: `id` (matches `agent-*`), `version` (semver string)
+  3. v2 `classification` block with all 6 facets populated
+  4. v2 `operating_hypothesis` (non-empty, ≥30 chars)
+  5. v2 `context_manifest` with 3 keys; `source_of_truth` non-empty
+  6. v2 `blast_radius` with `allowed_scope` AND `forbidden_scope` both non-empty
+  7. v2 `failure_modes` with 3 keys (lists may be empty initially)
+
+Missing any → emit `F3 SCHEMA_FAILURE: pro/agents/<file> missing v2 field: <field>`
+
+#### A2: `tools` list matches actual usage (drift detection)
+
+For agents with audit trail history in `_meta/runtime/<sid>/<agent>-*.json`:
+- Parse trail entries for actual tool calls (Read, Write, Bash, etc.)
+- Compare against frontmatter `tools:` list
+- Tool used but NOT in list → emit `F12 DRIFT_FAILURE: pro/agents/<file> uses <tool> but it's not in tools list`
+- Tool in list but NEVER used in last 30 days → emit warning `pro/agents/<file> declares <tool> but unused in 30 days; consider removal`
+
+#### A3: `forbidden_scope` not bypassed
+
+For each agent's audit trail:
+- Parse all file writes recorded in trail
+- Compare against frontmatter `blast_radius.forbidden_scope`
+- Any match → emit `F10 RESPONSIBILITY_FAILURE: pro/agents/<file> wrote to forbidden path <path>; v2 blast_radius violation`
+
+This is the highest-severity v2 finding — indicates an agent overstepped its declared boundary.
+
+#### A4: `failure_modes.known` covers implicated violations
+
+For each agent referenced in `pro/compliance/violations.md` history:
+- Collect all violation types where this agent was implicated
+- Compare against frontmatter `failure_modes.known`
+- Any historical violation not represented in `known` → emit warning `pro/agents/<file> failure_modes.known is missing entry for historical violation type <X>; update spec`
+
+This is a soft check — encourages spec to learn from past failures.
+
+### Verdict output
+
+```
+── AUDITOR Mode 6 · Agent v2 schema audit ──
+A1 v2 required fields: ✅ N/23 agents complete / FAIL <list>
+A2 tools-usage drift: ✅ / DRIFT <list>
+A3 forbidden_scope bypass: ✅ / FAIL <list> (HIGHEST severity)
+A4 failure_modes coverage: ✅ / WARN <list>
+
+VERDICT: PASS | WARN | FAIL
+```
+
+### A/B test gating (per RFC Stage 6 Day 15)
+
+For the 3 critical agents (retrospective / archiver / reviewer), Mode 6 MUST PASS A1 before A/B eval scenarios run. If A1 fails on any of the 3, halt batch update of remaining 20 agents until fixed.
+
+### Use cases
+
+- Stage 6 Day 17 final check: Mode 6 PASS on all 23 agents → release blocker cleared.
+- Post-agent-edit: any time an agent definition is modified, Mode 6 runs on that single file.
+- Session-end Mode 3 patrol: Mode 6 runs A3 only (cheap, high-value).
+- Manual: `/audit --mode 6 [agent-name]` for explicit health check on a single agent.
