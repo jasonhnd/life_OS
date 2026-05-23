@@ -603,3 +603,72 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 | Each Domain | Dispatch instructions + background + bound project's strategic role (if exists) | Other domains' reports, full strategic map |
 | AUDITOR | Complete workflow record | No restrictions |
 | ADVISOR | Summary Report + user message (reads second-brain on its own) | Thought processes |
+
+## Decision Records (HARD RULE · v1.8.5 Stage 7, per RFC §7)
+
+> **A missing decision record looks identical to an uninvestigated incident.** Borrowed from eou-foundry `engine/governance.yml:119-133` — REVIEWER/PLANNER/ARCHIVER decisions to NOT change behavior MUST be recorded explicitly, not silently dropped.
+
+When any agent (most commonly REVIEWER) decides to:
+- "wontfix" a flagged issue
+- "not now" a proposed action
+- accept current behavior despite diagnosis of a failure mode
+- close an incident without an ECP / change
+
+The agent MUST write `_meta/incidents/<id>.no-change.yml` with these 7 required fields:
+
+```yaml
+incident_id: <canonical id, e.g. inc-2026-05-23-001>
+eou_id: <which agent/spec/decision this is about>
+diagnosis_summary: <brief description of the diagnosed failure class>
+decision: no_change
+rationale: <why the cost of change exceeds the benefit>
+reviewed_by: <named human or specific agent id>
+reviewed_at: <ISO date>
+reopen_condition: <observable signal that would warrant reconsidering>
+```
+
+The `reopen_condition` field is what distinguishes a real decision-record from a silent skip. "Reconsider if X happens" turns a no-change into a deferred-monitoring posture; absence of `reopen_condition` is itself a violation (F10 RESPONSIBILITY_FAILURE).
+
+**Enforcement**: AUDITOR Mode 3 scans for incidents in `_meta/incidents/` without matching ECP or no_change_record; missing → flag.
+
+## Minimality Rule (HARD RULE · v1.8.5 Stage 7, per RFC §7)
+
+> Borrowed from eou-foundry `engine/refactoring-patterns.yml:52-53`. Creating a new agent / spec / skill / HARD RULE is the most expensive option — only use when 6 lower-cost alternatives are insufficient.
+
+Before any agent (most commonly PLANNER or ROUTER when proposing system changes) proposes a NEW first-class artifact (new subagent, new `references/*-spec.md`, new HARD RULE, new slash command, new schema), the agent MUST first ask these 6 questions:
+
+1. Could a **rule** (in pro/AGENTS.md or pro/CLAUDE.md) accomplish this?
+2. Could a **schema field** (in references/*-spec.md frontmatter) accomplish this?
+3. Could a **validator** (slash command or AUDITOR Mode 3 scenario) accomplish this?
+4. Could a **regression case** (evals/regression-fixtures/*.yml) accomplish this?
+5. Could a **stop condition** (in an existing agent's execution flow) accomplish this?
+6. Could a **human checklist** (added to relevant doc) accomplish this?
+
+If ANY answer is yes, the agent MUST prefer that lower-cost option over creating a new first-class artifact. The proposal text MUST cite which alternative was considered and why it was deemed insufficient.
+
+**Enforcement**: REVIEWER veto. Any planning doc proposing a new agent/spec/skill without minimality-rule disclosure = F4 SCOPE_FAILURE per `references/failure-taxonomy.md`.
+
+## Risk Domains (HARD RULE · v1.8.5 Stage 7, per RFC §7)
+
+> Borrowed from eou-foundry `engine/governance.yml:67-82`. 8 high-risk domains MUST trigger full escalation regardless of how mundane the surface request looks.
+
+The 8 domains (see `references/risk-domains.md` for full spec):
+
+| ID | Domain | Sample triggers |
+|----|--------|-----------------|
+| R1 | finance | invest / buy house / loan / IPO / 投资 / 贷款 / 投資 |
+| R2 | health | surgery / medication / fertility / 手术 / 药 / 手術 |
+| R3 | legal | contract / divorce / lawsuit / 合同 / 离婚 / 契約 |
+| R4 | safety | dangerous travel / weapon / 高危地区 / 危険 |
+| R5 | children | kid / school / custody / 孩子 / 监护权 / 子供 |
+| R6 | public claims | press / testify / 公开声明 / 公開 |
+| R7 | publication | open source / publish / 开源 / 出书 |
+| R8 | governance | change SOUL / change HARD RULE / pivot / 改 SOUL |
+
+**ROUTER triage HARD RULE**: any keyword match OR contextual signal (e.g. money >$1000, named medical condition, time commitment >6 months, write to pro/agents/ or references/) MUST trigger full deliberation path (PLANNER → REVIEWER → DISPATCHER → 6 Domains → REVIEWER Final → AUDITOR → ADVISOR → ARCHIVER). MUST NOT use "Handle Directly" or "Express Analysis" path.
+
+**REVIEWER veto HARD RULE**: cannot give "approved" verdict in R1-R8 domains without all 5 escalation requirements met (human approver / evidence audit / decision record / cannot_delegate / trace required). See `references/risk-domains.md` §"5 自动升级要求" for each requirement.
+
+**COUNCIL trigger threshold**: lowered from score diff ≥ 3 to ≥ 2 in R1-R8 domains.
+
+**Enforcement**: AUDITOR Mode 3 cross-checks every decision-class incident — if subject in R1-R8 and any of 5 requirements missing → F10 RESPONSIBILITY_FAILURE.

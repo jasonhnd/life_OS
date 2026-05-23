@@ -394,3 +394,21 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 | Each Domain | Dispatch instructions + background + bound project's strategic role (if exists) | Other domains' reports, full strategic map |
 | AUDITOR | Complete workflow record | No restrictions |
 | ADVISOR | Summary Report + user message (reads second-brain on its own) | Thought processes |
+
+## Decision Records (HARD RULE · v1.8.5 Stage 7)
+
+> See `pro/CLAUDE.md` §"Decision Records" for full spec. Gemini sync — same 7-field schema applies.
+
+When any agent (most commonly REVIEWER) decides to NOT change behavior, MUST write `_meta/incidents/<id>.no-change.yml` with 7 fields: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition. Missing `reopen_condition` = F10 RESPONSIBILITY_FAILURE.
+
+## Minimality Rule (HARD RULE · v1.8.5 Stage 7)
+
+> See `pro/CLAUDE.md` §"Minimality Rule" for full spec. Gemini sync — same 6-question gate applies.
+
+Before proposing a NEW agent / spec / skill / HARD RULE, agent MUST ask 6 questions (rule / schema field / validator / regression case / stop condition / human checklist) and prefer lower-cost option. Any "yes" to 6Q → use that instead.
+
+## Risk Domains (HARD RULE · v1.8.5 Stage 7)
+
+> See `pro/CLAUDE.md` §"Risk Domains" and `references/risk-domains.md` for full spec. Gemini sync — same 8 domains apply.
+
+ROUTER triage MUST escalate to full deliberation when subject touches R1-R8 (finance / health / legal / safety / children / public claims / publication / governance). REVIEWER cannot give "approved" without 5 escalation requirements (human approver / evidence audit / decision record / cannot_delegate / trace).

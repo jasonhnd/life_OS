@@ -476,6 +476,45 @@ All five are declared in AUDITOR's `tools:` frontmatter.
 - **Mode 3 specific**: keep default output silent; only P0 gets the one-line alert, and only explicit `/audit` surfaces detailed findings or 30-day tracking.
 - **Mode 3 specific**: never mark an existing entry `Resolved: true` without citing version + eval + observation date. Partial progress = `partial`, not `true`.
 
+### Mode 3 F14 Silent-Judgment scenarios (HARD RULE · v1.8.5 Stage 7)
+
+Borrowed from eou-foundry counterfactual-swap audit. Mode 3 patrol MUST scan all completed workflow audit trails for the following F14/F15/F16/F17 patterns per `references/failure-taxonomy.md`:
+
+**F14_SILENT_JUDGMENT** — Contested case decided without `value_invocations[]` populated:
+- Scan `_meta/runtime/<sid>/<agent>-*.json` (especially reviewer-*, archiver-phase-2*, advisor-*)
+- For each entry where audit-trail-spec R12 `value_invocations: []` (empty array) AND the agent's output describes a contested choice (REVIEWER veto / candidate write / drift report)
+- → emit `F14 SILENT_JUDGMENT_FAILURE: <agent> made contested choice in <step> without invoking SOUL dim`
+- Severity: **HIGH** (most dangerous agentic-judgment failure per V1 epistemic integrity)
+
+**F15_VALUE_HIERARCHY** — `value_invocations[]` cites lower-priority SOUL dim over higher-priority for same contested case:
+- Parse each `value_invocation` entry's `domain_value_id` and look up its `priority` in SOUL.md
+- If multiple invocations in same step show lower-priority dim winning over higher-priority dim → emit `F15 VALUE_HIERARCHY_FAILURE: <agent> invoked priority-<N> dim over priority-<M> dim (N>M) for same contested case`
+- Severity: **MEDIUM**
+
+**F16_VALUE_DRIFT** — 3+ similar contested cases across sessions show consistent shift toward low-priority dim without SOUL amendment ECP:
+- 30-day window: aggregate value_invocations across `_meta/runtime/*/<agent>-*.json`
+- Detect pattern: same agent + similar `rule_conflict` + low-priority dim chosen ≥3 times
+- Check for SOUL amendment ECP in `_meta/incidents/` — if absent → emit `F16 VALUE_DRIFT_FAILURE: <agent> drift toward dim '<id>' (priority <N>) across <K> incidents without amendment`
+- Severity: **HIGH** (silently rewriting constitution by precedent)
+
+**F17_VALUE_HALLUCINATION** — `value_invocations[]` cites `domain_value_id` not in SOUL.md:
+- For each entry, grep current SOUL.md for the cited `domain_value_id`
+- Not found → emit `F17 VALUE_HALLUCINATION_FAILURE: <agent> cited dim '<id>' which does not exist in SOUL.md`
+- Severity: **HIGH** (B confabulation class equivalent)
+
+**Counterfactual-swap audit (advanced, opt-in)** — borrowed from eou-foundry `engine/meta-eous/audit-judgment.yml:70` for systems with budget for it:
+- Per-EOU budget: 5 swap-tests
+- For up to 5 sampled invocations, construct swapped captured_workflow (swap priority of invoked value with another value) and re-run the producing agent under swap
+- Record output diff. If <3 swap-driven changes out of 5 swap-tests → emit `F14 (theater pattern, HIGH severity)`
+- **Note**: v1.8.5 does NOT default-run counterfactual-swap (expensive); reserved for explicit `/audit --counterfactual-swap <agent>` invocation when F14 pattern suspected.
+
+### Mode 3 Risk-Domains compliance check (HARD RULE · v1.8.5 Stage 7)
+
+For each decision-class incident in last 24h, check if subject matches `references/risk-domains.md` R1-R8 keyword patterns. If yes:
+- Verify 5 escalation requirements were met (human approver named / evidence audit trail / decision record / cannot_delegate / R12 trace required)
+- Any requirement missing → emit `F10 RESPONSIBILITY_FAILURE: R<N> domain subject decided without <missing req>`
+- Severity: **HIGH** if R1/R2/R3 (finance/health/legal); **MEDIUM** otherwise
+
 ---
 
 ## Mode 4: SOUL v2 Schema Compliance (v1.8.5 new, per RFC Stage 4)

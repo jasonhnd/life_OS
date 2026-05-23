@@ -1,6 +1,6 @@
 # Subagent Audit Trail Spec
 
-Version: v1.7.1 R11
+Version: v1.8.5 R12 (was v1.7.1 R11; bumped Stage 7 to add value_invocations[])
 
 Runtime audit trails are Life OS channel 1 evidence: files on disk that AUDITOR
 can read programmatically without trusting ROUTER's LLM-mediated transcript
@@ -44,7 +44,22 @@ Every audit trail file MUST be a JSON object with these fields:
   "tokens": {"input": 0, "output": 0},
   "fresh_invocation": true,
   "trigger_count_in_session": 1,
-  "audit_trail_version": "v1.7.1-r11"
+  "audit_trail_version": "v1.8.5-r12",
+
+  // v1.8.5 R12 NEW: value_invocations[] — required (non-empty) on contested
+  // case decisions made by REVIEWER, ARCHIVER Phase 2, ADVISOR drift detection,
+  // or any agent that resolved a SOUL-dim conflict. Empty array allowed when
+  // no contested case occurred in this step. Empty array on contested case =
+  // F14 SILENT_JUDGMENT_FAILURE per references/failure-taxonomy.md.
+  "value_invocations": [
+    {
+      "invocation_id": "vi-<session_id>-<seq>",
+      "domain_value_id": "dv-truth-over-comfort",
+      "rule_conflict": "<the contested case description>",
+      "chosen_path": "<what the agent did>",
+      "rejected_alternative": "<what was rejected, MUST be concrete artifact not strawman>"
+    }
+  ]
 }
 ```
 
@@ -64,7 +79,8 @@ Required field meanings:
 | `tokens` | object | Token counts with `input` and `output` numeric fields. Use `0` when unavailable. |
 | `fresh_invocation` | boolean | Must be `true` for every Start Session / Adjourn invocation; never infer completion from prior transcript output. |
 | `trigger_count_in_session` | integer | Trigger ordinal inside the active session, `1` for the first trigger and `2+` for repeated fresh triggers. |
-| `audit_trail_version` | string | Current value: `v1.7.1-r11`. |
+| `audit_trail_version` | string | Current value: `v1.8.5-r12`. |
+| `value_invocations` | array | **v1.8.5 R12 NEW.** Each contested-case SOUL dim invocation as 5-field object (invocation_id / domain_value_id / rule_conflict / chosen_path / rejected_alternative). Empty array `[]` allowed when no contested case in this step; empty array on contested case = F14 SILENT_JUDGMENT_FAILURE. REVIEWER veto, ARCHIVER Phase 2 candidate write, ADVISOR drift report MUST populate this when value conflict surfaced. |
 
 ## Validation
 
@@ -94,8 +110,11 @@ unavailable, using a failure summary instead of pausing for user permission.
 
 ## Violation Mapping
 
-| Failure | Violation |
-|---------|-----------|
-| Expected trail file missing | `C-no-audit-trail` |
-| Trail JSON missing required fields or invalid JSON | `C-trail-incomplete` |
-| Trail content contradicts ROUTER-visible output | `B-trail-mismatch` |
+| Failure | Violation | F-code |
+|---------|-----------|--------|
+| Expected trail file missing | `C-no-audit-trail` | F9_TRACE_FAILURE |
+| Trail JSON missing required fields or invalid JSON | `C-trail-incomplete` | F3_SCHEMA_FAILURE |
+| Trail content contradicts ROUTER-visible output | `B-trail-mismatch` | F12_DRIFT_FAILURE |
+| Contested case in step but `value_invocations: []` (v1.8.5 R12) | `F14-silent-judgment` | F14_SILENT_JUDGMENT_FAILURE |
+| `domain_value_id` doesn't exist in SOUL.md (v1.8.5 R12) | `F17-value-hallucination` | F17_VALUE_HALLUCINATION_FAILURE |
+| `rejected_alternative` is strawman or empty (v1.8.5 R12) | `F14b-strawman-rejection` | F14_SILENT_JUDGMENT_FAILURE (theater pattern) |
