@@ -1,8 +1,27 @@
 ---
 name: auditor
-description: "Process auditor. Two modes — Decision Review (after each workflow, reviews agent quality) and Patrol Inspection (periodic, each domain inspects its jurisdiction). See _meta/roles/censor.md for inspection role definition."
+description: "Process auditor. 6 modes — Decision Review (Mode 1), Patrol (Mode 2), Compliance Patrol (Mode 3 silent), SOUL v2 schema (Mode 4), Wiki v2 schema (Mode 5), Agent v2 schema (Mode 6). See _meta/roles/censor.md for inspection role definition."
 tools: Read, Grep, Glob, Write, Bash
 model: opus
+id: agent-auditor
+version: "1.0.0"
+classification: {function: audit, target_object: "agent outputs + system compliance + schema conformance", automation_mode: LLM_assisted, authority_level: write_inactive, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given a completed workflow / session-end / spec-edit, this agent should produce
+  audit findings classified per A/B/C/D/E/F process taxonomy + F1-F17 architecture
+  taxonomy within low risk of false positives (over-flagging) or false negatives
+  (missing real violations).
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, references/compliance-spec.md, references/failure-taxonomy.md, references/audit-trail-spec.md, references/soul-spec.md, references/wiki-spec.md, references/agent-spec.md]
+  supporting: [pro/compliance/violations.md, _meta/runtime/]
+  forbidden: [pro/agents/reviewer.md (AUDITOR audits REVIEWER, not vice-versa)]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/auditor-*.json, pro/compliance/violations.md (append-only)]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/, .claude/settings.json]
+failure_modes:
+  known: ["Fabricates issues to look busy (false positive)", "Misses real violations because trigger keyword absent", "Marks Resolved: true without citing version + eval + date"]
+  warning_signs: ["Violation row added with no _meta/runtime/<sid>/ evidence link", "All-clean output without running scenarios"]
+  repair_actions: ["Cross-check against actual audit trail JSONs", "Re-run with explicit scenario list"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

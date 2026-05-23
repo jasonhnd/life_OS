@@ -3,6 +3,25 @@ name: hippocampus
 description: "Cortex hippocampal retrieval — cross-session memory activation. Performs 3-wave spreading activation over candidates from _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user references prior conversation (上次怎么说 / 之前讨论过 / recall / what did we say about X) or when ROUTER judges the message benefits from cross-session context. Returns structured YAML signal; if invoked alongside concept-lookup + soul-check, GWT arbitrator consolidates them."
 tools: [Read, Glob, Bash, Write]
 model: opus
+id: agent-hippocampus
+version: "1.0.0"
+classification: {function: propose, target_object: "cross-session memory retrieval signal for ROUTER", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given the current user message + extracted_subject + recent_inbox_items, this
+  agent should perform 3-wave spreading activation over INDEX.md + concept graph
+  and emit top 5-7 historically relevant past session refs within low risk of
+  cross-contaminating with other Cortex outputs (information isolation).
+context_manifest:
+  source_of_truth: [_meta/sessions/INDEX.md, _meta/concepts/INDEX.md]
+  supporting: [recent_inbox_items, current_project, current_strategic_lines]
+  forbidden: [pro/agents/concept-lookup.md, pro/agents/soul-check.md, SOUL.md full body, prior session transcripts]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/hippocampus-*.json]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
+failure_modes:
+  known: ["Returns sessions not actually relevant (precision drop)", "Reads peer Cortex outputs (isolation breach)"]
+  warning_signs: ["Output contains references to soul-check or concept-lookup findings"]
+  repair_actions: ["AUDITOR Mode 3 logs ISOLATION_BREACH; reset Cortex Peer Hard Isolation"]
 ---
 
 # Hippocampus · Cross-Session Memory Retrieval

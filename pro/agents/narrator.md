@@ -3,6 +3,25 @@ type: router-internal-template
 description: "ROUTER-INTERNAL TEMPLATE, NOT A SUBAGENT. Cortex narrator composition guide read by ROUTER at Step 7.5 — wraps Summary Report substantive claims with signal_id citations to prevent confabulation (Gazzaniga left-brain-interpreter failure mode). Invoked AFTER REVIEWER Final Review and BEFORE the Summary Report is shown to the user. Read-only. Citation discipline is self-checked inline by ROUTER (the previous separate narrator-validator subagent was REMOVED in R-1.8.0-011 Option A pivot). v1.8.0."
 tools: [Read]
 model: opus
+id: agent-narrator
+version: "1.0.0"
+classification: {function: specify, target_object: "Summary Report narrator citation discipline template (ROUTER-internal)", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: deprecated}
+operating_hypothesis: |
+  Given a Draft Summary Report + [COGNITIVE CONTEXT], ROUTER reads this template
+  at Step 7.5 to wrap substantive claims with [source:signal_id] citations within
+  low risk of confabulating signals not in input (v1.8.0 carved out the separate
+  narrator-validator subagent — citation discipline now self-checked inline).
+context_manifest:
+  source_of_truth: [Draft Summary Report, cognitive_context block]
+  supporting: [pro/CLAUDE.md §narrator-mode]
+  forbidden: [Other agents' thought processes, raw SOUL.md body, raw wiki/ files]
+blast_radius:
+  allowed_scope: [Summary Report citations injected by ROUTER]
+  forbidden_scope: [pro/agents/, decisions/, SOUL.md, wiki/]
+failure_modes:
+  known: ["Cites signal_id not in cognitive_context (hallucination per Gazzaniga left-brain-interpreter)", "Skips citation for substantive claim"]
+  warning_signs: ["Summary Report has substantive sentence with no [source:*] citation"]
+  repair_actions: ["ROUTER self-check: grep every [source:*] against cognitive_context; reject Summary if any unresolved"]
 ---
 
 > ⚠️ **ROUTER-INTERNAL TEMPLATE — NOT A STANDALONE SUBAGENT**

@@ -3,6 +3,24 @@ name: monitor
 description: "Life OS Monitor mode (v1.8.0 pivot). Activated when user runs /monitor slash command. Operations console: shows maintenance task timestamps, recent reports, action items. Helps the user **invoke** maintenance (reindex / backup / auditor-patrol / advisor-monthly / etc) by reading the matching scripts/prompts/<job>.md and executing inline. Does NOT engage in business deliberation, does NOT pull-launch Cortex subagents, does NOT run 上朝/退朝. Cron is gone (v1.8.0 pivot) — monitor mode is purely view-and-invoke."
 tools: Read, Bash, Glob, Grep, Write, Edit
 model: opus
+id: agent-monitor
+version: "1.0.0"
+classification: {function: audit, target_object: "maintenance task state + manual invocation of jobs", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given a /monitor invocation, this agent should show maintenance overdue + recent
+  reports, then on user 跑 X command read scripts/prompts/X.md and execute, within
+  low risk of engaging in business deliberation while in monitor mode.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, scripts/prompts/]
+  supporting: [_meta/inbox/notifications.md, _meta/eval-history/]
+  forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, pro/agents/archiver.md (monitor is OPS, not business)]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/monitor-*.json, outputs from invoked job prompts]
+  forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/]
+failure_modes:
+  known: ["Engages in business deliberation while in monitor mode (scope creep)", "Tries to run retired cron jobs"]
+  warning_signs: ["Output triages user message into PLANNER/REVIEWER path"]
+  repair_actions: ["Re-prompt: 'You are in monitor mode; redirect business questions to ROUTER triage'"]
 ---
 
 # Monitor · Life OS 控制台 subagent

@@ -3,6 +3,24 @@ name: council
 description: "Cross-domain debate council. Activated when domain conclusions seriously conflict or user requests structured debate. The dispatcher moderates; conflicting domains debate in 3 structured rounds."
 tools: Read, Grep, Glob
 model: opus
+id: agent-council
+version: "1.0.0"
+classification: {function: diagnose, target_object: "cross-domain debate moderation (3 rounds)", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given 2+ domain reports with score diff ≥ 3 OR user-requested debate, this
+  agent should moderate 3 rounds of structured debate (each domain sees only
+  opposing position summary, not full report) within low risk of position leakage.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md]
+  supporting: [SOUL.md, the 2+ conflicting domain reports (summary only)]
+  forbidden: [other domain agents' full thought processes, pro/agents/reviewer.md]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/council-*.json]
+  forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/]
+failure_modes:
+  known: ["Leaks full report content between debating positions (information isolation breach)", "Converges to consensus too fast without 3 rounds"]
+  warning_signs: ["Round 2 position mirrors Round 1 opposing argument verbatim"]
+  repair_actions: ["Restart with stricter summary-only passing"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

@@ -3,6 +3,25 @@ name: infra
 description: "INFRA domain analyst. Health management, living environment, digital infrastructure, life routines. The body is the most important infrastructure."
 tools: Read, Grep, Glob, Bash
 model: opus
+id: agent-infra
+version: "1.0.0"
+classification: {function: diagnose, target_object: "health + living environment + digital infrastructure + life routines", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: high, lifecycle_stage: active}
+operating_hypothesis: |
+  Given a dispatched infra subject (R2 health risk-domain per references/risk-domains.md
+  when health subject involved), this agent should produce a domain report with
+  explicit "consult medical professional" notes for any health subject within HIGH
+  risk per R2.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, references/domains.md, references/risk-domains.md, SOUL.md]
+  supporting: [wiki/INDEX.md (health/infra entries), decisions/]
+  forbidden: [other domain agents, pro/agents/reviewer.md]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/infra-*.json, _meta/runtime/<sid>/infra-report.md]
+  forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside infra domain]
+failure_modes:
+  known: ["Gives medical advice without 'consult medical professional' note (R2 violation)", "Approves med/procedure change without R2 5-requirement gate"]
+  warning_signs: ["Report says 'take X medication' / 'do procedure' without disclaimer"]
+  repair_actions: ["AUDITOR logs F10 + R2 violation", "REVIEWER veto"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

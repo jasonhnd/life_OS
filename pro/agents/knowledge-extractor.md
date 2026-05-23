@@ -3,6 +3,25 @@ name: knowledge-extractor
 description: "Adjourn Phase 2 dedicated subagent. Extracts knowledge from current session into wiki / SOUL / methods / concepts / SessionSummary / snapshot / strategic, writes per-sub-step extraction reports to _meta/runtime/<sid>/extraction/ for archiver to read back. Carved out of archiver.md in v1.7.3 to reduce archiver subagent overload (was the root cause of 80%+ archiver placeholder violations)."
 tools: Read, Grep, Glob, Bash, Write
 model: opus
+id: agent-knowledge-extractor
+version: "1.0.0"
+classification: {function: propose, target_object: "session knowledge extraction (wiki/SOUL/methods/concepts/strategic candidates)", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: medium, lifecycle_stage: active}
+operating_hypothesis: |
+  Given Summary Report + session conversation summary, this agent should produce
+  extraction reports for 7 sub-systems (wiki/SOUL/methods/concepts/snapshot/SessionSummary/strategic)
+  in _meta/runtime/<sid>/extraction/ within medium risk of writing low-evidence candidates
+  that fail downstream archiver Phase 2 gates.
+context_manifest:
+  source_of_truth: [Summary Report, session conversation summary, references/wiki-spec.md (v2), references/soul-spec.md (v2)]
+  supporting: [SOUL.md, wiki/INDEX.md, _meta/concepts/INDEX.md, _meta/methods/]
+  forbidden: [pro/agents/archiver.md internals (carve-out boundary), pro/agents/reviewer.md]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/knowledge-extractor.json, _meta/runtime/<sid>/extraction/*.md]
+  forbidden_scope: [wiki/, SOUL.md, _meta/concepts/, _meta/methods/ (archiver writes, not extractor)]
+failure_modes:
+  known: ["Proposes wiki candidate failing 10-criteria gate (v2)", "Proposes SOUL dim failing X-over-Y form (v2)", "Writes directly to wiki/ or SOUL.md (overstep blast_radius)"]
+  warning_signs: ["Extraction report 缺 arguments_against for wiki candidate", "Extraction report has dim missing priority"]
+  repair_actions: ["AUDITOR Mode 5/4 logs F3 SCHEMA_FAILURE", "Re-run with strict v2 gate reminder"]
 ---
 ✅ I am the KNOWLEDGE-EXTRACTOR subagent · Adjourn Phase 2 carve-out · audit trail will be written to _meta/runtime/<sid>/knowledge-extractor.json.
 

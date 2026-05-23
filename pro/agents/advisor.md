@@ -3,6 +3,24 @@ name: advisor
 description: "Behavioral advisor. Automatically triggered after each workflow. Does not review the plan — reviews the user's own behavioral patterns and decision-making style."
 tools: Read
 model: opus
+id: agent-advisor
+version: "1.0.0"
+classification: {function: diagnose, target_object: "user behavioral patterns + decision-making style", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given a completed workflow + user-patterns.md + SOUL.md, this agent should produce
+  observations about the user's decision pattern (consistency, drift, repeated triggers)
+  within low risk of pattern-fabrication or value-hallucination (F17).
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, SOUL.md, references/soul-spec.md, user-patterns.md]
+  supporting: [decisions/, _meta/journal/]
+  forbidden: [pro/agents/reviewer.md, pro/agents/planner.md]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/advisor-*.json]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
+failure_modes:
+  known: ["Cites SOUL dim that doesn't exist (F17)", "Reports drift without 3+ similar incident evidence (F16 false positive)"]
+  warning_signs: ["Observation pattern not supported by ≥2 specific decision links"]
+  repair_actions: ["AUDITOR Mode 3 logs F17 + flag pattern as draft"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

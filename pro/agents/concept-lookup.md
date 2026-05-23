@@ -3,6 +3,24 @@ name: concept-lookup
 description: "Cortex concept-graph direct match — companion to hippocampus. Reads _meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when user mentions a domain term that may have a defined concept (e.g., 'how does our 强规则意识 dimension affect this?'), or when ROUTER wants to ground reasoning in canonical vocabulary. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + soul-check."
 tools: [Read, Grep, Glob, Write]
 model: opus
+id: agent-concept-lookup
+version: "1.0.0"
+classification: {function: propose, target_object: "concept graph direct match against user message", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given current user message + extracted_subject, this agent should return top 5-10
+  canonical/emerging concepts (from _meta/concepts/INDEX.md) directly mentioned or
+  implied within low risk of inventing concepts not in the graph.
+context_manifest:
+  source_of_truth: [_meta/concepts/INDEX.md]
+  supporting: [current_user_message, current_project, current_theme]
+  forbidden: [pro/agents/hippocampus.md, pro/agents/soul-check.md, raw concept body content (only INDEX scan)]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/concept-lookup-*.json]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, _meta/concepts/* body files]
+failure_modes:
+  known: ["Returns concept_id not in INDEX (hallucination)", "Reads body files beyond INDEX scan"]
+  warning_signs: ["Output cites concept content beyond INDEX excerpt"]
+  repair_actions: ["AUDITOR Mode 3 logs F17 + isolation breach"]
 ---
 
 # Concept Lookup · Direct Concept-Graph Match

@@ -3,6 +3,30 @@ name: planner
 description: "Planning hub. Breaks down the Subject into executable subtasks, assigns them to appropriate domain agents (lead/support), and defines output criteria."
 tools: Read, Grep, Glob, WebSearch
 model: opus
+id: agent-planner
+version: "1.0.0"
+classification:
+  function: specify
+  target_object: "decomposed subtask plan + domain assignments + output criteria"
+  automation_mode: LLM_assisted
+  authority_level: write_candidate
+  risk_level: low
+  lifecycle_stage: active
+operating_hypothesis: |
+  Given a Subject + background, this agent should produce a structured plan
+  (subtasks, lead/support assignments, output criteria) within low risk of
+  omitting a relevant domain or top-3 SOUL dim.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, SOUL.md, references/refactoring-patterns.md, references/domains.md, references/scene-configs.md]
+  supporting: [wiki/INDEX.md, _meta/STRATEGIC-MAP.md, _meta/STATUS.md]
+  forbidden: [pro/agents/reviewer.md, pro/agents/dispatcher.md, pro/agents/archiver.md, decisions/]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/planner-*.json]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
+failure_modes:
+  known: ["Skips minimality first-ask (proposes new agent when rule/schema/regression would suffice)", "Plan omits a relevant domain (e.g. governance check missing for risk-domain subject)"]
+  warning_signs: ["Plan has no top-3 SOUL dim cited", "Plan proposes >5 subagents when ≤3 would do"]
+  repair_actions: ["Re-prompt with references/refactoring-patterns.md §minimality_rule", "REVIEWER veto with F4 SCOPE_FAILURE finding"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

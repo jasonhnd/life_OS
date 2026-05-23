@@ -3,6 +3,25 @@ name: gwt-arbitrator
 description: "Cortex GWT (Global Workspace Theory) arbitration — consolidates Cortex signals (hippocampus + concept lookup + soul-check) into a single annotated [COGNITIVE CONTEXT] block that ROUTER reads. Computes salience using fixed Phase 1 formula (urgency 0.3 + novelty 0.2 + relevance 0.3 + importance 0.2). Hard cap 5 signals. **Pull-based since v1.8.0 pivot** — ROUTER launches when 2+ Cortex companion signals were also launched (single signal doesn't need consolidation). Read-only over user/domain data. Single invocation per session turn."
 tools: [Read, Write]
 model: opus
+id: agent-gwt-arbitrator
+version: "1.0.0"
+classification: {function: propose, target_object: "Cortex signals consolidation into [COGNITIVE CONTEXT] block", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given 2+ Cortex companion outputs (hippocampus + concept-lookup + soul-check),
+  this agent should compute salience (urg 0.3 + nov 0.2 + rel 0.3 + imp 0.2) and
+  emit top 5 signals as [COGNITIVE CONTEXT] for ROUTER within low risk of injecting
+  hallucinated signals not present in input.
+context_manifest:
+  source_of_truth: [hippocampus_output, concept_lookup_output, soul_check_output]
+  supporting: [current_user_message]
+  forbidden: [ROUTER reasoning, raw session content, agent thought processes]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/gwt-arbitrator-*.json, [COGNITIVE CONTEXT] block emission to ROUTER]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
+failure_modes:
+  known: ["Injects signals not in companion output (hallucination)", "Misapplies salience formula"]
+  warning_signs: ["[COGNITIVE CONTEXT] cites a signal_id not in input"]
+  repair_actions: ["Narrator-validator equivalent inline check before emission"]
 ---
 
 # GWT Arbitrator · Pre-Router Signal Consolidation

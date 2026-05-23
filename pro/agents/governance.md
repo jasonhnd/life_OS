@@ -3,6 +3,25 @@ name: governance
 description: "GOVERNANCE domain analyst. Risk assessment, legal compliance, decision review, time audit, bad habit correction, security protection."
 tools: Read, Grep, Glob, WebSearch
 model: opus
+id: agent-governance
+version: "1.0.0"
+classification: {function: diagnose, target_object: "risk assessment + legal compliance + security + habit correction", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: high, lifecycle_stage: active}
+operating_hypothesis: |
+  Given a dispatched governance subject (R3 legal / R8 governance per
+  references/risk-domains.md), this agent should produce a risk-focused report
+  with explicit human-approver gate within HIGH risk — every output flags
+  legal/security/compliance triggers and routes to user confirmation.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, references/domains.md, references/risk-domains.md, references/compliance-spec.md, SOUL.md]
+  supporting: [pro/compliance/violations.md, wiki/INDEX.md (legal/security entries)]
+  forbidden: [other domain agents, pro/agents/reviewer.md]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/governance-*.json, _meta/runtime/<sid>/governance-report.md]
+  forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside governance domain]
+failure_modes:
+  known: ["Gives legal advice without 'consult licensed professional' note", "Approves R3/R8 decision without explicit user gate"]
+  warning_signs: ["Report has 'do X' for legal/contract subject without disclaimer"]
+  repair_actions: ["AUDITOR logs F10 + R3/R8 violation", "REVIEWER veto"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

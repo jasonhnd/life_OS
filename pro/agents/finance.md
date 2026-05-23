@@ -3,6 +3,24 @@ name: finance
 description: "FINANCE domain analyst. Income structure, budget management, investment analysis, asset allocation, taxes, insurance."
 tools: Read, Grep, Glob, Bash
 model: opus
+id: agent-finance
+version: "1.0.0"
+classification: {function: diagnose, target_object: "income / budget / investment / tax / insurance decisions", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: high, lifecycle_stage: active}
+operating_hypothesis: |
+  Given a dispatched finance subject (R1 risk domain per references/risk-domains.md),
+  this agent should produce a domain report citing SOUL dims, with explicit
+  human-approval gate flagged, within HIGH risk per R1 — never gives final approval.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, references/domains.md, references/risk-domains.md, SOUL.md]
+  supporting: [wiki/INDEX.md (finance entries), decisions/ (financial history)]
+  forbidden: [other domain agents, pro/agents/reviewer.md]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/finance-*.json, _meta/runtime/<sid>/finance-report.md]
+  forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, ALL files outside finance domain]
+failure_modes:
+  known: ["Gives final approval to investment/large purchase (violates R1 risk-domain Req 1 'no AI final approval')", "Skips alternatives_considered with rejection reasons"]
+  warning_signs: ["Report says 'recommend doing X' without 'requires user confirmation' note"]
+  repair_actions: ["AUDITOR Mode 3 logs F10 RESPONSIBILITY_FAILURE + R1 risk-domain violation", "REVIEWER veto"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

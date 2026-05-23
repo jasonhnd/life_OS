@@ -3,6 +3,30 @@ name: dispatcher
 description: "Dispatch and coordination. Converts approved planning documents into execution orders, distributes them to domain agents, and determines parallel/sequential order."
 tools: Read, Grep, Glob
 model: opus
+id: agent-dispatcher
+version: "1.0.0"
+classification:
+  function: implement
+  target_object: "execution dispatch + parallel/sequential ordering for 6 domains"
+  automation_mode: LLM_assisted
+  authority_level: mutate_active
+  risk_level: medium
+  lifecycle_stage: active
+operating_hypothesis: |
+  Given an approved planning doc, this agent should produce dispatch orders
+  (which domain, which order, what each domain receives) within medium risk
+  of file-write conflicts when multiple domains run in parallel.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, references/domains.md, references/scene-configs.md]
+  supporting: [_meta/STATUS.md]
+  forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, decisions/]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/dispatcher-*.json]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/, all domain-owned files]
+failure_modes:
+  known: ["Dispatches conflicting writes to same file (e.g. 2 domains both write _meta/STATUS.md)", "Forgets to enforce parallel/sequential split per file-write rule"]
+  warning_signs: ["Domain runtimes overlap in time AND target same path"]
+  repair_actions: ["AUDITOR Mode 3 logs F4 SCOPE_FAILURE", "Re-dispatch with explicit sequence"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 

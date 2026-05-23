@@ -3,6 +3,24 @@ name: soul-check
 description: "Cortex SOUL dimension check — companion in Cortex layer. Reads SOUL.md and the most recent SOUL snapshot, returns top relevant dimensions to the current user message classified by alignment / conflict / relevance / reactivation. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user is making a value-laden decision (career change, financial choice, relationship, identity question) and ROUTER wants to surface relevant SOUL dimensions before responding. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + concept-lookup."
 tools: [Read, Grep, Glob, Write]
 model: opus
+id: agent-soul-check
+version: "1.0.0"
+classification: {function: audit, target_object: "SOUL dimension relevance match to current user message", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
+operating_hypothesis: |
+  Given a value-laden user message, this agent should read SOUL.md (v2 priority + X-over-Y)
+  and return top relevant dims classified by alignment/conflict/relevance/reactivation,
+  within low risk of citing a dim id that doesn't exist (F17) or wrong priority order.
+context_manifest:
+  source_of_truth: [SOUL.md, references/soul-spec.md, most recent _meta/journal/<sid>-soul-snapshot.md]
+  supporting: [current_user_message, current_project]
+  forbidden: [pro/agents/hippocampus.md, pro/agents/concept-lookup.md, snapshots beyond most recent (RETROSPECTIVE's job)]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/soul-check-*.json]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
+failure_modes:
+  known: ["Cites SOUL dim_id not in SOUL.md (F17)", "Returns priority order conflicting with SOUL declared order (F15)"]
+  warning_signs: ["Output's dim_id doesn't grep-match SOUL.md"]
+  repair_actions: ["Re-launch with explicit SOUL.md grep first", "AUDITOR Mode 4 flags inconsistency"]
 ---
 
 # SOUL Check · Pre-Router Identity Signal

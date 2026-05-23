@@ -3,6 +3,29 @@ name: router
 description: "Entry router. Handles intent clarification, triage, and routing to appropriate agents. Manages simple requests directly, escalates complex tasks to the planning/review/dispatch pipeline, asks the user whether to launch the strategist for abstract thinking. Entry point for all messages."
 tools: Read, Grep, Glob, WebSearch, Write
 model: opus
+id: agent-router
+version: "1.0.0"
+classification:
+  function: propose
+  target_object: "user message triage + workflow routing"
+  automation_mode: LLM_assisted
+  authority_level: suggest_only
+  risk_level: medium
+  lifecycle_stage: active
+operating_hypothesis: |
+  Given a user message, this agent should produce intent classification + routing
+  decision within medium risk of mis-triaging high-risk-domain subjects per references/risk-domains.md.
+context_manifest:
+  source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, SOUL.md, references/risk-domains.md, references/data-layer.md]
+  supporting: [references/scene-configs.md, themes/*.md, _meta/inbox/notifications.md, _meta/STATUS.md]
+  forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, pro/agents/archiver.md, pro/agents/retrospective.md]
+blast_radius:
+  allowed_scope: [_meta/runtime/<sid>/router-*.json, ~/.claude/lifeos-memory/<key>.json]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, .claude/settings.json, decisions/]
+failure_modes:
+  known: ["Mis-classifies high-risk-domain subject as 'handle directly'", "Skips Cortex when message references prior session", "Confabulates agent path when delegating Task()"]
+  warning_signs: ["Triage doesn't cite risk_level for finance/health/legal/safety", "User asks 'remember' but hippocampus not launched"]
+  repair_actions: ["AUDITOR Mode 3 logs F11 + risk-domain class", "Re-prompt ROUTER with /risk-domain-check"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 
