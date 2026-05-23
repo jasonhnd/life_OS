@@ -1,0 +1,38 @@
+id: rc-forbidden-extension-sh
+description: |
+  Negative fixture: repo contains a `.sh` file outside the gitignored exception list
+  (backup/, .git/, .venv/). This violates v1.8.5 HARD RULE "No .py / .sh files in
+  lifeos repo" (SKILL.md). /verify-release check #8 + AUDITOR Mode 3 forbidden-extensions
+  scenario MUST FAIL on this. If the check reports PASS, the v1.8.5 cleanup has regressed
+  and someone re-introduced executable scripting after hook layer retirement.
+expected_verdict: FAIL
+expected_failure_class: F4_SCOPE_FAILURE
+expected_check: /verify-release check #8 (no .py/.sh in repo) + AUDITOR Mode 3 forbidden-extensions scenario
+introduced_in: v1.8.5 Stage 9
+related_spec: SKILL.md HARD RULE "No .py / .sh files in lifeos repo" (Stage 2 retirement)
+
+input_filesystem_state:
+  files_in_repo:
+    - path: scripts/new-helper.sh
+      contents_excerpt: |
+        #!/usr/bin/env bash
+        # New helper script written after v1.8.5
+        echo "doing something"
+
+  command_check: |
+    find . -type f \( -name '*.py' -o -name '*.sh' \) \
+      -not -path './backup/*' -not -path './.git/*' -not -path './.venv/*'
+
+  expected_command_output: |
+    ./scripts/new-helper.sh
+
+  expected_command_exit_code_per_v1_8_5_rule: 1   # non-empty output = FAIL
+
+expected_finding: |
+  F4 SCOPE_FAILURE: lifeos repo contains 1 forbidden file (.sh) post-v1.8.5
+  hook layer retirement. File: scripts/new-helper.sh.
+  Per SKILL.md HARD RULE "No .py / .sh files in lifeos repo":
+    - This file MUST be deleted
+    - Its logic MUST be moved to .claude/commands/*.md slash command if needed
+    - /verify-release MUST exit 1 until repo returns to 0 .py / 0 .sh state
+  Severity: HIGH (re-introduces retired executable scripting layer).

@@ -1,0 +1,88 @@
+---
+description: Convert a historical pro/compliance/violations.md row into an evals/regression-fixtures/rc-*.yml fixture. Lazy alternative to bulk historic-row conversion (per Stage 9 D7 default). Use when a recurring violation pattern emerges (3+ similar rows) and you want regression test coverage.
+argument-hint: "<violation-row-id-or-timestamp>"
+allowed-tools:
+  - Read
+  - Write
+  - Grep
+  - AskUserQuestion
+---
+
+# /regression-from-violation
+
+Convert a specific row in `pro/compliance/violations.md` into a YAML regression fixture under `evals/regression-fixtures/rc-<descriptor>.yml`. The 7 critical fixtures (4 F-class + 1 forbidden-extension + 2 most-cited historic) shipped in Stage 9; remaining ~70 historical rows use this slash command for lazy conversion as patterns recur.
+
+## Procedure
+
+### 1. Locate the violation row
+```bash
+grep -nE "<timestamp-or-keyword>" pro/compliance/violations.md
+```
+If multiple matches → ask user which row via AskUserQuestion.
+
+### 2. Parse the row
+For v1.8.4 legacy format (6 cols): `| Timestamp | Trigger | Type | Severity | Details | Resolved |`
+For v1.8.5+ format (7 cols): `| Timestamp | Trigger | Type | F-Code | Severity | Details | Resolved |`
+
+Extract:
+- `timestamp`
+- `trigger` (e.g. "上朝", "Adjourn", "Notion sync")
+- `type` (A1/A2/A3/B/C/D/E/F)
+- `f_code` (F1-F17; for legacy, infer per "A-F → F-Code Typical Mappings" table in violations.md)
+- `severity` (P0/P1/P2)
+- `details` (free text describing what happened)
+
+### 3. Generate fixture
+Slug: `rc-<lowercase-descriptor>-<3-digit-sequence>.yml`
+- e.g. `rc-archiver-placeholder-001.yml` for an archiver placeholder violation
+- e.g. `rc-three-lang-sync-miss-002.yml` for second occurrence of 三语 sync miss
+
+Use this template (fill from parsed row):
+
+```yaml
+id: rc-<descriptor>-<N>
+description: |
+  Historic regression converted from pro/compliance/violations.md row dated <timestamp>.
+  Original violation: <details>
+  Pattern recurrence count: <K> times in last 90 days (run AUDITOR Mode 3 to refresh).
+expected_verdict: FAIL
+expected_failure_class: <F1-F17 from row>
+expected_check: <which AUDITOR Mode or slash command should catch this>
+introduced_in: v1.8.5 Stage 9 (lazy conversion)
+related_spec: <links to relevant references/*.md or pro/CLAUDE.md sections>
+
+input_scenario:
+  trigger: <trigger>
+  actual_behavior: <what went wrong, paraphrased from Details>
+  expected_behavior: <what should have happened>
+
+expected_finding: |
+  <F-Code> <FAILURE_CLASS>: <human-readable summary>
+  Severity: <P0/P1/P2>
+  Defense layers that should catch:
+    - Layer 2 (orchestration enforcement): <relevant SKILL.md / pro/CLAUDE.md rule>
+    - Layer 3 (subagent self-check): <relevant agent's frontmatter failure_modes>
+    - Layer 4 (post-hoc audit): AUDITOR Mode <N> scenario
+    - Layer 5 (regression test): this file
+
+historic_context: |
+  Original violation row: pro/compliance/violations.md (timestamp <timestamp>)
+  Incident dossier (if exists): pro/compliance/<incident-file>.md
+```
+
+### 4. Write fixture file via Write tool
+### 5. Update INDEX (optional)
+If `evals/regression-fixtures/INDEX.md` exists, append the new fixture id + 1-line summary.
+
+### 6. Verify
+Run `/run-regression rc-<new-fixture-name>` (when implemented) to confirm the new fixture FAILS as expected.
+
+## When to invoke
+
+- **Pattern detection trigger**: AUDITOR Mode 3 reports same violation class ≥3 times in 30 days → recommend `/regression-from-violation <latest-row>` to add coverage.
+- **Manual review**: User scanning violations.md and spots a pattern worth preventing.
+- **Post-incident**: After resolving a CRITICAL violation, convert to regression to prevent recurrence (F12 DRIFT defense).
+
+## Source attribution
+
+Inspired by eou-foundry `self-evolution/regression/cases/` pattern (rc-f14-* / rc-f15-* / rc-f16-* / rc-f17-* — fixtures generated from F14-F17 incident taxonomy). Adapted for life_OS lazy-conversion model (D7 — 28 fixtures critical-only at ship; remaining via slash command as patterns emerge).
