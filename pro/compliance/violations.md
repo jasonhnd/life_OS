@@ -135,3 +135,4 @@ An entry transitions to `Resolved: true` when all three conditions hold:
 | 2026-05-16T14:11:28+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
 | 2026-05-16T19:36:20+09:00 | CLASS_C | high | archiver | placeholder_phases=1 3 4 | stop-session-verify | open |
 | 2026-05-16T19:55:51+09:00 | CLASS_C | high | archiver | placeholder_phases=1 3 4 | stop-session-verify | open |
+| 2026-05-23T10:39:51+09:00 | CLASS_C | high | archiver | placeholder_phases=1 2 3 4 | stop-session-verify | open |
