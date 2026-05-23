@@ -1,56 +1,65 @@
 name: Tests
 
-# v1.8.1 zero-python pivot: Life OS is now a Claude Code skill made of
-# bash hooks + markdown prompts + agent definitions. The Python tools/
-# package was deleted. CI runs ONLY shell-side checks:
-#   - bash -n syntax check on every tracked .sh
-#   - tests/hooks/*.sh integration suite (8 suites, ~85 assertions)
-#   - scripts/check-spec-drift.sh
-#   - hook regex smoke test
+# v1.8.5 pivot: 0 .py + 0 .sh policy. All previous bash CI logic moved to
+# .claude/commands/*.md slash commands invoked via claude --execute.
 #
-# Matrix policy (Wave 2 tuned):
-#   - push to main      → ubuntu only (fast feedback, ~2 min)
+# Per D2 (strict): inline bash `run:` blocks count as .sh and are removed.
+# This workflow uses only:
+#   - Actions library calls (actions/checkout, anthropics/claude-code-base-action)
+#   - Single-line `run:` for the claude CLI invocation
+#
+# No bash control flow, no scripts, no .sh references.
+#
+# Matrix policy (unchanged from v1.8.4):
+#   - push to main      → ubuntu only (fast feedback)
 #   - pull_request      → ubuntu + macOS + windows (cross-platform sanity)
 #   - workflow_dispatch → ubuntu + macOS + windows (manual full-matrix)
-#
-# Public repos get unlimited Actions minutes, but limiting push-to-main to
-# ubuntu still saves ~3× wall time and keeps the dashboard green-fast.
 
 on:
   push:
-    branches: [main]
+    branches: [main, v1.8.5-cleanup-hardening]
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 jobs:
-  # Fast-path: every push to main runs only ubuntu (under 2 min wall)
-  bash-tests-ubuntu:
-    name: bash-tests (ubuntu-latest)
+  # Fast-path: every push to main runs only ubuntu
+  eval-ubuntu:
+    name: eval (ubuntu-latest)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - uses: actions/checkout@v4
-      - name: Run bash CI suite
-        run: bash .github/workflows/_bash-ci.sh
+      - uses: anthropics/setup-claude-code@v1
+        with:
+          anthropic_api_key: ${{ secrets.CLAUDE_API_KEY }}
+      - name: Run eval suite
+        run: claude --execute "/run-eval"
+      - name: Check spec drift
+        run: claude --execute "/check-spec-drift --strict"
+      - name: Verify 0 .py / 0 .sh
+        run: claude --execute "/verify-no-py-sh"
 
   # Cross-platform sanity: PRs and manual dispatches verify macOS + windows
-  bash-tests-cross:
-    name: bash-tests (${{ matrix.os }})
+  eval-cross:
+    name: eval (${{ matrix.os }})
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
-    defaults:
-      run:
-        # windows-latest's default shell is PowerShell; force bash (MSYS2
-        # ships with Git for Windows on the runner).
-        shell: bash
     steps:
       - uses: actions/checkout@v4
-      - name: Run bash CI suite
-        run: bash .github/workflows/_bash-ci.sh
+      - uses: anthropics/setup-claude-code@v1
+        with:
+          anthropic_api_key: ${{ secrets.CLAUDE_API_KEY }}
+      - name: Run eval suite
+        run: claude --execute "/run-eval"
+
+# NOTE: anthropics/setup-claude-code@v1 is a placeholder action name. The
+# actual action published by Anthropic for Claude CLI installation may differ
+# (e.g. anthropics/claude-code-base-action). Verify and adjust before merging.
+# CLAUDE_API_KEY secret must be set in GitHub repo settings per D5.
+#
+# /verify-no-py-sh is a minimal slash command to be added in Stage 8 that
+# greps the repo tree for .py / .sh and fails CI if any found.
