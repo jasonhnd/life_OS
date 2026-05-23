@@ -6,6 +6,49 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.6] - 2026-07-16 - md-only enforcement (No .py/.sh/.yml/.json in repo)
+
+```yaml
+---
+version: 1.8.6
+date: 2026-07-16
+type: patch
+breaking_changes:
+  - "Audit trail format R12 -> R13: _meta/runtime/<sid>/*.json -> *.md (markdown with YAML frontmatter)"
+  - "14 evals/regression-fixtures/rc-*.yml -> rc-*.md (yaml preserved as code block inside md)"
+  - "Decision records: _meta/incidents/<id>.no-change.yml -> .md"
+  - "Memory KV: ~/.claude/lifeos-memory/<key>.json -> <key>.md"
+  - "GitHub Actions DELETED: .github/workflows/test.yml removed; CI moves to user-side /run-eval"
+  - "HARD RULE upgrade: 'No .py/.sh' -> 'No .py/.sh/.yml/.json' (gitignored .claude/settings*.json exception remains)"
+new_features:
+  - "audit-trail-spec R13: md trail with YAML frontmatter — same parseability, zero .json files"
+  - "/verify-release check #8 expanded: 0 .py/.sh/.yml/.yaml/.json in repo"
+fixes:
+  - "Drive sync phantom modifications post-v1.8.5 cleared (git reset --hard origin/main + renormalize)"
+alternatives_considered:
+  - option: "Keep .json/.yml for machine parseability"
+    rejected_because: "User HARD RULE 'lifeos不需要md之外的任何形式的文件' absolute; md with YAML frontmatter satisfies both"
+  - option: "Keep .github/workflows/test.yml since GitHub requires yml"
+    rejected_because: "No exception for repo-tracked files; CI moves to user-side /run-eval"
+  - option: "Bulk-migrate 70+ historical _meta/runtime/*.json trails to md"
+    rejected_because: "Lazy migration sufficient; new trails v1.8.6+ are .md, old stay legacy R12"
+ordering_dependency:
+  blocked_by: [v1.8.5]
+  must_coexist_with: [audit-trail-spec R13, fixture conversion, SKILL.md HARD RULE upgrade]
+regression_cases_added: []
+---
+```
+
+> **md-only enforcement.** v1.8.6 extends v1.8.5's "No .py/.sh" to "No .py/.sh/.yml/.json" per user instruction. All structured data (audit trails, fixtures, decision records, memory KV) move from .json/.yml to .md with YAML frontmatter. GitHub Actions dropped; CI is user-side `/run-eval`.
+
+### Migration
+
+- Existing `_meta/runtime/<sid>/*.json` (v1.8.5-) remain readable as legacy R12; v1.8.6+ trails MUST be `.md` R13.
+- 14 regression fixtures already converted (`rc-*.yml` → `rc-*.md`).
+- `.github/workflows/` deleted; user runs `/run-eval` locally pre-release.
+
+---
+
 ## [1.8.5] - 2026-07-15 - Hook Retirement + EOU-Hardening (largest single release in life_OS history)
 
 ```yaml

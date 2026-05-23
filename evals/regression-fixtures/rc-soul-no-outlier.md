@@ -1,3 +1,11 @@
+﻿---
+# Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
+# Schema unchanged; only file extension changed.
+---
+
+# Regression Fixture (md format · v1.8.6+)
+
+```yaml
 id: rc-soul-no-outlier
 description: |
   Negative fixture: SOUL.md soul_reference_set missing `outlier` key.
@@ -7,7 +15,7 @@ expected_verdict: FAIL
 expected_failure_class: F3_SCHEMA_FAILURE
 expected_check: C5 (reference_set 5 role slots present)
 introduced_in: v1.8.5 Stage 4
-related_spec: references/soul-spec.md v2 §"Required Schema Constraints §5"
+related_spec: references/soul-spec.md v2 ﾂｧ"Required Schema Constraints ﾂｧ5"
 
 input_soul_md: |
   soul_reference_set:
@@ -15,7 +23,7 @@ input_soul_md: |
     anti_reference: ["bob influencer of Y"]
     boundary_case: ["case Z"]
     mainstream_baseline: ["typical tech worker"]
-    # MISSING outlier key — this is the regression bait
+    # MISSING outlier key 窶・this is the regression bait
 
   ---
   - id: dv-truth-over-comfort
@@ -54,3 +62,5 @@ input_soul_md: |
 
 expected_finding: |
   F3 SCHEMA_FAILURE: soul_reference_set missing key 'outlier'
+
+```

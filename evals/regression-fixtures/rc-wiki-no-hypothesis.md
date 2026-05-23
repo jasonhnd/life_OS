@@ -1,3 +1,11 @@
+﻿---
+# Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
+# Schema unchanged; only file extension changed.
+---
+
+# Regression Fixture (md format · v1.8.6+)
+
+```yaml
 id: rc-wiki-no-hypothesis
 description: |
   Negative fixture: wiki entry missing the v2 required `operating_hypothesis`
@@ -8,7 +16,7 @@ expected_verdict: FAIL
 expected_failure_class: F3_SCHEMA_FAILURE
 expected_check: W1 (every entry has 7 v2 required field groups)
 introduced_in: v1.8.5 Stage 5
-related_spec: references/wiki-spec.md v2 §"v2 HARD Schema Constraints §1"
+related_spec: references/wiki-spec.md v2 ﾂｧ"v2 HARD Schema Constraints ﾂｧ1"
 
 input_wiki_entry:
   path: wiki/wn-example-no-hypothesis.md
@@ -24,7 +32,7 @@ input_wiki_entry:
       authority_level: suggest_only
       risk_level: high
       lifecycle_stage: active
-    # MISSING operating_hypothesis field — regression bait
+    # MISSING operating_hypothesis field 窶・regression bait
     context_manifest:
       source_of_truth: ["Japan civil code book 5"]
       supporting: []
@@ -43,7 +51,7 @@ input_wiki_entry:
       repair_actions: []
     arguments_against: |
       This entry might be wrong if Japanese trust law changes after 2026.
-      Counter-evidence: any 2027+ amendment to 民法 887 affecting trust eligibility.
+      Counter-evidence: any 2027+ amendment to 豌第ｳ・887 affecting trust eligibility.
     confidence: 0.6
     evidence_count: 3
     challenges: 0
@@ -58,3 +66,5 @@ input_wiki_entry:
 
 expected_finding: |
   F3 SCHEMA_FAILURE: wiki/wn-example-no-hypothesis.md missing v2 field: operating_hypothesis
+
+```

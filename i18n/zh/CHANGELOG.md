@@ -6,6 +6,49 @@
 
 ---
 
+## [1.8.6] - 2026-07-16 - md-only 强制（repo 内禁 .py/.sh/.yml/.json）
+
+```yaml
+---
+version: 1.8.6
+date: 2026-07-16
+type: patch
+breaking_changes:
+  - "审计 trail format R12 -> R13：_meta/runtime/<sid>/*.json -> *.md（markdown + YAML frontmatter）"
+  - "14 个 evals/regression-fixtures/rc-*.yml -> rc-*.md（yaml 作为 md 内 code block 保留）"
+  - "决策记录：_meta/incidents/<id>.no-change.yml -> .md"
+  - "Memory KV：~/.claude/lifeos-memory/<key>.json -> <key>.md"
+  - "GitHub Actions 删除：.github/workflows/test.yml 移除；CI 移到 user-side /run-eval"
+  - "HARD RULE 升级：'No .py/.sh' -> 'No .py/.sh/.yml/.json'（.claude/settings*.json 平台必需 + gitignored 例外保留）"
+new_features:
+  - "audit-trail-spec R13：md trail + YAML frontmatter —— 同样的可解析性，0 .json"
+  - "/verify-release check #8 扩展：repo 内 0 个 .py/.sh/.yml/.yaml/.json"
+fixes:
+  - "v1.8.5 后 Drive 同步 phantom modifications 清理（git reset --hard origin/main + renormalize）"
+alternatives_considered:
+  - option: "保留 .json/.yml 用于机器可解析"
+    rejected_because: "用户 HARD RULE 'lifeos不需要md之外的任何形式的文件' 绝对；md 含 YAML frontmatter 两者都满足"
+  - option: "保留 .github/workflows/test.yml 因为 GitHub 要求 yml"
+    rejected_because: "无 repo-tracked 文件例外；CI 移到 user-side /run-eval"
+  - option: "批量迁移 70+ 历史 _meta/runtime/*.json trails 到 md"
+    rejected_because: "lazy 迁移足够；v1.8.6+ 新 trail 是 .md，旧的保留 legacy R12"
+ordering_dependency:
+  blocked_by: [v1.8.5]
+  must_coexist_with: [audit-trail-spec R13, fixture 转换, SKILL.md HARD RULE 升级]
+regression_cases_added: []
+---
+```
+
+> **md-only 强制。** v1.8.6 按用户指令把 v1.8.5 "No .py/.sh" 扩展到 "No .py/.sh/.yml/.json"。所有结构化数据（audit trail / fixtures / 决策记录 / memory KV）从 .json/.yml 转 .md（带 YAML frontmatter）。GitHub Actions 移除；CI 是 user-side `/run-eval`。
+
+### 迁移
+
+- 现有 `_meta/runtime/<sid>/*.json`（v1.8.5-）保留可读 legacy R12；v1.8.6+ trail 必须 `.md` R13
+- 14 regression fixtures 已转换（`rc-*.yml` → `rc-*.md`）
+- `.github/workflows/` 删除；用户 release 前本地跑 `/run-eval`
+
+---
+
 ## [1.8.5] - 2026-07-15 - Hook 退役 + EOU-Hardening（life_OS 历史上最大单次 release）
 
 ```yaml

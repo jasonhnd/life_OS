@@ -1,3 +1,11 @@
+﻿---
+# Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
+# Schema unchanged; only file extension changed.
+---
+
+# Regression Fixture (md format · v1.8.6+)
+
+```yaml
 id: rc-confabulated-path
 description: |
   Historic regression: agent (most commonly ROUTER or REVIEWER) cites a file path
@@ -7,24 +15,24 @@ description: |
   AUDITOR Mode 3 cross-check against /check-spec-drift MUST FAIL on this.
 expected_verdict: FAIL
 expected_failure_class: F12_DRIFT_FAILURE
-expected_check: AUDITOR Mode 3 confabulation scenario · /check-spec-drift broken-path scanner
+expected_check: AUDITOR Mode 3 confabulation scenario ﾂｷ /check-spec-drift broken-path scanner
 introduced_in: v1.8.5 Stage 9 (Day 25 historic incident conversion)
-related_spec: .claude/commands/check-spec-drift.md · references/failure-taxonomy.md F12
+related_spec: .claude/commands/check-spec-drift.md ﾂｷ references/failure-taxonomy.md F12
 
 input_agent_output:
   scenario: "ROUTER referencing path in triage output"
   output: |
     "I'll launch the retrospective subagent per the protocol in
-    `_meta/roles/CLAUDE.md § 0 Pre-Court Preparation`."
+    `_meta/roles/CLAUDE.md ﾂｧ 0 Pre-Court Preparation`."
 
   fact_check:
     - check: "Does _meta/roles/CLAUDE.md exist?"
-      result: "NO — path is confabulated"
-    - check: "Does any file mention 'Pre-Court Preparation' as a § 0 heading?"
-      result: "NO — heading is confabulated"
+      result: "NO 窶・path is confabulated"
+    - check: "Does any file mention 'Pre-Court Preparation' as a ﾂｧ 0 heading?"
+      result: "NO 窶・heading is confabulated"
 
 expected_finding: |
-  F12 DRIFT_FAILURE: ROUTER cited file path `_meta/roles/CLAUDE.md § 0 Pre-Court
+  F12 DRIFT_FAILURE: ROUTER cited file path `_meta/roles/CLAUDE.md ﾂｧ 0 Pre-Court
   Preparation` that does not exist in repo. Repair:
     (a) ROUTER MUST NOT cite paths without first verifying via Read tool
     (b) /check-spec-drift cron + AUDITOR Mode 3 detect after-the-fact
@@ -35,3 +43,5 @@ defense_layers_relevant_to_this:
   - "Subagent Audit Trail Spec R12: tool_calls array MUST log every Read attempt"
   - "AUDITOR Mode 3 scenario: scan output_summary for path references not in tool_calls"
   - "/check-spec-drift: broken-path scanner across all active files"
+
+```

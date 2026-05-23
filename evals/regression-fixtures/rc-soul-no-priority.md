@@ -1,3 +1,11 @@
+﻿---
+# Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
+# Schema unchanged; only file extension changed.
+---
+
+# Regression Fixture (md format · v1.8.6+)
+
+```yaml
 id: rc-soul-no-priority
 description: |
   Negative fixture: SOUL.md dim missing required `priority` field.
@@ -7,7 +15,7 @@ expected_verdict: FAIL
 expected_failure_class: F3_SCHEMA_FAILURE
 expected_check: C2 (Priority total order {1..N} no gaps no ties)
 introduced_in: v1.8.5 Stage 4
-related_spec: references/soul-spec.md v2 §"Required Schema Constraints §2"
+related_spec: references/soul-spec.md v2 ﾂｧ"Required Schema Constraints ﾂｧ2"
 
 input_soul_md: |
   soul_reference_set:
@@ -31,7 +39,7 @@ input_soul_md: |
 
   - id: dv-long-term-over-short-term
     formulation: "Long-term flourishing over short-term comfort"
-    # MISSING priority field — this is the regression bait
+    # MISSING priority field 窶・this is the regression bait
     canonical_or_personal: canonical
     lifecycle_stage: confirmed
     inclusion_test:
@@ -54,3 +62,5 @@ input_soul_md: |
 
 expected_finding: |
   F3 SCHEMA_FAILURE: dim 'dv-long-term-over-short-term' missing priority field
+
+```

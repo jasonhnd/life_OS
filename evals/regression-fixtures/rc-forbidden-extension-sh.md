@@ -1,3 +1,11 @@
+﻿---
+# Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
+# Schema unchanged; only file extension changed.
+---
+
+# Regression Fixture (md format · v1.8.6+)
+
+```yaml
 id: rc-forbidden-extension-sh
 description: |
   Negative fixture: repo contains a `.sh` file outside the gitignored exception list
@@ -36,3 +44,5 @@ expected_finding: |
     - Its logic MUST be moved to .claude/commands/*.md slash command if needed
     - /verify-release MUST exit 1 until repo returns to 0 .py / 0 .sh state
   Severity: HIGH (re-introduces retired executable scripting layer).
+
+```

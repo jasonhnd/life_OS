@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.8.5"
+version: "1.8.6"
 commit_sha: "PLACEHOLDER"
 install_date: "PLACEHOLDER"
 description: "A personal decision engine with multiple independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
@@ -349,13 +349,29 @@ Platform auto-detects → reads `pro/CLAUDE.md` (Claude) / `pro/GEMINI.md` (Gemi
 
 ## v1.8.5 NEW HARD RULES (per RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`)
 
-### HARD RULE · No .py / .sh files in lifeos repo (Stage 2)
+### HARD RULE · No .py / .sh / .yml / .json files in lifeos repo (v1.8.5 Stage 2 + v1.8.6 expansion)
 
-After v1.8.5 hook-layer retirement, the repo MUST contain ZERO `.py` and `.sh` files (excluding `backup/`, `.git/`, `.venv/`). All executable logic moves to `.claude/commands/*.md` slash commands invoked via Claude CLI / Codex CLI / Gemini CLI.
+After v1.8.5 hook-layer retirement + v1.8.6 md-only enforcement, the repo MUST contain **ZERO `.py`, `.sh`, `.yml`, `.json` files** (excluding `backup/`, `.git/`, `.venv/`, `.gitignore`, `.gitattributes`).
 
-**Verification**: `find . -type f \( -name '*.py' -o -name '*.sh' \) -not -path './backup/*' -not -path './.git/*' -not -path './.venv/*'` MUST return empty. `/verify-release` check #8 enforces.
+All executable logic moves to `.claude/commands/*.md` slash commands. All structured data moves to `.md` files with YAML frontmatter (frontmatter inside `.md` is allowed — only standalone `.yml` / `.json` files are forbidden).
 
-**Violation**: F4 SCOPE_FAILURE (re-introducing executable scripting after v1.8.5 retirement).
+**v1.8.6 expansion rationale**:
+- Audit trails (`_meta/runtime/<sid>/*.json` → `*.md`): R12 → R13 schema. Same machine-parseable YAML frontmatter, just wrapped in `.md`.
+- Regression fixtures (`evals/regression-fixtures/*.yml` → `*.md`): v1.8.5 Stage 9 fixtures all converted.
+- Decision records (`_meta/incidents/*.yml` → `*.md`): same 7-field schema as frontmatter.
+- Memory KV (`~/.claude/lifeos-memory/<key>.json` → `<key>.md`): same key+value structure as frontmatter.
+- GitHub Actions (`.github/workflows/*.yml`): DELETED — CI moves to user-side `/run-eval` slash command per release readiness checklist.
+
+**Verification**:
+```bash
+find . -type f \( -name '*.py' -o -name '*.sh' -o -name '*.yml' -o -name '*.yaml' -o -name '*.json' \) \
+  -not -path './backup/*' -not -path './.git/*' -not -path './.venv/*'
+```
+MUST return empty. `/verify-release` check #8 enforces.
+
+**Exception note**: `.claude/settings.json` and `.claude/settings.local.json` are Claude Code platform requirements; they are gitignored (not in repo) and configured by user locally. The repo HARD RULE does not apply to gitignored local config files that platforms require.
+
+**Violation**: F4 SCOPE_FAILURE (re-introducing forbidden extensions after v1.8.6 md-only enforcement).
 
 ### HARD RULE · violations.md F-Code required for v1.8.5+ entries (Stage 8)
 

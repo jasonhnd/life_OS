@@ -6,6 +6,49 @@
 
 ---
 
+## [1.8.6] - 2026-07-16 - md-only 強制（repo 内に .py/.sh/.yml/.json 禁止）
+
+```yaml
+---
+version: 1.8.6
+date: 2026-07-16
+type: patch
+breaking_changes:
+  - "監査 trail format R12 -> R13：_meta/runtime/<sid>/*.json -> *.md（markdown + YAML frontmatter）"
+  - "14 個の evals/regression-fixtures/rc-*.yml -> rc-*.md（yaml は md 内の code block として保持）"
+  - "決定記録：_meta/incidents/<id>.no-change.yml -> .md"
+  - "Memory KV：~/.claude/lifeos-memory/<key>.json -> <key>.md"
+  - "GitHub Actions 削除：.github/workflows/test.yml 削除；CI は user-side /run-eval に移行"
+  - "HARD RULE アップグレード：'No .py/.sh' -> 'No .py/.sh/.yml/.json'（.claude/settings*.json はプラットフォーム必須 + gitignored 例外保持）"
+new_features:
+  - "audit-trail-spec R13：md trail + YAML frontmatter —— 同じパース可能性、0 .json"
+  - "/verify-release check #8 拡張：repo 内 0 個の .py/.sh/.yml/.yaml/.json"
+fixes:
+  - "v1.8.5 後の Drive sync phantom modifications クリア（git reset --hard origin/main + renormalize）"
+alternatives_considered:
+  - option: ".json/.yml を機械パース可能性のため保持"
+    rejected_because: "ユーザー HARD RULE 'lifeos不需要md之外的任何形式的文件' は絶対；md + YAML frontmatter で両方満たす"
+  - option: ".github/workflows/test.yml は GitHub が yml 要求なので保持"
+    rejected_because: "repo-tracked ファイルに例外なし；CI は user-side /run-eval に移行"
+  - option: "70+ 個の歴史的 _meta/runtime/*.json trails を md にバルク移行"
+    rejected_because: "lazy 移行で十分；v1.8.6+ 新規 trail は .md、古いものは legacy R12 のまま"
+ordering_dependency:
+  blocked_by: [v1.8.5]
+  must_coexist_with: [audit-trail-spec R13, fixture 変換, SKILL.md HARD RULE アップグレード]
+regression_cases_added: []
+---
+```
+
+> **md-only 強制。** v1.8.6 はユーザー指示により v1.8.5 "No .py/.sh" を "No .py/.sh/.yml/.json" に拡張。すべての構造化データ（audit trail / fixtures / 決定記録 / memory KV）が .json/.yml から .md（YAML frontmatter 付き）へ移行。GitHub Actions 削除；CI は user-side `/run-eval`。
+
+### 移行
+
+- 既存の `_meta/runtime/<sid>/*.json`（v1.8.5-）は legacy R12 として読み取り可能のまま；v1.8.6+ trail は必ず `.md` R13
+- 14 regression fixtures 変換済み（`rc-*.yml` → `rc-*.md`）
+- `.github/workflows/` 削除；ユーザーは release 前にローカルで `/run-eval` 実行
+
+---
+
 ## [1.8.5] - 2026-07-15 - Hook 引退 + EOU-Hardening（life_OS 史上最大の単一 release）
 
 ```yaml
