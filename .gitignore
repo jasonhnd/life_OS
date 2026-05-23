@@ -1,5 +1,9 @@
 # Claude Code local installation (generated from pro/ source files)
-.claude/
+# v1.8.5: slash commands replace retired bash hooks and MUST travel with repo
+# so user clone gets working /verify-release, /check-spec-drift, etc.
+# Use .claude/* + negation pattern (trailing-slash ignore blocks negation).
+.claude/*
+!.claude/commands/
 
 # Eval outputs (generated, not tracked)
 evals/outputs/
