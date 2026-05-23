@@ -347,6 +347,37 @@ Platform auto-detects → reads `pro/CLAUDE.md` (Claude) / `pro/GEMINI.md` (Gemi
 
 **Update**: Say "update" (or theme equivalent) when prompted, or at any time to check and apply updates.
 
+## v1.8.5 NEW HARD RULES (per RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`)
+
+### HARD RULE · No .py / .sh files in lifeos repo (Stage 2)
+
+After v1.8.5 hook-layer retirement, the repo MUST contain ZERO `.py` and `.sh` files (excluding `backup/`, `.git/`, `.venv/`). All executable logic moves to `.claude/commands/*.md` slash commands invoked via Claude CLI / Codex CLI / Gemini CLI.
+
+**Verification**: `find . -type f \( -name '*.py' -o -name '*.sh' \) -not -path './backup/*' -not -path './.git/*' -not -path './.venv/*'` MUST return empty. `/verify-release` check #8 enforces.
+
+**Violation**: F4 SCOPE_FAILURE (re-introducing executable scripting after v1.8.5 retirement).
+
+### HARD RULE · violations.md F-Code required for v1.8.5+ entries (Stage 8)
+
+Every new row in `pro/compliance/violations.md` from v1.8.5 onwards MUST include the `F-Code` column (one of F1-F17 from `references/failure-taxonomy.md`). The legacy A-F process taxonomy (A1/A2/A3/B/C/D/E/F) and the new F1-F17 architecture taxonomy are complementary — both apply per violation.
+
+**Format**: `| Timestamp | Trigger | Type (A-F) | F-Code | Severity | Details | Resolved |`
+
+**Mapping reference**: see `pro/compliance/violations.md` §"A-F → F-Code Typical Mappings".
+
+**Violation**: F3 SCHEMA_FAILURE (violation row missing required F-Code column).
+
+### HARD RULE · CHANGELOG schema v1 for v1.8.5+ release entries (Stage 8)
+
+Every release entry from v1.8.5 onwards MUST conform to `references/changelog-spec.md` v1 schema:
+- 7 required YAML frontmatter fields (version / date / type / breaking_changes / alternatives_considered / ordering_dependency / regression_cases_added)
+- `alternatives_considered` MUST contain ≥1 substantive `option` + `rejected_because` pair
+- Three-language sync (EN + zh + ja) per HARD RULE `三语文档同步`
+
+**Validation**: AUDITOR Mode 7 (planned). Manual check: every v1.8.5+ release has YAML frontmatter with all 7 fields.
+
+**Violation**: F3 SCHEMA_FAILURE (CHANGELOG entry without v1.8.5+ schema).
+
 ## References
 
 - Orchestration: `pro/CLAUDE.md` · Agent definitions: `pro/agents/*.md` · Global rules: `pro/GLOBAL.md`
@@ -354,3 +385,4 @@ Platform auto-detects → reads `pro/CLAUDE.md` (Claude) / `pro/GEMINI.md` (Gemi
 - Data architecture: `references/data-layer.md` · Data model: `references/data-model.md`
 - Strategic Map: `references/strategic-map-spec.md`
 - Wiki: `references/wiki-spec.md` · SOUL: `references/soul-spec.md` · DREAM: `references/dream-spec.md`
+- **v1.8.5 new**: `references/failure-taxonomy.md` (F1-F17) · `references/refactoring-patterns.md` (8+2) · `references/risk-domains.md` (R1-R8) · `references/lifecycle-gates.md` (8 transitions) · `references/agent-spec.md` (v2) · `references/changelog-spec.md` (v1)

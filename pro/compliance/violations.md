@@ -4,9 +4,59 @@
 
 ## Format
 
+### v1.8.4 and earlier (legacy — 77 historical rows)
+
 ```
 | Timestamp (ISO 8601) | Trigger | Type | Severity | Details | Resolved |
 ```
+
+### v1.8.5+ format (HARD RULE per RFC Stage 8)
+
+```
+| Timestamp (ISO 8601) | Trigger | Type (A-F) | F-Code | Severity | Details | Resolved |
+```
+
+Every v1.8.5+ violation row MUST include the `F-Code` column with a value from `references/failure-taxonomy.md` (F1-F17). The legacy A-F process taxonomy (A1/A2/A3/B/C/D/E/F) and the F1-F17 architecture taxonomy are complementary — both apply per violation.
+
+## F-Code Quick Reference
+
+| F-Code | Class | When to use |
+|--------|-------|-------------|
+| F1 | INPUT_FAILURE | Required input missing / malformed / stale / ambiguous |
+| F2 | CONTEXT_FAILURE | Wrong context loaded / source of truth omitted |
+| F3 | SCHEMA_FAILURE | spec / input / output / validator schemas diverge |
+| F4 | SCOPE_FAILURE | agent / EOU / skill too broad / too narrow / mixed |
+| F5 | INSTRUCTION_FAILURE | Steps unclear / contradictory / non-executable |
+| F6a | STRUCTURAL_JUDGMENT | Agent conflates distinct judgments |
+| F6b | COVERAGE | Right judgment, no validation criteria |
+| F7 | VALIDATION_FAILURE | Validator passes invalid OR rejects valid |
+| F8 | TOOL_FAILURE | Script / model / API / external tool hard fail |
+| F9 | TRACE_FAILURE | Run unreconstructible / trace missing |
+| F10 | RESPONSIBILITY_FAILURE | No owner / approval gate / executor=approver |
+| F11 | LIFECYCLE_FAILURE | Wrong maturity standard applied |
+| F12 | DRIFT_FAILURE | Specs / scripts / docs / validators diverged |
+| F13 | PERFORMANCE_FAILURE | Correct but degrades at scale |
+| **F14** | **SILENT_JUDGMENT_FAILURE** | **Contested choice without value_invocations (most dangerous)** |
+| F15 | VALUE_HIERARCHY_FAILURE | Lower-priority SOUL dim over higher-priority |
+| F16 | VALUE_DRIFT_FAILURE | Multi-run invocation drift from SOUL priority |
+| F17 | VALUE_HALLUCINATION_FAILURE | Cited SOUL dim id doesn't exist |
+
+## A-F → F-Code Typical Mappings
+
+For legacy A-F violations, the typical F-code mapping (one A-F class often spans multiple F-codes; pick the most specific):
+
+| A-F Class | Common F-codes |
+|-----------|----------------|
+| A1 (skip retrospective subagent) | F11 LIFECYCLE_FAILURE |
+| A2 (skip archiver phase) | F11 LIFECYCLE_FAILURE |
+| A3 (skip mandatory tool call) | F1 INPUT_FAILURE OR F9 TRACE_FAILURE |
+| B (confabulated path / fabricated evidence) | F12 DRIFT_FAILURE OR F17 VALUE_HALLUCINATION |
+| C (skip step / placeholder phase / no audit trail) | F9 TRACE_FAILURE OR F11 LIFECYCLE_FAILURE |
+| D (self-approve / responsibility violation) | F10 RESPONSIBILITY_FAILURE |
+| E (release alignment failure / publish-skip) | F11 LIFECYCLE_FAILURE |
+| F (outbound PII leak) | F2 CONTEXT_FAILURE + F8 TOOL_FAILURE |
+
+Retroactive F-code labeling of 77 historical rows is OPTIONAL — done lazily during AUDITOR Mode 3 reviews or during incident triage.
 
 ## Violations
 
