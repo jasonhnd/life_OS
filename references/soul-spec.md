@@ -1,304 +1,216 @@
-# SOUL Specification
+---
+spec_id: soul.v2
+description: SOUL.md schema v2. Borrows constitutional layer design from eou-foundry domain_values + values-over-rules — X-over-Y formulation, priority total order {1..N} no ties no gaps, 3-8 dimension count cap, inclusion test 6-question gate, mandatory outlier role slot. Replaces v1 confidence-band-only schema. v1 entries coexist with v2 for 12 months (D3 per RFC).
+status: active
+authoritative: true
+source_attribution: xiaolai/eou-foundry @ e4b12ce, dev-docs/06-values-over-rules.md + schemas/captured-workflow.schema.yml
+introduced_in: v1.8.5
+supersedes: soul.v1 (v1.8.4 and earlier; v1 entries auto-deprecate 2027-05-23 per D3)
+---
 
-SOUL.md is the user's personality archive — a living document that records who the user is, what they value, and how they think. It lives in the second-brain root directory.
+# SOUL Specification v2
 
-## Principles
+SOUL.md is the user's personality archive — a living constitutional value layer that records who the user is, what they value, and how value conflicts get resolved when rules collide. It lives in the second-brain root directory.
+
+> **v1.8.5 SOUL v2 pivot — borrowed from eou-foundry**: SOUL is no longer a free-form list of dimensions with confidence bands. It is now a structured value stack with priority total order, X-over-Y formulation, and outlier role slot. Per Stage 4 of RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`.
+
+## Why v2
+
+v1 SOUL had three problems eou-foundry helped surface:
+
+1. **No conflict resolver**: When two SOUL dimensions pointed in opposite directions (e.g. "career growth" vs "family time"), nothing in the schema said which won. Resolution was implicit.
+2. **No anti-confirmation-bias**: SOUL grew toward "things I already agree with" because no field forced "things that contradict my preference but succeed in reality".
+3. **No constitutional gate**: Anything could become a SOUL dim — "I prefer cold coffee" had the same status as "epistemic integrity is non-negotiable". No filter.
+
+v2 fixes these via 5 schema borrowed from eou-foundry:
+- **Priority {1..N}** total order — strict ranking, no ties, no gaps. Higher priority wins in conflict.
+- **X-over-Y formulation** — every dim is a real trade-off, not a vague preference. Y cannot be a strawman.
+- **Inclusion test** — 6-question gate before a dim enters SOUL.
+- **Outlier role slot** — must contain reference cases the user dislikes but admits succeed.
+- **3-8 dimension cap** — constitution cannot bloat into a wishlist.
+
+## Principles (unchanged from v1)
 
 1. **Grows from zero** — SOUL.md starts empty. No initialization required.
 2. **Evidence-based** — Every entry links to decisions/behaviors that support it.
-3. **Auto-written under strict criteria** — ADVISOR auto-updates existing dimensions after every decision. New dimensions auto-write at low initial confidence (0.3) when ≥2 evidence points accumulate. Users nudge post-hoc: edit freely, delete dimensions, or fill in the "What SHOULD BE" field when ready.
+3. **Auto-written under strict criteria** — ADVISOR auto-updates after every decision. New dimensions auto-write at low confidence (0.3) when ≥2 evidence accumulate, then must pass v2 inclusion test before promotion.
 4. **Contradictions are valuable** — Don't resolve them; surface them.
 
----
+## Entry Format v2
 
-## Entry Format
-
-Each entry in SOUL.md follows this structure:
+Each SOUL dimension is a YAML block:
 
 ```yaml
----
-dimension: "[dimension name]"
-confidence: 0.0          # 0-1, auto-calculated
-evidence_count: 0         # supporting decisions/behaviors
-challenges: 0             # contradicting behaviors
-source: dream             # dream / advisor / strategist / user
-created: YYYY-MM-DD
-last_validated: YYYY-MM-DD
----
+- id: dv-{slug}                          # canonical, e.g. dv-truth-over-comfort
+  formulation: "X over Y"                # HARD: must be "X over Y" form, Y not strawman
+  priority: 1                            # int, total order 1..N, no ties, no gaps
+  canonical_or_personal: canonical|personal
+  lifecycle_stage: tentative|confirmed|dormant|deprecated  # v1 entries default to "confirmed" but flagged for migration
+  source: dream|advisor|strategist|user
+  created: YYYY-MM-DD
+  last_validated: YYYY-MM-DD
+
+  # v2 NEW: Inclusion test (6 questions, must answer ≥1 substantively)
+  inclusion_test:
+    failure_prevented: "<what failure does this value prevent?>"
+    rule_conflict_resolved: "<what rule conflict does this value resolve?>"
+    hidden_judgment_exposed: "<what hidden judgment does this value expose?>"
+    false_success_resisted: "<what kind of false success does this resist?>"
+    architectural_invariant: "<which life_OS invariant does this protect?>"
+    danger_if_removed: "<would the system become dangerous if this value were removed?>"
+
+  # v2 NEW: Failure modes
+  failure_modes:
+    known: []          # ways this value gets misapplied
+    warning_signs: []  # observable signals the value is drifting
+    repair_actions: [] # what to do when the value misfires
+
+  # v1 fields (preserved for backward compat)
+  confidence: 0.0
+  evidence_count: 0
+  challenges: 0
+
+  # v1 prose fields (preserved)
+  what_is: "<observed behavioral pattern>"
+  what_should_be: "<user's stated aspiration>"
+  gap: "<reality vs aspiration gap>"
+  evidence: []
+  challenges_log: []
 ```
 
-### What IS (实然)
-[Observed behavioral pattern, based on data]
+## Required Schema Constraints (v2 HARD)
 
-### What SHOULD BE (应然)
-[User's stated aspiration or preference]
+### 1. Dimension count: 3-8 total
 
-### Gap (差距)
-[Description of the gap between reality and aspiration]
+- Minimum 3 — fewer than 3 means SOUL is not yet a value layer
+- Maximum 8 — more than 8 means SOUL has bloated into a wishlist
+- Includes tentative + confirmed (excludes dormant/deprecated)
+- **Enforced by**: AUDITOR Mode 4 (Stage 4 Day 9)
 
-### Evidence (证据)
-- [date] [decision/behavior] — [description]
+### 2. Priority: total order {1..N}, no ties, no gaps
 
-### Challenges (矛盾)
-- [date] [contradicting behavior] — [description]
+- Each dim has integer priority field
+- Priorities must be 1, 2, 3, ..., N (consecutive, no skips)
+- Two dims cannot share the same priority
+- Conflict resolution: higher-priority (lower number) wins
+- **Enforced by**: AUDITOR Mode 4
 
----
+### 3. Formulation: "X over Y" form
 
-## Entry Lifecycle
+- "Truth over comfort" ✅
+- "Honesty over fluency" ✅
+- "诚实是好的" ❌ (no Y, no trade-off)
+- "Speed over slowness" ❌ (Y is strawman, no one prefers slowness)
+- Y must be something the user genuinely could have chosen instead
+- **Enforced by**: AUDITOR Mode 4 + `/migrate-soul-v2` rejects bad formulations
+
+### 4. Inclusion test: ≥1 substantive answer
+
+- 6 questions, at least 1 answered non-trivially
+- "Speed", "elegance", "output volume", "fewer warnings" do NOT pass — these are local optimizations, not constitutional values
+- **Enforced by**: AUDITOR Mode 4 + `/migrate-soul-v2`
+
+### 5. Required role slots in reference_set (at top of SOUL.md)
+
+```yaml
+soul_reference_set:
+  aspirational: []         # people/works the user aspires toward
+  anti_reference: []       # people/works the user explicitly does NOT want to become
+  boundary_case: []        # edge cases that test the value system
+  mainstream_baseline: []  # what's "normal" in the user's context (for contrast)
+  outlier: []              # MANDATORY: "I dislike this but it succeeds" — anti-confirmation-bias
+```
+
+- All 5 slots required (each list MAY be empty initially but the structure must exist)
+- `outlier` slot SHOULD be non-empty within 30 days — DREAM N3 will flag if empty
+- **Enforced by**: AUDITOR Mode 4 + archiver Phase 2 wiki-candidate gate (Stage 5)
+
+## Lifecycle (v2)
 
 ```
-1. 🌱 Candidate — DREAM or ADVISOR proposes
-2. ✅ Confirmed — User approves (may edit wording)
-3. 📈 Strengthened — More evidence accumulates (confidence rises)
-4. ⚠️ Challenged — Contradicting behaviors detected
-5. 🔄 Evolved — User updates based on new evidence or DREAM suggestion
-6. 🗄️ Retired — User explicitly removes (moved to archive)
+1. 🌱 tentative — auto-created at low confidence (0.3), pending inclusion test
+2. ✅ confirmed — passed inclusion test + ≥2 evidence + user acknowledged
+3. 💤 dormant — no evidence accumulated in 90 days (not deleted, just inactive)
+4. 🗄️ deprecated — superseded by another dim OR user explicitly removed
 ```
 
----
+Promotion gates per `references/lifecycle-gates.md`:
+- tentative → confirmed: passed inclusion_test 6Q gate + evidence_count ≥ 2 + challenges == 0 + user acknowledged
+- confirmed → dormant: no evidence_count delta in 90 days (DREAM N3 auto-detects)
+- any → deprecated: user explicit removal OR conflict resolution declared a winner among contradicting dims
 
-## Confidence Calculation
+## Confidence Calculation (v1 preserved)
 
 ```
 confidence = evidence_count / (evidence_count + challenges × 2)
 ```
 
-Confidence determines how much influence a SOUL entry has on the system:
-
 | Confidence | Condition | System Behavior |
 |------------|-----------|----------------|
-| < 0.3 | Newly written, few data points | Only ADVISOR references |
+| < 0.3 | tentative, few data points | Only ADVISOR references |
 | 0.3 – 0.6 | Moderate evidence | ADVISOR + REVIEWER reference |
 | 0.6 – 0.8 | Strong evidence | + PLANNER references |
 | > 0.8 | Deeply validated, low contradiction | Full system reference (including ROUTER) |
 
-Confidence is auto-calculated — the user does not manage it.
+**Note**: Priority field is independent of confidence. A priority-1 dim at confidence 0.4 still wins conflicts against a priority-3 dim at confidence 0.95 — confidence affects WHO reads the dim, priority affects WHICH dim wins in conflict.
 
----
+## How Roles Use SOUL v2
 
-## Dimensions
+| Role | Reads | Uses |
+|------|-------|------|
+| **ROUTER** | priority 1-3 dims + red lines + reference_set | Sharper intent clarification; risk-domain triage (per `references/risk-domains.md`) |
+| **PLANNER** | confidence ≥ 0.6 dims + priority order | Auto-adds relevant dims to planning; planning must declare which top-3 priority dims it operationalizes |
+| **REVIEWER** | All confirmed dims + priority + inclusion_test | Value consistency check; cites priorities in verdict; must populate `value_invocations[]` in R12 trail per Stage 7 (avoids F14) |
+| **ADVISOR** | All entries + evidence/challenge counts | Behavioral audit; reinforces or challenges; proposes priority swaps |
+| **STRATEGIST** | unresolved contradictions + worldview | Recommends thinkers addressing specific tensions |
+| **ARCHIVER (DREAM)** | All entries | DREAM N3 discovers candidates, updates counts, proposes lifecycle transitions, flags outlier-empty for 30+ days |
 
-SOUL entries are organized by dimension. Common dimensions include:
+## Auto-Write Mechanism v2
 
-- **Risk attitude** — conservative ↔ aggressive
-- **Decision style** — data-driven ↔ intuitive
-- **Priority** — family ↔ career ↔ freedom ↔ security ↔ growth
-- **Communication style** — direct ↔ diplomatic
-- **Conflict handling** — confrontational ↔ avoidant
-- **Time orientation** — present-focused ↔ future-focused
-- **Red lines** — absolute boundaries (things the user will never do)
-- **Core beliefs** — fundamental worldview assumptions
+When ADVISOR proposes a new dimension:
 
-Users may define their own dimensions. The system does not impose categories.
+1. **Pre-flight**: Check current dim count. If already at 8 → suggest deprecating a low-priority dim before adding.
+2. **Auto-formulation**: ADVISOR proposes `X over Y` form. If only X is clear (no real Y) → flag as "preference, not value" and skip.
+3. **Inclusion test**: ADVISOR drafts answers to 6 questions. Must produce substantive answer to ≥1.
+4. **Priority slot**: New dim defaults to priority N+1 (bottom). User may re-rank during next session.
+5. **Write at tentative**: confidence 0.3, lifecycle_stage tentative.
+6. **Promotion**: After ≥2 evidence + user acknowledges → flip to confirmed.
 
----
+## Legacy v1 entries (12-month coexistence per D3)
 
-## Four Sources
+v1.8.5 ships with `references/soul-spec.md` v2 as authoritative. Existing v1 SOUL entries:
 
-| Source | How | Example |
-|--------|-----|---------|
-| **DREAM** | During dreaming, discovers patterns from 3-day behavior data | "4 of 5 recent decisions prioritized control over profit" |
-| **ADVISOR** | After workflow, observes repeated value signals | "You always ask about family impact first" |
-| **STRATEGIST** | During deep dialogue, user reveals values through conversation | User tells Socrates "stability matters more than adventure" |
-| **User** | Direct input at any time | "Remember: I never compromise on X" |
+- Remain readable by all roles (legacy mode)
+- Auto-flagged in DREAM N3 reports: "🔄 v1 entry: 'risk attitude' — consider v2 migration via /migrate-soul-v2"
+- Default `priority` field assigned by creation order (oldest = priority 1) for legacy reads
+- Default `lifecycle_stage` = confirmed (since they passed v1 confidence threshold)
+- Default `formulation` field = empty (does NOT pass v2 inclusion test — flagged but tolerated)
+- After **2027-05-23**, remaining v1 entries auto-marked `lifecycle_stage: deprecated`
 
----
+User can migrate at convenience via `/migrate-soul-v2` slash command. No forced migration.
 
-## How Each Role Uses SOUL.md
+## Migration via `/migrate-soul-v2`
 
-All roles check if SOUL.md exists before referencing it. If it does not exist or is empty, the role operates normally without SOUL input.
+See `.claude/commands/migrate-soul-v2.md`. Slash command:
+1. Reads existing SOUL.md
+2. For each v1 dim, asks user: formulate as "X over Y"; assign priority; answer 1+ inclusion test question
+3. Writes v2 YAML block alongside v1 prose (preserved)
+4. Validates via AUDITOR Mode 4 before committing
 
-| Role | What they read | How they use it |
-|------|---------------|-----------------|
-| **ROUTER** | Preferences, red lines | Sharper intent clarification — asks about dimensions the user cares about even if not mentioned |
-| **PLANNER** | Value priorities (confidence ≥ 0.6) | Auto-adds relevant dimensions to planning if the user didn't mention them |
-| **REVIEWER** | What IS vs What SHOULD BE gap (confidence ≥ 0.3) | Value consistency check — flags when a decision contradicts a stated aspiration |
-| **ADVISOR** | All entries, evidence & challenge counts | Behavioral audit — reinforces or challenges SOUL entries, proposes updates |
-| **STRATEGIST** | Worldview, unresolved contradictions | Recommends thinkers who address the user's specific tensions |
-| **DREAM** | All entries (full read/write proposals) | Discovers new candidates, updates evidence/challenge counts, proposes evolution |
+## Use cases
 
----
+- **REVIEWER veto**: MUST cite `value_invocations[]` with `domain_value_id` from SOUL when contested case detected. Empty value_invocations on contested case = F14 silent judgment per `references/failure-taxonomy.md`.
+- **PLANNER trade-off**: When two domain reports conflict, PLANNER reads SOUL priority order and proposes resolution citing winning dim's `id` + `priority`.
+- **archiver Phase 2 candidate gate**: New wiki entries that touch values MUST operationalize ≥1 top-3 SOUL dim (Stage 5 wiki schema requirement).
+- **AUDITOR Mode 4 (NEW v1.8.5)**: Audits SOUL.md schema compliance — count 3-8, priority total order no gaps, formulation X-over-Y, inclusion_test ≥1 answer, reference_set 5 slots present.
 
-## First-Time Initialization
+## Source attribution
 
-When SOUL.md does not exist:
+eou-foundry @ e4b12ce. Borrowed:
+- 3-8 cap + priority total order: `schemas/captured-workflow.schema.yml` domain_values_minimum_count / maximum_count / priority constraints
+- X-over-Y formulation: `schemas/captured-workflow.schema.yml` `formulation_rule`
+- Inclusion test 6Q: `dev-docs/06-values-over-rules.md` "Inclusion test" section
+- Outlier role slot: `schemas/captured-workflow.schema.yml` `reference_set_required_role_slots` (outlier description: "I dislike this but it succeeds")
+- Failure modes 三件套: `engine/eou-contract.md` failure_modes.known/warning_signs/repair_actions
 
-1. The system operates normally — all roles skip SOUL references
-2. At the first Adjourn Court, DREAM's N3 stage scans available data:
-   a. `user-patterns.md` (if exists) — behavioral patterns → propose as SOUL candidates
-   b. Recent decisions — value signals → propose as SOUL candidates
-3. Next Start Court presents candidates: "🌱 SOUL.md doesn't exist yet. Based on your patterns, here are proposed entries:"
-4. User confirms → create SOUL.md with confirmed entries
-5. If no data available → skip, wait for more sessions to accumulate evidence
-
-SOUL.md is never pre-populated with assumptions. It grows only from observed evidence.
-
-### Bootstrapping from user-patterns.md
-
-If `user-patterns.md` exists but SOUL.md does not, DREAM can propose initial SOUL entries by reading patterns:
-- Behavioral patterns → propose as "What IS" (实然)
-- Leave "What SHOULD BE" blank for user to fill
-- Initial confidence starts low (evidence_count: 1, challenges: 0 → confidence: 1.0 but flagged as 🌱 single-source)
-
----
-
-## Auto-Write Mechanism (v1.6.2)
-
-SOUL dimensions are auto-created and auto-updated by ADVISOR during every decision workflow. Users nudge the system by editing/deleting, not by pre-approving.
-
-### Auto-Create Criteria
-
-ADVISOR creates a new SOUL dimension when:
-1. The observation is about identity/values/principles (not behavior patterns)
-2. There are ≥2 decisions as evidence (current session or within last 30 days)
-3. No existing dimension covers it
-
-Initial values:
-- `confidence: 0.3`
-- `What IS`: auto-filled from evidence
-- `What SHOULD BE`: EMPTY (user fills)
-
-### Auto-Update (every decision)
-
-After every Three Departments workflow, ADVISOR:
-- For each existing dimension (confidence ≥ 0.3): evidence_count +1 if supported, challenges +1 if contradicted
-- Recalculates `confidence = evidence_count / (evidence_count + 2 × challenges)`
-
-### User Nudges
-
-Users don't pre-approve, but can:
-- Edit `What SHOULD BE` field (aspiration — system never fills this)
-- Delete a dimension (removes entry)
-- Say "undo recent SOUL" → ADVISOR rolls back latest additions
-- Edit confidence manually to override
-
-### Why Auto vs Confirm
-
-Previous version asked for confirmation. v1.6.2 removes this because:
-- Users didn't see SOUL "working" — candidates appeared once a week
-- Confidence grew too slowly (1 evidence per session)
-- Pattern detection delayed by user review overhead
-
-Post-hoc nudges + real-time evolution gives the user a LIVING SOUL archive.
-
----
-
-## Snapshot Mechanism
-
-SOUL snapshots are small immutable metadata dumps written at session close. RETROSPECTIVE Mode 0 reads the two most recent snapshots to compute trend arrows (↗↘→🌟⚠️💤❗) in the SOUL Health Report.
-
-**Authoritative source**: `references/snapshot-spec.md`. That spec defines:
-
-- File format, YAML schema (`captured_at`, `snapshot_id`, `session_id`, `previous_snapshot`, `dimensions[]`)
-- 4-tier mapping derived at capture time using half-open intervals `[a, b)` (boundary values belong to the upper tier): `core` (`[0.7, 1.0]`) / `secondary` (`[0.3, 0.7)`) / `emerging` (`[0.2, 0.3)`) / `dormant` (`[0.0, 0.2)`, excluded from snapshot)
-- Delta rules for trend arrows and tier-transition badges
-- Archive policy (active 30d → archive 30-90d → delete >90d)
-- Invariants (one snapshot per session, metadata only, immutable after write, real timestamps)
-
-**Write trigger**: `archiver` Phase 2 Step 3, after concept extraction / Hebbian update and before housekeeping.
-
-**Read trigger**: RETROSPECTIVE Mode 0 during Start Session briefing.
-
-This SOUL spec deliberately does not duplicate the schema — one authoritative source prevents drift. If a snapshot field changes, it changes in snapshot-spec and the archiver agent file.
-
-### Why Snapshots (vs alternatives)
-
-- Single-file frontmatter (`last_session_evidence`): rejected — no long-term trend data
-- Compare-within-session only: rejected — loses cross-session progression
-- Full snapshot: chosen — small files (SOUL is tiny), full history, simple reader logic
-
----
-
-## Health Report Format (every session briefing)
-
-Every Start Session includes a SOUL Health Report in a fixed, prominent position in the briefing (not optional).
-
-### Format
-
-```
-🔮 SOUL Health Report
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 Current Profile:
-   Active dimensions (confidence > 0.5): N
-   · [Dimension A] 0.8 🟢 ↗ (+2 evidence since last session)
-   · [Dimension B] 0.6 🟢 → (no change)
-   · [Dimension C] 0.5 🟡 ↘ (+1 challenge — last decision contradicted)
-
-🌱 New dimensions (auto-detected since last session):
-   · [Dimension D] 0.3 (based on 2 decisions)
-     What IS: [system observation]
-     What SHOULD BE: [awaiting your input — fill when you have clarity]
-
-⚠️ Conflict warnings:
-   · [Dimension X] last 3 decisions all challenged → needs reflection or revision
-
-💤 Dormant dimensions (30+ days no activation):
-   · [Dimension Y] — no related decisions recently
-
-📈 This period's trajectory:
-   Net evidence +N, net challenges +M, new dimensions +K
-```
-
-### Display Rules
-
-- ALWAYS appears in Mode 0 briefing (Start Session), regardless of SOUL size
-- If SOUL is empty → show "SOUL is still gathering initial observations. After a few decisions, your first dimensions will emerge."
-- Should be near the TOP of the briefing, before STATUS/project details
-- RETROSPECTIVE agent is responsible for generating this from current SOUL.md state
-
----
-
-## SOUL.md in the Second-Brain
-
-SOUL.md lives at the root of the second-brain directory:
-
-```
-second-brain/
-├── SOUL.md              ← personality archive
-├── user-patterns.md     ← behavioral patterns (different: what you DO)
-├── _meta/
-├── projects/
-├── areas/
-└── ...
-```
-
-**SOUL.md vs user-patterns.md**:
-- `user-patterns.md` records **what you do** — behavioral patterns observed by the ADVISOR
-- `SOUL.md` records **who you are** — values, beliefs, and aspirations confirmed by you
-- One is descriptive (patterns), the other is identity (soul)
-- They feed each other: patterns reveal values, values contextualize patterns
-
----
-
-## Tiered Reference by Confidence (v1.6.2)
-
-REVIEWER references SOUL in every decision (HARD RULE). To prevent noise when SOUL has many dimensions, a 4-tier strategy applies. Tier names are aligned with `references/snapshot-spec.md` (§YAML Frontmatter Schema `tier` field) so one vocabulary carries through both the live reference model and the historical snapshot format.
-
-All confidence bands use half-open intervals `[a, b)` — the lower bound is inclusive and the upper bound is exclusive. Boundary values always belong to the **upper** tier (e.g., confidence exactly 0.3 is `secondary`, not `emerging`; confidence exactly 0.7 is `core`, not `secondary`).
-
-| Tier | Confidence | Reference strategy | Limit |
-|------|-----------|-------------------|-------|
-| **core** · Core Identity | `[0.7, 1.0]` | Reference ALL | No upper limit |
-| **secondary** · Active Values | `[0.3, 0.7)` | Reference top N semantically relevant | Max 3 |
-| **emerging** · Emerging | `[0.2, 0.3)` | Count only, don't surface (ADVISOR tracks in Delta) | 0 |
-| **dormant** | `[0.0, 0.2)` | Retained in history (SOUL.md) but excluded from active reference and from snapshots | — |
-
-Legacy references to "Tier 1 / 2 / 3" in earlier specs map to `core / secondary / emerging` respectively; `dormant` is new in v1.7 and reuses snapshot-spec's name for dimensions below the active floor.
-
-### Relevance Judgment (secondary tier)
-
-REVIEWER reads decision Subject + Summary + PLANNER proposal, then for each `secondary` dimension rates:
-- **strong match** (directly relevant) → priority include
-- **weak match** (indirectly relevant) → sort by confidence, take top
-- **no match** → skip
-
-REVIEWER report must list ALL `secondary` dimensions evaluated + inclusion reason → AUDITOR reviews quality.
-
-### Special States
-
-- Decision challenges a `core` dimension → REVIEWER adds ⚠️ SOUL CONFLICT warning at top of Summary Report (semi-veto signal)
-- Dimension crossed 0.7 upward since last snapshot → 🌟 "newly promoted to core"
-- Dimension crossed 0.7 downward → ⚠️ "demoted from core"
-- All dimensions in `emerging` or `dormant` → REVIEWER outputs "SOUL tracking, not yet referencing"
-- >20 active dimensions → `core` no upper limit but compress: top 5 detailed, rest listed by name
+Adapted for life_OS: SOUL is person-scope (not app-scope like captured_workflow); lifecycle_stage simplified to 4 states (vs eou's 9); confidence-band system preserved alongside priority.

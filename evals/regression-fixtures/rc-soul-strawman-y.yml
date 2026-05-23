@@ -1,0 +1,60 @@
+id: rc-soul-strawman-y
+description: |
+  Negative fixture: SOUL.md dim has formulation where Y is obviously a
+  strawman (no one genuinely prefers slowness/badness/failure). AUDITOR
+  Mode 4 C3 strawman heuristic MUST FAIL on this. If C3 reports PASS,
+  validator has regressed and an "empty formulation" has slipped through.
+expected_verdict: FAIL
+expected_failure_class: F3_SCHEMA_FAILURE
+expected_check: C3 (Formulation "X over Y" form, Y not strawman)
+introduced_in: v1.8.5 Stage 4
+related_spec: references/soul-spec.md v2 §"Required Schema Constraints §3"
+
+input_soul_md: |
+  soul_reference_set:
+    aspirational: []
+    anti_reference: []
+    boundary_case: []
+    mainstream_baseline: []
+    outlier: ["alice succeeded with brute force, which i dislike"]
+
+  ---
+  - id: dv-truth-over-comfort
+    formulation: "Truth over comfort"
+    priority: 1
+    canonical_or_personal: canonical
+    lifecycle_stage: confirmed
+    inclusion_test:
+      failure_prevented: "prevents self-deception"
+    confidence: 0.85
+    evidence_count: 8
+    challenges: 1
+
+  - id: dv-speed-over-slowness
+    formulation: "Speed over slowness"       # STRAWMAN: no one prefers slowness
+    priority: 2
+    canonical_or_personal: personal
+    lifecycle_stage: confirmed
+    inclusion_test:
+      failure_prevented: "moves faster"
+    confidence: 0.7
+    evidence_count: 5
+    challenges: 0
+
+  - id: dv-quality-over-badness
+    formulation: "Quality over badness"      # STRAWMAN: no one prefers badness
+    priority: 3
+    canonical_or_personal: personal
+    lifecycle_stage: confirmed
+    inclusion_test:
+      failure_prevented: "no real failure"   # also trivial answer
+    confidence: 0.6
+    evidence_count: 4
+    challenges: 0
+  ---
+
+expected_finding: |
+  Multiple F3 SCHEMA_FAILURE findings:
+  - dim 'dv-speed-over-slowness' Y='slowness' appears to be strawman
+  - dim 'dv-quality-over-badness' Y='badness' appears to be strawman
+  - dim 'dv-quality-over-badness' inclusion_test answer 'no real failure' is trivial

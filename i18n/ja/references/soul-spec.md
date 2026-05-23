@@ -1,326 +1,216 @@
-# SOUL 仕様書
-
-SOUL.md はユーザーのパーソナリティアーカイブ — 誰であるか、何を大切にしているか、どのように考えるかを記録する生きたドキュメントです。セカンドブレインのルートディレクトリに置かれます。
-
-## 原則
-
-1. **ゼロから成長する** — SOUL.md は空の状態から始まる。初期化は不要。
-2. **証拠に基づく** — すべてのエントリは、それを裏付ける決定や行動にリンクされる。
-3. **厳格な基準下での自動書き込み** — ADVISOR が決定ごとに既存次元を自動更新する。証拠点 2 件以上で新次元が低初期信頼度（0.3）で自動書き込みされる。ユーザーは事後にナッジする：自由に編集、次元削除、準備ができたら「What SHOULD BE」を記入。
-4. **矛盾は価値がある** — 解消しない、浮き上がらせる。
-
+---
+spec_id: soul.v2
+description: SOUL.md schema v2。eou-foundry の domain_values + values-over-rules の憲法層設計を借用 —— X-over-Y formulation、優先順位総順 {1..N} タイなし・ギャップなし、3-8 次元数上限、6 質問 inclusion test ゲート、必須 outlier role slot。v1 confidence-band-only schema を置換。v1 エントリは v2 と 12 ヶ月共存（D3 RFC に従う）。
+status: active
+authoritative: true
+source_attribution: xiaolai/eou-foundry @ e4b12ce, dev-docs/06-values-over-rules.md + schemas/captured-workflow.schema.yml
+introduced_in: v1.8.5
+supersedes: soul.v1 (v1.8.4 以前；v1 エントリは 2027-05-23 に自動 deprecated マーク D3 に従う)
 ---
 
-## エントリフォーマット
+# SOUL 仕様書 v2
 
-SOUL.md の各エントリはこの構造に従います：
+SOUL.md はユーザーのパーソナリティアーカイブ —— 誰であるか、何を大切にしているか、ルールが衝突したときに価値がどう決断するかを記録する生きた憲法的価値層です。セカンドブレインのルートディレクトリに置かれます。
+
+> **v1.8.5 SOUL v2 ピボット —— eou-foundry より借用**: SOUL はもはや confidence band を持つ自由な dim リストではない。優先順位総順、X-over-Y formulation、outlier role slot を持つ構造化された価値スタックとなった。RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 4 に従う。
+
+## なぜ v2
+
+v1 SOUL には eou-foundry が浮き彫りにした 3 つの問題がある：
+
+1. **衝突解決機構なし**: 2 つの SOUL 次元が反対方向を指したとき（例: "キャリア成長" vs "家族の時間"）、schema にどちらが勝つか書かれていない。解決は暗黙的。
+2. **反 confirmation-bias なし**: SOUL は「すでに同意していること」の方向に成長する、なぜなら「私の好みに反するが実際に成功する」ケースを強制するフィールドがないから。
+3. **憲法ゲートなし**: 何でも SOUL dim になれる ——「冷たいコーヒーが好き」と「認知的完全性は妥協できない」が同等の地位。フィルタなし。
+
+v2 は eou-foundry から借りた 5 つの schema で修正：
+- **優先順位 {1..N}** 総順 —— 厳格なランキング、タイなし、ギャップなし。高優先度が衝突で勝つ。
+- **X-over-Y formulation** —— 各 dim は本物のトレードオフ、曖昧な好みではない。Y はストローマンであってはならない。
+- **Inclusion test** —— dim が SOUL に入る前の 6 質問ゲート。
+- **Outlier role slot** —— ユーザーが嫌うが成功を認める参照ケースを必ず含む。
+- **3-8 次元数上限** —— 憲法がウィッシュリストに膨張してはならない。
+
+## 原則（v1 保持）
+
+1. **ゼロから成長** —— SOUL.md は空で始まる。初期化不要。
+2. **証拠ベース** —— 各エントリはそれを支持する決定/行動にリンクする。
+3. **厳格な基準下での自動書き込み** —— ADVISOR が各決定後に自動更新。≥2 evidence 蓄積時に新次元が低 confidence (0.3) で自動書き込み、v2 inclusion test をパスして昇格しなければならない。
+4. **矛盾には価値がある** —— 解消しない；表面化する。
+
+## エントリ形式 v2
+
+各 SOUL 次元は YAML ブロック：
 
 ```yaml
----
-dimension: "[ディメンション名]"
-confidence: 0.0          # 0-1、自動計算
-evidence_count: 0         # 裏付ける決定/行動の数
-challenges: 0             # 矛盾する行動の数
-source: dream             # dream / advisor / strategist / user
-created: YYYY-MM-DD
-last_validated: YYYY-MM-DD
----
+- id: dv-{slug}                          # canonical、例 dv-truth-over-comfort
+  formulation: "X over Y"                # HARD: 必ず "X over Y" 形式、Y はストローマン不可
+  priority: 1                            # int、総順 1..N、タイなしギャップなし
+  canonical_or_personal: canonical|personal
+  lifecycle_stage: tentative|confirmed|dormant|deprecated  # v1 エントリはデフォルト confirmed だが移行マーク
+  source: dream|advisor|strategist|user
+  created: YYYY-MM-DD
+  last_validated: YYYY-MM-DD
+
+  # v2 新規: Inclusion test (6 質問、少なくとも ≥1 実質的回答)
+  inclusion_test:
+    failure_prevented: "<この value が防止する失敗は?>"
+    rule_conflict_resolved: "<この value が解決するルール衝突は?>"
+    hidden_judgment_exposed: "<この value が暴露する隠れた判断は?>"
+    false_success_resisted: "<この value が抵抗する偽の成功は?>"
+    architectural_invariant: "<この value が保護する life_OS 不変量は?>"
+    danger_if_removed: "<この value を削除するとシステムは危険になるか?>"
+
+  # v2 新規: Failure modes
+  failure_modes:
+    known: []          # この value が誤用される方法
+    warning_signs: []  # この value が drift している観察可能なシグナル
+    repair_actions: [] # この value が誤発火したときの修復
+
+  # v1 フィールド (後方互換のため保持)
+  confidence: 0.0
+  evidence_count: 0
+  challenges: 0
+
+  # v1 散文フィールド (保持)
+  what_is: "<観察された行動パターン>"
+  what_should_be: "<ユーザーが述べた願望>"
+  gap: "<実然と応然のギャップ>"
+  evidence: []
+  challenges_log: []
 ```
 
-### 実態 (What IS)
-[データに基づく、観察された行動パターン]
+## 必須 Schema 制約 (v2 HARD)
 
-### 理想 (What SHOULD BE)
-[ユーザーが表明した志向や好み]
+### 1. 次元数: 計 3-8
 
-### 差距 (Gap)
-[現実と理想のギャップの説明]
+- 最少 3 —— 3 未満は SOUL がまだ価値層ではない
+- 最多 8 —— 8 超は SOUL がウィッシュリストに膨張
+- tentative + confirmed を含む（dormant/deprecated は除外）
+- **AUDITOR Mode 4 により強制**（Stage 4 Day 9）
 
-### 証拠 (Evidence)
-- [日付] [決定/行動] — [説明]
+### 2. 優先順位: 総順 {1..N}、タイなしギャップなし
 
-### 矛盾 (Challenges)
-- [日付] [矛盾する行動] — [説明]
+- 各 dim に整数 priority フィールド
+- 優先順位は 1, 2, 3, ..., N（連続、スキップなし）
+- 2 つの dim が同じ優先度を共有できない
+- 衝突解決: 高優先度（小さい番号）が勝つ
+- **AUDITOR Mode 4 により強制**
 
----
+### 3. Formulation: "X over Y" 形式
 
-## エントリのライフサイクル
+- "Truth over comfort" ✅
+- "Honesty over fluency" ✅
+- "誠実は良い" ❌ (Y なし、トレードオフなし)
+- "Speed over slowness" ❌ (Y はストローマン、誰も slowness を好まない)
+- Y はユーザーが本当に選びうる別の選択肢でなければならない
+- **AUDITOR Mode 4 + `/migrate-soul-v2` により強制**（悪い formulation を拒否）
+
+### 4. Inclusion test: ≥1 実質的回答
+
+- 6 質問、少なくとも 1 つを非自明的に回答
+- "Speed"、"elegance"、"output volume"、"fewer warnings" は**通過しない** —— これらはローカル最適化であり、憲法的価値ではない
+- **AUDITOR Mode 4 + `/migrate-soul-v2` により強制**
+
+### 5. SOUL.md 上部に必須 reference_set role slots
+
+```yaml
+soul_reference_set:
+  aspirational: []         # ユーザーが憧れる人/作品
+  anti_reference: []       # ユーザーが明確になりたくない人/作品
+  boundary_case: []        # 価値体系をテストするエッジケース
+  mainstream_baseline: []  # ユーザーの context での「普通」（対比用）
+  outlier: []              # 必須: "私は嫌いだが成功する" —— 反 confirmation-bias
+```
+
+- 5 つの slot すべて必須（初期は空 list 可だが構造は存在しなければならない）
+- `outlier` slot は 30 日以内に**非空であるべき** —— DREAM N3 が空をフラグする
+- **AUDITOR Mode 4 + archiver Phase 2 wiki-candidate ゲートにより強制**（Stage 5）
+
+## ライフサイクル (v2)
 
 ```
-1. 🌱 候補 — DREAM またはADVISORが提案
-2. ✅ 確認済み — ユーザーが承認（文言を編集可能）
-3. 📈 強化 — より多くの証拠が蓄積（confidence 上昇）
-4. ⚠️ 挑戦 — 矛盾する行動が検出
-5. 🔄 進化 — ユーザーが新しい証拠やDREAMの提案に基づいて更新
-6. 🗄️ 引退 — ユーザーが明示的に削除（アーカイブへ移動）
+1. 🌱 tentative —— 低 confidence (0.3) で自動作成、inclusion test 待ち
+2. ✅ confirmed —— inclusion test 通過 + ≥2 evidence + ユーザー確認
+3. 💤 dormant —— 90 日間 evidence 蓄積なし（削除せず、非活性のみ）
+4. 🗄️ deprecated —— 別の dim に置換されたかユーザーが明示的に削除
 ```
 
----
+昇格ゲートは `references/lifecycle-gates.md` に従う:
+- tentative → confirmed: inclusion_test 6Q ゲート通過 + evidence_count ≥ 2 + challenges == 0 + ユーザー確認
+- confirmed → dormant: 90 日間 evidence_count 変化なし（DREAM N3 自動検出）
+- any → deprecated: ユーザー明示削除または矛盾する dim 間で衝突解決で勝者宣言
 
-## confidence 計算
+## Confidence 計算 (v1 保持)
 
 ```
 confidence = evidence_count / (evidence_count + challenges × 2)
 ```
 
-confidence はSOULエントリがシステムに与える影響度を決定します：
-
-| confidence | 条件 | システムの振る舞い |
-|------------|-----------|----------------|
-| < 0.3 | 新規作成、データポイントが少ない | ADVISORのみが参照 |
-| 0.3 – 0.6 | 適度な証拠 | ADVISOR + REVIEWERが参照 |
-| 0.6 – 0.8 | 強い証拠 | + PLANNERが参照 |
-| > 0.8 | 深く検証済み、矛盾が少ない | フルシステム参照（ROUTERを含む） |
-
-confidence は自動計算されます — ユーザーが管理する必要はありません。
-
----
-
-## ディメンション
-
-SOULエントリはディメンション別に整理されます。一般的なディメンション例：
-
-- **リスク態度** — 保守的 ↔ 積極的
-- **決定スタイル** — データ主導 ↔ 直感的
-- **優先事項** — 家族 ↔ キャリア ↔ 自由 ↔ 安全 ↔ 成長
-- **コミュニケーションスタイル** — 直接的 ↔ 外交的
-- **葛藤への対処** — 対立的 ↔ 回避的
-- **時間志向** — 現在志向 ↔ 未来志向
-- **レッドライン** — 絶対的な境界線（絶対にしないこと）
-- **核心的信念** — 根本的な世界観の前提
-
-ユーザーは自分のディメンションを定義できます。システムはカテゴリを押し付けません。
-
----
-
-## 4つのソース
-
-| ソース | 方法 | 例 |
-|--------|-----|---------|
-| **DREAM** | ドリーミング中に、3日間の行動データからパターンを発見 | 「直近5件の決定のうち4件が利益よりコントロールを優先した」 |
-| **ADVISOR** | ワークフロー後に、繰り返す価値シグナルを観察 | 「あなたは常に家族への影響を最初に聞く」 |
-| **STRATEGIST** | 深い対話の中で、ユーザーが会話を通じて価値観を明かす | ユーザーがソクラテスに「安定は冒険より大切」と伝える |
-| **ユーザー** | いつでも直接入力 | 「覚えておいて: 私はXについて絶対に妥協しない」 |
-
----
-
-## 各役割のSOUL.md利用方法
-
-すべての役割は参照前にSOUL.mdが存在するか確認します。存在しないか空の場合、役割はSOUL入力なしで通常通り動作します。
-
-| 役割 | 読む内容 | 利用方法 |
-|------|---------------|-----------------|
-| **ROUTER** | 好み、レッドライン | より鋭い意図の明確化 — ユーザーが言及していなくても、気にしているディメンションについて聞く |
-| **PLANNER** | 価値の優先事項（confidence ≥ 0.6） | ユーザーが言及していなければ、関連するディメンションを計画に自動追加 |
-| **REVIEWER** | 実態と理想のギャップ（confidence ≥ 0.3） | 価値整合性チェック — 決定が表明した志向と矛盾する場合にフラグを立てる |
-| **ADVISOR** | すべてのエントリ、証拠と矛盾の数 | 行動監査 — SOULエントリを強化または挑戦し、更新を提案 |
-| **STRATEGIST** | 世界観、未解決の矛盾 | ユーザーの具体的な緊張を扱う思想家を推薦 |
-| **DREAM** | すべてのエントリ（全読み取り/書き込み提案） | 新候補を発見、証拠/矛盾数を更新、進化を提案 |
-
----
-
-## 初回初期化
-
-SOUL.md が存在しない場合：
-
-1. システムは通常通り動作する——すべてのロールが SOUL 参照をスキップ
-2. 最初の退朝時、DREAM の N3 段階が利用可能なデータをスキャン：
-   a. `user-patterns.md`（存在する場合）——行動パターン → SOUL 候補として提案
-   b. 最近の決定——価値シグナル → SOUL 候補として提案
-3. 次回の上朝で候補を提示：「🌱 SOUL.md がまだ存在しません。あなたのパターンに基づいて、以下のエントリを提案します：」
-4. ユーザーが確認 → 確認されたエントリで SOUL.md を作成
-5. 利用可能なデータがない場合 → スキップし、より多くのセッションでエビデンスを蓄積するのを待つ
-
-SOUL.md は仮定で事前入力されることはない。観察されたエビデンスからのみ成長する。
-
-### user-patterns.md からのブートストラップ
-
-`user-patterns.md` が存在するが SOUL.md が存在しない場合、DREAM はパターンを読み取って初期 SOUL エントリを提案できる：
-- 行動パターン → 「実然」（What IS）として提案
-- 「応然」（What SHOULD BE）はユーザーが記入するため空白のまま
-- 初期確信度は低い（evidence_count: 1, challenges: 0 → confidence: 1.0 だが 🌱 単一ソースとしてフラグ）
-
----
-
-## 自動書き込みメカニズム（v1.6.2）
-
-SOUL 次元は、すべての決定ワークフロー中に ADVISOR によって自動作成・自動更新されます。ユーザーは事前承認ではなく、編集・削除でシステムを調整します。
-
-### 自動作成の基準
-
-ADVISOR が新しい SOUL 次元を作成するのは、以下を満たす時です：
-1. 観察がアイデンティティ／価値観／原則に関するもの（行動パターンではない）
-2. 証拠として 2 件以上の決定が存在（現在の session 内、または直近 30 日以内）
-3. 既存の次元がそれをカバーしていない
-
-初期値：
-- `confidence: 0.3`
-- `What IS`: 証拠から自動入力
-- `What SHOULD BE`: 空（ユーザーが記入）
-
-### 自動更新（決定ごと）
-
-すべての三省ワークフロー後に、ADVISOR は次の処理を行います：
-- 各既存次元（confidence ≥ 0.3）について：支持された場合 evidence_count +1、矛盾した場合 challenges +1
-- `confidence = evidence_count / (evidence_count + 2 × challenges)` を再計算
-
-### ユーザーナッジ
-
-ユーザーは事前承認しませんが、以下が可能です：
-- `What SHOULD BE` フィールドを編集（志向 — システムはここを記入しない）
-- 次元を削除（エントリを除去）
-- 「最近の SOUL を取り消し」と発言 → ADVISOR が最新の追加をロールバック
-- confidence を手動で編集して上書き
-
-### なぜ「自動」なのか、「確認」ではなく
-
-以前のバージョンは確認を求めていました。v1.6.2 でこれを撤廃した理由：
-- ユーザーは SOUL が「機能している」ところを見られなかった — 候補は週に 1 回しか現れなかった
-- Confidence の成長が遅すぎた（1 session につき 1 証拠）
-- ユーザーレビューのオーバーヘッドでパターン検出が遅れた
-
-事後ナッジ + リアルタイム進化により、ユーザーは「生きた」SOUL アーカイブを得ます。
-
----
-
-## スナップショットメカニズム（v1.6.2）
-
-SOUL ヘルスレポートのトレンド矢印（↗↘→）を算出するため、archiver は毎セッション終了時（Phase 2、delta マージ後）に SOUL スナップショットをダンプします。
-
-### 保存
-
-- アクティブスナップショット：`_meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
-- アーカイブ（30 日超）：`_meta/snapshots/soul/_archive/YYYY-MM-DD-HHMM.md`
-- 削除（90 日超）：ファイルシステムから除去（git + Notion に保存継続）
-
-### スナップショット形式
-
-```yaml
----
-type: soul-snapshot
-taken_at: ISO 8601 timestamp
-session_id: {session UUID}
-previous_snapshot: {prior filename, or null if first}
----
-
-# SOUL Snapshot · YYYY-MM-DD
-
-## Dimensions (count: N)
-
-| dimension | confidence | evidence | challenges | last_validated |
-|-----------|-----------|----------|------------|----------------|
-```
-
-### リーダー：RETROSPECTIVE Mode 0 Step 11
-
-次回 Start Session 時、RETROSPECTIVE は最新スナップショットを読み、次元ごとの指標を現在の SOUL.md と比較し、以下を計算します：
-- `confidence_Δ > +0.05` → ↗
-- `confidence_Δ < -0.05` → ↘
-- `|confidence_Δ| ≤ 0.05` → →
-
-新規次元（現在にあるがスナップショットになし）→ 🌱 NEW
-除去次元（スナップショットにあるが現在なし）→ 🗑️ REMOVED（ユーザー削除）
-
-### アーカイブポリシー
-
-archiver Phase 2 Step 4 もハウスキーピングを実行します：
-- 30 日より古いスナップショットを `_archive/` へ移動
-- `_archive/` から 90 日より古いスナップショットを削除
-- どちらの操作も冪等
-
-### なぜスナップショットなのか（代替案との比較）
-
-- 単一ファイル frontmatter（`last_session_evidence`）：却下——長期的トレンドデータがない
-- session 内比較のみ：却下——session 間の進展を失う
-- 完全スナップショット：採択——小さなファイル（SOUL は小さい）、全履歴、シンプルなリーダーロジック
-
----
-
-## ヘルスレポート形式（毎セッションのブリーフィング）
-
-すべての Start Session は、ブリーフィングの固定された目立つ位置（任意ではない）に SOUL ヘルスレポートを含めます。
-
-### 形式
-
-```
-🔮 SOUL ヘルスレポート
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 現在のプロファイル:
-   アクティブ次元（confidence > 0.5）: N
-   · [次元 A] 0.8 🟢 ↗ （前回セッション以降 +2 証拠）
-   · [次元 B] 0.6 🟢 → （変化なし）
-   · [次元 C] 0.5 🟡 ↘ （+1 挑戦 — 前回の決定が矛盾）
-
-🌱 新次元（前回セッション以降に自動検出）:
-   · [次元 D] 0.3（2 件の決定に基づく）
-     What IS: [システムの観察]
-     What SHOULD BE: [あなたの入力待ち — 明確になったら記入してください]
-
-⚠️ 矛盾警告:
-   · [次元 X] 直近 3 件の決定がすべて矛盾 → 振り返りまたは修訂が必要
-
-💤 休眠次元（30 日以上活性化なし）:
-   · [次元 Y] — 最近関連する決定がない
-
-📈 今期の軌跡:
-   純証拠 +N、純挑戦 +M、新次元 +K
-```
-
-### 表示ルール
-
-- SOUL のサイズにかかわらず、Mode 0 ブリーフィング（Start Session）に**必ず**表示する
-- SOUL が空の場合 → 「SOUL はまだ最初の観察を収集中です。いくつかの決定を経れば、最初の次元が現れます。」と表示
-- ブリーフィングの**上部付近**、STATUS/プロジェクト詳細の前に配置する
-- RETROSPECTIVE エージェントが現在の SOUL.md 状態からこれを生成する責任を持つ
-
----
-
-## セカンドブレイン内のSOUL.md
-
-SOUL.md はセカンドブレインのルートディレクトリに置かれます：
-
-```
-second-brain/
-├── SOUL.md              ← パーソナリティアーカイブ
-├── user-patterns.md     ← 行動パターン（異なる: あなたが「すること」）
-├── _meta/
-├── projects/
-├── areas/
-└── ...
-```
-
-**SOUL.md と user-patterns.md の違い**：
-- `user-patterns.md` は **あなたがすること** を記録 — ADVISORが観察した行動パターン
-- `SOUL.md` は **あなたが誰であるか** を記録 — あなたが確認した価値観、信念、志向
-- 一方は記述的（パターン）、もう一方はアイデンティティ（魂）
-- 相互に影響しあう：パターンは価値観を明らかにし、価値観はパターンに文脈を与える
-
----
-
-## 信頼度による階層的参照（v1.6.2）
-
-REVIEWER はすべての決定で SOUL を参照します（HARD RULE）。SOUL に多数の次元がある場合のノイズを防ぐため、3 階層戦略を適用します：
-
-| 階層 | 信頼度 | 参照戦略 | 上限 |
-|------|-------|---------|------|
-| **Tier 1 · コアアイデンティティ** | ≥ 0.7 | すべて参照 | 上限なし |
-| **Tier 2 · アクティブ価値観** | 0.3 – 0.7 | 意味的関連性が高い上位 N 件を参照 | 最大 3 件 |
-| **Tier 3 · 萌芽中** | < 0.3 | カウントのみ、表面化せず（ADVISOR が Delta で追跡） | 0 |
-
-### 関連性判定（Tier 2）
-
-REVIEWER は決定の Subject + Summary + PLANNER 提案を読み、各 Tier 2 次元について評価します：
-- **強マッチ**（直接関連）→ 優先的に含める
-- **弱マッチ**（間接関連）→ 信頼度で並べ替え、上位を取る
-- **マッチなし**→ スキップ
-
-REVIEWER レポートには、評価されたすべての Tier 2 次元と採択理由を列挙 → AUDITOR が品質をレビューします。
-
-### 特殊な状態
-
-- 決定が Tier 1 次元に挑戦する → REVIEWER が Summary Report 冒頭に ⚠️ SOUL CONFLICT 警告を追加（半ベト信号）
-- 前回スナップショット以降、次元が 0.7 を上方に越えた → 🌟 「コアに新昇格」
-- 次元が 0.7 を下方に越えた → ⚠️ 「コアから降格」
-- すべての次元が Tier 3 にある → REVIEWER は「SOUL は追跡中、まだ参照せず」と出力
-- 20 次元超 → Tier 1 は上限なしだが圧縮：上位 5 件を詳細、残りは名前のみ列挙
+| Confidence | 状態 | システム動作 |
+|------------|------|-------------|
+| < 0.3 | tentative、データポイント少 | ADVISOR のみ参照 |
+| 0.3 – 0.6 | 中程度の証拠 | ADVISOR + REVIEWER 参照 |
+| 0.6 – 0.8 | 強い証拠 | + PLANNER 参照 |
+| > 0.8 | 深く検証、低矛盾 | 全システム参照（ROUTER 含む）|
+
+**注意**: 優先順位フィールドは confidence と独立。priority-1 dim が confidence 0.4 でも priority-3 dim が confidence 0.95 に対して衝突で勝つ —— confidence は**誰が** dim を読むかに影響、priority は**衝突でどれが勝つか**に影響。
+
+## 各役割が SOUL v2 をどう使うか
+
+| 役割 | 読む | 使う |
+|------|-----|-----|
+| **ROUTER** | priority 1-3 dim + red lines + reference_set | より鋭い意図明確化；リスク領域 triage（`references/risk-domains.md` に従う）|
+| **PLANNER** | confidence ≥ 0.6 dim + priority 順 | 関連 dim を計画に自動追加；計画はどの top-3 priority dim を運用するか宣言しなければならない |
+| **REVIEWER** | すべての confirmed dim + priority + inclusion_test | 価値一貫性チェック；判定で priority を引用；Stage 7 に従って R12 trail に `value_invocations[]` を入力しなければならない（F14 を回避）|
+| **ADVISOR** | すべてのエントリ + evidence/challenge カウント | 行動監査；強化または挑戦；priority 入れ替えを提案 |
+| **STRATEGIST** | 未解決の矛盾 + 世界観 | 特定の緊張に対処する思想家を推薦 |
+| **ARCHIVER (DREAM)** | すべてのエントリ | DREAM N3 が candidate を発見、カウントを更新、lifecycle 遷移を提案、outlier が 30+ 日空をフラグ |
+
+## 自動書き込みメカニズム v2
+
+ADVISOR が新次元を提案するとき:
+
+1. **Pre-flight**: 現在の dim 数をチェック。すでに 8 → 追加前に低優先度 dim を廃止することを提案。
+2. **Auto-formulation**: ADVISOR が `X over Y` 形式を提案。X だけが明確（実際の Y なし）の場合 → 「好みであり価値ではない」とマークしてスキップ。
+3. **Inclusion test**: ADVISOR が 6 質問への回答を起草。≥1 実質的回答を生成しなければならない。
+4. **Priority slot**: 新 dim はデフォルトで priority N+1（最下位）。ユーザーは次の session で再ランクできる。
+5. **tentative で書き込み**: confidence 0.3、lifecycle_stage tentative。
+6. **昇格**: ≥2 evidence + ユーザー確認後 → confirmed に変更。
+
+## Legacy v1 エントリ (12 ヶ月共存 D3 に従う)
+
+v1.8.5 は `references/soul-spec.md` v2 を authoritative として ship。既存の v1 SOUL エントリ:
+
+- すべての役割で読める（legacy モード）
+- DREAM N3 レポートで自動フラグ: "🔄 v1 エントリ: 'risk attitude' —— /migrate-soul-v2 経由で v2 移行を検討"
+- デフォルトの `priority` フィールドは作成順で割り当て（最古 = priority 1）legacy 読み取り用
+- デフォルトの `lifecycle_stage` = confirmed（v1 confidence 閾値を通過したため）
+- デフォルトの `formulation` フィールド = 空（v2 inclusion test を**通過しない** —— フラグされるが許容）
+- **2027-05-23** 後、残りの v1 エントリは自動的に `lifecycle_stage: deprecated` マーク
+
+ユーザーは都合の良いときに `/migrate-soul-v2` slash command 経由で移行できる。強制移行なし。
+
+## `/migrate-soul-v2` 経由で移行
+
+`.claude/commands/migrate-soul-v2.md` 参照。Slash command:
+1. 既存の SOUL.md を読む
+2. 各 v1 dim に対してユーザーに質問: "X over Y" として formulate；priority を割り当て；inclusion test 質問 1+ に回答
+3. v2 YAML ブロックを v1 散文の隣に書く（保持）
+4. AUDITOR Mode 4 で検証してから commit
+
+## 使用シーン
+
+- **REVIEWER 否決**: contested case 検出時、SOUL から `domain_value_id` を含む `value_invocations[]` を必ず引用しなければならない。Contested case で value_invocations が空 = F14 silent judgment（`references/failure-taxonomy.md` に従う）。
+- **PLANNER トレードオフ**: 2 つのドメインレポートが衝突したとき、PLANNER は SOUL 優先順位を読み、勝った dim の `id` + `priority` を引用する解決を提案。
+- **archiver Phase 2 candidate gate**: 価値に触れる新 wiki エントリは ≥1 の top-3 SOUL dim を運用しなければならない（Stage 5 wiki schema 要件）。
+- **AUDITOR Mode 4 (v1.8.5 新規)**: SOUL.md schema 準拠を監査 —— カウント 3-8、優先順位総順ギャップなし、formulation X-over-Y、inclusion_test ≥1 回答、reference_set 5 slot 存在。
+
+## ソース出典
+
+eou-foundry @ e4b12ce。借用:
+- 3-8 上限 + 優先順位総順: `schemas/captured-workflow.schema.yml` domain_values_minimum_count / maximum_count / priority 制約
+- X-over-Y formulation: `schemas/captured-workflow.schema.yml` `formulation_rule`
+- Inclusion test 6Q: `dev-docs/06-values-over-rules.md` "Inclusion test" セクション
+- Outlier role slot: `schemas/captured-workflow.schema.yml` `reference_set_required_role_slots`（outlier 記述: "I dislike this but it succeeds"）
+- Failure modes 三件套: `engine/eou-contract.md` failure_modes.known/warning_signs/repair_actions
+
+life_OS 向けに適応: SOUL は person-scope（captured_workflow のような app-scope ではない）；lifecycle_stage を 4 状態に簡略化（vs eou 9）；confidence band システムは priority と並存。

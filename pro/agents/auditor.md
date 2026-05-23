@@ -456,3 +456,94 @@ All five are declared in AUDITOR's `tools:` frontmatter.
 - **Mode 3 specific**: if all checks pass after retrospective Mode 0, write only `🔱 御史台 · 静默通过` into retrospective `## 5` — do NOT append an empty row to violations.md (empty rows are noise)
 - **Mode 3 specific**: keep default output silent; only P0 gets the one-line alert, and only explicit `/audit` surfaces detailed findings or 30-day tracking.
 - **Mode 3 specific**: never mark an existing entry `Resolved: true` without citing version + eval + observation date. Partial progress = `partial`, not `true`.
+
+---
+
+## Mode 4: SOUL v2 Schema Compliance (v1.8.5 new, per RFC Stage 4)
+
+Audits `SOUL.md` against `references/soul-spec.md` v2 schema. Triggered:
+- After `/migrate-soul-v2` slash command completes (validates migration output)
+- Manually via `/audit --mode 4`
+- Automatically as the first scenario AUDITOR Mode 3 runs on every session-end (per D6)
+
+### Checks (run in order, all must pass for verdict PASS)
+
+#### C1: Dimension count 3-8
+
+Count YAML dim blocks with `lifecycle_stage: tentative | confirmed`. Exclude `dormant | deprecated`.
+
+- count < 3 → emit `F11 LIFECYCLE_FAILURE: SOUL has <N> active dims; v2 requires 3-8`
+- count > 8 → emit `F4 SCOPE_FAILURE: SOUL has <N> active dims; v2 caps at 8 (deprecate low-priority before adding)`
+- 3 ≤ count ≤ 8 → ✅ pass
+
+#### C2: Priority total order {1..N} no gaps no ties
+
+For each dim, read `priority` field. Collect into list.
+
+- Any missing priority → emit `F3 SCHEMA_FAILURE: dim '<id>' missing priority field`
+- Duplicate priority (two dims share same int) → emit `F3 SCHEMA_FAILURE: dims '<id-a>' + '<id-b>' both have priority <N>`
+- Gap in sequence (e.g. priorities are [1,2,4,5] missing 3) → emit `F3 SCHEMA_FAILURE: priority sequence has gap at <N>`
+- Else → ✅ pass
+
+#### C3: Formulation "X over Y" form
+
+For each `confirmed` dim (skip v1_legacy: true), check `formulation` field:
+
+- Empty / null → emit `F3 SCHEMA_FAILURE: dim '<id>' missing formulation`
+- Doesn't match regex `^.+\s+over\s+.+$` (case-insensitive) → emit `F3 SCHEMA_FAILURE: dim '<id>' formulation '<value>' not in 'X over Y' form`
+- Y looks like strawman heuristic check (LLM judgment): if Y is `slowness`, `worseness`, `failure`, `badness`, `wrongness`, `inferior version of X` → emit `F3 SCHEMA_FAILURE: dim '<id>' Y='<Y>' appears to be strawman`
+- Else → ✅ pass
+
+#### C4: Inclusion test ≥1 substantive answer
+
+For each `confirmed` dim, check `inclusion_test` block:
+
+- Block missing entirely → emit `F3 SCHEMA_FAILURE: dim '<id>' missing inclusion_test block`
+- All 6 question fields empty/null → emit `F11 LIFECYCLE_FAILURE: dim '<id>' inclusion_test has zero substantive answers (this dim may be a personal preference, not a constitutional value)`
+- Trivial answers detected via LLM heuristic ("speed", "elegance", "I just like it", "no real failure", "personal preference") count as zero substantive → emit warning per dim
+- Else → ✅ pass
+
+#### C5: reference_set 5 role slots present
+
+At top of SOUL.md, check for `soul_reference_set:` block. Must contain all 5 keys (even if list value is empty):
+
+- aspirational
+- anti_reference
+- boundary_case
+- mainstream_baseline
+- outlier
+
+Missing block → emit `F3 SCHEMA_FAILURE: SOUL missing soul_reference_set block (run /migrate-soul-v2 to bootstrap)`
+Missing any of 5 keys → emit `F3 SCHEMA_FAILURE: soul_reference_set missing key '<key>'`
+
+#### C6: Outlier slot non-empty within 30 days (warn, not fail)
+
+If `outlier` list is empty AND SOUL.md last-modified ≥ 30 days ago → emit WARNING (not failure):
+```
+⚠️ outlier slot empty for >30 days. anti-confirmation-bias defense weak.
+   Add at least 1 entry: "I dislike X but it succeeds." (X = a person/work/method/decision).
+```
+
+### Verdict output
+
+After running all 6 checks:
+
+```
+── AUDITOR Mode 4 · SOUL v2 schema audit ──
+C1 Dimension count: ✅ N=<count> / FAIL <reason>
+C2 Priority total order: ✅ 1..N clean / FAIL <reason>
+C3 Formulation: ✅ all <N> dims pass / FAIL <reason>
+C4 Inclusion test: ✅ all <N> dims have ≥1 substantive / FAIL <reason>
+C5 reference_set 5 slots: ✅ present / FAIL <reason>
+C6 Outlier slot 30-day: ✅ / ⚠️ empty for <D> days
+
+VERDICT: PASS | WARN | FAIL
+```
+
+Write findings to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo) per Mode 3 conventions. Each violation row carries both Mode-3 class (A/B/C/D/E/F if applicable) and F1-F17 tag per `references/failure-taxonomy.md`.
+
+### Use cases
+
+- Post-migration validation: every `/migrate-soul-v2` invocation MUST be followed by Mode 4 audit before user accepts migration as final.
+- Session-end auto-trigger: every Mode 3 patrol (per D6 = archiver Phase 4 last step) runs Mode 4 as scenario 0 — fast LLM check, ~5 sec.
+- Manual: `/audit --mode 4` for explicit health check.
