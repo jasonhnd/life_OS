@@ -6,6 +6,94 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.5] - 2026-07-15 - Hook Retirement + EOU-Hardening (largest single release in life_OS history)
+
+```yaml
+---
+version: 1.8.5
+date: 2026-07-15
+type: patch
+breaking_changes:
+  - "SOUL.md schema v1 → v2: priority {1..N} total order, X-over-Y formulation required, inclusion test 6Q gate, outlier role slot mandatory, 3-8 dim cap"
+  - "wiki entry schema v1 → v2: 6 facets classification, operating_hypothesis, context_manifest 3-layer, reference_set 5 role slots, failure_modes, arguments_against"
+  - "23 pro/agents/*.md frontmatter v1 → v2: id + version + classification (6 facets) + operating_hypothesis + context_manifest + blast_radius + failure_modes"
+  - "audit-trail-spec R11 → R12: value_invocations[] required on contested-case decisions"
+  - "Hook layer integral retirement: 11 bash hooks deleted, 38 .sh files removed; 5-layer defense → 4-layer (D1 accepted any pass rate)"
+  - "CHANGELOG.md schema: v1.8.5+ entries require YAML frontmatter per references/changelog-spec.md v1"
+  - "violations.md format: v1.8.5+ rows require F-Code column (F1-F17)"
+new_features:
+  - "F1-F17 failure taxonomy borrowed from eou-foundry"
+  - "8+2 canonical refactor patterns library"
+  - "8 high-risk domains (R1-R8) with 5 escalation requirements"
+  - "SOUL v2 dimensions: X-over-Y + priority total order + inclusion test 6Q + outlier slot"
+  - "wiki v2 entries: 6 facets + operating_hypothesis + reference_set + arguments_against"
+  - "Agent v2 frontmatter: blast_radius enforcement + failure_modes for all 23 subagents"
+  - "AUDITOR Mode 4 (SOUL) / Mode 5 (wiki) / Mode 6 (agent) — auto-trigger on session end"
+  - "AUDITOR Mode 3 F14-F17 silent-judgment scenarios"
+  - "Decision Records HARD RULE + Minimality Rule HARD RULE"
+  - "12 slash commands replace deleted .sh"
+  - "14 regression fixtures protecting v1.8.5 surface"
+fixes:
+  - "13 Drive sync duplicate directories cleaned + violations.md 2026-05-22 merge"
+  - ".git/hooks/pre-commit orphan removed (was blocking commits)"
+  - "CRLF line ending renormalization across 55 files"
+alternatives_considered:
+  - option: "Ship 30 EOU-borrowed designs as 30 minor patches over 6 months"
+    rejected_because: "User requested 'one version that does it all'"
+  - option: "Bump to v2.0.0 (SemVer-correct for breaking changes)"
+    rejected_because: "User decision: patch numbering per project convention"
+  - option: "Keep bash hook layer, retire only .py files"
+    rejected_because: "User HARD RULE 'No .py and .sh' is absolute"
+  - option: "Force-migrate legacy SOUL/wiki at release"
+    rejected_because: "D3 chose 12-month coexistence for user convenience"
+  - option: "Full AGENTS.md thin-import architecture"
+    rejected_because: "Existing CLAUDE.md authoritative model; thin-import deferred"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: [Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6, Stage 7, Stage 8, Stage 9, Stage 10, Stage 11]
+regression_cases_added:
+  - rc-soul-no-priority
+  - rc-soul-no-outlier
+  - rc-soul-strawman-y
+  - rc-wiki-no-outlier
+  - rc-wiki-no-hypothesis
+  - rc-agent-no-authority
+  - rc-agent-blast-radius-violation
+  - rc-f14-silent-judgment
+  - rc-f15-value-hierarchy
+  - rc-f16-value-drift
+  - rc-f17-value-hallucination
+  - rc-forbidden-extension-sh
+  - rc-court-start-001
+  - rc-confabulated-path
+---
+```
+
+> **The largest single release in life_OS history.** v1.8.5 ships in one shot what would normally be 5-7 minor versions: integral retirement of the bash hook layer (8328 lines of `.sh` deleted) + 30 designs borrowed from xiaolai/eou-foundry @ e4b12ce. Per RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`.
+
+### Highlights
+
+- **0 .py + 0 .sh achieved** — 100% LLM-native. 11 hooks + 38 scripts deleted, replaced by 12 `.claude/commands/*.md` slash commands.
+- **5-layer defense → 4-layer** — runtime hook layer retired. Enforcement now via SKILL.md HARD RULE / subagent self-check / AUDITOR Mode 3-6 auto-trigger / regression fixtures.
+- **SOUL gains constitutional structure** — priority total order + X-over-Y + inclusion test + outlier slot.
+- **wiki entries gain operating_hypothesis + arguments_against** — every active+ entry articulates falsifiable form + what would prove it wrong.
+- **23 agents standardized** — blast_radius + context_manifest + failure_modes per agent. AUDITOR Mode 6 enforces.
+- **F14 Silent Judgment defense** — contested decisions MUST populate R12 `value_invocations[]` 5 fields.
+
+### Migration (12-month legacy coexistence per D3)
+
+- `/uninstall-agents` + `/install-agents` to refresh agent wrappers
+- `/migrate-soul-v2` (interactive, per-dim) — legacy entries auto-deprecate 2027-05-23
+- `/migrate-wiki-v2` (interactive, per-entry) — legacy entries auto-deprecate 2027-05-23
+- pro/agents/ already auto-migrated
+- CHANGELOG / violations.md format applies prospectively only
+
+### Acknowledgments
+
+Inspiration: xiaolai/eou-foundry @ e4b12ce. 30 design ideas borrowed with attribution. Two systems independently converged to 5 governance attractors (audit trail / evidence-bound / honest downgrade / generating≠operating / self-approval paradox explicit).
+
+---
+
 ## [1.8.4] - 2026-05-16 - Anti-confabulation: DREAM stale-task validation + maintenance overdue source-of-truth
 
 > **Two surgical fixes for briefing free-form-generation holes detected on 2026-05-16.** Both bugs are class **B (LLM fabrication of evidence)** — the subagent invented numeric/state claims instead of reading primary source. v1.8.4 lifts each source-of-truth into something the subagent must call (a script, or a task frontmatter file) and forces ROUTER to re-verify before showing the briefing.

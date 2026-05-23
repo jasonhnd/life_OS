@@ -6,6 +6,85 @@
 
 ---
 
+## [1.8.5] - 2026-07-15 - Hook 退役 + EOU-Hardening（life_OS 历史上最大单次 release）
+
+```yaml
+---
+version: 1.8.5
+date: 2026-07-15
+type: patch
+breaking_changes:
+  - "SOUL.md schema v1 → v2：优先级 {1..N} 总序、X-over-Y formulation 必填、inclusion test 6Q gate、outlier role slot 必填、3-8 dim 上限"
+  - "wiki entry schema v1 → v2：6 facets classification、operating_hypothesis、context_manifest 三层、reference_set 5 role slots、failure_modes、arguments_against"
+  - "23 个 pro/agents/*.md frontmatter v1 → v2：id + version + classification + operating_hypothesis + context_manifest + blast_radius + failure_modes"
+  - "audit-trail-spec R11 → R12：contested-case 决策必填 value_invocations[]"
+  - "Hook layer 整体退役：11 个 bash hook 删、38 个 .sh 文件删；5 层防御 → 4 层（D1 接受任何通过率）"
+  - "CHANGELOG.md schema：v1.8.5+ entry 必需 YAML frontmatter（references/changelog-spec.md v1）"
+  - "violations.md format：v1.8.5+ row 必需 F-Code 列（F1-F17）"
+new_features:
+  - "F1-F17 失败分类法（借鉴自 eou-foundry）"
+  - "8+2 个 canonical refactor patterns 库"
+  - "8 个高风险领域（R1-R8）含 5 项升级要求"
+  - "SOUL v2：X-over-Y + 优先级总序 + inclusion test 6Q + outlier slot"
+  - "wiki v2：6 facets + operating_hypothesis + reference_set + arguments_against"
+  - "Agent v2 frontmatter：blast_radius 强制 + failure_modes for all 23 subagents"
+  - "AUDITOR Mode 4（SOUL）/ Mode 5（wiki）/ Mode 6（agent）—— session 末自动触发"
+  - "AUDITOR Mode 3 F14-F17 silent-judgment scenarios"
+  - "Decision Records HARD RULE + Minimality Rule HARD RULE"
+  - "12 个 slash command 替代删除的 .sh"
+  - "14 个 regression fixtures 保护 v1.8.5 表面"
+fixes:
+  - "13 个 Drive 同步副本目录清理 + violations.md 2026-05-22 合并"
+  - ".git/hooks/pre-commit 孤儿删除（之前调用已删的 lifeos-compliance-check.sh，block commits）"
+  - "CRLF 行尾规范化跨 55 文件"
+alternatives_considered:
+  - option: "保持 v1.8.4，分 6 个月做 30 个 minor patch"
+    rejected_because: "用户要求 '一次性做完所有'"
+  - option: "升 v2.0.0（按 SemVer 破坏性变更应主版本）"
+    rejected_because: "用户决策：按项目约定 patch 编号"
+  - option: "保留 bash hook layer，只删 .py"
+    rejected_because: "用户 HARD RULE '不能有 .py 和 .sh' 绝对"
+  - option: "Release 时强制迁移 legacy SOUL/wiki"
+    rejected_because: "D3 选 12 个月共存便用户慢慢迁移"
+  - option: "完整 AGENTS.md thin-import 架构"
+    rejected_because: "现有 CLAUDE.md authoritative 模式；thin-import deferred"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: [Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6, Stage 7, Stage 8, Stage 9, Stage 10, Stage 11]
+regression_cases_added:
+  - rc-soul-no-priority / rc-soul-no-outlier / rc-soul-strawman-y
+  - rc-wiki-no-outlier / rc-wiki-no-hypothesis
+  - rc-agent-no-authority / rc-agent-blast-radius-violation
+  - rc-f14-silent-judgment / rc-f15-value-hierarchy / rc-f16-value-drift / rc-f17-value-hallucination
+  - rc-forbidden-extension-sh / rc-court-start-001 / rc-confabulated-path
+---
+```
+
+> **life_OS 历史上最大单次 release。** v1.8.5 一次性 ship 通常需 5-7 个 minor 版本的内容：bash hook layer 整体退役（8328 行 .sh 删除）+ 30 个借鉴自 xiaolai/eou-foundry @ e4b12ce 的设计。按 RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`。
+
+### 亮点
+
+- **0 .py + 0 .sh 达成** —— 100% LLM-native。11 hook + 38 script 删，替换为 12 个 `.claude/commands/*.md` slash command。
+- **5 层防御 → 4 层** —— runtime hook layer 退役。Enforcement 现在通过 SKILL.md HARD RULE / subagent 自检 / AUDITOR Mode 3-6 session 末自动 / regression fixtures。
+- **SOUL 获得宪法结构** —— 优先级总序 + X-over-Y + inclusion test + outlier slot。
+- **wiki entry 获得 operating_hypothesis + arguments_against** —— 每个 active+ entry 必须可证伪 + 写出什么会证伪。
+- **23 agent 标准化** —— blast_radius + context_manifest + failure_modes。AUDITOR Mode 6 强制。
+- **F14 Silent Judgment 防御** —— contested 决策必须填 R12 `value_invocations[]` 5 字段。
+
+### 迁移（12 个月 legacy 共存按 D3）
+
+- `/uninstall-agents` + `/install-agents` 刷新 agent wrappers
+- `/migrate-soul-v2`（交互式，per-dim）—— legacy entry 2027-05-23 自动 deprecate
+- `/migrate-wiki-v2`（交互式，per-entry）—— legacy entry 2027-05-23 自动 deprecate
+- pro/agents/ 已自动迁移
+- CHANGELOG / violations.md 格式仅向前适用
+
+### 致谢
+
+灵感：xiaolai/eou-foundry @ e4b12ce。30 个设计借鉴含 attribution。两个系统独立演化到同样 5 个治理 attractor（audit trail / evidence-bound / honest downgrade / generating≠operating / self-approval paradox explicit）。
+
+---
+
 ## [1.8.4] - 2026-05-16 - 反幻觉:DREAM 已闭任务校验 + 维护 overdue 单一真源
 
 > **两个外科手术式修复,补 2026-05-16 当天发现的两个 briefing 自由发挥漏洞。** 两个 bug 都属 **B 类(LLM 凭空编造证据)**——subagent 没读 primary source,自己估了数字/状态。v1.8.4 把每个 source-of-truth 都"抬"成"subagent 必须主动去调"的东西(脚本 / 任务 frontmatter 文件),并强制 ROUTER 在 briefing 出给用户前自己再核一遍。

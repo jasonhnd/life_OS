@@ -6,6 +6,85 @@
 
 ---
 
+## [1.8.5] - 2026-07-15 - Hook 引退 + EOU-Hardening（life_OS 史上最大の単一 release）
+
+```yaml
+---
+version: 1.8.5
+date: 2026-07-15
+type: patch
+breaking_changes:
+  - "SOUL.md schema v1 → v2：優先順位 {1..N} 総順、X-over-Y formulation 必須、inclusion test 6Q gate、outlier role slot 必須、3-8 dim 上限"
+  - "wiki entry schema v1 → v2：6 facets classification、operating_hypothesis、context_manifest 三層、reference_set 5 role slots、failure_modes、arguments_against"
+  - "23 個 pro/agents/*.md frontmatter v1 → v2"
+  - "audit-trail-spec R11 → R12：contested-case 決定に value_invocations[] 必須"
+  - "Hook layer 全体引退：11 bash hook 削除、38 .sh ファイル削除；5 層防御 → 4 層（D1 すべての通過率を受容）"
+  - "CHANGELOG.md schema：v1.8.5+ エントリは YAML frontmatter 必須"
+  - "violations.md format：v1.8.5+ row は F-Code 列必須"
+new_features:
+  - "F1-F17 失敗分類法（eou-foundry より借用）"
+  - "8+2 個 canonical refactor patterns ライブラリ"
+  - "8 高リスク領域（R1-R8）と 5 つのエスカレーション要件"
+  - "SOUL v2：X-over-Y + 優先順位総順 + inclusion test 6Q + outlier slot"
+  - "wiki v2：6 facets + operating_hypothesis + reference_set + arguments_against"
+  - "Agent v2 frontmatter：blast_radius 強制 + failure_modes for all 23 subagents"
+  - "AUDITOR Mode 4 / Mode 5 / Mode 6 —— session 末自動トリガー"
+  - "AUDITOR Mode 3 F14-F17 silent-judgment scenarios"
+  - "Decision Records HARD RULE + Minimality Rule HARD RULE"
+  - "12 slash command が削除された .sh を置換"
+  - "14 regression fixtures が v1.8.5 表面を保護"
+fixes:
+  - "13 Drive 同期重複ディレクトリのクリーンアップ + violations.md 2026-05-22 マージ"
+  - ".git/hooks/pre-commit 孤児の削除"
+  - "CRLF 改行コード正規化（55 ファイル）"
+alternatives_considered:
+  - option: "v1.8.4 のまま、30 borrowed design を 6 ヶ月で 30 minor patch として ship"
+    rejected_because: "ユーザーが '一回ですべて完了' を要求"
+  - option: "v2.0.0 にバンプ（破壊的変更は SemVer 上 major）"
+    rejected_because: "ユーザー判断：プロジェクト規約で patch 番号付け"
+  - option: "bash hook layer を保持し、.py のみ削除"
+    rejected_because: "ユーザー HARD RULE '.py と .sh なし' は絶対"
+  - option: "Release 時に legacy SOUL/wiki を強制移行"
+    rejected_because: "D3 が 12 ヶ月共存を選択（ユーザーの便宜のため）"
+  - option: "完全な AGENTS.md thin-import アーキテクチャ"
+    rejected_because: "既存の CLAUDE.md authoritative モデル；thin-import 保留"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: [Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6, Stage 7, Stage 8, Stage 9, Stage 10, Stage 11]
+regression_cases_added:
+  - rc-soul-no-priority / rc-soul-no-outlier / rc-soul-strawman-y
+  - rc-wiki-no-outlier / rc-wiki-no-hypothesis
+  - rc-agent-no-authority / rc-agent-blast-radius-violation
+  - rc-f14-silent-judgment / rc-f15-value-hierarchy / rc-f16-value-drift / rc-f17-value-hallucination
+  - rc-forbidden-extension-sh / rc-court-start-001 / rc-confabulated-path
+---
+```
+
+> **life_OS 史上最大の単一 release。** v1.8.5 は通常 5-7 個の minor バージョンを必要とする内容を 1 回で ship：bash hook layer 全体引退（8328 行の .sh 削除）+ xiaolai/eou-foundry @ e4b12ce から借用した 30 個の設計。RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` に従う。
+
+### ハイライト
+
+- **0 .py + 0 .sh 達成** —— 100% LLM-native。11 hook + 38 script 削除、12 個の `.claude/commands/*.md` slash command で置換。
+- **5 層防御 → 4 層** —— runtime hook layer 引退。Enforcement は SKILL.md HARD RULE / subagent 自己チェック / AUDITOR Mode 3-6 session 末自動 / regression fixtures を通じて行う。
+- **SOUL が憲法的構造を獲得** —— 優先順位総順 + X-over-Y + inclusion test + outlier slot。
+- **wiki エントリが operating_hypothesis + arguments_against を獲得** —— 各 active+ エントリは反証可能形 + 何が反証するかを明文化。
+- **23 agent 標準化** —— blast_radius + context_manifest + failure_modes。AUDITOR Mode 6 強制。
+- **F14 Silent Judgment 防御** —— contested 決定は R12 `value_invocations[]` 5 フィールドを必ず入力。
+
+### 移行（D3 に従う 12 ヶ月 legacy 共存）
+
+- `/uninstall-agents` + `/install-agents` で agent wrappers をリフレッシュ
+- `/migrate-soul-v2`（対話的、per-dim）—— legacy エントリは 2027-05-23 に自動 deprecate
+- `/migrate-wiki-v2`（対話的、per-entry）—— legacy エントリは 2027-05-23 に自動 deprecate
+- pro/agents/ は自動移行済み
+- CHANGELOG / violations.md フォーマットは前向き適用のみ
+
+### 謝辞
+
+インスピレーション：xiaolai/eou-foundry @ e4b12ce。30 個の設計を attribution 付きで借用。2 つのシステムが独立に 5 つのガバナンス attractor に収束（audit trail / evidence-bound / honest downgrade / generating≠operating / self-approval paradox explicit）。
+
+---
+
 ## [1.8.4] - 2026-05-16 - 反幻覚:DREAM 完了タスク検証 + メンテ overdue 単一情報源
 
 > **2026-05-16 に発見された briefing 自由生成漏れを塞ぐ、外科手術的な 2 つの修正。** 両 bug とも **B クラス(LLM による証拠捏造)**——subagent が一次情報源を読まず、数値や状態を自分で推測した。v1.8.4 は各情報源を「subagent が必ず呼び出す対象」(スクリプト、タスク frontmatter ファイル)に格上げし、briefing をユーザーに見せる前に ROUTER 自身に再検証させる。
