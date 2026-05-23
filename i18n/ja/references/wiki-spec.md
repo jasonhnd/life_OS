@@ -1,299 +1,235 @@
-# Wiki 仕様書
-
-Wiki はシステムのナレッジアーカイブ — 世界に関する再利用可能な結論の、生きたコレクションです。second-brain の `wiki/` ディレクトリに格納されます。
-
-## 位置づけ
-
-| ストレージ | 記録する内容 | 例 |
-|---------|----------------|---------|
-| `decisions/` | 何を決定したか（具体的、タイムスタンプ付き） | "2026-04-01: 信託構造の採用を決定" |
-| `user-patterns.md` | 何をするか（行動パターン） | "財務面の検討を避ける傾向がある" |
-| `SOUL.md` | 自分は誰か（価値観、性格） | "リスク許容度: 中〜高" |
-| `wiki/` | 何を知っているか（再利用可能な結論） | "日本のNPO融資に貸金業法の免除はない" |
-
-SOUL は人格を管理します。Wiki は知識を管理します。両者を混同してはなりません。
-
+---
+spec_id: wiki.v2
+description: Wiki entry schema v2。eou-foundry から 6 facets classification + operating_hypothesis + context_manifest 三層 + reference_set 5 role slots（outlier 含む）+ failure_modes + arguments_against を借用。v1 free-form prose schema を置換。v1 エントリは v2 と 12 ヶ月共存（D3 に従う）。
+status: active
+authoritative: true
+source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + captured-workflow.schema.yml + engine/eou-contract.md
+introduced_in: v1.8.5
+supersedes: wiki.v1 (v1.8.4 以前；v1 エントリは 2027-05-23 に自動 deprecated D3 に従う)
 ---
 
-## 原則
+# Wiki 仕様書 v2
 
-1. **ゼロから成長する** — wiki/ は空の状態から始まります。初期化は不要です。
-2. **エビデンスベース** — すべてのエントリは、裏付けとなる decisions/experiences にリンクします。
-3. **厳格な基準下での自動書き込み** — Wiki エントリーは archiver と DREAM が全 6 基準を満たした時に自動作成されます。ユーザーは削除で調整します（ファイル削除 = 廃止；「最近の wiki を取り消し」と言えばロールバック）。
-4. **タイトル＝結論** — すべてのエントリのタイトルは、トピックではなく結論そのものでなければなりません。
-5. **1ファイル1結論** — 複数トピックのまとめファイルは作成しません。
+Wiki はシステムのナレッジアーカイブ —— 世界に関する再利用可能な結論の生きたコレクション。second-brain の `wiki/` ディレクトリに格納される。
 
----
+> **v1.8.5 wiki v2 ピボット —— eou-foundry より借用**: Wiki エントリはもはや confidence/evidence metadata を持つ自由形式の散文ではない。v2 エントリは構造化された frontmatter（6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against）を持つ。RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 5 に従う。
 
-## 自動書き込み基準（6 ルール）
+## 位置づけ（v1 保持）
 
-候補となる結論は、自動書き込みされる前に全 6 基準を通過しなければなりません。1 つでも不合格ならその候補は破棄し、低確信度エントリを書き込んではなりません。
+| 保存場所 | 記録 | 例 |
+|---------|------|-----|
+| `decisions/` | 何を決めたか（具体的、タイムスタンプ）| "2026-04-01: 信託構造を使うと決定" |
+| `user-patterns.md` | 何をするか（行動パターン）| "金融次元を回避する傾向" |
+| `SOUL.md` | 誰であるか（価値観、人格）—— **v2 schema は `references/soul-spec.md` 参照** | "Truth over comfort"（priority 1）|
+| `wiki/` | 何を知っているか —— 宣言的知識 —— **v2 schema 本ドキュメント** | "日本の NPO 融資には貸金業法の免除なし" |
+| `_meta/concepts/` | シナプスグラフ —— アイデアがどう繋がるか | "company-a-holding" ノードに重み付きエッジ |
+| `_meta/methods/` | 手続き的記憶 —— 再利用可能なワークフロー | "5 段階品質ドキュメント改善" |
 
-1. **プロジェクト横断で再利用可能** — 結論は、観察された session を超えて、他のプロジェクト/領域でも有用であること。
-2. **あなたではなく世界について** — 事実、ルール、または方法論であること。価値観や個人的な好み（それらは SOUL へ）ではなく、行動パターン（それらは user-patterns.md へ）でもないこと。
-3. **個人プライバシーゼロ** — 名前、金額、口座番号、ID、特定の会社名、家族・友人情報、追跡可能な日付と場所の組み合わせを含まないこと。結論がこれらを必要として初めて意味を成す場合 → それは wiki 素材ではなく、スキップします。
-4. **事実または方法論** — 「何が起こったか」または「X をどう行うか」を記述すること。感情や意見ではないこと。
-5. **複数の証拠点（2 件以上、独立したもの）** — 少なくとも 2 件の事例、データポイント、決定、または参照があること。単一の観察は破棄されます（それらはジャーナルであり、wiki ではありません）。
-6. **既存 wiki と矛盾しない** — 新しい結論が既存エントリと矛盾する場合 → そのエントリの `challenges: +1` を増加させ、競合する新エントリを作成**しない**こと。
+**wiki マテリアルでない**（別の場所へ）：
+- アイデンティティ / 価値 / 個人的好み → `SOUL.md` v2
+- 行動パターン → `user-patterns.md`
+- 手続き的ワークフロー → `_meta/methods/`
+- 概念レベル関連 → `_meta/concepts/`
 
-**初期 confidence**（候補が全 6 基準を通過した時）：
-- 独立した証拠点 3 件以上 → `confidence: 0.5`
-- ちょうど 2 件 → `confidence: 0.3`
-- 1 件以下 → 破棄（基準 5 を満たさない）
+## 原則（v1 保持）
 
-**プライバシーフィルター** — すべての書き込み前に適用：
-- 名前を削除（結論に直接関連する公人を除く）
-- 具体的な金額、口座番号、ID 番号を削除
-- 特定の会社名を削除（公開されたケーススタディの場合を除く）
-- 家族・友人への言及を削除
-- 追跡可能な日付と場所の組み合わせを削除
-- これらを削除した結果、結論が意味を成さなくなる場合 → 破棄（実際には再利用可能ではなく、知識を装った個人メモだったということです）
+1. **ゼロから成長** — wiki/ は空で始まる。
+2. **証拠ベース** —— 各エントリは支持する決定/経験にリンク。
+3. **厳格基準下での自動書き込み** —— archiver と DREAM が基準通過時に自動作成。ユーザーは削除で調整。
+4. **タイトル = 結論** —— 各エントリのタイトルは結論そのもの、トピックではない。
+5. **1 ファイル 1 結論** —— マルチトピック編集なし。
 
----
+## v2 Entry Frontmatter（HARD schema）
 
-## ユーザーナッジ（書き込み後）
-
-ユーザーは事前に wiki エントリを承認しません。事後にシステムを調整します：
-
-- `wiki/{domain}/{topic}.md` を削除 → エントリを廃止
-- セッション内で「最近の wiki を取り消し」と発言 → archiver が次回起動時に最新の自動書き込みをロールバック
-- confidence を手動で 0 または 0.3 未満に編集して拒否 → エントリは残るが参照されない
-
----
-
-## エントリフォーマット
-
-各 Wiki エントリは独立した Markdown ファイルです：
+v1.8.5 以降のすべての新 wiki エントリは以下に準拠する YAML frontmatter を**必ず持たなければならない**：
 
 ```yaml
 ---
-domain: "[ドメイン名]"       # finance / startup / health / legal / tech / project-name...
-topic: "[短い識別子]"
-confidence: 0.0               # 0-1、自動計算
-evidence_count: 0             # 裏付けとなる decisions/experiences
-challenges: 0                 # 矛盾する experiences
-source: dream                 # dream / session / user
+# アイデンティティ
+id: wn-{slug}                       # canonical、例 wn-japan-npo-lending-no-exemption
+name: "<人類可読名>"
+version: "0.1.0"                    # semver；実質変更で bump
+
+# v2 新規: 6 facets classification（eou-foundry eou.schema.yml より借用）
+classification:
+  function: generate|specify|validate|diagnose|promote|refactor|audit|propose|activate|implement|retire
+  target_object: "<このエントリは何について>"
+  automation_mode: deterministic|LLM_assisted|human_executed|hybrid
+  authority_level: suggest_only|draft_only|write_candidate|write_inactive|mutate_active|approve|publish
+  risk_level: low|medium|high|critical
+  lifecycle_stage: candidate|draft|simulated|pilot|active|monitored|stable|deprecated|retired
+
+# v2 新規: operating_hypothesis（Given/can/within 形式）
+operating_hypothesis: |
+  Given <input/トリガー>, under context <c>, this knowledge entry should
+  produce <output/効果> within risk <r>.
+
+# v2 新規: context_manifest（eou eou-contract.md §context_manifest）
+context_manifest:
+  source_of_truth: []   # このエントリが読む/引用する正典工件
+  supporting: []        # 二次的 context
+  forbidden: []         # context として使えないもの（明示的除外）
+
+# v2 新規: reference_set 5 role slots（eou captured-workflow.schema.yml）
+reference_set:
+  aspirational: []         # ref + why; エントリが憧れる作品/人
+  anti_reference: []       # ref + why; 明示的アンチ例
+  boundary_case: []        # ref + why; エッジケース
+  mainstream_baseline: []  # ref + why; 典型例（対比用）
+  outlier: []              # active+ 必須: "私は嫌いだが成功する"；反 confirmation-bias
+
+# v2 新規: failure_modes（eou eou-contract.md §failure_modes）
+failure_modes:
+  known: []          # この知識が誤用される方法
+  warning_signs: []  # 知識が誤りまたは drift している観察可能シグナル
+  repair_actions: [] # 知識が誤発火したときの修復
+
+# v2 新規: arguments_against（eou generating_eou_candidate_required）
+arguments_against: |
+  This entry might be wrong because <理由>. Counter-evidence to watch for:
+  <観察可能シグナル>.
+
+# 既存 v1 metadata（保持）
+confidence: 0.5
+evidence_count: 3
+challenges: 0
 created: YYYY-MM-DD
 last_validated: YYYY-MM-DD
+source: archiver|dream|user
 ---
+
+# <エントリタイトル = 結論>
+
+<本文：宣言的知識 1-3 段落>
+
+## Evidence
+
+- [YYYY-MM-DD] [decision/case] — [link]
+
+## Challenges（あれば）
+
+- [YYYY-MM-DD] [contradicting case] — [link]
 ```
 
-### 結論
-[一文 — 再利用可能な要点]
+## v2 HARD Schema 制約
 
-### 推論
-[この結論を裏付けるエビデンスとロジック]
+### 1. Frontmatter 7 必須フィールド群
 
-### 適用場面
-[どのようなシナリオでこのエントリを想起すべきか]
+- `id`（canonical wn-* slug）
+- `classification`（6 facets すべて入力；`target_object` 非空文字列）
+- `operating_hypothesis`（Given/can/within 形式；≥30 文字）
+- `context_manifest`（ブロック存在；active+ エントリの `source_of_truth` 非空）
+- `reference_set`（5 キー存在；candidate/draft では初期空 list 可）
+- `failure_modes`（ブロック存在；初期空 list 可）
+- `arguments_against`（非空文字列；≥20 文字；非自明）
 
-### ソース
-[どの決定、セッション、または経験がこの知識を生み出したか]
+**AUDITOR Mode 5 により強制**（Stage 5 Day 13 で追加）。
 
----
+### 2. Reference_set `outlier` は active+ エントリで必須
 
-## タイトル規約
+`lifecycle_stage: active | monitored | stable` のエントリ：
+- `outlier` list は **必ず** ≥1 エントリを含む
+- 各 outlier エントリ: `ref`（工件/人/作品）+ `why`（ユーザーが嫌う理由 + それでも成功する理由）
 
-タイトルはトピックではなく結論でなければなりません：
+`candidate | draft | pilot`：
+- `outlier` は初期空 可
+- outlier がまだ空なら `active` への昇格はブロック（`references/lifecycle-gates.md` 遷移 4 に従う）
 
-- ✅ "日本のNPO融資に貸金業法の免除はない"
-- ❌ "NPO 貸金業法の調査"
-- ✅ "MVPは製品の品質ではなく需要を検証する"
-- ❌ "MVP方法論メモ"
-- ✅ "16:8 間欠断食は自分に合っている"
-- ❌ "間欠断食の調査"
+### 3. `arguments_against` は自明であってはならない
 
-ファイルを開けばすぐに答えがわかります — 全文を読む必要はありません。
+- ✅ "このエントリは日本の税法が 2024 に変わり post-change を検証していないため誤りかもしれない。Counter-evidence: 法 17 を引用する 2024+ 判決のいずれか。"
+- ❌ "誤りかも" / "Counter-evidence なし" / "<TBD>"
 
----
+LLM 啟發式チェック: 具体的失敗モード + 具体的観察可能反シグナルを必ず言及。
 
-## ファイルパス規約
+## ライフサイクル（v2 は `references/lifecycle-gates.md` と整合）
 
 ```
-wiki/{domain}/{topic}.md
+1. 🌱 candidate — archiver Phase 2 / DREAM N3 が提案
+2. 📝 draft — frontmatter 入力済；本文編集済
+3. 🧪 simulated — 実際の決定で ≥1 回参照される
+4. ✈️ pilot — 2+ 独立した決定で参照；矛盾なし
+5. ✅ active — outlier slot 非空；レビュー済
+6. 📊 monitored — 定期的に参照、前サイクルで挑戦なし
+7. 💎 stable — 長期検証済、変更可能性低い
+8. 🗄️ deprecated — 取って代わられたか矛盾；理由文書化済
+9. 📦 retired — 消費者がいない
 ```
 
-例：
-- `wiki/finance/lending-law-npo.md`
-- `wiki/startup/mvp-validation.md`
-- `wiki/health/intermittent-fasting.md`
-- `wiki/startup/biz-plan-versions.md`
+## Archiver Phase 2 candidate gate（v2 強化）
 
----
+archiver Phase 2 は wiki candidate を書く前に**必ず**検証：
 
-## 確信度の計算
+### 既存 6 criteria（v1 保持）
+1. 跨プロジェクト再利用可能
+2. 世界について、あなたについてではない
+3. 個人プライバシーゼロ
+4. 事実的または方法論的
+5. ≥2 独立した証拠
+6. 既存 wiki と矛盾しない（さもなければ challenges 増分）
 
-SOUL.md と同じ計算式：
+### v2 新規 4 つのゲート
+
+7. **operating hypothesis を起草可能**: archiver が Given/can/within 形式 ≥30 文字を試みる。曖昧すぎる場合 → 廃棄（印象であり知識ではない）。
+8. **≥1 outlier を識別可能**: archiver が「私は嫌いだが成功する」例を試みる。できない場合 → candidate を書くが outlier-warn フラグ。
+9. **arguments_against を書ける**: archiver はこのエントリを反証する内容を明確化。できない場合（「明らかに正しく失敗モードなし」）→ 廃棄または journal に降格（epistemic-hygiene fail）。
+10. **6 facets 分類可能**: archiver が 6 facets を割り当てる。いずれかが曖昧 → ユーザー曖昧化解決のためフラグ。
+
+## Legacy v1 エントリ（12 ヶ月共存 D3 に従う）
+
+v1.8.5 以前の v1 wiki エントリ：
+- すべての役割で読める
+- DREAM N3 で自動フラグ: "🔄 v1 wiki エントリ: '<title>' —— /migrate-wiki-v2 を検討"
+- デフォルト `lifecycle_stage` = `active`
+- デフォルト `arguments_against` = 空（v2 ゲートを**通過しない** —— フラグされるが許容）
+- デフォルト `outlier` = 空（フラグされるが許容）
+- **2027-05-23** 以降、残りの v1 エントリは自動的に `lifecycle_stage: deprecated` マーク
+
+## `/migrate-wiki-v2` 経由で移行
+
+`.claude/commands/migrate-wiki-v2.md` 参照。Slash command:
+1. 各 v1 wiki エントリを読む
+2. ユーザーに入力を依頼: 6 facets、operating_hypothesis、outlier reference、arguments_against
+3. v1 本文の上に v2 frontmatter を書く（本文保持）
+4. AUDITOR Mode 5 で検証後 commit
+
+ユーザーは都合の良いときに実行。強制移行なし。
+
+## Confidence 計算（v1 保持）
 
 ```
 confidence = evidence_count / (evidence_count + challenges × 2)
 ```
 
-| 確信度 | 意味 | システムの動作 |
-|------------|---------|-----------------|
-| < 0.3 | 暫定的、データポイントが少ない | INDEX に表示されるが、ルーティング時には参照されない |
-| 0.3 – 0.6 | 中程度のエビデンス | REVIEWER が整合性チェック時に参照 |
-| 0.6 – 0.8 | 十分に確立 | ROUTER がユーザーに既存の知識を通知 |
-| > 0.8 | 深く検証済み | システム全体で参照 — 意思決定ルーティングを加速可能 |
+| Confidence | 状態 | 誰が使う |
+|------------|------|---------|
+| < 0.3 | candidate、少ない証拠 | archiver / DREAM のみ |
+| 0.3 – 0.5 | draft から pilot | + REVIEWER 参照 |
+| 0.5 – 0.7 | pilot から active | + PLANNER 参照 |
+| > 0.7 | active+、低 challenge | 全システム参照（ROUTER 含む）|
 
----
+**注意**: v2 では confidence は lifecycle_stage と独立。高 confidence の candidate はまだ candidate；昇格には `references/lifecycle-gates.md` ゲートが必要、confidence 単独では不可。
 
-## エントリのライフサイクル
+## 役割がどう wiki v2 を使うか
 
-```
-1. ✅ 自動書き込み — archiver（Phase 2）または DREAM（N3）が全 6 基準を通過 → wiki/{domain}/{topic}.md に直接書き込み
-2. 📈 強化 — より多くの証拠が蓄積（evidence_count が増加、confidence が上昇）
-3. ⚠️ 異議あり — 矛盾する経験を検出（challenges が増加、confidence が低下）
-4. 🔄 改訂 — ユーザーが新しいエビデンスに基づいて結論を更新
-5. 🗑️ ナッジアウト — ユーザーがファイルを手動削除（= 廃止）、またはセッションで「最近の wiki を取り消し」と発言（archiver が最新の自動書き込みをロールバック）
-6. 🗄️ 退役 — wiki/_archive/ に移動（低確信度 + 90 日以上活動なし、またはユーザー削除）
-```
+| 役割 | 読む | 使う |
+|------|-----|-----|
+| **ROUTER** | INDEX.md + 関連エントリタイトル | 現在のトピックに既存知識があれば言及 |
+| **PLANNER** | 主題に一致する active+ エントリ + outlier slot | 「既知前提」入力；outlier を敵対的チェックとして |
+| **REVIEWER** | エントリ `operating_hypothesis` + `arguments_against` | 矛盾するエントリを引用；矛盾時否決 |
+| **ADVISOR** | エントリ使用パターン + challenges 数 | 6 ヶ月参照されないエントリをフラグ（→ dormant 候補）|
+| **STRATEGIST** | エントリ本文 + reference_set | boundary_case + outlier を会話プロンプトとして使用 |
+| **ARCHIVER** | すべてのエントリ（INDEX 再構築）| Phase 2 candidate gate（10 基準）；矛盾時 challenges 更新 |
+| **AUDITOR Mode 5（新）** | すべてのエントリ frontmatter | Schema 監査（4 つの v2 hard チェック）|
 
----
+## ソース出典
 
-## Wiki INDEX
+eou-foundry @ e4b12ce。借用:
+- 6 facets classification: `schemas/eou.schema.yml` 22-76 行
+- operating_hypothesis: `engine/eou-contract.md` 34 行
+- context_manifest 三層: `engine/eou-contract.md` 39-42 行
+- reference_set 5 role slots: `schemas/captured-workflow.schema.yml`
+- failure_modes 三件套: `engine/eou-contract.md` 60-63 行
+- arguments_against: `schemas/eou.schema.yml` 143 行
 
-`wiki/INDEX.md` は全 Wiki エントリのコンパイル済みサマリーです。RETROSPECTIVE が毎回の Start Court で実際の wiki/ ファイルからコンパイルします。
-
-### フォーマット
-
-```markdown
-# Wiki Index
-compiled: YYYY-MM-DD
-
-## Finance
-- NPO lending has no 貸金業法 exemption (0.95) → wiki/finance/lending-law-npo.md
-- NPO tax deduction conditions (0.82) → wiki/finance/npo-tax-deduction.md
-
-## Startup
-- MVP validates demand, not product (0.88) → wiki/startup/mvp-validation.md
-- Business plan: internal vs external versions differ fundamentally (0.72) → wiki/startup/biz-plan-versions.md
-
-## Health
-- 16:8 intermittent fasting works for me (0.80) → wiki/health/intermittent-fasting.md
-```
-
-各行 80 文字以下。INDEX 全体は通常 20〜100 行 — ロードコストは非常に低いです。
-
-**INDEX.md はコンパイル済みの成果物です** — 手動編集しないでください。wiki/ ファイルから再生成されます。
-
----
-
-## 4 つのソース
-
-| ソース | 方法 | タイミング |
-|--------|-----|------|
-| **DREAM** | N3 ステージが 3 日間の活動から再利用可能な結論を発見 | 毎回の退朝（Adjourn Court）後 |
-| **セッション** | Draft-Review-Execute ワークフロー中に六領域が再利用可能な知見を生成 | `wiki_candidate: true` とマークされたジャーナルエントリ |
-| **ユーザー** | いつでも直接入力 | "この事実を記憶して: X" |
-
----
-
-## Wiki 候補フォーマット
-
-archiver または DREAM が記録に値する知識を発見し、かつ全 6 つの自動書き込み基準を通過した場合、エントリは直接書き込まれます（候補の確認は不要）。評価に使われる内部候補構造：
-
-```
-📚 Wiki 自動書き込み（内部用）:
-- Domain: [ドメイン名]
-- Topic: [短い識別子]
-- Conclusion: [一文 — 再利用可能な要点]
-- Evidence:
-  - [日付] [決定/行動] — [説明]
-  - [日付] [決定/行動] — [説明]
-- Applicable when: [どのようなシナリオで想起すべきか]
-- Criteria check: [6/6 通過、または X/6 → 理由とともに破棄]
-- Privacy filter: [削除された内容、または「削除する情報なし」]
-```
-
-全 6 基準を通過 → `wiki/{domain}/{topic}.md` に直接書き込み。それ以外 → Completion Checklist に理由を記録して破棄。
-
----
-
-## 各ロールの Wiki 活用方法
-
-すべてのロールは wiki/INDEX.md が存在するか確認してから参照します。存在しないか空の場合、ロールは Wiki 入力なしで通常どおり動作します。
-
-| ロール | 参照する内容 | 活用方法 |
-|------|---------------|-----------------|
-| **ROUTER** | wiki/INDEX.md（全インデックス） | ドメインマッチをスキャン — 高確信度エントリが存在する場合、ユーザーに「既知の知識 X があります」と通知し、冗長な調査のスキップを提案 |
-| **DISPATCHER** | 関連する Wiki エントリ（ROUTER から渡される） | ディスパッチコンテキストに「既知の前提 — ここから開始」として含める |
-| **六領域** | ディスパッチコンテキスト内の Wiki エントリ | ゼロからではなく、確立された結論から分析を開始 |
-| **REVIEWER** | wiki/INDEX.md | 整合性チェック — 新しい結論が既存の高確信度 Wiki エントリと矛盾する場合にフラグ |
-| **AUDITOR** | wiki/ ディレクトリ（パトロール中） | Wiki 健全性監査 — 古いエントリ、矛盾、知識のギャップ |
-| **DREAM** | wiki/INDEX.md + wiki/ エントリ | N3: 新しい候補を提案 + 既存エントリの evidence/challenges を更新。REM: Wiki を素材として使ったクロスドメイン接続 |
-| **RETROSPECTIVE** | wiki/ ディレクトリ | Start Court で INDEX.md をコンパイル。前回セッションでユーザーがロールバックを要求した場合、「最近の wiki を取り消し」フラグを表示 |
-
----
-
-## Second-Brain 内の Wiki
-
-```
-second-brain/
-├── SOUL.md              ← 自分は誰か（性格）
-├── user-patterns.md     ← 何をするか（行動）
-├── wiki/                ← 何を知っているか（知識）
-│   ├── INDEX.md         ← コンパイル済みサマリー（自動生成）
-│   ├── finance/
-│   │   ├── lending-law-npo.md
-│   │   └── npo-tax-deduction.md
-│   ├── startup/
-│   │   └── mvp-validation.md
-│   ├── health/
-│   │   └── intermittent-fasting.md
-│   └── _archive/        ← 退役済みエントリ
-├── inbox/
-├── _meta/
-├── projects/
-├── areas/
-└── archive/
-```
-
----
-
-## 初回初期化
-
-RETROSPECTIVE が wiki/ が空または INDEX.md がないことを検出した場合：
-
-1. ブリーフィングで報告：「📚 Wiki がまだ初期化されていません。既存の決定からブートストラップしますか？」
-2. ユーザーが同意した場合：
-   a. `decisions/` と `_meta/journal/` から抽出可能な結論をスキャン（DREAM N3 Q2 と同じロジック）
-   b. 各候補に 6 つの自動書き込み基準 + プライバシーフィルターを適用
-   c. 通過したすべての候補を適切なフロントマター付きで `wiki/{domain}/{topic}.md` に自動書き込み
-   d. `wiki/INDEX.md` を編纂
-   e. 報告：「N 件を自動書き込み、M 件を破棄しました（理由: ...）。同意できないファイルは削除してください。」
-3. ユーザーが拒否 → スキップし、次回の上朝で再度通知
-
-このフローは一度だけトリガーされます。INDEX.md が存在した後は、通常の wiki フローが引き継ぎます。
-
----
-
-## レガシー移行
-
-wiki/ に仕様フォーマットに一致しないファイルがある場合（フロントマターなし、ドメインサブディレクトリなし、タイトル≠結論）：
-
-1. ブリーフィングで報告：「📚 現在の仕様に一致しない N 件のレガシー wiki ファイルを発見。移行しますか？」
-2. ユーザーが同意した場合：
-   a. 各レガシーファイルを読み取り
-   b. ファイルごとに 1-3 の再利用可能な結論を抽出
-   c. 抽出された各結論に 6 つの自動書き込み基準 + プライバシーフィルターを適用
-   d. 通過した結論を `wiki/{domain}/{topic}.md` に自動書き込み
-   e. 元のファイルを `wiki/_archive/` に移動（保存、削除しない）
-   f. INDEX.md を再編纂
-   g. 報告：「N 件を移行、M 件を破棄しました（理由: ...）。同意できないファイルは削除してください。」
-3. ユーザーが拒否 → そのまま、通常フローをブロックしない
-
-wiki/ ルートにあるレガシーファイル（フロントマターなし）は INDEX.md 編纂時に無視されます。
-
----
-
-## 制約
-
-- **全 6 基準を通過した場合のみ自動書き込み** — 「自動書き込み基準」セクション参照。それ未満 → 破棄、低確信度エントリを書き込まない
-- **すべての書き込み前にプライバシーフィルターを適用** — 名前、金額、ID、特定の会社名、家族・友人への言及、追跡可能な日付と場所の組み合わせを削除。削除の結果結論が意味を成さなくなる場合 → 破棄
-- **ユーザーは事後にナッジ、事前承認ではない** — ファイル削除で廃止、「最近の wiki を取り消し」でロールバック、confidence を 0.3 未満に設定すれば削除せずに抑制
-- **INDEX.md はコンパイル済み、手動作成不可** — 毎回の Start Court で wiki/ ファイルから再生成
-- **1 ファイル 1 結論** — 「トピックまとめ」ファイルは作成しない
-- **タイトル＝結論** — ファイルを開けば答えがわかる
-- **Wiki 内の相互参照なし** — 各エントリは自己完結
-- **簡潔さ** — Wiki エントリは 10〜30 行、論文ではない
+life_OS 向けに適応: wiki エントリは知識工件（EOU ではない）；v1 prose は v2 frontmatter と 12 ヶ月共存。

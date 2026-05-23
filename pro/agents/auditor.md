@@ -547,3 +547,73 @@ Write findings to `pro/compliance/violations.md` (dev repo) or `_meta/compliance
 - Post-migration validation: every `/migrate-soul-v2` invocation MUST be followed by Mode 4 audit before user accepts migration as final.
 - Session-end auto-trigger: every Mode 3 patrol (per D6 = archiver Phase 4 last step) runs Mode 4 as scenario 0 — fast LLM check, ~5 sec.
 - Manual: `/audit --mode 4` for explicit health check.
+
+---
+
+## Mode 5: Wiki v2 Schema Compliance (v1.8.5 new, per RFC Stage 5)
+
+Audits wiki/ entries against `references/wiki-spec.md` v2 schema. Triggered:
+- After `/migrate-wiki-v2` slash command completes (validates migration output)
+- Manually via `/audit --mode 5`
+- Automatically as the second scenario AUDITOR Mode 3 runs on session-end (per D6, after Mode 4 SOUL check)
+
+### Checks (run in order, all must pass for verdict PASS)
+
+#### W1: Every entry has 7 v2 required field groups
+
+For each `wiki/*.md` file (exclude INDEX.md, log.md, .templates/):
+- Read frontmatter
+- Verify presence of:
+  1. `id` (matches `wn-*` pattern)
+  2. `classification` (all 6 facets populated; `target_object` non-empty)
+  3. `operating_hypothesis` (non-empty, ≥30 chars)
+  4. `context_manifest` (block exists with 3 keys, even if values empty)
+  5. `reference_set` (block exists with 5 keys, even if values empty)
+  6. `failure_modes` (block exists with 3 keys)
+  7. `arguments_against` (non-empty string, ≥20 chars)
+
+Any missing → emit `F3 SCHEMA_FAILURE: wiki/<file> missing v2 field: <field>`.
+
+If frontmatter is entirely v1 (no `id: wn-*`, no `classification:`) → emit `F11 LIFECYCLE_FAILURE: wiki/<file> is v1 legacy; run /migrate-wiki-v2 to upgrade (deadline 2027-05-23)`. This is WARN-level for first 12 months, FAIL-level after.
+
+#### W2: Every `active+` entry has non-empty `outlier`
+
+For each entry where `classification.lifecycle_stage ∈ {active, monitored, stable}`:
+- Check `reference_set.outlier` list length
+- Empty → emit `F11 LIFECYCLE_FAILURE: wiki/<file> at lifecycle_stage:<stage> has empty outlier slot (anti-confirmation-bias defense missing; v2 spec requires non-empty for active+)`.
+
+#### W3: `arguments_against` is non-trivial
+
+For each entry, check `arguments_against` content:
+- Match against trivial patterns: `^.{0,19}$` (too short), `(?i)(could be wrong|no counter|TBD|unknown|未知|可能错|maybe wrong|n/a)$`
+- Trivial → emit `F3 SCHEMA_FAILURE: wiki/<file> arguments_against is trivial ('<excerpt>'); v2 requires specific failure mode + observable counter-signal`.
+
+#### W4: `lifecycle_stage` matches usage evidence
+
+For each entry at `active+`:
+- Check `last_validated` field and recent references (grep across decisions/, wiki/log.md, _meta/journal/ for entry id or title in last 12 months)
+- If `active` but no references in 12 months → emit `F11 LIFECYCLE_FAILURE: wiki/<file> marked active but no references in 12+ months; consider demoting to dormant`
+- If `active` and `last_validated` is null → emit warning `wiki/<file> lifecycle:active but last_validated missing; archiver should update on next reference`
+
+### Verdict output
+
+After running all 4 checks:
+
+```
+── AUDITOR Mode 5 · Wiki v2 schema audit ──
+W1 7 required field groups: ✅ N/N entries pass / FAIL <count> entries with issues
+W2 outlier non-empty for active+: ✅ / FAIL <list>
+W3 arguments_against non-trivial: ✅ / FAIL <list>
+W4 lifecycle matches evidence: ✅ / WARN <list>
+
+Legacy v1 entries (12-month tolerance): <count>; deadline 2027-05-23
+
+VERDICT: PASS | WARN | FAIL
+```
+
+### Use cases
+
+- Post-migration validation: every `/migrate-wiki-v2` invocation MUST be followed by Mode 5 audit.
+- Session-end auto-trigger: Mode 3 patrol runs Mode 5 as scenario 1 (after Mode 4 SOUL).
+- archiver Phase 2 candidate writes: every newly-written wiki candidate is validated via Mode 5 before commit.
+- Manual: `/audit --mode 5` for explicit health check.

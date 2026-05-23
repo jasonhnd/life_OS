@@ -1,382 +1,236 @@
-# Wiki Specification
+---
+spec_id: wiki.v2
+description: Wiki entry schema v2. Borrows EOU 6 facets classification + operating_hypothesis + context_manifest 3-layer + reference_set 5 role slots (incl. outlier) + failure_modes + arguments_against from eou-foundry. Replaces v1 free-form prose schema. v1 entries coexist with v2 for 12 months per D3.
+status: active
+authoritative: true
+source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + captured-workflow.schema.yml + engine/eou-contract.md
+introduced_in: v1.8.5
+supersedes: wiki.v1 (v1.8.4 and earlier; v1 entries auto-deprecate 2027-05-23 per D3)
+---
+
+# Wiki Specification v2
 
 Wiki is the system's knowledge archive — a living collection of reusable conclusions about the world. It lives in the `wiki/` directory of the second-brain.
 
-## Positioning
+> **v1.8.5 wiki v2 pivot — borrowed from eou-foundry**: Wiki entries are no longer free-form prose with confidence/evidence metadata. v2 entries have structured frontmatter (6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against). Per Stage 5 of RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`.
 
-| Storage | What it records | Example |
-|---------|----------------|---------|
+## Positioning (unchanged from v1)
+
+| Storage | Records | Example |
+|---------|---------|---------|
 | `decisions/` | What you decided (specific, timestamped) | "2026-04-01: decided to use trust structure" |
 | `user-patterns.md` | What you do (behavioral patterns) | "Tends to avoid financial dimensions" |
-| `SOUL.md` | Who you are (values, personality) | "Risk appetite: medium-high" |
-| `wiki/` | What you know — declarative knowledge | "NPO lending in Japan has no 貸金業法 exemption" |
-| `_meta/concepts/` | Synaptic graph — how ideas connect (v1.7) | "company-a-holding" node with weighted edges to related concepts |
-| `_meta/methods/` | Procedural memory — reusable workflows (v1.7) | "Refine documents in 5 escalating quality rounds" |
-
-Each layer answers a different question. SOUL answers "who you are". Wiki answers "what you know about the world" (declarative). Concepts answer "how ideas connect" (associative). Methods answer "how you work best" (procedural). The four layers must not be mixed — archiver routes candidates to the right layer based on what the candidate is, not based on surface form.
+| `SOUL.md` | Who you are (values, personality) — **v2 schema per `references/soul-spec.md`** | "Truth over comfort" (priority 1) |
+| `wiki/` | What you know — declarative knowledge — **v2 schema this doc** | "NPO lending in Japan has no 貸金業法 exemption" |
+| `_meta/concepts/` | Synaptic graph — how ideas connect | "company-a-holding" node with weighted edges |
+| `_meta/methods/` | Procedural memory — reusable workflows | "Refine documents in 5 escalating quality rounds" |
 
 **Not wiki material** (goes elsewhere):
-- Identity / values / personal preferences → `SOUL.md`
+- Identity / values / personal preferences → `SOUL.md` v2
 - Behavioral patterns → `user-patterns.md`
 - Procedural workflows → `_meta/methods/`
-- Concept-level associations (who connects to whom) → `_meta/concepts/`
+- Concept-level associations → `_meta/concepts/`
 
----
+## Principles (v1 preserved)
 
-## Principles
-
-1. **Grows from zero** — wiki/ starts empty. No initialization required.
-2. **Evidence-based** — Every entry links to the decisions/experiences that support it.
-3. **Auto-written under strict criteria** — Wiki entries are auto-created by archiver and DREAM when strict criteria are met; users nudge by deletion (delete file = retire; say "undo recent wiki" = rollback).
-4. **Title = Conclusion** — The title of every entry must be the conclusion itself, not the topic.
+1. **Grows from zero** — wiki/ starts empty.
+2. **Evidence-based** — Every entry links to supporting decisions/experiences.
+3. **Auto-written under strict criteria** — archiver and DREAM auto-create when criteria pass. Users nudge by deletion.
+4. **Title = Conclusion** — Title is the conclusion itself, not the topic.
 5. **One conclusion per file** — No multi-topic compilations.
 
----
+## v2 Entry Frontmatter (HARD schema)
 
-## Auto-Write Criteria (6 rules)
-
-Every candidate conclusion must pass ALL 6 criteria before being auto-written. One failure → discard the candidate, do not write a low-confidence entry.
-
-1. **Cross-project reusable** — The conclusion is useful in projects/domains beyond the session where it was observed.
-2. **About the world, not about you** — Facts, rules, or methods. NOT values or personal preferences (those belong in SOUL). NOT behavioral patterns (those belong in user-patterns.md).
-3. **Zero personal privacy** — No names, amounts, account numbers, IDs, specific companies, family/friend info, or traceable date+location combinations. If the conclusion requires these to make sense → it isn't wiki material, skip it.
-4. **Factual or methodological** — Describes "what happened" or "how to do X". Not feelings or opinions.
-5. **Multiple evidence points (≥2 independent)** — At least 2 cases, data points, decisions, or references. Single observations get discarded (they belong in a journal, not the wiki).
-6. **No contradiction with existing wiki** — If the new conclusion contradicts an existing entry → increment `challenges: +1` on that entry, do NOT create a new competing entry.
-
-**Initial confidence** (once a candidate passes all 6):
-- 3+ independent evidence points → `confidence: 0.5`
-- Exactly 2 evidence points → `confidence: 0.3`
-- 1 evidence or below → DISCARDED (fails criterion 5)
-
-**Privacy Filter** — applied before every write:
-- Strip names (unless public figures directly relevant to the conclusion)
-- Strip specific amounts, account numbers, ID numbers
-- Strip specific company names (unless it's a public case study)
-- Strip family/friend references
-- Strip traceable date+location combinations
-- If stripping these leaves the conclusion meaningless → discard (it wasn't really reusable, it was a personal note dressed up as knowledge)
-
-**User-facing evidence paste** — every evaluated candidate must be visible in the ARCHIVER adjourn report, not only used internally. Passing candidates must show `Criteria check: 6/6 passed`; discarded candidates must show `Criteria check: X/6 -> discarded with reason: [reason]`. Every candidate must show `Privacy filter: stripped <items>`; use `Privacy filter: stripped nothing` if nothing was removed.
-
----
-
-## User Nudges (post-write)
-
-Users don't pre-approve wiki entries. They nudge the system post-hoc:
-
-- Delete `wiki/{domain}/{topic}.md` → retire the entry
-- Say "undo recent wiki" in a session → archiver (next invocation) rolls back the most recent auto-writes
-- Edit confidence manually to reject (set to 0 or below 0.3) → entry stays but not referenced
-
----
-
-## Entry Format
-
-Each wiki entry is a standalone markdown file:
+Every new wiki entry from v1.8.5 onwards MUST have YAML frontmatter conforming to:
 
 ```yaml
 ---
-domain: "[domain name]"       # finance / startup / personal / technical / method / relationship / health / legal / project-name...
-topic: "[short identifier]"
-confidence: 0.0               # 0-1, auto-calculated
-evidence_count: 0             # supporting decisions/experiences
-challenges: 0                 # contradicting experiences
-source: dream                 # dream / session / user
+# Identity
+id: wn-{slug}                       # canonical, e.g. wn-japan-npo-lending-no-exemption
+name: "<human-readable name>"
+version: "0.1.0"                    # semver; bump on substantive changes
+
+# v2 NEW: 6 facets classification (borrowed from eou-foundry eou.schema.yml)
+classification:
+  function: generate|specify|validate|diagnose|promote|refactor|audit|propose|activate|implement|retire
+  target_object: "<what this entry is about>"
+  automation_mode: deterministic|LLM_assisted|human_executed|hybrid
+  authority_level: suggest_only|draft_only|write_candidate|write_inactive|mutate_active|approve|publish
+  risk_level: low|medium|high|critical
+  lifecycle_stage: candidate|draft|simulated|pilot|active|monitored|stable|deprecated|retired
+
+# v2 NEW: operating_hypothesis (Given/can/within format)
+operating_hypothesis: |
+  Given <input/trigger>, under context <c>, this knowledge entry should
+  produce <output/effect> within risk <r>.
+
+# v2 NEW: context_manifest (eou eou-contract.md §context_manifest)
+context_manifest:
+  source_of_truth: []   # canonical artifacts this entry reads/cites
+  supporting: []        # secondary context
+  forbidden: []         # what must NOT be used as context (explicit exclusion)
+
+# v2 NEW: reference_set 5 role slots (eou captured-workflow.schema.yml)
+reference_set:
+  aspirational: []         # ref + why; works/people the entry aspires toward
+  anti_reference: []       # ref + why; explicit anti-examples
+  boundary_case: []        # ref + why; edge cases
+  mainstream_baseline: []  # ref + why; what's typical (for contrast)
+  outlier: []              # MANDATORY for active+: "I dislike this but it succeeds"; anti-confirmation-bias
+
+# v2 NEW: failure_modes (eou eou-contract.md §failure_modes)
+failure_modes:
+  known: []          # ways this knowledge gets misapplied
+  warning_signs: []  # observable signals the knowledge is wrong or drifting
+  repair_actions: [] # what to do when the knowledge misfires
+
+# v2 NEW: arguments_against (eou generating_eou_candidate_required)
+arguments_against: |
+  This entry might be wrong because <reason>. Counter-evidence to watch for:
+  <observable signal>.
+
+# Existing v1 metadata (preserved)
+confidence: 0.5         # 0-1, see §Confidence Calculation
+evidence_count: 3
+challenges: 0
 created: YYYY-MM-DD
 last_validated: YYYY-MM-DD
+source: archiver|dream|user
 ---
+
+# <Entry title = the conclusion>
+
+<Body: 1-3 paragraphs of declarative knowledge>
+
+## Evidence
+
+- [YYYY-MM-DD] [decision/case] — [link]
+- [YYYY-MM-DD] [decision/case] — [link]
+
+## Challenges (if any)
+
+- [YYYY-MM-DD] [contradicting case] — [link]
 ```
 
-### Conclusion
-[One sentence — the reusable takeaway]
+## v2 HARD Schema Constraints
 
-### Reasoning
-[Evidence and logic supporting this conclusion]
+### 1. Frontmatter 7 required field groups
 
-### Applicable When
-[In what scenarios should you recall this entry]
+- `id` (canonical wn-* slug)
+- `classification` (all 6 facets populated; `target_object` non-empty string)
+- `operating_hypothesis` (Given/can/within form; ≥30 chars)
+- `context_manifest` (block exists; `source_of_truth` non-empty for active+ entries)
+- `reference_set` (5 keys exist; lists may be initially empty for candidate/draft)
+- `failure_modes` (block exists; can be empty lists initially)
+- `arguments_against` (non-empty string; ≥20 chars; non-trivial)
 
-### Source
-[Which decision, session, or experience produced this knowledge]
+**Enforced by**: AUDITOR Mode 5 (added in Stage 5 Day 13).
 
----
+### 2. Reference_set `outlier` mandatory for active+ entries
 
-## Title Convention
+For entries at `lifecycle_stage: active | monitored | stable`:
+- `outlier` list MUST contain ≥1 entry
+- Each outlier entry: `ref` (artifact/person/work) + `why` (why user dislikes it + why it nonetheless succeeds)
 
-Titles must be conclusions, not topics:
+For `candidate | draft | pilot`:
+- `outlier` MAY be empty initially
+- Promotion to `active` blocked if outlier still empty (per `references/lifecycle-gates.md` transition 4)
 
-- ✅ "NPO lending in Japan has no 貸金業法 exemption"
-- ❌ "NPO 貸金業法 research"
-- ✅ "MVP validates demand, not product quality"
-- ❌ "MVP methodology notes"
-- ✅ "16:8 intermittent fasting works well for me"
-- ❌ "Intermittent fasting research"
+### 3. `arguments_against` cannot be trivial
 
-Opening the file tells you the answer immediately — no need to read the full text.
+- ✅ "This entry might be wrong because Japanese tax law changed in 2024 and we haven't verified post-change. Counter-evidence: any 2024+ ruling citing 法 17."
+- ❌ "Could be wrong" / "No counter-evidence" / "<TBD>"
 
----
+LLM heuristic check: must mention specific failure mode + specific observable counter-signal.
 
-## File Path Convention
+## Lifecycle (v2 aligns to `references/lifecycle-gates.md`)
 
 ```
-wiki/{domain}/{topic}.md
+1. 🌱 candidate — archiver Phase 2 / DREAM N3 proposes
+2. 📝 draft — frontmatter populated; body edited
+3. 🧪 simulated — referenced in ≥1 actual decision
+4. ✈️ pilot — referenced in 2+ independent decisions; no contradictions
+5. ✅ active — outlier slot non-empty; reviewed
+6. 📊 monitored — referenced regularly, no challenges last cycle
+7. 💎 stable — long-validated, changes unlikely
+8. 🗄️ deprecated — superseded or contradicted; reason documented
+9. 📦 retired — no consumers reference it
 ```
 
-Examples:
-- `wiki/finance/lending-law-npo.md`
-- `wiki/startup/mvp-validation.md`
-- `wiki/health/intermittent-fasting.md`
-- `wiki/startup/biz-plan-versions.md`
+## Archiver Phase 2 candidate gate (v2 hardened)
 
----
+archiver Phase 2 MUST verify before writing a wiki candidate:
 
-## Confidence Calculation
+### Existing 6 criteria (v1 preserved)
+1. Cross-project reusable
+2. About the world, not about you
+3. Zero personal privacy
+4. Factual or methodological
+5. ≥2 independent evidence
+6. No contradiction with existing wiki (else increment challenges)
 
-Same formula as SOUL.md:
+### v2 NEW: 4 additional gates
+
+7. **Operating hypothesis can be drafted**: archiver attempts Given/can/within form ≥30 chars. If too vague → discard (impression, not knowledge).
+8. **At least one outlier identifiable**: archiver attempts "I dislike this but it succeeds" example. If unable → write candidate but flag outlier-warn.
+9. **arguments_against can be written**: archiver articulates what would falsify this entry. If unable ("obviously true with no failure mode") → discard or downgrade to journal (epistemic-hygiene fail).
+10. **All 6 facets classifiable**: archiver assigns 6 facets. If any ambiguous → flag for user disambiguation.
+
+## Legacy v1 entries (12-month coexistence per D3)
+
+v1 wiki entries (created before v1.8.5):
+- Remain readable by all roles
+- Auto-flagged in DREAM N3: "🔄 v1 wiki entry: '<title>' — consider /migrate-wiki-v2"
+- Default `lifecycle_stage` = `active`
+- Default `arguments_against` = empty (does NOT pass v2 gate — flagged but tolerated)
+- Default `outlier` = empty (flagged but tolerated)
+- **2027-05-23** remaining v1 entries auto-marked `lifecycle_stage: deprecated`
+
+## Migration via `/migrate-wiki-v2`
+
+See `.claude/commands/migrate-wiki-v2.md`. Slash command:
+1. Read each v1 wiki entry
+2. Ask user to fill: 6 facets, operating_hypothesis, outlier reference, arguments_against
+3. Write v2 frontmatter above v1 body (preserved)
+4. Validate via AUDITOR Mode 5 before committing
+
+User runs at convenience. No forced migration.
+
+## Confidence Calculation (v1 preserved)
 
 ```
 confidence = evidence_count / (evidence_count + challenges × 2)
 ```
 
-| Confidence | Meaning | System Behavior |
-|------------|---------|-----------------|
-| < 0.3 | Tentative, few data points | Visible in INDEX but not referenced during routing |
-| 0.3 – 0.6 | Moderate evidence | REVIEWER references during consistency check |
-| 0.6 – 0.8 | Well-established | ROUTER informs user of existing knowledge |
-| > 0.8 | Deeply validated | Full system reference — can accelerate decision routing |
+| Confidence | Condition | Used by |
+|------------|-----------|---------|
+| < 0.3 | candidate, few evidence | archiver / DREAM only |
+| 0.3 – 0.5 | draft to pilot | + REVIEWER reference |
+| 0.5 – 0.7 | pilot to active | + PLANNER reference |
+| > 0.7 | active+, low challenge | Full system reference (incl. ROUTER) |
 
----
+**Note**: confidence is independent of lifecycle_stage in v2. A high-confidence entry at `candidate` is still candidate; promotion requires gates per `references/lifecycle-gates.md`, not confidence alone.
 
-## Entry Lifecycle
+## How roles use wiki v2
 
-```
-1. ✅ Auto-written — archiver (Phase 2) or DREAM (N3) passes all 6 criteria → writes directly to wiki/{domain}/{topic}.md
-2. 📈 Strengthened — More evidence accumulates (evidence_count rises, confidence increases)
-3. ⚠️ Challenged — Contradicting experience detected (challenges increase, confidence drops)
-4. 🔄 Revised — User updates the conclusion based on new evidence
-5. 🗑️ Nudged out — User deletes the file manually (= retire) or says "undo recent wiki" in a session (archiver rolls back most recent auto-writes)
-6. 🗄️ Retired — Moved to wiki/_archive/ (low confidence + no activity for 90+ days, or user-deleted)
-```
+| Role | Reads | Uses |
+|------|-------|------|
+| **ROUTER** | INDEX.md + relevant entry titles | Mentions if established knowledge exists |
+| **PLANNER** | Active+ entries matching subject + outlier slot | "Known premise" inputs; outlier as adversarial check |
+| **REVIEWER** | Entry `operating_hypothesis` + `arguments_against` | Cite contradicting entries; if contradiction, veto |
+| **ADVISOR** | Entry usage patterns + challenges count | Flag entries not referenced in 6 months (→ dormant candidate) |
+| **STRATEGIST** | Entry body + reference_set | Use boundary_case + outlier as conversation prompts |
+| **ARCHIVER** | All entries (INDEX rebuild) | Phase 2 candidate gate (10 criteria); updates challenges on contradiction |
+| **AUDITOR Mode 5 (new)** | All entry frontmatter | Schema audit (4 v2 hard checks) |
 
----
+## Source attribution
 
-## Wiki INDEX
+eou-foundry @ e4b12ce. Borrowed:
+- 6 facets classification: `schemas/eou.schema.yml` lines 22-76
+- operating_hypothesis: `engine/eou-contract.md` line 34
+- context_manifest 3-layer: `engine/eou-contract.md` lines 39-42
+- reference_set 5 role slots: `schemas/captured-workflow.schema.yml`
+- failure_modes 三件套: `engine/eou-contract.md` lines 60-63
+- arguments_against: `schemas/eou.schema.yml` line 143
 
-`wiki/INDEX.md` is a compiled summary of all wiki entries. The RETROSPECTIVE compiles it during every Start Court from the actual wiki/ files.
-
-### Format
-
-```markdown
-# Wiki Index
-compiled: YYYY-MM-DD
-
-## Finance
-- NPO lending has no 貸金業法 exemption (0.95) → wiki/finance/lending-law-npo.md
-- NPO tax deduction conditions (0.82) → wiki/finance/npo-tax-deduction.md
-
-## Startup
-- MVP validates demand, not product (0.88) → wiki/startup/mvp-validation.md
-- Business plan: internal vs external versions differ fundamentally (0.72) → wiki/startup/biz-plan-versions.md
-
-## Health
-- 16:8 intermittent fasting works for me (0.80) → wiki/health/intermittent-fasting.md
-```
-
-Each line ≤ 80 characters. The entire INDEX is typically 20-100 lines — very cheap to load.
-
-**INDEX.md is a compiled artifact** — never hand-edit it. It is regenerated from wiki/ files.
-
----
-
-## Four Sources
-
-| Source | How | When |
-|--------|-----|------|
-| **DREAM** | N3 stage discovers reusable conclusions from 3-day activity | After every Adjourn Court |
-| **Session** | During a Draft-Review-Execute workflow, a ministry produces a reusable finding | Journal entries marked `wiki_candidate: true` |
-| **User** | Direct input at any time | "Remember this fact: X" |
-
----
-
-## Wiki Candidate Format
-
-When archiver or DREAM discovers knowledge worth recording, every evaluated candidate is pasted to the user in the adjourn report. If all 6 Auto-Write Criteria pass, the entry is written directly (no candidate confirmation). This structure is a user-facing contract, not an internal-only scratchpad:
-
-```
-📚 Wiki Auto-Write Evidence:
-- Domain: [domain name]
-- Topic: [short identifier]
-- Conclusion: [one sentence — the reusable takeaway]
-- Evidence:
-  - [date] [decision/behavior] — [description]
-  - [date] [decision/behavior] — [description]
-- Applicable when: [in what scenarios to recall this]
-- Criteria check: 6/6 passed
-- Privacy filter: stripped <items>
-```
-
-Discarded candidates use the same structure, but the final lines MUST be:
-
-```
-- Criteria check: X/6 -> discarded with reason: [which criteria failed and why]
-- Privacy filter: stripped <items>
-```
-
-If nothing was stripped, write `Privacy filter: stripped nothing`. Do not omit the privacy line.
-
-If all 6 criteria pass → write directly to `wiki/{domain}/{topic}.md`. Otherwise → discard with reason logged in Completion Checklist.
-
----
-
-## How Each Role Uses Wiki
-
-All roles check if wiki/INDEX.md exists before referencing it. If it does not exist or is empty, the role operates normally without wiki input.
-
-| Role | What they read | How they use it |
-|------|---------------|-----------------|
-| **ROUTER** | wiki/INDEX.md (full index) | Scans for domain match — if high-confidence entries exist, informs user "we already know X" and offers to skip redundant research |
-| **DISPATCHER** | Relevant wiki entries (passed by ROUTER) | Includes in dispatch context as "known premises — start from here" |
-| **Six Domains** | Wiki entries in their dispatch context | Start analysis from established conclusions, not from zero |
-| **REVIEWER** | wiki/INDEX.md | Consistency check — flags when new conclusions contradict existing high-confidence wiki entries |
-| **AUDITOR** | wiki/ directory (during patrol) | Wiki health audit — stale entries, contradictions, knowledge gaps |
-| **DREAM** | wiki/INDEX.md + wiki/ entries | N3: propose new candidates + update evidence/challenges for existing entries. REM: cross-domain connections using wiki as material |
-| **RETROSPECTIVE** | wiki/ directory | Compiles INDEX.md at Start Court. Surfaces "undo recent wiki" flags when user asked for rollback in previous session. |
-
----
-
-## Wiki in the Second-Brain
-
-```
-second-brain/
-├── SOUL.md              ← who you are (personality)
-├── user-patterns.md     ← what you do (behavior)
-├── wiki/                ← what you know (knowledge)
-│   ├── INDEX.md         ← compiled summary (auto-generated)
-│   ├── finance/
-│   │   ├── lending-law-npo.md
-│   │   └── npo-tax-deduction.md
-│   ├── startup/
-│   │   └── mvp-validation.md
-│   ├── health/
-│   │   └── intermittent-fasting.md
-│   └── _archive/        ← retired entries
-├── inbox/
-├── _meta/
-├── projects/
-├── areas/
-└── archive/
-```
-
----
-
-## First-Time Initialization
-
-When the RETROSPECTIVE detects that wiki/ is empty or has no INDEX.md:
-
-1. Report in briefing: "📚 Wiki is not yet initialized. Would you like to bootstrap from existing decisions?"
-2. If user agrees:
-   a. Scan `decisions/` and `_meta/journal/` for extractable conclusions (same logic as DREAM N3 Q2)
-   b. Apply the 6 Auto-Write Criteria + Privacy Filter to each candidate
-   c. Auto-write all passing candidates to `wiki/{domain}/{topic}.md` with proper front matter
-   d. Compile `wiki/INDEX.md`
-   e. Report: "Auto-wrote N entries, discarded M (reasons: ...). Delete any file you disagree with."
-3. If user declines → skip, remind next Start Court
-
-This only triggers once. After INDEX.md exists, normal wiki flow takes over.
-
----
-
-## Legacy Migration
-
-When wiki/ contains files that don't match the spec format (no front matter, no domain subdirectory, title ≠ conclusion):
-
-1. Report in briefing: "📚 Found N legacy wiki files not matching current spec. Migrate?"
-2. If user agrees:
-   a. Read each legacy file
-   b. Extract 1-3 reusable conclusions per file
-   c. Apply the 6 Auto-Write Criteria + Privacy Filter to each extracted conclusion
-   d. Auto-write passing conclusions to `wiki/{domain}/{topic}.md`
-   e. Move original file to `wiki/_archive/` (preserve, don't delete)
-   f. Recompile INDEX.md
-   g. Report: "Migrated N entries, discarded M (reasons: ...). Delete any file you disagree with."
-3. If user declines → leave as-is, don't block normal flow
-
-Legacy files in wiki/ root (without front matter) are ignored by INDEX.md compilation.
-
----
-
-## Constraints
-
-- **Auto-written only when all 6 criteria pass** — see Auto-Write Criteria section. Anything less → discard, don't write a low-confidence entry
-- **Privacy filter applied before every write** — names, amounts, IDs, specific companies, family/friend references, traceable date+location combos get stripped; if stripping makes the conclusion meaningless → discard
-- **Users nudge post-hoc, not pre-approve** — delete the file to retire; say "undo recent wiki" to rollback; set confidence below 0.3 to suppress without deletion
-- **INDEX.md is compiled, not authored** — regenerated from wiki/ files at every Start Court
-- **One conclusion per file** — do not create "topic compilation" files
-- **Title = conclusion** — opening the file gives you the answer
-- ~~**No cross-references within wiki** — each entry is self-contained~~ — **SUPERSEDED by R-1.8.0-013**: wiki entries MAY use Obsidian `[[wikilinks]]` to other wiki entries, concepts, people, comparisons. See "Page Taxonomy + Wikilink Convention" section below.
-- **Conciseness** — a wiki entry should be 10-30 lines, not a research paper
-
----
-
-## Page Taxonomy + Wikilink Convention (v1.8.0 R-1.8.0-013)
-
-Borrowed from llm_wiki — a clearer split between page types so archiver knows where to route, hippocampus can score type affinity, and Obsidian graph view shows distinct colors.
-
-### Taxonomy
-
-| Type | Path | What goes here | Spec |
-|---|---|---|---|
-| `wiki` | `wiki/<slug>.md` | General reusable knowledge / conclusions / 50-100 char facts | this file |
-| `concept` | `_meta/concepts/<domain>/<id>.md` | Theories, methods, frameworks (LLM-grounded vocabulary) | `references/concept-spec.md` |
-| `people` | `_meta/people/<id>.md` | Persons in user's life — relationships, history, patterns | `references/people-spec.md` |
-| `comparison` | `_meta/comparisons/<id>.md` | "X vs Y" decision artifacts with options/criteria/outcome | `references/comparison-spec.md` |
-| `method` | `_meta/methods/<id>.md` | Reusable procedures / workflows | `references/method-library-spec.md` |
-| `session` | `_meta/sessions/<sid>.md` | Per-session summary | `references/session-index-spec.md` |
-| `snapshot` | `_meta/snapshots/soul/<date>.md` | SOUL trajectory snapshot | `references/snapshot-spec.md` |
-
-### Routing rules (archiver Phase 2 candidates)
-
-- Person (named individual user interacts with) → `_meta/people/`
-- "X vs Y" decision with options + criteria + decision → `_meta/comparisons/`
-- Reusable theory / method / framework → `_meta/concepts/<domain>/`
-- Procedure user can re-execute → `_meta/methods/`
-- General fact / conclusion that doesn't fit above → `wiki/`
-
-### Wikilink convention (HARD RULE for new writes)
-
-All cross-references in **body text** use Obsidian `[[]]` syntax:
-
-```
-- [[concept-id]]               → link to concept
-- [[wiki-entry-slug]]          → link to wiki entry
-- [[person-id]]                → link to person
-- [[comparison-id]]            → link to comparison
-- [[session-id]]               → link to session summary
-- [[concept-id|Display Name]]  → wikilink with display alias
-```
-
-Obsidian's `newLinkFormat: shortest` resolves these by filename match across the vault — no full path needed.
-
-**Frontmatter arrays remain YAML** (machine-parseable):
-
-```yaml
-concepts_activated: [concept-1, concept-2]   # YAML strings, NOT wikilinks
-related: [[[concept-1]], [[wiki-entry-1]]]   # exception: explicit wikilink arrays
-```
-
-When a frontmatter field semantically references another page, use wikilink syntax for Obsidian navigability. Canonical exception fields:
-
-- `provenance.source_sessions` (plural array, on `_meta/concepts/*.md` + `_meta/methods/*.md` — multiple historical sessions)
-- `source_session` (singular scalar, on `_meta/comparisons/*.md` — the one session that produced the decision)
-- `outgoing_edges[].target` (on `_meta/concepts/*.md`)
-- `superseded_by` (on `_meta/comparisons/*.md` — single follow-up comparison)
-- `related` (array, on multiple page types)
-- `concepts_linked` (array, on `_meta/people/*.md` + `_meta/comparisons/*.md`)
-- `soul_dimensions_linked` (array, on `_meta/people/*.md`)
-
-The plural-vs-singular distinction (`source_sessions` vs `source_session`) is semantic: concepts/methods accumulate evidence across many sessions; a comparison records one decision moment.
-
-### Existing content migration
-
-User runs `scripts/prompts/migrate-to-wikilinks.md` to migrate old wiki entries (plain text references) to wikilink format. The prompt reads each wiki/ entry, identifies references to other pages, rewrites with `[[]]`, preserves semantics. Decision: `4，全，完整` — full migration is the chosen approach.
+Adapted for life_OS: wiki entry is knowledge artifact (not EOU); v1 prose preserved alongside v2 frontmatter for 12-month coexistence.
