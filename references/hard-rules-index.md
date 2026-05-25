@@ -23,11 +23,13 @@ This index is the public pointer for non-overridable Life OS behavior. README fi
   - Borrowing patterns from external projects: only borrow patterns, never implementation tech stacks
   - Audit gates: existing `/verify-release` check #8 (full-repo) + v1.8.7 new check #10 (diff-scoped) + AUDITOR Mode 7 M7-7 + 4 regression fixtures (sh existing, sql/json/db new)
   - Reference: `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` DR-10 + §1.5
-- **Pending v1.8.7 additions to count** (placeholder — increment when these stages complete):
-  - B4 Self-driven loops with ScheduleWakeup section (likely 1 marker in `SKILL.md`)
-  - B5 evals_scenarios required field (likely 0 markers in SKILL.md; lives in planner.md / dispatcher.md)
-  - F12 WHEN-NOT-TO-ADD files (no markers; directory-level guidance)
-  - Final count to be updated after Task 8 Release Pack completes
+- **Implemented v1.8.7 additions** (Task 8 complete, ship verified at HEAD == tag v1.8.7):
+  - B4 Self-driven loops with ScheduleWakeup section → **+1 marker** in `SKILL.md` (§ "HARD RULE · Self-driven loops with ScheduleWakeup (v1.8.7 B4)")
+  - B5 evals_scenarios required field → **+0 markers in SKILL.md** (enforcement lives in `pro/agents/planner.md` template + `pro/agents/dispatcher.md` validation, per agent-local contract)
+  - F12 WHEN-NOT-TO-ADD files → **+0 markers** (directory-level guidance, not HARD RULE markers)
+  - DR-10 md-only ontological elevation → **+0 markers** (upgrade of existing HARD RULE measurement-method, not a new marker)
+  - **Final Claude Code SKILL.md marker count: 18 → 19** (v1.7.2 baseline + 1 v1.8.7 addition)
+  - Per-host total: Claude Code = 41 (was 40), Gemini = 37 (was 36), Codex = 37 (was 36)
 
 ## Current Count
 
@@ -35,9 +37,11 @@ Current explicit HARD RULE marker count is counted per active host, as of v1.7.2
 
 | Host | Count | Breakdown |
 |------|-------|-----------|
-| Claude Code | 40 | `SKILL.md` 18 + `pro/CLAUDE.md` 20 + `pro/GLOBAL.md` 2 |
-| Gemini CLI / Antigravity | 36 | `SKILL.md` 18 + `pro/GEMINI.md` 16 + `pro/GLOBAL.md` 2 |
-| OpenAI Codex CLI | 36 | `SKILL.md` 18 + `pro/AGENTS.md` 16 + `pro/GLOBAL.md` 2 |
+| Claude Code | 41 | `SKILL.md` 19 + `pro/CLAUDE.md` 20 + `pro/GLOBAL.md` 2 |
+| Gemini CLI / Antigravity | 37 | `SKILL.md` 19 + `pro/GEMINI.md` 16 + `pro/GLOBAL.md` 2 |
+| OpenAI Codex CLI | 37 | `SKILL.md` 19 + `pro/AGENTS.md` 16 + `pro/GLOBAL.md` 2 |
+
+**v1.8.7 update**: `SKILL.md` marker count 18 → 19 due to B4 Self-driven loops with ScheduleWakeup HARD RULE addition. Per-host totals +1 each.
 
 Count method: count lines containing an explicit `HARD RULE` marker in `SKILL.md`, exactly one active host orchestration file, and `pro/GLOBAL.md`. Security boundaries in `pro/GLOBAL.md` remain inviolable even when not labeled with the literal phrase `HARD RULE`.
 
