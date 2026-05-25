@@ -769,9 +769,52 @@ R11 audit trail: before Phase 4 starts, write `_meta/runtime/<sid>/archiver-phas
 🗺️ Strategic: [N new relationships detected / no changes / strategic map not configured]
 💤 DREAM: [verbatim dream report path + "pasted below" / light sleep — no significant patterns]
 🔄 Git: ✅ {commit hash} | Notion: ⏳ pending (orchestrator will sync)
+🧠 Gotchas: K appended, J merged, M rejected (pro/gotchas.md)
 
 Session adjourned.
 ```
+
+---
+
+## Phase 5 — Memory Keeper (v1.8.7 NEW · launches memory-keeper subagent)
+
+After Phase 4 git sync completes and before emitting the Completion Checklist, archiver MUST launch `memory-keeper` as a subagent.
+
+**Purpose**: extract non-obvious technical gotchas from the current session and append them to `pro/gotchas.md`. This closes the gap between "踩过的坑" being recorded in session files (not searchable) and being in a single short-circuit reference file ROUTER can scan before major tasks.
+
+**Procedure**:
+
+```
+1. Build memory-keeper payload:
+   - session_id: <sid>
+   - session_context_summary: brief summary of session activity touching lifeos
+     agents / commands / specs (≤500 tokens — memory-keeper only needs enough
+     context to identify gotcha candidates, not full session content)
+   - mode: regular  (use mode=seed only for the v1.8.7 release session itself)
+
+2. Launch memory-keeper subagent via Task tool. Wait for return.
+
+3. memory-keeper writes its own audit trail to
+   _meta/runtime/<sid>/memory-keeper-phase5.md and returns a one-line completion
+   signal: "✅ MEMORY-KEEPER phase5 done: K candidates, J merged, N appended,
+   M rejected. pro/gotchas.md total entries: <count>."
+
+4. R11 audit trail (archiver side): write _meta/runtime/<sid>/archiver-phase-5.md
+   recording the memory-keeper launch + return signal. Per DR-10 audit trails
+   are md with YAML frontmatter (not .json) since v1.8.6.
+
+5. Capture the gotchas line for Completion Checklist (see below).
+```
+
+**Failure handling**:
+
+- memory-keeper returns error → archiver records the error in Completion Checklist `🧠 Gotchas: ⚠️ memory-keeper failed: <reason>` and continues to Completion Checklist. Do NOT abort the adjourn — phase 5 failure is non-fatal but visible
+- memory-keeper not available (e.g. installation drift) → record `🧠 Gotchas: ⚠️ memory-keeper subagent not found` and continue
+- v1.8.7 → future versions: if memory-keeper agent file ever moves, the fallback is to skip phase 5 with a warning, not to inline-execute memory-keeper logic in archiver context (which would violate single-writer rule for pro/gotchas.md)
+
+**Why phase 5 not phase 4 subroutine**: memory-keeper writes `pro/gotchas.md` (not a sync operation). Phase 4 is exclusively git/Notion sync per existing spec. Conflating the two would break the 1-writer-per-file rule and AUDITOR Mode 7 M7-4 check.
+
+**Adjourn Report contract update (v1.7.2.3 6-H2 → v1.8.7 7-H2)**: the Adjourn Report MUST now contain 7 core H2 headings — Phase 0 / Phase 1 / Phase 2 / Phase 3 / Phase 4 / **Phase 5** / Completion Checklist. AUDITOR Mode 3 + Mode 7 enforce. Missing Phase 5 H2 = `Class C-brief-incomplete`.
 
 ---
 
@@ -809,13 +852,16 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 - Phase 4 git: {commit hash}
 - Phase 4 Notion: ⏳ deferred to orchestrator (archiver lacks MCP tools)
 - Phase 4 Notion Step 10a no-ask handoff: [ready for orchestrator no-ask sync / not configured / blocked: reason]
+- Phase 5 gotchas (memory-keeper v1.8.7): [K candidates / J merged / N appended / M rejected — pro/gotchas.md total: <count>] OR [⚠️ memory-keeper failed: <reason>]
 ```
 
 ---
 
 ## §Adjourn Report Completeness Contract (HARD RULE · v1.7.2.3 simplified)
 
-The final archiver adjourn report MUST be one contiguous output emitted after all four phases finish. It MUST contain the **six core H2 headings** below (Phase 0 / Phase 1 / Phase 2 / Phase 3 / Phase 4 / Completion Checklist), in this order, with concrete non-placeholder values. If any required heading is missing, empty, split across messages, or contains `TBD`, `{...}`, `pending (TBD)`, or a blank value, AUDITOR logs `Class C-brief-incomplete` and the adjourn is incomplete.
+The final archiver adjourn report MUST be one contiguous output emitted after all five phases finish (v1.8.7: 4 phases → 5 phases). It MUST contain the **seven core H2 headings** below (Phase 0 / Phase 1 / Phase 2 / Phase 3 / Phase 4 / Phase 5 / Completion Checklist), in this order, with concrete non-placeholder values. If any required heading is missing, empty, split across messages, or contains `TBD`, `{...}`, `pending (TBD)`, or a blank value, AUDITOR logs `Class C-brief-incomplete` and the adjourn is incomplete.
+
+**v1.8.7 6-H2 → 7-H2 expansion**: Phase 5 (memory-keeper, gotchas extraction) was added in v1.8.7 per RFC `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6. Previous v1.7.2.3 spec listed 6 H2 headings; v1.8.7 spec lists 7. AUDITOR Mode 7 M7-4 validates Phase 5 H2 presence.
 
 **v1.7.2.3 simplification rationale (post-Option A pivot)**: Previous 12-H2 contract caused archiver to take 25+ minutes because LLM expanded every H2/H3 sub-section. v1.7.2.3 reduced to 6 core H2 + Phase 2/3 token budget. Option A pivot deleted the Bash skeleton (`scripts/archiver-briefing-skeleton.sh`) — archiver now generates the 6-H2 structure inline via LLM. **Adjourn time regression to ~25-30 min is accepted** in exchange for architecture simplification. AUDITOR Mode 3 status / Subagent self-check / Hook fired / 子代理调用清单 / total tokens/cost are embedded in the Completion Checklist instead of standalone H2s. AUDITOR Mode 3 still checks for Class C-brief-incomplete to catch H2 omissions.
 

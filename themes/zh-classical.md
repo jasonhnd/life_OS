@@ -29,6 +29,7 @@ Chinese (中文). ALL output in this session MUST be in Chinese after this theme
 | council | 政事堂 | 🏛️ | — |
 | retrospective | 早朝官 | 🌅 | 早朝简报 |
 | archiver | 起居郎 | 📝 | — |
+| memory-keeper | 史馆 | 📚 | 备忘载录 |
 | strategist | 翰林院 | 🎋 | — |
 
 ## Domain Mapping

@@ -750,3 +750,98 @@ For the 3 critical agents (retrospective / archiver / reviewer), Mode 6 MUST PAS
 - Post-agent-edit: any time an agent definition is modified, Mode 6 runs on that single file.
 - Session-end Mode 3 patrol: Mode 6 runs A3 only (cheap, high-value).
 - Manual: `/audit --mode 6 [agent-name]` for explicit health check on a single agent.
+
+## Mode 7: OpenHuman patterns compliance (v1.8.7 new, per RFC §2 + DR-10)
+
+Audits the v1.8.7 borrowed-from-OpenHuman patterns to verify lifeos didn't drift back to a non-md substrate or skip required artifacts. Triggered:
+- Automatically as scenario 3 of Mode 3 session-end patrol (after Mode 4 SOUL, Mode 5 wiki, Mode 6 agent v2)
+- Pre-release: required before v1.8.7 ship and every subsequent release
+- Manually via `/audit --mode 7`
+
+### Checks
+
+#### M7-1: `pro/gotchas.md` exists with seed content
+
+- File `pro/gotchas.md` exists
+- Contains at least 10 entries matching the gotcha schema from `references/gotchas-spec.md`
+- Each entry includes `(#<ref>)` durable artifact reference
+- Single writer rule honored: no human commits to `pro/gotchas.md` outside memory-keeper runs (check git log author / commit message pattern)
+
+Missing or short → `F3 SCHEMA_FAILURE: pro/gotchas.md missing or under-seeded (≥10 required)`
+
+#### M7-2: `_meta/workpad/` directory exists (deferred to future use)
+
+v1.8.7 did NOT introduce `_meta/workpad/` (C7 was cut per DR-08). Mode 7 M7-2 verifies workpad is NOT present (a regression in this direction would be reintroduction of a cut feature).
+
+Present → `F4 SCOPE_FAILURE: _meta/workpad/ reintroduced after v1.8.7 cut; check why`
+
+#### M7-3: Five `WHEN-NOT-TO-ADD.md` files exist
+
+- `pro/agents/WHEN-NOT-TO-ADD.md`
+- `references/WHEN-NOT-TO-ADD.md`
+- `_meta/WHEN-NOT-TO-ADD.md`
+- `themes/WHEN-NOT-TO-ADD.md`
+- `scripts/WHEN-NOT-TO-ADD.md`
+
+Plus three-language mirrors at `i18n/zh/<path>/` and `i18n/ja/<path>/`.
+
+Missing any → `F3 SCHEMA_FAILURE: WHEN-NOT-TO-ADD.md missing at <path>`
+
+#### M7-4: archiver Phase 5 + 7-H2 contract
+
+- `pro/agents/archiver.md` contains a `## Phase 5 — Memory Keeper` section
+- `pro/agents/archiver.md` `Adjourn Report Completeness Contract` section says "seven core H2 headings" (not "six")
+- `pro/agents/archiver.md` Completion Checklist includes a `Phase 5 gotchas` line
+
+Missing any → `F4 SCOPE_FAILURE: archiver Phase 5 not wired per v1.8.7 RFC §2.1`
+
+#### M7-5: i18n diff parity (delegated to verify-release check 9)
+
+For session-end Mode 3 patrol: run a lightweight version of verify-release check 9 against the most recent commit (not full base..HEAD). This catches drift introduced this session before it accumulates to release time.
+
+Output:
+- **PASS** if recent commit has no i18n drift
+- **WARN** if drift detected — log to violations.md as `i18n-parity-drift` (does NOT block; matches verify-release check 9 WARN level)
+
+For pre-release patrol: defer to verify-release check 9 (full run) — Mode 7 just confirms check 9 was run.
+
+#### M7-6: Memory-keeper role name in all 9 themes
+
+For each `themes/<theme>.md` file:
+- Verify `Role Mapping` table contains a `| memory-keeper | <theme-name> | <emoji> | <report-label> |` row
+- Verify the theme name is theme-appropriate (not the literal `memory-keeper` ID)
+
+Missing in any theme → `WARN: themes/<theme>.md missing memory-keeper role entry; add per v1.8.7 RFC §9 Q3`
+
+#### M7-7: md-only ontological constraint not bypassed in new files
+
+Scan all md files added in the last release window:
+- Identify any spec or agent that **proposes** introducing SQL / JSON / sh / py functionality
+- Pattern: search for phrases like "introduce a JSON config", "add a Python script", "create a SQLite database", "shell script for"
+- This is a content-level check, not just file-extension check (covers proposals that haven't yet been built)
+
+Match found → `F4 SCOPE_FAILURE: file <path> proposes forbidden tech stack per DR-10`
+
+This catches DR-10 violations at the spec stage, before they get built into actual `.sql` / `.json` / `.sh` / `.py` files (which check 8 and 10 would catch).
+
+### Verdict output
+
+```
+── AUDITOR Mode 7 · OpenHuman patterns compliance ──
+M7-1 pro/gotchas.md: ✅/❌
+M7-2 _meta/workpad/ NOT present (cut feature): ✅/❌
+M7-3 5 WHEN-NOT-TO-ADD.md (× 3 langs = 15): ✅/❌
+M7-4 archiver Phase 5 + 7-H2: ✅/❌
+M7-5 i18n diff parity (session/release): ✅/⚠️
+M7-6 memory-keeper in 9 themes: ✅/⚠️
+M7-7 md-only constraint not bypassed in proposals: ✅/❌
+
+VERDICT: PASS | WARN | FAIL
+```
+
+### Use cases
+
+- v1.8.7 ship blocker: Mode 7 PASS required before tagging
+- Session-end Mode 3 patrol: Mode 7 runs M7-5 only (cheap, catches recent drift)
+- Pre-release: full Mode 7 run including M7-1 through M7-7
+- Manual: `/audit --mode 7` for explicit run

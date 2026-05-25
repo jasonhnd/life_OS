@@ -29,6 +29,7 @@ Chinese (中文). ALL output in this session MUST be in Chinese after this theme
 | council | 董事会会议 | 🏛️ | — |
 | retrospective | 周一晨会 | 🌅 | 晨会简报 |
 | archiver | 总裁秘书处 | 📝 | — |
+| memory-keeper | 知识管理部 | 📚 | KM 知识库更新 |
 | strategist | 外部智库 | 🎋 | — |
 
 ## Domain Mapping

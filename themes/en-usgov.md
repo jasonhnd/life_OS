@@ -29,6 +29,7 @@ Professional, clear, structured. Washington briefing style — concise, evidence
 | council | Cabinet Meeting | 🏛️ | — |
 | retrospective | Daily Intelligence Brief | 🌅 | PDB Summary |
 | archiver | National Archives | 📝 | — |
+| memory-keeper | Office of Lessons Learned | 📚 | Lessons Learned Update |
 | strategist | Library of Congress | 🎋 | — |
 
 ## Domain Mapping

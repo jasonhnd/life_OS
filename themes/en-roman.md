@@ -29,6 +29,7 @@ Dignified but clear. Classical gravitas without archaic language. Direct, decisi
 | council | Comitia | 🏛️ | — |
 | retrospective | Salutatio | 🌅 | Morning Salutatio |
 | archiver | Scriba | 📝 | — |
+| memory-keeper | Curator Memoriae | 📚 | Memoriae Update |
 | strategist | Oracle of Delphi | 🎋 | — |
 
 ## Domain Mapping

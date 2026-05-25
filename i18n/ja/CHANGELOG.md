@@ -6,6 +6,73 @@
 
 ---
 
+## [1.8.7] - 2026-05-25 - OpenHuman 着想の強化（md-only 本体論的制約）
+
+```yaml
+---
+version: 1.8.7
+date: 2026-05-25
+type: patch
+breaking_changes: []
+new_features:
+  - "C6: pro/gotchas.md（プロジェクトレベル技術 gotcha 知識ベース）+ pro/agents/memory-keeper.md（抽出 agent）+ archiver wrap-up phase 5（6-H2 → 7-H2 adjourn レポート契約）"
+  - "C6: 9 themes に memory-keeper 役割表示名追加（六部=史馆 / 中国政府=政策档案处 / 公司=知识管理部 / 霞が関=記録局 / 明治政府=史官局 / 日本企業=ナレッジマネジメント室 / C-Suite=Chief Memory Officer / Roman=Curator Memoriae / US Gov=Office of Lessons Learned）"
+  - "B4: ScheduleWakeup 自己駆動ループ — /verify-release-and-watch + /notion-sync-and-watch（270s tick × 12 ハードキャップ、Claude Code のみ）"
+  - "B4: references/self-driven-loops-spec.md（三言語）が 270s 根拠、12-tick キャップ、ホスト互換性を定義"
+  - "F11: references/i18n-diff-parity-spec.md（三言語）— セクションレベル EN ↔ zh / EN ↔ ja diff 整合性ルール"
+  - "F11: /verify-release check 9（i18n diff parity、v1.8.7 で WARN レベル、v1.8.8 で BLOCK 目標）"
+  - "F12: 5 つの WHEN-NOT-TO-ADD.md × 3 言語 = 15 個のアンチパターン境界ドキュメント（pro/agents/、references/、_meta/、themes/、scripts/）"
+  - "B5: references/feature-workflow-spec.md（三言語）が evals_scenarios 必須フィールド付き 4 段階ワークフローを定義；planner.md + dispatcher.md 強制更新"
+  - "A1: references/memory-tree-spec.md（三言語、status: proposal）— v1.9/v2.0 の L0/L1/L2/L3 cascade seal アーキテクチャ；v1.8.7 archiver 挙動変更なし"
+  - "A3: concept-spec.md の hotness 閾値を明示化（≥3 sessions → confirmed、≥10 → canonical）— ドキュメンテーションのみ、挙動変更なし"
+  - "DR-10: md-only 本体論的制約 — SKILL.md HARD RULE が 'No .py/.sh/.yml/.json' から永久本体論的コミットメントへ昇格、エスケープハッチなし、全将来バージョンに適用；.sql/.db/.sqlite が forbidden_extensions に追加"
+  - "AUDITOR Mode 7: OpenHuman patterns compliance（M7-1 ～ M7-7）for gotchas / workpad-cut / WHEN-NOT-TO-ADD / Phase 5 / i18n-parity / theme-role / md-only-not-bypassed-in-proposals"
+  - "/verify-release check 8 が 9 つの禁止拡張子に拡張（.bash/.yml/.yaml/.json/.sql/.db/.sqlite 追加）"
+  - "/verify-release check 10 新規：diff スコープ禁止拡張子（前回 tag 以降に導入されたファイルを捕捉）"
+  - "/verify-release check 11 新規（旧 check 9）：All regression fixtures FAIL（新 check 9 + 10 を受け入れるため再採番）"
+fixes: []
+alternatives_considered:
+  - option: "10 借用パターン全部実装（24 ワーキングデー、Stage 7 三モードマイグレーション）"
+    rejected_because: "DR-09 により決定基準を '節約ワーキングデー' から 'プロダクト品質' に変更；cargo-cult 借用（A2 content_hash / D8 三層 compression rules / C7 workpad）はプロダクト複雑度を増やすが実 lifeos 痛点を解決しない。DR-08 によりカット。"
+  - option: "C7 workpad を _meta/sessions/ とは別ディレクトリとして"
+    rejected_because: "workpad と sessions に区別するユーザ層用途なし；ユーザが '注釈をどこに置くか' を価値なく決める必要が生じる。カット。"
+  - option: "D8 三層 compression rules（builtin/user/project）"
+    rejected_because: "lifeos はシングルユーザ；3 つの独立ルールソースが存在しない。OpenHuman の JSON マージアーキテクチャを借用すると存在しないニーズに抽象化を加える。"
+  - option: "session/wiki 重複排除のための A2 content_hash frontmatter フィールド"
+    rejected_because: "violations.md または sessions 履歴に文書化された重複排除痛点なし。'念のため' フィールド追加はプロダクト腐敗の起点。"
+  - option: "A1 cascade seal を archiver で実装（仕様だけでなく）"
+    rejected_because: "dev repo に実 sessions データなし；spec 実装は second-brain ランタイムまで未検証。Spec を提案として凍結、v1.9/v2.0 検証サイクル用。"
+  - option: "全ホストで自己駆動ループ（Claude Code のみではなく）"
+    rejected_because: "ScheduleWakeup は Claude Code 固有。他ホスト（Gemini/Codex）に等価なし。クロスホスト近似を構築するより手動再実行への優雅な劣化を選択。"
+ordering_dependency:
+  blocked_by: [v1.8.6]
+  must_coexist_with: [DR-10 SKILL.md HARD RULE 昇格, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, pro/agents/memory-keeper.md, AUDITOR Mode 7, 9 themes 更新]
+regression_cases_added:
+  - "evals/scenarios/rc-forbidden-extension-sql.md（Stage 6 計画）"
+  - "evals/scenarios/rc-forbidden-extension-json.md（Stage 6 計画）"
+  - "evals/scenarios/rc-forbidden-extension-db.md（Stage 6 計画）"
+upgrade_from: v1.8.6
+upgrade_mode: zero-friction
+---
+```
+
+> **OpenHuman のパターンを借用、技術スタックは借用しない。** v1.8.7 は `tinyhumansai/openhuman` から 7 つの設計パターンを吸収、それぞれを md-only で表現。DR-10 により、md-only は今や lifeos の**本体論的制約** —— lifeos が lifeos である定義属性。DR-08 により 3 つの cargo-cult 借用（A2 / D8 / C7）をカットしてプロダクトをシンプルに保つ。仕様のみの A1 cascade seal を v2.0 アンカーとして凍結。
+
+### マイグレーション
+
+```
+1. cd <lifeos repo> && git pull origin main
+2. /version-check          # 1.8.7 確認
+3. /install-agents --refresh   # 2 つの新 watch コマンドをインストール
+4. /verify-release v1.8.7  # 11 個の check 全 PASS
+```
+
+マイグレーションコマンド不要。archiver 初回実行で `pro/gotchas.md` を自動作成、memory-keeper が v1.8.4-1.8.6 RFC + violations 履歴をスキャンして ≥10 件のシードを埋める。
+
+完全な RFC + DR-01 から DR-10 監査 trail は `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` 参照。
+
+---
+
 ## [1.8.6] - 2026-07-16 - md-only 強制（repo 内に .py/.sh/.yml/.json 禁止）
 
 ```yaml

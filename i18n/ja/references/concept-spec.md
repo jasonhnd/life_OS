@@ -163,6 +163,18 @@ Body content (markdown, optional but encouraged)...
 
 Promotion は `_meta/cortex/decay-log.md` にタイムスタンプとトリガーセッションと共に記録されます。
 
+### Hotness 閾値の根拠（v1.8.7 で明示化、RFC §2.7 A3 による）
+
+上記の昇格閾値は **hotness シグナル**：より多くの独立セッションが concept を参照するほど、正規参照として実体化する価値が高い。各数値の根拠：
+
+- **≥3 セッション → confirmed**：3 つの独立した出現は一回性の偶然を排除し、真に再利用可能なアイデアを示唆。3 未満 = 再現しない瞬時の可能性。この数値は誤検出率（ランダムな再現から concept 作成）と遅延（真の反復 concept を認識するのに長く待つ）のバランス
+- **≥10 セッション → canonical**：10 個の独立した出現は concept がピン留め価値のある基礎参照になる閾値を超える。10 未満 = concept は確立されているが負荷を担うほどではない。この数値は週次アクティブセッションの 1 四半期を反映 —— concept が複数サイクルを生き延びるのに十分な長さ
+- **90 日休眠 → 退役候補**（Retirement セクションによる）：3 か月の活性化なしは concept が活発な使用から外れたことを示唆
+
+これらの閾値は元々 `archiver` Phase 2 と `pro/agents/knowledge-extractor.md` のコードパスに暗黙的だった。v1.8.7 は **本仕様で明示化** —— 監査可能、調整可能、コード探索なしで将来の読者に可視に。**v1.8.6 からの挙動変更なし** —— ドキュメント表層の昇格のみ。
+
+パターン源：tinyhumansai/openhuman "hotness-driven topic materialization"（エンティティの出現が多いほど、その topic tree がより積極的に構築される）。lifeos はこれら閾値で hotness *概念* を採用するが、手動トリガー（knowledge-extractor が決定）を維持する —— lifeos は既存 concept ファイルを超えた要約を自動実体化しない。手動を維持し自動昇格しない根拠は `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.7 A3 参照。
+
 ### Reinforcement
 
 セッション中の各 activation:

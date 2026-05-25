@@ -6,6 +6,73 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.8.7] - 2026-05-25 - OpenHuman-inspired hardening (md-only ontological constraint)
+
+```yaml
+---
+version: 1.8.7
+date: 2026-05-25
+type: patch
+breaking_changes: []
+new_features:
+  - "C6: pro/gotchas.md (project-level tech gotchas knowledge base) + pro/agents/memory-keeper.md (extractor agent) + archiver wrap-up phase 5 (6-H2 → 7-H2 adjourn report contract)"
+  - "C6: 9 themes updated with memory-keeper role display name (六部=史馆 / 中国政府=政策档案处 / 公司=知识管理部 / 霞が関=記録局 / 明治政府=史官局 / 日本企業=ナレッジマネジメント室 / C-Suite=Chief Memory Officer / Roman=Curator Memoriae / US Gov=Office of Lessons Learned)"
+  - "B4: ScheduleWakeup self-driven loops — /verify-release-and-watch + /notion-sync-and-watch (270s tick × 12 hard cap, Claude Code only)"
+  - "B4: references/self-driven-loops-spec.md (three-language) defining 270s rationale, 12-tick cap, host compatibility"
+  - "F11: references/i18n-diff-parity-spec.md (three-language) — section-level EN ↔ zh / EN ↔ ja diff parity rules"
+  - "F11: /verify-release check 9 (i18n diff parity, WARN level in v1.8.7, BLOCK target v1.8.8)"
+  - "F12: 5 WHEN-NOT-TO-ADD.md files × 3 languages = 15 anti-pattern boundary docs (pro/agents/, references/, _meta/, themes/, scripts/)"
+  - "B5: references/feature-workflow-spec.md (three-language) defining 4-stage workflow with evals_scenarios required field; planner.md + dispatcher.md updated to enforce"
+  - "A1: references/memory-tree-spec.md (three-language, status: proposal) — L0/L1/L2/L3 cascade seal architecture for v1.9/v2.0; archiver behavior unchanged in v1.8.7"
+  - "A3: concept-spec.md hotness thresholds made explicit (≥3 sessions → confirmed, ≥10 → canonical) — documentation only, behavior unchanged"
+  - "DR-10: md-only ontological constraint — SKILL.md HARD RULE upgraded from 'No .py/.sh/.yml/.json' to permanent ontological commitment, no escape hatch, applies to all future versions; .sql/.db/.sqlite added to forbidden_extensions"
+  - "AUDITOR Mode 7: OpenHuman patterns compliance (M7-1 through M7-7) for gotchas/workpad-cut/WHEN-NOT-TO-ADD/Phase 5/i18n-parity/theme-role/md-only-not-bypassed-in-proposals"
+  - "/verify-release check 8 expanded to 9 forbidden extensions (added .bash/.yml/.yaml/.json/.sql/.db/.sqlite)"
+  - "/verify-release check 10 NEW: diff-scoped forbidden extensions (catches files introduced since last tag)"
+  - "/verify-release check 11 NEW (was check 9): All regression fixtures FAIL (renumbered to accommodate new check 9 + 10)"
+fixes: []
+alternatives_considered:
+  - option: "Take all 10 borrowed patterns (24 working days, Stage 7 three-mode migration)"
+    rejected_because: "Per DR-09 decision standard changed from 'work-days saved' to 'product quality'; cargo-cult borrows (A2 content_hash / D8 three-layer compression rules / C7 workpad) add product complexity without solving real lifeos pain. Cut per DR-08."
+  - option: "C7 workpad as separate directory from _meta/sessions/"
+    rejected_because: "No user-layer purpose distinguishing workpad from sessions; would force user to decide 'where to put a note' without value. Cut."
+  - option: "D8 three-layer compression rules (builtin/user/project)"
+    rejected_because: "lifeos is single-user; three independent rule sources don't exist. Borrowing OpenHuman's JSON merge architecture would add abstraction for a need that doesn't exist."
+  - option: "A2 content_hash frontmatter field for session/wiki deduplication"
+    rejected_because: "No documented dedup pain in violations.md or sessions history. Adding a field 'just in case' is product rot starter."
+  - option: "A1 cascade seal implementation in archiver (not just spec)"
+    rejected_because: "dev repo has no real sessions data; spec implementation would be unverified until second-brain runtime. Spec frozen as proposal for v1.9/v2.0 validation cycle."
+  - option: "Self-driven loops on all hosts (not Claude-Code-only)"
+    rejected_because: "ScheduleWakeup is Claude Code-specific. Other hosts (Gemini/Codex) lack equivalent. Gracefully degrade to manual reruns instead of building cross-host approximation."
+ordering_dependency:
+  blocked_by: [v1.8.6]
+  must_coexist_with: [DR-10 SKILL.md HARD RULE upgrade, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, pro/agents/memory-keeper.md, AUDITOR Mode 7, 9 themes update]
+regression_cases_added:
+  - "evals/scenarios/rc-forbidden-extension-sql.md (planned in Stage 6)"
+  - "evals/scenarios/rc-forbidden-extension-json.md (planned in Stage 6)"
+  - "evals/scenarios/rc-forbidden-extension-db.md (planned in Stage 6)"
+upgrade_from: v1.8.6
+upgrade_mode: zero-friction
+---
+```
+
+> **Borrow patterns from OpenHuman, not its tech stack.** v1.8.7 absorbs 7 design patterns from `tinyhumansai/openhuman` and expresses every one in md-only. Per DR-10, md-only is now lifeos's **ontological constraint** — the definitional property of being lifeos. Cut 3 cargo-cult borrows (A2 / D8 / C7) per DR-08 to keep product simple. Spec-only A1 cascade seal frozen as v2.0 anchor.
+
+### Migration
+
+```
+1. cd <lifeos repo> && git pull origin main
+2. /version-check          # confirm 1.8.7
+3. /install-agents --refresh   # install 2 new watch commands
+4. /verify-release v1.8.7  # 11 checks all PASS
+```
+
+No migration command. archiver first run auto-creates `pro/gotchas.md` with ≥10 seed entries from memory-keeper scanning v1.8.4-1.8.6 RFC + violations history.
+
+See `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` for full RFC + DR-01 through DR-10 audit trail.
+
+---
+
 ## [1.8.6] - 2026-07-16 - md-only enforcement (No .py/.sh/.yml/.json in repo)
 
 ```yaml

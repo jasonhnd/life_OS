@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.4-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.7-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -78,6 +78,34 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 > **ロールプレイではない。** 各エージェントは本物の、隔離された subagent として実行される。互いの推論は見えない。独立に採点する。意見が分かれる。
 
 ---
+
+## v1.8.7 の新機能 — OpenHuman 着想の強化（md-only 本体論的制約）
+
+**OpenHuman のパターンを借用、技術スタックは借用しない。** v1.8.7 は `tinyhumansai/openhuman` から 7 つの設計パターンを吸収（memory tree cascade、ScheduleWakeup 自己駆動ループ、gotchas 知識ベース、hotness 駆動 concept 実体化、三言語 diff 整合性、"意図的に近空" アンチパターンドキュメント、evals 必須ワークフロー）—— しかしそれぞれを md-only で表現、SQL なし / JSON なし / sh なし / py なし。DR-10 により、md-only は今や lifeos の**本体論的制約** —— lifeos が lifeos である定義属性。将来禁止拡張子の導入を提案する RFC は要件を再定義必須、制約を緩和してはならない。
+
+### プロダクトアップグレード（lifeos の能力を変える能力）
+
+- **🧠 gotchas + memory-keeper（C6）** —— `pro/gotchas.md` はプロジェクトレベル技術 gotcha の単一ファイル。新 `memory-keeper` agent が archiver wrap-up phase 5 で自動抽出。ROUTER は重大タスク前に既知問題を short-circuit 可能。初回 seed 実行で v1.8.4-1.8.6 RFC + violations 履歴から ≥10 件生成。
+- **🔄 ScheduleWakeup 自己駆動ループ（B4）** —— `/verify-release-and-watch` と `/notion-sync-and-watch` が 270s ごとにポーリング（Anthropic prompt cache ウィンドウ）、最大 12 ticks（60 分）終端状態まで。GitHub Release publish 欠落を自動修正。lifeos が reactive ツールから "タスクを見張れる" ツールへ。
+- **📋 verify-release が 11 個の check に拡張** —— 新 check 9（i18n diff parity、WARN レベル）が反復する "EN spec 更新したが zh/ja ドリフト" 違反クラスを捕捉。新 check 10（diff スコープの forbidden extensions）が前回 tag 以降に導入された禁止拡張子ファイルを捕捉。Check 8 が 9 つの禁止拡張子に拡張（`.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite` 追加）。
+- **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 sub-check が v1.8.7 アーティファクト維持 + md-only 制約が設計提案レベルで迂回されないことを検証（ファイル拡張子ゲート到達前にドリフトを捕捉）。
+- **📚 Spec 強化** —— `evals_scenarios:` frontmatter フィールドが各計画文書で必須（dispatcher は欠如すれば拒否）。`concept-spec.md` の hotness 閾値が明示化（≥3 sessions → confirmed、≥10 → canonical）。5 つの新 `WHEN-NOT-TO-ADD.md` が pro/agents/、references/、_meta/、themes/、scripts/ に明確な境界を設定。
+- **🌳 Memory tree cascade seal —— v2.0 提案** —— `references/memory-tree-spec.md` が sessions/wiki の L0 → L1 → L2 → L3 cascade アーキテクチャを定義、OpenHuman から借用。Spec は提案として凍結；v1.8.7 archiver 挙動変更なし。実装は v1.9/v2.0 に延期、Jason の second-brain 実データ検証待ち。
+
+### v1.8.6 からのアップグレード（zero-friction）
+
+```
+1. cd <lifeos repo> && git pull origin main
+2. /version-check
+3. /install-agents --refresh
+4. /verify-release v1.8.7
+```
+
+マイグレーションコマンド不要。archiver 初回実行で `pro/gotchas.md` を自動作成。既存データレイアウトは変わらない。
+
+完全な RFC、DR-08（cargo-cult カット）、DR-09（決定基準：時間ではなくプロダクト品質）、DR-10（md-only 本体論的制約）、設計決定の監査 trail は [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 参照。
+
+> **以前**、v1.8.3 はアウトバウンドプライバシーギャップを閉じた（v1.8.3 の詳細は CHANGELOG 参照）。
 
 ## v1.8.3 の新機能 — Notion 書き込み前のアウトバウンド境界ゲート
 

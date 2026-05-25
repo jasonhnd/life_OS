@@ -14,6 +14,8 @@ Wiki はシステムのナレッジアーカイブ —— 世界に関する再�
 
 > **v1.8.5 wiki v2 ピボット —— eou-foundry より借用**: Wiki エントリはもはや confidence/evidence metadata を持つ自由形式の散文ではない。v2 エントリは構造化された frontmatter（6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against）を持つ。RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 5 に従う。
 
+> **v2.0 将来の方向（v1.8.7 A1 仕様提案）**：`references/memory-tree-spec.md`（status: proposal）が wiki + sessions の L0 → L1 → L2 → L3 cascade seal アーキテクチャを定義、`tinyhumansai/openhuman` Memory Tree から借用。v1.8.7 では未実装 —— 将来の方向と根拠は当該仕様参照。
+
 ## 位置づけ（v1 保持）
 
 | 保存場所 | 記録 | 例 |

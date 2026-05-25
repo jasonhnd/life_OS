@@ -10,6 +10,8 @@ superseded_by: pro/CLAUDE.md
 
 Session index は Cortex の hippocampus(クロスセッション検索)のデータソースです。2 つのアーティファクトが生成され、writer(archiver)と compiler(retrospective)の間に厳格な分離があります。
 
+> **v2.0 将来の方向（v1.8.7 A1 仕様提案）**：`references/memory-tree-spec.md`（status: proposal）が sessions の L0 → L1 → L2 → L3 cascade seal アーキテクチャを定義、`tinyhumansai/openhuman` Memory Tree から借用。v1.8.7 では未実装。将来の方向と実データ検証待ちのコスト/価値トレードオフは当該仕様参照。
+
 ## 1. 目的(Purpose)
 
 session index は、hippocampus サブエージェントがベクトルデータベース、SQLite、またはいかなる非 markdown ランタイムなしに、メッセージごとのクロスセッション検索を実行できるようにするために存在します。`devdocs/architecture/cortex-integration.md` §3.1 に従い、検索はコンパイルされたプレーンテキストインデックス上の LLM 駆動です — スキャンが速く、再生成が安く、完全に markdown-first です。

@@ -6,6 +6,73 @@
 
 ---
 
+## [1.8.7] - 2026-05-25 - OpenHuman 启发的硬化（md-only 本体论约束）
+
+```yaml
+---
+version: 1.8.7
+date: 2026-05-25
+type: patch
+breaking_changes: []
+new_features:
+  - "C6: pro/gotchas.md（项目级技术坑知识库）+ pro/agents/memory-keeper.md（提取 agent）+ archiver wrap-up phase 5（6-H2 → 7-H2 adjourn 报告契约）"
+  - "C6: 9 个 themes 加 memory-keeper 角色显示名（六部=史馆 / 中国政府=政策档案处 / 公司=知识管理部 / 霞が関=記録局 / 明治政府=史官局 / 日本企業=ナレッジマネジメント室 / C-Suite=Chief Memory Officer / Roman=Curator Memoriae / US Gov=Office of Lessons Learned）"
+  - "B4: ScheduleWakeup 自驱循环 — /verify-release-and-watch + /notion-sync-and-watch（270s tick × 12 硬上限，仅 Claude Code）"
+  - "B4: references/self-driven-loops-spec.md（三语）定义 270s 理由、12-tick 上限、host 兼容性"
+  - "F11: references/i18n-diff-parity-spec.md（三语）— 章节级 EN ↔ zh / EN ↔ ja diff 对齐规则"
+  - "F11: /verify-release check 9（i18n diff parity，v1.8.7 WARN 级，v1.8.8 目标 BLOCK）"
+  - "F12: 5 个 WHEN-NOT-TO-ADD.md × 3 语 = 15 个反模式边界文档（pro/agents/、references/、_meta/、themes/、scripts/）"
+  - "B5: references/feature-workflow-spec.md（三语）定义 4 阶段工作流含 evals_scenarios 必填字段；planner.md + dispatcher.md 更新强制"
+  - "A1: references/memory-tree-spec.md（三语，status: proposal）— v1.9/v2.0 的 L0/L1/L2/L3 cascade seal 架构；v1.8.7 archiver 行为不变"
+  - "A3: concept-spec.md hotness 阈值显式化（≥3 sessions → confirmed，≥10 → canonical）— 仅文档化，行为不变"
+  - "DR-10: md-only 本体论约束 — SKILL.md HARD RULE 从 'No .py/.sh/.yml/.json' 升级为永久本体论承诺，无 escape hatch，适用所有未来版本；.sql/.db/.sqlite 加入 forbidden_extensions"
+  - "AUDITOR Mode 7: OpenHuman patterns compliance（M7-1 至 M7-7）for gotchas / workpad-cut / WHEN-NOT-TO-ADD / Phase 5 / i18n-parity / theme-role / md-only-not-bypassed-in-proposals"
+  - "/verify-release check 8 扩展为 9 个禁止扩展（加 .bash/.yml/.yaml/.json/.sql/.db/.sqlite）"
+  - "/verify-release check 10 新增：diff 范围禁止扩展（抓上次 tag 以来引入的文件）"
+  - "/verify-release check 11 新增（原 check 9）：All regression fixtures FAIL（重新编号以容纳新 check 9 + 10）"
+fixes: []
+alternatives_considered:
+  - option: "全收 10 条借鉴模式（24 工作日，Stage 7 三模式迁移）"
+    rejected_because: "按 DR-09 决策标准从'省工作日'改为'产品质量'；cargo-cult 借鉴（A2 content_hash / D8 三层 compression rules / C7 workpad）加产品复杂度但不解决真实 lifeos 痛点。按 DR-08 砍掉。"
+  - option: "C7 workpad 作为 _meta/sessions/ 独立目录"
+    rejected_because: "workpad 与 sessions 无用户层用途区分；会强迫用户决定'笔记放哪'无价值。砍。"
+  - option: "D8 三层 compression rules（builtin/user/project）"
+    rejected_because: "lifeos 单用户；三个独立规则源不存在。借鉴 OpenHuman JSON 合并架构会为不存在的需求增加抽象。"
+  - option: "A2 content_hash frontmatter 字段 用于 session/wiki 去重"
+    rejected_because: "violations.md 或 sessions 历史无去重痛点文档。'以防万一'加字段是产品腐败起点。"
+  - option: "A1 cascade seal 在 archiver 实施（不仅 spec）"
+    rejected_because: "dev repo 无真实 sessions 数据；spec 实施在 second-brain runtime 跑前未经验证。Spec 冻结为提案，v1.9/v2.0 验证周期。"
+  - option: "自驱循环跨所有 host（不仅 Claude Code）"
+    rejected_because: "ScheduleWakeup 是 Claude Code 特定。其他 host（Gemini/Codex）无等价。优雅降级到手动重跑而非建跨 host 近似。"
+ordering_dependency:
+  blocked_by: [v1.8.6]
+  must_coexist_with: [DR-10 SKILL.md HARD RULE 升级, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, pro/agents/memory-keeper.md, AUDITOR Mode 7, 9 themes 更新]
+regression_cases_added:
+  - "evals/scenarios/rc-forbidden-extension-sql.md（Stage 6 计划）"
+  - "evals/scenarios/rc-forbidden-extension-json.md（Stage 6 计划）"
+  - "evals/scenarios/rc-forbidden-extension-db.md（Stage 6 计划）"
+upgrade_from: v1.8.6
+upgrade_mode: zero-friction
+---
+```
+
+> **借鉴 OpenHuman 的模式，不借鉴其技术栈。** v1.8.7 吸收 7 个来自 `tinyhumansai/openhuman` 的设计模式，每条都用 md-only 表达。按 DR-10，md-only 现在是 lifeos 的**本体论约束** —— lifeos 之所以是 lifeos 的定义属性。按 DR-08 砍 3 个 cargo-cult 借鉴（A2 / D8 / C7）保持产品简单。仅 spec 的 A1 cascade seal 冻结作 v2.0 锚点。
+
+### 升级
+
+```
+1. cd <lifeos repo> && git pull origin main
+2. /version-check          # 确认 1.8.7
+3. /install-agents --refresh   # 装 2 个新 watch 命令
+4. /verify-release v1.8.7  # 11 个 check 全 PASS
+```
+
+无迁移命令。archiver 首次跑自动创建 `pro/gotchas.md`，memory-keeper 扫 v1.8.4-1.8.6 RFC + violations 历史填 ≥10 条种子。
+
+详见 `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` 完整 RFC + DR-01 到 DR-10 审计 trail。
+
+---
+
 ## [1.8.6] - 2026-07-16 - md-only 强制（repo 内禁 .py/.sh/.yml/.json）
 
 ```yaml

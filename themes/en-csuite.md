@@ -29,6 +29,7 @@ Professional but direct. No corporate jargon. Clear, actionable language.
 | council | Board Meeting | 🏛️ | — |
 | retrospective | Monday Standup | 🌅 | Weekly Briefing |
 | archiver | Executive Assistant | 📝 | — |
+| memory-keeper | Chief Memory Officer | 📚 | Knowledge Base Update |
 | strategist | Advisory Board | 🎋 | — |
 
 ## Domain Mapping

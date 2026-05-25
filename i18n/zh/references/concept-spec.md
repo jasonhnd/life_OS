@@ -163,6 +163,18 @@ Body content (markdown, optional but encouraged)...
 
 晋升记录在 `_meta/cortex/decay-log.md` 中，带时间戳和触发会话。
 
+### Hotness 阈值理由（v1.8.7 显式化，按 RFC §2.7 A3）
+
+上述晋升阈值是 **hotness 信号**：越多独立会话引用一个概念，越值得物化为正式参考。各数字的理由：
+
+- **≥3 会话 → confirmed**：三个独立出现消除一次性偶然，标志真正可复用的想法。低于 3 = 可能是不会重现的瞬时。该数字平衡了误报率（随机重复创建概念）与延迟（等太久才认识到真正反复的概念）
+- **≥10 会话 → canonical**：十个独立出现跨过概念变成值得 pin 的基础参考的阈值。低于 10 = 概念已建立但尚未承重。该数字反映了每周活跃 session 的一个季度 —— 长到概念已经历多次循环
+- **90 天休眠 → 退役候选**（按 Retirement 章节）：三个月无激活提示概念已脱离活跃使用
+
+这些阈值原本隐式在 `archiver` Phase 2 和 `pro/agents/knowledge-extractor.md` 代码路径中。v1.8.7 **在本 spec 中显式化**，让它们可审计、可调、对未来读者可见无需读代码。**v1.8.6 行为不变** —— 仅文档表层提升。
+
+模式来源：tinyhumansai/openhuman "hotness-driven topic materialization"（实体出现越多，其 topic tree 构建越积极）。lifeos 通过这些阈值采纳 hotness *概念*但保持手动触发（knowledge-extractor 决定）—— lifeos 不自动物化既有概念文件之外的摘要。详见 `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.7 A3 关于保持手动而非自动晋升的理由。
+
 ### 强化（Reinforcement）
 
 每次会话中的激活：

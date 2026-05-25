@@ -14,6 +14,8 @@ Wiki is the system's knowledge archive — a living collection of reusable concl
 
 > **v1.8.5 wiki v2 pivot — borrowed from eou-foundry**: Wiki entries are no longer free-form prose with confidence/evidence metadata. v2 entries have structured frontmatter (6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against). Per Stage 5 of RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`.
 
+> **v2.0 future direction (v1.8.7 A1 spec proposal)**: `references/memory-tree-spec.md` (status: proposal) defines L0 → L1 → L2 → L3 cascade seal architecture for wiki + sessions, borrowed from `tinyhumansai/openhuman` Memory Tree. NOT implemented in v1.8.7 — see that spec for the future direction and rationale.
+
 ## Positioning (unchanged from v1)
 
 | Storage | Records | Example |

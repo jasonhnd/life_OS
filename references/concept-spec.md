@@ -163,6 +163,18 @@ Body content (markdown, optional but encouraged)...
 
 Promotion is recorded in `_meta/cortex/decay-log.md` with timestamp and triggering session.
 
+### Hotness thresholds rationale (v1.8.7 explicit per RFC §2.7 A3)
+
+The promotion thresholds above are **hotness signals**: the more independent sessions reference a concept, the more it's worth materializing as a canonical reference. Rationale per number:
+
+- **≥3 sessions → confirmed**: three independent occurrences eliminate one-off accidents and signal a genuinely reusable idea. Below 3 = could be a transient that won't recur. The number balances false-positive rate (concept created from random recurrence) against latency (waiting too long to recognize a real recurring concept)
+- **≥10 sessions → canonical**: ten independent occurrences cross the threshold where the concept becomes a foundational reference worth pinning. Below 10 = concept is established but not yet load-bearing. The number reflects a quarter-year of weekly active sessions — long enough that the concept has survived multiple cycles
+- **90-day dormancy → retirement candidate** (per Retirement section): three months without activation suggests the concept has fallen out of active use
+
+These thresholds were originally implicit in `archiver` Phase 2 and `pro/agents/knowledge-extractor.md` code paths. v1.8.7 makes them **explicit in this spec** so they're auditable, tunable, and visible to future readers without code-spelunking. **Behavior unchanged from v1.8.6** — only the documentation surface elevated.
+
+Pattern source: tinyhumansai/openhuman "hotness-driven topic materialization" (the more an entity shows up, the more aggressively its topic tree is built). lifeos adopts the hotness *concept* via these thresholds but stays manual-trigger (knowledge-extractor decides) — lifeos does NOT auto-materialize summaries beyond the existing concept file. See `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.7 A3 for the rationale on staying manual rather than auto-promoting.
+
 ### Reinforcement
 
 Each activation during a session:

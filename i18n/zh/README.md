@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.4-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.7-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -76,6 +76,34 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 > **不是角色扮演。** 每个 agent 都作为真实的、隔离的 subagent 运行。它们看不到彼此的推理过程。独立评分。会产生分歧。
 
 ---
+
+## v1.8.7 新特性 — OpenHuman 启发的硬化（md-only 本体论约束）
+
+**借鉴 OpenHuman 的模式，不借鉴其技术栈。** v1.8.7 吸收 7 个来自 `tinyhumansai/openhuman` 的设计模式（memory tree cascade、ScheduleWakeup 自驱循环、gotchas 知识库、hotness 驱动概念物化、三语 diff 对齐、"故意保持近空" 反模式文档、evals 必填工作流）—— 但每条都用 md-only 表达，无 SQL / 无 JSON / 无 sh / 无 py。按 DR-10，md-only 现在是 lifeos 的**本体论约束** —— lifeos 之所以是 lifeos 的定义属性。任何未来提议引入禁止扩展名的 RFC 必须重新定义需求，不放宽约束。
+
+### 产品升级（改变 lifeos 能力的能力）
+
+- **🧠 gotchas + memory-keeper（C6）** —— `pro/gotchas.md` 是项目级技术坑的单文件。新 `memory-keeper` agent 在 archiver wrap-up phase 5 自动提炼。ROUTER 在重大任务前可 short-circuit 已知问题。首次 seed 跑从 v1.8.4-1.8.6 RFC + violations 历史产 ≥10 条。
+- **🔄 ScheduleWakeup 自驱循环（B4）** —— `/verify-release-and-watch` 和 `/notion-sync-and-watch` 每 270s 轮询（Anthropic prompt cache 窗口），最多 12 ticks（60 分钟）直到终态。自动修复缺失的 GitHub Release publish。lifeos 从 reactive 工具变成"能盯任务"的工具。
+- **📋 verify-release 扩展为 11 个 check** —— 新 check 9（i18n diff parity，WARN 级）抓反复的"EN spec 更新但 zh/ja 漂移"违规类。新 check 10（diff 范围 forbidden extensions）抓上次 tag 以来引入的禁止扩展名文件。Check 8 扩展为 9 个禁止扩展名（加 `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`）。
+- **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 个 sub-check 验证 v1.8.7 artifact 保留 + md-only 约束在设计提议级别不被绕过（在到文件扩展闸门前抓漂移）。
+- **📚 Spec 硬化** —— `evals_scenarios:` frontmatter 字段现在在每个规划文档必填（dispatcher 不带就拒绝）。`concept-spec.md` 的 hotness 阈值显式化（≥3 sessions → confirmed，≥10 → canonical）。5 个新 `WHEN-NOT-TO-ADD.md` 为 pro/agents/、references/、_meta/、themes/、scripts/ 设清楚边界。
+- **🌳 Memory tree cascade seal —— v2.0 提案** —— `references/memory-tree-spec.md` 定义 sessions/wiki 的 L0 → L1 → L2 → L3 cascade 架构，借鉴自 OpenHuman。Spec 冻结为提案；v1.8.7 archiver 行为不变。实施推迟到 v1.9/v2.0，待 Jason second-brain 真实数据验证。
+
+### 从 v1.8.6 升级（zero-friction）
+
+```
+1. cd <lifeos repo> && git pull origin main
+2. /version-check
+3. /install-agents --refresh
+4. /verify-release v1.8.7
+```
+
+无迁移命令。archiver 首次跑自动创建 `pro/gotchas.md`。既有数据布局不变。
+
+详见 [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 完整 RFC、DR-08（cargo-cult 砍掉）、DR-09（决策标准：产品质量不是时间）、DR-10（md-only 本体论约束），及设计决策审计 trail。
+
+> **之前**，v1.8.3 关闭了出境隐私缺口（详见 CHANGELOG 的 v1.8.3 内容）。
 
 ## v1.8.3 新特性 — Notion 写入前的出境闸门
 

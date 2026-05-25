@@ -9,6 +9,8 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 Session index is the data source for Cortex's hippocampus (cross-session retrieval). Two artifacts are produced, with a strict separation between writer (archiver) and compiler (retrospective).
 
+> **v2.0 future direction (v1.8.7 A1 spec proposal)**: `references/memory-tree-spec.md` (status: proposal) defines L0 → L1 → L2 → L3 cascade seal architecture for sessions, borrowed from `tinyhumansai/openhuman` Memory Tree. NOT implemented in v1.8.7. See that spec for the future direction and the cost/value trade-offs awaiting real-data validation.
+
 ## 1. Purpose
 
 The session index exists so the hippocampus subagent can perform per-message cross-session retrieval without a vector database, SQLite, or any non-markdown runtime. Per `devdocs/architecture/cortex-integration.md` §3.1, retrieval is LLM-driven over a compiled plaintext index — fast to scan, cheap to regenerate, fully markdown-first.

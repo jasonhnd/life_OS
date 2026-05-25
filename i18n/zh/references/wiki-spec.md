@@ -14,6 +14,8 @@ Wiki 是系统的知识档案——关于世界的可复用结论的活集合。
 
 > **v1.8.5 wiki v2 pivot —— 借鉴自 eou-foundry**: Wiki entry 不再是 free-form prose 加 confidence/evidence metadata。v2 entry 有结构化 frontmatter（6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against）。按 RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 5。
 
+> **v2.0 未来方向（v1.8.7 A1 spec 提案）**：`references/memory-tree-spec.md`（status: proposal）定义 wiki + sessions 的 L0 → L1 → L2 → L3 cascade seal 架构，借鉴自 `tinyhumansai/openhuman` Memory Tree。v1.8.7 不实施 —— 详见该 spec 的未来方向与理由。
+
 ## 定位（v1 保留）
 
 | 存储 | 记录 | 示例 |

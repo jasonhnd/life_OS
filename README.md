@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.4-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.7-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -87,6 +87,34 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 > **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
 
 ---
+
+## What's New in v1.8.7 — OpenHuman-inspired hardening (md-only ontological constraint)
+
+**Borrowing patterns from OpenHuman, not its tech stack.** v1.8.7 absorbs 7 design patterns from `tinyhumansai/openhuman` (memory tree cascade, ScheduleWakeup self-driven loops, gotchas knowledge base, hotness-driven concept materialization, three-language diff parity, "intentionally near-empty" anti-pattern docs, evals-required workflow) — but expresses every one in md-only, no SQL / no JSON / no sh / no py. Per DR-10, md-only is now lifeos's **ontological constraint** — the definitional property of being lifeos. Any future RFC proposing to introduce a forbidden extension must redefine the requirement, not relax the constraint.
+
+### Product upgrades (capabilities that change what lifeos can do)
+
+- **🧠 gotchas + memory-keeper (C6)** — `pro/gotchas.md` is a single flat file of project-level technical gotchas. New `memory-keeper` agent extracts them automatically in archiver wrap-up phase 5. ROUTER can short-circuit known issues before major tasks. First seed run produces ≥10 entries from v1.8.4-1.8.6 RFC + violations history.
+- **🔄 ScheduleWakeup self-driven loops (B4)** — `/verify-release-and-watch` and `/notion-sync-and-watch` poll every 270s (Anthropic prompt cache window) for up to 12 ticks (60 min) until terminal state. Auto-fixes missing GitHub Release publish. lifeos goes from reactive tool to "can watch tasks" tool.
+- **📋 verify-release expanded to 11 checks** — new check 9 (i18n diff parity, WARN level) catches the recurring "EN spec updated but zh/ja drifted" violation class. New check 10 (diff-scoped forbidden extensions) catches forbidden-extension files introduced since last tag. Check 8 expanded to 9 forbidden extensions (added `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`).
+- **🛡️ AUDITOR Mode 7 (OpenHuman patterns compliance)** — 7 sub-checks verify v1.8.7 artifacts stay present + md-only constraint not bypassed at the design proposal level (catches drift before it hits the file-extension gate).
+- **📚 Spec hardening** — `evals_scenarios:` frontmatter field is now required in every planning document (dispatcher rejects without it). Hotness thresholds in `concept-spec.md` made explicit (≥3 sessions → confirmed, ≥10 → canonical). Five new `WHEN-NOT-TO-ADD.md` files set clear boundaries for pro/agents/, references/, _meta/, themes/, scripts/.
+- **🌳 Memory tree cascade seal — v2.0 proposal** — `references/memory-tree-spec.md` defines L0 → L1 → L2 → L3 cascade architecture for sessions/wiki, borrowed from OpenHuman. Spec is frozen as proposal; archiver behavior unchanged in v1.8.7. Implementation deferred to v1.9/v2.0 pending real-data validation in Jason's second-brain.
+
+### Upgrading from v1.8.6 (zero-friction)
+
+```
+1. cd <lifeos repo> && git pull origin main
+2. /version-check
+3. /install-agents --refresh
+4. /verify-release v1.8.7
+```
+
+No migration command needed. archiver first run creates `pro/gotchas.md` automatically. Existing data layout unchanged.
+
+See [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) for the full RFC, DR-08 (cargo-cult cuts), DR-09 (decision standard: product quality not time), DR-10 (md-only ontological constraint), and the audit trail of design decisions.
+
+> **Previously**, v1.8.3 closed the outbound privacy gap (see CHANGELOG for the v1.8.3 detail).
 
 ## What's New in v1.8.3 — Outbound boundary gate for Notion writes
 

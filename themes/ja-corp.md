@@ -29,6 +29,7 @@ Japanese (日本語). ALL output in this session MUST be in Japanese after this 
 | council | 取締役会 | 🏛️ | — |
 | retrospective | 朝礼 | 🌅 | 朝礼ブリーフィング |
 | archiver | 秘書室 | 📝 | — |
+| memory-keeper | ナレッジマネジメント室 | 📓 | KM ナレッジベース更新 |
 | strategist | シンクタンク | 🎋 | — |
 
 ## Domain Mapping

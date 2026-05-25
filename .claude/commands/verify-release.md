@@ -76,25 +76,58 @@ Look for the entry where `"isLatest": true` — the tagName must equal `$TARGET_
 - **PASS** if Latest tag == target.
 - **FAIL** otherwise → user must `gh release edit $TARGET_TAG --latest`.
 
-### 8. (v1.8.5+) No .py / .sh in repo
+### 8. (v1.8.5+ / v1.8.7 expanded) No forbidden extensions in repo
 ```bash
-find . -type f \( -name '*.py' -o -name '*.sh' \) \
+find . -type f \( -name '*.py' -o -name '*.sh' -o -name '*.bash' -o -name '*.yml' -o -name '*.yaml' -o -name '*.json' -o -name '*.sql' -o -name '*.db' -o -name '*.sqlite' \) \
   -not -path './.git/*' -not -path './backup/*' -not -path './.venv/*' | head -20
 ```
 - **PASS** if output is empty.
-- **FAIL** otherwise → list found files; user must convert to slash commands or markdown spec.
+- **FAIL** otherwise → list found files; user must convert to slash commands or md spec.
+- **v1.8.7 expansion (DR-10 ontological constraint)**: now scans 9 extensions (added `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite` on top of v1.8.5's `.py` / `.sh`). See `SKILL.md` HARD RULE md-only ontological constraint.
 
-### 9. (v1.8.5+) All regression fixtures FAIL
+### 9. (v1.8.7 NEW) i18n diff parity (WARN level in v1.8.7, BLOCK target v1.8.8)
+Per `references/i18n-diff-parity-spec.md`. Verify that EN spec changes between `<base>..HEAD` have matching changes in zh + ja mirrors.
+
 ```bash
-ls evals/regression-fixtures/*.yml 2>/dev/null | wc -l
+# 1. List changed EN spec files
+git diff --name-only <base>..HEAD -- references/ CHANGELOG.md README.md MIGRATION.md 2>/dev/null
+
+# 2. For each changed EN file, list corresponding mirror files that ALSO changed
+git diff --name-only <base>..HEAD -- i18n/zh/references/ i18n/zh/CHANGELOG.md i18n/zh/README.md i18n/zh/MIGRATION.md i18n/ja/references/ i18n/ja/CHANGELOG.md i18n/ja/README.md i18n/ja/MIGRATION.md 2>/dev/null
 ```
-- Then run `/run-regression` slash command and verify all fixtures marked "should-fail" actually fail when run through validators.
+
+LLM procedure (per i18n-diff-parity-spec §"Verification implementation"):
+- For each changed EN file: identify changed sections by walking back to nearest `## `
+- For each changed section, verify same section also has a diff in zh and ja mirrors
+- Verify section count parity: EN section count == zh count == ja count
+- **PASS** if all changed sections aligned across three languages
+- **WARN** (v1.8.7 default — does NOT block release) if drift detected — output list of drifted (file, section) pairs
+- v1.8.8 target: escalate to BLOCK for HARD RULE-bearing specs + README/CHANGELOG/MIGRATION
+
+### 10. (v1.8.7 NEW · DR-10 audit) No forbidden extensions in commit diff
+Tighter scope than check 8: ensures no forbidden extension was introduced **since the previous tag** (catches sneak-in even if repo somehow gets cleaned later).
+
+```bash
+PREV_TAG=$(git tag --sort=-creatordate | sed -n '2p')   # second-most-recent tag
+git diff --name-only "$PREV_TAG"..HEAD | grep -E '\.(py|sh|bash|yml|yaml|json|sql|db|sqlite)$' || echo "none"
+```
+
+- **PASS** if output is `none` (or empty).
+- **FAIL** if any path matched → release MUST NOT proceed; remove the file or revert the commit that introduced it.
+- This is the diff-scoped enforcement complementing check 8's full-repo scan. Together they prevent both "file slipped in" (check 8) and "file added in this release window" (check 10).
+
+### 11. (v1.8.5+, renumbered v1.8.7) All regression fixtures FAIL
+```bash
+ls evals/regression-fixtures/*.md 2>/dev/null | wc -l
+```
+- Then run `/run-eval` slash command and verify all fixtures marked "should-fail" actually fail when run through validators.
 - **PASS** if 100% of regression fixtures FAIL as expected.
 - **FAIL** otherwise → report which fixtures passed when they should have failed.
+- Note: v1.8.7 fixture extension changed from `.yml` → `.md` per md-only ontological constraint (DR-10). Older `*.yml` fixtures already converted in v1.8.5 Stage 9 / v1.8.6.
 
 ## Output format
 
-After running all 9 checks, emit a summary:
+After running all 11 checks, emit a summary:
 
 ```
 ── /verify-release · $TARGET_TAG ──
@@ -105,11 +138,14 @@ After running all 9 checks, emit a summary:
 5. Tag on remote: ✅/❌
 6. GitHub Release exists (not Draft): ✅/❌
 7. Marked as Latest: ✅/❌
-8. No .py/.sh in repo: ✅/❌
-9. All regression fixtures FAIL: ✅/❌
+8. No forbidden extensions in repo: ✅/❌
+9. i18n diff parity (WARN level v1.8.7): ✅/⚠️
+10. No forbidden extensions in commit diff: ✅/❌
+11. All regression fixtures FAIL: ✅/❌
 
-VERDICT: PASS / FAIL
+VERDICT: PASS / WARN / FAIL
 [if FAIL: list specific fix commands for each ❌]
+[if WARN only: release CAN proceed, but record warning for follow-up]
 ```
 
 ## HARD RULES

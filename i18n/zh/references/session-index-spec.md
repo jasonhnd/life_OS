@@ -10,6 +10,8 @@ superseded_by: pro/CLAUDE.md
 
 Session index 是 Cortex 的 hippocampus（跨会话检索）的数据源。产出两份 artifact，**写入者（archiver）与编译者（retrospective）严格分离**。
 
+> **v2.0 未来方向（v1.8.7 A1 spec 提案）**：`references/memory-tree-spec.md`（status: proposal）定义 sessions 的 L0 → L1 → L2 → L3 cascade seal 架构，借鉴自 `tinyhumansai/openhuman` Memory Tree。v1.8.7 不实施。详见该 spec 的未来方向与待真实数据验证的成本/价值权衡。
+
 ## 1. 目的（Purpose）
 
 session index 存在的意义是：让 hippocampus 子 agent 能在没有向量数据库、没有 SQLite、没有任何非 markdown 运行时的情况下，在每条消息上执行跨会话检索。按 `devdocs/architecture/cortex-integration.md` §3.1，检索由 LLM 驱动、读取一份编译好的纯文本索引 —— 扫描快、重建便宜、全 markdown 优先。

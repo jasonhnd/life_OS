@@ -81,6 +81,36 @@ Before writing dispatch orders, perform a method lookup when `_meta/methods/INDE
 
 Method injection is guidance, not override. If a known method conflicts with reviewer conditions or fresh facts in the planning document, include the conflict note in the affected domain brief instead of forcing the method.
 
+## evals_scenarios Pre-Dispatch Validation (HARD RULE · v1.8.7 B5)
+
+Before producing the Dispatch Order, dispatcher MUST validate the planning document's `evals_scenarios:` frontmatter field per `references/feature-workflow-spec.md`. This is the hard contract gate that makes lifeos's eval-first philosophy enforced rather than aspirational.
+
+### Validation procedure
+
+1. Read planning doc frontmatter
+2. Locate `evals_scenarios:` key
+3. Reject with `F4 SCOPE_FAILURE` if any of:
+   - Key missing entirely
+   - Value is empty list `[]`
+   - Any entry is `N/A:` with reason NOT in allowed enum (`docs-only` / `pure-translation` / `i18n-mirror-update` / `typo-fix` / `cleanup-only`)
+   - Any entry is a path to a fixture that does NOT exist (verify via `test -f <path>`)
+   - Any entry is `TBD:` without a parseable `commit-by: <deadline>` clause
+4. If validation fails:
+   - Output: `F4 SCOPE_FAILURE: planning doc missing or invalid evals_scenarios. Specific issue: <enumerated>`
+   - Halt dispatch
+   - Return to planner with the specific failure detail
+   - Allow planner up to 3 retry cycles before escalating to user
+
+### Special cases
+
+- **TBD entries**: dispatcher accepts (downstream domains can proceed) but logs as `pending_scenarios` in dispatch order. reviewer-final will reject the planning doc if TBD is not resolved by ship time
+- **Fixture file exists but is empty/stub** (≥30 lines or ≥1 acceptance criterion required): dispatcher treats as effectively-empty → reject same as missing
+- **Mixed valid + invalid entries**: reject the whole doc — partial validity doesn't pass
+
+### Why this gate is hard
+
+Per RFC §2.5 B5: lifeos's eval-first philosophy has been "should" for years; v1.8.7 makes it "must" via this field. Skipping the gate = silently shipping untested behavior = the failure mode this enforcement is designed to prevent. Do NOT relax this gate without a v-bump RFC.
+
 ## Dispatch Only Assigned Domains (HARD RULE)
 
 Only dispatch domain agents listed in the planner's planning document. If a domain was marked "Not assigned", do NOT create a dispatch order for it. Do NOT add domains the planner did not assign.

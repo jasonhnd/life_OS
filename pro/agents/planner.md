@@ -53,6 +53,21 @@ In the planning document, list each assigned domain with a ONE-LINE justificatio
 
 ## Output Format
 
+Every planning document MUST start with frontmatter that includes the `evals_scenarios:` field (v1.8.7 B5 HARD requirement per `references/feature-workflow-spec.md`):
+
+```yaml
+---
+subject: <one-line title>
+intent: <what is really being solved>
+scope: [<domain list>]
+evals_scenarios:
+  - <path-to-existing-fixture or N/A: <reason from enum> or TBD: <commit-by>>
+  - ...
+---
+```
+
+Then the narrative section:
+
 ```
 📜 [theme: planner] · Planning Document
 Subject: [Title] | Intent: [What is really being solved]
@@ -63,6 +78,16 @@ Subject: [Title] | Intent: [What is really being solved]
 ⚠️ Risk Warning: [Potentially overlooked dimensions or implicit risks]
 📋 Suggested Execution Approach: [Which domains can run in parallel, which have dependencies]
 ```
+
+### evals_scenarios field (v1.8.7 HARD)
+
+The `evals_scenarios:` frontmatter field is non-negotiable. dispatcher rejects planning documents without it (or with empty/invalid value). See `references/feature-workflow-spec.md` §"evals_scenarios frontmatter field" for the complete rules. Quick reference:
+
+- **Path entry**: `evals/scenarios/<name>.md` — fixture file MUST exist
+- **N/A entry**: must use one of the allowed enums (`docs-only` / `pure-translation` / `i18n-mirror-update` / `typo-fix` / `cleanup-only`)
+- **TBD entry**: `TBD: <path> (commit-by: <deadline>)` — accepted by dispatcher, rejected by reviewer-final until resolved
+
+If you're writing a planning doc for a change that genuinely doesn't need a fixture, write the appropriate `N/A:` with the enum reason. Do NOT skip the field or write vague reasons — both are rejected.
 
 ## Strategic Map Cross-Impact Check
 

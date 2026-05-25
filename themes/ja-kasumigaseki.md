@@ -29,6 +29,7 @@ Japanese (日本語). ALL output in this session MUST be in Japanese after this 
 | council | 閣議 | 🏛️ | — |
 | retrospective | 定例閣議 | 🌅 | 閣議ブリーフィング |
 | archiver | 内閣書記官 | 📝 | — |
+| memory-keeper | 記録局 | 📓 | 業務知見台帳 |
 | strategist | 内閣特別顧問 | 🎋 | — |
 
 ## Domain Mapping

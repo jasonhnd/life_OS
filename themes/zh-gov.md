@@ -29,6 +29,7 @@ Chinese (中文). ALL output in this session MUST be in Chinese after this theme
 | council | 国务院常务会议 | 🏛️ | — |
 | retrospective | 国务院例会 | 🌅 | 例会简报 |
 | archiver | 国家档案局 | 📝 | — |
+| memory-keeper | 政策档案处 | 📚 | 经验档案更新 |
 | strategist | 社科院 | 🎋 | — |
 
 ## Domain Mapping

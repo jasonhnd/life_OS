@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.8.6"
+version: "1.8.7"
 commit_sha: "PLACEHOLDER"
 install_date: "PLACEHOLDER"
 description: "A personal decision engine with multiple independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
@@ -347,31 +347,58 @@ Platform auto-detects → reads `pro/CLAUDE.md` (Claude) / `pro/GEMINI.md` (Gemi
 
 **Update**: Say "update" (or theme equivalent) when prompted, or at any time to check and apply updates.
 
-## v1.8.5 NEW HARD RULES (per RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`)
+## v1.8.5 / v1.8.6 / v1.8.7 HARD RULES (md-only ontological constraint)
 
-### HARD RULE · No .py / .sh / .yml / .json files in lifeos repo (v1.8.5 Stage 2 + v1.8.6 expansion)
+### HARD RULE · md-only is lifeos's ontological constraint, no escape hatch, permanent (v1.8.5 / v1.8.6 / v1.8.7)
 
-After v1.8.5 hook-layer retirement + v1.8.6 md-only enforcement, the repo MUST contain **ZERO `.py`, `.sh`, `.yml`, `.json` files** (excluding `backup/`, `.git/`, `.venv/`, `.gitignore`, `.gitattributes`).
+**md-only is the definitional property of lifeos.** A "lifeos" that introduces SQL / standalone JSON / sh / py is no longer lifeos — it's a different project. This constraint applies to v1.8.7 and **every future version** with no exception and no escape hatch.
 
-All executable logic moves to `.claude/commands/*.md` slash commands. All structured data moves to `.md` files with YAML frontmatter (frontmatter inside `.md` is allowed — only standalone `.yml` / `.json` files are forbidden).
+**Forbidden file extensions in the repo** (excluding `backup/`, `.git/`, `.venv/`, `.gitignore`, `.gitattributes`, and Claude Code platform-required `.claude/settings.json` which is gitignored):
 
-**v1.8.6 expansion rationale**:
+| Extension | Why forbidden | Since |
+|-----------|---------------|-------|
+| `.py` | Python executable | v1.8.1 Wave 2 |
+| `.sh` / `.bash` | Shell scripts | v1.8.5 Stage 2 |
+| `.yml` / `.yaml` | Standalone YAML config | v1.8.6 |
+| `.json` | Standalone JSON | v1.8.6 |
+| `.sql` | SQL database files | **v1.8.7 NEW** |
+| `.db` / `.sqlite` | Local databases (e.g. SQLite `chunks.db`) | **v1.8.7 NEW** |
+
+All executable logic moves to `.claude/commands/*.md` slash commands. All structured data moves to `.md` files with YAML frontmatter (frontmatter inside `.md` is allowed — only standalone `.yml` / `.json` files are forbidden). All persistent data is md files in directories — no databases.
+
+**v1.8.7 ontological elevation (DR-10)**:
+
+This rule is no longer a "policy" that can be revisited or relaxed. It is the **ontological constraint** that defines what lifeos is. Any future RFC proposing to introduce a forbidden extension must:
+
+1. Not seek "we found a case md can't solve" — that case redefines the requirement instead of relaxing the constraint
+2. Be rejected at AUDITOR Mode 7 M7-7 gate
+3. Not be allowed as a "temporary workaround" — there is no temporary version of an ontological constraint
+
+**Borrowing patterns from external projects**: only borrow design **patterns**, never borrow **implementation** technology stacks. OpenHuman uses SQLite/JSON/Rust — lifeos uses md. The same pattern (memory hierarchy / token compression / self-driven loops) expressed in different substrates.
+
+**v1.8.5 / v1.8.6 expansion rationale** (preserved):
 - Audit trails (`_meta/runtime/<sid>/*.json` → `*.md`): R12 → R13 schema. Same machine-parseable YAML frontmatter, just wrapped in `.md`.
 - Regression fixtures (`evals/regression-fixtures/*.yml` → `*.md`): v1.8.5 Stage 9 fixtures all converted.
 - Decision records (`_meta/incidents/*.yml` → `*.md`): same 7-field schema as frontmatter.
 - Memory KV (`~/.claude/lifeos-memory/<key>.json` → `<key>.md`): same key+value structure as frontmatter.
 - GitHub Actions (`.github/workflows/*.yml`): DELETED — CI moves to user-side `/run-eval` slash command per release readiness checklist.
 
-**Verification**:
+**Verification** (`/verify-release` check #8 + v1.8.7 check #10):
 ```bash
-find . -type f \( -name '*.py' -o -name '*.sh' -o -name '*.yml' -o -name '*.yaml' -o -name '*.json' \) \
+find . -type f \( -name '*.py' -o -name '*.sh' -o -name '*.bash' -o -name '*.yml' -o -name '*.yaml' -o -name '*.json' -o -name '*.sql' -o -name '*.db' -o -name '*.sqlite' \) \
   -not -path './backup/*' -not -path './.git/*' -not -path './.venv/*'
 ```
-MUST return empty. `/verify-release` check #8 enforces.
+MUST return empty. Both checks must PASS for release.
 
 **Exception note**: `.claude/settings.json` and `.claude/settings.local.json` are Claude Code platform requirements; they are gitignored (not in repo) and configured by user locally. The repo HARD RULE does not apply to gitignored local config files that platforms require.
 
-**Violation**: F4 SCOPE_FAILURE (re-introducing forbidden extensions after v1.8.6 md-only enforcement).
+**Violation**: F4 SCOPE_FAILURE (re-introducing forbidden extensions after v1.8.6 md-only enforcement / v1.8.7 ontological constraint).
+
+**Audit gates**:
+- `/verify-release` check #8 (existing, full-repo scan) and #10 (v1.8.7 new, diff-scoped against last tag)
+- AUDITOR Mode 7 M7-7: scans newly added/modified md files for "needs SQL/JSON/sh/py to work" design drift
+- Regression fixtures: `rc-forbidden-extension-sh.md` (existing), `rc-forbidden-extension-sql.md` / `rc-forbidden-extension-json.md` / `rc-forbidden-extension-db.md` (v1.8.7 new)
+- Reference: `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` DR-10 + §1.5 ontological constraint
 
 ### HARD RULE · violations.md F-Code required for v1.8.5+ entries (Stage 8)
 
@@ -382,6 +409,29 @@ Every new row in `pro/compliance/violations.md` from v1.8.5 onwards MUST include
 **Mapping reference**: see `pro/compliance/violations.md` §"A-F → F-Code Typical Mappings".
 
 **Violation**: F3 SCHEMA_FAILURE (violation row missing required F-Code column).
+
+### HARD RULE · Self-driven loops with ScheduleWakeup (v1.8.7 B4)
+
+Some long-running tasks (release verification, Notion sync) used to require the user to manually rerun a command every few minutes until done. v1.8.7 introduces **self-driven loops** using Claude Code's `ScheduleWakeup` tool — the command schedules its own next iteration at a cache-friendly interval, polls for terminal state, and exits when done or at a hard cap.
+
+**Pattern source**: `tinyhumansai/openhuman` `.claude/commands/ship-and-babysit.md`. **Full spec**: `references/self-driven-loops-spec.md`.
+
+**Currently shipped self-driven commands (v1.8.7)**:
+
+| Command | Base | Purpose |
+|---------|------|---------|
+| `/verify-release-and-watch [tag]` | `/verify-release` | Polls all 10 release checks until PASS or hard cap; auto-fixes missing GitHub Release publish |
+| `/notion-sync-and-watch [--resume]` | `/notion-sync` | Polls Notion sync until queue empty; resumes from checkpoint after transient failures |
+
+**Three hard invariants (DR-derived)**:
+
+1. **270s interval, not 300s**: Anthropic prompt cache TTL is 5 min. Sleeping past it = full uncached context read on next wake. `delaySeconds: 270` stays inside cache with 30s safety margin. Any value between 300-1200s is anti-optimization (pays cache miss without amortizing). Only justified exceptions: 600s for CDN-propagation-class waits, 1200-1800s for idle heartbeats
+2. **12-tick / 60-minute hard cap**: every loop tracks `tickCount` (visible in ScheduleWakeup `reason` field). At 12 ticks, exit with status snapshot and ask user. No exceptions — if the task hasn't reached terminal state in an hour, human eyes needed
+3. **Claude Code only**: ScheduleWakeup is Claude Code-specific. Self-driven loop commands MUST declare `requires_host: claude-code` in frontmatter. On Gemini CLI / Codex CLI, the command outputs a clear error pointing to the non-watch sibling for manual reruns
+
+**When to add a new self-driven loop**: the task has a clear terminal state, each iteration is cheap, external state changes between iterations, and the user explicitly invokes it. See `references/self-driven-loops-spec.md` "When to use" section for the full criteria. Self-driven loops are NOT replacements for cron (lifeos pivoted away from cron in v1.8.0) and NOT for indefinite monitoring.
+
+**Violation**: F4 SCOPE_FAILURE (self-driven loop without ScheduleWakeup 270s pacing OR without 12-tick cap OR without `requires_host` declaration).
 
 ### HARD RULE · CHANGELOG schema v1 for v1.8.5+ release entries (Stage 8)
 

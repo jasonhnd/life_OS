@@ -15,6 +15,20 @@ This index is the public pointer for non-overridable Life OS behavior. README fi
 - **Manual compression trigger**: `/compress [focus]` is part of the `SKILL.md` Trigger Execution Templates section. v1.7.3 wires the slash command via `scripts/commands/compress.md` (installed to `~/.claude/commands/`). ROUTER does inline compression, archives to `_meta/compression/<sid>-compress-<ts>.md`, and reports original/retained turn count + rough tokens released + preserved decisions. The dead `tools/context_compressor.py` (1370 lines, 0 callers) and `tools/manual_compression_feedback.py` (51 lines, 0 callers) were removed in v1.7.3.
 - **Cortex pull-based scope (v1.8.0 pivot — supersedes v1.7.2 always-on)**: As of v1.8.0, Cortex Step 0.5 is **no longer always-on**. ROUTER decides per-message whether to launch any of the 4 Cortex subagents (hippocampus / concept-lookup / soul-check / gwt-arbitrator). The `pre-prompt-guard.sh` always-on enforcement block was removed. There is no `HARD RULE` marker for Cortex activation in the count below. See `pro/CLAUDE.md` §0.5 for the pull-based heuristics.
 
+## v1.8.7 Release Deltas
+
+- **md-only ontological elevation (DR-10)**: The existing `SKILL.md` HARD RULE "No .py / .sh / .yml / .json files" (v1.8.5 Stage 2 + v1.8.6 expansion) was upgraded in v1.8.7 to "md-only is lifeos's ontological constraint, no escape hatch, permanent". The marker count is unchanged (still 1 marker for this rule), but the rule's scope and authority were elevated:
+  - Now lists 9 forbidden extensions (added `.sql` / `.db` / `.sqlite` to existing `.py` / `.sh` / `.bash` / `.yml` / `.yaml` / `.json`)
+  - No escape hatch / no conditional exception / applies to all future versions
+  - Borrowing patterns from external projects: only borrow patterns, never implementation tech stacks
+  - Audit gates: existing `/verify-release` check #8 (full-repo) + v1.8.7 new check #10 (diff-scoped) + AUDITOR Mode 7 M7-7 + 4 regression fixtures (sh existing, sql/json/db new)
+  - Reference: `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` DR-10 + §1.5
+- **Pending v1.8.7 additions to count** (placeholder — increment when these stages complete):
+  - B4 Self-driven loops with ScheduleWakeup section (likely 1 marker in `SKILL.md`)
+  - B5 evals_scenarios required field (likely 0 markers in SKILL.md; lives in planner.md / dispatcher.md)
+  - F12 WHEN-NOT-TO-ADD files (no markers; directory-level guidance)
+  - Final count to be updated after Task 8 Release Pack completes
+
 ## Current Count
 
 Current explicit HARD RULE marker count is counted per active host, as of v1.7.2. Do not add host files together.
