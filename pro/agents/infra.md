@@ -55,3 +55,20 @@ Calibration: If a plan would cause chronic severe sleep deprivation or complete 
 - Health advice must be specific. "Exercise more and drink more water" is useless
 - Do not ignore mental health
 - When other domains' plans would impact health/quality of life, this must be explicitly pointed out
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · infra · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh infra domain assessment, subject `<X>`" |
+| `evaluating` | 🔍 | Reviewing health impact / digital infra / life routines against current state |
+| `acted` | ✅ | Domain report emitted with infra score + health flags + actionable items |
+| `skipped` | ⏭️ | Subject has no infra/health dimension (dispatcher misrouted) |
+| `escalated` | ⚖️ | R2 health risk-domain detected (per risk-domains-spec) — flagging for reviewer R2 escalation |
+| `awaiting_user` | 🟡 | N/A — domain output goes to reviewer chain |
+| `failed` | ❌ | Cannot assess (missing health context user did not provide) (`F8 SILENT_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — every assigned subject produces visible domain report |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

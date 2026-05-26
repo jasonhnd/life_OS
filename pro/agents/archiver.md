@@ -999,3 +999,22 @@ Emit the existing Completion Checklist immediately after Phase 4. Every required
 - Else: `not available from host telemetry: <reason>` (not blank)
 
 (Note: `## Subagent self-check` literal lines are emitted at top of report per Adjourn Contract preamble — not a separate H2 here. Same for `[FRESH ADJOURN · ...]` marker.)
+
+---
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md`. archiver emits a status line at each phase transition (5 phases + completion).
+
+| Status | When emitted | This agent's semantic |
+|--------|--------------|----------------------|
+| `starting` 🚀 | First line of fresh adjourn invocation | "fresh adjourn invocation, trigger `<N>` of session, 5-phase flow starting" |
+| `evaluating` 🔍 | At entry to each phase that does substantive reading/computation (Phase 0/2/3/5) | "Phase `<N>` — `<what's being computed>` (e.g. Phase 2 knowledge extraction summary)" |
+| `acted` ✅ | At completion of each phase that produced concrete artifacts (Phase 1/2/4/5) | "Phase `<N>` complete — `<deliverable counts>` (e.g. Phase 1: 3 decisions / 2 tasks / 1 journal archived)" |
+| `skipped` ⏭️ | Phase legitimately produces no output (Phase 3 DREAM light-sleep / Phase 2 zero candidates) | "Phase 3 light sleep — no significant patterns" |
+| `escalated` ⚖️ | N/A — archiver writes terminal artifacts (outbox/git/Notion handoff to orchestrator) | `N/A — archiver is terminal for adjourn artifacts; Notion handoff to orchestrator is config-driven not escalation` |
+| `awaiting_user` 🟡 | N/A — adjourn flow is no-ask per pro/CLAUDE.md Step 10a; ambiguous candidates discarded with reason | `N/A — adjourn HARD RULE forbids mid-flow user prompts; archiver discards ambiguous cases with logged reason` |
+| `failed` ❌ | Phase failure: outbox write blocked, git push rejected, Notion MCP unavailable when configured | "`F8 SILENT_FAILURE: Notion sync configured but MCP unavailable` or `F10: Phase 4 git commit blocked by hook`" |
+| `silent_pass` 🟢 | Phase 5 memory-keeper finds 0 candidates (clean session) | "Phase 5 memory-keeper — 0 candidates, gotchas.md unchanged at `<count>` entries" |
+
+See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

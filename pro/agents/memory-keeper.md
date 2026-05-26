@@ -211,3 +211,20 @@ Procedure for seed mode:
 ## Format reference
 
 See `references/gotchas-spec.md` for full entry schema, examples, and edge cases.
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md`. First line of every invocation MUST be a status line.
+
+| Status | When emitted | This agent's semantic |
+|--------|--------------|----------------------|
+| `starting` 🚀 | First line after Task() launch | "fresh invocation, mode=`<regular\|seed>`, session_id=`<sid>`" |
+| `evaluating` 🔍 | Scanning session context for gotcha candidates, dedup against existing gotchas.md | "scanning `<N>` session frames + reading current gotchas.md `<M>` entries for dedup" |
+| `acted` ✅ | Gotchas appended to pro/gotchas.md (regular mode) or seed populated (seed mode) | "`<K>` candidates: `<J>` merged, `<N>` appended, `<M>` rejected — gotchas.md total `<count>`" |
+| `skipped` ⏭️ | Session has no gotcha-worthy content (pure conversation, no edits) | "0 candidates found — pure conversation session, no surfacing needed" |
+| `escalated` ⚖️ | N/A — memory-keeper writes directly to pro/gotchas.md, no higher authority | `N/A — memory-keeper is terminal writer for gotchas (single-writer rule per gotchas-spec)` |
+| `awaiting_user` 🟡 | N/A — memory-keeper does not have user-gate; archiver Phase 5 invocation is autonomous | `N/A — gotchas extraction is dev-internal, not user-gated` |
+| `failed` ❌ | Cannot read pro/gotchas.md or gotchas-spec.md; entry format violation; PII detected in candidate | "`F3 SCHEMA_FAILURE: candidate entry missing (#<ref>) reference` or `F10: PII detected in candidate text`" |
+| `silent_pass` 🟢 | High-frequency case: scanned session, found 0 candidates, audit trail confirms (lifeos's "nothing new" outcome) | "scanned, nothing new — audit trail at _meta/runtime/<sid>/memory-keeper-phase5.md" |
+
+See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

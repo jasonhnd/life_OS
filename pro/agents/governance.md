@@ -56,3 +56,20 @@ Calibration: If there is an irreversible legal risk, cannot score above 7.
 - Legal-related content must include the note "does not constitute legal advice"
 - Do not say "risk is manageable" without explaining how to manage it
 - Do not shy away from giving low scores. The governance domain's job is to find problems
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · governance · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh governance domain assessment, subject `<X>`" |
+| `evaluating` | 🔍 | Scanning risks / legal / time-audit / security against current state |
+| `acted` | ✅ | Domain report emitted with governance score + risk register + recommendations |
+| `skipped` | ⏭️ | Subject has no governance dimension (dispatcher misrouted) |
+| `escalated` | ⚖️ | R3 legal risk-domain detected (per risk-domains-spec) — flagging for reviewer R3 escalation |
+| `awaiting_user` | 🟡 | N/A — domain output goes to reviewer chain |
+| `failed` | ❌ | Cannot assess (insufficient context, e.g. legal jurisdiction not stated) (`F8 SILENT_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — every assigned subject produces visible domain report |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

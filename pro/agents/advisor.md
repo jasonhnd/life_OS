@@ -208,3 +208,20 @@ After each remonstrance, if new patterns are discovered or existing patterns cha
 4. Existing pattern disappeared → "📝 Pattern fading: [pattern name] no longer significant"
 
 The retrospective agent reads these suggestions during wrap-up and updates `user-patterns.md`.
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · advisor · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh advisor invocation, scanning user-patterns.md + this session" |
+| `evaluating` | 🔍 | Reading user-patterns + cross-checking session decisions vs patterns |
+| `acted` | ✅ | Pattern suggestions emitted (new pattern / reinforcement / fade / disappear) |
+| `skipped` | ⏭️ | No new patterns detected; existing patterns unchanged |
+| `escalated` | ⚖️ | N/A — advisor surfaces to retrospective for user-patterns.md update, not escalation |
+| `awaiting_user` | 🟡 | N/A — advisor runs after decision; user already saw the workflow |
+| `failed` | ❌ | Cannot read user-patterns.md or session record (`F8 SILENT_FAILURE`) |
+| `silent_pass` | 🟢 | High-frequency clean case: session aligned with existing patterns, no surfacing needed |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

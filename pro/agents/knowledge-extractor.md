@@ -197,3 +197,20 @@ When writing persistent files in Phase 2, mirror the routing + wikilink rules fr
 **C. Slug determinism**: same canonical name → same slug across runs. Lowercase + hyphenate ASCII, pinyin transliteration for Chinese when reliable, SHA-1 hash of canonical name (first 10 chars) as fallback.
 
 **D. Review queue**: when extraction reports flag items needing user attention (e.g., "candidate failed privacy filter, user should rephrase before re-extracting"), append to `_meta/review-queue.md` per `references/review-queue-spec.md`. The extraction reports themselves stay in `_meta/runtime/<sid>/extraction/`; the queue surfaces them to the user.
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · knowledge-extractor · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh knowledge extraction Phase 2 (v1.7.3 carve-out), session_id=`<sid>`" |
+| `evaluating` | 🔍 | Scanning session for wiki / SOUL / methods / concepts / strategic candidates (7 sub-steps) |
+| `acted` | ✅ | YAML output + extraction reports written to `_meta/runtime/<sid>/extraction/` |
+| `skipped` | ⏭️ | Sub-step has no candidates (e.g. session was pure conversation, no wiki candidates) |
+| `escalated` | ⚖️ | N/A — knowledge-extractor outputs to archiver Phase 2 summary, terminal for extraction |
+| `awaiting_user` | 🟡 | Privacy filter flagged candidate; queued to review-queue for user rephrase (not blocking) |
+| `failed` | ❌ | Session record unreachable; canonical name conflict (`F12 DRIFT_FAILURE`) |
+| `silent_pass` | 🟢 | Pure-conversation session, no candidates across all 7 sub-steps |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

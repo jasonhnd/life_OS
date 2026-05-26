@@ -219,3 +219,20 @@ All failures log to `_meta/eval-history/concept-lookup-{date}.md`. AUDITOR sessi
 - `references/cortex-spec.md` — overall architecture, where concept-lookup fits
 - `references/hippocampus-spec.md` — peer Pre-Router agent (cross-session retrieval)
 - `references/gwt-spec.md` — GWT arbitrator that consumes your output
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · concept-lookup · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh concept-lookup, message context, scanning concepts INDEX" |
+| `evaluating` | 🔍 | Reading concepts/INDEX.md + selective top concept files |
+| `acted` | ✅ | YAML payload emitted with matched concepts |
+| `skipped` | ⏭️ | No canonical concept matches found in current message context |
+| `escalated` | ⚖️ | N/A — concept-lookup outputs to GWT arbitrator (peer Cortex layer, not authority hierarchy) |
+| `awaiting_user` | 🟡 | N/A — Cortex layer is pull-based, ROUTER decides, not user-gated |
+| `failed` | ❌ | INDEX.md unreachable or malformed (`F3 SCHEMA_FAILURE`) |
+| `silent_pass` | 🟢 | High-frequency case: message has no concept-bearing vocabulary, return empty payload |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

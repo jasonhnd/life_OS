@@ -295,3 +295,20 @@ Active concepts (concept lookup):
 - `references/concept-spec.md` — concept_lookup signal format
 - `references/soul-spec.md` — SOUL check signal format + tier definitions
 - `references/snapshot-spec.md` — Tier Mapping (importance score basis)
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · gwt-arbitrator · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh GWT consolidation, `<N>` Cortex signals to arbitrate" |
+| `evaluating` | 🔍 | Computing salience scores (urgency + novelty + relevance + importance), capping at top 5 |
+| `acted` | ✅ | `[COGNITIVE CONTEXT]` block emitted to ROUTER with top 5 consolidated signals |
+| `skipped` | ⏭️ | Only 1 Cortex signal launched (no consolidation needed; signal passed through directly) |
+| `escalated` | ⚖️ | N/A — GWT arbitrator is consolidation step, never escalates |
+| `awaiting_user` | 🟡 | N/A — Cortex layer is pull-based, ROUTER decides |
+| `failed` | ❌ | Cortex signal payloads malformed (`F3 SCHEMA_FAILURE`) |
+| `silent_pass` | 🟢 | High-frequency: 0 Cortex signals launched (most messages don't need Cortex), GWT not invoked |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

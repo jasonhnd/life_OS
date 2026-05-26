@@ -268,3 +268,20 @@ Token budget per invocation: under 8000 tokens (Opus).
 - `references/session-index-spec.md` — INDEX.md format + per-session schema you read
 - `references/concept-spec.md` — concept frontmatter + edge weight semantics
 - `references/gwt-spec.md` — GWT arbitrator that consumes your output
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · hippocampus · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh hippocampus retrieval, message: `<short>`" |
+| `evaluating` | 🔍 | 3-wave spreading activation over sessions INDEX + concept graph |
+| `acted` | ✅ | YAML payload emitted with top 5-7 historically relevant sessions |
+| `skipped` | ⏭️ | No historical sessions match (new user / no relevant past sessions) |
+| `escalated` | ⚖️ | N/A — hippocampus outputs to GWT arbitrator, not authority hierarchy |
+| `awaiting_user` | 🟡 | N/A — Cortex layer is pull-based, ROUTER decides |
+| `failed` | ❌ | sessions INDEX unreachable or malformed (`F3 SCHEMA_FAILURE`) |
+| `silent_pass` | 🟢 | High-frequency: pull-based filter says current message doesn't reference history, return empty payload |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

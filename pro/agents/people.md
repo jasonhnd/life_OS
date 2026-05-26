@@ -52,3 +52,20 @@ During analysis, you may request to read contact and social data from the second
 - Do not generically say "suggest expanding your network." Be specific: what roles are needed, where to find them
 - Do not ignore "opponents"
 - Do not look only at professional relationships. Support/opposition from family and friends is equally important
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · people · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh people domain assessment, subject `<X>`" |
+| `evaluating` | 🔍 | Reviewing partner / team / family relationships against current state |
+| `acted` | ✅ | Domain report emitted with people score + relationship impact + delegation notes |
+| `skipped` | ⏭️ | Subject has no interpersonal dimension (dispatcher misrouted) |
+| `escalated` | ⚖️ | R5 children risk-domain detected (per risk-domains-spec) — flagging for reviewer R5 escalation |
+| `awaiting_user` | 🟡 | N/A — domain output goes to reviewer chain |
+| `failed` | ❌ | Cannot assess (insufficient relational context) (`F8 SILENT_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — every assigned subject produces visible domain report |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

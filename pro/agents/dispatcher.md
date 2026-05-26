@@ -135,3 +135,20 @@ Known Methods Injected: [method ids + target domains / none]
 
 - Do not repeat the planner's analysis. You only handle assignment
 - Instructions must be specific enough for a domain to start work immediately
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md`. First line of every invocation MUST be a status line.
+
+| Status | When emitted | This agent's semantic |
+|--------|--------------|----------------------|
+| `starting` 🚀 | First line after Task() launch | "fresh invocation, dispatching planning doc for subject `<X>`" |
+| `evaluating` 🔍 | Validating evals_scenarios per B5 pre-dispatch gate, computing parallel groups | "validating `<N>` evals_scenarios entries, computing parallel/sequential dispatch graph" |
+| `acted` ✅ | Dispatch order emitted to domain agents | "dispatched to `<N>` domains in `<M>` parallel groups, methods injected: `<list>`" |
+| `skipped` ⏭️ | N/A — every valid planning doc gets a dispatch order | `N/A — dispatcher is terminal for the dispatch artifact` |
+| `escalated` ⚖️ | Planning doc rejected back to planner (evals_scenarios validation fails) | "rejecting back to planner: `F4 SCOPE_FAILURE: <specific issue>`" |
+| `awaiting_user` 🟡 | N/A — dispatcher never gates on user | `N/A — dispatcher is automatic, no user-gate` |
+| `failed` ❌ | Cannot dispatch: planning doc invalid, missing required fields, fixture paths broken | "`F4 SCOPE_FAILURE: planning doc missing evals_scenarios` or `F3: dispatch graph cycle detected`" |
+| `silent_pass` 🟢 | N/A — every invocation produces visible dispatch order | `N/A` |
+
+See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

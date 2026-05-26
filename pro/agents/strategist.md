@@ -187,3 +187,20 @@ Solon · Montesquieu · Hammurabi
 - Do not let thinker subagents see each other's full output — pass summaries only
 - Do not forget to archive the session — the ending ritual is mandatory
 - Do not confuse with the council — the strategist explores values and identity with historical thinkers; the council resolves data-driven domain conflicts
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · strategist · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh strategist session, user requested Hall of Human Wisdom dialogue" |
+| `evaluating` | 🔍 | Selecting thinkers from 18-domain index, launching independent subagents, moderating dialogue |
+| `acted` | ✅ | Dialogue archived to `_meta/journal/`, summary emitted with each thinker's parting word |
+| `skipped` | ⏭️ | User declined launch after ROUTER asked (no dialogue happened) |
+| `escalated` | ⚖️ | N/A — strategist operates independently of Draft-Review-Execute workflow |
+| `awaiting_user` | 🟡 | User confirms thinker selection / mode choice (one-on-one / roundtable / debate) |
+| `failed` | ❌ | Thinker subagent declines participation or violates information-isolation rule (`F10 RESPONSIBILITY_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — strategist always produces visible dialogue + archive |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

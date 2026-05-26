@@ -211,3 +211,20 @@ All failures log to `_meta/eval-history/soul-check-{date}.md`.
 - `references/cortex-spec.md` — overall architecture, where soul-check fits
 - `references/gwt-spec.md` §6 — SOUL signal type vocabulary, used by GWT arbitrator
 - `references/hippocampus-spec.md` — peer Pre-Router agent (memory retrieval)
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · soul-check · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh soul-check, message: `<short>`, scanning SOUL.md" |
+| `evaluating` | 🔍 | Reading SOUL.md + most recent snapshot, classifying dimensions against current message |
+| `acted` | ✅ | YAML payload emitted with classified dimensions (alignment / conflict / relevance / reactivation) |
+| `skipped` | ⏭️ | Message is not value-laden (no SOUL dimensions to surface) |
+| `escalated` | ⚖️ | N/A — soul-check outputs to GWT arbitrator, peer Cortex layer |
+| `awaiting_user` | 🟡 | N/A — Cortex layer is pull-based, ROUTER decides |
+| `failed` | ❌ | SOUL.md unreachable or snapshot malformed (`F3 SCHEMA_FAILURE`) |
+| `silent_pass` | 🟢 | High-frequency: message lacks value-laden vocabulary, return empty payload |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

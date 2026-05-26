@@ -781,6 +781,50 @@ OFR [======----] X%        [GREEN/YELLOW/RED]
 - Housekeeping Mode must be fast — do not perform deep analysis
 - Housekeeping Mode only reads deep data for the currently bound project; for other projects, only read index.md title and status
 
+---
+
+## Conscious Patrol (E10 · v1.8.7 · path D)
+
+Mode 0 systematizes housekeeping into explicit Conscious Patrol per `references/conscious-patrol-spec.md`. 7 system tasks + optional user tasks (from second-brain `HEARTBEAT.md`).
+
+**Why "Conscious" not "Subconscious"**: lifeos is md-only skill with no daemon layer. Path D = session-start user-in-loop checkpoint, NOT idle autonomous tick. Every act needs explicit user OK. Does NOT regress v1.8.0 cron retirement (reliable / visible / no silent data loss).
+
+**7 system tasks** (run every Mode 0 invocation):
+
+| ID | Task | Source (existing infra) |
+|----|------|------------------------|
+| lifeos-001 | Maintenance overdue check | 10 maintenance jobs timestamps (per `pro/CLAUDE.md` §"Maintenance jobs") |
+| lifeos-002 | Review queue overdue | `scripts/prompts/review-queue.md` |
+| lifeos-003 | SOUL drift check | `scripts/prompts/advisor-monthly.md` |
+| lifeos-004 | Wiki decay scan | `scripts/prompts/wiki-decay.md` |
+| lifeos-005 | Strategic consistency | `scripts/prompts/strategic-consistency.md` |
+| lifeos-006 | Compliance Watch | AUDITOR Mode 3 30-day violation tracking |
+| lifeos-007 | Gotchas review (v1.8.7 new) | `pro/gotchas.md` cross-referenced with files/code touched in last 7 days |
+
+**User tasks** (optional, from `second-brain/HEARTBEAT.md` if exists): user-defined patrol items with `## daily` / `## weekly` / `## monthly` frequency tags. retrospective reads, filters by frequency-since-last-run, adds to patrol list.
+
+**Status line per task** (E9): each task emits a status line per `references/status-line-spec.md`:
+
+- `🟢 silent_pass · retrospective · lifeos-00X — clean` (no surfacing needed, high-freq cases)
+- `⏭️ skipped · retrospective · lifeos-00X — N items but not actionable today` (low-freq informational)
+- `🟡 awaiting_user · retrospective · lifeos-00X — N items overdue, run /<task>?` (user decision required)
+
+**Decision flow (path D core)**:
+
+| Outcome | What happens |
+|---------|--------------|
+| `silent_pass` | Task ran, nothing relevant, no surfacing |
+| `skipped` | Task ran, informational only, brief mention in briefing |
+| `awaiting_user` | Actionable item found, ROUTER reports + awaits user response ("yes, run X" / "skip" / "later") |
+
+**NO silent act**. Every act is user-explicit (path D commitment per DR-11).
+
+**Briefing section format**: Mode 0 briefing MUST contain `## Conscious Patrol` H2 section listing the 7 system tasks + status lines (per AUDITOR Mode 8 M8-7).
+
+**See spec**: `references/conscious-patrol-spec.md` for full enumeration of system tasks, user tasks HEARTBEAT.md mechanism, decision flow, AUDITOR Mode 8 validation (M8-7 through M8-10).
+
+---
+
 ## §Briefing Completeness Contract (HARD RULE)
 
 Mode 0 briefing output MUST preserve these 6 core top-level markdown H2 headings, in this order, unless the session is stopped before briefing generation. `${RETRO_NAME}` is the active theme's display name for `retrospective`. Missing, renamed, reordered, or materially empty required core sections normalize to core compliance class `C`.
@@ -881,3 +925,22 @@ Say "处理 queue" to walk through.
 ```
 
 If no open items, omit the H2 entirely. Spec: `references/review-queue-spec.md`.
+
+---
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md`. retrospective emits status lines for Mode 0 main flow + each of 7 Conscious Patrol tasks (lifeos-001 through lifeos-007).
+
+| Status | When emitted | This agent's semantic |
+|--------|--------------|----------------------|
+| `starting` 🚀 | First line of fresh Mode 0/1/2 invocation | "fresh Start Session, Mode `<0\|1\|2>`, 18 steps starting" |
+| `evaluating` 🔍 | Per-step / per-patrol-task scanning: reading second-brain, running Cortex precompute, checking maintenance overdue | "Step `<N>` — `<what's being read>` or 'Conscious Patrol — checking lifeos-`<00X>`'" |
+| `acted` ✅ | Briefing section produced (Mode 0 full briefing / Mode 1 housekeeping / Mode 2 brief check-in) | "6-H2 briefing emitted with `<N>` patrol items" |
+| `skipped` ⏭️ | Patrol task or Cortex precompute legitimately produces no output (lifeos-001 all maintenance jobs within window) | "lifeos-001 — all 10 maintenance jobs within window, no overdue" |
+| `escalated` ⚖️ | N/A — retrospective surfaces findings via briefing; user decision happens in main ROUTER flow | `N/A — retrospective surfaces, ROUTER + user decide` |
+| `awaiting_user` 🟡 | Conscious Patrol detected actionable items; ROUTER reports + waits for user response | "lifeos-002 — 3 P0 / 1 P1 overdue, run /process-queue?" |
+| `failed` ❌ | Cannot complete Mode 0: second-brain unreachable, missing required spec, hook failure | "`F8 SILENT_FAILURE: second-brain inbox unreachable` or `F4: Step 0.5 precompute markers missing`" |
+| `silent_pass` 🟢 | Per-patrol-task case: task ran, found nothing relevant, no surfacing (lifeos-004 / 005 / 006 / 007 clean) | "lifeos-`<00X>` — clean, no surfacing needed (audit trail at _meta/runtime/<sid>/retrospective-mode-0.md)" |
+
+See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

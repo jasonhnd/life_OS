@@ -205,3 +205,20 @@ Maximum 2 vetoes.
 - Do not use "suggest the user consider on their own" to brush off the emotional dimension. Give your judgment
 - Do not assume a report is high quality just because it is long
 - If a report says "risk is significant" but gives a 7 = you need to flag this
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md`. First line of every invocation MUST be a status line; veto-loop re-invocations also emit own starting line.
+
+| Status | When emitted | This agent's semantic |
+|--------|--------------|----------------------|
+| `starting` 🚀 | First line after Task() launch | "fresh review, planning-doc round `<N>/3` OR final-review of `<M>` domain reports" |
+| `evaluating` 🔍 | Reading planning doc or domain reports, checking SOUL alignment, scanning wiki contradictions | "scoring `<dimension>` against SOUL + wiki + risk-domains" |
+| `acted` ✅ | Verdict emitted (approved / conditionally_approved) | "approved with `<N>` conditions" or "approved unconditionally" |
+| `skipped` ⏭️ | N/A — every review emits a verdict | `N/A — reviewer is terminal for verdict` |
+| `escalated` ⚖️ | Vetoed back to planner OR triggered COUNCIL for debate | "veto: `<reason>` — sending back for re-planning round `<N>`" or "triggered COUNCIL: score diff `<X>` between `<domain-A>`/`<domain-B>`" |
+| `awaiting_user` 🟡 | Risk-Domain (R1-R8) approved verdict requires explicit user authorization beyond planner+reviewer chain | "R`<N>` domain detected — awaiting user explicit OK per risk-domains-spec" |
+| `failed` ❌ | Cannot review: planning doc malformed, domain reports contradictory beyond reconciliation | "`F8 SILENT_FAILURE: domain report cites no evidence` or `F10: reviewer cannot reconcile without user input`" |
+| `silent_pass` 🟢 | N/A — verdict always surfaced | `N/A — review output is always visible` |
+
+See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

@@ -751,6 +751,67 @@ For the 3 critical agents (retrospective / archiver / reviewer), Mode 6 MUST PAS
 - Session-end Mode 3 patrol: Mode 6 runs A3 only (cheap, high-value).
 - Manual: `/audit --mode 6 [agent-name]` for explicit health check on a single agent.
 
+## Mode 8: Status Line + Conscious Patrol compliance (v1.8.7 new, per RFC §2.8 E9 + §2.9 E10 + DR-11)
+
+Validates the v1.8.7 E9 status line output contract AND the E10 path D Conscious Patrol behavior. Triggered:
+- Automatically as scenario 4 of Mode 3 session-end patrol (after Mode 4 SOUL, Mode 5 wiki, Mode 6 agent v2, Mode 7 OpenHuman patterns)
+- Pre-release: required before any v1.8.7 ship that touches agent behavior
+- Manually via `/audit --mode 8`
+
+### Status Line checks (M8-1 through M8-6)
+
+Per `references/status-line-spec.md`:
+
+| ID | Check | Failure class |
+|----|-------|--------------|
+| M8-1 | Every subagent transcript opens with `^🚀 starting` line matching `<emoji> <status> · <agent-id> · <description>` format | `F3 SCHEMA_FAILURE: missing or malformed starting status line` |
+| M8-2 | Every emitted status line uses one of 8 enum keywords (`starting / evaluating / acted / skipped / escalated / awaiting_user / failed / silent_pass`); no free-form invention | `F4 SCOPE_FAILURE: invented status keyword <X>` |
+| M8-3 | Emoji ↔ status keyword pairing matches table (no `✅ failed` mismatch / no `❌ acted` etc.) | `F3 SCHEMA_FAILURE: emoji/status mismatch` |
+| M8-4 | Every `pro/agents/*.md` contains `## Status Output (E9)` section declaring all 8 statuses (with N/A explicit for non-applicable) | `F3 SCHEMA_FAILURE: incomplete Status Output declaration in <agent>.md` |
+| M8-5 | Multi-status invocation emits status line at each phase/step transition (e.g. archiver Phase 0 → 1 → 2 → ... each gets own status line) | `F8 SILENT_FAILURE: agent skipped status emission at transition` |
+| M8-6 | `failed` status includes a failure_class reference (F1-F17 or A/B/C/D/E) | `F10 RESPONSIBILITY_FAILURE: failed status without classification` |
+
+### Conscious Patrol checks (M8-7 through M8-10)
+
+Per `references/conscious-patrol-spec.md`:
+
+| ID | Check | Failure class |
+|----|-------|--------------|
+| M8-7 | Every session-start retrospective Mode 0 briefing includes a `## Conscious Patrol` H2 section | `F4 SCOPE_FAILURE: retrospective Mode 0 missing patrol section` |
+| M8-8 | Each system task lifeos-001 through lifeos-007 emits a status line (or is marked `disabled` per second-brain `HEARTBEAT.md` frontmatter `disabled_system_tasks`) | `F3 SCHEMA_FAILURE: system task <id> output missing` |
+| M8-9 | No "auto-act" detected — every act has a preceding `🟡 awaiting_user` status line and user response in the transcript before the act executes | `F10 RESPONSIBILITY_FAILURE: silent act bypassed user approval (path D commitment violated)` |
+| M8-10 | If `second-brain/HEARTBEAT.md` exists, user tasks from it are actually scanned (audit trail evidence) | `F8 SILENT_FAILURE: HEARTBEAT.md exists but user tasks not surfaced` |
+
+### Verdict output
+
+```
+── AUDITOR Mode 8 · Status Line + Conscious Patrol audit ──
+M8-1 starting line format: ✅ / FAIL <count>
+M8-2 enum keyword closure: ✅ / FAIL <list>
+M8-3 emoji/status pairing: ✅ / FAIL <list>
+M8-4 Status Output declarations complete: ✅ N/22 agents complete / FAIL <list>
+M8-5 multi-status transitions: ✅ / FAIL <list>
+M8-6 failed status classification: ✅ / FAIL <list>
+M8-7 Conscious Patrol section in Mode 0 briefing: ✅ / FAIL
+M8-8 system task status lines: ✅ 7/7 / FAIL <missing list>
+M8-9 user-in-loop enforcement (no silent act): ✅ / FAIL <list> (HIGHEST severity)
+M8-10 HEARTBEAT.md user tasks scanned: ✅ / N/A (no file) / FAIL
+
+VERDICT: PASS | WARN | FAIL
+```
+
+### Migration grace (v1.8.7)
+
+During v1.8.7 release window, AUDITOR Mode 8 runs at **WARN level** to allow gradual migration of the 22 agents to status line contract. Both v1.8.6 ad-hoc emoji patterns AND v1.8.7 status line are accepted; Mode 8 flags drift but doesn't block.
+
+**v1.8.8+ (whenever it ships)**: Mode 8 promoted to BLOCK level. v1.8.6 ad-hoc patterns no longer accepted.
+
+### Use cases
+
+- Pre-release v1.8.7 ship: Mode 8 should PASS M8-1 through M8-10 (WARN level on agent-by-agent migration)
+- Session-end Mode 3 patrol: Mode 8 runs M8-7 + M8-8 + M8-9 only (lightweight)
+- Manual: `/audit --mode 8` for explicit comprehensive run
+
 ## Mode 7: OpenHuman patterns compliance (v1.8.7 new, per RFC §2 + DR-10)
 
 Audits the v1.8.7 borrowed-from-OpenHuman patterns to verify lifeos didn't drift back to a non-md substrate or skip required artifacts. Triggered:
@@ -845,3 +906,22 @@ VERDICT: PASS | WARN | FAIL
 - Session-end Mode 3 patrol: Mode 7 runs M7-5 only (cheap, catches recent drift)
 - Pre-release: full Mode 7 run including M7-1 through M7-7
 - Manual: `/audit --mode 7` for explicit run
+
+---
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md`. AUDITOR emits status lines per audit scenario (Mode 1 decision review / Mode 2 patrol / Mode 3 compliance / Mode 4-7 schema audits / Mode 8 status+patrol audit).
+
+| Status | When emitted | This agent's semantic |
+|--------|--------------|----------------------|
+| `starting` 🚀 | First line after Task() launch | "fresh audit, Mode `<N>`, scope `<full workflow \| session-end patrol \| pre-release schema check>`" |
+| `evaluating` 🔍 | Scanning audit trail JSONs / md, cross-checking against spec | "scanning `_meta/runtime/<sid>/*.md` against `<spec-name>.md` for `<class-of-check>`" |
+| `acted` ✅ | Audit verdict emitted (violations logged to violations.md if any) | "audit complete — `<N>` violations logged, `<M>` PASS, `<K>` WARN" |
+| `skipped` ⏭️ | Scenario not applicable (e.g. Mode 4 SOUL audit but no SOUL.md changes this session) | "Mode 4 — SOUL.md not modified this session, no audit needed" |
+| `escalated` ⚖️ | P0 violation detected; immediate user attention required beyond standard log | "P0 violation `<class>` — surfacing immediately, see violations.md row `<N>`" |
+| `awaiting_user` 🟡 | N/A — AUDITOR is observer not decision-maker; surfacing always via violations log + briefing | `N/A — AUDITOR reports, never gates user` |
+| `failed` ❌ | Cannot complete audit: missing audit trail files, spec references broken, AUDITOR-internal error | "`F3 SCHEMA_FAILURE: audit trail JSON for <agent-phase> missing` or `F12: spec drift — cannot determine class`" |
+| `silent_pass` 🟢 | Most frequent case: Mode 3 patrol all-clear, no violations across A1/A2/A3/B/C/D/E (+F1-F17) classes | "Mode 3 patrol — 0 violations across 7+17 classes (replaces v1.8.6 `🔱 御史台 · 静默通过`)" |
+
+See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 self-validation.

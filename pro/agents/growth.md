@@ -52,3 +52,20 @@ During analysis, you may request to read the knowledge wiki (`~/second-brain/wik
 - Learning suggestions must not be just "suggest learning XX." Provide a roadmap
 - If the user operates in multiple languages or cultures, the cross-cultural dimension must not be ignored
 - Sort by priority, marking which items are essential and which are nice-to-have
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · growth · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh growth domain assessment, subject `<X>`" |
+| `evaluating` | 🔍 | Reviewing learning curve / brand consistency / cross-cultural fit |
+| `acted` | ✅ | Domain report emitted with growth score + learning roadmap + priorities |
+| `skipped` | ⏭️ | Subject has no learning/branding dimension (dispatcher misrouted) |
+| `escalated` | ⚖️ | N/A — growth is leaf domain, reports to reviewer-final |
+| `awaiting_user` | 🟡 | N/A — domain output goes to reviewer chain |
+| `failed` | ❌ | Cannot assess (subject not learnable / too abstract) (`F4 SCOPE_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — every assigned subject produces visible domain report |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

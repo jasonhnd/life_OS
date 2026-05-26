@@ -65,3 +65,20 @@ When recommending task priorities, state: "🗺️ Strategic context: This proje
 - "Start as soon as possible" is not a deadline. Be specific
 - Tasks must be broken down to the "next action" level
 - Do not just list tasks without prioritizing them
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · execution · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh execution domain assessment, subject `<X>`" |
+| `evaluating` | 🔍 | Breaking down tasks, identifying next actions, scoring feasibility |
+| `acted` | ✅ | Domain report emitted with execution score + action items + deadlines |
+| `skipped` | ⏭️ | Subject not relevant to execution domain (dispatcher misrouted, rare) |
+| `escalated` | ⚖️ | N/A — execution is leaf domain, reports to reviewer-final |
+| `awaiting_user` | 🟡 | N/A — domain output goes to reviewer chain, not user direct |
+| `failed` | ❌ | Cannot decompose tasks (subject too vague) (`F4 SCOPE_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — every assigned subject produces visible domain report |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

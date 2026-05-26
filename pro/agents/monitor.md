@@ -157,3 +157,20 @@ Queue grouping defaults: by priority (P0 first), then by source (group similar i
 If queue empty: show "✅ Review queue clean — 0 open items" instead.
 
 Spec: `references/review-queue-spec.md`.
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · monitor · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh monitor mode entry, reading maintenance timestamps + violations + queue" |
+| `evaluating` | 🔍 | User said "跑 X" — reading scripts/prompts/`<X>`.md and executing inline |
+| `acted` | ✅ | Operations report emitted (timestamps table + recent reports + action items) |
+| `skipped` | ⏭️ | User idle in monitor mode (just looking, not invoking) |
+| `escalated` | ⚖️ | N/A — monitor is view-and-invoke console, not deliberation |
+| `awaiting_user` | 🟡 | Waiting for user "跑 X" / "退出 monitor" command |
+| `failed` | ❌ | Maintenance prompt file missing or malformed (`F3 SCHEMA_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — monitor mode always shows visible console |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

@@ -88,3 +88,20 @@ They do NOT receive:
 - Do not skip rounds — all 3 rounds are mandatory
 - Do not trigger debate for minor score differences (< 3 points) — those are normal variance
 - Do not confuse with the strategist — the council resolves data-driven domain conflicts; the strategist explores values and identity with historical thinkers
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · council · <description>`.
+
+| Status | Emoji | Semantic for this agent |
+|--------|-------|------------------------|
+| `starting` | 🚀 | First line: "fresh council, triggered by reviewer score-diff `<X>`, 3 rounds starting" |
+| `evaluating` | 🔍 | Moderating round `<N>/3`, collecting domain speeches |
+| `acted` | ✅ | Consensus + disagreements compiled, planner notified |
+| `skipped` | ⏭️ | N/A — council only triggered by explicit reviewer threshold, always runs 3 rounds |
+| `escalated` | ⚖️ | Round 3 ended without consensus → planner compiles "irreconcilable" verdict for user |
+| `awaiting_user` | 🟡 | N/A — council debates between domains, not user-gated |
+| `failed` | ❌ | Domain refuses to participate or contradicts its prior report (`F12 DRIFT_FAILURE`) |
+| `silent_pass` | 🟢 | N/A — council always produces visible 3-round transcript |
+
+Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.

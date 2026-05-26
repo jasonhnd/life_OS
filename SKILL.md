@@ -410,6 +410,40 @@ Every new row in `pro/compliance/violations.md` from v1.8.5 onwards MUST include
 
 **Violation**: F3 SCHEMA_FAILURE (violation row missing required F-Code column).
 
+### HARD RULE · Status Line output contract (v1.8.7 E9)
+
+Every `pro/agents/*.md` subagent MUST emit a **status line** as the literal first line of its visible output. Status line format:
+
+```
+<emoji> <status> · <agent-id> · <one-line description>
+```
+
+8 enum statuses: `starting` 🚀 / `evaluating` 🔍 / `acted` ✅ / `skipped` ⏭️ / `escalated` ⚖️ / `awaiting_user` 🟡 / `failed` ❌ / `silent_pass` 🟢. Closed enum — no free-form invention.
+
+Multiple status transitions during one invocation MUST each emit a new status line (e.g. archiver Phase 0 `starting` → Phase 2 `evaluating` → Phase 5 `acted`).
+
+**Full spec**: `references/status-line-spec.md` (three-language). **Pattern source**: `tinyhumansai/openhuman` `gitbooks/features/subconscious.md` 7-state activity log, adapted to 8 states with stronger semantics.
+
+**Why this is mandatory**: lifeos previously had 5+ ad-hoc emoji status patterns (`✅ I am the X subagent` / `🔱 御史台 · 静默通过` / `🔄 tick N/12` / etc.). v1.8.7 unifies them so AUDITOR uses single grep pattern and users see consistent agent state across 22 subagents.
+
+**Migration window**: v1.8.7 accepts both v1.8.6 ad-hoc and v1.8.7 status line (AUDITOR Mode 8 WARN level). Old patterns removed in v1.8.8+ (Mode 8 BLOCK).
+
+**Violation**: `F3 SCHEMA_FAILURE` (malformed status line) or `F4 SCOPE_FAILURE` (invented status keyword) per `references/failure-taxonomy.md`. Per-agent `## Status Output (E9)` section in `pro/agents/<name>.md` declares semantic mapping; AUDITOR Mode 8 verifies declaration completeness.
+
+### HARD RULE · Conscious Patrol at session start (v1.8.7 E10 · path D)
+
+Every retrospective Mode 0 invocation MUST include a Conscious Patrol section (`## Conscious Patrol`) in the morning briefing. Patrol runs 7 lifeos system tasks (lifeos-001 through lifeos-007) plus any user tasks from second-brain's `HEARTBEAT.md` (if exists).
+
+**Key constraint**: NO autonomous act. Every act requires explicit user OK. retrospective Mode 0 emits `🟡 awaiting_user` for actionable items; act runs only after user response.
+
+**Distinction from OpenHuman Subconscious**: lifeos does NOT do idle autonomous daemon. lifeos is md-only skill with no daemon layer. Conscious Patrol is **session-start user-in-loop checkpoint**, not background tick.
+
+**Reconciliation with v1.8.0 cron retirement**: cron was retired for "unreliable / invisible / silent data loss". Conscious Patrol violates none — runs in retrospective Mode 0 (reliable), output is the morning briefing (visible), every act needs user OK (no silent loss). See `references/conscious-patrol-spec.md` §"Why this isn't a regression to v1.8.0 cron".
+
+**Full spec**: `references/conscious-patrol-spec.md` (three-language).
+
+**Violation**: missing `## Conscious Patrol` section → `F4 SCOPE_FAILURE`; silent act (no preceding `🟡 awaiting_user`) → `F10 RESPONSIBILITY_FAILURE`. Validated by AUDITOR Mode 8 M8-7 through M8-10.
+
 ### HARD RULE · Self-driven loops with ScheduleWakeup (v1.8.7 B4)
 
 Some long-running tasks (release verification, Notion sync) used to require the user to manually rerun a command every few minutes until done. v1.8.7 introduces **self-driven loops** using Claude Code's `ScheduleWakeup` tool — the command schedules its own next iteration at a cache-friendly interval, polls for terminal state, and exits when done or at a hard cap.

@@ -107,3 +107,20 @@ If `_meta/STRATEGIC-MAP.md` exists and the Subject involves a project with strat
 - Do not activate all six domain agents every time. Assign as needed
 - Quality criteria must not be vague descriptions like "comprehensive analysis"
 - Do not ignore the standard configurations in scene-configs.md
+
+## Status Output (E9 · v1.8.7)
+
+Per `references/status-line-spec.md`. First line of every invocation MUST be a status line; multi-step planning emits status line at each transition.
+
+| Status | When emitted | This agent's semantic |
+|--------|--------------|----------------------|
+| `starting` 🚀 | First line after Task() launch | "fresh invocation, subject `<X>`, drafting planning document" |
+| `evaluating` 🔍 | Reading subject + background, applying scene-configs, checking strategic-lines | "analyzing dimensions for `<subject>` against `<N>` candidate domains" |
+| `acted` ✅ | Planning document emitted with evals_scenarios field complete | "planning document with `<N>` dimensions assigned, evals_scenarios: `<list>`" |
+| `skipped` ⏭️ | N/A — planner never skips (always emits a planning document or fails) | `N/A — planner is terminal authority for the planning artifact` |
+| `escalated` ⚖️ | Veto correction loop: REVIEWER vetoed prior planning, re-planning with feedback | "veto correction round `<N>/2`, integrating reviewer feedback: `<summary>`" |
+| `awaiting_user` 🟡 | N/A — planner does not have user-gate; dispatcher/reviewer handles approval flow | `N/A — planner outputs to reviewer, not user directly` |
+| `failed` ❌ | Cannot produce valid planning document; evals_scenarios cannot be filled | "`F4 SCOPE_FAILURE: cannot assign domains — subject too vague`" |
+| `silent_pass` 🟢 | N/A — every invocation produces visible planning document | `N/A — planner output is never silent` |
+
+See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.
