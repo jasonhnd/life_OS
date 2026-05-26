@@ -15,7 +15,7 @@ context_manifest:
   supporting: [current_user_message, current_project]
   forbidden: [pro/agents/hippocampus.md, pro/agents/concept-lookup.md, snapshots beyond most recent (RETROSPECTIVE's job)]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/soul-check-*.json]
+  allowed_scope: [_meta/runtime/<sid>/soul-check-*.md]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
 failure_modes:
   known: ["Cites SOUL dim_id not in SOUL.md (F17)", "Returns priority order conflicting with SOUL declared order (F15)"]
@@ -58,7 +58,7 @@ and return. Do not stall.
 ## What You Do NOT Do
 
 - Replace ROUTER triage. Pre-router only.
-- Modify SOUL.md, snapshots, or any user/domain file (read-only — all SOUL mutations happen in ADVISOR / archiver Phase 2). The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/soul-check.json`.
+- Modify SOUL.md, snapshots, or any user/domain file (read-only — all SOUL mutations happen in ADVISOR / archiver Phase 2). The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/soul-check.md`.
 - Read other Pre-Router Cognitive Layer outputs (hippocampus, concept-lookup). Information isolation enforced.
 - Synthesize new SOUL dimensions. You match against existing dimensions; you do not create them.
 - Read more than the latest snapshot from `_meta/snapshots/soul/` (older snapshots are RETROSPECTIVE's job for trend computation).
@@ -133,7 +133,7 @@ Final message MUST be a single YAML block:
 
 **YAML output emit contract (Recommended, v1.8.0 R-1.8.0-013):** This YAML is an upstream Cortex payload. ROUTER MAY wrap and paste it to the user using the subagent transparency wrapper when full transparency is desired (e.g. user explicitly asks "show me what Cortex saw"). Default v1.8.0 behavior: GWT `[COGNITIVE CONTEXT]` is a downstream synthesis that ROUTER consumes inline; the raw YAML payload doesn't have to be displayed verbatim. (Was HARD RULE in v1.7.1 R8; downgraded in R-1.8.0-013 because pull-based Cortex doesn't always run.)
 
-**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/soul-check.json` using `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
+**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/soul-check.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
 
 ```yaml
 soul_check_output:
@@ -193,7 +193,7 @@ All failures log to `_meta/eval-history/soul-check-{date}.md`.
 
 ## Anti-patterns (AUDITOR flags these)
 
-- Modifying SOUL.md or snapshot files (read-only contract; `_meta/runtime/<sid>/soul-check.json` audit trail is the only exception)
+- Modifying SOUL.md or snapshot files (read-only contract; `_meta/runtime/<sid>/soul-check.md` audit trail is the only exception)
 - Reading peer Pre-Router agent outputs (information isolation)
 - Returning more than 5 signals
 - Synthesizing dimensions not in SOUL.md

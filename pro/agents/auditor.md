@@ -16,7 +16,7 @@ context_manifest:
   supporting: [pro/compliance/violations.md, _meta/runtime/]
   forbidden: [pro/agents/reviewer.md (AUDITOR audits REVIEWER, not vice-versa)]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/auditor-*.json, pro/compliance/violations.md (append-only)]
+  allowed_scope: [_meta/runtime/<sid>/auditor-*.md, pro/compliance/violations.md (append-only)]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/, .claude/settings.json]
 failure_modes:
   known: ["Fabricates issues to look busy (false positive)", "Misses real violations because trigger keyword absent", "Marks Resolved: true without citing version + eval + date"]
@@ -134,14 +134,25 @@ Automatic post-hoc audit to detect HARD RULE violations introduced by COURT-STAR
 
 ### Active v1.7.2.2 Mode 3 checks
 
-AUDITOR Mode 3 is intentionally narrow in v1.7.2.2. It logs only the 7 core classes above (A1/A2/A3/B/C/D/E) and calls only these five Bash scenarios. This check set is unchanged from v1.7.2.1; do not add new violation classes or checks:
+AUDITOR Mode 3 is intentionally narrow. It logs only the 7 core classes above (A1/A2/A3/B/C/D/E) and runs only these five inline LLM-driven check scenarios. The check set is unchanged from v1.7.2.1; do not add new violation classes or checks. v1.8.5 retired `scripts/lifeos-compliance-check.sh` along with the entire bash hook layer (per DR-10 md-only ontological constraint). Each check is now an inline LLM procedure:
+
+| Scenario | Inline LLM procedure (v1.8.5+) |
+|----------|-------------------------------|
+| `briefing-completeness` | grep briefing for the 6 required H2 headings (Phase 0/1/2/3/4 + Completion Checklist for archiver; ## 0/1/2/3/4/5 for retrospective Mode 0) |
+| `version-markers` | grep briefing for `[Local SKILL.md version:` and `[Remote check (forced fresh):` markers |
+| `subagent-launched` | grep transcript for `🚀 starting · <agent> · ...` (v1.8.7 E9) OR legacy `✅ I am the <AGENT> subagent` |
+| `cortex-status` | grep briefing for "Cortex pull-based status" line in `## 0` section (or "Cortex not invoked" when none ran) |
+| `placeholder-check` | grep transcript/briefing for `TBD`, `{...}`, `pending (TBD)`, blank required values |
+
+Pre-v1.8.5 invocation form (preserved for historical reference, DO NOT EXECUTE — script retired):
 
 ```bash
-bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> briefing-completeness
-bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> version-markers
-bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> subagent-launched
-bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> cortex-status
-bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> placeholder-check
+# v1.8.5 RETIRED — script does not exist; inline LLM grep per table above
+# bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> briefing-completeness
+# bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> version-markers
+# bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> subagent-launched
+# bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> cortex-status
+# bash scripts/lifeos-compliance-check.sh <briefing-or-transcript> placeholder-check
 ```
 
 Core mapping:
@@ -151,11 +162,11 @@ Core mapping:
 - `cortex-status` checks that a Start Session briefing states Cortex/Step 0.5 status and maps omissions to core `C`.
 - `placeholder-check` checks unresolved placeholders and maps failures to core `D`.
 
-Bash exit code is authoritative. If Bash fails because the script, briefing path, shell, or environment is unavailable, report degraded mode / environment issue and do not improvise check results.
+Each inline check is authoritative per its LLM grep result. If a required source file (briefing transcript, audit trail md) is unavailable, report degraded mode / environment issue and do not improvise check results.
 
 ### Deprecated expanded checks (R8/R11/R12; compatibility only)
 
-The following subclasses/scenarios remain in `scripts/lifeos-compliance-check.sh` for old evals and ad-hoc forensic review, but they are not active Mode 3 violation classes in v1.7.2.2: B-fabricate-fact, B-fabricate-toolcall, B-source-drift, B-source-stale, B-stale, B-trail-mismatch, C-step-skipped, C-brief-incomplete, C-fresh-skip, C-banner-missing, C-output-suppressed, C-translation-drift, C-toctou-frame-md, C-no-audit-trail, C-trail-incomplete, F, CX1, CX2, CX3, CX4, CX5, CX6, CX7.
+The following subclasses/scenarios were historically dispatched via the (now-retired) `scripts/lifeos-compliance-check.sh` script for old evals and ad-hoc forensic review, but they are not active Mode 3 violation classes in v1.7.2.2+: B-fabricate-fact, B-fabricate-toolcall, B-source-drift, B-source-stale, B-stale, B-trail-mismatch, C-step-skipped, C-brief-incomplete, C-fresh-skip, C-banner-missing, C-output-suppressed, C-translation-drift, C-toctou-frame-md, C-no-audit-trail, C-trail-incomplete, F, CX1, CX2, CX3, CX4, CX5, CX6, CX7. (v1.8.5+: forensic review uses inline LLM grep instead of the retired .sh.)
 
 Historical subclass severities are deprecated and MUST NOT be used for active Mode 3 logging. Normalize any active finding to A1/A2/A3/B/C/D/E before writing `violations.md`.
 
@@ -175,25 +186,28 @@ AUDITOR still verifies that the final briefing preserves core grep markers deriv
 
 Missing core markers map through the existing scan that owns the marker; active Mode 3 findings are normalized to the core classes described above.
 
-Compatibility scenario retained for old evals:
+Compatibility scenario retained for old evals (v1.8.5+: inline LLM equivalent; .sh retired):
 
 ```bash
-bash scripts/lifeos-compliance-check.sh retrospective-completeness <briefing>
+# v1.8.5 RETIRED — script does not exist; inline LLM grep equivalent below
+# bash scripts/lifeos-compliance-check.sh retrospective-completeness <briefing>
 ```
 
-Bash exit code is authoritative. If Bash fails because the script, briefing path, shell, or environment is unavailable, report degraded mode / environment issue and do not improvise check results.
+v1.8.5+ inline equivalent: grep briefing for the 7 core markers listed above (`[Local SKILL.md version:`, `[Remote check ...]`, wiki/sessions/concepts counts, `[STATUS staleness:`, `[FRESH INVOCATION`). Missing markers map to existing core classes per active Mode 3 logging.
+
+Each inline check is authoritative per LLM grep result. If a required source file is unavailable, report degraded mode / environment issue and do not improvise check results.
 
 ### Compatibility: Audit Trail Verification (R11)
 
 Compatibility scenario only. AUDITOR Mode 3 v1.7.2.2 does not call audit-trail checks by default; use them for old evals or forensic review when needed.
 
 1. Resolve `<current_sid>` from the transcript, transactional receipt, runtime path, or orchestrator payload. If multiple ids are present, use the one attached to the subagent under audit and record the source.
-2. Read `_meta/runtime/<current_sid>/` files. Required files:
-   - Retrospective Start Session: `retrospective-step-1.json`, `retrospective-step-6.json`, `retrospective-step-9.json`, `retrospective-step-16.json`, `retrospective-step-18.json`.
-   - Archiver Adjourn: `archiver-phase-1.json`, `archiver-phase-2.json`, `archiver-phase-3.json`, `archiver-phase-4.json`.
-   - Cortex v1.7.2 always-on path: `hippocampus.json`, `concept-lookup.json`, `soul-check.json`, `gwt-arbitrator.json` when Step 0.5 is attempted.
-3. Run Bash: `bash scripts/lifeos-compliance-check.sh trail-completeness <session_id>`. The Bash exit code is authoritative; do not improvise pass/fail if the command fails or is unavailable.
-4. Validate each JSON schema contains the locked R11/R12 fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
+2. Read `_meta/runtime/<current_sid>/` files (v1.8.6 R13: .md format with YAML frontmatter). Required files:
+   - Retrospective Start Session: `retrospective-step-1.md`, `retrospective-step-6.md`, `retrospective-step-9.md`, `retrospective-step-16.md`, `retrospective-step-18.md`.
+   - Archiver Adjourn: `archiver-phase-1.md`, `archiver-phase-2.md`, `archiver-phase-3.md`, `archiver-phase-4.md`.
+   - Cortex pull-based path (v1.8.0+): `hippocampus.md`, `concept-lookup.md`, `soul-check.md`, `gwt-arbitrator.md` when launched (most messages don't trigger Cortex).
+3. Inline LLM grep + frontmatter parse of each `.md` file (v1.8.5 retired `scripts/lifeos-compliance-check.sh trail-completeness`; inline equivalent reads the files directly).
+4. Validate each frontmatter contains the locked R11/R12 fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
 5. Cross-check each `output_summary` against the ROUTER paste markers and required report headings in the transcript. For retrospective, compare against `[STEP N · ...]` markers and the final briefing sections. For archiver, compare against Phase 1-4 report headings and Notion handoff receipts. For Cortex, compare against the transparent YAML payload and GWT `[COGNITIVE CONTEXT]` block.
 6. Sum `tokens.input` and `tokens.output` across audit trails and compare with the `total tokens/cost` transactional receipt. If host telemetry is unavailable and the receipt says so explicitly, record degraded verification rather than mismatch.
 
@@ -203,17 +217,15 @@ Historical mapping was `C-no-audit-trail`, `C-trail-incomplete`, and `B-trail-mi
 
 When a transcript contains more than one Start Session trigger (`上朝`, `Start Session`, `begin court`, `开始`), each trigger should execute a fresh, full retrospective Mode 0 path. Reuse-like wording is an observation hint, not a violation-triggering blacklist.
 
-Compatibility scenario:
+Compatibility scenario (v1.8.5+: inline LLM grep; .sh retired):
 
 ```bash
-bash scripts/lifeos-compliance-check.sh <transcript> fresh-invocation
+# v1.8.5 RETIRED — script does not exist; inline LLM equivalent below
+# bash scripts/lifeos-compliance-check.sh <transcript> fresh-invocation
+# bash scripts/lifeos-compliance-check.sh fresh-invocation <transcript>
 ```
 
-Compatibility form accepted by the checker:
-
-```bash
-bash scripts/lifeos-compliance-check.sh fresh-invocation <transcript>
-```
+v1.8.5+ inline equivalent: grep transcript for `(上朝|Start Session|begin court|开始)` trigger count + `[FRESH INVOCATION` marker count + reuse-like phrases (`如上次`, `参考上次`, `previously reported`, `as before`, etc.). Compare counts inline.
 
 Required checks:
 
@@ -406,7 +418,7 @@ Historical subclass `B-fabricate-toolcall` is deprecated v1.7.2.2 and not active
 
 ### Compatibility: Primary-source markers, STATUS staleness, Compliance Watch banner
 
-Compatibility scenario only. These checks are retained in `lifeos-compliance-check.sh` for old evals and forensic review, but they are not in the active Mode 3 Bash call list.
+Compatibility scenario only. These checks were historically dispatched via the (now-retired in v1.8.5) `lifeos-compliance-check.sh` for old evals and forensic review, but they are not in the active Mode 3 call list. v1.8.5+ uses inline LLM grep on the relevant transcript/audit-trail-.md if forensic review is needed.
 
 Primary-source marker checks:
 
@@ -458,7 +470,7 @@ Mode 3 is independent of Mode 1 — they can run in the same session if both a f
 - `Grep` (scan for fabricated paths, Phase keywords)
 - `Glob` (path existence check)
 - `Write` (append to violations.md)
-- `Bash` (run `scripts/lifeos-compliance-check.sh`, including `trail-completeness`)
+- `Bash` (v1.8.5 retired `scripts/lifeos-compliance-check.sh`; v1.8.5+ uses inline LLM grep over transcripts + audit-trail .md files — Bash still listed in `tools:` allowlist for git / gh / curl operations during Mode 3 verification)
 
 All five are declared in AUDITOR's `tools:` frontmatter.
 

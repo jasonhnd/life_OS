@@ -62,7 +62,7 @@ failure_modes:
   warning_signs:
     - "Completion checklist contains <PLACEHOLDER>"
     - "value_invocations[] empty on Phase 2 SOUL/wiki candidate writes"
-    - "_meta/runtime/<sid>/archiver-phase-3.json missing"
+    - "_meta/runtime/<sid>/archiver-phase-3.md missing"
   repair_actions:
     - "Run /archiver-recovery to re-fire missing phases"
     - "AUDITOR Mode 3 logs C-class + F11 lifecycle violation"
@@ -103,12 +103,12 @@ Immediately after that first line, every adjourn run MUST emit this fresh-invoca
 ARCHIVER MUST write one audit trail JSON file for each phase before moving to the next phase, and Phase 4 MUST write before returning the final Adjourn Report.
 
 Required paths:
-- `_meta/runtime/<sid>/archiver-phase-1.json`
-- `_meta/runtime/<sid>/archiver-phase-2.json`
-- `_meta/runtime/<sid>/archiver-phase-3.json`
-- `_meta/runtime/<sid>/archiver-phase-4.json`
+- `_meta/runtime/<sid>/archiver-phase-1.md`
+- `_meta/runtime/<sid>/archiver-phase-2.md`
+- `_meta/runtime/<sid>/archiver-phase-3.md`
+- `_meta/runtime/<sid>/archiver-phase-4.md`
 
-Use `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. Do not fabricate `<sid>`; if the host did not provide one, write under `_meta/runtime/unknown/` and state the missing session id in `input_summary`.
+Use inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. Do not fabricate `<sid>`; if the host did not provide one, write under `_meta/runtime/unknown/` and state the missing session id in `input_summary`.
 
 R12 fresh adjourn fields: every `_meta/runtime/<sid>/archiver-phase-N.json` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current adjourn trigger count within this session. Do not infer completion from previous adjourn transcript output; every fresh adjourn invocation executes all 4 phases from scratch before writing Phase 4.
 
@@ -137,7 +137,7 @@ if echo "$STOP_HEALTH" | grep -q "life-os-stop-session-verify"; then
   echo "✅ Stop hook installed"
 else
   echo "🔴 Stop hook missing — auto-installing..."
-  bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+  # v1.8.5 retired setup-hooks.sh with the entire bash hook layer; this code is historical only — DO NOT EXECUTE in v1.8.5+. Hook installation is no-op in md-only LLM-native era.
   if [ $? -eq 0 ]; then
     echo "✅ Hooks auto-installed during Phase 0"
   else
@@ -162,7 +162,7 @@ Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as th
 7. Write index-delta.md → record changes to projects/{p}/index.md (version, phase, current focus)
 8. If advisor has "📝 Pattern Update Suggestion" → write patterns-delta.md (append content)
 9. Write manifest.md → session metadata (platform, model, project(s), timestamp, output counts, wiki_candidates count)
-10. R11 audit trail: before Phase 2 starts, write `_meta/runtime/<sid>/archiver-phase-1.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
+10. R11 audit trail: before Phase 2 starts, write `_meta/runtime/<sid>/archiver-phase-1.md` via inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json).
 ```
 
 ---
@@ -189,7 +189,7 @@ Phase 2's heavy lifting (7 sub-step extraction + 7 persistent file writes) was t
    `_meta/runtime/<sid>/extraction/` for AUDITOR review.
    ```
 
-4. R11 audit trail: archiver writes `_meta/runtime/<sid>/archiver-phase-2.json` with `output_summary` mirroring the user-facing summary; `tool_calls` notes that knowledge-extractor was the primary worker.
+4. R11 audit trail: archiver writes `_meta/runtime/<sid>/archiver-phase-2.md` with `output_summary` mirroring the user-facing summary; `tool_calls` notes that knowledge-extractor was the primary worker.
 
 The detailed 7-sub-step spec (six-criteria wiki gate, SOUL evidence rules, method extraction, concept Hebbian, SessionSummary contract, snapshot protocol, strategic-map updates) lives in `pro/agents/knowledge-extractor.md`. ARCHIVER does not re-implement those rules in the primary path.
 
@@ -260,7 +260,7 @@ If the host lacks Task nesting and ROUTER did not pre-launch `knowledge-extracto
 
 This is your primary mission — not a side step, but the reason you exist (in fallback mode).
 
-R11 audit trail (fallback): before Phase 3 starts, write `_meta/runtime/<sid>/archiver-phase-2.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST cover wiki, SOUL, method, concept, SessionSummary, snapshot, strategic, and last_activity outputs.
+R11 audit trail (fallback): before Phase 3 starts, write `_meta/runtime/<sid>/archiver-phase-2.md` via inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). `output_summary` MUST cover wiki, SOUL, method, concept, SessionSummary, snapshot, strategic, and last_activity outputs.
 
 Phase 2 produces **Session Candidates** — extracted from the current session only. Wiki and SOUL entries are **auto-written** inside this subagent based on strict criteria — no user confirmation in the main context.
 
@@ -743,7 +743,7 @@ triggered_actions:
 
 No length cap applies. Paste the DREAM report verbatim to the user in the adjourn output and write the same verbatim content to the dream journal path. Do not create a shorter secondary summary that could omit evidence.
 
-R11 audit trail: before Phase 4 starts, write `_meta/runtime/<sid>/archiver-phase-3.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST name the dream journal path, triggered action count, and whether verbatim DREAM content was pasted.
+R11 audit trail: before Phase 4 starts, write `_meta/runtime/<sid>/archiver-phase-3.md` via inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). `output_summary` MUST name the dream journal path, triggered action count, and whether verbatim DREAM content was pasted.
 
 ---
 
@@ -753,7 +753,7 @@ R11 audit trail: before Phase 4 starts, write `_meta/runtime/<sid>/archiver-phas
 1. git add _meta/outbox/{session-id}/ plus any `_meta/methods/...` files written in Phase 2 → commit → push
 2. Update last_sync_time in _meta/config.md
 3. Any GitHub backend failure → log to _meta/sync-log.md, annotate ⚠️, don't block
-4. R11 audit trail: before returning the final Adjourn Report, write `_meta/runtime/<sid>/archiver-phase-4.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST cover git status, Notion handoff status, and the final report headings.
+4. R11 audit trail: before returning the final Adjourn Report, write `_meta/runtime/<sid>/archiver-phase-4.md` via inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). `output_summary` MUST cover git status, Notion handoff status, and the final report headings.
 ```
 
 **Notion sync is NOT performed by the archiver subagent.** The archiver does not have access to Notion MCP tools (they are environment-specific and cannot be declared in agent frontmatter). After the archiver completes and returns the Completion Checklist, the **orchestrator (main context)** executes Notion sync using the MCP tools available in the user's environment. See `pro/CLAUDE.md` Step 10a for the orchestrator's Notion sync responsibilities. Step 10a is a no-ask handoff: if Notion is configured and the archiver report contains the required payload receipts, the orchestrator syncs without asking the user again.

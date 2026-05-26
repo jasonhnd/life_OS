@@ -39,7 +39,7 @@ context_manifest:
     - foundry/eous/
 blast_radius:
   allowed_scope:
-    - _meta/runtime/<sid>/retrospective-step-*.json
+    - _meta/runtime/<sid>/retrospective-step-*.md
     - _meta/STATUS.md
   forbidden_scope:
     - SOUL.md
@@ -131,7 +131,7 @@ For user-invoked manual rebuild (outside Mode 0), see `scripts/prompts/rebuild-s
 ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation).
 ✅ I am the RETROSPECTIVE subagent · this is a FRESH Mode 0 invocation (trigger N of session). Even if transcript shows previous Mode 0 output, I execute all 18 steps from scratch. Reuse-like phrases such as "as last time" are audit observation hints, not automatic violation triggers.
 Reading pro/agents/retrospective.md. Starting Step 0.5: primary-source scan.
-Audit trail will be written to _meta/runtime/<sid>/retrospective-step-N.json with `fresh_invocation: true` and `trigger_count_in_session: N`.
+Audit trail will be written to _meta/runtime/<sid>/retrospective-step-N.md (md with YAML frontmatter, v1.8.6 R13) with `fresh_invocation: true` and `trigger_count_in_session: N`.
 ```
 
 **If you detect you are running in the main context (ROUTER/orchestrator), not as an independent subagent:**
@@ -147,20 +147,30 @@ Audit trail will be written to _meta/runtime/<sid>/retrospective-step-N.json wit
 
 **Rationale:** COURT-START-001 (2026-04-19) proved main-context simulation bypasses subagent information isolation and enables fabrication of non-existent file paths. This self-check is the agent-level gate in the v1.6.3 five-layer defense:
 
-1. Runtime hook (`scripts/lifeos-pre-prompt-guard.sh`) — reminds ROUTER before prompt processing
-2. Pre-flight Compliance Check (`SKILL.md`) — orchestrator-level 1-line confirmation
-3. **Subagent self-check (this section)** — agent-level identity verification
+1. ~~Runtime hook (`scripts/lifeos-pre-prompt-guard.sh`)~~ — **RETIRED in v1.8.5 Stage 2** with the entire bash hook layer; v1.8.7 DR-10 made md-only ontological. ROUTER discipline + Pre-flight check are the v1.8.5+ Layer 1.
+2. Pre-flight Compliance Check (`SKILL.md`) — orchestrator-level 1-line confirmation — **effective Layer 1 since v1.8.5**
+3. **Subagent self-check (this section)** — agent-level identity verification (v1.8.7 E9 canonical: `🚀 starting · retrospective · <mode>`)
 4. AUDITOR Compliance Patrol (Mode 3) — post-hoc audit, writes to `pro/compliance/violations.md`
-5. Regression test (`evals/scenarios/start-session-compliance.md`)
+5. Regression test (`evals/scenarios/start-session-compliance.md`) + v1.8.7 `evals/scenarios/v1.8.7-e9-status-line.md` M8-1 covers the starting-line contract
 
 Three independent gates must all fail for a recurrence to happen. See `references/compliance-spec.md` for the violation taxonomy and escalation ladder.
 
-## Step 0 · Pre-Session Hook Auto-Install (HARD RULE)
+## Step 0 · Pre-Session Hook Verification (HARD RULE · v1.8.5+ retired)
+
+> **v1.8.5 cleanup notice**: Original Step 0 was "Hook Auto-Install" — auto-installed 5 bash hooks via `setup-hooks.sh`. **The entire hook layer was retired in v1.8.5 Stage 2** (md-only LLM-native pivot) and v1.8.7 DR-10 made md-only the ontological constraint. The bash code block below + `setup-hooks.sh` invocation is **historical only** — preserved for forensic reference but **MUST NOT be executed by v1.8.5+ retrospective subagents** (the script doesn't exist; `bash` will fail).
+>
+> **v1.8.5+ Step 0 effective behavior**: subagent emits `🚀 starting · retrospective · <mode>` (E9 status line, v1.8.7) as first line, then proceeds to Step 0.5 directly. Briefing `## 0` section reports `Hook layer: retired v1.8.5 (md-only LLM-native pivot per DR-10)` instead of the pre-v1.8.5 5-hook installation count.
+>
+> The 4-layer defense (Pre-flight check + subagent self-check + AUDITOR Mode 3 + regression tests) is the working v1.8.5+ replacement.
+
+---
+
+### Historical bash hook check (pre-v1.8.5, DO NOT EXECUTE in v1.8.5+)
 
 Before the existing 18 Execution Steps, verify and auto-install the
 Claude Code Layer 1 hook backstop.
 
-Detection (run as Bash):
+Detection (run as Bash · DO NOT EXECUTE — retired v1.8.5):
 ```bash
 HOOK_HEALTH=$(jq -r '.hooks.UserPromptSubmit // [] | map(.id) | join(",")' ~/.claude/settings.json 2>/dev/null)
 REQUIRED_HOOKS="life-os-pre-prompt-guard life-os-post-response-verify life-os-pre-write-scan life-os-pre-read-allowlist life-os-stop-session-verify"
@@ -255,7 +265,7 @@ The briefing MUST include these literal primary-source count markers, using valu
 - `[Wiki count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
 - `[Sessions count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
 - `[Concepts count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
-- `[Maintenance overdue: <verbatim multi-line copy from `bash scripts/hooks/session-start-inbox.sh` 的 '## Overdue maintenance' 块 · OR 'none' when 输出 reported no overdue items · source=subagent-recompute@<ISO8601>]`
+- `[Maintenance overdue: <verbatim multi-line copy of '## Overdue maintenance' block computed inline by subagent · OR 'none' when no overdue items · source=subagent-recompute@<ISO8601>]` (v1.8.5+ subagent computes inline; pre-v1.8.5 used retired `scripts/hooks/session-start-inbox.sh`)
 
 Rules:
 - R8 marker disambiguation supersedes older R5 wording: `Y1` is the `_meta/STATUS.md` snapshot claim, `Y2` is the `INDEX.md` claim, and `Δ` is always computed as `X - Y2`.
@@ -263,7 +273,7 @@ Rules:
 - If `|Δ| >= 3`, append `⚠️ DRIFT` to that marker line.
 - Do not paste only `X` without `Y`.
 - Do not say `measured consistent` / `实测一致` without concrete numbers.
-- **Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix)**: subagent MUST 主动跑 `bash scripts/hooks/session-start-inbox.sh 2>/dev/null`,从 stdout 提取 `## Overdue maintenance` 块,原样 paste 进 marker。**不要** byte-copy transcript 里 SessionStart hook 写过的旧值(Mode 2 / 长 session 跨午夜会 stale)。**不要**重新估算、增量、改写 day count。`session-start-inbox.sh` 是唯一 source of truth;subagent 是它的 caller。Hook 在 SessionStart 时的 inject 仅作为友好启动提示,不参与 marker 校验。Originating bug: 2026-05-16 briefing reported `archiver-recovery 13d` while same session hook had emitted `3d` —— subagent 自己 free-form-estimate 而不是跑脚本。**Output wrapper handling (v1.8.4 Wave 1.5)**: `session-start-inbox.sh` 的 stdout 实际被 `<system-reminder>...</system-reminder>` tag 包裹(SessionStart hook 注入路径所致)。Subagent 在提取 `## Overdue maintenance` 块前 MUST strip 这层 wrapper:取 `<system-reminder>` 与 `</system-reminder>` 之间的内容,再 grep `## Overdue maintenance` 到下一个 `## ` 之间的行。若 wrapper 不存在(直接 stdout 调用)则按原 stdout 处理。
+- **Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5+ update)**: pre-v1.8.5 specified `bash scripts/hooks/session-start-inbox.sh`. The hook was retired in v1.8.5 Stage 2. **v1.8.5+ procedure**: subagent computes `## Overdue maintenance` block inline — read each of the 10 maintenance job last-run timestamps from their stored locations (per `pro/CLAUDE.md` §"Maintenance jobs" table) + compare to current date + compute days-overdue per the SLA for each job, then format as a `## Overdue maintenance` block with one line per overdue job. Paste verbatim into marker. **不要** byte-copy transcript 里旧值(Mode 2 / 长 session 跨午夜会 stale)。**不要**重新估算、增量、改写 day count after computing — paste exactly what your inline scan produced. Subagent's inline computation is the source of truth in v1.8.5+; previous reliance on hook stdout (with `<system-reminder>...</system-reminder>` wrapper handling) is obsolete. Originating bug: 2026-05-16 briefing reported `archiver-recovery 13d` while same session hook had emitted `3d` — subagent free-form-estimated rather than computed from source-of-truth timestamps.
 
 ```bash
 # STATUS.md staleness check (HARD RULE · v1.7.0.1)
@@ -298,7 +308,7 @@ For every LLM judgment / LLM assembly step in Mode 0 (steps 1, 6, 9, 16, and 18)
 
 Required path: `_meta/runtime/<sid>/retrospective-step-N.json`, where `<sid>` is the orchestrator-provided current session id. Do not fabricate `<sid>`; if the host did not provide one, write under `_meta/runtime/unknown/` and set `session_id_source: "missing"`.
 
-Use `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`.
+Use inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`.
 
 R12 fresh invocation fields: every `_meta/runtime/<sid>/retrospective-step-N.json` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current Mode 0 trigger count within this session. Do not infer completion from previous Mode 0 transcript output; every fresh invocation executes all 18 steps from scratch before writing Step 18.
 
@@ -330,7 +340,7 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - After selection: Read themes/*.md → load display names, emoji, tone, AND language
    - HARD RULE: All subsequent output MUST use the selected theme's language and display names. No mixing. No exceptions.
    - HARD RULE: When user switches theme mid-session, re-show the selector, load new theme, switch language immediately. Confirm in the NEW language.
-   - R11 AUDIT TRAIL: before proceeding to Step 2, write `_meta/runtime/<sid>/retrospective-step-1.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
+   - R11 AUDIT TRAIL: before proceeding to Step 2, write `_meta/runtime/<sid>/retrospective-step-1.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
 
 2. DIRECTORY TYPE CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
    - If current directory contains SKILL.md + pro/agents/ + themes/:
@@ -403,7 +413,7 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - Apply winning changes to primary backend
    - Push primary state to sync backends
    - Update _meta/sync-log.md + last_sync_time
-   - R11 AUDIT TRAIL: before proceeding to Step 7, write `_meta/runtime/<sid>/retrospective-step-6.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
+   - R11 AUDIT TRAIL: before proceeding to Step 7, write `_meta/runtime/<sid>/retrospective-step-6.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
 
 7. OUTBOX MERGE [v1.8.0 R-1.8.0-011 · inline tool calls + LLM narrative]: scan _meta/outbox/ for unmerged session directories
    - If _meta/.merge-lock exists and < 5 minutes old → skip merge, proceed to step 8
@@ -435,9 +445,14 @@ Step 8a — Local version:
 grep -m1 '^version:' ~/.claude/skills/life_OS/SKILL.md | sed -E 's/^version:[[:space:]]*"?([^"]+)"?/\1/'
 ```
 
-Step 8b — Force fresh remote check (`--force` bypasses daily cache):
+Step 8b — Force fresh remote check (`--force` bypasses daily cache · v1.8.5+ inline equivalent of retired `scripts/lifeos-version-check.sh`):
 ```bash
-bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
+# v1.8.5 retired the .sh; equivalent inline procedure now per .claude/commands/version-check.md §2-3
+curl -sf --max-time 3 "https://raw.githubusercontent.com/jasonhnd/life_OS/main/SKILL.md" 2>/dev/null \
+  | grep -m1 '^version:' \
+  | sed -E 's/^version:[[:space:]]*"?([^"]+)"?/\1/'
+# If curl fails (network unavailable / timeout) → output: [Life OS] vLOCAL (version check skipped — network unavailable)
+# Compare local from Step 8a vs this remote value → output match/mismatch line per /version-check command §3 + §3.5 cross-version hints
 ```
 
 Briefing `## 0. ${RETRO_NAME} · 上朝准备 (hook health + version markers + Cortex status, 3-5 lines max 10)` MUST contain BOTH literal markers:
@@ -463,7 +478,7 @@ subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
 9. PROJECT BINDING [LLM judgment]
    - If directory type was identified in step 2 → use that binding
    - Otherwise ask user: "Which project are we focusing on?"
-   - R11 AUDIT TRAIL: before proceeding to Step 10, write `_meta/runtime/<sid>/retrospective-step-9.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write.
+   - R11 AUDIT TRAIL: before proceeding to Step 10, write `_meta/runtime/<sid>/retrospective-step-9.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
 
 --- Phase D: Context Loading ---
 
@@ -545,7 +560,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - Mark as presented
     - Read the triggered_actions YAML block from last dream journal. These feed the DREAM Auto-Triggers section of the briefing (always shown, fixed position).
     - **TRIGGER VALIDITY RE-CHECK (HARD RULE · v1.8.4 · Bug R-DREAM-STALE-TASK fix)**: DREAM journals are async overnight snapshots. A trigger that was valid when the DREAM was written may have already been resolved by the user before the next session start. For each HARD trigger that names a specific task path or task slug, the subagent MUST `Read` the referenced task file's frontmatter and inspect the `status:` field BEFORE promoting the trigger to Today's Focus. Match logic: if `status:` matches `closed`, `done`, `failed`, `archived`, `superseded`, or any prefix `closed-*`, render the trigger as `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>, no action needed.` and DO NOT promote to Today's Focus / P0. If task file does not exist on disk, attempt fuzzy match by slug under `projects/**/tasks/`; if found at a different path, treat as `renamed_candidate` (still validate status); if not found anywhere, promote with note `task slug not found on disk, treating as still-actionable`. Originating bug: 2026-05-16 briefing promoted `8938 revenue-uplift task closure` to P0 even though it had `status: closed-superseded` written the day before. Trigger `task_ref` field (defined in `references/dream-spec.md` triggered_actions schema, v1.8.4) is **optional** — only set when DREAM detected a trigger that points to a specific user task. Resolution order: (a) if `task_ref.task_path` present → `Read` that exact path; (b) elif `task_ref.task_slug` + `task_ref.project` present → fuzzy match under `projects/<project>/tasks/`; (c) elif neither, attempt LLM-parse of `detection.hard_signals` / `action` text for task-name mentions and fuzzy match under `projects/**/tasks/`; (d) if all three fail → mark `task_lookup: not_found` and promote with note `no task_ref on this trigger, treating as still-actionable` (no error). Behavioral triggers (e.g. trigger_id 4 dormant-SOUL, trigger_id 6 decision-fatigue) have no task to validate — skip this check entirely and record `task_lookup: not_applicable` in audit trail.
-    - R11 AUDIT TRAIL: before proceeding to Step 17, write `_meta/runtime/<sid>/retrospective-step-16.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. Audit trail JSON MUST additionally include `dream_triggers_validated: [{trigger_id: N, trigger_type: HARD|SOFT, task_path: ..., task_status: ..., task_lookup: found_at_path|renamed_candidate|not_found, promoted_to_focus: true|false, reason: "..."}]` — one entry per HARD trigger; empty array `dream_triggers_validated: []` when zero HARD triggers.
+    - R11 AUDIT TRAIL: before proceeding to Step 17, write `_meta/runtime/<sid>/retrospective-step-16.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json). Audit trail JSON MUST additionally include `dream_triggers_validated: [{trigger_id: N, trigger_type: HARD|SOFT, task_path: ..., task_status: ..., task_lookup: found_at_path|renamed_candidate|not_found, promoted_to_focus: true|false, reason: "..."}]` — one entry per HARD trigger; empty array `dream_triggers_validated: []` when zero HARD triggers.
 
 17. WIKI HEALTH CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
     a. wiki/ empty or doesn't exist → skip silently
@@ -556,7 +571,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
 --- Phase F: Output ---
 
 18. GENERATE BRIEFING [LLM assembly · v1.8.0 R-1.8.0-011 · uses inline-collected markers from steps 1-17 as ground truth] — compile all results from steps 1-17 into the output format below
-    - R11 AUDIT TRAIL: before returning the final briefing, write `_meta/runtime/<sid>/retrospective-step-18.json` via `scripts/lib/audit-trail.sh emit_trail_entry` or equivalent inline JSON write. `output_summary` MUST match the briefing sections and ROUTER-visible paste markers.
+    - R11 AUDIT TRAIL: before returning the final briefing, write `_meta/runtime/<sid>/retrospective-step-18.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json). `output_summary` MUST match the briefing sections and ROUTER-visible paste markers.
 ```
 
 ### Output Format (Start Session)
@@ -731,7 +746,7 @@ Prepare with whatever data you can access. Note what you cannot:
 4. Read ~/second-brain/_meta/journal/ for recent logs
 5. Read ~/second-brain/projects/*/journal/ for project-specific logs
 6. Read _meta/STRATEGIC-MAP.md for strategic line health trends (if exists)
-7. Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix): run `bash scripts/hooks/session-start-inbox.sh 2>/dev/null` itself, strip the `<system-reminder>` wrapper, extract the `## Overdue maintenance` block verbatim, and include it in the Review briefing as `[Maintenance overdue: <verbatim block> · source=subagent-recompute@<ISO8601>]`. Same source-of-truth contract as Mode 0 Step 0.5: do NOT byte-copy transcript stale values, do NOT re-estimate day count. Mode 2 reviews tend to span longer time windows than Mode 0 and are more vulnerable to drift, so the marker contract is mandatory here too.
+7. Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5+ procedure): compute the `## Overdue maintenance` block inline per Step 0.5 procedure (read 10 maintenance job last-run timestamps + compute days-overdue per each SLA). Include in Review briefing as `[Maintenance overdue: <verbatim block> · source=subagent-recompute@<ISO8601>]`. Same source-of-truth contract as Mode 0 Step 0.5: do NOT byte-copy transcript stale values, do NOT re-estimate day count. Mode 2 reviews tend to span longer time windows than Mode 0 and are more vulnerable to drift, so the marker contract is mandatory here too. (Pre-v1.8.5 used `bash scripts/hooks/session-start-inbox.sh`; .sh retired with hook layer.)
 ```
 
 ### Decision Tracking

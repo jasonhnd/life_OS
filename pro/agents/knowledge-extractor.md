@@ -16,14 +16,14 @@ context_manifest:
   supporting: [SOUL.md, wiki/INDEX.md, _meta/concepts/INDEX.md, _meta/methods/]
   forbidden: [pro/agents/archiver.md internals (carve-out boundary), pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/knowledge-extractor.json, _meta/runtime/<sid>/extraction/*.md]
+  allowed_scope: [_meta/runtime/<sid>/knowledge-extractor.md, _meta/runtime/<sid>/extraction/*.md]
   forbidden_scope: [wiki/, SOUL.md, _meta/concepts/, _meta/methods/ (archiver writes, not extractor)]
 failure_modes:
   known: ["Proposes wiki candidate failing 10-criteria gate (v2)", "Proposes SOUL dim failing X-over-Y form (v2)", "Writes directly to wiki/ or SOUL.md (overstep blast_radius)"]
   warning_signs: ["Extraction report 缺 arguments_against for wiki candidate", "Extraction report has dim missing priority"]
   repair_actions: ["AUDITOR Mode 5/4 logs F3 SCHEMA_FAILURE", "Re-run with strict v2 gate reminder"]
 ---
-✅ I am the KNOWLEDGE-EXTRACTOR subagent · Adjourn Phase 2 carve-out · audit trail will be written to _meta/runtime/<sid>/knowledge-extractor.json.
+✅ I am the KNOWLEDGE-EXTRACTOR subagent · Adjourn Phase 2 carve-out · audit trail will be written to _meta/runtime/<sid>/knowledge-extractor.md.
 
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 
@@ -146,7 +146,7 @@ ROUTER passes this YAML + the extraction reports directory path to ARCHIVER's Ph
 
 ## Audit Trail (R11, HARD RULE — same as other Cortex/archiver subagents)
 
-Before returning the YAML output, write `_meta/runtime/<sid>/knowledge-extractor.json` via `scripts/lib/audit-trail.sh emit_trail_entry` when available, or equivalent inline JSON write. Required fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, `audit_trail_version`. `output_summary` MUST mirror the `reports_written` and `persistent_writes` blocks of your YAML output.
+Before returning the YAML output, write `_meta/runtime/<sid>/knowledge-extractor.md` via inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, `audit_trail_version`. `output_summary` MUST mirror the `reports_written` and `persistent_writes` blocks of your YAML output.
 
 R12 fresh-invocation field: include `fresh_invocation: true` and `triggered_by: archiver-phase-2`.
 
@@ -166,7 +166,7 @@ NEVER stall. Always emit YAML + audit trail. Archiver's Phase 2 step will surfac
 
 - Running Phase 1, 3, or 4 logic in this subagent (scope creep)
 - Emitting the user-facing 6-H2 Adjourn Report (that's archiver's job)
-- Skipping audit trail write to `_meta/runtime/<sid>/knowledge-extractor.json`
+- Skipping audit trail write to `_meta/runtime/<sid>/knowledge-extractor.md`
 - Writing only persistent files without the extraction reports (archiver needs the reports to summarize)
 - Writing extraction reports without the persistent files (the reports are summaries, not the source of truth)
 - Touching `_meta/outbox/<sid>/` files (archiver Phase 1 owns those)

@@ -155,7 +155,9 @@ All display names, emoji, tone, and output titles come from the active theme fil
 
 Each role is defined in `pro/agents/*.md`. Orchestration protocol: `pro/CLAUDE.md`.
 
-> **v1.7.0+ native registration**: `scripts/register-claude-agents.sh` writes `lifeos-*` wrappers under `~/.claude/agents/` for Claude Code's native `Task()` discovery. There are 23 `pro/agents/*.md` definition files; 22 are Task-spawnable wrappers and `narrator.md` remains ROUTER-internal. ROUTER should call targets such as `Task(lifeos-retrospective)` so Claude Code launches the real subagent instead of `general-purpose`.
+> **v1.7.0+ native registration**: Native registration is now handled by the `/install-agents` slash command (`.claude/commands/install-agents.md`), which writes `lifeos-*` wrappers under `~/.claude/agents/` for Claude Code's native `Task()` discovery. There are 24 `pro/agents/*.md` definition files (v1.8.7 includes memory-keeper); 22 are Task-spawnable wrappers, `router.md` is ROUTER (entry-point, not a subagent), and `narrator.md` remains ROUTER-internal mode. ROUTER should call targets such as `Task(lifeos-retrospective)` so Claude Code launches the real subagent instead of `general-purpose`.
+>
+> *v1.8.5 cleanup note*: Pre-v1.8.5 used `scripts/register-claude-agents.sh` for this. That .sh was retired in v1.8.5 Stage 2 (hook layer retirement); `/install-agents` md slash command replaces it.
 
 ## Trigger Words
 
@@ -178,7 +180,7 @@ Certain triggers have fixed execution templates. ROUTER must follow these verbat
 
 ### Manual Compression (`/compress`) (v1.7.3)
 
-When the user says `/compress` or `/compress <focus>`, ROUTER treats it as a user manual compression trigger, not as a domain-analysis request. ROUTER follows the slash command spec at `~/.claude/commands/compress.md` (installed by `setup-hooks.sh` from `scripts/commands/compress.md`):
+When the user says `/compress` or `/compress <focus>`, ROUTER treats it as a user manual compression trigger, not as a domain-analysis request. ROUTER follows the slash command spec at `~/.claude/commands/compress.md` (installed by `/install-agents --refresh` from `scripts/commands/compress.md`; pre-v1.8.5 used `setup-hooks.sh`, retired in hook layer cleanup):
 
 1. Inventory current conversation context (turn count + rough token estimate)
 2. Identify low-value turns to archive (debug noise, content unrelated to `<focus>`, stale exploration)
@@ -205,23 +207,17 @@ Examples:
 
 **Missing this line = Class A3 process violation.** The AUDITOR Compliance Patrol (Mode 3) will detect the absence and append an entry to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). Format specification: `references/compliance-spec.md`.
 
-This one-line check is the orchestrator-level gate in the v1.6.3 five-layer defense against COURT-START-001 (2026-04-19). The other four layers:
+This one-line check is the orchestrator-level gate in the v1.6.3 five-layer defense against COURT-START-001 (2026-04-19). The other four layers (post-v1.8.5 hook layer retirement, only 4 remain — Layer 1 retired):
 
-1. Runtime hook: `scripts/lifeos-pre-prompt-guard.sh` (injects reminder from `.claude/settings.json`)
-2. This Pre-flight check (you are reading it)
-3. Subagent self-check: first output of `retrospective` / `archiver` subagent verifies it is running as a real subagent, not main-context simulation
+1. ~~Runtime hook: `scripts/lifeos-pre-prompt-guard.sh`~~ **RETIRED in v1.8.5 Stage 2** along with the entire bash hook layer. Pre-prompt-guard behavior is now subsumed by ROUTER's own discipline + the four remaining layers (this Pre-flight check is the new Layer 1).
+2. This Pre-flight check (you are reading it) — **Layer 1 since v1.8.5**
+3. Subagent self-check: first output of `retrospective` / `archiver` subagent verifies it is running as a real subagent, not main-context simulation (v1.8.7 E9 unifies this to `🚀 starting · <agent> · ...` status line)
 4. AUDITOR Compliance Patrol (Mode 3) post-hoc audit
-5. Regression test: `evals/scenarios/start-session-compliance.md`
+5. Regression test: `evals/scenarios/start-session-compliance.md` (+ v1.8.7 `evals/scenarios/v1.8.7-e9-status-line.md` covers M8-1 starting-line contract)
 
-**ROUTER fallback (double-safety net):** After detecting a Start Session / Adjourn trigger word AND before launching `retrospective` / `archiver`, ROUTER MUST verify Layer 1 hook installation. If the `UserPromptSubmit` array does not contain `"life-os-pre-prompt-guard"`, ROUTER runs `setup-hooks.sh` inline before spawning the subagent. The downstream subagent's own Step 0 / Phase 0 will then see hooks already installed (idempotent) and proceed. Even if retrospective/archiver Step 0 is skipped, ROUTER catches it.
+**ROUTER fallback (double-safety net) — v1.8.5 update:** After detecting a Start Session / Adjourn trigger word AND before launching `retrospective` / `archiver`, ROUTER MUST output the Pre-flight confirmation line (above) before any Task() call. ~~Hook installation check~~ retired with hook layer in v1.8.5; Pre-flight line is now the only Layer 1 visible gate. The downstream subagent's own Step 0 / Phase 0 then runs from scratch (per v1.8.0 Option A pivot — no ROUTER pre-fetch).
 
-**ROUTER ground-truth pre-fetch (v1.7.0.1 R5 anti-confabulation):** When Start Session / Review trigger word detected AND before launching `retrospective`, ROUTER MUST first call Bash to obtain ground truth for version check:
-
-```bash
-bash ~/.claude/skills/life_OS/scripts/lifeos-version-check.sh --force
-```
-
-ROUTER includes the literal stdout in the launch payload to `retrospective` as: "Ground truth (ROUTER pre-fetched): <stdout>". The subagent MUST use this ground truth in Step 8 instead of attempting its own remote check. This eliminates the confabulation surface: subagent has no opening to fabricate failure reasons. If Bash returns non-zero, ROUTER passes the literal error to subagent, who pastes it into briefing. Still no fabrication allowed.
+**ROUTER ground-truth pre-fetch — REMOVED in v1.8.0 Option A pivot:** Previously v1.7.0.1 R5 required ROUTER to pre-fetch version via `scripts/lifeos-version-check.sh --force` before launching `retrospective`. The .sh script was retired in v1.8.5 Stage 2; the equivalent inline curl + grep procedure now lives in `.claude/commands/version-check.md` slash command spec, and `retrospective` Mode 0 Step 8 runs the inline procedure directly (no ROUTER pre-fetch). R5 anti-confabulation guarantee preserved: subagent pastes literal `curl` stdout into briefing (`[Remote check (forced fresh): <literal>]` marker); ROUTER fact-check (HARD RULE below) verifies the marker is present.
 
 **ROUTER retrospective pre-fetch — REMOVED in v1.8.0 Option A pivot (R-1.8.0-011):**
 Previously v1.7.1 R10 required ROUTER to run `scripts/retrospective-mode-0.sh` before launching retrospective. That script was deleted in the "100% LLM" pivot (R-1.8.0-011). Retrospective subagent now executes all Mode 0 steps directly via inline Read/Glob/Grep — no ROUTER pre-fetch, no `[ROUTER pre-fetched]` markers in step output. See `pro/agents/retrospective.md` for the canonical step-by-step.
@@ -245,7 +241,7 @@ After retrospective/archiver subagent returns briefing, BEFORE showing to user, 
 
 2. Path claims: for each path mentioned as authority, ROUTER calls Bash `test -f <path>` to verify existence. Non-existent paths quoted as authority -> ROUTER strikes the line + inserts [⚠️ Path not found].
 
-3. Remote version claims: grep briefing for "[Remote check (forced fresh):" marker. Missing -> ROUTER reruns lifeos-version-check.sh --force as sanity check.
+3. Remote version claims: grep briefing for "[Remote check (forced fresh):" marker. Missing -> ROUTER reruns the inline curl from `.claude/commands/version-check.md` Section 2 as sanity check (pre-v1.8.5 ran `lifeos-version-check.sh`, retired with hook layer).
 
 4. Status freshness claims: grep briefing for the literal marker `[STATUS staleness:` and verify it uses `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`. Missing or old-format marker -> ROUTER refuses to show the briefing until the subagent reruns the status freshness check or explicitly marks STATUS unavailable.
 
@@ -255,7 +251,7 @@ After retrospective/archiver subagent returns briefing, BEFORE showing to user, 
 
 7. Subagent output visibility: before showing any optional summary, ROUTER checks that each completed subagent has a user-visible result path, either through the host's natural transcript output or an optional clarity wrapper. R11 audit trail links should be shown when available. ROUTER should not insert synthetic heavy-line wrappers or duplicate full subagent text solely to satisfy a wrapper count.
 
-8. **Maintenance overdue claims (v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix)**: ROUTER MUST grep briefing for `[Maintenance overdue: ` marker. To verify, ROUTER 自己跑一次 `bash scripts/hooks/session-start-inbox.sh 2>/dev/null` 提取当前的 `## Overdue maintenance` 块,跟 marker 内容 byte-equal 比对(忽略 marker 末尾的 `· source=subagent-recompute@...` 时间戳尾巴)。任何 day-count 差异 → strike marker 行并替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing 直到 subagent 重跑 Step 0.5。Beyond marker 自身,ROUTER 还要在 briefing 的 "系统状态 / Compliance Watch / Today's Focus" **三个 section 内**(不要扫全文,避免误伤 ADVISOR / review queue 等无关文本)扫描 `\d+\s*d(ays)?\s*overdue` 模式邻接 10 个 maintenance 任务名(reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency);任何冲突值视为 confabulation 并 strike。Originating bug: 2026-05-16 briefing 自由发挥 `13d`,hook 实际只有 `3d`。**Wrapper handling (v1.8.4 Wave 1.5)**: 实际 stdout 被 `<system-reminder>...</system-reminder>` tag 包裹,ROUTER 在 byte-equal 比对前 MUST strip 同样的 wrapper 后再比 inner content(否则永远 mismatch)。
+8. **Maintenance overdue claims (v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5 update — hook retired)**: ROUTER MUST grep briefing for `[Maintenance overdue: ` marker. v1.8.4 originally specified verification via `bash scripts/hooks/session-start-inbox.sh`; that hook was retired in v1.8.5 Stage 2. **v1.8.5+ verification procedure**: ROUTER 自己 inline 检查 10 maintenance jobs 的 timestamps（scan `_meta/methods/last-runs/` or equivalent — actual scan procedure is owned by `pro/agents/retrospective.md` Mode 0 maintenance overdue step which the subagent runs inline）. byte-equal verification 简化为 "marker exists + day-count values plausible against ROUTER's own inline scan"; 任何明显冲突值 → strike marker 行并替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing 直到 subagent 重跑 Step 0.5。Beyond marker 自身,ROUTER 还要在 briefing 的 "系统状态 / Compliance Watch / Today's Focus" **三个 section 内**扫描 `\d+\s*d(ays)?\s*overdue` 模式邻接 10 个 maintenance 任务名(reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency);任何冲突值视为 confabulation 并 strike。Originating bug: 2026-05-16 briefing 自由发挥 `13d`,hook 实际只有 `3d`。Pre-v1.8.5 wrapper handling note (now obsolete since hook layer is gone): `<system-reminder>...</system-reminder>` 包裹 stdout 的细节随 hook 一起退役;v1.8.5+ subagent 直接产出 marker 文本无 wrapper。
 
 Additional display verification: there is no wrapper-count gate; one completed subagent call does not require a heavy-line wrapper pair or a transactional receipt. Audit trail requirements remain governed by R11.
 

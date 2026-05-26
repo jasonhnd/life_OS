@@ -16,7 +16,7 @@ context_manifest:
   supporting: [recent_inbox_items, current_project, current_strategic_lines]
   forbidden: [pro/agents/concept-lookup.md, pro/agents/soul-check.md, SOUL.md full body, prior session transcripts]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/hippocampus-*.json]
+  allowed_scope: [_meta/runtime/<sid>/hippocampus-*.md]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
 failure_modes:
   known: ["Returns sessions not actually relevant (precision drop)", "Reads peer Cortex outputs (isolation breach)"]
@@ -60,7 +60,7 @@ and return. Do not stall.
 ## What You Do NOT Do
 
 - Replace ROUTER triage. You are pre-router only.
-- Modify any user/domain file. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/hippocampus.json`.
+- Modify any user/domain file. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/hippocampus.md`.
 - Modify, promote, or create method files. Method library use is read-only co-activation.
 - Persist results outside the current frame.
 - Read other Pre-Router Cognitive Layer outputs (concept lookup, SOUL check). Information isolation is enforced.
@@ -164,7 +164,7 @@ Final message MUST be a single YAML block:
 
 **YAML output emit contract (Recommended, v1.8.0 R-1.8.0-013):** This YAML is an upstream Cortex payload. ROUTER MAY wrap and paste it to the user using the subagent transparency wrapper when full transparency is desired (e.g. user explicitly asks "show me what Cortex saw"). Default v1.8.0 behavior: GWT `[COGNITIVE CONTEXT]` is a downstream synthesis that ROUTER consumes inline; the raw YAML payload doesn't have to be displayed verbatim. (Was HARD RULE in v1.7.1 R8; downgraded in R-1.8.0-013 because pull-based Cortex doesn't always run.)
 
-**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/hippocampus.json` using `scripts/lib/audit-trail.sh emit_trail_entry` when available, or an equivalent inline JSON write. Required JSON fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
+**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/hippocampus.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
 
 ```yaml
 hippocampus_output:
@@ -248,7 +248,7 @@ Token budget per invocation: under 8000 tokens (Opus).
 ## Anti-patterns (AUDITOR flags these)
 
 - Retrieving all sessions (defeats purpose, blows token budget — caps exist for a reason)
-- Modifying session or concept files (read-only contract; `_meta/runtime/<sid>/hippocampus.json` audit trail is the only exception)
+- Modifying session or concept files (read-only contract; `_meta/runtime/<sid>/hippocampus.md` audit trail is the only exception)
 - Injecting retrieved content into system prompt (volatile, breaks prompt cache)
 - Using embeddings or vector databases (user decision #3)
 - Reintroducing grep as the Wave 1 pre-filter instead of the FTS5 helper
