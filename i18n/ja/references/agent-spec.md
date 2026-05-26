@@ -154,6 +154,69 @@ risk_level の根拠: REVIEWER ゲートなしで最終出力を生成する age
 3. agent の実際の動作に従って `classification`、`operating_hypothesis`、`context_manifest`、`blast_radius`、`failure_modes` を入力
 4. AUDITOR Mode 6 を実行して検証
 
+## デフォルトアンチパターン（v1.8.7 Karpathy 借用 within-release · Karpathy 原則 3 "Surgical Changes"）
+
+> **Tradeoff:** このセクションは agent を熱心なクリーンアップより保守的編集に偏らせる。明示的にクリーンアップが仕事の agent（wiki-decay / archiver Phase 5 memory-keeper / 仮想の refactor-cleaner など）は、明示的 `allowed_scope` 宣言でこれらデフォルトを上書きする。
+> **The test:** *ユーザが触らせていないコード/コメント/ファイルを削除しようとしているなら、その削除は私の agent `blast_radius.allowed_scope` 内か？不明なら mention するが削除しない。*
+
+以下の挙動デフォルトは、agent の役割 spec が明示的に上書きしない限り、**全 22 lifeos subagent** に適用される。`multica-ai/andrej-karpathy-skills`（MIT）原則 3 "Surgical Changes" から借用 + lifeos が v2 frontmatter `blast_radius` システムに適応。
+
+### DA-1 · 関係ない dead code に気付いても削除せず mention
+
+任意の subagent が通常作業中に、**その `blast_radius.allowed_scope` の外側** にある dead code / 陳腐コメント / 孤立 import / 未使用関数 / 古い config に遭遇した時：
+
+1. **DO** agent 出力で観察を mention（"`<path>:<line>` が `<context>` 以来未使用と思われる —— ユーザレビュー用にフラグ"）
+2. **DO NOT** 観察した項目を削除またはリファクタリング
+3. **DO** ユーザの実際のリクエストを続行、scope creep しない
+
+**例外**（agent の役割 spec で明示的上書き必須）：
+- `wiki-decay` prompt：cleanup がその仕事；より広い scope を宣言
+- `archiver` Phase 5 memory-keeper：gotchas-spec 書き込みのみ
+- 将来の `refactor-cleaner` agent が導入されたら：deletion-allowed scope を宣言
+
+**なぜこのルール**：Karpathy は "models change/remove comments and code they don't sufficiently understand as side effects, even if orthogonal to the task." と観察。lifeos の `blast_radius` システムは宣言された scope 外への書き込みを防ぐが、agent が scope の隣接物を "親切に" 削除することは **防がない**。DA-1 はこのギャップを埋める。
+
+**強制**：AUDITOR Mode 6 拡張（M6-A3' 追記）：agent の audit trail を宣言された `allowed_scope` 外のファイルへの delete/remove 操作についてクロスチェック → `F10 RESPONSIBILITY_FAILURE: agent deleted unrelated content outside blast_radius (DA-1 違反)` を発出。
+
+### DA-2 · 自分なら違うやり方でも既存スタイルに合わせる
+
+既存コード/spec/ドキュメントを編集する時：
+
+1. **DO** ファイルの既存インデント、命名、コメントスタイル、frontmatter 規約をミラー
+2. **DO NOT** ファイル全体に "一貫性" 再フォーマット適用
+3. **DO** 編集を変更下のセクションに分離
+
+**The test:** *私の編集 diff には論理的に変える必要がなかった行が含まれているか？*
+
+**強制**：AUDITOR Mode 6 拡張：変更 scope 外で大量の無関係な re-indentation / re-naming / re-formatting を含む agent transcript → `F12 DRIFT_FAILURE: agent reformatted unrelated content (DA-2 違反)` を発出。
+
+### DA-3 · 変更提案時にトレードオフを明示的 surface
+
+任意の subagent が顕著なトレードオフ（慎重 vs 速度 / シンプル vs 柔軟 / 安全 vs 自律 / 等）のあるアクションコースを提案する時：
+
+1. **DO** agent 出力でトレードオフを明示的に述べる
+2. **DO NOT** 片側を静かに選ぶ
+3. **DO** デフォルトで選んだ側がユーザの文脈に合わない場合、ユーザに上書きを招く
+
+**なぜこのルール**：Karpathy は LLM が "don't present tradeoffs, don't push back when they should." と観察。spec 執筆中の `Tradeoff:` 行（SKILL.md "Spec writing conventions" より）が spec レベルをカバー；DA-3 はこれを agent ランタイム出力に拡張。
+
+**強制**：これはソフト契約；AUDITOR Mode 1（Decision Review）が顕著なトレードオフのあるアクションを surface せずに推奨する decision 出力をフラグ。
+
+### 上書きメカニズム
+
+DA-1/DA-2/DA-3 を正当に違反する agent は、`pro/agents/<name>.md` frontmatter で上書きを宣言する必要がある：
+
+```yaml
+default_anti_patterns_override:
+  - DA-1: "wiki-decay の仕事は基準を満たさない陳腐 wiki エントリを削除すること；cleanup は wiki-spec §Decay により scope 内"
+  - DA-2: N/A
+  - DA-3: N/A
+```
+
+正当化なしの上書き = `F4 SCOPE_FAILURE: agent が役割 spec 根拠なしに上書き主張`。
+
+---
+
 ## ソース出典
 
 eou-foundry @ e4b12ce。借用:

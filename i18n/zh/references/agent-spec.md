@@ -154,6 +154,69 @@ risk_level 理由: 产出最终输出无 REVIEWER 门的 agent 风险更高（ar
 3. 按 agent 实际行为填 `classification`、`operating_hypothesis`、`context_manifest`、`blast_radius`、`failure_modes`
 4. 跑 AUDITOR Mode 6 验证
 
+## 默认反模式（v1.8.7 Karpathy 借鉴 within-release · Karpathy 准则 3 "Surgical Changes"）
+
+> **Tradeoff:** 本章节让 agent 偏向保守编辑而非热心清理。明确做清理工作的 agent（如 wiki-decay / archiver Phase 5 memory-keeper / 假想的 refactor-cleaner），通过显式 `allowed_scope` 声明覆盖这些默认。
+> **The test:** *如果我打算删除用户未让我碰的代码/注释/文件，删除是否在我的 agent `blast_radius.allowed_scope` 内？不确定就 mention 但不删。*
+
+以下行为默认适用 **所有 22 个 lifeos subagent**，除非 agent 角色 spec 显式覆盖。借鉴自 `multica-ai/andrej-karpathy-skills`（MIT）准则 3 "Surgical Changes" + lifeos 适配到 v2 frontmatter `blast_radius` 系统。
+
+### DA-1 · 注意但不删除无关 dead code
+
+任何 subagent 正常工作中遇到 dead code / 陈旧注释 / 孤立 import / 未使用函数 / 过时 config 在 **其 `blast_radius.allowed_scope` 之外**：
+
+1. **DO** 在 agent 输出中 mention（"注意到 `<path>:<line>` 自 `<context>` 似乎未使用 —— 标记供用户 review"）
+2. **DO NOT** 删除或重构所注意的内容
+3. **DO** 继续用户的实际请求，不要 scope creep
+
+**例外**（需在 agent 角色 spec 中显式覆盖）：
+- `wiki-decay` prompt：cleanup 是其工作；声明更宽 scope
+- `archiver` Phase 5 memory-keeper：仅 gotchas-spec 写入
+- 未来 `refactor-cleaner` agent 若引入：声明 deletion-allowed scope
+
+**为何此规则**：Karpathy 观察到 "models change/remove comments and code they don't sufficiently understand as side effects, even if orthogonal to the task." lifeos `blast_radius` 系统防 agent 越界写，但**不防**agent "热心" 删除其 scope 旁边的东西。DA-1 补这个空白。
+
+**强制**：AUDITOR Mode 6 扩展（M6-A3' 增补）：交叉检查 agent 的 audit trail 对其声明 `allowed_scope` 之外文件的 delete/remove 操作 → 发 `F10 RESPONSIBILITY_FAILURE: agent deleted unrelated content outside blast_radius (DA-1 violated)`。
+
+### DA-2 · 匹配既有风格即使你会另写
+
+编辑既有代码/spec/文档时：
+
+1. **DO** 镜像文件既有缩进、命名、注释风格、frontmatter 约定
+2. **DO NOT** 跨文件应用 "一致性" 重格式化
+3. **DO** 把你的编辑隔离到变更下的章节
+
+**The test:** *我编辑的 diff 是否包含逻辑上不需要变的行？*
+
+**强制**：AUDITOR Mode 6 扩展：agent transcript 含变更 scope 外大量无关 re-indentation / re-naming / re-formatting → 发 `F12 DRIFT_FAILURE: agent reformatted unrelated content (DA-2 violated)`。
+
+### DA-3 · 提议变更时显式 surface tradeoffs
+
+任何 subagent 提议有显著权衡（谨慎 vs 速度 / 简单 vs 灵活 / 安全 vs 自治 / 等）的行动方案时：
+
+1. **DO** 在 agent 输出中显式声明 tradeoff
+2. **DO NOT** 静默挑一边
+3. **DO** 邀请用户 override 若默认选择的一边在其上下文中不对
+
+**为何此规则**：Karpathy 观察 LLM "don't present tradeoffs, don't push back when they should." spec 写作中的 `Tradeoff:` 行（按 SKILL.md "Spec writing conventions"）覆盖 spec 级；DA-3 把它扩展到 agent runtime 输出。
+
+**强制**：这是软契约；AUDITOR Mode 1（Decision Review）flag 推荐有显著 tradeoff 行动但不 surface 的 decision 输出。
+
+### 覆盖机制
+
+合法违反 DA-1/DA-2/DA-3 的 agent 必须在其 `pro/agents/<name>.md` frontmatter 声明覆盖：
+
+```yaml
+default_anti_patterns_override:
+  - DA-1: "wiki-decay 的工作就是删除不达标的陈旧 wiki 条目；cleanup 在 scope 内按 wiki-spec §Decay"
+  - DA-2: N/A
+  - DA-3: N/A
+```
+
+无理由的覆盖 = `F4 SCOPE_FAILURE: agent 声明 override 无角色 spec 依据`。
+
+---
+
 ## 来源出处
 
 eou-foundry @ e4b12ce。借鉴:

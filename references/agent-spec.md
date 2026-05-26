@@ -154,6 +154,69 @@ Template for each agent:
 3. Fill `classification`, `operating_hypothesis`, `context_manifest`, `blast_radius`, `failure_modes` per agent's actual behavior
 4. Run AUDITOR Mode 6 to validate
 
+## Default Anti-patterns (v1.8.7 Karpathy-borrowed within-release · Karpathy Principle 3 "Surgical Changes")
+
+> **Tradeoff:** This section biases agents toward conservative editing over enthusiastic cleanup. For agents whose explicit job IS cleanup (e.g. wiki-decay / archiver Phase 5 memory-keeper / a hypothetical refactor-cleaner), specific role spec overrides these defaults via explicit `allowed_scope` declaration.
+> **The test:** *If I'm about to delete code/comments/files that the user didn't ask me to touch, is the deletion within my agent's `blast_radius.allowed_scope`? If unclear, mention but don't delete.*
+
+These behavioral defaults apply to **all 22 lifeos subagents** unless the agent's role spec explicitly overrides. Borrowed from `multica-ai/andrej-karpathy-skills` (MIT) Principle 3 "Surgical Changes" + lifeos-adapted to the v2 frontmatter `blast_radius` system.
+
+### DA-1 · Notice unrelated dead code, mention but don't delete
+
+When any subagent (during its normal work) encounters dead code / stale comments / orphaned imports / unused functions / obsolete config that is **outside its `blast_radius.allowed_scope`**:
+
+1. **DO** mention the observation in the agent's output ("Noticed `<path>:<line>` appears unused since `<context>` — flagging for user review")
+2. **DO NOT** delete or refactor the noticed item
+3. **DO** continue with the user's actual request without scope creep
+
+**Exceptions** (explicit override required in agent's role spec):
+- `wiki-decay` prompt: cleanup IS its job; declares broader scope
+- `archiver` Phase 5 memory-keeper: gotchas-spec writes only
+- Future `refactor-cleaner` agent if introduced: would declare deletion-allowed scope
+
+**Why this rule**: Karpathy observed "models change/remove comments and code they don't sufficiently understand as side effects, even if orthogonal to the task." lifeos's `blast_radius` system prevents writes outside declared scope, but **doesn't** prevent agents from "helpfully" deleting things adjacent to their scope. DA-1 closes this gap.
+
+**Enforcement**: AUDITOR Mode 6 extended (M6-A3' addendum): cross-check agent's audit trail for delete/remove operations on files outside declared `allowed_scope` → emit `F10 RESPONSIBILITY_FAILURE: agent deleted unrelated content outside blast_radius (DA-1 violated)`.
+
+### DA-2 · Match existing style even if you'd do it differently
+
+When editing existing code/specs/docs:
+
+1. **DO** mirror the file's existing indentation, naming, comment style, frontmatter conventions
+2. **DO NOT** apply "consistency" reformatting across the file
+3. **DO** isolate your edit to the section under change
+
+**The test:** *Does my edit's diff include lines I didn't logically need to change?*
+
+**Enforcement**: AUDITOR Mode 6 extended: agent transcripts that include large unrelated re-indentations / re-namings / re-formattings outside the change scope → emit `F12 DRIFT_FAILURE: agent reformatted unrelated content (DA-2 violated)`.
+
+### DA-3 · Surface tradeoffs explicitly when proposing changes
+
+When any subagent proposes a course of action that has a notable tradeoff (caution-vs-speed / simplicity-vs-flexibility / safety-vs-autonomy / etc.):
+
+1. **DO** state the tradeoff explicitly in agent output
+2. **DO NOT** silently pick one side
+3. **DO** invite user to override if the default-chosen side is wrong for their context
+
+**Why this rule**: Karpathy observed LLMs "don't present tradeoffs, don't push back when they should." `Tradeoff:` lines in spec writing (per SKILL.md "Spec writing conventions") cover spec-level; DA-3 extends this to agent runtime output.
+
+**Enforcement**: this is a soft contract; AUDITOR Mode 1 (Decision Review) flags decision outputs that recommend an action with significant tradeoff without surfacing it.
+
+### Override mechanism
+
+Agents whose role legitimately violates DA-1/DA-2/DA-3 MUST declare the override in their `pro/agents/<name>.md` frontmatter:
+
+```yaml
+default_anti_patterns_override:
+  - DA-1: "wiki-decay's job is to delete stale wiki entries that fail criteria; cleanup is in-scope per wiki-spec §Decay"
+  - DA-2: N/A
+  - DA-3: N/A
+```
+
+Override without justification = `F4 SCOPE_FAILURE: agent claims override without role-spec basis`.
+
+---
+
 ## Source attribution
 
 eou-foundry @ e4b12ce. Borrowed:
