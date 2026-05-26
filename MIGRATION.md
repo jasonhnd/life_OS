@@ -1,6 +1,109 @@
 # Life OS 开发环境迁移手册
 
-> 把开发工作从一台 Mac 转到另一台。最后更新：2026-04-22（v1.7.0 GA）
+> 把开发工作从一台 Mac 转到另一台。最后更新：2026-05-26（v1.8.7 ship + within-release patches）
+
+---
+
+## 〇、升级路径速查（按当前本地版本）
+
+如果你是已有 lifeos 用户，要升级到 v1.8.7，按本地版本对号入座：
+
+### 0.1 从 v1.8.6 升级（zero-friction，推荐路径）
+
+```bash
+1. cd ~/.claude/skills/life_OS && git pull origin main
+2. /version-check                       # 确认本地 1.8.7
+3. /install-agents --refresh            # 装新 2 个 watch 命令（verify-release-and-watch / notion-sync-and-watch）
+4. /verify-release v1.8.7               # 跑 11 个 check，全 ✅ 或 (10 PASS + 1 WARN)
+```
+
+**无迁移命令**。首次 archiver wrap-up（用户说"退朝"或"adjourn"）时会自动：
+- 创建 `pro/gotchas.md`（带 14 条 v1.8.4-1.8.7 提炼的种子）
+- archiver Phase 5 调 memory-keeper agent 完成 gotchas 抽取
+- retrospective Mode 0 patrol 系统化为 7 system tasks（lifeos-001 ~ 007）
+
+v1.8.7 新功能（全部按 spec 准备好，runtime 首次跑时激活）：
+- C6 gotchas + memory-keeper agent
+- B4 ScheduleWakeup self-driven loops
+- F11 i18n diff parity check 9（WARN 级）
+- F12 5 个 WHEN-NOT-TO-ADD 反模式边界文档
+- B5 evals_scenarios 必填（planner 强制）
+- A1 cascade seal spec proposal（仅 spec，archiver 不实施直到 v1.9/v2.0）
+- A3 concept hotness 阈值显式化
+- DR-10 md-only 本体论约束（无 escape hatch，永久承诺）
+- E9 status line enum（22 agent 输出契约统一）
+- E10 Conscious Patrol 路径 D（retrospective Mode 0 user-in-loop checkpoint）
+- Karpathy 4 心法 + DA-1/DA-2/DA-3 default anti-patterns
+
+详见 `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` 完整 RFC + DR-01 至 DR-11 决策审计。
+
+### 0.2 从 v1.8.5 升级（跨 2 版本，需补 v1.8.6 中间）
+
+v1.8.6 加了 md-only 强制（禁 `.yml` / `.json`），v1.8.7 又加 `.sql` / `.db` / `.sqlite` + 升级为本体论约束。
+
+```bash
+1. cd ~/.claude/skills/life_OS && git pull origin main   # 直接拉到 v1.8.7（v1.8.6 中间状态自动跳过）
+2. /version-check                       # 1.8.5 → 1.8.7 跨版本提示自动出现
+3. # 检查你本地 second-brain 是否含 .yml / .json / .sql / .db / .sqlite 文件（gitignored 例外不计）
+4. find ~/<your-second-brain> -type f \( -name '*.yml' -o -name '*.json' -o -name '*.sql' -o -name '*.db' -o -name '*.sqlite' \) -not -path '*/\.git/*' -not -path '*/\.claude/settings*' | head -20
+   # 找到的话，根据 DR-10 改 md 或加 gitignore 例外
+5. /install-agents --refresh
+6. /verify-release v1.8.7
+```
+
+**注意**：v1.8.5 → v1.8.7 跳过 v1.8.6 是安全的（v1.8.6 单纯禁扩展名扩展，v1.8.7 包含 v1.8.6 所有变更）。
+
+### 0.3 从 v1.8.4 或更早 v1.8.x 升级（跨 ≥3 版本）
+
+⚠️ 你跨过了 v1.8.5（hook layer 退役）+ v1.8.6（md-only YAML/JSON）+ v1.8.7（md-only ontological + 7 新功能 + E9/E10/Karpathy）。
+
+每个 minor patch 都 non-breaking 但加了 HARD RULES。推荐顺序：
+
+```bash
+1. 先读 release notes 了解累计变更：
+   - _meta/release-notes/v1.8.5.md
+   - _meta/release-notes/v1.8.6.md（如有，否则看 CHANGELOG.md v1.8.6 段）
+   - _meta/release-notes/v1.8.7.md
+2. 读 _meta/rfc/v1.8.5-cleanup-and-hardening.md（hook 退役 + EOU hardening，影响面大）
+3. 读 _meta/rfc/v1.8.7-openhuman-borrowed-patterns.md（v1.8.7 决策审计）
+4. 然后跟 v1.8.5 升级流程一样：git pull + /install-agents --refresh + /verify-release v1.8.7
+5. 第一次 session start 前检查 v1.8.5 hook 退役相关：
+   - 你的 ~/.claude/settings.json 里如果还有 life-os-* hook 注册，可保留也可清理（v1.8.5+ 不依赖 hook 但旧 hook 残留不影响）
+```
+
+### 0.4 从 v1.7.x 升级（major architectural change，最贵路径）
+
+⚠️ v1.8.0 是"100% LLM-native" pivot — 删除全部 Python tools + 全部 cron infrastructure。后续 v1.8.1-v1.8.7 持续清理 / 加 hardening / 加新功能。
+
+```bash
+1. **先读 v1.8.0 release notes** — 这是 architectural break point
+   - Python tools (memory.py / search.py / cli.py / 5 个 cron jobs) 全删
+   - Cron 退役（setup-cron.sh + launchd plists 全删 — v1.8.0 pivot 决策见 pro/CLAUDE.md §"Mode 1"）
+2. 备份你的 second-brain（重大架构升级前的标准动作）
+3. git pull origin main
+4. 解除旧 cron / launchd（如有）：
+   launchctl unload ~/Library/LaunchAgents/com.lifeos.*.plist 2>/dev/null
+   crontab -l | grep -v lifeos | crontab -
+5. 检查 .claude/settings.json 中 lifeos hook 残留（v1.8.5 退役后无需保留但不删也不报错）
+6. /install-agents --refresh
+7. /verify-release v1.8.7
+```
+
+v1.7 → v1.8.7 之间累积变更跨 ~8 个版本。第一次 session start 时 retrospective Mode 0 会跑跨版本检测并在 briefing 顶部输出升级摘要。
+
+### 0.5 全新安装（不是升级）
+
+如果是全新装：
+
+```bash
+# Claude Code
+/install-skill https://github.com/jasonhnd/life_OS
+
+# Gemini CLI / Antigravity / Codex CLI
+npx skills add jasonhnd/life_OS
+```
+
+新装直接拿到 v1.8.7 状态，无需走升级流程。
 
 ---
 
