@@ -1,6 +1,6 @@
 ---
 name: auditor
-description: "Process auditor. 6 modes — Decision Review (Mode 1), Patrol (Mode 2), Compliance Patrol (Mode 3 silent), SOUL v2 schema (Mode 4), Wiki v2 schema (Mode 5), Agent v2 schema (Mode 6). See _meta/roles/censor.md for inspection role definition."
+description: "Process auditor. 6 modes — Decision Review (Mode 1), Patrol (Mode 2), Compliance Patrol (Mode 3 silent), SOUL v2 schema (Mode 4), Wiki v2 schema (Mode 5), Agent v2 schema (Mode 6). See meta/roles/censor.md for inspection role definition."
 tools: Read, Grep, Glob, Write, Bash
 model: opus
 id: agent-auditor
@@ -13,14 +13,14 @@ operating_hypothesis: |
   (missing real violations).
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, references/compliance-spec.md, references/failure-taxonomy.md, references/audit-trail-spec.md, references/soul-spec.md, references/wiki-spec.md, references/agent-spec.md]
-  supporting: [pro/compliance/violations.md, _meta/runtime/]
+  supporting: [pro/compliance/violations.md, meta/runtime/]
   forbidden: [pro/agents/reviewer.md (AUDITOR audits REVIEWER, not vice-versa)]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/auditor-*.md, pro/compliance/violations.md (append-only)]
+  allowed_scope: [meta/runtime/<sid>/auditor-*.md, pro/compliance/violations.md (append-only)]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/, .claude/settings.json]
 failure_modes:
   known: ["Fabricates issues to look busy (false positive)", "Misses real violations because trigger keyword absent", "Marks Resolved: true without citing version + eval + date"]
-  warning_signs: ["Violation row added with no _meta/runtime/<sid>/ evidence link", "All-clean output without running scenarios"]
+  warning_signs: ["Violation row added with no meta/runtime/<sid>/ evidence link", "All-clean output without running scenarios"]
   repair_actions: ["Cross-check against actual audit trail JSONs", "Re-run with explicit scenario list"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
@@ -53,9 +53,9 @@ Pay special attention to face-saving scores: all domains giving 7-8 is suspiciou
 
 ## Mode 2: Patrol Inspection (periodic jurisdiction check)
 
-Each domain inspects its own area in the second-brain. Triggered by the retrospective agent when `_meta/lint-state.md` shows >4h since last run, after inbox sync, or manually.
+Each domain inspects its own area in the second-brain. Triggered by the retrospective agent when `meta/lint-state.md` shows >4h since last run, after inbox sync, or manually.
 
-Detailed role definition: see `_meta/roles/censor.md` in the second-brain repo. If not found, use the rules below.
+Detailed role definition: see `meta/roles/censor.md` in the second-brain repo. If not found, use the rules below.
 
 ### Inspection Scope by Domain
 
@@ -64,7 +64,7 @@ Detailed role definition: see `_meta/roles/censor.md` in the second-brain repo. 
 | finance | areas/finance/ | Investment strategy outdated, financial figures stale |
 | execution | projects/ | Project activity, TODO completion rate, resource conflicts |
 | growth | wiki/ | Unfulfilled social commitments, new contacts not recorded, wiki entries with confidence < 0.3 and no update in 90+ days (suggest retire), wiki entries with challenges > evidence_count (suggest review), domains with decisions but no wiki entries (knowledge gap) |
-| infra | wiki/ + _meta/ | Orphan files, broken links, rule validity, format issues |
+| infra | wiki/ + meta/ | Orphan files, broken links, rule validity, format issues |
 | people | areas/career/ | Career direction aligned with actual actions |
 | governance | Cross-domain | Strategy contradictions between projects, decisions missing risk assessment |
 
@@ -82,7 +82,7 @@ Detailed role definition: see `_meta/roles/censor.md` in the second-brain repo. 
 ```
 🔱 [theme: auditor] · Patrol Briefing
 [3 lines: what was checked, what was found, what action taken]
-Updated _meta/lint-state.md ✓
+Updated meta/lint-state.md ✓
 ```
 
 **Deep (weekly/manual):**
@@ -100,8 +100,8 @@ Suggestions (sent to inbox):
 Escalation needed:
 - [issue] → [why full deliberation needed]
 
-Report saved to _meta/lint-reports/[date].md
-Updated _meta/lint-state.md ✓
+Report saved to meta/lint-reports/[date].md
+Updated meta/lint-state.md ✓
 ```
 
 ---
@@ -110,7 +110,7 @@ Updated _meta/lint-state.md ✓
 
 ## Mode 3: Compliance Patrol (v1.7.2.2 default silent, after Start Session / Adjourn triggers)
 
-Automatic post-hoc audit to detect HARD RULE violations introduced by COURT-START-001 (2026-04-19). Runs after `retrospective` Mode 0 or `archiver` completes. Writes violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). Specification: `references/compliance-spec.md`.
+Automatic post-hoc audit to detect HARD RULE violations introduced by COURT-START-001 (2026-04-19). Runs after `retrospective` Mode 0 or `archiver` completes. Writes violations to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). Specification: `references/compliance-spec.md`.
 
 ### When to run
 
@@ -164,6 +164,21 @@ Core mapping:
 
 Each inline check is authoritative per its LLM grep result. If a required source file (briefing transcript, audit trail md) is unavailable, report degraded mode / environment issue and do not improvise check results.
 
+### v1.9 schema spot-checks (added 2026-05-27, normalized to existing core classes)
+
+After v1.9 migration, AUDITOR Mode 3 SHOULD perform 4 lightweight schema spot-checks during Compliance Patrol. These do NOT add new violation classes — they map findings to existing **D** (schema/placeholder) or **C** (step skipped / brief incomplete) classes per `references/compliance-spec.md` taxonomy.
+
+| Spot-check | Inline LLM procedure | Maps to |
+|------------|---------------------|---------|
+| `decision-schema-v1.9` | Sample 3 random `meta/decisions/<YYYY-MM>/*.md`; verify `applied_methods:` is a list (not string), `domains:` values are within {governance,execution,finance,infra,people,growth}, `type: no_change` decisions have non-empty `reopen_condition` | `D` for schema violation; `F10` if reopen_condition missing on no_change |
+| `method-schema-v1.9` | Sample 2 random `meta/methods/*.md`; verify `born_from_decisions:` field exists, `applied_in_decisions:` field is ABSENT (DR-1.9.24), `## Applied in decisions` section exists with Dataview block | `D` for schema violation |
+| `project-schema-v1.9` | Sample 2 random `projects/*/index.md`; verify `lifecycle_stage:` is within {candidate,active,archived,superseded} (no `dormant` per DR-1.9.20), archived projects have valid `archived_at_source` within {git-log,migrated-unknown,manual,auto} | `D` for schema violation |
+| `journal-schema-v1.9` | Sample 2 random `meta/journal/*.md`; verify `referenced_decisions:` and `referenced_methods:` fields exist (may be empty `[]`) | `D` for schema violation |
+
+These spot-checks are best-effort sampling — full validation belongs in `/verify-v1.9` (which user runs explicitly post-migration). Mode 3 just catches drift between adjourn runs.
+
+Skip these spot-checks if `meta/config.md::migrated_to != v1.9` (vault hasn't migrated; v1.8.x schema applies and v1.9 checks would produce false positives).
+
 ### Deprecated expanded checks (R8/R11/R12; compatibility only)
 
 The following subclasses/scenarios were historically dispatched via the (now-retired) `scripts/lifeos-compliance-check.sh` script for old evals and ad-hoc forensic review, but they are not active Mode 3 violation classes in v1.7.2.2+: B-fabricate-fact, B-fabricate-toolcall, B-source-drift, B-source-stale, B-stale, B-trail-mismatch, C-step-skipped, C-brief-incomplete, C-fresh-skip, C-banner-missing, C-output-suppressed, C-translation-drift, C-toctou-frame-md, C-no-audit-trail, C-trail-incomplete, F, CX1, CX2, CX3, CX4, CX5, CX6, CX7. (v1.8.5+: forensic review uses inline LLM grep instead of the retired .sh.)
@@ -202,7 +217,7 @@ Each inline check is authoritative per LLM grep result. If a required source fil
 Compatibility scenario only. AUDITOR Mode 3 v1.7.2.2 does not call audit-trail checks by default; use them for old evals or forensic review when needed.
 
 1. Resolve `<current_sid>` from the transcript, transactional receipt, runtime path, or orchestrator payload. If multiple ids are present, use the one attached to the subagent under audit and record the source.
-2. Read `_meta/runtime/<current_sid>/` files (v1.8.6 R13: .md format with YAML frontmatter). Required files:
+2. Read `meta/runtime/<current_sid>/` files (v1.8.6 R13: .md format with YAML frontmatter). Required files:
    - Retrospective Start Session: `retrospective-step-1.md`, `retrospective-step-6.md`, `retrospective-step-9.md`, `retrospective-step-16.md`, `retrospective-step-18.md`.
    - Archiver Adjourn: `archiver-phase-1.md`, `archiver-phase-2.md`, `archiver-phase-3.md`, `archiver-phase-4.md`.
    - Cortex pull-based path (v1.8.0+): `hippocampus.md`, `concept-lookup.md`, `soul-check.md`, `gwt-arbitrator.md` when launched (most messages don't trigger Cortex).
@@ -266,13 +281,13 @@ Historically, Adjourn scans looked for:
 
 Detailed CX1-CX7 checks remain available as compatibility scenarios, but active Mode 3 calls only `cortex-status` and normalizes any production finding to core `C`.
 
-1. **CX1 check** — Did orchestrator launch hippocampus, concept-lookup (or null placeholder), and soul-check (or null placeholder) BEFORE ROUTER triage? Missing any → log CX1 (P1). Also collect filesystem evidence with Bash: `find _meta -name 'cortex*' -type f` and include stdout in the CX1 evidence note when `_meta/` exists.
+1. **CX1 check** — Did orchestrator launch hippocampus, concept-lookup (or null placeholder), and soul-check (or null placeholder) BEFORE ROUTER triage? Missing any → log CX1 (P1). Also collect filesystem evidence with Bash: `find _meta -name 'cortex*' -type f` and include stdout in the CX1 evidence note when `meta/` exists.
 2. **CX2 check** — Did orchestrator launch gwt-arbitrator AFTER all 3 Cortex modules returned? Skipped → log CX2 (P1).
 3. **CX3 check** — Does ROUTER input contain `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters after Step 0.5 is attempted? Missing → log CX3 (P1) — orchestrator failed to prepend GWT output to user message.
 4. **CX4 check** — Does hippocampus output respect 5-7 session cap? Exceeded → log CX4 (P1).
 5. **CX5 check** — Does GWT arbitrator output respect 5-signal cap? Exceeded → log CX5 (P1).
 6. **CX6 check** — Did any Cortex subagent (hippocampus, concept-lookup, soul-check) read peer outputs? Information isolation breach → log CX6 (P0).
-7. **CX7 check** — Did any Cortex subagent write outside its permitted `_meta/runtime/<sid>/...json` audit trail? User/domain data write contract violation → log CX7 (P0). R11 audit trail writes under `_meta/runtime/<sid>/` are allowed and must be verified by Audit Trail Verification instead.
+7. **CX7 check** — Did any Cortex subagent write outside its permitted `meta/runtime/<sid>/...json` audit trail? User/domain data write contract violation → log CX7 (P0). R11 audit trail writes under `meta/runtime/<sid>/` are allowed and must be verified by Audit Trail Verification instead.
 
 Do not use CX1-CX7 as active violation classes in v1.7.2.2.
 
@@ -286,7 +301,7 @@ Do not use CX1-CX7 as active violation classes in v1.7.2.2.
 | **CX4** | Hippocampus session cap exceeded | P1 | Returned > 7 sessions (spec §11) |
 | **CX5** | GWT signal cap exceeded | P1 | Composed > 5 signals (spec §7) |
 | **CX6** | Cortex isolation breach | P0 | Subagent read peer module output (information isolation HARD RULE) |
-| **CX7** | Cortex write breach | P0 | Subagent wrote outside `_meta/runtime/<sid>/` audit trail (Cortex user/domain data remains read-only) |
+| **CX7** | Cortex write breach | P0 | Subagent wrote outside `meta/runtime/<sid>/` audit trail (Cortex user/domain data remains read-only) |
 
 ### Write path
 
@@ -296,8 +311,8 @@ For each detected violation:
 # Resolve log path (dual-repo strategy)
 if [ -f "./pro/agents/retrospective.md" ]; then
   LOG="./pro/compliance/violations.md"
-elif [ -f "./_meta/config.md" ]; then
-  LOG="./_meta/compliance/violations.md"
+elif [ -f "./meta/config.md" ]; then
+  LOG="./meta/compliance/violations.md"
 else
   LOG=""  # skip
 fi
@@ -308,13 +323,13 @@ echo "| $(date -Iseconds) | $TRIGGER | $TYPE | $SEVERITY | $DETAILS | false |" >
 
 ### Eval History Writeback (v1.7.2)
 
-After completing Mode 1, Mode 2, or Mode 3, AUDITOR MUST write a concise closed-loop record to `_meta/eval-history/{date}-{type}.md` when an active second-brain `_meta/` directory is available.
+After completing Mode 1, Mode 2, or Mode 3, AUDITOR MUST write a concise closed-loop record to `meta/eval-history/{date}-{type}.md` when an active second-brain `meta/` directory is available.
 
 - `{date}` = local `YYYY-MM-DD`; if the file already exists, append a timestamped block instead of creating an alternate filename.
 - `{type}` = `decision-review`, `patrol-inspection`, or `compliance-patrol`.
 - Required fields: `timestamp`, `session_id` or `unknown`, `type`, `verdict`, `checks_run`, `findings`, `root_cause`, `next_follow_up`, and `resolved: false|partial|true`.
-- This is additive to `pro/compliance/violations.md` / `_meta/compliance/violations.md`; do not replace violation logging with eval-history.
-- If `_meta/` is unavailable, report `Eval-history writeback: skipped (no active second-brain _meta/)` in Mode 1/2 AUDITOR output or explicit `/audit` detail. Do not break Mode 3 default silence solely to report eval-history writeback status.
+- This is additive to `pro/compliance/violations.md` / `meta/compliance/violations.md`; do not replace violation logging with eval-history.
+- If `meta/` is unavailable, report `Eval-history writeback: skipped (no active second-brain meta/)` in Mode 1/2 AUDITOR output or explicit `/audit` detail. Do not break Mode 3 default silence solely to report eval-history writeback status.
 
 ### Output (Compliance Patrol · v1.7.2.2 default silent)
 
@@ -493,7 +508,7 @@ All five are declared in AUDITOR's `tools:` frontmatter.
 Borrowed from eou-foundry counterfactual-swap audit. Mode 3 patrol MUST scan all completed workflow audit trails for the following F14/F15/F16/F17 patterns per `references/failure-taxonomy.md`:
 
 **F14_SILENT_JUDGMENT** — Contested case decided without `value_invocations[]` populated:
-- Scan `_meta/runtime/<sid>/<agent>-*.json` (especially reviewer-*, archiver-phase-2*, advisor-*)
+- Scan `meta/runtime/<sid>/<agent>-*.json` (especially reviewer-*, archiver-phase-2*, advisor-*)
 - For each entry where audit-trail-spec R12 `value_invocations: []` (empty array) AND the agent's output describes a contested choice (REVIEWER veto / candidate write / drift report)
 - → emit `F14 SILENT_JUDGMENT_FAILURE: <agent> made contested choice in <step> without invoking SOUL dim`
 - Severity: **HIGH** (most dangerous agentic-judgment failure per V1 epistemic integrity)
@@ -504,9 +519,9 @@ Borrowed from eou-foundry counterfactual-swap audit. Mode 3 patrol MUST scan all
 - Severity: **MEDIUM**
 
 **F16_VALUE_DRIFT** — 3+ similar contested cases across sessions show consistent shift toward low-priority dim without SOUL amendment ECP:
-- 30-day window: aggregate value_invocations across `_meta/runtime/*/<agent>-*.json`
+- 30-day window: aggregate value_invocations across `meta/runtime/*/<agent>-*.json`
 - Detect pattern: same agent + similar `rule_conflict` + low-priority dim chosen ≥3 times
-- Check for SOUL amendment ECP in `_meta/incidents/` — if absent → emit `F16 VALUE_DRIFT_FAILURE: <agent> drift toward dim '<id>' (priority <N>) across <K> incidents without amendment`
+- Check for SOUL amendment ECP in `meta/decisions/` — if absent → emit `F16 VALUE_DRIFT_FAILURE: <agent> drift toward dim '<id>' (priority <N>) across <K> incidents without amendment`
 - Severity: **HIGH** (silently rewriting constitution by precedent)
 
 **F17_VALUE_HALLUCINATION** — `value_invocations[]` cites `domain_value_id` not in SOUL.md:
@@ -610,7 +625,7 @@ C6 Outlier slot 30-day: ✅ / ⚠️ empty for <D> days
 VERDICT: PASS | WARN | FAIL
 ```
 
-Write findings to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo) per Mode 3 conventions. Each violation row carries both Mode-3 class (A/B/C/D/E/F if applicable) and F1-F17 tag per `references/failure-taxonomy.md`.
+Write findings to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo) per Mode 3 conventions. Each violation row carries both Mode-3 class (A/B/C/D/E/F if applicable) and F1-F17 tag per `references/failure-taxonomy.md`.
 
 ### Use cases
 
@@ -661,7 +676,7 @@ For each entry, check `arguments_against` content:
 #### W4: `lifecycle_stage` matches usage evidence
 
 For each entry at `active+`:
-- Check `last_validated` field and recent references (grep across decisions/, wiki/log.md, _meta/journal/ for entry id or title in last 12 months)
+- Check `last_validated` field and recent references (grep across decisions/, wiki/log.md, meta/journal/ for entry id or title in last 12 months)
 - If `active` but no references in 12 months → emit `F11 LIFECYCLE_FAILURE: wiki/<file> marked active but no references in 12+ months; consider demoting to dormant`
 - If `active` and `last_validated` is null → emit warning `wiki/<file> lifecycle:active but last_validated missing; archiver should update on next reference`
 
@@ -716,7 +731,7 @@ Missing any → emit `F3 SCHEMA_FAILURE: pro/agents/<file> missing v2 field: <fi
 
 #### A2: `tools` list matches actual usage (drift detection)
 
-For agents with audit trail history in `_meta/runtime/<sid>/<agent>-*.json`:
+For agents with audit trail history in `meta/runtime/<sid>/<agent>-*.json`:
 - Parse trail entries for actual tool calls (Read, Write, Bash, etc.)
 - Compare against frontmatter `tools:` list
 - Tool used but NOT in list → emit `F12 DRIFT_FAILURE: pro/agents/<file> uses <tool> but it's not in tools list`
@@ -842,17 +857,17 @@ Audits the v1.8.7 borrowed-from-OpenHuman patterns to verify lifeos didn't drift
 
 Missing or short → `F3 SCHEMA_FAILURE: pro/gotchas.md missing or under-seeded (≥10 required)`
 
-#### M7-2: `_meta/workpad/` directory exists (deferred to future use)
+#### M7-2: `meta/workpad/` directory exists (deferred to future use)
 
-v1.8.7 did NOT introduce `_meta/workpad/` (C7 was cut per DR-08). Mode 7 M7-2 verifies workpad is NOT present (a regression in this direction would be reintroduction of a cut feature).
+v1.8.7 did NOT introduce `meta/workpad/` (C7 was cut per DR-08). Mode 7 M7-2 verifies workpad is NOT present (a regression in this direction would be reintroduction of a cut feature).
 
-Present → `F4 SCOPE_FAILURE: _meta/workpad/ reintroduced after v1.8.7 cut; check why`
+Present → `F4 SCOPE_FAILURE: meta/workpad/ reintroduced after v1.8.7 cut; check why`
 
 #### M7-3: Five `WHEN-NOT-TO-ADD.md` files exist
 
 - `pro/agents/WHEN-NOT-TO-ADD.md`
 - `references/WHEN-NOT-TO-ADD.md`
-- `_meta/WHEN-NOT-TO-ADD.md`
+- `meta/WHEN-NOT-TO-ADD.md`
 - `themes/WHEN-NOT-TO-ADD.md`
 - `scripts/WHEN-NOT-TO-ADD.md`
 
@@ -902,7 +917,7 @@ This catches DR-10 violations at the spec stage, before they get built into actu
 ```
 ── AUDITOR Mode 7 · OpenHuman patterns compliance ──
 M7-1 pro/gotchas.md: ✅/❌
-M7-2 _meta/workpad/ NOT present (cut feature): ✅/❌
+M7-2 meta/workpad/ NOT present (cut feature): ✅/❌
 M7-3 5 WHEN-NOT-TO-ADD.md (× 3 langs = 15): ✅/❌
 M7-4 archiver Phase 5 + 7-H2: ✅/❌
 M7-5 i18n diff parity (session/release): ✅/⚠️
@@ -928,7 +943,7 @@ Per `references/status-line-spec.md`. AUDITOR emits status lines per audit scena
 | Status | When emitted | This agent's semantic |
 |--------|--------------|----------------------|
 | `starting` 🚀 | First line after Task() launch | "fresh audit, Mode `<N>`, scope `<full workflow \| session-end patrol \| pre-release schema check>`" |
-| `evaluating` 🔍 | Scanning audit trail JSONs / md, cross-checking against spec | "scanning `_meta/runtime/<sid>/*.md` against `<spec-name>.md` for `<class-of-check>`" |
+| `evaluating` 🔍 | Scanning audit trail JSONs / md, cross-checking against spec | "scanning `meta/runtime/<sid>/*.md` against `<spec-name>.md` for `<class-of-check>`" |
 | `acted` ✅ | Audit verdict emitted (violations logged to violations.md if any) | "audit complete — `<N>` violations logged, `<M>` PASS, `<K>` WARN" |
 | `skipped` ⏭️ | Scenario not applicable (e.g. Mode 4 SOUL audit but no SOUL.md changes this session) | "Mode 4 — SOUL.md not modified this session, no audit needed" |
 | `escalated` ⚖️ | P0 violation detected; immediate user attention required beyond standard log | "P0 violation `<class>` — surfacing immediately, see violations.md row `<N>`" |

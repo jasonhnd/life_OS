@@ -4,9 +4,9 @@
 
 ## 什么 **不** 属于这里
 
-1. **单次会话报告、运行时工件、audit trail** —— 如"2026-05-25 archiver 的输出"。→ 去：`_meta/runtime/<sid>/` 或 `_meta/sessions/<sid>.md`。
+1. **单次会话报告、运行时工件、audit trail** —— 如"2026-05-25 archiver 的输出"。→ 去：`meta/runtime/<sid>/` 或 `meta/sessions/<sid>.md`。
 2. **面向用户的教程或快速上手** —— 如"如何安装 lifeos"。→ 去：`README.md` / `docs/` / `gitbooks/`。
-3. **内部设计笔记 / 头脑风暴 / 草稿** —— 如"v2.0 cascade seal 的想法"。→ 去：`_meta/rfc/v<X.Y>-*.md`（RFC）或 `_meta/workpad/`（若引入）。
+3. **内部设计笔记 / 头脑风暴 / 草稿** —— 如"v2.0 cascade seal 的想法"。→ 去：`meta/rfc/v<X.Y>-*.md`（RFC）或 `meta/workpad/`（若引入）。
 4. **Agent 定义或 theme 文件** —— 那是 `pro/agents/` 和 `themes/` 专属领域。
 5. **纯叙事无规范内容** —— 如"lifeos 各版本历史"。→ 去：`CHANGELOG.md` / RFC 引用段。
 6. **没有三语镜像的 spec** —— 每个 `references/*-spec.md` 合入前必须先准备好 `i18n/zh/references/<同名>.md` 和 `i18n/ja/references/<同名>.md`。不允许残缺 spec。
@@ -36,6 +36,6 @@
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - 模式来源：`tinyhumansai/openhuman` `.claude/rules/README.md`
 - 配套：`references/i18n-diff-parity-spec.md`（v1.8.7 保证本目录所有文件三语对齐）

@@ -57,7 +57,7 @@ DISPATCHER 在派遣令中分配了 execution 领域时触发。PLANNER 如果�
 
 ### 战略优先级加权
 
-若 `_meta/STRATEGIC-MAP.md` 存在且被分析的项目具有战略角色：
+若 `meta/STRATEGIC-MAP.md` 存在且被分析的项目具有战略角色：
 
 - **critical-path**（关键路径）：执行紧迫度提升。延迟会阻塞整条战略线。把这纳入优先级建议。
 - **enabler**（赋能）：若 critical-path 项目在等待此 enabler 的输出，即使本项目截止日期还远也当作紧急。

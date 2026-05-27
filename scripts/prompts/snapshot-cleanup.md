@@ -12,26 +12,26 @@
 
 - `清理 SOUL snapshots` / `snapshot cleanup`
 - `归档旧 snapshot` / `archive old snapshots`
-- `_meta/snapshots/soul/ 太多了`
+- `meta/snapshots/soul/ 太多了`
 
 ## Goal
 
-Apply 30/90 day retention policy to `_meta/snapshots/soul/`:
-- 30+ days old → move to `_meta/snapshots/soul/_archive/`
+Apply 30/90 day retention policy to `meta/snapshots/soul/`:
+- 30+ days old → move to `meta/snapshots/soul/_archive/`
 - 90+ days old → delete
 
 ## Steps
 
-1. `Glob _meta/snapshots/soul/*.md` (exclude `_archive/`)
+1. `Glob meta/snapshots/soul/*.md` (exclude `_archive/`)
 2. For each file, parse `captured_at` from frontmatter (ISO8601) OR fall back
    to filename `YYYY-MM-DD-HHMM` parsing
 3. Compute age in days from current UTC date
 4. Bucket:
    - `age < 30` → leave (active)
-   - `30 <= age < 90` → move to `_meta/snapshots/soul/_archive/{file}`
+   - `30 <= age < 90` → move to `meta/snapshots/soul/_archive/{file}`
      (use `Bash: mv` or Read+Write+Delete)
    - `age >= 90` → delete (`Bash: rm`)
-5. Repeat the bucket pass on `_meta/snapshots/soul/_archive/` to delete files
+5. Repeat the bucket pass on `meta/snapshots/soul/_archive/` to delete files
    that are now > 90 days old (they were archived previously)
 
 ## Report to user

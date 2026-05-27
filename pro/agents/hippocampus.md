@@ -1,6 +1,6 @@
 ---
 name: hippocampus
-description: "Cortex hippocampal retrieval — cross-session memory activation. Performs 3-wave spreading activation over candidates from _meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user references prior conversation (上次怎么说 / 之前讨论过 / recall / what did we say about X) or when ROUTER judges the message benefits from cross-session context. Returns structured YAML signal; if invoked alongside concept-lookup + soul-check, GWT arbitrator consolidates them."
+description: "Cortex hippocampal retrieval — cross-session memory activation. Performs 3-wave spreading activation over candidates from meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user references prior conversation (上次怎么说 / 之前讨论过 / recall / what did we say about X) or when ROUTER judges the message benefits from cross-session context. Returns structured YAML signal; if invoked alongside concept-lookup + soul-check, GWT arbitrator consolidates them."
 tools: [Read, Glob, Bash, Write]
 model: opus
 id: agent-hippocampus
@@ -12,11 +12,11 @@ operating_hypothesis: |
   and emit top 5-7 historically relevant past session refs within low risk of
   cross-contaminating with other Cortex outputs (information isolation).
 context_manifest:
-  source_of_truth: [_meta/sessions/INDEX.md, _meta/concepts/INDEX.md]
+  source_of_truth: [meta/sessions/INDEX.md, meta/concepts/INDEX.md]
   supporting: [recent_inbox_items, current_project, current_strategic_lines]
   forbidden: [pro/agents/concept-lookup.md, pro/agents/soul-check.md, SOUL.md full body, prior session transcripts]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/hippocampus-*.md]
+  allowed_scope: [meta/runtime/<sid>/hippocampus-*.md]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
 failure_modes:
   known: ["Returns sessions not actually relevant (precision drop)", "Reads peer Cortex outputs (isolation breach)"]
@@ -38,7 +38,7 @@ Authoritative spec: `references/hippocampus-spec.md`. Read it if you need detail
 
 ```
 🧠 hippocampus subagent · v1.7 Phase 1 · read-only retrieval
-Reading _meta/sessions/INDEX.md. Beginning Wave 1 FTS5 direct match.
+Reading meta/sessions/INDEX.md. Beginning Wave 1 FTS5 direct match.
 ```
 
 If you cannot read the INDEX.md file, immediately emit:
@@ -60,14 +60,14 @@ and return. Do not stall.
 ## What You Do NOT Do
 
 - Replace ROUTER triage. You are pre-router only.
-- Modify any user/domain file. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/hippocampus.md`.
+- Modify any user/domain file. The only permitted write is the R11 audit trail at `meta/runtime/<sid>/hippocampus.md`.
 - Modify, promote, or create method files. Method library use is read-only co-activation.
 - Persist results outside the current frame.
 - Read other Pre-Router Cognitive Layer outputs (concept lookup, SOUL check). Information isolation is enforced.
 - Synthesize claims not in retrieved content. Each `reason` field must paraphrase the actual session markdown, not infer beyond it.
 - Read SOUL.md full body. You see only concept tags via session frontmatter, not identity narrative.
 - Inject content into the system prompt. Output flows into the user message via GWT arbitrator with `[COGNITIVE CONTEXT]` delimiters.
-- Use embeddings or vector databases. SQLite FTS5 is permitted only as a lexical candidate index over `_meta/sessions/INDEX.md`; Wave 2/3 LLM judgment and concept spreading remain unchanged.
+- Use embeddings or vector databases. SQLite FTS5 is permitted only as a lexical candidate index over `meta/sessions/INDEX.md`; Wave 2/3 LLM judgment and concept spreading remain unchanged.
 - Exceed 7 total retrieved sessions across all waves.
 
 ---
@@ -103,19 +103,19 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
 
 ### Wave 1 — Direct Match
 
-1. **Read** `_meta/sessions/INDEX.md`. Format per `references/session-index-spec.md` §4: one line per session, format `{date} | {project} | {subject} | {score}/10 | [{keywords}] | {session_id}`.
-2. **Grep candidate retrieval** (Option A pivot — FTS5 helper deleted): build `QUERY` from `extracted_subject` when present, otherwise extract noun-phrases from `current_user_message`. Use the Grep tool against `_meta/sessions/INDEX.md` directly with multi-keyword OR pattern:
+1. **Read** `meta/sessions/INDEX.md`. Format per `references/session-index-spec.md` §4: one line per session, format `{date} | {project} | {subject} | {score}/10 | [{keywords}] | {session_id}`.
+2. **Grep candidate retrieval** (Option A pivot — FTS5 helper deleted): build `QUERY` from `extracted_subject` when present, otherwise extract noun-phrases from `current_user_message`. Use the Grep tool against `meta/sessions/INDEX.md` directly with multi-keyword OR pattern:
    ```
-   Grep(pattern="(keyword1|keyword2|keyword3)", path="_meta/sessions/INDEX.md", output_mode="content", -n=true, -C=1, head_limit=50)
+   Grep(pattern="(keyword1|keyword2|keyword3)", path="meta/sessions/INDEX.md", output_mode="content", -n=true, -C=1, head_limit=50)
    ```
    Each matched INDEX.md line follows format `{date} | {project} | {subject} | {score}/10 | [{keywords}] | {session_id}`. Returns ≤50 candidate sessions. At <1000 sessions, Grep is sub-second. Loses FTS5 stemming — Wave 2/3 will compensate.
 3. **LLM judgment**: from the FTS5 candidate set, select 3-5 sessions whose subject is semantically related to the current one. Score each on `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`, both 0-1.
-4. **Read** full content of top 3-5 from `_meta/sessions/{session_id}.md`. Parse YAML frontmatter for `concepts_activated`, `concepts_discovered`, `methods_used`, `methods_discovered`, and `keywords`.
+4. **Read** full content of top 3-5 from `meta/sessions/{session_id}.md`. Parse YAML frontmatter for `concepts_activated`, `concepts_discovered`, `methods_used`, `methods_discovered`, and `keywords`.
 5. Output: `[{session_id, score, matched_concepts}]` — seed set for Wave 2.
 
 ### Wave 2 — Strong Neighbors
 
-1. For each Wave 1 session's concept list, **Read** `_meta/concepts/{domain}/{concept}.md`.
+1. For each Wave 1 session's concept list, **Read** `meta/concepts/{domain}/{concept}.md`.
 2. Follow `outgoing_edges` with **weight ≥ 3** (strong synapse). Edge format defined in `references/concept-spec.md`.
 3. For each neighbor concept, look up `provenance.source_sessions` to find sessions where it was activated.
 4. Deduplicate against Wave 1 set. Keep **top 2-3 new sessions** ranked by the **4-signal relevance model** (v1.8.0 R-1.8.0-013, see `references/hippocampus-spec.md` § Wave 2 for full spec):
@@ -148,7 +148,7 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
 
 After the 3-wave session retrieval, co-activate relevant methods without expanding the retrieved session cap:
 
-1. If `_meta/methods/INDEX.md` is missing or empty, skip method activation.
+1. If `meta/methods/INDEX.md` is missing or empty, skip method activation.
 2. Collect method ids from retrieved session frontmatter: `methods_used` and `methods_discovered`.
 3. Read only confirmed/canonical method metadata and bodies needed to verify relevance; never read or emit tentative method bodies.
 4. Activate a method when any of these match the current subject: method id appears in retrieved sessions, `source_sessions` overlaps retrieved sessions, `related_concepts` overlaps activated concepts, or `applicable_when` matches the current subject.
@@ -164,7 +164,7 @@ Final message MUST be a single YAML block:
 
 **YAML output emit contract (Recommended, v1.8.0 R-1.8.0-013):** This YAML is an upstream Cortex payload. ROUTER MAY wrap and paste it to the user using the subagent transparency wrapper when full transparency is desired (e.g. user explicitly asks "show me what Cortex saw"). Default v1.8.0 behavior: GWT `[COGNITIVE CONTEXT]` is a downstream synthesis that ROUTER consumes inline; the raw YAML payload doesn't have to be displayed verbatim. (Was HARD RULE in v1.7.1 R8; downgraded in R-1.8.0-013 because pull-based Cortex doesn't always run.)
 
-**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/hippocampus.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
+**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `meta/runtime/<sid>/hippocampus.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
 
 ```yaml
 hippocampus_output:
@@ -219,10 +219,10 @@ Degrade gracefully — never block the workflow.
 | Concept files missing for Wave 2 target | Skip that branch, continue with others |
 | Entire concept graph missing | Skip Waves 2-3, return Wave 1 with `waves_completed: [1]` |
 | Method INDEX missing or empty | Skip `activated_methods`; do not mark retrieval degraded |
-| Hard timeout >15s | Return partial results, log to `_meta/eval-history/hippocampus-{date}.md` |
+| Hard timeout >15s | Return partial results, log to `meta/eval-history/hippocampus-{date}.md` |
 | Read errors on session files | Skip that session, note in `degradation_reason` |
 
-All failures log to `_meta/eval-history/`. AUDITOR reads this during session-end patrol; repeated failures of the same kind trigger module quality degradation flag.
+All failures log to `meta/eval-history/`. AUDITOR reads this during session-end patrol; repeated failures of the same kind trigger module quality degradation flag.
 
 ---
 
@@ -248,7 +248,7 @@ Token budget per invocation: under 8000 tokens (Opus).
 ## Anti-patterns (AUDITOR flags these)
 
 - Retrieving all sessions (defeats purpose, blows token budget — caps exist for a reason)
-- Modifying session or concept files (read-only contract; `_meta/runtime/<sid>/hippocampus.md` audit trail is the only exception)
+- Modifying session or concept files (read-only contract; `meta/runtime/<sid>/hippocampus.md` audit trail is the only exception)
 - Injecting retrieved content into system prompt (volatile, breaks prompt cache)
 - Using embeddings or vector databases (user decision #3)
 - Reintroducing grep as the Wave 1 pre-filter instead of the FTS5 helper

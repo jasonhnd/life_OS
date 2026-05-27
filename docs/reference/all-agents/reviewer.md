@@ -22,7 +22,7 @@ REVIEWER 在"起草-评议-执行"流水线中有两次触发：
 - 所有领域 agent 的完整报告（评议执行模式）
 - `SOUL.md`（如存在）
 - `wiki/INDEX.md`（如存在）
-- `_meta/STRATEGIC-MAP.md` 中与当前决策相关的 flow graph
+- `meta/STRATEGIC-MAP.md` 中与当前决策相关的 flow graph
 
 **不接收**：
 - 任何 agent 的内部思考过程
@@ -119,7 +119,7 @@ REVIEWER 在"起草-评议-执行"流水线中有两次触发：
 
 ### 5. Strategic Map 一致性检查
 
-若 `_meta/STRATEGIC-MAP.md` 存在：
+若 `meta/STRATEGIC-MAP.md` 存在：
 
 **下游传播**：
 - 如本决策会改变流向下游的交付物或结论（通过 `flows_to`）：

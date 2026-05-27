@@ -112,7 +112,7 @@ Finance 和 Execution 分差 4 分 [D:finance-score-6][D:execution-score-2],
 
 Cited signals:
 1. S:claude-20260419-1238
-   Source: _meta/sessions/claude-20260419-1238.md
+   Source: meta/sessions/claude-20260419-1238.md
    Content match: "Session ran 5 revision rounds on payment gateway spec.
      Each round tightened governance controls. Final GOVERNANCE score
      5/10 due to incomplete fraud-response plan."
@@ -262,7 +262,7 @@ validation:
 signal_sources:
   - id: S:claude-20260419-1238
     type: session
-    file: _meta/sessions/claude-20260419-1238.md
+    file: meta/sessions/claude-20260419-1238.md
     producer: hippocampus
   - id: SOUL:risk-tolerance-v3
     type: soul_dimension
@@ -270,7 +270,7 @@ signal_sources:
     producer: soul_check
   - id: C:method:iterative-document-refinement
     type: concept
-    file: _meta/concepts/method/iterative-document-refinement.md
+    file: meta/concepts/method/iterative-document-refinement.md
     producer: concept_lookup
   - id: D:GOVERNANCE-score-5
     type: domain_score
@@ -282,7 +282,7 @@ signal_sources:
     producer: wiki_index
   - id: P:avoids-family-topic-on-weekends
     type: pattern
-    ref: _meta/user-patterns.md#avoids-family-topic-on-weekends
+    ref: meta/user-patterns.md#avoids-family-topic-on-weekends
     producer: retrospective
 ```
 
@@ -340,7 +340,7 @@ Narrator 和 Validator 之间**没有用户标志**可以关闭。原因:
 - 安全模型: 用户想关掉 Validator 的动机 99% 是"我不喜欢看方括号"——这不应该威胁 Cortex 的事实守门
 - 如果你真的不喜欢方括号,解法是前一条(一次性拿 un-cited 版本),不是永久关 Validator
 
-**唯一的永久关闭**: 编辑 `_meta/config.md`,`narrator_validator_enabled: false`。这会让 Narrator 输出的 citation **不被验证**——你仍然看到方括号,但它们可能是错的。**不推荐**。
+**唯一的永久关闭**: 编辑 `meta/config.md`,`narrator_validator_enabled: false`。这会让 Narrator 输出的 citation **不被验证**——你仍然看到方括号,但它们可能是错的。**不推荐**。
 
 ---
 
@@ -353,7 +353,7 @@ Narrator 和 Validator 之间**没有用户标志**可以关闭。原因:
 - 任一 session `citation_groundedness < 7/10`: AUDITOR 标为质量事件
 - 每周 `regeneration_count > 1` 的趋势: AUDITOR 标为 "narrator drift"
 
-这些指标会出现在 `_meta/eval-history/{date}-{project}.md` 里,并被 RETROSPECTIVE Mode 0 扫描(详见 [auditor-eval-history.md](./auditor-eval-history.md))。
+这些指标会出现在 `meta/eval-history/{date}-{project}.md` 里,并被 RETROSPECTIVE Mode 0 扫描(详见 [auditor-eval-history.md](./auditor-eval-history.md))。
 
 ### Validator 为什么用 sonnet 不用 haiku?
 
@@ -413,9 +413,9 @@ Validator 不只检查 **"signal 存在"**,还检查 **"content 支持 claim"**�
 
 某个 `signal_id` 指向的文件被删除或改名了。常见原因:
 
-- 你手工在 `_meta/sessions/` 里删了某个历史 session 文件
+- 你手工在 `meta/sessions/` 里删了某个历史 session 文件
 - Git 分支切换后索引不一致
-- 概念被 retire 到 `_meta/concepts/_archive/`
+- 概念被 retire 到 `meta/concepts/_archive/`
 - SOUL 维度被重命名或删除
 
 **trace 的原始 citation 仍保留**——你知道它**原本指向哪**,只是那个文件暂时/永久没了。如果是意外删除,从 git 历史恢复;如果是归档,内容仍在 `_archive/` 里手动查。
@@ -425,7 +425,7 @@ Validator 不只检查 **"signal 存在"**,还检查 **"content 支持 claim"**�
 查 eval-history:
 
 ```bash
-grep -r "regeneration_count" _meta/eval-history/ | tail -20
+grep -r "regeneration_count" meta/eval-history/ | tail -20
 ```
 
 如果 `regeneration_count > 1` 的比例高(超过 30%),可能原因:
@@ -438,7 +438,7 @@ grep -r "regeneration_count" _meta/eval-history/ | tail -20
 
 - **一次性**: `给我一版不带 citation 的奏折`——ROUTER 返回 Step 7 原始输出
 - **永久关闭引用显示但保留验证**: v1.7 不支持(方括号是 citation 的物理载体,没有就无法 trace)
-- **永久关闭整个机制**: `_meta/config.md` 里 `narrator_validator_enabled: false`。**不推荐**——这相当于拿掉防编造的结构性保证
+- **永久关闭整个机制**: `meta/config.md` 里 `narrator_validator_enabled: false`。**不推荐**——这相当于拿掉防编造的结构性保证
 
 ### "Citation 里显示 `SOUL:X` 但我 SOUL.md 里没有这个维度"
 
@@ -446,7 +446,7 @@ grep -r "regeneration_count" _meta/eval-history/ | tail -20
 
 1. **版本号不匹配**: citation 形如 `SOUL:risk-tolerance-v3` 的 `-v3` 后缀是 dimension 的修订版号。如果你重写了 SOUL 维度但 version 没更新,引用指向的是**旧版本**。解决: 在维度被重写时手工 bump version 号,或让 SOUL 的自动写入机制生成 v4
 2. **registry stale**: signal registry 是 session-scoped 的,如果某次 session 的 registry 被写入磁盘但 SOUL 本身后续被改,trace 时会显示 "⚠️ signal no longer resolvable"——这是正常行为
-3. **前缀错误**: Narrator 不应该发明新前缀,但如果真的出现了非标准前缀(如 `SOULS:` 或 `soul:`),Validator 会标为 `format_error` 并触发重写。如果你还是看到了,说明 Validator 被绕过——检查 `_meta/config.md` 是否被关闭
+3. **前缀错误**: Narrator 不应该发明新前缀,但如果真的出现了非标准前缀(如 `SOULS:` 或 `soul:`),Validator 会标为 `format_error` 并触发重写。如果你还是看到了,说明 Validator 被绕过——检查 `meta/config.md` 是否被关闭
 
 ---
 

@@ -12,7 +12,7 @@ supersedes: wiki.v1 (v1.8.4 以前；v1 エントリは 2027-05-23 に自動 dep
 
 Wiki はシステムのナレッジアーカイブ —— 世界に関する再利用可能な結論の生きたコレクション。second-brain の `wiki/` ディレクトリに格納される。
 
-> **v1.8.5 wiki v2 ピボット —— eou-foundry より借用**: Wiki エントリはもはや confidence/evidence metadata を持つ自由形式の散文ではない。v2 エントリは構造化された frontmatter（6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against）を持つ。RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 5 に従う。
+> **v1.8.5 wiki v2 ピボット —— eou-foundry より借用**: Wiki エントリはもはや confidence/evidence metadata を持つ自由形式の散文ではない。v2 エントリは構造化された frontmatter（6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against）を持つ。RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 5 に従う。
 
 > **v2.0 将来の方向（v1.8.7 A1 仕様提案）**：`references/memory-tree-spec.md`（status: proposal）が wiki + sessions の L0 → L1 → L2 → L3 cascade seal アーキテクチャを定義、`tinyhumansai/openhuman` Memory Tree から借用。v1.8.7 では未実装 —— 将来の方向と根拠は当該仕様参照。
 
@@ -24,14 +24,14 @@ Wiki はシステムのナレッジアーカイブ —— 世界に関する再�
 | `user-patterns.md` | 何をするか（行動パターン）| "金融次元を回避する傾向" |
 | `SOUL.md` | 誰であるか（価値観、人格）—— **v2 schema は `references/soul-spec.md` 参照** | "Truth over comfort"（priority 1）|
 | `wiki/` | 何を知っているか —— 宣言的知識 —— **v2 schema 本ドキュメント** | "日本の NPO 融資には貸金業法の免除なし" |
-| `_meta/concepts/` | シナプスグラフ —— アイデアがどう繋がるか | "company-a-holding" ノードに重み付きエッジ |
-| `_meta/methods/` | 手続き的記憶 —— 再利用可能なワークフロー | "5 段階品質ドキュメント改善" |
+| `meta/concepts/` | シナプスグラフ —— アイデアがどう繋がるか | "company-a-holding" ノードに重み付きエッジ |
+| `meta/methods/` | 手続き的記憶 —— 再利用可能なワークフロー | "5 段階品質ドキュメント改善" |
 
 **wiki マテリアルでない**（別の場所へ）：
 - アイデンティティ / 価値 / 個人的好み → `SOUL.md` v2
 - 行動パターン → `user-patterns.md`
-- 手続き的ワークフロー → `_meta/methods/`
-- 概念レベル関連 → `_meta/concepts/`
+- 手続き的ワークフロー → `meta/methods/`
+- 概念レベル関連 → `meta/concepts/`
 
 ## 原則（v1 保持）
 

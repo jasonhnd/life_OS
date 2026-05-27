@@ -30,21 +30,21 @@
 在当前目录判断处于哪种情境：
 
 - 当前目录是 Life OS 系统仓库（含 `SKILL.md` + `pro/agents/` + `themes/`）→ 问用户：a) 连接 second-brain  b) 我在开发 Life OS，绑定本仓库  c) 新建 second-brain。选 b 跳过步骤 3-7（不需要同步）。
-- 当前目录是 second-brain（含 `_meta/` + `projects/`）→ 正常进入步骤 3。
+- 当前目录是 second-brain（含 `meta/` + `projects/`）→ 正常进入步骤 3。
 - 其他情况 → 当作普通项目仓库，去配置路径找 second-brain。
 
 为什么必要：不区分的话，在开发 Life OS 本身时会触发同步，把开发数据写进 second-brain。
 
 ### Step 3. DATA LAYER CHECK — 数据层检测
 
-检查 `_meta/config.md` 是否存在。
+检查 `meta/config.md` 是否存在。
 
 - 存在 → 继续步骤 4。
 - 不存在 → FIRST-RUN 模式：
   1. 报告"📦 首次会话 — 未检测到 second-brain"。
   2. 问存储位置：a) GitHub  b) Google Drive  c) Notion。可多选。
-  3. 在目标路径创建目录结构：`_meta/`、`projects/`、`areas/`、`wiki/`、`inbox/`、`archive/`、`templates/`。
-  4. 写 `_meta/config.md` 记录所选 backend。
+  3. 在目标路径创建目录结构：`meta/`、`projects/`、`areas/`、`wiki/`、`inbox/`、`archive/`、`templates/`。
+  4. 写 `meta/config.md` 记录所选 backend。
   5. 跳过步骤 4-7（没数据可同步），直接到步骤 8。
   6. 晨报输出"✅ second-brain 已创建。尚无项目。告诉我在做什么"。
 
@@ -56,7 +56,7 @@
 
 ### Step 4. 读 config
 
-`_meta/config.md` → 拿到 backend 列表 + last_sync_time。
+`meta/config.md` → 拿到 backend 列表 + last_sync_time。
 
 ### Step 5. GIT HEALTH CHECK — Git 健康检查
 
@@ -77,26 +77,26 @@
 - 比对时间戳，按 `data-model.md` 的规则解决冲突。
 - 把赢家写入主 backend。
 - 把主 backend 状态推送到所有同步 backend。
-- 更新 `_meta/sync-log.md` 和 `last_sync_time`。
+- 更新 `meta/sync-log.md` 和 `last_sync_time`。
 
 为什么必要：多设备。手机在 Notion 上加了一条，桌面要拿到。手机改了一条，桌面要看到。
 
 ### Step 7. OUTBOX MERGE — 离线会话合并
 
-扫 `_meta/outbox/` 下的未合并会话目录。这些是在没连 GitHub 时跑的会话，archiver 只能写到 outbox。
+扫 `meta/outbox/` 下的未合并会话目录。这些是在没连 GitHub 时跑的会话，archiver 只能写到 outbox。
 
-- 如果 `_meta/.merge-lock` 存在且 <5 分钟 → 跳过（另一个会话正在合并）。
+- 如果 `meta/.merge-lock` 存在且 <5 分钟 → 跳过（另一个会话正在合并）。
 - 写 `.merge-lock` 锁。
 - 对每个 outbox 目录（按时间排序）：
   - 读 `manifest.md`。
   - 移动 `decisions/` → `projects/{project}/decisions/`
   - 移动 `tasks/` → `projects/{project}/tasks/`
-  - 移动 `journal/` → `_meta/journal/`
+  - 移动 `journal/` → `meta/journal/`
   - 应用 `index-delta.md` → 更新 `projects/{project}/index.md`
   - 追加 `patterns-delta.md` → `user-patterns.md`
   - 移动 `wiki/` → `wiki/{domain}/{topic}.md`
   - 合并成功后删 outbox 目录。
-- 全部合并完 → 编译 `_meta/STATUS.md`，git commit + push。
+- 全部合并完 → 编译 `meta/STATUS.md`，git commit + push。
 - 删 `.merge-lock`。
 - 报告"📮 合并了 N 个离线会话"。
 
@@ -137,7 +137,7 @@
 这步是晨报 SOUL Health Report 的数据源。细分 6 个子步骤：
 
 - **11.1** 读当前 `SOUL.md`。不存在 → 标"uninitialized"，跳到 11.6。
-- **11.2** 读 `_meta/snapshots/soul/` 下最新的 snapshot 文件（按文件名 `YYYY-MM-DD-HHMM.md` 倒序）。这是上一次会话结束时的 SOUL 状态。
+- **11.2** 读 `meta/snapshots/soul/` 下最新的 snapshot 文件（按文件名 `YYYY-MM-DD-HHMM.md` 倒序）。这是上一次会话结束时的 SOUL 状态。
 - **11.3** 对当前每个 dimension 算 delta：
   - `evidence_Δ` = 当前 evidence_count − snapshot.evidence_count
   - `challenges_Δ` = 当前 challenges − snapshot.challenges
@@ -162,8 +162,8 @@ Edge cases：
 
 ### Step 12. 读 STATUS.md + lint-state
 
-- `_meta/STATUS.md` — 全局状态。
-- `_meta/lint-state.md` — 上次 lint 时间。
+- `meta/STATUS.md` — 全局状态。
+- `meta/lint-state.md` — 上次 lint 时间。
 - 如果 >4h 没跑 lint → 触发 AUDITOR 轻量巡查。
 
 ### Step 13. ReadProjectContext
@@ -180,7 +180,7 @@ Edge cases：
 
 ### Step 15. STRATEGIC MAP COMPILATION — Strategic Map 编译
 
-不是每次都跑 — 只有 `_meta/strategic-lines.md` 存在时才跑。
+不是每次都跑 — 只有 `meta/strategic-lines.md` 存在时才跑。
 
 a. 读 `strategic-lines.md` → 所有 line 定义（driving_force、health_signals）。
 b. 读所有 `projects/*/index.md` → 收集 strategic 字段。
@@ -194,7 +194,7 @@ d. 跨层验证：
    - wiki × flows：cognition 流的域是否有 wiki 内容？
    - user-patterns × roles：行为是否匹配战略优先级？
 e. 生成 action 建议（🥇🥈🟢❓）。
-f. 编译 `_meta/STRATEGIC-MAP.md`。
+f. 编译 `meta/STRATEGIC-MAP.md`。
 
 STRATEGIC-MAP.md 是编译产物 — 不能手改。
 
@@ -202,7 +202,7 @@ STRATEGIC-MAP.md 是编译产物 — 不能手改。
 
 ### Step 16. DREAM REPORT — 读最近的 DREAM
 
-读 `_meta/journal/` 里最新的 `*-dream.md`（如果存在且未展示过）：
+读 `meta/journal/` 里最新的 `*-dream.md`（如果存在且未展示过）：
 
 - 晨报显示"💤 上次会话系统做了个梦：[摘要]"。
 - 列出自动写入的 SOUL dimension（标 confidence 0.3，等用户填 What SHOULD BE）。

@@ -9,7 +9,7 @@ introduced_in: v1.8.7（仅 spec）
 referenced_by:
   - references/wiki-spec.md（v2.0 方向引用）
   - references/session-index-spec.md（v2.0 方向引用）
-  - _meta/rfc/v1.8.7-openhuman-borrowed-patterns.md §2.6 A1
+  - meta/rfc/v1.8.7-openhuman-borrowed-patterns.md §2.6 A1
 ---
 
 # Memory Tree 规范（提案 · v1.9 / v2.0 目标）
@@ -20,15 +20,15 @@ referenced_by:
 
 当前 lifeos sessions/wiki 结构（v1.8.6 时）：
 
-- `_meta/sessions/<sid>.md` —— 扁平目录，所有 session 永远累积
-- `_meta/wiki/<topic>/<entry>.md` —— 每话题扁平，无自动压缩
-- `_meta/concepts/<concept>.md` —— 扁平带 hotness 计数但无派生摘要文件
+- `meta/sessions/<sid>.md` —— 扁平目录，所有 session 永远累积
+- `meta/wiki/<topic>/<entry>.md` —— 每话题扁平，无自动压缩
+- `meta/concepts/<concept>.md` —— 扁平带 hotness 计数但无派生摘要文件
 
 多年累积后的问题：
 
 - `archiver` 读"最近 30 天"OK；读"最近 2 年"变贵
 - `hippocampus` 在数千 session 上扩散激活线性变慢
-- 用户浏览 `_meta/sessions/` 看到 1000+ 文件无导航
+- 用户浏览 `meta/sessions/` 看到 1000+ 文件无导航
 - 经历 50 个 session 成长的 wiki 条目没有紧凑的"这概念现在啥意思"摘要
 
 OpenHuman 的 Memory Tree 用 L0 → L1 → L2 cascade 摘要解决这个。借鉴模式（不借鉴实现 —— OpenHuman 用 SQLite，lifeos 按 DR-10 保持 md-only）。
@@ -36,7 +36,7 @@ OpenHuman 的 Memory Tree 用 L0 → L1 → L2 cascade 摘要解决这个。借�
 ## 提案布局
 
 ```
-_meta/sessions/
+meta/sessions/
 ├── L0/                          # 原始 session，最近 30 天
 │   ├── 2026-05-25-<sid>.md
 │   └── ...
@@ -51,7 +51,7 @@ _meta/sessions/
     └── ...
 ```
 
-`_meta/wiki/`（已 seal wiki 条目）和 `_meta/concepts/`（canonical concept 卷积）用同样模式。
+`meta/wiki/`（已 seal wiki 条目）和 `meta/concepts/`（canonical concept 卷积）用同样模式。
 
 ## L0 → L1 cascade seal 算法
 
@@ -59,7 +59,7 @@ _meta/sessions/
 每次 archiver Adjourn（v1.9 / v2.0 时）：
 
 1. 检查 L0 buffer 状态：
-   - 计数 _meta/sessions/L0/ 中文件
+   - 计数 meta/sessions/L0/ 中文件
    - 检查最旧文件时间戳
 
 2. "seal L0 → L1" 触发条件：
@@ -70,8 +70,8 @@ _meta/sessions/
    a. 确定被 seal 的周（L0 中含 >0 session 的最旧周）
    b. 读该周所有 L0 session 文件
    c. 用 sealing prompt 调 chat model → 产出周摘要
-   d. 写 _meta/sessions/L1-weekly/<YYYY>-W<NN>.md
-   e. 移已 seal 的 L0 文件到 _meta/sessions/_archive/L0-pre-seal/
+   d. 写 meta/sessions/L1-weekly/<YYYY>-W<NN>.md
+   e. 移已 seal 的 L0 文件到 meta/sessions/_archive/L0-pre-seal/
    f.（不删除；保留供审计）
 
 4. L1 buffer 达阈值时 cascade 到 L2：
@@ -116,7 +116,7 @@ Prompt 位于 `pro/seal-prompts/L0-to-L1.md` 等（位置 TBD，v1.8.7 不建）
 
 明确：
 
-- ❌ 不创建 `_meta/sessions/L0/` 目录（既有扁平布局保留）
+- ❌ 不创建 `meta/sessions/L0/` 目录（既有扁平布局保留）
 - ❌ 不加 archiver cascade seal 逻辑
 - ❌ 不建 seal prompt 文件
 - ❌ 不自动生成 L1/L2/L3
@@ -132,8 +132,8 @@ v1.8.7 **做**：
 以下故意 **不** 在本提案中解决 —— 它们需要真实数据验证：
 
 1. L3 yearly 应进一步 cascade 吗（十年级？终生）？大概不，但 3 年积累后检查
-2. 如何在 cascade 中处理 `_meta/snapshots/soul/` SOUL 快照 —— 独立节奏还是集成？
-3. L1 周摘要写入 vault（Obsidian 可见）还是留在 `_meta/sessions/`（dev 内部）？
+2. 如何在 cascade 中处理 `meta/snapshots/soul/` SOUL 快照 —— 独立节奏还是集成？
+3. L1 周摘要写入 vault（Obsidian 可见）还是留在 `meta/sessions/`（dev 内部）？
 4. 当已 seal 的 L1/L2 文件与新上下文 session 冲突（用户引用"那周 5 月"但 L1 已 paraphrase 实际发生），如何恢复 provenance？L0 归档路径必须保持可达
 5. 成本校准：~$0.50-$2 一个 L1 周摘要（1500 tokens 在前沿模型费率），~$2-$10 一个 L2 月度。活跃用户年成本：$300-$800/年的 LLM 账单仅 sealing。值吗？
 
@@ -144,15 +144,15 @@ v1.8.7 **做**：
 未来版本实施时：
 
 1. 加新目录不动既有扁平布局
-2. 跑一次 backfill：`/seal-backfill` slash 命令走既有扁平 `_meta/sessions/` 以 append-only 方式产生 L1/L2/L3
+2. 跑一次 backfill：`/seal-backfill` slash 命令走既有扁平 `meta/sessions/` 以 append-only 方式产生 L1/L2/L3
 3. Backfill 后，未来 archiver Adjourn 跑增量 seal
-4. 既有文件留在 `_meta/sessions/<sid>.md` 路径（不移动）作向后兼容 —— 只新 session 直接进 L0 buffer
+4. 既有文件留在 `meta/sessions/<sid>.md` 路径（不移动）作向后兼容 —— 只新 session 直接进 L0 buffer
 
 本迁移非破坏性可逆。
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.6 A1
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.6 A1
 - 模式来源：`tinyhumansai/openhuman` `gitbooks/features/obsidian-wiki/memory-tree.md`（三树 / L0→L1 cascade seal）
 - 实施说明：OpenHuman 用 SQLite `memory_tree/chunks.db` + tokio task pool。lifeos 按 DR-10（`SKILL.md` HARD RULE）保持 md-only —— 上述目录布局是 lifeos 基底
 - 配套：`references/concept-spec.md` §Hotness 阈值（cascade seal 触发 + hotness 物化是姊妹概念）

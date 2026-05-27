@@ -45,7 +45,7 @@ introduced_in: v1.8.5
 ### 7. STOP-CONDITION-INJECTION（停止条件注入）
 - **何时使用**: agent/EOU 在无效、含糊或未授权状态下继续执行，而不是停下报告。
 - **产出**: `execution.stop_conditions` 中一个或多个新停止条件，含可观察触发标准。
-- **示例**: archiver 即使 `_meta/config.md` 0 个 Notion entity 也跑 Phase 4 Notion sync。加停止条件：0 entity → 静默跳过 Phase 4，审计 trail 记录跳过原因（按 pro/CLAUDE.md Step 10a R-1.8.0-022 修复）。
+- **示例**: archiver 即使 `meta/config.md` 0 个 Notion entity 也跑 Phase 4 Notion sync。加停止条件：0 entity → 静默跳过 Phase 4，审计 trail 记录跳过原因（按 pro/CLAUDE.md Step 10a R-1.8.0-022 修复）。
 
 ### 8. RESPONSIBILITY-SEPARATION（责任分离）
 - **何时使用**: 同一方既执行又审批，或两个不同审批权力被一个单元处理。
@@ -57,7 +57,7 @@ introduced_in: v1.8.5
 ### 9. ADD_CONTEXT_MANIFEST（添加 context 清单）
 - **何时使用**: agent 性能依赖于隐式或跨 run 不一致加载的 context（project state、SOUL、schema 版本）。
 - **产出**: 在 agent v2 frontmatter（Stage 6）中显式列出 `context_manifest.source_of_truth + supporting + forbidden`。
-- **示例**: hippocampus subagent 原本"按需"从 `_meta/sessions/` 加载。v2 frontmatter 强制显式列：source_of_truth=[INDEX.md]，supporting=[最近 7 快照]，forbidden=[完整 transcript]。
+- **示例**: hippocampus subagent 原本"按需"从 `meta/sessions/` 加载。v2 frontmatter 强制显式列：source_of_truth=[INDEX.md]，supporting=[最近 7 快照]，forbidden=[完整 transcript]。
 
 ### 10. RETIRE_UNIT（单元退役）
 - **何时使用**: 单元已过时（被更好的替代）、重复（被现有覆盖）或净负面（成本超过运营价值）。

@@ -19,7 +19,7 @@ DREAM 的三个阶段对应人类睡眠的三个阶段。每一段都有明确�
 
    例子：`inbox/2026-04-18-book-idea.md` → "可能属于 projects/writing/new-book"
 
-2. **`_meta/journal/` 里有提取价值的条目**
+2. **`meta/journal/` 里有提取价值的条目**
    - 你或 ADVISOR 写过的反思、观察
    - N1-N2 问：里面有没有可以抽出来的行为模式？
    - 输出：建议 `user-patterns.md` 更新（**只是建议，不直接改**）
@@ -102,7 +102,7 @@ DREAM 的三个阶段对应人类睡眠的三个阶段。每一段都有明确�
 
 Phase 2 已经扫描过当前 session 的材料，把符合条件的 wiki 候选自动写入了。N3 的任务是**补充 Phase 2 遗漏的部分**——通常是需要 3 天跨度才能看出的模式。
 
-验证方式：读取 `_meta/outbox/{session_id}/manifest.md`，如果 `wiki: N` 且 N > 0，说明 Phase 2 已经处理过，N3 只做增量。
+验证方式：读取 `meta/outbox/{session_id}/manifest.md`，如果 `wiki: N` 且 N > 0，说明 Phase 2 已经处理过，N3 只做增量。
 
 Wiki 候选走 `references/wiki-spec.md` 的 6 条自动写入标准：
 
@@ -195,7 +195,7 @@ REM 还会机械地评估 10 个触发器（详见 `10-auto-triggers.md`）。�
 
 ## 最终写出
 
-三阶段跑完之后，ARCHIVER 把结果写进 `_meta/journal/{date}-dream.md`，同时把 `triggered_actions` YAML 块暴露给下一次 RETROSPECTIVE 读取。
+三阶段跑完之后，ARCHIVER 把结果写进 `meta/journal/{date}-dream.md`，同时把 `triggered_actions` YAML 块暴露给下一次 RETROSPECTIVE 读取。
 
 接下来就是 Phase 4（git 同步 + Notion 同步）→ session 结束。
 

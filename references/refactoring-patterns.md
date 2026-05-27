@@ -45,7 +45,7 @@ introduced_in: v1.8.5
 ### 7. STOP-CONDITION-INJECTION
 - **Use when**: An agent/EOU continues executing in invalid, ambiguous, or unauthorized states rather than halting and reporting.
 - **Output**: One or more new stop conditions in `execution.stop_conditions` with observable trigger criteria.
-- **Example**: archiver was running Phase 4 Notion sync even when `_meta/config.md` had 0 Notion entities configured. Added stop condition: if 0 entities → skip Phase 4 silently, log skip reason in audit trail (per pro/CLAUDE.md Step 10a R-1.8.0-022 fix).
+- **Example**: archiver was running Phase 4 Notion sync even when `meta/config.md` had 0 Notion entities configured. Added stop condition: if 0 entities → skip Phase 4 silently, log skip reason in audit trail (per pro/CLAUDE.md Step 10a R-1.8.0-022 fix).
 
 ### 8. RESPONSIBILITY-SEPARATION
 - **Use when**: Same party executes and approves OR two distinct approval authorities handled by one unit.
@@ -57,7 +57,7 @@ introduced_in: v1.8.5
 ### 9. ADD_CONTEXT_MANIFEST
 - **Use when**: Agent performance depends on context (project state, SOUL, schema versions) loaded implicitly or inconsistently across runs.
 - **Output**: Populated `context_manifest.source_of_truth + supporting + forbidden` lists explicitly in the agent's v2 frontmatter (per Stage 6).
-- **Example**: hippocampus subagent originally loaded "whatever it needed" from `_meta/sessions/`. v2 frontmatter forced explicit list: source_of_truth=[INDEX.md], supporting=[recent 7 snapshots], forbidden=[full transcripts].
+- **Example**: hippocampus subagent originally loaded "whatever it needed" from `meta/sessions/`. v2 frontmatter forced explicit list: source_of_truth=[INDEX.md], supporting=[recent 7 snapshots], forbidden=[full transcripts].
 
 ### 10. RETIRE_UNIT
 - **Use when**: A unit is obsolete (superseded by a better one), duplicate (covered by existing), or net-negative (costs exceed operational value).

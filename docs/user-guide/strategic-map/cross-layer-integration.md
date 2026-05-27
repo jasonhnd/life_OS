@@ -214,7 +214,7 @@ DREAM REM 发现的新关系会变成：
 
 - SOUL.md 不存在 → 跳过 SOUL × strategy 一致性检查；Strategic Map 仍编译；REVIEWER 不做 SOUL 检查
 - wiki/ 不存在 → 跳过 wiki × flow 验证；cognition flow 仍然定义（但没有载体验证）
-- `_meta/strategic-lines.md` 不存在 → Strategic Map 整体休眠；简报 fallback 到 Area Status 扁平列表；DREAM REM 退回 open-ended 模式
+- `meta/strategic-lines.md` 不存在 → Strategic Map 整体休眠；简报 fallback 到 Area Status 扁平列表；DREAM REM 退回 open-ended 模式
 - 只有 Strategic Map 没有 SOUL → 可以用，但丢失"价值校准"这一维；driving_force 会变成纯组织性的，不是心理性的
 
 这让系统**从 Day 0 可用**——不需要先配置半天。

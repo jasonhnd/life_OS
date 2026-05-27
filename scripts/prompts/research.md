@@ -23,7 +23,7 @@ Limit clarification to ONE round to keep total time ≤ 7 minutes.
 
 ## Pre-flight
 
-1. Verify cwd is a second-brain repo (`_meta/` + `wiki/` exist). If not,
+1. Verify cwd is a second-brain repo (`meta/` + `wiki/` exist). If not,
    refuse and tell user `/research` writes wiki entries; must run inside
    a second-brain vault.
 2. Read `wiki/SCHEMA.md` to confirm frontmatter contract.
@@ -363,7 +363,7 @@ Choose:
   edit <X>     — re-show with X changed (e.g. "edit confidence=unlikely",
                  "edit domain=banking", "edit drop counterpoints-section-3")
   reject       — discard; nothing written
-  defer        — write to _meta/inbox/to-process/<date>_research-<slug>.md
+  defer        — write to meta/queue/to-process/<date>_research-<slug>.md
                  with full draft for later /inbox-process review
 
 Type your choice:

@@ -21,6 +21,6 @@ completed and reviewed through the tuning protocol below.
    importance contributions against the labels to identify systematic bias.
 4. Propose candidate weights: produce small GWT v2 coefficient candidates whose
    weights sum to 1.0, with concise evidence and tradeoff notes for each set.
-5. Publish the selected v2 framework: create `_meta/cortex/salience-v2.md` with
+5. Publish the selected v2 framework: create `meta/cortex/salience-v2.md` with
    the chosen GWT v2 coefficients, evidence summary, migration date, and rollback
    criteria.

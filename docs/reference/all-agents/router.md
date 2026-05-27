@@ -19,7 +19,7 @@ ROUTER 是所有用户消息的**入口点**。简单请求由它直接处理；
 **接收**：
 - 用户原始消息
 - RETROSPECTIVE agent 完成的 Pre-Session Preparation 结果（上下文准备）
-- `_meta/STRATEGIC-MAP.md`（编译后的战略图）
+- `meta/STRATEGIC-MAP.md`（编译后的战略图）
 - `SOUL.md`（如果已建立且有高置信度条目）
 - `wiki/INDEX.md`（如果已加载）
 
@@ -35,7 +35,7 @@ ROUTER 是所有用户消息的**入口点**。简单请求由它直接处理；
 
 **目录类型检测**（绑定前）：
 - 当前目录含 `SKILL.md` + `pro/agents/` + `themes/` → Life OS 系统仓库（产品代码），**不自动绑定为 second-brain**
-- 当前目录含 `_meta/` + `projects/` → second-brain，正常绑定
+- 当前目录含 `meta/` + `projects/` → second-brain，正常绑定
 - 其他 → 普通项目仓库，绑定它并按配置路径查找 second-brain
 
 跨项目决策必须显式标注 "⚠️ 跨项目决策"，此时可读取多个项目的 index.md 用于对比。
@@ -66,7 +66,7 @@ ROUTER 是所有用户消息的**入口点**。简单请求由它直接处理；
 
 - **SOUL.md**：如存在且有高置信度条目（≥ 0.6），在意图澄清时纳入用户的已知价值观
 - **Wiki INDEX**：如存在高置信度条目（≥ 0.7），告知用户"该领域有 N 条既有结论，从结论开始还是从头研究？"
-- **Strategic Map**：跨项目问题时优先读取 `_meta/STRATEGIC-MAP.md`，用战略线健康度、瓶颈、流图框架回答
+- **Strategic Map**：跨项目问题时优先读取 `meta/STRATEGIC-MAP.md`，用战略线健康度、瓶颈、流图框架回答
 
 ### 3. 意图澄清（HARD RULE · 复杂请求不可跳过）
 

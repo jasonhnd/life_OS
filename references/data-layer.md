@@ -39,15 +39,15 @@ Perceive → Capture → Activate → Judge → Settle → Associate → Strateg
 
 **Perceive → Capture (GTD)**: Zero-friction capture on mobile. User says something, phone AI saves to inbox. No classification at this stage — inbox is the GTD collection basket.
 
-**Capture → Activate (Cortex Pre-Router, v1.7)**: Before ROUTER triages the user message, three parallel subagents run — hippocampus (cross-session retrieval from `_meta/sessions/INDEX.md`), concept lookup (spreading activation across `_meta/concepts/`), SOUL dimension check (reuses RETROSPECTIVE's SOUL Health Report). The GWT arbitrator consolidates their signals into an annotated input. ROUTER receives the annotated input, not the raw message. Failure modes degrade to v1.6.2a behaviour (raw message to ROUTER). See `references/cortex-spec.md` §Workflow Integration.
+**Capture → Activate (Cortex Pre-Router, v1.7)**: Before ROUTER triages the user message, three parallel subagents run — hippocampus (cross-session retrieval from `meta/sessions/INDEX.md`), concept lookup (spreading activation across `meta/concepts/`), SOUL dimension check (reuses RETROSPECTIVE's SOUL Health Report). The GWT arbitrator consolidates their signals into an annotated input. ROUTER receives the annotated input, not the raw message. Failure modes degrade to v1.6.2a behaviour (raw message to ROUTER). See `references/cortex-spec.md` §Workflow Integration.
 
 **Activate → Judge (Draft-Review-Execute cycle)**: Desktop CC pulls from inbox. Not all information needs decisions. Only when major resource allocation, multi-option trade-offs, or hard-to-reverse consequences are involved, activate the Draft-Review-Execute decision mode. The judge stage operates on cognitively-annotated input — PLANNER / REVIEWER / six domains start from context, not cold.
 
 **Judge → Settle (SOUL + Wiki + Concepts + Methods + Snapshots)**: Conclusions from decisions settle into five pools — SOUL (who you are), Wiki (what you know about the world), Concepts (the synaptic graph that connects knowledge), Methods (procedural memory — reusable workflows), and Snapshots (historical SOUL state for trend computation). All are auto-written under strict criteria: ARCHIVER Phase 2 produces wiki / SOUL / concept / method / snapshot candidates; users nudge post-hoc (delete file to retire, say "undo recent" to roll back). See `references/concept-spec.md`, `references/method-library-spec.md`, `references/snapshot-spec.md`.
 
-**Settle → Associate (ROUTER + Wiki INDEX + Concept INDEX + Methods INDEX)**: The ROUTER reads compiled INDEX files at session start (wiki/INDEX.md, _meta/concepts/INDEX.md, _meta/methods/INDEX.md, _meta/sessions/INDEX.md). When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain, and we have a canonical method for Y." This turns accumulated knowledge into active context.
+**Settle → Associate (ROUTER + Wiki INDEX + Concept INDEX + Methods INDEX)**: The ROUTER reads compiled INDEX files at session start (wiki/INDEX.md, meta/concepts/INDEX.md, meta/methods/INDEX.md, meta/sessions/INDEX.md). When a new request arrives, existing knowledge is automatically matched — "we already know X about this domain, and we have a canonical method for Y." This turns accumulated knowledge into active context.
 
-**Associate → Strategize (Strategic Map)**: The ROUTER reads `_meta/STRATEGIC-MAP.md` at session start. When a request involves a project with strategic relationships, the system automatically surfaces downstream dependencies, bottleneck status, and decision propagation warnings. This turns per-project analysis into strategic-line-aware analysis. See `references/strategic-map-spec.md`.
+**Associate → Strategize (Strategic Map)**: The ROUTER reads `meta/STRATEGIC-MAP.md` at session start. When a request involves a project with strategic relationships, the system automatically surfaces downstream dependencies, bottleneck status, and decision propagation warnings. This turns per-project analysis into strategic-line-aware analysis. See `references/strategic-map-spec.md`.
 
 **Strategize → Emerge (DREAM REM)**: When wiki entries and strategic relationships accumulate, DREAM's REM stage discovers cross-domain connections using the flow graph as scaffolding — checking SOUL × strategy alignment, wiki × flow completeness, and behavioral pattern × strategic priority consistency. The more knowledge and relationships settle, the more emergence happens. AUDITOR patrol also detects wiki contradictions, knowledge gaps, and strategy contradictions between projects.
 
@@ -67,7 +67,7 @@ second-brain/
 │
 ├── inbox/                             # 📥 Unprocessed (mobile captures, materials, book notes, raw research)
 │
-├── _meta/                             # 🔧 System metadata
+├── meta/                             # 🔧 System metadata
 │   ├── STATUS.md                      # Global status dashboard (compiled from index.md files)
 │   ├── STRATEGIC-MAP.md               # Strategic map (compiled from project strategic fields)
 │   ├── strategic-lines.md             # Strategic line definitions (user-defined)
@@ -150,18 +150,18 @@ second-brain/
 | Todos / intentions | tasks/ | Try Product X next time |
 | Inspiration / intuition | inbox/ (temporary) | There's an opportunity between X and Y |
 | Factual / declarative knowledge | wiki/ | "NPO lending in Japan has no 貸金業法 exemption" |
-| Procedural knowledge (reusable workflows, v1.7) | `_meta/methods/` | "Refine documents in 5 escalating quality rounds" |
-| Concept graph (synapses, v1.7) | `_meta/concepts/` | "company-a-holding" node with weighted edges to related concepts |
+| Procedural knowledge (reusable workflows, v1.7) | `meta/methods/` | "Refine documents in 5 escalating quality rounds" |
+| Concept graph (synapses, v1.7) | `meta/concepts/` | "company-a-holding" node with weighted edges to related concepts |
 
-These types may expand over time based on actual usage. v1.7 splits "Process knowledge" into two: factual process descriptions stay in `wiki/`, reusable procedural workflows move to `_meta/methods/` (see `references/method-library-spec.md`).
+These types may expand over time based on actual usage. v1.7 splits "Process knowledge" into two: factual process descriptions stay in `wiki/`, reusable procedural workflows move to `meta/methods/` (see `references/method-library-spec.md`).
 
 ---
 
 ## Knowledge Extraction: Four-Step Training
 
 1. **User decides**: Desktop CC generates an "extraction proposal", user confirms/modifies
-2. **Accumulate samples**: Record to `_meta/extraction-log.md`
-3. **LLM induces rules**: From the log, induce preferences and write to `_meta/extraction-rules.md` (pure markdown, model-agnostic)
+2. **Accumulate samples**: Record to `meta/extraction-log.md`
+3. **LLM induces rules**: From the log, induce preferences and write to `meta/extraction-rules.md` (pure markdown, model-agnostic)
 4. **Periodic correction**: User reviews monthly, reports misclassifications, CC updates rules
 
 Core: The "learning" carrier is markdown files, not model weights. Switching models only requires reading these files.
@@ -178,7 +178,7 @@ After every Draft-Review-Execute workflow, reviews official work quality. Alread
 
 ### Mode 2: Patrol Inspection (new)
 
-When idle, each domain inspects its own jurisdiction. Defined in `_meta/roles/censor.md`.
+When idle, each domain inspects its own jurisdiction. Defined in `meta/roles/censor.md`.
 
 #### Trigger Levels
 
@@ -195,7 +195,7 @@ When idle, each domain inspects its own jurisdiction. Defined in `_meta/roles/ce
 | FINANCE | areas/finance/ | Investment strategy outdated, financial figures need updating |
 | EXECUTION | projects/ | Project activity, TODO completion, resource conflicts |
 | GROWTH | wiki/ | Unfulfilled social commitments, new contacts to record, wiki entries with confidence < 0.3 and no update in 90+ days (suggest retire), wiki entries with challenges > evidence_count (suggest review), domains with decisions but no wiki entries (knowledge gap) |
-| INFRA | wiki/ + _meta/ | Orphan files, broken links, rule validity |
+| INFRA | wiki/ + meta/ | Orphan files, broken links, rule validity |
 | PEOPLE | areas/career/ | Career direction aligned with actions |
 | GOVERNANCE | Cross-domain | Strategy contradictions between projects, decisions missing risk assessment |
 
@@ -209,9 +209,9 @@ When idle, each domain inspects its own jurisdiction. Defined in `_meta/roles/ce
 
 #### Implementation
 
-- Role definition stored in `_meta/roles/censor.md`, CLAUDE.md only references it
-- Inspection state persisted in `_meta/lint-state.md` (solves LLM's lack of cross-session memory)
-- Inspection reports stored in `_meta/lint-reports/`, summary also sent to inbox
+- Role definition stored in `meta/roles/censor.md`, CLAUDE.md only references it
+- Inspection state persisted in `meta/lint-state.md` (solves LLM's lack of cross-session memory)
+- Inspection reports stored in `meta/lint-reports/`, summary also sent to inbox
 - Switching models: role files stay unchanged, only CLAUDE.md references change
 
 ---
@@ -220,9 +220,9 @@ When idle, each domain inspects its own jurisdiction. Defined in `_meta/roles/ce
 
 | Role | File | Function |
 |------|------|----------|
-| AUDITOR | `_meta/roles/censor.md` | Patrol inspection (required) |
-| Historian | `_meta/roles/historian.md` | Auto-records daily work at session end (optional) |
-| REVIEWER on-duty | `_meta/roles/reviewer.md` | Reviews content quality on write (optional) |
+| AUDITOR | `meta/roles/censor.md` | Patrol inspection (required) |
+| Historian | `meta/roles/historian.md` | Auto-records daily work at session end (optional) |
+| REVIEWER on-duty | `meta/roles/reviewer.md` | Reviews content quality on write (optional) |
 
 ---
 
@@ -265,30 +265,30 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 ### Housekeeping Mode (Start of Conversation)
 
 ```
-0. Read _meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
-0. DATA LAYER CHECK: If _meta/config.md does not exist → FIRST-RUN mode:
+0. Read meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
+0. DATA LAYER CHECK: If meta/config.md does not exist → FIRST-RUN mode:
    - Ask user for storage backend choice (GitHub / GDrive / Notion)
-   - Create minimum directory structure: _meta/ (config.md, STATUS.md, journal/, outbox/), projects/, areas/, wiki/, inbox/, archive/, templates/
-   - Write _meta/config.md with chosen backends
+   - Create minimum directory structure: meta/ (config.md, STATUS.md, journal/, outbox/), projects/, areas/, wiki/, inbox/, archive/, templates/
+   - Write meta/config.md with chosen backends
    - Skip steps 1-8, proceed to briefing
-1. Read _meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
+1. Read meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
 2. Probe each configured backend for MCP availability (mark unavailable as SKIPPED)
 3. Multi-backend sync (if multiple backends configured and available):
    - Query each AVAILABLE sync backend for changes since this platform's last_sync_time
    - Compare, resolve conflicts (see data-model.md)
    - Apply changes to primary backend
    - Push to sync backends
-4. OUTBOX MERGE: scan _meta/outbox/ for unmerged sessions
-   - If _meta/.merge-lock exists and < 5min → skip merge
+4. OUTBOX MERGE: scan meta/outbox/ for unmerged sessions
+   - If meta/.merge-lock exists and < 5min → skip merge
    - Write .merge-lock → merge each outbox → compile STATUS.md → commit + push → delete .merge-lock
    - Report merged sessions in briefing
 5. Read inbox (unprocessed items) — via primary backend
-6. Read _meta/STATUS.md (global status)
-7. Read _meta/lint-state.md (check if inspection needed: >4h since last run)
+6. Read meta/STATUS.md (global status)
+7. Read meta/lint-state.md (check if inspection needed: >4h since last run)
 8. ReadProjectContext(bound project) — tasks, decisions, journal
 9. Read user-patterns.md
 10. Global overview: List Project + List Area (titles + status only)
-11. Strategic Map compilation: If `_meta/strategic-lines.md` exists → compile `_meta/STRATEGIC-MAP.md`. See `references/strategic-map-spec.md`.
+11. Strategic Map compilation: If `meta/strategic-lines.md` exists → compile `meta/STRATEGIC-MAP.md`. See `references/strategic-map-spec.md`.
 12. If lint-state.md shows >4h → trigger lightweight AUDITOR inspection
 13. Platform awareness + version check
 ```
@@ -297,15 +297,15 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 
 ```
 1. Generate session-id: run date command to get actual timestamp, format as {platform}-{YYYYMMDD}-{HHMM}. Do NOT fabricate — use system clock. HARD RULE.
-2. Create _meta/outbox/{session_id}/
-3. Save Decision / Save Task / Save JournalEntry → to _meta/outbox/{session_id}/ (NOT to main directories)
+2. Create meta/outbox/{session_id}/
+3. Save Decision / Save Task / Save JournalEntry → to meta/outbox/{session_id}/ (NOT to main directories)
 4. Write index-delta.md (changes for projects/{project}/index.md)
 5. Write patterns-delta.md (append content for user-patterns.md, if ADVISOR has suggestions)
 6. Write manifest.md (session metadata)
-7. git add _meta/outbox/{session_id}/ → commit → push (ONLY the outbox directory)
+7. git add meta/outbox/{session_id}/ → commit → push (ONLY the outbox directory)
 8. Sync outbox to Notion (if configured)
-9. Update this platform's last_sync_time in _meta/config.md
-10. Any backend failure → log to _meta/sync-log.md, don't block
+9. Update this platform's last_sync_time in meta/config.md
+10. Any backend failure → log to meta/sync-log.md, don't block
 
 NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Merging happens at next Start Court.
 ```
@@ -313,7 +313,7 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 ### Review Mode
 
 ```
-1. Read _meta/STATUS.md for global state
+1. Read meta/STATUS.md for global state
 2. List Task (all projects) → compute completion rates
 3. List Area → read goals
 4. List JournalEntry (recent) → journals and inspection reports
@@ -331,19 +331,19 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 
 ## Single Source of Truth Rules
 
-**`projects/{project}/index.md` is the authoritative source for each project's version, phase, and status.** `_meta/STATUS.md` is a compiled dashboard — it must be generated from index.md files, never hand-written.
+**`projects/{project}/index.md` is the authoritative source for each project's version, phase, and status.** `meta/STATUS.md` is a compiled dashboard — it must be generated from index.md files, never hand-written.
 
 | Data | Authoritative Source | Compiled View |
 |------|---------------------|---------------|
-| Project version / phase / status | `projects/{project}/index.md` | `_meta/STATUS.md` |
-| Area goals / status | `areas/{area}/index.md` | `_meta/STATUS.md` |
+| Project version / phase / status | `projects/{project}/index.md` | `meta/STATUS.md` |
+| Area goals / status | `areas/{area}/index.md` | `meta/STATUS.md` |
 | Task completion | `projects/{project}/tasks/*.md` | Metrics dashboard |
 | Behavior patterns | `user-patterns.md` | ADVISOR reports |
-| Strategic relationships | `projects/{project}/index.md` strategic fields + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
+| Strategic relationships | `projects/{project}/index.md` strategic fields + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **Write order is enforced**: Always update the authoritative source first, then compile the dashboard. Never write to STATUS.md directly for project-level information.
 
-**AUDITOR lint rule**: During patrol inspection, check that `_meta/STATUS.md` version/status for each project matches `projects/{project}/index.md`. If inconsistent → report 🔴, flag the authoritative source as correct.
+**AUDITOR lint rule**: During patrol inspection, check that `meta/STATUS.md` version/status for each project matches `projects/{project}/index.md`. If inconsistent → report 🔴, flag the authoritative source as correct.
 
 ---
 

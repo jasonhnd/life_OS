@@ -6,6 +6,50 @@
 
 ---
 
+## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化
+
+```yaml
+---
+version: 1.9.0
+date: 2026-05-27
+type: minor (vault layout 破坏性变更)
+breaking_changes:
+  - "Vault 目录布局：_meta/ → meta/（去下划线前缀；透明性的表面体现）"
+  - "meta/inbox/ → meta/queue/（重命名以避免与 vault 根 inbox/ 混淆）"
+  - "decisions 合一：projects/*/decisions/ + meta/incidents/*.yml → meta/decisions/<YYYY-MM>/<id>.md（单一规范路径，月子目录）"
+  - "archive：物理移动改为 frontmatter `lifecycle_stage: archived`（不再破坏 wikilinks）"
+  - "journal：时间轴 canonical 在 meta/journal/<YYYY-MM-DD>.md；projects/*/journal/ 删除（Dataview + Recent 5 wikilinks 反查）"
+  - "areas：预定义 10 分类弱化为'推荐种子'（FIRST-RUN 不再预创建空目录）"
+  - "user-patterns.md 从 vault 根移到 meta/user-patterns.md（与 compiled artifact 分类对齐）"
+  - "frontmatter 互引字段（Opt #8）：decisions 加 applied_methods + journal_date；methods 加 born_from_decisions；journal 加 referenced_decisions + referenced_methods"
+  - "decision schema：applied_method（单值）→ applied_methods（列表）；domains 封闭枚举（6 functional IDs）；type 加 escalation + superseded"
+  - "lifecycle_stage 枚举从 5 值缩到 4 值（去掉 dormant）；加 paused_until 字段表达有时限的暂停"
+  - "archived_at_source 枚举：4 值 git-log | migrated-unknown | manual | auto"
+  - "method.applied_in_decisions 字段移除（Q-11 DR-1.9.24）；改用 Dataview + Recent 5 wikilinks 模式反查"
+new_features:
+  - "/migrate-v1.9 slash 命令 — 8 阶段迁移含 Pre-flight HARD GATE（git working dir 干净 + 跨版本检测 + archive 非项目内容拒绝）"
+  - "/verify-v1.9 slash 命令 — 8 项 post-migration 验收"
+  - "决策 ID 格式：dec-<YYYY-MM-DD>-<NNN>（每日序号）— 可排序、人读、跨语言友好"
+  - "项目 index.md 加 ## Journal + ## Decisions 段（Dataview block + Recent 5 wikilinks，对称模式）"
+  - "Method 页加 ## Applied in decisions Dataview block + Recent 5 fallback（与项目 index 模式一致）"
+  - "STRATEGIC-MAP 显示 archived 项目用 strikethrough 标记 + 清理提示"
+  - "迁移报告追加到 journal entry（type_tags: [migration]，DR-1.9.28）"
+fixes:
+  - "v1.8.5 Stage 7 .yml incidents — 与 v1.8.7 md-only 本体论约束不兼容；转 .md + YAML frontmatter（DR-1.9.2）"
+acceptance_evals:
+  - evals/scenarios/v1.9-migration-correctness.md
+  - evals/scenarios/v1.9-wikilink-preservation.md
+  - evals/scenarios/v1.9-decision-consolidation.md
+  - evals/scenarios/v1.9-cross-reference-fields.md
+---
+```
+
+详见 `_meta/rfc/v1.9-second-brain-structure-optimization.md` —— 29 条 DR（DR-1.9.1 至 DR-1.9.29）+ 24 项锁定决策（Q1-Q5 + 透明化 + Q-meta-3/4 + Q-undecided-1 至 Q-undecided-16）。
+
+**升级路径**：所有 v1.8.x vault 跑一次 `/migrate-v1.9`。Pre-flight 会拒绝：(a) git working dir 不干净、(b) vault < v1.8.0（先跑中间代迁移）、(c) `archive/` 含非项目内容（先手动清理）。迁移完成后跑 `/verify-v1.9` 验证。
+
+---
+
 ## [1.8.7] - 2026-05-25 - OpenHuman 启发的硬化（md-only 本体论约束）
 
 ```yaml

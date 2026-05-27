@@ -90,7 +90,7 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 
 ### StrategicLine
 
-Stored in `_meta/strategic-lines.md` (user's second-brain). Multiple lines separated by `---`.
+Stored in `meta/strategic-lines.md` (user's second-brain). Multiple lines separated by `---`.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -109,7 +109,7 @@ Optional extension to `projects/{project}/index.md` frontmatter. All fields defa
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| strategic.line | string | no | Strategic line ID (references `_meta/strategic-lines.md`) |
+| strategic.line | string | no | Strategic line ID (references `meta/strategic-lines.md`) |
 | strategic.role | enum | no | `critical-path` / `enabler` / `accelerator` / `insurance` |
 | strategic.flows_to[] | array | no | Outgoing flows: [{target, type, description}] |
 | strategic.flows_from[] | array | no | Incoming flows: [{source, type, description}] |
@@ -156,7 +156,7 @@ Authoritative spec: `references/session-index-spec.md` §3.
 | action_items | array | no | `[{text, deadline, status}]` |
 | compliance_violations | integer | no | AUDITOR-flagged violations |
 
-Storage: `_meta/sessions/{session_id}.md`. Immutable after archiver writes.
+Storage: `meta/sessions/{session_id}.md`. Immutable after archiver writes.
 
 ### Concept
 
@@ -178,7 +178,7 @@ Authoritative spec: `references/concept-spec.md` §YAML Frontmatter Schema.
 | provenance.extracted_by | enum | no | `archiver` / `manual` / `dream` |
 | decay_policy | enum | yes | Matches `permanence` tier |
 
-Storage: `_meta/concepts/{domain}/{concept_id}.md` (confirmed/canonical) or `_meta/concepts/_tentative/{concept_id}.md` (tentative).
+Storage: `meta/concepts/{domain}/{concept_id}.md` (confirmed/canonical) or `meta/concepts/_tentative/{concept_id}.md` (tentative).
 
 ### SoulSnapshot
 
@@ -188,11 +188,11 @@ Authoritative spec: `references/snapshot-spec.md` §YAML Frontmatter Schema.
 |-------|------|----------|-------------|
 | snapshot_id | string | yes | `{YYYY-MM-DD-HHMM}`, matches filename |
 | captured_at | datetime | yes | Real ISO 8601 timestamp from system clock |
-| session_id | string | yes | References `_meta/sessions/{session_id}.md` |
+| session_id | string | yes | References `meta/sessions/{session_id}.md` |
 | previous_snapshot | string \| null | yes | Prior filename or null for first snapshot |
 | dimensions | array | yes | `[{name, confidence: 0-1, evidence_count, challenges, tier}]` where tier ∈ `core`/`secondary`/`emerging` |
 
-Storage: `_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`. Local-only (not Notion-synced). Metadata only — no SOUL body content. Immutable.
+Storage: `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`. Local-only (not Notion-synced). Metadata only — no SOUL body content. Immutable.
 
 ### EvalEntry
 
@@ -201,7 +201,7 @@ Authoritative spec: `references/eval-history-spec.md` §3.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | eval_id | string | yes | `{YYYY-MM-DD-HHMM}-{project}` |
-| session_id | string | yes | References `_meta/sessions/` entry |
+| session_id | string | yes | References `meta/sessions/` entry |
 | evaluator | enum | yes | `auditor` / `auditor-patrol` |
 | evaluation_mode | enum | yes | `decision-review` / `patrol-inspection` |
 | date | datetime | yes | |
@@ -209,7 +209,7 @@ Authoritative spec: `references/eval-history-spec.md` §3.
 | violations | array | no | `[{type, agent, severity, detail}]` |
 | agent_quality_notes | map | no | Per-agent one-line observations |
 
-Storage: `_meta/eval-history/{YYYY-MM-DD}-{project}.md`. Local-only. Immutable after creation. No migration backfill.
+Storage: `meta/eval-history/{YYYY-MM-DD}-{project}.md`. Local-only. Immutable after creation. No migration backfill.
 
 ### Soul
 
@@ -263,7 +263,7 @@ Authoritative spec: `references/method-library-spec.md` §4.
 | related_concepts | string[] | no | concept_ids |
 | related_methods | string[] | no | method_ids (soft composition) |
 
-Storage: `_meta/methods/{domain}/{method_id}.md` or `_meta/methods/_tentative/{method_id}.md`. Local-only.
+Storage: `meta/methods/{domain}/{method_id}.md` or `meta/methods/_tentative/{method_id}.md`. Local-only.
 
 ---
 
@@ -275,11 +275,25 @@ All agents use these operations. Adapters translate them to platform-specific ca
 |-----------|-----------|-------------|
 | **Save** | `Save(type, data)` | Create a new record |
 | **Update** | `Update(type, id, data)` | Modify an existing record |
-| **Archive** | `Archive(type, id)` | Move to archive |
+| **Archive** | `Archive(type, id)` | **v1.9 semantics change** (DR-1.9.4): for projects, sets `lifecycle_stage: archived` + `archived_at` + `archived_at_source` in frontmatter; does NOT physically move directory (preserves wikilinks). For other types (decisions/sessions), legacy archive semantics still apply. |
 | **Read** | `Read(type, id)` | Get a single record |
-| **List** | `List(type, filters)` | Get records matching filters |
+| **List** | `List(type, filters)` | Get records matching filters. **v1.9**: default `List(Project, ...)` filters `lifecycle_stage != archived`; pass `include_archived: true` to override. |
 | **Search** | `Search(keyword)` | Full-text search across all types |
-| **ReadProjectContext** | `ReadProjectContext(project_id)` | Batch read: project index + tasks + decisions + journal |
+| **ReadProjectContext** | `ReadProjectContext(project_id)` | Batch read: project index + tasks + (v1.9 update) cross-referenced decisions from `meta/decisions/<YYYY-MM>/` via projects field + journal from `meta/journal/` via projects field |
+
+### v1.9 archive semantics (per RFC §3.4 + DR-1.9.4)
+
+Pre-v1.9: `Archive(Project, id)` = `mv projects/{id}/ archive/{id}/` — broke all wikilinks pointing to `[[projects/{id}/...]]`.
+
+v1.9: `Archive(Project, id)` = `Update(Project, id, {lifecycle_stage: archived, archived_at: <today>, archived_at_source: auto, archived_reason: <description>})`. The project stays in `projects/{id}/`. All wikilinks remain resolvable.
+
+Index compilers (retrospective Mode 0 → STATUS.md / STRATEGIC-MAP.md, archiver Phase 1 → STATUS update) filter `lifecycle_stage: archived` by default. Obsidian graph view colorGroup styles archived projects in muted gray. wiki/INDEX does NOT filter (historical knowledge stays visible).
+
+`archived_at_source` enum (4 values per DR-1.9.26):
+- `git-log` — `/migrate-v1.9` Stage 3 derived from git log timestamps
+- `migrated-unknown` — `/migrate-v1.9` fallback when git log returned nothing
+- `manual` — user hand-edited the frontmatter
+- `auto` — archiver/REVIEWER auto-archive in normal session flow
 
 ---
 
@@ -305,7 +319,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 
 1. Write to primary backend first
 2. Then write to each sync backend in order
-3. If any sync backend fails → annotate `⚠️ [backend] write failed`, log to `_meta/sync-log.md`, continue with others
+3. If any sync backend fails → annotate `⚠️ [backend] write failed`, log to `meta/sync-log.md`, continue with others
 4. Next session auto-retries failed writes
 
 ### Read Order
@@ -321,7 +335,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 ### Session Start (RETROSPECTIVE Housekeeping)
 
 ```
-0. Read _meta/config.md → get backend list and last sync timestamp
+0. Read meta/config.md → get backend list and last sync timestamp
 1. Probe each configured backend for availability:
    - GitHub: check if git repo is accessible (git status)
    - GDrive: check if Google Drive MCP is connected (attempt list)
@@ -340,8 +354,8 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
    - Time difference < 1 minute → mark as CONFLICT, keep both versions
 4. Apply winning changes to primary backend
 5. Push primary state to all sync backends
-6. Update _meta/sync-log.md with sync results
-7. Update this platform's last_sync_time in _meta/config.md (do not touch other platforms' timestamps)
+6. Update meta/sync-log.md with sync results
+7. Update this platform's last_sync_time in meta/config.md (do not touch other platforms' timestamps)
 ```
 
 ### Session End (RETROSPECTIVE Wrap-up)
@@ -349,7 +363,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 ```
 1. Write all outputs to primary backend
 2. Write all outputs to each sync backend
-3. Update _meta/config.md last_sync_time
+3. Update meta/config.md last_sync_time
 4. Any backend failure → log, don't block
 ```
 
@@ -383,7 +397,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 | Backend offline during write | Skip that backend, annotate ⚠️, log to sync-log.md. Next session auto-retries. |
 | Crash mid-sync | Next startup: compare last_modified across all backends, detect inconsistencies, auto-repair from newest. |
 | Data corrupted on one backend | ROUTER detects anomaly, asks user: "Restore from [other backend]?" |
-| New device | Config lives in _meta/config.md. Git clone → config ready. No second-brain → session-level config. |
+| New device | Config lives in meta/config.md. Git clone → config ready. No second-brain → session-level config. |
 | Add new backend | ROUTER asks: "Sync existing data from [primary] to [new backend]?" |
 | Remove backend | ROUTER asks: "Keep data on [removed backend] or clean up?" |
 
@@ -391,7 +405,7 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 
 ## Configuration
 
-Stored in `_meta/config.md` (in second-brain repo):
+Stored in `meta/config.md` (in second-brain repo):
 
 ```yaml
 storage:
@@ -415,9 +429,9 @@ No second-brain → config stored in session context, ROUTER asks each new sessi
 
 ## Constraints
 
-- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`_meta/outbox/{session_id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
+- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`meta/outbox/{session_id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
 - **Session-id format**: `{platform}-{YYYYMMDD}-{HHMM}`, generated at adjourn time (not session start). Example: `claude-20260412-1700`, `gemini-20260412-1900`.
-- **Outbox merge lock**: During merge, write `_meta/.merge-lock`. If it exists and is < 5 minutes old, skip merge and proceed normally. Delete after merge completes.
+- **Outbox merge lock**: During merge, write `meta/.merge-lock`. If it exists and is < 5 minutes old, skip merge and proceed normally. Delete after merge completes.
 - **Empty sessions**: If a session has no output (no decisions, tasks, or journal entries), do not create an outbox.
 - Mobile devices write through Notion inbox or GDrive inbox, not directly to structured data
 - All adapters must support the 7 standard operations

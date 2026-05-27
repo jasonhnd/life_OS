@@ -70,11 +70,11 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 - `retrospective` (Mode 1 Housekeeping) — 在后台准备 context
 
 **RETROSPECTIVE 做的事**:
-- 读 `_meta/config.md` 取后端列表和上次同步时间戳
+- 读 `meta/config.md` 取后端列表和上次同步时间戳
 - 对每个可用后端做 full sync pull
-- 扫 `_meta/outbox/` 合并未合并的会话
-- 读 `user-patterns.md`, `wiki/INDEX.md`, `_meta/STRATEGIC-MAP.md`, `_meta/STATUS.md`
-- 读 `_meta/lint-state.md` — 如果 >4h, 触发 AUDITOR 轻量巡视
+- 扫 `meta/outbox/` 合并未合并的会话
+- 读 `user-patterns.md`, `wiki/INDEX.md`, `meta/STRATEGIC-MAP.md`, `meta/STATUS.md`
+- 读 `meta/lint-state.md` — 如果 >4h, 触发 AUDITOR 轻量巡视
 - ReadProjectContext(绑定项目)
 - 版本检查 + 平台检测
 
@@ -296,7 +296,7 @@ ROUTER **禁止**:
 
 **4 个 Phase**:
 
-1. **Phase 1 · Archive**: decisions/tasks/journal → `_meta/outbox/{session_id}/`
+1. **Phase 1 · Archive**: decisions/tasks/journal → `meta/outbox/{session_id}/`
 2. **Phase 2 · Knowledge Extraction**: 扫全部会话材料, auto-write wiki (6 criteria + 隐私过滤) + SOUL (criteria + confidence 0.3)
 3. **Phase 3 · DREAM**: 最近 3 天深度回溯 (N1-N2 整理, N3 固化, REM 创造性连接 + 10 个 auto-trigger 检测)
 4. **Phase 4 · Sync**: git add outbox + commit + push (**不做** Notion sync)
@@ -334,7 +334,7 @@ f. 某一项失败 → 报告具体哪项, 继续其他
 3. 展示 18 领域思想家索引 + 推荐
 4. 用户确认 → 把每个选中思想家作为**独立 subagent** 启动
 5. 对话模式 (一对一 / 圆桌 / 辩论)
-6. 结束: 每位思想家给 parting word → STRATEGIST 汇总 → 写 `_meta/journal/{date}-strategist-{slug}.md`
+6. 结束: 每位思想家给 parting word → STRATEGIST 汇总 → 写 `meta/journal/{date}-strategist-{slug}.md`
 
 **信息隔离**: 每个思想家 subagent 只拿话题 + 自己的角色。圆桌/辩论时, moderator 在思想家之间传**发言摘要** (不是全文、不是思考过程)。
 
@@ -346,4 +346,4 @@ f. 某一项失败 → 报告具体哪项, 继续其他
 
 - **Wiki**: RETROSPECTIVE 在 start 时编译 `wiki/INDEX.md`; ROUTER 在路由时读 index; DISPATCHER 把相关 wiki 条目作为已知前提传给领域; REVIEWER 检查冲突; AUDITOR 巡视 wiki 健康
 - **SOUL**: REVIEWER 每个决策必引 (HARD RULE); ADVISOR 每次决策更新 evidence/challenge; ARCHIVER 结束时 auto-write 新维度 (confidence 0.3, What SHOULD BE 留空); RETROSPECTIVE 下次 start 读最新 snapshot 算 trend
-- **Strategic Map**: RETROSPECTIVE 在 start 时从 `_meta/strategic-lines.md` + 各项目 index.md 的 strategic 字段编译 `_meta/STRATEGIC-MAP.md`; ROUTER/PLANNER/REVIEWER 读这份编译产物
+- **Strategic Map**: RETROSPECTIVE 在 start 时从 `meta/strategic-lines.md` + 各项目 index.md 的 strategic 字段编译 `meta/STRATEGIC-MAP.md`; ROUTER/PLANNER/REVIEWER 读这份编译产物

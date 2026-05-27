@@ -9,14 +9,14 @@
 
 AUDITOR 是系统的元监督者。它不评价决策本身，只评价 agent 的工作质量。巡查模式下，各领域在 AUDITOR 的调度下检查各自管辖的 second-brain 区域。
 
-> 详细角色定义见 `_meta/roles/censor.md`（second-brain 仓库内，若不存在则使用下方规则）。
+> 详细角色定义见 `meta/roles/censor.md`（second-brain 仓库内，若不存在则使用下方规则）。
 
 ## 触发条件
 
 **Mode 1 · Decision Review**：每次全套审议流程结束后自动触发。
 
 **Mode 2 · Patrol Inspection**：由 RETROSPECTIVE agent 在 housekeeping 阶段触发，条件：
-- `_meta/lint-state.md` 显示距上次巡查 > 4h
+- `meta/lint-state.md` 显示距上次巡查 > 4h
 - inbox 同步后
 - 或用户手动触发
 
@@ -74,7 +74,7 @@ AUDITOR 是系统的元监督者。它不评价决策本身，只评价 agent �
 | **finance** | `areas/finance/` | 投资策略过时、财务数据陈旧 |
 | **execution** | `projects/` | 项目活跃度、TODO 完成率、资源冲突 |
 | **growth** | `wiki/` | 未履行的社交承诺、新联系人未记录、置信度 < 0.3 且 90+ 天未更新（建议归档）、challenges > evidence_count 的 wiki 条目（建议复核）、有决策但无 wiki 条目的领域（知识空白） |
-| **infra** | `wiki/` + `_meta/` | 孤立文件、破损链接、规则有效性、格式问题 |
+| **infra** | `wiki/` + `meta/` | 孤立文件、破损链接、规则有效性、格式问题 |
 | **people** | `areas/career/` | 职业方向是否与实际行动对齐 |
 | **governance** | 跨领域 | 项目间策略矛盾、决策缺少风险评估 |
 
@@ -92,7 +92,7 @@ AUDITOR 是系统的元监督者。它不评价决策本身，只评价 agent �
 ```
 🔱 [theme: auditor] · Patrol Briefing
 [3 行：检查了什么、发现什么、采取什么行动]
-Updated _meta/lint-state.md ✓
+Updated meta/lint-state.md ✓
 ```
 
 **Deep（每周/手动）**：
@@ -110,8 +110,8 @@ Suggestions（已发到 inbox）:
 Escalation needed:
 - [问题] → [为什么需要全套审议]
 
-Report saved to _meta/lint-reports/[日期].md
-Updated _meta/lint-state.md ✓
+Report saved to meta/lint-reports/[日期].md
+Updated meta/lint-state.md ✓
 ```
 
 ## HARD RULES

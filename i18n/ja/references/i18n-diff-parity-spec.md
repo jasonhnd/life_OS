@@ -35,7 +35,7 @@ referenced_by:
 - `pro/gotchas.md` —— 単一ファイル（dev 内部知識ベース）
 - `pro/agents/*.md` —— 各 agent 単一ファイル（themes/ が表示処理）
 - `pro/*.md`（CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md）—— ホスト固有オーケストレーション、ユーザ向け翻訳ではない
-- `_meta/**/*` —— ランタイム成果物と RFC
+- `meta/**/*` —— ランタイム成果物と RFC
 - `themes/*.md` —— theme ファイルはネイティブ文化言語使用
 
 ## 変更識別（セクションレベル）
@@ -147,6 +147,6 @@ AUDITOR Mode 7 M7-5 がこれら例外を尊重。
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
 - パターン源：`tinyhumansai/openhuman` AGENTS.md:118-120（変更行カバレッジ diff-cover 経由）—— i18n ミラーに適応
 - `pro/compliance/violations.md` —— 本仕様が防止を目指す歴史的ドリフト事件

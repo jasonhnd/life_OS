@@ -7,7 +7,7 @@ Designed based on cognitive science research: Goal Systems Theory (Kruglanski 20
 ## Design Principles
 
 1. **Two-layer architecture**: structural (user-defined, slow-changing) + dynamic (system-computed, refreshed at each Start Court)
-2. **Single source of truth**: `projects/{project}/index.md` frontmatter stores per-project strategic data; `_meta/strategic-lines.md` stores line definitions; `_meta/STRATEGIC-MAP.md` is compiled (never hand-edited)
+2. **Single source of truth**: `projects/{project}/index.md` frontmatter stores per-project strategic data; `meta/strategic-lines.md` stores line definitions; `meta/STRATEGIC-MAP.md` is compiled (never hand-edited)
 3. **Grows from zero**: if no strategic data exists, the system operates normally — the feature is dormant until the user defines relationships
 4. **User-confirmed structural changes**: new strategic lines, project roles, and flow relationships require user confirmation (like SOUL/wiki candidates)
 5. **Pattern matching + narrative assessment**: no numerical scores — match health archetypes and write a story about what's happening, what it means, and what to do
@@ -15,7 +15,7 @@ Designed based on cognitive science research: Goal Systems Theory (Kruglanski 20
 
 ## Data Structures
 
-### Strategic Line (`_meta/strategic-lines.md`)
+### Strategic Line (`meta/strategic-lines.md`)
 
 Lives in the user's second-brain (not the Life OS repo). Multiple lines separated by `---`. Created when the user first defines a strategic grouping.
 
@@ -198,14 +198,14 @@ With Strategic Map: DREAM REM has scaffolding:
 - **wiki × flows**: Is knowledge actually being transferred between projects?
 - **Beyond structure**: What connections exist that the strategic map hasn't captured yet?
 
-## Compiled Output: `_meta/STRATEGIC-MAP.md`
+## Compiled Output: `meta/STRATEGIC-MAP.md`
 
 Compiled by the RETROSPECTIVE at every Start Court (step 8.5). Never hand-edited.
 
 ### Compilation Algorithm
 
 ```
-1. Read _meta/strategic-lines.md → all line definitions
+1. Read meta/strategic-lines.md → all line definitions
 2. Read all projects/*/index.md → collect strategic fields
 3. For each line:
    a. Collect projects with matching strategic.line, sort by role
@@ -219,7 +219,7 @@ Compiled by the RETROSPECTIVE at every Start Court (step 8.5). Never hand-edited
 5. List unaffiliated projects
 6. Build flow graph from all flows_to/flows_from
 7. Generate action recommendations (leverage ranking + safe-to-ignore + decisions needed)
-8. Write _meta/STRATEGIC-MAP.md
+8. Write meta/STRATEGIC-MAP.md
 ```
 
 ### Output Format
@@ -319,7 +319,7 @@ Generated when the system detects structural gaps:
 
 ## Cold Start
 
-If `_meta/strategic-lines.md` does not exist:
+If `meta/strategic-lines.md` does not exist:
 - RETROSPECTIVE skips strategic compilation silently
 - Briefing falls back to original Area Status flat list format
 - After 3+ sessions with multiple projects, DREAM REM may propose: "You have N active projects but no strategic relationships defined. Would you like to map how they relate?"

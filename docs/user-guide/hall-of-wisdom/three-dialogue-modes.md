@@ -198,7 +198,7 @@ STRATEGIST：你这个问题其实是两难抉择。要不要让 X 和 Y 辩一�
 
 **3. 归档**
 
-写入 `_meta/journal/{date}-strategist-{slug}.md`：
+写入 `meta/journal/{date}-strategist-{slug}.md`：
 - 前置元数据：`type: journal`, `journal_type: strategist`
 - 内容：参与思想家、议题、旅程、顿悟、临别赠言
 

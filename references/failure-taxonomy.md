@@ -8,7 +8,7 @@ introduced_in: v1.8.5
 
 # Failure Taxonomy F1-F17
 
-> Architecture-level failure classes for AI agent governance systems. Each class has a definition + canonical repair. life_OS borrows this taxonomy from eou-foundry (Stage 3 Day 6 deliverable per RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`).
+> Architecture-level failure classes for AI agent governance systems. Each class has a definition + canonical repair. life_OS borrows this taxonomy from eou-foundry (Stage 3 Day 6 deliverable per RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md`).
 
 ## How this relates to existing life_OS taxonomy
 
@@ -29,7 +29,7 @@ introduced_in: v1.8.5
 ### F2 — CONTEXT FAILURE
 - **Definition**: Wrong context loaded or source of truth omitted.
 - **Repair**: Repair `context_manifest`.
-- **Example**: REVIEWER decides without reading SOUL.md; archiver Phase 4 reads stale `_meta/config.md`.
+- **Example**: REVIEWER decides without reading SOUL.md; archiver Phase 4 reads stale `meta/config.md`.
 
 ### F3 — SCHEMA FAILURE
 - **Definition**: Spec, input, output, or validator schemas diverge.
@@ -70,7 +70,7 @@ introduced_in: v1.8.5
 
 ### F9 — TRACE FAILURE
 - **Definition**: Run cannot be reconstructed; trace missing or contradicts declared steps.
-- **Repair**: Improve trace capture; every step writes to `_meta/runtime/<sid>/`.
+- **Repair**: Improve trace capture; every step writes to `meta/runtime/<sid>/`.
 - **Example**: archiver Phase 4 completes but writes no `notion-sync-*.json` audit trail.
 
 ### F10 — RESPONSIBILITY FAILURE
@@ -117,8 +117,8 @@ introduced_in: v1.8.5
 
 Not every diagnosed failure becomes a change. Record decisions explicitly per Stage 7 `no_change_record` protocol:
 
-- **change**: An ECP (Edit-Change-Proposal) was opened. See `_meta/incidents/{id}.change.md`.
-- **no_change**: Decision made to accept current behavior. Record in `_meta/incidents/{id}.no-change.yml` per Stage 7 §1 schema (7 required fields: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition). **A missing record looks identical to an uninvestigated incident.**
+- **change**: An ECP (Edit-Change-Proposal) was opened. See `meta/decisions/{id}.change.md`.
+- **no_change**: Decision made to accept current behavior. Record in `meta/decisions/{id}.no-change.yml` per Stage 7 §1 schema (7 required fields: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition). **A missing record looks identical to an uninvestigated incident.**
 
 ## Use cases
 

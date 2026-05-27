@@ -15,8 +15,8 @@ SOUL スナップショットは、すべてのセッションの終わりにキ
 | アーティファクト | 記録内容 |
 |----------|----------------|
 | `SOUL.md` | 現在の権威あるアイデンティティ状態 |
-| `_meta/snapshots/soul/` | **トレンド計算のための歴史的 SOUL 状態(この仕様)** |
-| `_meta/concepts/` | Synaptic ネットワーク(`references/concept-spec.md`) |
+| `meta/snapshots/soul/` | **トレンド計算のための歴史的 SOUL 状態(この仕様)** |
+| `meta/concepts/` | Synaptic ネットワーク(`references/concept-spec.md`) |
 | `wiki/` | 再利用可能な世界知識 |
 
 スナップショットはメタデータのみ — SOUL 本文コンテンツを複製することは決してありません。時点における SOUL の数値的な形状を記録し、retrospective が「当時」と「現在」を比較できるようにします。
@@ -29,22 +29,22 @@ SOUL スナップショットは、すべてのセッションの終わりにキ
 2. **メタデータのみ(Metadata-only)** — スナップショットは次元名、confidence、evidence counts、tier を格納。SOUL 本文テキストは格納しない。
 3. **セッションごとに作成(Created every session)** — 些細なセッションでも。スナップショットの欠落はトレンド計算を破壊する。
 4. **小さい(Small)** — 各スナップショットは典型的に <5KB。何千ものスナップショットも安価なままである。
-5. **積極的にアーカイブ(Archived aggressively)** — アクティブなスナップショットは 30 日間ホットに留まり、その後 `_archive/` に移動し、90 日後に削除される。Git 履歴が完全な監査証跡を保持する。**スナップショットは Notion に同期しない** — ユーザー決定 #12 と `cortex-spec.md` §Anti-patterns に従い、すべての Cortex/`_meta/` データ(concepts、synapses、snapshots)はローカルに留まる。Notion はセッションサマリーと decision レコードのみを受け取る。
+5. **積極的にアーカイブ(Archived aggressively)** — アクティブなスナップショットは 30 日間ホットに留まり、その後 `_archive/` に移動し、90 日後に削除される。Git 履歴が完全な監査証跡を保持する。**スナップショットは Notion に同期しない** — ユーザー決定 #12 と `cortex-spec.md` §Anti-patterns に従い、すべての Cortex/`meta/` データ(concepts、synapses、snapshots)はローカルに留まる。Notion はセッションサマリーと decision レコードのみを受け取る。
 
 ---
 
 ## ファイルの場所(File Location)
 
 ```
-_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
+meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
 ```
 
-ファイル名のタイムスタンプは **キャプチャ時の実際の `date` コマンドから来なければならない** — 捏造なし(v1.4.4b からの決定)。システムクロックが利用不可の場合、スナップショット書き込みは中止され、失敗は `_meta/cortex/decay-log.md` にログされる。
+ファイル名のタイムスタンプは **キャプチャ時の実際の `date` コマンドから来なければならない** — 捏造なし(v1.4.4b からの決定)。システムクロックが利用不可の場合、スナップショット書き込みは中止され、失敗は `meta/cortex/decay-log.md` にログされる。
 
 ### 予約パス(Reserved paths)
 
-- `_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` — アクティブなスナップショット(30 日以内)
-- `_meta/snapshots/soul/_archive/{YYYY-MM-DD-HHMM}.md` — アーカイブされたスナップショット(30-90 日)
+- `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` — アクティブなスナップショット(30 日以内)
+- `meta/snapshots/soul/_archive/{YYYY-MM-DD-HHMM}.md` — アーカイブされたスナップショット(30-90 日)
 - 90 日より古いスナップショットはファイルシステムから削除される; 監査証跡は git 履歴にのみ残る(スナップショットはユーザー決定 #12 に従いローカルのみ)
 
 ---
@@ -76,7 +76,7 @@ dimensions:
 |-------|-----------|
 | `snapshot_id` | ファイル名のステムと完全に一致しなければならない |
 | `captured_at` | システムクロックからの実際の ISO 8601 タイムスタンプでなければならない |
-| `session_id` | `_meta/sessions/` 内の有効な session ID でなければならない |
+| `session_id` | `meta/sessions/` 内の有効な session ID でなければならない |
 | `previous_snapshot` | 前のスナップショットのファイル名、または最初の場合 `null` |
 | `dimensions` | `confidence > 0.2` の次元のみ含める(ノイズをスキップ) |
 | `dimensions[].tier` | confidence から導出(以下の Tier Mapping 参照) |
@@ -113,7 +113,7 @@ archiver Phase 2
     │        - confidence から tier を決定
     │        - name、confidence、evidence_count、challenges をコピー
     │   4. 最新の既存スナップショットを見つける → `previous_snapshot` を設定
-    │   5. _meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md を書く
+    │   5. meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md を書く
     │   6. 書き込み後にファイルは read-only になる(編集しない)
     └── Step 4 — ハウスキーピング(Archive Policy 参照)
 ```
@@ -162,8 +162,8 @@ retrospective は tier 遷移と衝突検出のためのバッジも emit しま
 
 `archiver` Phase 2 Step 4 はスナップショット作成後にハウスキーピングを実行します:
 
-1. `_meta/snapshots/soul/` 内の各ファイルで `captured_at` が **30 日より古い** ものは: `_meta/snapshots/soul/_archive/` へ移動(ファイル名を保存)
-2. `_meta/snapshots/soul/_archive/` 内の各ファイルで `captured_at` が **90 日より古い** ものは: ファイルシステムから削除
+1. `meta/snapshots/soul/` 内の各ファイルで `captured_at` が **30 日より古い** ものは: `meta/snapshots/soul/_archive/` へ移動(ファイル名を保存)
+2. `meta/snapshots/soul/_archive/` 内の各ファイルで `captured_at` が **90 日より古い** ものは: ファイルシステムから削除
 3. ハウスキーピングは冪等 — 2 回走らせると同じ結果を生成
 
 削除が安全な理由:
@@ -188,11 +188,11 @@ retrospective は tier 遷移と衝突検出のためのバッジも emit しま
 
 v1.7 以前にはスナップショットはありません(v1.6.2 がメカニズムを導入; v1.6.2a が安定化)。v1.6.2 以前の second-brain について:
 
-1. `tools/migrate.py` は `_meta/journal/` をスキャンして SOUL delta ブロック(ADVISOR によって emit された `🔮 SOUL Delta` セクション)を探す
+1. `tools/migrate.py` は `meta/journal/` をスキャンして SOUL delta ブロック(ADVISOR によって emit された `🔮 SOUL Delta` セクション)を探す
 2. SOUL delta を含む各 journal エントリについて、journal エントリの date でタイムスタンプされたスナップショットを合成
 3. 合成スナップショットは frontmatter に `provenance: synthetic` を持ち、retrospective がそれらを自然なスナップショットと区別できるようにする
 4. マイグレーションは直近 3 ヶ月内の最も早い journal エントリで停止(ユーザー決定 #7 — 他のすべてのマイグレーションスコープと整合)。より深い履歴は再構築されない; シグナルが劣化しすぎる。
-5. マイグレーション結果を `_meta/cortex/bootstrap-status.md` にログ
+5. マイグレーション結果を `meta/cortex/bootstrap-status.md` にログ
 
 マイグレーションは冪等。合成スナップショットはトレンドアルゴリズムによって自然なものと同一に扱われる — `provenance` フィールドは監査用にのみ存在する。
 
@@ -202,7 +202,7 @@ v1.7 以前にはスナップショットはありません(v1.6.2 がメカニ�
 
 `retrospective` は Start Session 中のスナップショットの唯一の reader です。その契約:
 
-1. `_meta/snapshots/soul/` 内のファイルを `captured_at` 降順でソートしてリスト
+1. `meta/snapshots/soul/` 内のファイルを `captured_at` 降順でソートしてリスト
 2. トップ 2 ファイル(現在と前)を取る
 3. スナップショットが 2 つ未満の場合、"first snapshot" 動作にフォールバック(すべての次元が 🌱 としてレンダリング)
 4. 両方の YAML frontmatter をパース
@@ -236,16 +236,16 @@ retrospective は通常動作中にアーカイブされたスナップショッ
 - **典型的に <5KB、ハード warning 閾値 <10KB**
 - **30 日ホット、30-90 日アーカイブ、>90 日削除** — アーカイブポリシーは冪等
 - **`archiver` Phase 2 が書き込みを所有、`retrospective` Mode 0 が読み取りを所有** — 他のロールはスナップショットファイルに触れない
-- **ローカルのみ — Notion 同期なし** — スナップショットは Cortex/`_meta/` データ; 監査証跡は git に存在する
+- **ローカルのみ — Notion 同期なし** — スナップショットは Cortex/`meta/` データ; 監査証跡は git に存在する
 
 ---
 
 ## 関連仕様(Related Specs)
 
 - `references/soul-spec.md` — SOUL スキーマ、次元ライフサイクル、Health Report フォーマット消費者
-- `references/session-index-spec.md` — `session_id` フィールドは `_meta/sessions/` のエントリを参照
+- `references/session-index-spec.md` — `session_id` フィールドは `meta/sessions/` のエントリを参照
 - `references/cortex-spec.md` — 全体的な Cortex アーキテクチャ; スナップショットは v1.7 の 5 つのコアアーティファクトの 1 つ
-- `references/concept-spec.md` — 兄弟 `_meta/` データレイヤー; 同じ markdown-first 原則とローカルのみ制約
+- `references/concept-spec.md` — 兄弟 `meta/` データレイヤー; 同じ markdown-first 原則とローカルのみ制約
 - `references/eval-history-spec.md` — AUDITOR の `soul_reference_quality` 次元はスナップショット由来のトレンドシグナルを消費
 - `pro/agents/archiver.md` — Phase 2 Step 3 がスナップショット書き込みを所有
 - `pro/agents/retrospective.md` — Mode 0 が Health Report 用のスナップショット読み取りを所有

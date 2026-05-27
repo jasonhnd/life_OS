@@ -334,7 +334,7 @@ ROUTER 会:
 
 ### 5. 调整 salience 阈值
 
-编辑 `_meta/config.md`:
+编辑 `meta/config.md`:
 
 ```yaml
 salience_weights:
@@ -446,13 +446,13 @@ novelty 衰减是反刷屏机制,不是"隐藏相关信息"。具体:
 1. **你通常只用 direct-handle 或 Express**——这些场景根本不走 Step 0.5
 2. **migration 没跑过**——INDEX.md / concepts 都空,signal registry 无东西可排,GWT 直接发空 marker
 3. **所有信号 salience < 0.3**——GWT 发了 `(no high-salience signals)` 标记但你没看到(ROUTER 可能把这个标记折叠在"其他"里)
-4. **cortex_enabled: false**——`_meta/config.md` 里被关了
+4. **cortex_enabled: false**——`meta/config.md` 里被关了
 
 诊断:
 
 ```bash
 # 查本次 session 的 arbitration record (记在 session frame md 里)
-grep -l "gwt_arbitration" _meta/sessions/$(ls -t _meta/sessions/ | head -1)
+grep -l "gwt_arbitration" meta/sessions/$(ls -t meta/sessions/ | head -1)
 ```
 
 ### "SOUL CONFLICT 反复误升"
@@ -461,7 +461,7 @@ grep -l "gwt_arbitration" _meta/sessions/$(ls -t _meta/sessions/ | head -1)
 
 处理:
 - 短期: 在每次误升时反驳("这次 SOUL CONFLICT 不适用"),让 AUDITOR 积累证据
-- 长期: AUDITOR 标 retuning 需求后,可能需要调整 SOUL check subagent 的维度匹配阈值——那是 `_meta/config.md` 级别的调整,用户决策 #4 不会自动触发"关掉某个模块",但你可以决定手动调
+- 长期: AUDITOR 标 retuning 需求后,可能需要调整 SOUL check subagent 的维度匹配阈值——那是 `meta/config.md` 级别的调整,用户决策 #4 不会自动触发"关掉某个模块",但你可以决定手动调
 
 ### "annotation_utilization_rate 长期 <20%"
 
@@ -484,7 +484,7 @@ Concept lookup 可能**过度泛泛匹配**——每个 concept 都激活,拿到
 处理:
 - 短期: 这类问题 AUDITOR 会 flag `cognitive_annotation_quality` 低
 - 中期: 等待 concept-lookup 的 prompt 优化(v1.7 spec 明说 open question)
-- 临时绕路: `_meta/config.md` 把 `per_signal_floor` 从 0.3 提到 0.5,过滤掉中等相关度噪音
+- 临时绕路: `meta/config.md` 把 `per_signal_floor` 从 0.3 提到 0.5,过滤掉中等相关度噪音
 
 ---
 

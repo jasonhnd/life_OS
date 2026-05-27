@@ -215,7 +215,7 @@ last_modified: "2026-04-01"
 
 1. 还是绑定其中一个（通常是主导的那个）。
 2. 决策标题加 "(跨项目决策)"。
-3. 决策文件写进 `_meta/decisions/` 而不是 `projects/{project}/decisions/`。
+3. 决策文件写进 `meta/decisions/` 而不是 `projects/{project}/decisions/`。
 4. 每个相关项目的 index.md 的 strategic 字段 flows_to / flows_from 互相链。
 
 示例：
@@ -224,7 +224,7 @@ last_modified: "2026-04-01"
 你：要不要辞职 fulltime 做 Life OS
 
 ROUTER：这看起来跨了 career、life-os、finance 三个 scope。
-       建议作为跨项目决策，写进 _meta/decisions/。
+       建议作为跨项目决策，写进 meta/decisions/。
        你同意吗？
 
 你：同意
@@ -232,7 +232,7 @@ ROUTER：这看起来跨了 career、life-os、finance 三个 scope。
 [走完 3D6M 流程]
 
 ARCHIVER 写入：
-  _meta/decisions/2026-04-08-quit-job-for-lifeos.md
+  meta/decisions/2026-04-08-quit-job-for-lifeos.md
   （而不是 projects/life-os/decisions/）
 ```
 

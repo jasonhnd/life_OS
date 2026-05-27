@@ -19,7 +19,7 @@ Strategic Map 是两层叠加：
 
 ### 结构层（Structural · 用户定义、慢变化）
 
-- **存储位置**：`_meta/strategic-lines.md` + `projects/{project}/index.md` 的 `strategic:` frontmatter
+- **存储位置**：`meta/strategic-lines.md` + `projects/{project}/index.md` 的 `strategic:` frontmatter
 - **变化频率**：每次新项目加入或战略重组时才动
 - **来源**：用户明确定义（可以由 DREAM 或对话触发）
 - **内容**：
@@ -30,7 +30,7 @@ Strategic Map 是两层叠加：
 
 ### 动态层（Dynamic · 系统计算、每次刷新）
 
-- **存储位置**：`_meta/STRATEGIC-MAP.md`（**编译产物，绝对不可手改**）
+- **存储位置**：`meta/STRATEGIC-MAP.md`（**编译产物，绝对不可手改**）
 - **刷新时机**：每次 start / 上朝 / begin 时 RETROSPECTIVE 在 Step 15 重新编译
 - **来源**：读取结构层 + 项目状态 + 时间 → 算出
 - **内容**：
@@ -46,7 +46,7 @@ Strategic Map 是两层叠加：
 
 Strategic Map 不是一次性设定完的——它**随使用增长**。
 
-- **Day 0**：`_meta/strategic-lines.md` 不存在 → Strategic Map 功能休眠。RETROSPECTIVE 静默跳过编译。简报 fallback 到扁平的 Area Status。
+- **Day 0**：`meta/strategic-lines.md` 不存在 → Strategic Map 功能休眠。RETROSPECTIVE 静默跳过编译。简报 fallback 到扁平的 Area Status。
 - **Day N**：用户说"把项目关联起来"，或 DREAM 在第 3+ 次 session 后提议"你有 N 个活跃项目但没定义关系" → 用户进入首次设置。
 - **Day N+1**：第一次 Strategic Map 编译 → 简报顶部出现 🗺️ Strategic Overview。
 
@@ -73,9 +73,9 @@ Strategic Map 不是一次性设定完的——它**随使用增长**。
 
 如果你想改 Strategic Map，改**源**：
 
-- 改战略线的 purpose / driving_force / health_signals → 编辑 `_meta/strategic-lines.md`
+- 改战略线的 purpose / driving_force / health_signals → 编辑 `meta/strategic-lines.md`
 - 改项目的 role / flows_to / flows_from → 编辑 `projects/{project}/index.md` 的 `strategic:` 字段
-- 删除一个战略线 → 从 `_meta/strategic-lines.md` 删除对应 YAML 块
+- 删除一个战略线 → 从 `meta/strategic-lines.md` 删除对应 YAML 块
 
 ### 规则 2：Structural changes 需要用户确认
 

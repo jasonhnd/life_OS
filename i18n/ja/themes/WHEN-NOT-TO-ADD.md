@@ -9,7 +9,7 @@
 3. **Agent 挙動の翻訳** —— theme は**表示名のみ**を翻訳、**挙動は翻訳しない**。挙動は theme 間で完全同一。
 4. **"とりあえず追加"の新文化設定** —— 下記 "新 theme 追加前" 参照。
 5. **サブドメインの theme バリアント** —— 例 "zh-classical-finance" で金銭フォーカス表示名。Theme はセッション全体、ドメイン単位ではない。
-6. **ユーザごとカスタマイズ** —— ユーザは `_meta/config.md` を編集して theme を切り替える；新 theme を追加するわけではない。
+6. **ユーザごとカスタマイズ** —— ユーザは `meta/config.md` を編集して theme を切り替える；新 theme を追加するわけではない。
 
 ## ここに **属する** もの
 
@@ -44,6 +44,6 @@
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12 + §9 Q3（memory-keeper を全 9 theme に同時追加 —— コストを示す）
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12 + §9 Q3（memory-keeper を全 9 theme に同時追加 —— コストを示す）
 - パターン源：`tinyhumansai/openhuman` `.claude/rules/README.md`
 - 連携：SKILL.md `## Theme System`

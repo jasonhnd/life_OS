@@ -9,7 +9,7 @@
 3. **Agent 行为的翻译** —— theme 只翻**显示名**，**不翻**行为。行为跨 theme 完全一致。
 4. **"反正闲着没事就加"的新文化设定** —— 见下方"加新 theme 前"。
 5. **子领域的 theme 变体** —— 如"zh-classical-finance"用金钱聚焦显示名。Theme 是 session 级，不是 domain 级。
-6. **每用户定制** —— 用户改 `_meta/config.md` 切换 theme，不是自己加新 theme。
+6. **每用户定制** —— 用户改 `meta/config.md` 切换 theme，不是自己加新 theme。
 
 ## 什么 **属于** 这里
 
@@ -44,6 +44,6 @@
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12 + §9 Q3（memory-keeper 同时加到全部 9 个 theme —— 体现成本）
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12 + §9 Q3（memory-keeper 同时加到全部 9 个 theme —— 体现成本）
 - 模式来源：`tinyhumansai/openhuman` `.claude/rules/README.md`
 - 配套：SKILL.md `## Theme System`

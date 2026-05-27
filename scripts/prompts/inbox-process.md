@@ -1,6 +1,6 @@
 # User-invoked prompt · inbox-process (v1.8.1)
 
-> Walks `_meta/inbox/to-process/` and triages each item into wiki / archive
+> Walks `meta/queue/to-process/` and triages each item into wiki / archive
 > / reject / defer with user confirmation. ROUTER reads this when the user
 > wants to process inbox drops.
 
@@ -12,16 +12,16 @@
 
 ## Pre-flight
 
-1. Verify cwd is a second-brain repo (`_meta/` exists). If not: refuse and
+1. Verify cwd is a second-brain repo (`meta/` exists). If not: refuse and
    tell user "/inbox-process must run inside a second-brain vault, not the
    Life OS dev repo".
-2. Verify `_meta/inbox/to-process/` exists. If missing: create it, write
-   `_meta/inbox/README.md` (see template at end of this prompt), tell user
-   "Inbox initialized. Drop `.md` files into `_meta/inbox/to-process/` and
+2. Verify `meta/queue/to-process/` exists. If missing: create it, write
+   `meta/queue/README.md` (see template at end of this prompt), tell user
+   "Inbox initialized. Drop `.md` files into `meta/queue/to-process/` and
    re-run /inbox-process when ready", and exit.
 3. Read `wiki/SCHEMA.md` to confirm frontmatter contract for any wiki write
    later in this flow.
-4. Read `_meta/inbox/manifest.json` if it exists (create empty
+4. Read `meta/queue/manifest.json` if it exists (create empty
    `{"seen": [], "last_run": null}` if not). The manifest tracks which
    items were processed in prior runs so we know which are *new* this run.
 5. List wiki domains (`ls wiki/` excluding `INDEX.md`, `SCHEMA.md`,
@@ -32,7 +32,7 @@
 ## Step 1 · Scan + delta
 
 ```bash
-ls -1 _meta/inbox/to-process/*.md 2>/dev/null
+ls -1 meta/queue/to-process/*.md 2>/dev/null
 ```
 
 For each file, capture:
@@ -156,7 +156,7 @@ For each confirmed row, in order:
    tags: [<domain>/<sub-topic>, inbox-ingested]   # v1.8.2 — nested-tag style
    status: candidate
    sources:                       # PLURAL — list every contributing source
-     - _meta/inbox/archive/<original-filename>
+     - meta/queue/archive/<original-filename>
    ---
    ```
 4. Body: rewrite source content to wiki style (no first-person, no
@@ -179,8 +179,8 @@ For each confirmed row, in order:
    is not a demerit; it's information for future-you and downstream
    audits.
 7. Write `wiki/<domain>/<slug>.md`.
-6. Move `_meta/inbox/to-process/<original>.md` →
-   `_meta/inbox/archive/<original>.md` via `mv` (Bash tool).
+6. Move `meta/queue/to-process/<original>.md` →
+   `meta/queue/archive/<original>.md` via `mv` (Bash tool).
 7. Append one line to `wiki/log.md`:
    ```
    - [HH:MM] created  | wiki/<domain>/<slug>.md | <one-line summary>
@@ -199,7 +199,7 @@ For each confirmed row, in order:
    - extend `sources:` array with the inbox source path
    - re-evaluate `confidence` (raise enum bucket if new sources support;
      lower if you found counter-evidence).
-3. Move source to `_meta/inbox/archive/`.
+3. Move source to `meta/queue/archive/`.
 4. Append `wiki/log.md`:
    ```
    - [HH:MM] updated  | wiki/<domain>/<existing-slug>.md | <what changed>
@@ -214,16 +214,16 @@ For each confirmed row, in order:
 
 ### archive
 
-1. Move source `_meta/inbox/to-process/X.md` → `_meta/inbox/archive/X.md`.
+1. Move source `meta/queue/to-process/X.md` → `meta/queue/archive/X.md`.
 2. Do NOT touch `wiki/log.md` (this isn't a wiki action).
 
 ### reject
 
-1. Move source to `_meta/inbox/archive/X.md` (we don't delete; archive is
+1. Move source to `meta/queue/archive/X.md` (we don't delete; archive is
    the recycle bin).
 2. Append `wiki/log.md`:
    ```
-   - [HH:MM] rejected | _meta/inbox/<original> | <one-line reason>
+   - [HH:MM] rejected | meta/queue/<original> | <one-line reason>
    ```
    (Yes, `wiki/log.md` records rejections too — it's the single activity
    timeline; rejections explain why a candidate didn't make it.)
@@ -239,7 +239,7 @@ For each confirmed row, in order:
 
 ## Step 6 · Update manifest
 
-After all rows processed, rewrite `_meta/inbox/manifest.json`:
+After all rows processed, rewrite `meta/queue/manifest.json`:
 
 ```json
 {
@@ -305,12 +305,12 @@ Inbox state:
 - **source frontmatter unparseable** for a defer: skip defer attempt,
   ask user to inspect manually.
 - **manifest.json malformed**: back it up to
-  `_meta/inbox/manifest.json.broken-<timestamp>` and start fresh with
+  `meta/queue/manifest.json.broken-<timestamp>` and start fresh with
   `{"seen": [], "last_run": null}`. Tell user.
 
 ## Templates (write these only when missing)
 
-### `_meta/inbox/manifest.json`
+### `meta/queue/manifest.json`
 
 ```json
 {
@@ -320,7 +320,7 @@ Inbox state:
 }
 ```
 
-### `_meta/inbox/README.md`
+### `meta/queue/README.md`
 
 ```markdown
 # Inbox · drop-zone for unprocessed material

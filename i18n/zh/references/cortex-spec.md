@@ -48,7 +48,7 @@ Cortex 不替代任何现有模块。它为 ROUTER 提供带注释的输入 —�
 
 用户感受到的是"AI 在会话内很谨慎，但会话之间就忘了"。Cortex 通过让跨会话记忆与概念图成为每个工作流的一等输入，修复了这个问题。
 
-失败模式不是任何单个 agent 弱 —— 16 个 agent 各自都做得很好。失败模式是 agent 从来看不到其他会话学到了什么。PLANNER 在 session 412 面对一个财务决策时，并不知道 session 198 已经对同一实体得出过结论，因为没有任何东西把那个结论往前传，除了原始的 `_meta/journal/*.md` 文件，而除非用户明确请求，没人会读这些文件。Cortex 让这种向前传递变为自动。
+失败模式不是任何单个 agent 弱 —— 16 个 agent 各自都做得很好。失败模式是 agent 从来看不到其他会话学到了什么。PLANNER 在 session 412 面对一个财务决策时，并不知道 session 198 已经对同一实体得出过结论，因为没有任何东西把那个结论往前传，除了原始的 `meta/journal/*.md` 文件，而除非用户明确请求，没人会读这些文件。Cortex 让这种向前传递变为自动。
 
 ---
 
@@ -66,7 +66,7 @@ Cortex 由四个机制构成。每个都有自己的 spec 文件。本文档是�
 
 输出：top 5-7 个相关历史会话作为 memory signal，发送给 GWT arbitrator。
 
-实现依赖两阶段扫描：ripgrep 把 `_meta/sessions/INDEX.md`（一个编译好的扁平文件，每行一条会话摘要）过滤到毫秒级的候选会话；然后子 agent 只读取匹配到的摘要（通常 15-20 行），返回最终的 top 5-7。在 1000 会话 × 每条 200 字符的规模下（UTF-8 编码下一条中日韩摘要约 600 字节、纯 ASCII 摘要约 200 字节），整个 index 视语种约 200KB–600KB —— 两种情况下扫描成本都微不足道。
+实现依赖两阶段扫描：ripgrep 把 `meta/sessions/INDEX.md`（一个编译好的扁平文件，每行一条会话摘要）过滤到毫秒级的候选会话；然后子 agent 只读取匹配到的摘要（通常 15-20 行），返回最终的 top 5-7。在 1000 会话 × 每条 200 字符的规模下（UTF-8 编码下一条中日韩摘要约 600 字节、纯 ASCII 摘要约 200 字节），整个 index 视语种约 200KB–600KB —— 两种情况下扫描成本都微不足道。
 
 完整 spec：`references/hippocampus-spec.md`。
 
@@ -101,7 +101,7 @@ salience = urgency × 0.3 + novelty × 0.2 + relevance × 0.3 + importance × 0.
 
 ### 4. Synapses + Hebbian —— 带用进废退强化的概念图（Concept graph with use-it-or-lose-it reinforcement）
 
-每个概念是 `_meta/concepts/{domain}/{concept}.md` 下的 markdown 文件。边（synapses）存在该概念自身的 frontmatter 中。共同激活使边权重 +1（Hebbian 规则）；长期未使用的边衰减。
+每个概念是 `meta/concepts/{domain}/{concept}.md` 下的 markdown 文件。边（synapses）存在该概念自身的 frontmatter 中。共同激活使边权重 +1（Hebbian 规则）；长期未使用的边衰减。
 
 四个永久性层级 —— identity、skill、fact、transient —— 决定衰减曲线的形状。衰减在每次散朝运行，由 ARCHIVER Phase 2 驱动。
 
@@ -131,8 +131,8 @@ Step 11:   STRATEGIST (optional) — 不变
 
 在 Pre-Session Preparation 之后、ROUTER Triage 之前立即派发。三个子 agent 并行运行：
 
-1. **hippocampus** —— 扫描 `_meta/sessions/INDEX.md`，返回 top 5-7 memory signals
-2. **concept lookup** —— 扫描 `_meta/concepts/` 查找直接匹配的概念节点
+1. **hippocampus** —— 扫描 `meta/sessions/INDEX.md`，返回 top 5-7 memory signals
+2. **concept lookup** —— 扫描 `meta/concepts/` 查找直接匹配的概念节点
 3. **SOUL dimension check** —— 复用 RETROSPECTIVE 的 SOUL Health Report，发射一个 identity_check signal
 
 三个输出流馈入 **gwt-arbitrator**，后者应用显著性公式、给信号排序，并为 ROUTER 产出一个带注释的输入块：
@@ -159,11 +159,11 @@ ROUTER 可以参考或忽略该注释 —— 它的分诊规则保持不变。�
 
 ARCHIVER Phase 2 已处理 wiki 和 SOUL 自动写入。在 v1.7 中它还执行：
 
-- **概念提取**（Concept extraction）—— 扫描会话材料寻找新概念，分类永久性层级，写入 `_meta/concepts/{domain}/{concept}.md`
+- **概念提取**（Concept extraction）—— 扫描会话材料寻找新概念，分类永久性层级，写入 `meta/concepts/{domain}/{concept}.md`
 - **Hebbian 更新**（Hebbian update）—— 对会话中每对共同激活 (A, B)，使 A→B 的边权重 +1；若不存在则以权重 1 创建新边
 - **SYNAPSES-INDEX.md 重建**（SYNAPSES-INDEX.md regeneration）—— 在权重更新后重建反向索引
 - **SOUL 快照写入**（SOUL snapshot dump）—— 沿用 v1.6.2 既有机制，在 Cortex 下保持
-- **会话摘要写入**（Session summary write）—— 发射 `_meta/sessions/{session_id}.md`，含主题、关键决策、激活概念，以及供 hippocampus 后续读取的单行 YAML 摘要字段
+- **会话摘要写入**（Session summary write）—— 发射 `meta/sessions/{session_id}.md`，含主题、关键决策、激活概念，以及供 hippocampus 后续读取的单行 YAML 摘要字段
 
 所有写入发生在单次 ARCHIVER 调用内。Orchestrator 不在阶段之间交错写入。这保留了在 `pro/CLAUDE.md` 中定义的散朝状态机 —— ARCHIVER 在所有阶段完成时发射一份 Completion Checklist，会话结束。
 
@@ -178,7 +178,7 @@ Pre-Session Preparation 和 STRATEGIST 都不被修改。SOUL Health Report 继�
 所有 Cortex 数据驻留在 markdown 中。v1.7 引入的新目录：
 
 ```
-_meta/
+meta/
 ├── concepts/
 │   ├── INDEX.md                         ← 编译好的单行摘要索引
 │   ├── SYNAPSES-INDEX.md                ← 编译好的反向边索引
@@ -210,15 +210,15 @@ _meta/
 
 ### Cortex 运行时文件（schemas）
 
-四个 markdown artefact 跟踪 Cortex 运行时状态。它们都不是真实来源 —— 要么是配置（用户可编辑），要么是编译/日志 artefact（由 archiver 写入）。全部驻留在 `_meta/cortex/`（前三个）或 `_meta/ambiguous_corrections/`（第四个）。
+四个 markdown artefact 跟踪 Cortex 运行时状态。它们都不是真实来源 —— 要么是配置（用户可编辑），要么是编译/日志 artefact（由 archiver 写入）。全部驻留在 `meta/cortex/`（前三个）或 `meta/ambiguous_corrections/`（第四个）。
 
-#### `_meta/config.md`
+#### `meta/config.md`
 
 用户可编辑的阈值与开关。由 hippocampus、gwt-arbitrator、narrator-validator 以及衰减过程读取。如缺失，每个消费者回退到硬编码默认值（内联列在下方）。
 
 ```yaml
 ---
-file: _meta/config.md
+file: meta/config.md
 version: 1.7
 ---
 
@@ -251,7 +251,7 @@ decay_curves:
 escalate_rate_limit: 5            # per rolling 7-day window
 ambiguous_correction_confidence_bands:
   high: 0.85                      # ≥ apply immediately
-  mid_low: 0.5                    # mid-band lower bound (write to _meta/ambiguous_corrections/)
+  mid_low: 0.5                    # mid-band lower bound (write to meta/ambiguous_corrections/)
   low_floor: 0.0                  # logged but not acted
 
 ## Performance budgets (seconds, soft/hard)
@@ -262,13 +262,13 @@ narrator_validator_timeout: [3, 10]
 
 编辑此文件的用户应 commit 到 git，以便跨设备漂移被追踪。改动在下一次会话开始时生效（retrospective Mode 0 读取该配置）。
 
-#### `_meta/cortex/bootstrap-status.md`
+#### `meta/cortex/bootstrap-status.md`
 
 由 `tools/migrate.py` 写入一次。由 retrospective Mode 0 读取以判断 Cortex 是否就绪。
 
 ```yaml
 ---
-file: _meta/cortex/bootstrap-status.md
+file: meta/cortex/bootstrap-status.md
 ---
 
 # Cortex Bootstrap Status
@@ -295,13 +295,13 @@ warnings:
 
 如此文件缺失，retrospective Mode 0 会在 Start Session 简报顶部警告 "Cortex not bootstrapped — run `uv run tools/migrate.py`"。Cortex 仍可工作但图为空（冷启动模式）。
 
-#### `_meta/cortex/decay-log.md`
+#### `meta/cortex/decay-log.md`
 
 只追加日志，由 archiver Phase 2 在每次散朝结束时写入。每次会话贡献一个带日期的块。
 
 ```yaml
 ---
-file: _meta/cortex/decay-log.md
+file: meta/cortex/decay-log.md
 rolling_window_days: 90
 ---
 
@@ -324,7 +324,7 @@ new_canonical: 0
 
 超过 90 天的块在下一次散朝写入时压实到尾部 `# Archive` 节。过往存档存在 git 历史中 —— 不删除，不与 Notion 同步。
 
-#### `_meta/ambiguous_corrections/{correction_id}.md`
+#### `meta/ambiguous_corrections/{correction_id}.md`
 
 每个待处理的中置信度用户纠正对应一个文件。当三层撤销机制（§Design Principles → Three-tier undo）检测到置信度落在 0.5–0.85 区间的纠正时创建：不够高到立即应用、不够低到仅记录忽略。
 
@@ -380,7 +380,7 @@ Narrator 不是新 agent 文件 —— narrator 行为驻留在 ROUTER 内部（
 对现有 agent 的扩展：
 
 - `pro/agents/archiver.md` Phase 2 —— 新增概念提取、Hebbian 更新、method-candidate 检测、衰减过程、会话摘要写入、索引重建
-- `pro/agents/retrospective.md` Mode 0 —— 重新生成 `_meta/concepts/INDEX.md` 与 `_meta/sessions/INDEX.md`；标记休眠概念
+- `pro/agents/retrospective.md` Mode 0 —— 重新生成 `meta/concepts/INDEX.md` 与 `meta/sessions/INDEX.md`；标记休眠概念
 - `pro/agents/router.md` —— 在其输入中接受认知注释；在 Step 7.5 掌管 narrator 组合
 
 Claude Code 在派生时读取每个 agent 定义；调用之间不持久化任何运行时状态。
@@ -391,7 +391,7 @@ Claude Code 在派生时读取每个 agent 定义；调用之间不持久化任�
 
 | 角色 | 接收 | 不接收 |
 |------|----------|------------------|
-| hippocampus | 用户消息 + `_meta/sessions/INDEX.md` + 当前会话上下文 | 其他 agent 的思考过程、完整概念图 |
+| hippocampus | 用户消息 + `meta/sessions/INDEX.md` + 当前会话上下文 | 其他 agent 的思考过程、完整概念图 |
 | gwt-arbitrator | 来自 hippocampus / concept-lookup / soul-check 的信号文件 | 用户的原始消息（仅对信号运作） |
 | narrator-validator | Summary Report 草稿 + 信号存储 | Agent 的思考过程、用户的私密数据 |
 
@@ -440,19 +440,19 @@ Wave 3 是预激活（pre-activation），不是检索。阈下概念不出现�
 
 1. **被动衰减**（Passive decay）—— 未使用的 canonical 概念随时间降级（90 天后到 fact 层）。无需用户动作。
 2. **用户纠正**（User correction）—— "你这个弄错了" 触发 concept_demotion 修改，对所有受影响 synapse 加级联标记。
-3. **元认知审计**（Meta-cognitive audit）—— 每周审计浮现可疑漂移（冲突显著性、频率下降、反复用户纠正）到 `_meta/audit/suspicious.md`；用户在降级前确认。
+3. **元认知审计**（Meta-cognitive audit）—— 每周审计浮现可疑漂移（冲突显著性、频率下降、反复用户纠正）到 `meta/audit/suspicious.md`；用户在降级前确认。
 
-用户纠正的置信度分层：高置信度（>0.85）纠正立即应用；中置信度（0.5-0.85）纠正写入 `_meta/ambiguous_corrections/`，在下一次相关激活时浮现以获取显式确认；低置信度（<0.5）纠正记录但不采取行动。初始阈值刻意保守 —— 假阴性（漏掉一次纠正）的代价低于假阳性（降级了用户不想降级的东西）。
+用户纠正的置信度分层：高置信度（>0.85）纠正立即应用；中置信度（0.5-0.85）纠正写入 `meta/ambiguous_corrections/`，在下一次相关激活时浮现以获取显式确认；低置信度（<0.5）纠正记录但不采取行动。初始阈值刻意保守 —— 假阴性（漏掉一次纠正）的代价低于假阳性（降级了用户不想降级的东西）。
 
 元认知审计有速率限制：**滚动 7 天窗口内超过 5 次上升** 触发对模块质量本身的二级审计。假设是一个运作良好的系统应极少需要把冲突浮现给用户；频繁上升表明模块级漂移，而非个别纠正需求。
 
-#### `_meta/audit/suspicious.md` 格式
+#### `meta/audit/suspicious.md` 格式
 
 元认知审计写入单个滚动 markdown 文件。Archiver Phase 2 追加候选；retrospective Mode 0 在 Start Session 简报中浮现未解决行；用户确认或驳回。格式：
 
 ```yaml
 ---
-file: _meta/audit/suspicious.md
+file: meta/audit/suspicious.md
 rolling_window_days: 30
 last_compacted: ISO 8601
 ---
@@ -477,7 +477,7 @@ last_compacted: ISO 8601
 
 #### 上升速率限制（Escalate rate limit）
 
-每周 5 次的阈值由 AUDITOR 在巡查时监控（不是 hook 或 Python 工具 —— 保留在会话内）。超过时，AUDITOR 写入一条高优先级条目到 `_meta/eval-history/{date}-{project}.md`，带 `violations[].type: escalate_rate_exceeded`，并在 retrospective Mode 0 下一次简报中浮现该模式。没有模块会自动被砍（用户决策 #4 —— 无预先承诺的终止准则）；由用户决定底层机制是否需要调整。
+每周 5 次的阈值由 AUDITOR 在巡查时监控（不是 hook 或 Python 工具 —— 保留在会话内）。超过时，AUDITOR 写入一条高优先级条目到 `meta/eval-history/{date}-{project}.md`，带 `violations[].type: escalate_rate_exceeded`，并在 retrospective Mode 0 下一次简报中浮现该模式。没有模块会自动被砍（用户决策 #4 —— 无预先承诺的终止准则）；由用户决定底层机制是否需要调整。
 
 ---
 
@@ -511,8 +511,8 @@ Cortex 不替代任何现有 Life OS 组件 —— 它增强它们。下表总�
 |-------|---------|-------------------|------|
 | SOUL | 你是谁（身份/价值观/偏好） | "用户始终优先家庭超过事业增长" | `SOUL.md`（单文件，内含维度） |
 | Wiki | 你对世界的知识（陈述性） | "日本 NPO 借贷无貸金業法豁免" | `wiki/{domain}/{slug}.md` |
-| Concept | 想法如何连接（联想图节点） | "Company-A" 作为通过加权边连接到其他概念的实体 | `_meta/concepts/{domain}/{concept_id}.md` |
-| Method | 你如何最佳工作（程序性记忆） | "用 5 轮递进质量润色文档" | `_meta/methods/{domain}/{method_id}.md` |
+| Concept | 想法如何连接（联想图节点） | "Company-A" 作为通过加权边连接到其他概念的实体 | `meta/concepts/{domain}/{concept_id}.md` |
+| Method | 你如何最佳工作（程序性记忆） | "用 5 轮递进质量润色文档" | `meta/methods/{domain}/{method_id}.md` |
 | user-patterns | 你做什么（观察到的行为模式，ADVISOR 领域） | "在首轮澄清后决策变快" | `user-patterns.md`（单文件，内含条目） |
 
 ### 决策树（Decision tree）
@@ -533,12 +533,12 @@ Archiver Phase 2 让每个候选走一遍此树。第一个匹配分支胜出 �
         ├── 是 → Method
         │         (5+ 顺序动作，在 ≥2 个会话中跨会话回响，
         │          用户语言如 "approach/pattern/framework/流れ/やり方/手順"；
-        │          落入 _meta/methods/_tentative/，status: tentative)
+        │          落入 meta/methods/_tentative/，status: tentative)
         │
         └── 否 → 它是反复出现的、连接到其他的 ENTITY / CONCEPT 吗?
             ├── 是 → Concept
             │         (≥2 次激活 + ≥2 个独立证据点;
-            │          落入 _meta/concepts/_tentative/ 直到晋升;
+            │          落入 meta/concepts/_tentative/ 直到晋升;
             │          个人 → 跳过,或路由到 SOUL(由其隐私过滤决定))
             │
             └── 否 → 它是关于世界的 FACTUAL 结论吗?
@@ -568,7 +568,7 @@ Archiver Phase 2 让每个候选走一遍此树。第一个匹配分支胜出 �
 
 **带程序边缘的事实**（Fact with procedural edge）："协商涨价时先用数据锚定" 可以读作 method（流程）或 wiki 结论（关于世界的事实）。规则：若候选描述的是**用户动作的序列**，则它是 method。若描述的是**世界的一种属性**，则它是 wiki。真正歧义时默认 **wiki** —— method 需要更强证据（≥5 个顺序步骤，跨 ≥2 个会话）。
 
-**概念与 SOUL 重叠**（Concept with SOUL overlap）："trust"（信任）作为一种关系维度可能是 SOUL（一种价值）或概念（关系实体类型）。规则：概念是关于**世界中与其他事物相连的事物**；SOUL 是关于**用户对事物的取向**。"用户重视商业关系中的信任" → SOUL。"信任是一种在项目之间流动的关系资本类型" → 概念（在 `_meta/concepts/relationship/`）。
+**概念与 SOUL 重叠**（Concept with SOUL overlap）："trust"（信任）作为一种关系维度可能是 SOUL（一种价值）或概念（关系实体类型）。规则：概念是关于**世界中与其他事物相连的事物**；SOUL 是关于**用户对事物的取向**。"用户重视商业关系中的信任" → SOUL。"信任是一种在项目之间流动的关系资本类型" → 概念（在 `meta/concepts/relationship/`）。
 
 **带方法味的 wiki**（Wiki with method flavour）：一份逐步食谱，若它是对世界的事实描述（不是用户选择的工作流）→ wiki。若用户有意识地把它采纳为自己的方法 → method。启发式：archiver 问 "用户是否拥有这个工作流？" —— 是则 method；否（只是一种已知技术）则 wiki。
 
@@ -577,8 +577,8 @@ Archiver Phase 2 让每个候选走一遍此树。第一个匹配分支胜出 �
 Archiver Phase 2 为每个候选分配路由置信度：
 
 - **高**（>0.85）—— 带 `status: tentative` 进入目标层（适用 concepts/methods），或以 confidence 0.3 自动写入 SOUL / 以 confidence 0.3-0.5 写入 wiki
-- **中**（0.5-0.85）—— 作为路由决策纠正写入 `_meta/ambiguous_corrections/`，等待下一次相关激活时用户确认
-- **低**（<0.5）—— 以 "routing-rejected candidate" 和原因记录到 `_meta/cortex/decay-log.md`，不写入任何地方
+- **中**（0.5-0.85）—— 作为路由决策纠正写入 `meta/ambiguous_corrections/`，等待下一次相关激活时用户确认
+- **低**（<0.5）—— 以 "routing-rejected candidate" 和原因记录到 `meta/cortex/decay-log.md`，不写入任何地方
 
 这与三层撤销机制（§Design Principles → Three-tier undo）平行 —— archiver 在不确定时偏向谨慎。假阴性（漏掉候选）的代价低于假阳性（错误层写入，之后需要外科式反转）。
 
@@ -614,7 +614,7 @@ v1.7 内部阶段：
 
 | 阶段 | 范围 |
 |-------|-------|
-| A —— 数据结构 | `_meta/concepts/`、`_meta/sessions/INDEX.md`，ARCHIVER Phase 2 加入概念提取（Hebbian 关闭） |
+| A —— 数据结构 | `meta/concepts/`、`meta/sessions/INDEX.md`，ARCHIVER Phase 2 加入概念提取（Hebbian 关闭） |
 | B —— 认知 pre-router 上线 | hippocampus + gwt-arbitrator 子 agent 上线，Step 0.5 接通，Hebbian 开启 |
 | C —— Narrator + 撤销机制 | Step 7.5 活动、三层撤销上线、上升速率限制 |
 | D —— 完整 cortex + Hermes 执行层 | 回填被降级模块，完整执行层 |
@@ -627,16 +627,16 @@ AUDITOR 通过 `eval-history` 条目（`references/eval-history-spec.md`）跟�
 
 ### 从 v1.6.2a 迁移（Migration from v1.6.2a）
 
-Cortex 要求在 hippocampus 能检索到任何东西之前回填会话索引。迁移拉取最近 3 个月的 `_meta/journal/*.md` 并产出每会话摘要。
+Cortex 要求在 hippocampus 能检索到任何东西之前回填会话索引。迁移拉取最近 3 个月的 `meta/journal/*.md` 并产出每会话摘要。
 
 ```
 Script: tools/migrate.py
-Input:  _meta/journal/*.md           (existing session journals)
+Input:  meta/journal/*.md           (existing session journals)
 Output:
-  - _meta/sessions/{session_id}.md   (one file per historical session)
-  - _meta/sessions/INDEX.md          (compiled one-liner index)
-  - _meta/concepts/**/*.md           (seed concepts from journal entities)
-  - _meta/snapshots/soul/**          (backfilled SOUL snapshots when possible)
+  - meta/sessions/{session_id}.md   (one file per historical session)
+  - meta/sessions/INDEX.md          (compiled one-liner index)
+  - meta/concepts/**/*.md           (seed concepts from journal entities)
+  - meta/snapshots/soul/**          (backfilled SOUL snapshots when possible)
 ```
 
 迁移脚本从 Claude Code 通过 Bash 调用。它幂等 —— 重新运行覆盖已编译索引而不重复概念。迁移后，用户运行一次启用 Cortex 的会话；若带注释输入感觉正确，Cortex 晋升到稳态。

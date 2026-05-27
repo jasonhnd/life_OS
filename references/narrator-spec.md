@@ -260,7 +260,7 @@ During session execution, each subagent emits signals with IDs. The narrator rec
 signal_sources:
   - id: S:claude-20260419-1238
     type: session
-    file: _meta/sessions/claude-20260419-1238.md
+    file: meta/sessions/claude-20260419-1238.md
     producer: hippocampus
   - id: SOUL:risk-tolerance-v3
     type: soul_dimension
@@ -268,7 +268,7 @@ signal_sources:
     producer: soul_check
   - id: C:method:iterative-document-refinement
     type: concept
-    file: _meta/concepts/method/iterative-document-refinement.md
+    file: meta/concepts/method/iterative-document-refinement.md
     producer: concept_lookup
   - id: D:GOVERNANCE-score-5
     type: domain_score
@@ -280,7 +280,7 @@ signal_sources:
     producer: wiki_index
   - id: P:avoids-family-topic-on-weekends
     type: pattern
-    ref: _meta/user-patterns.md#avoids-family-topic-on-weekends
+    ref: meta/user-patterns.md#avoids-family-topic-on-weekends
     producer: retrospective
 ```
 
@@ -310,7 +310,7 @@ If the validator returns `groundedness_score < 0.9`:
 4. On exhaustion:
    - Fall back to an **un-cited Summary Report** (Step 7's raw output, not the rewrite).
    - Emit an AUDITOR flag: `narrator_failed_after_3_attempts`.
-   - Log the failure to `_meta/eval-history/` for later review.
+   - Log the failure to `meta/eval-history/` for later review.
 
 The user still receives a report. The report is just less narrated.
 
@@ -399,7 +399,7 @@ shows a similar 5-round iteration pattern"?
 
 System:
 - Signal: S:claude-20260419-1238
-- Source: _meta/sessions/claude-20260419-1238.md
+- Source: meta/sessions/claude-20260419-1238.md
 - Snippet: "Session ran 5 revision rounds on payment gateway spec. Each
   round tightened governance controls. Final GOVERNANCE score 5/10 due
   to incomplete fraud-response plan."
@@ -448,7 +448,7 @@ For a full trace request on a single claim:
 
 Cited signals:
 1. S:claude-20260419-1238
-   Source: _meta/sessions/claude-20260419-1238.md
+   Source: meta/sessions/claude-20260419-1238.md
    Content match: "Session ran 5 revision rounds on payment gateway spec.
      Each round tightened governance controls. Final GOVERNANCE score
      5/10 due to incomplete fraud-response plan."

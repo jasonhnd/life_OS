@@ -51,7 +51,7 @@
 1. ROUTER 进入 Step 7.5（narrator mode），`Read` 模板 `pro/agents/narrator.md`（ROUTER-internal composition template，**不**通过 Task spawn），传入 Draft Summary Report + GWT 输出的 `[COGNITIVE CONTEXT]` 信号存储
 2. ROUTER（narrator mode）对每条实质性论断挂接 `signal_id` 引用（连接性/修辞性文字免引用）
 3. ROUTER 自检引用（inline rules in `pro/agents/narrator.md` "Citation rules" 段）—— 每条引用是否指向真实信号且论断与信号语义一致
-4. 自检失败 → 直接降级到未包裹的 Summary Report，并记录到 `_meta/eval-history/narrator-{date}.md`（不再有 validator-rewrite 循环）
+4. 自检失败 → 直接降级到未包裹的 Summary Report，并记录到 `meta/eval-history/narrator-{date}.md`（不再有 validator-rewrite 循环）
 
 **v1.8.0 简化**：previously v1.7.2 用独立 `narrator-validator` Sonnet subagent + 最多 2 次 rewrite 循环 + 21s/8s 时间预算。Option A pivot (R-1.8.0-011) 删除 `pro/agents/narrator-validator.md`，引用核查改在 narrator 模板内 inline 完成；典型总时从 ~18s 降到 ~3-5s（无独立 subagent spawn）。
 
@@ -66,7 +66,7 @@
 
 | Role | Receives | Does Not Receive |
 |------|----------|------------------|
-| RETROSPECTIVE agent | User message (housekeeping), `_meta/strategic-lines.md` + 所有 project strategic fields | 无限制 |
+| RETROSPECTIVE agent | User message (housekeeping), `meta/strategic-lines.md` + 所有 project strategic fields | 无限制 |
 | ARCHIVER agent | Summary Report + reports + session 对话摘要，所有 project strategic fields | 其他 agent 的 thought processes |
 | **HIPPOCAMPUS** (v1.7) | current_user_message + extracted_subject + current_project + current_theme + recent_inbox_items + current_strategic_lines | 其他 Cortex 子代理输出（concept-lookup, soul-check）、`SOUL.md` 全文、历史会话全文（仅限 INDEX 摘要） |
 | **CONCEPT-LOOKUP** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | 其他 Cortex 输出（hippocampus, soul-check）、概念全文（仅 INDEX 扫描 + 选择性 top file 阅读） |
@@ -74,7 +74,7 @@
 | **GWT-ARBITRATOR** (v1.7) | hippocampus_output + concept_lookup_output + soul_check_output + current_user_message | ROUTER reasoning、原始会话内容、agent thought processes |
 | **NARRATOR** (v1.7 Phase 2, ROUTER @ Step 7.5 narrator mode — **不是**独立 subagent；见 `pro/compliance/2026-04-21-narrator-spec-violation.md`) | Draft Summary Report + cognitive_context (来自 GWT 的 signals) | 其他 agent 的 thought processes、`SOUL.md` 原文、`wiki/` 原始文件 |
 | **NARRATOR-VALIDATOR** (v1.7 Phase 2.5) | narrator_output + cognitive_context（与 narrator 相同输入） | 输入以外的任何内容 |
-| ROUTER | User message + RETROSPECTIVE 的 Pre-Session Preparation + `_meta/STRATEGIC-MAP.md`（已编译）+ Cortex 激活时的 `[COGNITIVE CONTEXT]` 块 | — |
+| ROUTER | User message + RETROSPECTIVE 的 Pre-Session Preparation + `meta/STRATEGIC-MAP.md`（已编译）+ Cortex 激活时的 `[COGNITIVE CONTEXT]` 块 | — |
 | PLANNER | Subject + background + user message + 本会话绑定项目的 strategic 上下文（仅 flows，不含完整 map） | ROUTER reasoning、完整 strategic map |
 | REVIEWER | planning document 或 Six Domains reports + 与本决策相关的 flow graph | thought processes、完整 strategic map |
 | DISPATCHER | 已批准的 planning document | thought processes |

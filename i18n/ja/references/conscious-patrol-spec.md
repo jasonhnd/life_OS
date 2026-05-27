@@ -215,7 +215,7 @@ v1.8.7 が**すること**：
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 path D + DR-11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 path D + DR-11
 - パターン源：`tinyhumansai/openhuman` `gitbooks/features/subconscious.md`（idle autonomous Subconscious Loop、daemon ベース）
 - 連携：`references/status-line-spec.md`（各 patrol タスクが 8 enum status を使用）
 - 連携：`pro/agents/retrospective.md` Mode 0（Conscious Patrol が実行される場所）

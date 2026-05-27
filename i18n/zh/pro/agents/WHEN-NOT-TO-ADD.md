@@ -7,7 +7,7 @@
 1. **通用助手 / 工具 prompt** —— 如"帮我起 commit message 的 markdown"。→ 去：`.claude/commands/`（slash 命令）或 `scripts/prompts/`（维护 prompt）。
 2. **Spec / schema 文档** —— 如"audit trail 文件长什么样"。→ 去：`references/<topic>-spec.md`。
 3. **用户用的参考文档** —— 如"如何使用 auditor agent"。→ 去：`docs/` 或 `gitbooks/`（如果再引入）。
-4. **单次会话状态、audit trail、踩坑记录** —— 如"本次 session 的 archiver 输出"。→ 去：`_meta/runtime/<sid>/`（audit trails）或 `pro/gotchas.md`（经验教训）。
+4. **单次会话状态、audit trail、踩坑记录** —— 如"本次 session 的 archiver 输出"。→ 去：`meta/runtime/<sid>/`（audit trails）或 `pro/gotchas.md`（经验教训）。
 5. **Theme 文件（display name / emoji / tone）** —— 如"中世纪设定的新主题"。→ 去：`themes/<name>.md`。
 6. **没有 v2 agent-spec frontmatter 的 agent** —— 即使角色合理，也必须先符合 `references/agent-spec.md` v2（6 facets + operating_hypothesis + context_manifest + blast_radius + failure_modes）才能进来。
 
@@ -35,6 +35,6 @@
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - 模式来源：`tinyhumansai/openhuman` `.claude/rules/README.md`（"This directory is intentionally near-empty. Stale rules actively mislead agents."）
 - 配套 spec：`references/agent-spec.md`（v2 frontmatter 标准）

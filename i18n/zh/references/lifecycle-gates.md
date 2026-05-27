@@ -40,7 +40,7 @@ life_OS 示例：
 ### 3. simulated → pilot
 
 所需证据：
-- ✅ 仿真 run 已记录（`_meta/runtime/<sid>/simulation-<artifact>.json`）
+- ✅ 仿真 run 已记录（`meta/runtime/<sid>/simulation-<artifact>.json`）
 - ✅ 仿真无 critical findings（F1/F3/F6a/F10/F14/F15/F17）
 - ✅ 人类 reviewer 在仿真结果上签字
 - ✅ 所有 `open_questions` 已解决或显式延期带理由
@@ -48,7 +48,7 @@ life_OS 示例：
 ### 4. pilot → active
 
 所需证据：
-- ✅ 至少 1 次成功真实调用，`_meta/runtime/<sid>/` 中有 trace evidence
+- ✅ 至少 1 次成功真实调用，`meta/runtime/<sid>/` 中有 trace evidence
 - ✅ 审计通过：AUDITOR Mode 3 对此 artifact 返回 PASS verdict
 - ✅ 回归套件通过（`/run-regression` 干净）
 - ✅ 命名的人类 owner 批准（`approval.approver` 是真实人物标识符，不是"user"这种角色标签）
@@ -79,7 +79,7 @@ life_OS 示例：
 
 所需证据：
 - ✅ 所有已知消费者已迁移（`/check-spec-drift` 验证 → 零 broken-path 引用）
-- ✅ 最终 trace 已归档（`_meta/v1.8.4-snapshot/` 或等价位置）
+- ✅ 最终 trace 已归档（`meta/v1.8.4-snapshot/` 或等价位置）
 - ✅ Frontmatter 已更新 `status: legacy` + 退役日期
 
 ## 特殊转换

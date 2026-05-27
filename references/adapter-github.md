@@ -27,18 +27,18 @@ last_modified: "2026-04-08T15:30:00Z"
 | Data Type | Path | Filename Pattern |
 |-----------|------|-----------------|
 | Decision (project) | `projects/{project}/decisions/` | `{date}-{slug}.md` |
-| Decision (cross-domain) | `_meta/decisions/` | `{date}-{slug}.md` |
+| Decision (cross-domain) | `meta/decisions/` | `{date}-{slug}.md` |
 | Task (project) | `projects/{project}/tasks/` | `{slug}.md` |
 | Task (area) | `areas/{area}/tasks/` | `{slug}.md` |
-| JournalEntry | `_meta/journal/` | `{date}-{type}.md` |
+| JournalEntry | `meta/journal/` | `{date}-{type}.md` |
 | WikiNote | `wiki/{domain}/` | `{slug}.md` |
 | Project | `projects/{project}/index.md` | Fixed name |
 | Area | `areas/{area}/index.md` | Fixed name |
-| SessionSummary (v1.7) | `_meta/sessions/` | `{session_id}.md` |
-| Concept (v1.7) | `_meta/concepts/{domain}/` | `{concept_id}.md` |
-| SoulSnapshot (v1.7) | `_meta/snapshots/soul/` | `{YYYY-MM-DD-HHMM}.md` |
-| EvalEntry (v1.7) | `_meta/eval-history/` | `{YYYY-MM-DD}-{project}.md` |
-| Method (v1.7) | `_meta/methods/{domain}/` | `{method_id}.md` |
+| SessionSummary (v1.7) | `meta/sessions/` | `{session_id}.md` |
+| Concept (v1.7) | `meta/concepts/{domain}/` | `{concept_id}.md` |
+| SoulSnapshot (v1.7) | `meta/snapshots/soul/` | `{YYYY-MM-DD-HHMM}.md` |
+| EvalEntry (v1.7) | `meta/eval-history/` | `{YYYY-MM-DD}-{project}.md` |
+| Method (v1.7) | `meta/methods/{domain}/` | `{method_id}.md` |
 
 ## Operations
 
@@ -96,7 +96,7 @@ Mark in front matter: `_deleted: true`. Do not `git rm` until user confirms acro
 ### On Adjourn (write to outbox)
 
 ```bash
-git add _meta/outbox/{session_id}/
+git add meta/outbox/{session_id}/
 git commit -m "[life-os] session {session_id} output"
 git push
 ```
@@ -107,8 +107,8 @@ Only stage the outbox directory. Never touch main files (projects/, STATUS.md, u
 
 ```bash
 # After merging outbox contents into main directories:
-git add projects/ areas/ _meta/journal/ _meta/STATUS.md user-patterns.md SOUL.md
-git rm -r _meta/outbox/{merged-session-ids}/
+git add projects/ areas/ meta/journal/ meta/STATUS.md user-patterns.md SOUL.md
+git rm -r meta/outbox/{merged-session-ids}/
 git commit -m "[life-os] merge {N} outbox sessions"
 git push
 ```

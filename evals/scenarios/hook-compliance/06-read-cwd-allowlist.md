@@ -1,3 +1,5 @@
+> ⚠️ **DEPRECATED in v1.8.5** — this scenario tests the retired hook layer (`scripts/hooks/*.sh`). All bash hooks were removed in v1.8.5; runtime enforcement now happens via inline LLM procedures (auditor Mode 3). Kept as historical reference of pre-v1.8.5 behavior. Do NOT use as active eval.
+
 # Scenario 06: Read `$cwd/projects/foo.md` → Pass-Through
 
 **Hook chain**: pre-read-allowlist.sh PASS (allowlist: `$cwd/**`)

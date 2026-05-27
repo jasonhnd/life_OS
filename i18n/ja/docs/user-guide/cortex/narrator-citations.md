@@ -111,7 +111,7 @@ COUNCIL 討論をトリガーしました。
 
 Cited signals:
 1. S:claude-20260419-1238
-   Source: _meta/sessions/claude-20260419-1238.md
+   Source: meta/sessions/claude-20260419-1238.md
    Content match: "Session ran 5 revision rounds on payment gateway spec.
      Each round tightened governance controls. Final GOVERNANCE score
      5/10 due to incomplete fraud-response plan."
@@ -261,7 +261,7 @@ Narrator と Validator が共同依存する「真実の源」:本 session の�
 signal_sources:
   - id: S:claude-20260419-1238
     type: session
-    file: _meta/sessions/claude-20260419-1238.md
+    file: meta/sessions/claude-20260419-1238.md
     producer: hippocampus
   - id: SOUL:risk-tolerance-v3
     type: soul_dimension
@@ -269,7 +269,7 @@ signal_sources:
     producer: soul_check
   - id: C:method:iterative-document-refinement
     type: concept
-    file: _meta/concepts/method/iterative-document-refinement.md
+    file: meta/concepts/method/iterative-document-refinement.md
     producer: concept_lookup
   - id: D:GOVERNANCE-score-5
     type: domain_score
@@ -281,7 +281,7 @@ signal_sources:
     producer: wiki_index
   - id: P:avoids-family-topic-on-weekends
     type: pattern
-    ref: _meta/user-patterns.md#avoids-family-topic-on-weekends
+    ref: meta/user-patterns.md#avoids-family-topic-on-weekends
     producer: retrospective
 ```
 
@@ -339,7 +339,7 @@ Narrator と Validator の間には**ユーザーフラグで閉じる手段は�
 - セキュリティモデル: Validator を切りたい動機の 99% は「角括弧を見たくない」——Cortex の事実ゲートキーピングを脅かすべきではない
 - 本当に角括弧が嫌なら、解法は前条(一回性で un-cited 版を取得)、Validator を永続的に切ることではない
 
-**唯一の永続閉鎖**: `_meta/config.md` を編集し `narrator_validator_enabled: false`。Narrator 出力の citation が**検証されない**——角括弧は見えますが、間違っている可能性あり。**推奨しません**。
+**唯一の永続閉鎖**: `meta/config.md` を編集し `narrator_validator_enabled: false`。Narrator 出力の citation が**検証されない**——角括弧は見えますが、間違っている可能性あり。**推奨しません**。
 
 ---
 
@@ -352,7 +352,7 @@ Narrator と Validator の間には**ユーザーフラグで閉じる手段は�
 - 任意の session で `citation_groundedness < 7/10`: AUDITOR が品質イベントと標記
 - 毎週 `regeneration_count > 1` のトレンド: AUDITOR が "narrator drift" と標記
 
-これらの指標は `_meta/eval-history/{date}-{project}.md` に記録され、RETROSPECTIVE Mode 0 がスキャンします([auditor-eval-history.md](./auditor-eval-history.md) 参照)。
+これらの指標は `meta/eval-history/{date}-{project}.md` に記録され、RETROSPECTIVE Mode 0 がスキャンします([auditor-eval-history.md](./auditor-eval-history.md) 参照)。
 
 ### Validator になぜ haiku でなく sonnet?
 
@@ -412,9 +412,9 @@ Validator は **「signal 存在」**だけでなく、**「content が claim �
 
 ある `signal_id` が指すファイルが削除または改名されました。一般的原因:
 
-- `_meta/sessions/` 内のある歴史 session ファイルを手動削除
+- `meta/sessions/` 内のある歴史 session ファイルを手動削除
 - Git ブランチ切り替え後のインデックス不整合
-- 概念が `_meta/concepts/_archive/` に retire
+- 概念が `meta/concepts/_archive/` に retire
 - SOUL 次元が改名または削除
 
 **trace の元 citation は保持**——**元々どこを指していたか**を知っている、ただそのファイルが一時/永続的にない。誤削除の場合は git 履歴から復元、アーカイブなら `_archive/` 内で手動確認。
@@ -424,7 +424,7 @@ Validator は **「signal 存在」**だけでなく、**「content が claim �
 eval-history を確認:
 
 ```bash
-grep -r "regeneration_count" _meta/eval-history/ | tail -20
+grep -r "regeneration_count" meta/eval-history/ | tail -20
 ```
 
 `regeneration_count > 1` の比率が高い(30% 超)場合、可能な原因:
@@ -437,7 +437,7 @@ grep -r "regeneration_count" _meta/eval-history/ | tail -20
 
 - **一回性**: `引用なしの奏折をくれ` → ROUTER が Step 7 元出力を返す
 - **引用表示の永続閉鎖、検証保持**: v1.7 はサポートなし(角括弧は citation の物理担体、なくては trace 不可)
-- **メカニズム全体の永続閉鎖**: `_meta/config.md` で `narrator_validator_enabled: false`。**推奨しません**——捏造防止の構造的保証を外すことに相当
+- **メカニズム全体の永続閉鎖**: `meta/config.md` で `narrator_validator_enabled: false`。**推奨しません**——捏造防止の構造的保証を外すことに相当
 
 ### 「Citation に `SOUL:X` が表示されるが SOUL.md にその次元がない」
 
@@ -445,7 +445,7 @@ trace 結果で出てきた場合、確認:
 
 1. **バージョン不一致**: `SOUL:risk-tolerance-v3` の `-v3` サフィックスは dimension の版改訂番号。SOUL 次元を書き直したが version を更新していない場合、引用は**旧版本**を指す。解決: 次元書き直し時に version 番号を手動 bump、または SOUL の自動書き込み機構で v4 を生成
 2. **registry stale**: signal registry は session-scoped、ある session の registry がディスクに書かれた後 SOUL 自体が後続で改変されると、trace 時に「⚠️ signal no longer resolvable」と表示——これは正常挙動
-3. **プレフィックスエラー**: Narrator は新プレフィックスを発明しないべきだが、非標準プレフィックス(`SOULS:` や `soul:`)が出現した場合、Validator が `format_error` と標記し書き直しトリガー。それでも見える場合、Validator がバイパスされた可能性——`_meta/config.md` で切られていないか確認
+3. **プレフィックスエラー**: Narrator は新プレフィックスを発明しないべきだが、非標準プレフィックス(`SOULS:` や `soul:`)が出現した場合、Validator が `format_error` と標記し書き直しトリガー。それでも見える場合、Validator がバイパスされた可能性——`meta/config.md` で切られていないか確認
 
 ---
 

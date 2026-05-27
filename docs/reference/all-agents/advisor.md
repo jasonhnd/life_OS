@@ -29,8 +29,8 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 
 ```
 1. 读 user-patterns.md（若存在）→ 已知行为模式
-2. 读 ~/second-brain/_meta/journal/ 最近 3 份 advisor 报告 → 对比行为变化
-3. 读 ~/second-brain/projects/*/decisions/ + _meta/decisions/ 最近 5 个决策 → 维度回避 / 决策频率 / 质量趋势
+2. 读 ~/second-brain/meta/journal/ 最近 3 份 advisor 报告 → 对比行为变化
+3. 读 ~/second-brain/projects/*/decisions/ + meta/decisions/ 最近 5 个决策 → 维度回避 / 决策频率 / 质量趋势
 4. 遍历 ~/second-brain/projects/*/tasks/ 计算完成率 → 跟进指数
 ```
 
@@ -127,7 +127,7 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 
 ### Step 2 · 写 evidence/challenge delta
 
-写到 `_meta/outbox/{session_id}/patterns-delta.md`。会话结束由 archiver 合并到 SOUL.md。
+写到 `meta/outbox/{session_id}/patterns-delta.md`。会话结束由 archiver 合并到 SOUL.md。
 
 ### Step 3 · 新维度探测
 
@@ -137,7 +137,7 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 2. ≥ 2 个决策作为证据（当前会话 + 近期历史）
 3. 尚未被既有维度覆盖（即使是低置信度 — 已覆盖则增 evidence，不新建）
 
-三条全过 → 自动写入 `_meta/outbox/{session_id}/soul-new-dimensions.md`：
+三条全过 → 自动写入 `meta/outbox/{session_id}/soul-new-dimensions.md`：
 - `confidence: 0.3`
 - `What IS`：系统描述的观察
 - `What SHOULD BE`：**留空**（用户稍后自填）
@@ -169,8 +169,8 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
   （无冲突则省略此节）
 
 【Writes】
-  _meta/outbox/{session_id}/patterns-delta.md
-  _meta/outbox/{session_id}/soul-new-dimensions.md (若有新维度)
+  meta/outbox/{session_id}/patterns-delta.md
+  meta/outbox/{session_id}/soul-new-dimensions.md (若有新维度)
 ```
 
 **在每次决策流程都运行**，不只是 adjourn。用户会实时看到 SOUL 的移动。

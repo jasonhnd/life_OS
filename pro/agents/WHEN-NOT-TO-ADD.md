@@ -7,7 +7,7 @@
 1. **Generic helpers / utility prompts** — e.g. "a markdown that helps me draft commit messages". → Goes to: `.claude/commands/` (slash commands) or `scripts/prompts/` (maintenance prompts).
 2. **Spec / schema documents** — e.g. "definition of what an audit trail file looks like". → Goes to: `references/<topic>-spec.md`.
 3. **Reference docs for users** — e.g. "how to use the auditor agent". → Goes to: `docs/` or `gitbooks/` (when reintroduced).
-4. **Per-session state, audit trails, gotchas** — e.g. "this session's archiver output". → Goes to: `_meta/runtime/<sid>/` (audit trails) or `pro/gotchas.md` (lessons learned).
+4. **Per-session state, audit trails, gotchas** — e.g. "this session's archiver output". → Goes to: `meta/runtime/<sid>/` (audit trails) or `pro/gotchas.md` (lessons learned).
 5. **Theme files (display names / emoji / tone)** — e.g. "a new theme for medieval setting". → Goes to: `themes/<name>.md`.
 6. **An agent without v2 agent-spec frontmatter** — even if it's a legitimate role, it MUST conform to `references/agent-spec.md` v2 (6 facets + operating_hypothesis + context_manifest + blast_radius + failure_modes) before landing here.
 
@@ -35,6 +35,6 @@ If ANY answer is yes, prefer that lower-cost option. New agent = expensive (fore
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - Pattern source: `tinyhumansai/openhuman` `.claude/rules/README.md` ("This directory is intentionally near-empty. Stale rules actively mislead agents.")
 - Companion spec: `references/agent-spec.md` (v2 frontmatter standard)

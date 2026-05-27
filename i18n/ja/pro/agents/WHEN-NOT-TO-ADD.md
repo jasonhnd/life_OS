@@ -7,7 +7,7 @@
 1. **汎用ヘルパー / ユーティリティ prompt** —— 例 "commit message 起草を手伝う markdown"。→ 行き先：`.claude/commands/`（slash コマンド）または `scripts/prompts/`（保守 prompt）。
 2. **Spec / schema ドキュメント** —— 例 "audit trail ファイルがどう見えるか"。→ 行き先：`references/<topic>-spec.md`。
 3. **ユーザ向け参照ドキュメント** —— 例 "auditor agent の使い方"。→ 行き先：`docs/` または `gitbooks/`（再導入時）。
-4. **セッションごとの状態、audit trails、gotchas** —— 例 "このセッションの archiver 出力"。→ 行き先：`_meta/runtime/<sid>/`（audit trails）または `pro/gotchas.md`（教訓）。
+4. **セッションごとの状態、audit trails、gotchas** —— 例 "このセッションの archiver 出力"。→ 行き先：`meta/runtime/<sid>/`（audit trails）または `pro/gotchas.md`（教訓）。
 5. **Theme ファイル（display 名 / emoji / tone）** —— 例 "中世設定の新 theme"。→ 行き先：`themes/<name>.md`。
 6. **v2 agent-spec frontmatter なしの agent** —— 役割が正当でも、`references/agent-spec.md` v2（6 facets + operating_hypothesis + context_manifest + blast_radius + failure_modes）に準拠してから着地すること。
 
@@ -35,6 +35,6 @@
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - パターン源：`tinyhumansai/openhuman` `.claude/rules/README.md`（"This directory is intentionally near-empty. Stale rules actively mislead agents."）
 - 連携 spec：`references/agent-spec.md`（v2 frontmatter 標準）

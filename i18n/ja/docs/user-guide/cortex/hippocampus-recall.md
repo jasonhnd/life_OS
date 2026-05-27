@@ -35,7 +35,7 @@ Hippocampus は Cortex 認知層の**クロスセッション検索器**です�
 
 ### Hippocampus の約束
 
-**貼る必要も、説明する必要も、「前回話した」と思い出させる必要もありません**。Hippocampus は自動的に `_meta/sessions/INDEX.md` ——各履歴 session 一行要約のコンパイル済みインデックス——をクエリし、最も関連する 3–5 条を見つけ、詳細 summary を読み取り、さらに概念グラフに沿って別の 1–2 条の「表面的には関連が見えないがグラフ上で隣接する」 session に拡散します。
+**貼る必要も、説明する必要も、「前回話した」と思い出させる必要もありません**。Hippocampus は自動的に `meta/sessions/INDEX.md` ——各履歴 session 一行要約のコンパイル済みインデックス——をクエリし、最も関連する 3–5 条を見つけ、詳細 summary を読み取り、さらに概念グラフに沿って別の 1–2 条の「表面的には関連が見えないがグラフ上で隣接する」 session に拡散します。
 
 **結果**: ROUTER は最初から、あなたの言う「あの信託構造案」が何を指すか、以前どう推論したか、GOVERNANCE 領域が何点つけたかを知っています——だから PLANNER は繰り返し考えず、六領域は同じ次元を再分析せず、REVIEWER は「これは不可逆な意思決定ですか」とあなたに聞きません(既に知っている、前回議論した)。
 
@@ -88,7 +88,7 @@ ROUTER の奏上書は自然に履歴を引用します:
 📎 Trace for: "前回 GOVERNANCE は当時 8/10 をつけた"
 
 Cited signal: S:claude-20260315-1432
-Source: _meta/sessions/claude-20260315-1432.md
+Source: meta/sessions/claude-20260315-1432.md
 Content match: "GOVERNANCE 8/10 — 日本 NPO は貸金業法免除を享受しないが
   今回の信託構造 B には無影響、信託自体が貸付を行わないため。"
 Produced by: hippocampus (Step 0.5 Wave 1)
@@ -104,7 +104,7 @@ Hippocampus の検索モデルは「検索エンジンのマッチ + ランキ�
 
 ### Wave 1 · 直接マッチ
 
-1. `_meta/sessions/INDEX.md` を読む(コンパイル済みの一行要約インデックス、2000 sessions で ~1MB、秒単位でスキャン)
+1. `meta/sessions/INDEX.md` を読む(コンパイル済みの一行要約インデックス、2000 sessions で ~1MB、秒単位でスキャン)
 2. ROUTER が既に subject 抽出済みなら、まず **ripgrep** で高速フィルターし、1000+ 条を <50 条の候補に圧縮
 3. 候補を Opus LLM に渡して**意味判断**(embedding なし、vector DB なし——ユーザー決定 #3): 「以下のうちどの session の subject が現在の意味と関連しているか?」
 4. top 3–5 の完全 summary ファイルを読む
@@ -113,7 +113,7 @@ Hippocampus の検索モデルは「検索エンジンのマッチ + ランキ�
 ### Wave 2 · 強接続隣人
 
 Wave 1 の session からその `concepts_activated` リストを取得し、各 concept に対して:
-- `_meta/concepts/{domain}/{concept_id}.md` を読む
+- `meta/concepts/{domain}/{concept_id}.md` を読む
 - `outgoing_edges` に沿って進む——**ただし重み ≥ 3 の強エッジのみ**
 - 各隣人 concept の `provenance.source_sessions` を見つける——これらが「概念グラフを通じて間接的に関連する」 session
 - 重複除去(Wave 1 と重ならない)、ランキング、**最大 2–3 条追加**
@@ -187,9 +187,9 @@ uv run tools/reindex.py
 
 ### 5. 閾値調整(慎重に)
 
-`_meta/config.md` 内:
+`meta/config.md` 内:
 
-項目の権威定義は `references/cortex-spec.md` §`_meta/config.md` にあります。ここでは hippocampus recall に最も関係する設定だけを抜粋します。
+項目の権威定義は `references/cortex-spec.md` §`meta/config.md` にあります。ここでは hippocampus recall に最も関係する設定だけを抜粋します。
 
 ```yaml
 top_k_signals: 5               # ROUTER にブロードキャストする最大シグナル数
@@ -205,7 +205,7 @@ hippocampus_timeout: [5, 15]   # ソフトタイムアウト/ハードタイム�
 
 ### Hippocampus は私のプライバシーデータを検索しますか?
 
-**`_meta/sessions/*.md` の YAML summary のみ読みます** ——これらの要約は archiver Phase 2 での書き込み時に既にプライバシーフィルターを通過しています。具体的な個人詳細(人名、金額、口座)**は summary に現れません**ので、cognitive context にも入りません。
+**`meta/sessions/*.md` の YAML summary のみ読みます** ——これらの要約は archiver Phase 2 での書き込み時に既にプライバシーフィルターを通過しています。具体的な個人詳細(人名、金額、口座)**は summary に現れません**ので、cognitive context にも入りません。
 
 また hippocampus の出力契約では各 `summary` フィールド**最大 1–2 文**——session 原文全段を ROUTER に貼る可能性をシャットアウトします。
 
@@ -272,7 +272,7 @@ GWT 仲裁器は**単一源の失敗**を許容できます——初回 session�
 
 可能な原因(可能性順):
 
-1. **先週のそれは全朝議を通っていない** —— Express 快速車線と direct-handle は `_meta/sessions/{session_id}.md` を書かないので、INDEX.md にそのエントリがありません。解決: あの対話に対してシステムに retrospective を補完させる、または手動で `_meta/journal/` から対応記録を探す。
+1. **先週のそれは全朝議を通っていない** —— Express 快速車線と direct-handle は `meta/sessions/{session_id}.md` を書かないので、INDEX.md にそのエントリがありません。解決: あの対話に対してシステムに retrospective を補完させる、または手動で `meta/journal/` から対応記録を探す。
 2. **subject がマッチしない** —— Wave 1 の LLM 判断が今回の subject と先週のそれが**十分に意味的関連していない**と考えた可能性(例: 先週聞いたのは「共同創業者の分担」、今週聞くのは「権限委譲の境界」)。解決: 直接貼る——「2026-03-15 の共同創業者の分担議論を参照」。
 3. **migration を走らせていない** —— v1.7 新規インストール後に `uv run tools/migrate.py` を走らせておらず、INDEX.md は空。解決: まず migration を走らせる。
 4. **時間窓の外** —— デフォルト 3 ヶ月。前回の意思決定が 100 日前なら、デフォルトスキャン範囲に入りません。解決: `uv run tools/migrate.py --since YYYY-MM-DD` で範囲を拡大。
@@ -282,16 +282,16 @@ GWT 仲裁器は**単一源の失敗**を許容できます——初回 session�
 可能な原因:
 
 - **Wave 1 LLM judgement 失調** ——連続 2 週 median top-1 relevance が 0.5 未満 = Wave 1 prompt の再チューニングが必要。これは AUDITOR の `cognitive_annotation_quality` 指標が捕捉するパターン(詳細は [auditor-eval-history.md](./auditor-eval-history.md))。
-- **概念グラフに「hub」ノード**(一つの concept が数十の強エッジを接続)が存在し Wave 2 拡散が制御不能。`_meta/concepts/SYNAPSES-INDEX.md` を確認、edge count が特に高いノードを探し、分割を検討。
+- **概念グラフに「hub」ノード**(一つの concept が数十の強エッジを接続)が存在し Wave 2 拡散が制御不能。`meta/concepts/SYNAPSES-INDEX.md` を確認、edge count が特に高いノードを探し、分割を検討。
 - **短期間のトピック重複** ——一週間に 5 回類似の質問をしたら、hippocampus は同じ session 集合を繰り返し返します。GWT novelty 次元が重みを下げますが、fatigue がまだ発動していなければ、うるさく見える可能性。数回上朝すればスムーズになります。
 
 ### 「Trace に '⚠️ signal no longer resolvable' が表示」
 
 ある `signal_id` が指すファイルが削除または改名されました。よくある原因:
 
-- `_meta/sessions/` 内のある履歴 session ファイルを手動で削除した
+- `meta/sessions/` 内のある履歴 session ファイルを手動で削除した
 - Git ブランチ切り替え後にインデックスが不一致
-- 概念が `_meta/concepts/_archive/` に retire された
+- 概念が `meta/concepts/_archive/` に retire された
 
 解決: trace でこの警告が出ても、原始 citation は保持されます——**どこを指しているか**はわかる、ただそのファイルが一時的/永久に消えただけ。意図せず削除したなら git 履歴から復旧; アーカイブなら内容は依然として `_archive/` に残り手動で見られる。
 

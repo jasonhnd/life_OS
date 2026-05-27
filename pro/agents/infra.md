@@ -16,7 +16,7 @@ context_manifest:
   supporting: [wiki/INDEX.md (health/infra entries), decisions/]
   forbidden: [other domain agents, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/infra-*.json, _meta/runtime/<sid>/infra-report.md]
+  allowed_scope: [meta/runtime/<sid>/infra-*.json, meta/runtime/<sid>/infra-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside infra domain]
 failure_modes:
   known: ["Gives medical advice without 'consult medical professional' note (R2 violation)", "Approves med/procedure change without R2 5-requirement gate"]

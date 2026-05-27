@@ -37,7 +37,7 @@
 
 **沉淀 → 关联（ROUTER + Wiki INDEX）**：ROUTER 在会话开始时读取 wiki/INDEX.md。新请求到达时自动匹配既有知识——"我们已经知道这个领域的 X"。把积累的知识变成主动的上下文。
 
-**关联 → 战略化（战略地图）**：ROUTER 在会话开始时读 `_meta/STRATEGIC-MAP.md`。当请求涉及有战略关系的项目时，系统自动浮现下游依赖、瓶颈状态、决策传播警告。把每项目分析变成战略线感知的分析。见 `references/strategic-map-spec.md`。
+**关联 → 战略化（战略地图）**：ROUTER 在会话开始时读 `meta/STRATEGIC-MAP.md`。当请求涉及有战略关系的项目时，系统自动浮现下游依赖、瓶颈状态、决策传播警告。把每项目分析变成战略线感知的分析。见 `references/strategic-map-spec.md`。
 
 **战略化 → 涌现（DREAM REM）**：当 wiki 条目和战略关系积累后，DREAM 的 REM 阶段用流动图作为脚手架发现跨域连接——检查 SOUL × 策略对齐、wiki × 流动完整性、行为模式 × 战略优先级一致性。知识和关系沉淀越多，涌现越多。AUDITOR 巡检还会检测 wiki 矛盾、知识缺口和项目间的策略冲突。
 
@@ -57,7 +57,7 @@ second-brain/
 │
 ├── inbox/                             # 📥 未处理（手机捕获、素材、读书笔记、原始研究）
 │
-├── _meta/                             # 🔧 系统元数据
+├── meta/                             # 🔧 系统元数据
 │   ├── STATUS.md                      # 全局状态仪表盘（从 index.md 文件编译）
 │   ├── STRATEGIC-MAP.md               # 战略地图（从项目战略字段编译）
 │   ├── strategic-lines.md             # 战略线定义（用户定义）
@@ -120,8 +120,8 @@ second-brain/
 ## 知识提取：四步训练
 
 1. **用户决定**：桌面 CC 生成"提取提案"，用户确认/修改
-2. **累积样本**：记入 `_meta/extraction-log.md`
-3. **LLM 归纳规则**：从 log 中归纳偏好，写入 `_meta/extraction-rules.md`（纯 markdown，模型无关）
+2. **累积样本**：记入 `meta/extraction-log.md`
+3. **LLM 归纳规则**：从 log 中归纳偏好，写入 `meta/extraction-rules.md`（纯 markdown，模型无关）
 4. **定期校正**：用户每月审查、报告误分类、CC 更新规则
 
 核心：**"学习"的载体是 markdown 文件，不是模型权重**。换模型只需读这些文件。
@@ -138,7 +138,7 @@ AUDITOR 在 Draft-Review-Execute 系统中有两种模式：
 
 ### 模式 2：巡检（新）
 
-空闲时，每个领域审视自己的辖区。定义在 `_meta/roles/censor.md`。
+空闲时，每个领域审视自己的辖区。定义在 `meta/roles/censor.md`。
 
 #### 触发等级
 
@@ -155,7 +155,7 @@ AUDITOR 在 Draft-Review-Execute 系统中有两种模式：
 | FINANCE | areas/finance/ | 投资策略过时、财务数字需更新 |
 | EXECUTION | projects/ | 项目活跃度、TODO 完成、资源冲突 |
 | GROWTH | wiki/ | 未履行社交承诺、需记录的新联系人、置信度 < 0.3 且 90+ 天无更新的 wiki 条目（建议退役）、challenges > evidence_count 的条目（建议审查）、有决策但无 wiki 条目的领域（知识缺口） |
-| INFRA | wiki/ + _meta/ | 孤儿文件、破损链接、规则有效性 |
+| INFRA | wiki/ + meta/ | 孤儿文件、破损链接、规则有效性 |
 | PEOPLE | areas/career/ | 职业方向与行动对齐 |
 | GOVERNANCE | 跨域 | 项目间策略冲突、缺少风险评估的决策 |
 
@@ -169,9 +169,9 @@ AUDITOR 在 Draft-Review-Execute 系统中有两种模式：
 
 #### 实现
 
-- 角色定义存于 `_meta/roles/censor.md`，CLAUDE.md 仅引用
-- 巡检状态持久化在 `_meta/lint-state.md`（解决 LLM 缺乏跨会话记忆的问题）
-- 巡检报告存于 `_meta/lint-reports/`，摘要同步发送到 inbox
+- 角色定义存于 `meta/roles/censor.md`，CLAUDE.md 仅引用
+- 巡检状态持久化在 `meta/lint-state.md`（解决 LLM 缺乏跨会话记忆的问题）
+- 巡检报告存于 `meta/lint-reports/`，摘要同步发送到 inbox
 - 切换模型：角色文件不变，只改 CLAUDE.md 引用
 
 ---
@@ -180,9 +180,9 @@ AUDITOR 在 Draft-Review-Execute 系统中有两种模式：
 
 | 角色 | 文件 | 功能 |
 |------|------|------|
-| AUDITOR | `_meta/roles/censor.md` | 巡检（必需） |
-| 史官 | `_meta/roles/historian.md` | 会话结束时自动记录每日工作（可选） |
-| REVIEWER 值班 | `_meta/roles/reviewer.md` | 写入时审查内容质量（可选） |
+| AUDITOR | `meta/roles/censor.md` | 巡检（必需） |
+| 史官 | `meta/roles/historian.md` | 会话结束时自动记录每日工作（可选） |
+| REVIEWER 值班 | `meta/roles/reviewer.md` | 写入时审查内容质量（可选） |
 
 ---
 
@@ -225,30 +225,30 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 ### 整理模式（会话开始）
 
 ```
-0. 读 _meta/config.md → 获取后端列表和本平台的上次同步时间
-0. DATA LAYER CHECK：若 _meta/config.md 不存在 → FIRST-RUN 模式：
+0. 读 meta/config.md → 获取后端列表和本平台的上次同步时间
+0. DATA LAYER CHECK：若 meta/config.md 不存在 → FIRST-RUN 模式：
    - 问用户选哪个存储后端（GitHub / GDrive / Notion）
-   - 创建最小目录结构：_meta/（config.md, STATUS.md, journal/, outbox/）、projects/、areas/、wiki/、inbox/、archive/、templates/
-   - 写 _meta/config.md 记录选择
+   - 创建最小目录结构：meta/（config.md, STATUS.md, journal/, outbox/）、projects/、areas/、wiki/、inbox/、archive/、templates/
+   - 写 meta/config.md 记录选择
    - 跳过 步骤 1-8，直接进入简报
-1. 读 _meta/config.md → 获取后端列表和本平台的上次同步时间
+1. 读 meta/config.md → 获取后端列表和本平台的上次同步时间
 2. 探测每个配置的后端是否可用（不可用标记为 SKIPPED）
 3. 多后端同步（若配置多个后端且可用）：
    - 查询每个可用的同步后端，自本平台 last_sync_time 以来的变化
    - 比较、解决冲突（见 data-model.md）
    - 应用变化到主后端
    - 推送到同步后端
-4. OUTBOX MERGE：扫描 _meta/outbox/ 未合并会话
-   - 若 _meta/.merge-lock 存在且 <5min → 跳过合并
+4. OUTBOX MERGE：扫描 meta/outbox/ 未合并会话
+   - 若 meta/.merge-lock 存在且 <5min → 跳过合并
    - 写 .merge-lock → 合并每个 outbox → 编译 STATUS.md → commit + push → 删除 .merge-lock
    - 在简报中报告已合并会话
 5. 读 inbox（未处理项）——通过主后端
-6. 读 _meta/STATUS.md（全局状态）
-7. 读 _meta/lint-state.md（检查是否需要巡检：>4h 未运行）
+6. 读 meta/STATUS.md（全局状态）
+7. 读 meta/lint-state.md（检查是否需要巡检：>4h 未运行）
 8. ReadProjectContext（绑定项目）——tasks、decisions、journal
 9. 读 user-patterns.md
 10. 全局概览：List Project + List Area（只有标题和状态）
-11. 战略地图编译：若 `_meta/strategic-lines.md` 存在 → 编译 `_meta/STRATEGIC-MAP.md`。见 `references/strategic-map-spec.md`
+11. 战略地图编译：若 `meta/strategic-lines.md` 存在 → 编译 `meta/STRATEGIC-MAP.md`。见 `references/strategic-map-spec.md`
 12. 若 lint-state.md 显示 >4h → 触发轻量 AUDITOR 巡检
 13. 平台识别 + 版本检查
 ```
@@ -257,15 +257,15 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 
 ```
 1. 生成 session-id：运行 date 命令获取真实时间戳，格式化为 {platform}-{YYYYMMDD}-{HHMM}。不捏造——用系统时钟。HARD RULE。
-2. 创建 _meta/outbox/{session_id}/
-3. Save Decision / Save Task / Save JournalEntry → 到 _meta/outbox/{session_id}/（不是主目录）
+2. 创建 meta/outbox/{session_id}/
+3. Save Decision / Save Task / Save JournalEntry → 到 meta/outbox/{session_id}/（不是主目录）
 4. 写 index-delta.md（对 projects/{project}/index.md 的变更）
 5. 写 patterns-delta.md（若 ADVISOR 有建议，追加到 user-patterns.md 的内容）
 6. 写 manifest.md（会话元数据）
-7. git add _meta/outbox/{session_id}/ → commit → push（仅 outbox 目录）
+7. git add meta/outbox/{session_id}/ → commit → push（仅 outbox 目录）
 8. 同步 outbox 到 Notion（若配置）
-9. 更新本平台的 last_sync_time 在 _meta/config.md
-10. 任何后端失败 → 记录到 _meta/sync-log.md，不阻塞
+9. 更新本平台的 last_sync_time 在 meta/config.md
+10. 任何后端失败 → 记录到 meta/sync-log.md，不阻塞
 
 注意：不要直接写入 projects/、STATUS.md 或 user-patterns.md。合并发生在下次 Start Court。
 ```
@@ -273,7 +273,7 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 ### 复盘模式
 
 ```
-1. 读 _meta/STATUS.md 获取全局状态
+1. 读 meta/STATUS.md 获取全局状态
 2. List Task（所有项目）→ 计算完成率
 3. List Area → 读取目标
 4. List JournalEntry（近期）→ 日志和巡检报告
@@ -291,19 +291,19 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 
 ## 单一真相源规则
 
-**`projects/{project}/index.md` 是每项目 version、phase、status 的权威源**。`_meta/STATUS.md` 是编译的仪表盘——必须从 index.md 文件生成，从不手写。
+**`projects/{project}/index.md` 是每项目 version、phase、status 的权威源**。`meta/STATUS.md` 是编译的仪表盘——必须从 index.md 文件生成，从不手写。
 
 | 数据 | 权威源 | 编译视图 |
 |------|-------|---------|
-| 项目 version / phase / status | `projects/{project}/index.md` | `_meta/STATUS.md` |
-| Area goals / status | `areas/{area}/index.md` | `_meta/STATUS.md` |
+| 项目 version / phase / status | `projects/{project}/index.md` | `meta/STATUS.md` |
+| Area goals / status | `areas/{area}/index.md` | `meta/STATUS.md` |
 | Task 完成 | `projects/{project}/tasks/*.md` | 指标仪表盘 |
 | 行为模式 | `user-patterns.md` | ADVISOR 报告 |
-| 战略关系 | `projects/{project}/index.md` 战略字段 + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
+| 战略关系 | `projects/{project}/index.md` 战略字段 + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **写入顺序是强制的**：先更新权威源，再编译仪表盘。**不要直接写 STATUS.md 的项目级信息**。
 
-**AUDITOR lint 规则**：巡检时检查 `_meta/STATUS.md` 中每项目的 version/status 是否与 `projects/{project}/index.md` 一致。若不一致 → 报告 🔴，标记权威源为正确。
+**AUDITOR lint 规则**：巡检时检查 `meta/STATUS.md` 中每项目的 version/status 是否与 `projects/{project}/index.md` 一致。若不一致 → 报告 🔴，标记权威源为正确。
 
 ---
 

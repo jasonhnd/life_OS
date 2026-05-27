@@ -130,7 +130,7 @@ AUDITOR Mode 8（v1.8.7 新增）验证：
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.8 E9 + DR-11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.8 E9 + DR-11
 - 模式来源：`tinyhumansai/openhuman` `gitbooks/features/subconscious.md` 7-state 活动日志（In progress / Acted / Skipped / Awaiting approval / Failed / Cancelled / Dismissed）—— lifeos 适配为 8 状态加强语义（拆 `Skipped`/`Dismissed`/`Cancelled` → `skipped`；加 `escalated` + `silent_pass` 服务 lifeos 议事 + 审计模式）
 - 配套：`references/conscious-patrol-spec.md`（E10 路径 D —— 每个 patrol task 按本 spec 输出 status line）
 - 配套：`pro/agents/auditor.md` §Mode 8（验证）

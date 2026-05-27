@@ -52,7 +52,7 @@
 | → | 持平 | `|confidence_Δ| ≤ 0.05` |
 | ↘ | 下降 | `confidence_Δ < -0.05` |
 
-这是通过 snapshot 机制计算的——archiver 在每次 session 结束时 dump 一份 SOUL 快照到 `_meta/snapshots/soul/`，下次 Start Session 时 RETROSPECTIVE 读快照和当前 SOUL.md 对比。
+这是通过 snapshot 机制计算的——archiver 在每次 session 结束时 dump 一份 SOUL 快照到 `meta/snapshots/soul/`，下次 Start Session 时 RETROSPECTIVE 读快照和当前 SOUL.md 对比。
 
 **没有快照的维度**：新添加的维度标 🌱 NEW，被删除的维度标 🗑️ REMOVED。
 

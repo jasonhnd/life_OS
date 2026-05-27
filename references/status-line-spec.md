@@ -130,7 +130,7 @@ AUDITOR Mode 8 (new in v1.8.7) validates:
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.8 E9 + DR-11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.8 E9 + DR-11
 - Pattern source: `tinyhumansai/openhuman` `gitbooks/features/subconscious.md` 7-state activity log (In progress / Acted / Skipped / Awaiting approval / Failed / Cancelled / Dismissed) — lifeos adapted to 8 states with stronger semantics (split `Skipped`/`Dismissed`/`Cancelled` → `skipped`; added `escalated` + `silent_pass` for lifeos's deliberation + audit patterns)
 - Companion: `references/conscious-patrol-spec.md` (E10 path D — each patrol task outputs status line per this spec)
 - Companion: `pro/agents/auditor.md` §Mode 8 (validation)

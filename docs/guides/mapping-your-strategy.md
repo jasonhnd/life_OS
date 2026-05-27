@@ -173,7 +173,7 @@ health_signals:
   - "用户在决策流程中表现出自主性增强"
 time_window: 2027-01-01
 
-确认？写到 _meta/strategic-lines.md
+确认？写到 meta/strategic-lines.md
 ```
 
 你：`确认`

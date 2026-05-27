@@ -158,7 +158,7 @@ Obsidian 只用来**浏览**，不用来编辑。所有写入走 CC 会话。
 如果你确实要直写，遵守：
 
 1. 只改 `inbox/`、`{area}/notes/`、wiki 条目正文。
-2. 不碰 `_meta/STATUS.md`、`_meta/STRATEGIC-MAP.md`、各 index.md。
+2. 不碰 `meta/STATUS.md`、`meta/STRATEGIC-MAP.md`、各 index.md。
 3. 加新文件时记得写 YAML front matter（否则 ROUTER 读不到类型）。
 
 ### 混合模式

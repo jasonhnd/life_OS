@@ -2,12 +2,17 @@
 status: legacy
 authoritative: false
 superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ package was deleted in v1.8.1 Wave 2 (zero-python pivot, 2026-05-02). Read for historical context only; current behavior in pro/CLAUDE.md + scripts/prompts/*.md (LLM-driven) + scripts/hooks/*.sh (bash-only)."
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ deleted v1.8.1 Wave 2. Layer 3 bash hooks deleted v1.8.5 (hook layer 退役). v1.8.7 md-only ontological commit forbids both .py and .sh. Read for historical context only; current behavior in pro/CLAUDE.md + scripts/prompts/*.md (LLM-driven inline)."
 ---
 
 # 执行层架构 · Shell Hooks (Layer 3) + Python Tools (Layer 4) — LEGACY
 
-> ⚠️ **LEGACY (v1.7-era)**. **Layer 4 Python 工具层在 v1.8.1 Wave 2 (2026-05-02) 已整体删除**（zero-python pivot — 11 个 .py 模块 + 17 个 pytest 文件 + pyproject.toml 全砍）。本文档详细描述的 12 个核心 Python 工具（reindex/embed/research/...）**已不存在**。本文件保留作历史参考。
+> ⚠️ **LEGACY (v1.7-era)**. v1.9.0 现状：
+> - **Layer 4 Python tools/** 在 v1.8.1 Wave 2（2026-05-02）整体删除（zero-python pivot — 11 个 .py 模块 + 17 个 pytest 文件 + pyproject.toml 全砍）
+> - **Layer 3 bash hooks** 在 v1.8.5（2026-05-22）整体退役（~30 个 .sh 全删），运行时 enforcement 转 inline LLM 流程（auditor Mode 3 等）
+> - **v1.8.7 md-only 本体论 commit**（DR-10）禁止 .py / .sh / .yml / .json / .sql / .db / .sqlite 文件类型，永久约束
+>
+> 本文档描述的 12 个核心 Python 工具 + 11 个 bash hook **均已不存在**。文件保留作历史参考。当前 enforcement 见 pro/CLAUDE.md + pro/agents/auditor.md Mode 3。
 >
 > **v1.8.1 当前架构（取代本文）：**
 > - **Layer 3 = bash hooks** — 仍在 `scripts/hooks/*.sh`（`pre-bash-approval.sh` 现含内联的 ~40 危险命令 pattern bash 数组，前身是已删的 `tools/approval.py`）
@@ -224,7 +229,7 @@ fi
 #### 3.3.2 `lifeos-post-response-verify.sh` · PostToolUse 合规扫描
 
 **触发**：每次工具调用完成后。
-**作用**：检查 orchestrator 的输出是否符合 trigger 模板。检测到违规 → 写入 `pro/compliance/violations.md`（dev repo）或 `_meta/compliance/violations.md`（user repo）。
+**作用**：检查 orchestrator 的输出是否符合 trigger 模板。检测到违规 → 写入 `pro/compliance/violations.md`（dev repo）或 `meta/compliance/violations.md`（user repo）。
 
 **检测规则**（举例）：
 
@@ -240,7 +245,7 @@ fi
 | Timestamp | Trigger | Type | Severity | Details | Resolved |
 |-----------|---------|------|----------|---------|----------|
 | 2026-04-19T22:47+09:00 | 上朝 | A (skip-subagent) | P0 | ROUTER simulated 18 steps in main context | false |
-| 2026-04-19T22:52+09:00 | 上朝 | B (fabricate) | P0 | Referenced non-existent `_meta/roles/CLAUDE.md` | false |
+| 2026-04-19T22:52+09:00 | 上朝 | B (fabricate) | P0 | Referenced non-existent `meta/roles/CLAUDE.md` | false |
 ```
 
 **升级阶梯**（由 Python 工具 `stats.py` 读 log 后决策）：
@@ -254,7 +259,7 @@ fi
 #### 3.3.3 `lifeos-pre-write-scan.sh` · PreToolUse 写入前扫描
 
 **触发**：任何 `Write` 或 `Edit` 工具调用前。
-**作用**：扫描即将写入的内容。如果目标路径是 `wiki/`、`SOUL.md`、`_meta/concepts/`，运行敏感信息正则扫描。检测到 = **block 写入**，返回 exit code 2 让 Claude Code 取消。
+**作用**：扫描即将写入的内容。如果目标路径是 `wiki/`、`SOUL.md`、`meta/concepts/`，运行敏感信息正则扫描。检测到 = **block 写入**，返回 exit code 2 让 Claude Code 取消。
 
 **15 条核心正则**（从 Hermes `approval.py` 移植 + Life OS 自有的 Privacy Filter）：
 
@@ -300,7 +305,7 @@ CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // .tool_input.new_string /
 
 # 只扫 wiki / SOUL / concepts
 case "$FILE" in
-  */wiki/*|*/SOUL.md|*/_meta/concepts/*) ;;
+  */wiki/*|*/SOUL.md|*/meta/concepts/*) ;;
   *) echo "$INPUT"; exit 0 ;;
 esac
 
@@ -336,7 +341,7 @@ if grep -q "退朝\|adjourn\|お疲れ" "$TRANSCRIPT"; then
       echo "[Hook] Adjourn violation: missing $PHASE" >&2
       # 写违规 log
       LOG="./pro/compliance/violations.md"
-      [ -f "$LOG" ] || LOG="./_meta/compliance/violations.md"
+      [ -f "$LOG" ] || LOG="./meta/compliance/violations.md"
       echo "| $(date -Iseconds) | 退朝 | C (incomplete) | P1 | Missing $PHASE | false |" >> "$LOG"
     fi
   done
@@ -372,7 +377,7 @@ dev repo (life-os):
     2026-04-19-court-start-violation.md  ← 重大 incident 完整档案
 
 user repo (second-brain):
-  _meta/compliance/
+  meta/compliance/
     violations.md              ← 用户的违规 log（跟 second-brain 一起 git push）
     archive/{YYYY-Q}.md
 ```
@@ -388,8 +393,8 @@ user repo (second-brain):
 ```bash
 if [ -f "./pro/agents/retrospective.md" ]; then
   LOG="./pro/compliance/violations.md"       # dev repo
-elif [ -f "./_meta/config.md" ]; then
-  LOG="./_meta/compliance/violations.md"     # user second-brain
+elif [ -f "./meta/config.md" ]; then
+  LOG="./meta/compliance/violations.md"     # user second-brain
 else
   LOG=""                                     # 其他 repo，不记录
 fi
@@ -414,7 +419,7 @@ fi
 life-os/tools/
 ├── __init__.py
 ├── cli.py                     # 统一入口：life-os-tool <cmd> [args]
-├── reindex.py                 # 扫 _meta/sessions/ → 编译 INDEX.md
+├── reindex.py                 # 扫 meta/sessions/ → 编译 INDEX.md
 ├── reconcile.py               # 检查孤儿文件 / 断链 / frontmatter 缺失
 ├── stats.py                   # 统计 AUDITOR / REVIEWER / 违规 log
 ├── research.py                # 后台研究（Exa / SerpAPI / firecrawl）
@@ -424,13 +429,13 @@ life-os/tools/
 ├── migrate.py                 # schema 迁移（v1.6.2a → v1.7 frontmatter 变化）
 ├── search.py                  # 跨 session 语义搜索
 ├── export.py                  # second-brain → PDF / HTML / JSON
-├── seed.py                    # 新用户初始化 _meta/ 目录结构
+├── seed.py                    # 新用户初始化 meta/ 目录结构
 ├── sync_notion.py             # 容错的 Notion 同步（orchestrator 兜底）
 ├── lib/
 │   ├── second_brain.py        # 读写 markdown + YAML frontmatter 的基础库
 │   ├── embeddings.py          # OpenAI / local embedding 封装
 │   ├── notion.py              # Notion API client
-│   ├── config.py              # 读 _meta/config.md
+│   ├── config.py              # 读 meta/config.md
 │   └── privacy.py             # 3.3.3 的 15 条 regex 共享给 Python 端
 ├── tests/
 │   ├── test_reindex.py
@@ -445,10 +450,10 @@ life-os/tools/
 
 #### ① `reindex.py` — 编译 INDEX.md
 
-**作用**：扫 `second-brain/_meta/sessions/*.md` 的 frontmatter（subject / domains / score），编译成 `_meta/sessions/INDEX.md`，给 `retrospective` 晨报和 `ROUTER` 主题框架用。海马体级加速。
+**作用**：扫 `second-brain/meta/sessions/*.md` 的 frontmatter（subject / domains / score），编译成 `meta/sessions/INDEX.md`，给 `retrospective` 晨报和 `ROUTER` 主题框架用。海马体级加速。
 
-**输入**：`second-brain/_meta/sessions/**/*.md`
-**输出**：`second-brain/_meta/sessions/INDEX.md`
+**输入**：`second-brain/meta/sessions/**/*.md`
+**输出**：`second-brain/meta/sessions/INDEX.md`
 **运行**：手动 `life-os-tool reindex` / cron 每 6 小时 / GitHub Action on push
 **代码骨架**：
 
@@ -458,7 +463,7 @@ from pathlib import Path
 from .lib.second_brain import load_frontmatter, render_table
 
 def reindex(brain_root: Path) -> str:
-    sessions = sorted((brain_root / "_meta/sessions").glob("**/*.md"))
+    sessions = sorted((brain_root / "meta/sessions").glob("**/*.md"))
     rows = []
     for s in sessions:
         fm = load_frontmatter(s)  # returns dict or None
@@ -471,16 +476,16 @@ def reindex(brain_root: Path) -> str:
             "path": str(s.relative_to(brain_root)),
         })
     table = render_table(rows, headers=["date","subject","domains","score","path"])
-    (brain_root / "_meta/sessions/INDEX.md").write_text(f"# Session Index\n\n{table}\n")
+    (brain_root / "meta/sessions/INDEX.md").write_text(f"# Session Index\n\n{table}\n")
     return f"indexed {len(rows)} sessions"
 ```
 
 #### ② `reconcile.py` — 结构体检
 
-**作用**：四个检查——孤儿文件（在 `projects/` 但没被 `INDEX.md` 引用）、断链（markdown link 指向不存在的路径）、frontmatter 缺失（`_meta/sessions/` 下没 YAML header 的文件）、主题 × 路径不一致（frontmatter 说 `domains: [finance]` 但文件在 `projects/health/` 下）。
+**作用**：四个检查——孤儿文件（在 `projects/` 但没被 `INDEX.md` 引用）、断链（markdown link 指向不存在的路径）、frontmatter 缺失（`meta/sessions/` 下没 YAML header 的文件）、主题 × 路径不一致（frontmatter 说 `domains: [finance]` 但文件在 `projects/health/` 下）。
 
 **输入**：整个 `second-brain/`
-**输出**：`second-brain/_meta/reconcile-report-{date}.md`
+**输出**：`second-brain/meta/reconcile-report-{date}.md`
 **运行**：每次 `retrospective` housekeeping 时 trigger / 每周一 cron / pre-push git hook
 **代码骨架**：
 
@@ -489,7 +494,7 @@ def reindex(brain_root: Path) -> str:
 def reconcile(brain: Path) -> dict:
     issues = {"orphan": [], "broken_link": [], "missing_fm": [], "mismatch": []}
     all_files = set(brain.glob("**/*.md"))
-    indexed = set(parse_index_paths(brain / "_meta/sessions/INDEX.md"))
+    indexed = set(parse_index_paths(brain / "meta/sessions/INDEX.md"))
     issues["orphan"] = [f for f in all_files if f not in indexed and "sessions" in f.parts]
     for f in all_files:
         for link in extract_markdown_links(f):
@@ -503,16 +508,16 @@ def reconcile(brain: Path) -> dict:
 **作用**：读所有 session 的 Summary Report frontmatter + `compliance/violations.md` + AUDITOR 评分，生成数字化健康报告。直接喂给 `self-review` journal。
 
 **输入**：sessions + violations + audit logs
-**输出**：stdout table + `_meta/self-review-{YYYY-MM}.md`
+**输出**：stdout table + `meta/self-review-{YYYY-MM}.md`
 **运行**：每月 1 日 cron / 手动 `life-os-tool stats --month 2026-04`
 **关键指标**：AUDITOR 平均分、REVIEWER 否决率、COUNCIL 触发率、Express path 命中率、违规累计数、最常见 domain、最长决策耗时。
 
 #### ④ `research.py` — 后台研究
 
-**作用**：收到一批研究任务（来自 session 的 "needs investigation" 标记），并行跑 Exa / firecrawl / SerpAPI，把结果写到 `_meta/research-queue/{topic}-{date}.md`。下次 session `retrospective` 读到后呈给 ROUTER。
+**作用**：收到一批研究任务（来自 session 的 "needs investigation" 标记），并行跑 Exa / firecrawl / SerpAPI，把结果写到 `meta/research-queue/{topic}-{date}.md`。下次 session `retrospective` 读到后呈给 ROUTER。
 
-**输入**：`_meta/research-queue/pending/*.md`（每个文件一条 query）
-**输出**：`_meta/research-queue/done/{topic}.md`（markdown 研究报告）
+**输入**：`meta/research-queue/pending/*.md`（每个文件一条 query）
+**输出**：`meta/research-queue/done/{topic}.md`（markdown 研究报告）
 **运行**：每晚 23:00 cron / 用户手动触发 `life-os-tool research --from pending/`
 **为什么不做成 subagent**：研究任务不需要实时，提前一晚跑完、早上送到晨报里价值最大。这正是"LLM 不主动"需要 Layer 4 补位的典型场景。
 
@@ -524,10 +529,10 @@ def reconcile(brain: Path) -> dict:
 
 #### ⑥ `daily_briefing.py` — 晨报
 
-**作用**：生成今日简报——昨日 session 数、待处理 inbox、DREAM auto-trigger 条目、SOUL 健康摘要、strategic lines 最新活动。输出 markdown 到 `_meta/briefings/{date}.md`；用户可自行配置本地通知（macOS `osascript` / `terminal-notifier` 等）。**v1.7 不内置 Telegram / 跨平台推送**——用户决策明确剥离，坚持本地化。
+**作用**：生成今日简报——昨日 session 数、待处理 inbox、DREAM auto-trigger 条目、SOUL 健康摘要、strategic lines 最新活动。输出 markdown 到 `meta/briefings/{date}.md`；用户可自行配置本地通知（macOS `osascript` / `terminal-notifier` 等）。**v1.7 不内置 Telegram / 跨平台推送**——用户决策明确剥离，坚持本地化。
 
 **输入**：整个 second-brain 最近 24h 变更
-**输出**：`_meta/briefings/YYYY-MM-DD.md` + 推送
+**输出**：`meta/briefings/YYYY-MM-DD.md` + 推送
 **运行**：launchd / cron 06:00 每日
 **和 `retrospective` 晨报的区别**：`retrospective` 是"session start 时在 CLI 里呈现"，`daily_briefing` 是"不管你开不开 CLI，06:00 都推到手机"。两者内容可以一致，触发点不同。
 
@@ -545,7 +550,7 @@ def reconcile(brain: Path) -> dict:
 **作用**：Life OS 版本升级时 frontmatter 字段变化（例：v1.6.2a 没有 `strategic_role`，v1.7 需要每个 project 加）。migrate 脚本扫全部文件，按 migration 规则批量改写。
 
 **输入**：second-brain + 目标版本号
-**输出**：修改后的 second-brain + `_meta/migration-log-{from}-to-{to}.md`
+**输出**：修改后的 second-brain + `meta/migration-log-{from}-to-{to}.md`
 **运行**：手动触发 `life-os-tool migrate --to 1.7.0`，跑前自动 `backup.py`
 **幂等**：每条 migration 规则带 `applied_in` 标记，已迁移的文件跳过。
 
@@ -553,7 +558,7 @@ def reconcile(brain: Path) -> dict:
 
 **作用**：用户问"三个月前我怎么决定要不要离职"，CLI 里跑 `life-os-tool search "quit job decision"`，工具用 `embed.py` 产生的 embedding 做 cosine 相似度，返回 top 5 session + 摘要。
 
-**输入**：query string + `_meta/sessions/` embedding
+**输入**：query string + `meta/sessions/` embedding
 **输出**：stdout 的 ranked list（session path + 相似度 + 一句摘要）
 **运行**：手动触发
 **为什么不做成 subagent 工具**：作为 CLI 起步简单、无上下文污染。未来可以包一层 MCP server 暴露给宿主。
@@ -568,7 +573,7 @@ def reconcile(brain: Path) -> dict:
 
 #### ⑪ `seed.py` — 新用户初始化
 
-**作用**：新用户第一次用 Life OS 时跑一次，在目标路径创建标准目录结构（`_meta/`、`projects/`、`areas/`、`wiki/`）、写空 `config.md` 模板、创建示例 session 让 retrospective 有东西可读。
+**作用**：新用户第一次用 Life OS 时跑一次，在目标路径创建标准目录结构（`meta/`、`projects/`、`areas/`、`wiki/`）、写空 `config.md` 模板、创建示例 session 让 retrospective 有东西可读。
 
 **输入**：目标路径 + 用户信息（姓名、时区、语言、主题偏好）
 **输出**：完整初始化的 second-brain
@@ -580,7 +585,7 @@ def reconcile(brain: Path) -> dict:
 **作用**：archiver Phase 4 的 Notion 同步如果失败（MCP 不可用 / 网络抽风 / rate limit），orchestrator 会在 Completion Checklist 里标 `failed`。这时用户可以手动跑 `life-os-tool sync-notion --since 2026-04-19` 把遗漏补上。
 
 **输入**：second-brain + Notion API token + 日期范围
-**输出**：Notion 页面更新 + `_meta/notion-sync-log.md`
+**输出**：Notion 页面更新 + `meta/notion-sync-log.md`
 **运行**：手动补救 / 或作为 Notion MCP 不可用时的 fallback
 
 ### 4.4 定时运行方式（本地优先，v1.7 不用 GitHub Actions）
@@ -671,7 +676,7 @@ Life OS 的 Python 工具**不要求**任何定时执行（用户决策 #1：v1.
 - 否则 append 违规 log
 
 **T5 · Layer 4：`reindex.py` 手动或本地 launchd**
-- 新 session 的 frontmatter 被扫进 `_meta/sessions/INDEX.md`
+- 新 session 的 frontmatter 被扫进 `meta/sessions/INDEX.md`
 - 下次 `retrospective` 晨报直接读到（retrospective 在 Mode 0 里自动调用 reindex，不依赖定时器）
 
 **T6 · Layer 4：`search.py` 的 metadata + grep ranking**
@@ -683,7 +688,7 @@ Life OS 的 Python 工具**不要求**任何定时执行（用户决策 #1：v1.
 - 读昨日新 session 的结论
 - 读 `violations.md` 最近 7 日
 - 读 DREAM auto-trigger 是否撞到"决策疲劳"
-- 输出到 `_meta/briefings/{date}.md`，用户可选择配置本地通知
+- 输出到 `meta/briefings/{date}.md`，用户可选择配置本地通知
 
 Layer 3 负责**不让 LLM 糊弄**；Layer 4 负责**让系统自己动起来**。两层各自独立——hook 不装也能用 Python 工具，Python 不装 hook 也能工作。但两层都齐全时，Life OS 就不再是"等用户打字的决策框架"，而是"有纪律、有胥吏的朝廷"。
 
@@ -697,7 +702,7 @@ Layer 3 负责**不让 LLM 糊弄**；Layer 4 负责**让系统自己动起来**
 
 - Layer 3：`pre-prompt-guard` + `post-response-verify` + `pre-write-scan` + `stop-session-verify` + `pre-read-allowlist`（共 5 个 hook，完整契约见 `references/hooks-spec.md`）
 - Layer 4：`reindex` + `reconcile` + `stats` + `daily_briefing`（前 4 个 Python 工具）
-- 违规 log 双仓库机制正式上线（`pro/compliance/` + `_meta/compliance/`）
+- 违规 log 双仓库机制正式上线（`pro/compliance/` + `meta/compliance/`）
 - 文档：本文件 + `docs/guides/hooks-install.md` + `docs/guides/python-tools-install.md`
 
 **v1.7 · 阶段二 — 扩展与自动化**

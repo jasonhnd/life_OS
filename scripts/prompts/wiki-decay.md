@@ -70,7 +70,7 @@ remind them of.
 
 ### 3. Write report (v1.8.2 Obsidian-style)
 
-Write `_meta/eval-history/wiki-decay-{YYYY-MM-DD}.md` per `references/obsidian-style.md` (rule #11):
+Write `meta/eval-history/wiki-decay-{YYYY-MM-DD}.md` per `references/obsidian-style.md` (rule #11):
 
 ```markdown
 ---
@@ -173,12 +173,12 @@ prompt that does only this audit).
 🌱 wiki-decay done · {N} entries scanned
    ⏰ {D} due for review (you set review_by) · {S} stale · {B} borderline · {A} active
    {if link audit ran:} 🔗 {K} broken links · {O} orphans
-   _meta/eval-history/wiki-decay-{date}.md
+   meta/eval-history/wiki-decay-{date}.md
 ```
 
 ## Output path
 
-- `_meta/eval-history/wiki-decay-{YYYY-MM-DD}.md`
+- `meta/eval-history/wiki-decay-{YYYY-MM-DD}.md`
 
 ## Notes
 

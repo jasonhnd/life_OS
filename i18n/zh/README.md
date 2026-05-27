@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.7-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -19,7 +19,9 @@
 
 ---
 
-> **Hermes Local** 是 Life OS 当年还带着 Layer 4 Python tools/ 包时的用户面名称。在 **v1.8.1 Wave 2（zero-python pivot）**之后 Layer 4 没了，整个 skill 就是 bash hook + markdown prompt + agent 定义。危险命令 pattern guard（~40 条）现在 inline 嵌在 `scripts/hooks/pre-bash-approval.sh`。Pattern 出处保留：fork 自 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）。
+> **v1.9.0 架构**：Life OS 是 100% markdown —— agent prompts、slash commands、eval scenarios、RFC 文档。无 Python（`tools/` 在 v1.8.1 Wave 2 移除），无 bash hooks（`scripts/hooks/*.sh` 在 v1.8.5 退役），无 .yml schema 文件（v1.8.7 md-only 本体论提交 DR-10）。运行时 enforcement 通过 inline LLM 流程（spec.md 阅读 + grep 匹配）。**Hermes Local** 是 v1.6-v1.8.0 时代 bash hook + Python tools 层的旧名；该层已不存在。Pattern 出处保留：fork 自 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）。
+>
+> 下方历史章节（v1.8.3 / v1.8.0 / v1.6.3a "What's New"）可能引用 `bash scripts/setup-hooks.sh` 等 —— 这些步骤 **v1.8.5 起已 no-op**（hook 层退役）。当前 setup 跑 `/install-agents`（Claude Code slash 命令，替代所有历史 bash setup 脚本）。
 
 ## 一套引擎，三种文化，你来选
 
@@ -87,7 +89,7 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 - **🔄 ScheduleWakeup 自驱循环（B4）** —— `/verify-release-and-watch` 和 `/notion-sync-and-watch` 每 270s 轮询（Anthropic prompt cache 窗口），最多 12 ticks（60 分钟）直到终态。自动修复缺失的 GitHub Release publish。lifeos 从 reactive 工具变成"能盯任务"的工具。
 - **📋 verify-release 扩展为 11 个 check** —— 新 check 9（i18n diff parity，WARN 级）抓反复的"EN spec 更新但 zh/ja 漂移"违规类。新 check 10（diff 范围 forbidden extensions）抓上次 tag 以来引入的禁止扩展名文件。Check 8 扩展为 9 个禁止扩展名（加 `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`）。
 - **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 个 sub-check 验证 v1.8.7 artifact 保留 + md-only 约束在设计提议级别不被绕过（在到文件扩展闸门前抓漂移）。
-- **📚 Spec 硬化** —— `evals_scenarios:` frontmatter 字段现在在每个规划文档必填（dispatcher 不带就拒绝）。`concept-spec.md` 的 hotness 阈值显式化（≥3 sessions → confirmed，≥10 → canonical）。5 个新 `WHEN-NOT-TO-ADD.md` 为 pro/agents/、references/、_meta/、themes/、scripts/ 设清楚边界。
+- **📚 Spec 硬化** —— `evals_scenarios:` frontmatter 字段现在在每个规划文档必填（dispatcher 不带就拒绝）。`concept-spec.md` 的 hotness 阈值显式化（≥3 sessions → confirmed，≥10 → canonical）。5 个新 `WHEN-NOT-TO-ADD.md` 为 pro/agents/、references/、meta/、themes/、scripts/ 设清楚边界。
 - **🌳 Memory tree cascade seal —— v2.0 提案** —— `references/memory-tree-spec.md` 定义 sessions/wiki 的 L0 → L1 → L2 → L3 cascade 架构，借鉴自 OpenHuman。Spec 冻结为提案；v1.8.7 archiver 行为不变。实施推迟到 v1.9/v2.0，待 Jason second-brain 真实数据验证。
 
 ### 从 v1.8.6 升级（zero-friction）
@@ -101,17 +103,17 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 无迁移命令。archiver 首次跑自动创建 `pro/gotchas.md`。既有数据布局不变。
 
-详见 [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 完整 RFC、DR-08（cargo-cult 砍掉）、DR-09（决策标准：产品质量不是时间）、DR-10（md-only 本体论约束），及设计决策审计 trail。
+详见 [`meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 完整 RFC、DR-08（cargo-cult 砍掉）、DR-09（决策标准：产品质量不是时间）、DR-10（md-only 本体论约束），及设计决策审计 trail。
 
 > **之前**，v1.8.3 关闭了出境隐私缺口（详见 CHANGELOG 的 v1.8.3 内容）。
 
 ## v1.8.3 新特性 — Notion 写入前的出境闸门
 
-**补上「外发」的隐私缺口。** v1.8.2 守住了「进入」vault 的内容（`pre-write-scan.sh` 防 SOUL.md / wiki / `_meta/concepts/` / user-patterns.md 被 secret、prompt injection、隐藏 Unicode 污染）。但 v1.8.2 对**离开** vault 的路径只字未提。Decision/Task/Journal 这些含用户原话、第三人姓名、具体金额的内容，从 `_meta/outbox/<sid>/` 直接同步到 Notion 的 Step 10a 阶段——**完全没有任何隐私闸门**。v1.8.3 补上这块对称的出境守卫。
+**补上「外发」的隐私缺口。** v1.8.2 守住了「进入」vault 的内容（`pre-write-scan.sh` 防 SOUL.md / wiki / `meta/concepts/` / user-patterns.md 被 secret、prompt injection、隐藏 Unicode 污染）。但 v1.8.2 对**离开** vault 的路径只字未提。Decision/Task/Journal 这些含用户原话、第三人姓名、具体金额的内容，从 `meta/outbox/<sid>/` 直接同步到 Notion 的 Step 10a 阶段——**完全没有任何隐私闸门**。v1.8.3 补上这块对称的出境守卫。
 
 ### 为什么本地 outbox 和 Notion 不是同一个威胁模型
 
-能放在你私有 git 里的 `_meta/outbox/<sid>/decisions/` 内容，跟该往 Notion 推什么，**不是同一个标准**：
+能放在你私有 git 里的 `meta/outbox/<sid>/decisions/` 内容，跟该往 Notion 推什么，**不是同一个标准**：
 
 - Notion workspace 可能是共享的（团队 Notion、误开 public link）
 - Notion AI 可能为组织级 assistant 索引页面内容
@@ -133,7 +135,7 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 | **E** — URL trackers、JWT 形状 | `info` | 静默记录 |
 | 无命中 | `pass` | 正常进行 |
 
-审计记录写到 `_meta/runtime/<sid>/notion-pii-scan-<ts>.json`，含命中类别 ID（**不记原文**），AUDITOR Mode 3 巡检可以追踪出境风险频次——如果你 40% 的 adjourn 都触发 Group B，那是个值得回顾的行为信号。
+审计记录写到 `meta/runtime/<sid>/notion-pii-scan-<ts>.json`，含命中类别 ID（**不记原文**），AUDITOR Mode 3 巡检可以追踪出境风险频次——如果你 40% 的 adjourn 都触发 Group B，那是个值得回顾的行为信号。
 
 ### 为什么 B/C/D 是软告警 `warn` 而不是硬阻断
 
@@ -164,7 +166,7 @@ v1.8.1 是 **Life OS 历史上最大的「减法」**。两波 5 月 1-2 日交�
 
 ### Wave 1 · Plan B wiki + auto-bootstrap（5 月 1 日）
 
-- **`/inbox-process`** — 把任意 `.md` 拖到 `_meta/inbox/to-process/`，然后说"处理 inbox"或 `/inbox-process`。ROUTER 扫描、逐项提议处置（accept→wiki / update→wiki / archive / reject / defer / merge）、等确认、执行、写日志。Wave 2 加了 LLM 驱动重复检测（无 SHA256，无 FTS5）+ `_meta/inbox/manifest.json` delta 跟踪。
+- **`/inbox-process`** — 把任意 `.md` 拖到 `meta/queue/to-process/`，然后说"处理 inbox"或 `/inbox-process`。ROUTER 扫描、逐项提议处置（accept→wiki / update→wiki / archive / reject / defer / merge）、等确认、执行、写日志。Wave 2 加了 LLM 驱动重复检测（无 SHA256，无 FTS5）+ `meta/queue/manifest.json` delta 跟踪。
 - **`/research <topic>`** — 并行起 5 个（`--depth deep` 8 个）`general-purpose` subagent 覆盖 academic / practitioner / contrarian / origin / adjacent 角度。综合成 SCHEMA 兼容 wiki 草稿，含强制 `Counterpoints` 段 + 自动反 confirmation bias 检查。Wave 2 加了解耦 CitationAgent（Phase 4，Anthropic 模式）。带 citation verifier 总 wall time ≤ 9 min。
 - **`wiki/log.md` 活动时间线规范** — 每个 wiki Write/Edit/移动 append 一行 + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` 和 `/research` 自动写日志。
 - **零命令 vault 自动 bootstrap** — v1.8.1 之后第一次在 vault 内开 Claude Code session 时，SessionStart hook 自动检测缺失的脚手架并静默创建。只看到一行 `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files`，之后无输出。`.obsidian/graph.json` 自动 patch（先备份）。
@@ -191,7 +193,7 @@ v1.8.1 是 **Life OS 历史上最大的「减法」**。两波 5 月 1-2 日交�
 | `review_by` 字段 | ISO 日期 — `wiki-decay` 何时该重新提醒此条目 |
 | 每条事实的出处标记 | `^[extracted]`（从源转述）、`^[inferred]`（你的综合）、`^[ambiguous]`（源不一致）。`/research` agent 输出强制；`/inbox-process` accept/update 强制。 |
 | `/inbox-process` LLM 去重 | 替代 SHA256 hash — 抓到释义性近似重复，不只字节相同。纯 LLM 用 grep + Read 判断。 |
-| `_meta/inbox/manifest.json` delta 跟踪 | 每次 `/inbox-process` 在提议表里标 Δ-new vs carried-over。 |
+| `meta/queue/manifest.json` delta 跟踪 | 每次 `/inbox-process` 在提议表里标 Δ-new vs carried-over。 |
 | `/research` 解耦 CitationAgent | Anthropic 模式 Phase 4：通过 WebFetch 验证每个 `^[extracted]` claim 对得上 `sources[]`。未验证的自动降级。30%+ 失败则 confidence 降一桶。`--no-citations` 可关。 |
 
 ### Life OS Wiki 与其他项目的本质区别（反 confirmation bias 定位）
@@ -215,7 +217,7 @@ v1.8.1 是 **Life OS 历史上最大的「减法」**。两波 5 月 1-2 日交�
 - **macOS 可移植性**：`pre-bash-approval.sh` 5 处裸 `python -c`。macOS 12+ 移除了裸 `python` → hook fail-CLOSED → 阻止所有 Bash。R-1.8.0-020 commit 标题声称修了；直到 Wave 1 才修。
 - **Scanner 误判**：`pre-write-scan.sh` pattern #5 之前会拦截 markdown 合法 inline code。收紧为 backtick 内必须含 shell 元字符。
 - **session-start-inbox UX**：2 个 task 名字写错；NEVER_RUN 桶从 8+ 行压成 1 行。
-- **Notion sync 硬编码 4 个 entity** — 现在 config-driven；读 `_meta/config.md`。
+- **Notion sync 硬编码 4 个 entity** — 现在 config-driven；读 `meta/config.md`。
 
 ### 迁移
 
@@ -268,8 +270,8 @@ Pivot 中删掉的：
 v1.7.3 让 Cortex 从「声明 always-on」变成「机器强制 always-on」，并给 Hermes 工具真实可见、可触发的入口。
 
 - **Cortex hook 强制注入** — `pre-prompt-guard` 现在在用户消息含决策关键词或超过 80 字时，输出 system-reminder 强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 的静默降级（17+ session 0 audit trail）。
-- **narrator-validator audit trail HARD RULE** — frontmatter `tools` 加 Bash + Write，按 pro/CLAUDE.md §0.5 强制写 `_meta/runtime/<sid>/narrator-validator.json` audit trail JSON。
-- **4 个 slash command 接入** — `/compress`（inline 上下文压缩，归档到 `_meta/compression/`）、`/search`（基于 `tools.session_search` 的 FTS5 跨 session 搜索）、`/memory`（基于 `tools.memory` 的 24-48h 短期记忆）、`/method`（基于 `tools.skill_manager` 的方法论库管理）。`setup-hooks.sh` 安装到 `~/.claude/commands/`。
+- **narrator-validator audit trail HARD RULE** — frontmatter `tools` 加 Bash + Write，按 pro/CLAUDE.md §0.5 强制写 `meta/runtime/<sid>/narrator-validator.json` audit trail JSON。
+- **4 个 slash command 接入** — `/compress`（inline 上下文压缩，归档到 `meta/compression/`）、`/search`（基于 `tools.session_search` 的 FTS5 跨 session 搜索）、`/memory`（基于 `tools.memory` 的 24-48h 短期记忆）、`/method`（基于 `tools.skill_manager` 的方法论库管理）。`setup-hooks.sh` 安装到 `~/.claude/commands/`。
 - **死代码清理** — `tools/prompt_cache.py`（118 行 0 调用，Claude Code 包月场景无意义）+ `docs/architecture/prompt-cache-strategy.md` 删除。`docs/architecture/hermes-local.md` 中相关引用清理完毕。
 
 迁移：重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`，把 4 个新 slash command 安装到 `~/.claude/commands/`。
@@ -304,7 +306,7 @@ v1.7.1 是一次面向透明度和证据链的加固版本。系统会更明确�
 
 反虚构加固阻止虚构的失败解释到达用户。
 
-补丁更新：最终 briefing contract 明确化，Mode 0 会自检 Claude Code hooks，Cortex 通过 `_meta/config.md` 保持 OFF / opt-in。Hook 自动安装关闭测试机部署闭环。
+补丁更新：最终 briefing contract 明确化，Mode 0 会自检 Claude Code hooks，Cortex 通过 `meta/config.md` 保持 OFF / opt-in。Hook 自动安装关闭测试机部署闭环。
 面向源头可信度的 briefing 现在包含 PRIMARY-SOURCE 实测计数标记、STATUS.md 陈旧抑制、30d-≥3 Compliance Watch 自动横幅，以及 ROUTER 在展示前用 Bash 核查数字、版本、路径声明。
 
 ---
@@ -335,7 +337,7 @@ v1.7.1 是一次面向透明度和证据链的加固版本。系统会更明确�
 4. **AUDITOR 合规巡检（Mode 3）** — 7 类违规分类（A1 跳过子代理、A2 跳过目录检查、A3 跳过 Pre-flight、B 编造事实、C 阶段未完成、D 占位值、E 主上下文执行阶段），每次 Session 启动和归档后运行
 5. **Eval 回归** — `evals/scenarios/start-session-compliance.md` 固化 COURT-START-001 的 6 个失败模式
 
-**双仓库违规日志**（md + git，遵循用户存储约束）：违规持久化到 `pro/compliance/violations.md`（dev repo，公开）和 `_meta/compliance/violations.md`（user second-brain，私有）。升级阶梯：30 天内同类 ≥3 → hook 提醒加严；≥5 → briefing 顶部加 `🚨 Compliance Watch`；90 天内 ≥10 → AUDITOR 每次 Session 巡检。
+**双仓库违规日志**（md + git，遵循用户存储约束）：违规持久化到 `pro/compliance/violations.md`（dev repo，公开）和 `meta/compliance/violations.md`（user second-brain，私有）。升级阶梯：30 天内同类 ≥3 → hook 提醒加严；≥5 → briefing 顶部加 `🚨 Compliance Watch`；90 天内 ≥10 → AUDITOR 每次 Session 巡检。
 
 **v1.6.2 依然可用**：退朝流程无法被绕过 · Wiki 自动写入 · SOUL 持续自动写入 · DREAM 10 个自动触发 · SOUL 趋势箭头 · REVIEWER 3 层 SOUL 策略 · 简报顶部 SOUL 健康报告。
 
@@ -453,7 +455,7 @@ second-brain/
 ├── SOUL.md                 # 你是谁——价值观、身份、志向
 ├── user-patterns.md        # 你的行为模式——谏官的观察
 ├── inbox/                  # 手机上随手记的东西
-├── _meta/
+├── meta/
 │   ├── STATUS.md           # 全局状态总览
 │   ├── STRATEGIC-MAP.md    # 项目间的战略关系
 │   ├── journal/            # 会话报告、DREAM 日志
@@ -779,7 +781,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
        GitHub / Google Drive / Notion（选 1-3 个）
        ├── SOUL.md          🔮 人格档案（从零生长）
        ├── user-patterns.md 📊 行为模式（谏官观察）
-       ├── _meta/
+       ├── meta/
        │   ├── STATUS.md         📊 全局状态
        │   ├── STRATEGIC-MAP.md  🗺️ 战略关系图
        │   ├── journal/          📝 报告 + DREAM 日志

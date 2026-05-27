@@ -48,7 +48,7 @@ Hippocampus **不做**：
 
 **并行性**：与 Pre-Router Cognitive Layer 的另外两个组件并行运行：
 
-- Concept lookup（读取 `_meta/concepts/INDEX.md`）
+- Concept lookup（读取 `meta/concepts/INDEX.md`）
 - SOUL dimension health check（复用 RETROSPECTIVE 的 SOUL Health Report）
 
 **执行预算**：
@@ -81,7 +81,7 @@ model: opus
 
 - `Read`：加载 INDEX.md 与单个会话 markdown 文件
 - `Grep`：在 LLM 判断之前快速预过滤 INDEX.md
-- `Glob`：枚举 `_meta/concepts/{domain}/*.md` 用于 Wave 2/3 查找
+- `Glob`：枚举 `meta/concepts/{domain}/*.md` 用于 Wave 2/3 查找
 - **无 Write / Edit**：强制只读契约；概念文件修改仅发生在 ARCHIVER Phase 2
 
 **模型**：`opus`。检索涉及跨可变措辞的语义匹配；Haiku 对 Wave 1 相关性评分的判断不足。v1.7 在 Opus 上运行整个 Wave 1 过程。
@@ -99,8 +99,8 @@ hippocampus_input:
   current_project: string                # bound project scope, e.g. "passpay"
   current_theme: string                  # e.g. "zh-classical", "ja-kasumigaseki"
   session_context:
-    recent_inbox_items: [string]         # top 3-5 items from _meta/inbox/
-    current_strategic_lines: [string]    # line IDs from _meta/strategic-lines.md
+    recent_inbox_items: [string]         # top 3-5 items from meta/queue/
+    current_strategic_lines: [string]    # line IDs from meta/strategic-lines.md
   meta:
     invocation_id: string                # UUID for tracing
     timestamp: ISO 8601
@@ -126,11 +126,11 @@ hippocampus_input:
 
 ### Wave 1 —— 直接匹配（Direct Match）
 
-1. **读取** `_meta/sessions/INDEX.md`（编辑器生成的每行一会话索引；格式见 `references/session-index-spec.md`）。
+1. **读取** `meta/sessions/INDEX.md`（编辑器生成的每行一会话索引；格式见 `references/session-index-spec.md`）。
 2. **Grep 预过滤**：若 `extracted_subject` 可用，对 INDEX.md 运行一次大小写不敏感正则过滤，将 1000+ 条目削到 <50 候选。若不可用，跳到 LLM 步骤，使用完整 INDEX。
 3. **LLM 判断**（用户决策 #3 —— 无 embedding、无向量 DB）：把预过滤的索引行喂给 Opus，用如下提示：
    > "Current subject: `{subject}`. Below are past session summaries. Return the top 3-5 whose subject is semantically related to the current one. Return JSON only."
-4. 从 `_meta/sessions/{session_id}.md` **读取完整内容** 每个候选。
+4. 从 `meta/sessions/{session_id}.md` **读取完整内容** 每个候选。
 5. **评分**：`score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`，两个子分数均由 Opus 在 0-1 之间判断。
 6. 保留 top 3-5 会话。
 
@@ -141,7 +141,7 @@ hippocampus_input:
 从 Wave 1 会话出发，沿**概念图**扩展以找到 Wave 1 因无共享表面关键词而错过的相关会话。
 
 1. 对每个 Wave 1 会话，从其 YAML frontmatter 中提取 `concepts_activated` 与 `concepts_discovered` 列表。
-2. 对每个 concept ID，**读取** `_meta/concepts/{domain}/{concept}.md`。
+2. 对每个 concept ID，**读取** `meta/concepts/{domain}/{concept}.md`。
 3. 从该概念的 `outgoing_edges` 列表中，**沿权重 ≥ 3 的边跟随**（强 synapse —— 见 `references/concept-spec.md` 权重语义）。
 4. 对每个邻居概念，查其 `provenance.source_sessions` 字段 —— 这产出邻居概念被激活过的会话。
 5. **去重** 对照 Wave 1 集合，保留**前 2-3 个新会话**，按复合分数排序：
@@ -270,15 +270,15 @@ Hippocampus 必须优雅降级 —— 失败的检索不应阻塞决策工作流
 
 | 失败 | 行为 |
 |---------|----------|
-| `_meta/sessions/INDEX.md` 不存在 | 若可用则通过 Bash 运行 `tools/reindex.py`；否则返回空输出并 `degraded: true, degradation_reason: "INDEX_MISSING"` |
+| `meta/sessions/INDEX.md` 不存在 | 若可用则通过 Bash 运行 `tools/reindex.py`；否则返回空输出并 `degraded: true, degradation_reason: "INDEX_MISSING"` |
 | INDEX.md 存在但为空（新 second-brain） | 返回空 `retrieved_sessions`，注明 "first session — no cross-session memory yet" |
 | LLM 判断调用失败（API 错误、限流） | 回退到对 INDEX.md 的纯关键词匹配（无语义评分），置 `degraded: true` |
 | Wave 2 目标概念文件缺失 | 跳过该特定分支，用剩余分支继续 Wave 2 |
 | 整个概念图缺失 | 跳过 Wave 2-3，返回 Wave 1 结果并 `waves_completed: [1]` |
-| 硬超时（>15s） | 返回部分结果（完成了什么波），把事件记录到 `_meta/eval-history/hippocampus-{date}.md` |
+| 硬超时（>15s） | 返回部分结果（完成了什么波），把事件记录到 `meta/eval-history/hippocampus-{date}.md` |
 | 会话文件读取错误 | 跳过该会话，在 `degradation_reason` 中注明 |
 
-**所有失败都记录到 `_meta/eval-history/`**，AUDITOR 在会话结束巡查时读取。同类失败反复发生触发"模块质量降级"旗标 —— 与 brainstorm §6 的 Escalate rate limit 同一机制。
+**所有失败都记录到 `meta/eval-history/`**，AUDITOR 在会话结束巡查时读取。同类失败反复发生触发"模块质量降级"旗标 —— 与 brainstorm §6 的 Escalate rate limit 同一机制。
 
 ---
 
@@ -292,7 +292,7 @@ Hippocampus 必须优雅降级 —— 失败的检索不应阻塞决策工作流
 
 ## 11. 质量指标（Quality Metrics）
 
-Hippocampus 沿三个维度评估。每个由 AUDITOR 在会话结束时计算并追加到 `_meta/eval-history/cognitive-annotation-{date}.md`。
+Hippocampus 沿三个维度评估。每个由 AUDITOR 在会话结束时计算并追加到 `meta/eval-history/cognitive-annotation-{date}.md`。
 
 ### 11.1 `retrieved_session_count`
 
@@ -335,7 +335,7 @@ ROUTER / 下游 agent 是否**真的引用**了检索到的内容？AUDITOR 扫�
 
 - **`references/cortex-spec.md`** —— 整体 Cortex 架构，hippocampus 如何适配
 - **`references/concept-spec.md`** —— 概念 markdown schema、边权重、永久性层级
-- **`references/session-index-spec.md`** —— `_meta/sessions/INDEX.md` 格式、单行约定
+- **`references/session-index-spec.md`** —— `meta/sessions/INDEX.md` 格式、单行约定
 - **`references/gwt-spec.md`** —— 消费 hippocampus 输出的 GWT arbitrator
 - **`devdocs/architecture/cortex-integration.md`** —— Step 0.5 如何接入 11 步工作流
 - **`devdocs/brainstorm/2026-04-19-cortex-architecture.md`** —— 原始设计讨论、用户决策、权衡

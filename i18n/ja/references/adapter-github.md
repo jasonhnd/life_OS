@@ -27,10 +27,10 @@ last_modified: "2026-04-08T15:30:00Z"
 | データ型 | パス | ファイル名パターン |
 |-----------|------|-----------------|
 | Decision（プロジェクト） | `projects/{p}/decisions/` | `{date}-{slug}.md` |
-| Decision（横断） | `_meta/decisions/` | `{date}-{slug}.md` |
+| Decision（横断） | `meta/decisions/` | `{date}-{slug}.md` |
 | Task（プロジェクト） | `projects/{p}/tasks/` | `{slug}.md` |
 | Task（エリア） | `areas/{a}/tasks/` | `{slug}.md` |
-| JournalEntry | `_meta/journal/` | `{date}-{type}.md` |
+| JournalEntry | `meta/journal/` | `{date}-{type}.md` |
 | WikiNote | `wiki/` | `{slug}.md` |
 | Project | `projects/{p}/index.md` | 固定名 |
 | Area | `areas/{a}/index.md` | 固定名 |
@@ -91,7 +91,7 @@ last_modified: "2026-04-08T15:30:00Z"
 ### 退朝時（outbox への書き込み）
 
 ```bash
-git add _meta/outbox/{session-id}/
+git add meta/outbox/{session-id}/
 git commit -m "[life-os] session {session-id} output"
 git push
 ```
@@ -102,8 +102,8 @@ outbox ディレクトリのみをステージングする。退朝時はメイ�
 
 ```bash
 # outbox の内容をメインディレクトリにマージした後:
-git add projects/ areas/ _meta/journal/ _meta/STATUS.md user-patterns.md SOUL.md
-git rm -r _meta/outbox/{merged-session-ids}/
+git add projects/ areas/ meta/journal/ meta/STATUS.md user-patterns.md SOUL.md
+git rm -r meta/outbox/{merged-session-ids}/
 git commit -m "[life-os] merge {N} outbox sessions"
 git push
 ```

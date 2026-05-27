@@ -9,7 +9,7 @@ introduced_in: v1.8.7（仕様のみ）
 referenced_by:
   - references/wiki-spec.md（v2.0 方向参照）
   - references/session-index-spec.md（v2.0 方向参照）
-  - _meta/rfc/v1.8.7-openhuman-borrowed-patterns.md §2.6 A1
+  - meta/rfc/v1.8.7-openhuman-borrowed-patterns.md §2.6 A1
 ---
 
 # Memory Tree 仕様（提案 · v1.9 / v2.0 目標）
@@ -20,15 +20,15 @@ referenced_by:
 
 現在の lifeos sessions/wiki 構造（v1.8.6 時点）：
 
-- `_meta/sessions/<sid>.md` —— フラットディレクトリ、全 session が永遠に蓄積
-- `_meta/wiki/<topic>/<entry>.md` —— トピック毎フラット、自動圧縮なし
-- `_meta/concepts/<concept>.md` —— フラット、hotness カウントあるが派生要約ファイルなし
+- `meta/sessions/<sid>.md` —— フラットディレクトリ、全 session が永遠に蓄積
+- `meta/wiki/<topic>/<entry>.md` —— トピック毎フラット、自動圧縮なし
+- `meta/concepts/<concept>.md` —— フラット、hotness カウントあるが派生要約ファイルなし
 
 何年も蓄積後の問題：
 
 - `archiver` の "過去 30 日" 読み込みは OK；"過去 2 年" 読み込みは高価に
 - `hippocampus` が数千 session で活性化拡散すると線形に遅くなる
-- ユーザが `_meta/sessions/` を閲覧して 1000+ ファイル、ナビゲーションなし
+- ユーザが `meta/sessions/` を閲覧して 1000+ ファイル、ナビゲーションなし
 - 50 sessions を経て成長した wiki エントリにコンパクトな "この概念は今何を意味するか" の要約がない
 
 OpenHuman の Memory Tree は L0 → L1 → L2 cascade 要約でこれを解決。パターンを借用（実装は借用しない —— OpenHuman は SQLite、lifeos は DR-10 により md-only 維持）。
@@ -36,7 +36,7 @@ OpenHuman の Memory Tree は L0 → L1 → L2 cascade 要約でこれを解決�
 ## 提案レイアウト
 
 ```
-_meta/sessions/
+meta/sessions/
 ├── L0/                          # 生 session、過去 30 日
 │   ├── 2026-05-25-<sid>.md
 │   └── ...
@@ -51,7 +51,7 @@ _meta/sessions/
     └── ...
 ```
 
-`_meta/wiki/`（seal された wiki エントリ）と `_meta/concepts/`（canonical concept ロールアップ）に同じパターン。
+`meta/wiki/`（seal された wiki エントリ）と `meta/concepts/`（canonical concept ロールアップ）に同じパターン。
 
 ## L0 → L1 cascade seal アルゴリズム
 
@@ -59,7 +59,7 @@ _meta/sessions/
 各 archiver Adjourn 時（v1.9 / v2.0 で）：
 
 1. L0 buffer 状態をチェック：
-   - _meta/sessions/L0/ のファイル数カウント
+   - meta/sessions/L0/ のファイル数カウント
    - 最古ファイルタイムスタンプチェック
 
 2. "L0 → L1 seal" トリガー条件：
@@ -70,8 +70,8 @@ _meta/sessions/
    a. Seal される週を決定（L0 内で >0 session を持つ最古週）
    b. その週の全 L0 session ファイルを読む
    c. Sealing prompt で chat model を呼ぶ → 週ダイジェスト生成
-   d. _meta/sessions/L1-weekly/<YYYY>-W<NN>.md に書く
-   e. Seal 済み L0 ファイルを _meta/sessions/_archive/L0-pre-seal/ に移動
+   d. meta/sessions/L1-weekly/<YYYY>-W<NN>.md に書く
+   e. Seal 済み L0 ファイルを meta/sessions/_archive/L0-pre-seal/ に移動
    f.（削除しない；監査用に保存）
 
 4. L1 buffer が閾値に達したら L2 にカスケード：
@@ -116,7 +116,7 @@ Prompt は `pro/seal-prompts/L0-to-L1.md` 等に存在（場所 TBD、v1.8.7 で
 
 明示的に：
 
-- ❌ `_meta/sessions/L0/` ディレクトリ作成なし（既存フラットレイアウト維持）
+- ❌ `meta/sessions/L0/` ディレクトリ作成なし（既存フラットレイアウト維持）
 - ❌ archiver cascade seal ロジックなし
 - ❌ Seal prompt ファイルなし
 - ❌ 自動 L1/L2/L3 生成なし
@@ -132,8 +132,8 @@ v1.8.7 が**する**こと：
 以下は意図的に本提案で**解決しない** —— 実データで検証必要：
 
 1. L3 yearly はさらに cascade すべきか（10 年単位？生涯）？多分しない、しかし 3 年蓄積後にチェック
-2. cascade 内で `_meta/snapshots/soul/` SOUL スナップショットをどう扱うか —— 独立ケイデンスか統合か？
-3. L1 週ダイジェストは vault に書く（Obsidian 可視）か `_meta/sessions/` に残す（dev 内部）か？
+2. cascade 内で `meta/snapshots/soul/` SOUL スナップショットをどう扱うか —— 独立ケイデンスか統合か？
+3. L1 週ダイジェストは vault に書く（Obsidian 可視）か `meta/sessions/` に残す（dev 内部）か？
 4. Seal された L1/L2 ファイルが新しいコンテキストの session と衝突した時（ユーザが "5 月のその週" を参照するが L1 が実際何が起きたかを paraphrase 済み）、provenance はどう回復するか？L0 アーカイブパスへのアクセス維持必須
 5. コスト較正：L1 週ダイジェスト ~$0.50-$2（1500 tokens を最先端モデルレートで）、L2 月次 ~$2-$10。アクティブユーザの年間コスト：sealing だけで LLM 請求 $300-$800/年。価値あるか？
 
@@ -144,15 +144,15 @@ v1.8.7 が**する**こと：
 将来バージョンが実装する時：
 
 1. 既存フラットレイアウトに触れず新ディレクトリ追加
-2. ワンタイムバックフィル実行：`/seal-backfill` slash コマンドが既存フラット `_meta/sessions/` を歩いて append-only 方式で L1/L2/L3 を生成
+2. ワンタイムバックフィル実行：`/seal-backfill` slash コマンドが既存フラット `meta/sessions/` を歩いて append-only 方式で L1/L2/L3 を生成
 3. バックフィル後、将来の archiver Adjourn が増分 seal を実行
-4. 既存ファイルは下位互換のため `_meta/sessions/<sid>.md` パスに残る（移動しない）—— 新 session のみ直接 L0 buffer へ
+4. 既存ファイルは下位互換のため `meta/sessions/<sid>.md` パスに残る（移動しない）—— 新 session のみ直接 L0 buffer へ
 
 このマイグレーションは非破壊的で可逆。
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.6 A1
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.6 A1
 - パターン源：`tinyhumansai/openhuman` `gitbooks/features/obsidian-wiki/memory-tree.md`（3 つの tree / L0→L1 cascade seal）
 - 実装メモ：OpenHuman は SQLite `memory_tree/chunks.db` + tokio task pool を使用。lifeos は DR-10（`SKILL.md` HARD RULE）により md-only 維持 —— 上記ディレクトリレイアウトは lifeos の基板
 - 連携：`references/concept-spec.md` §Hotness 閾値（cascade seal トリガー + hotness 実体化は姉妹概念）

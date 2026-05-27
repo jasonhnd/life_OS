@@ -18,7 +18,7 @@ STRATEGIST 是你与历史上 93 位最伟大思想家的对话场。它不产�
 | **是否走决策流程** | 否。独立运作 | 是。嵌在"起草-审查-执行"里 |
 | **主持人是谁** | 你自己 + STRATEGIST 作为 moderator | REVIEWER |
 | **你能否主动召唤** | 能（说"我想找人聊聊"） | 不能。由系统根据分歧自动触发 |
-| **结束后归档路径** | `_meta/journal/{date}-strategist-{slug}.md` | 并入 Summary Report |
+| **结束后归档路径** | `meta/journal/{date}-strategist-{slug}.md` | 并入 Summary Report |
 
 简单记法：**COUNCIL 解决"做不做"的冲突。STRATEGIST 解决"我是谁"的困惑。**
 
@@ -101,7 +101,7 @@ STRATEGIST 上线后会走固定的 5 步：
 2. **展示索引 + 推荐** — 基于你说的话，推荐 2-3 位思想家 + 对话模式（一对一 / 圆桌 / 辩论）
 3. **启动思想家** — 每位作为独立 subagent，深度扮演（不是"关于苏格拉底的知识"，是"苏格拉底本人在和你说话"）
 4. **主持对话** — STRATEGIST 作为主持人协调，你可以随时插话、切换模式、换人
-5. **结束仪式** — 每位思想家临别赠言 → STRATEGIST 总结旅程 → 归档到 `_meta/journal/`
+5. **结束仪式** — 每位思想家临别赠言 → STRATEGIST 总结旅程 → 归档到 `meta/journal/`
 
 具体模式怎么工作、怎么切换，见 [三种对话模式](three-dialogue-modes.md)。
 
@@ -189,7 +189,7 @@ STRATEGIST：好。让三位说句临别话——
        这是今天最重要的一句话
 ❓ 悬而未决：那个"不敢"，下次我们可以专门探讨
 
-归档到 _meta/journal/2026-04-20-strategist-meaning-of-doing.md
+归档到 meta/journal/2026-04-20-strategist-meaning-of-doing.md
 ```
 
 ## 常见疑问

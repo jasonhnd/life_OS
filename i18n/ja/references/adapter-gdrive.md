@@ -13,7 +13,7 @@ GitHubセカンドブレイン構造のミラーで、Google Driveのフォル�
 ```
 second-brain/          ← Google Drive のルートフォルダ
 ├── inbox/
-├── _meta/
+├── meta/
 ├── projects/{name}/
 ├── areas/{name}/
 ├── wiki/

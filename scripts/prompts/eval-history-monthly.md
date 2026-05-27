@@ -18,7 +18,7 @@
 
 ## Context
 
-`_meta/eval-history/` accumulates per-session evaluation data: AUDITOR
+`meta/eval-history/` accumulates per-session evaluation data: AUDITOR
 scores, REVIEWER decisions, archiver completions, etc. This prompt
 aggregates them into a one-file monthly view, doing all the counting
 inline via Glob + Read + simple text scan.
@@ -27,7 +27,7 @@ inline via Glob + Read + simple text scan.
 
 1. Determine the target month: `YYYY-MM` of the previous calendar month
    (or current month if user explicitly says "这个月").
-2. `Glob` `_meta/eval-history/**/*.md` and `_meta/journal/**/*.md`
+2. `Glob` `meta/eval-history/**/*.md` and `meta/journal/**/*.md`
    filtering to the target month by mtime (use `Bash` with `find ...
    -newermt "$YYYY-MM-01" ! -newermt "$YYYY-MM+1-01"` to get the
    filtered file list — this is the ONLY shell call needed).
@@ -64,13 +64,13 @@ inline via Glob + Read + simple text scan.
 
 ## Output
 
-Write `_meta/eval-history/monthly-summary-{YYYY-MM}.md` with sections: At a glance / Sessions / Decisions / Knowledge growth / System health / Costs / Notable events / Audit trail.
+Write `meta/eval-history/monthly-summary-{YYYY-MM}.md` with sections: At a glance / Sessions / Decisions / Knowledge growth / System health / Costs / Notable events / Audit trail.
 
 ## Notification
 
 Notify only if anomaly detected (X% drop in compliance, archiver fail rate > 20%, etc.):
 
-- Append to `_meta/inbox/notifications.md`: `[{ISO8601}] 📅 Monthly summary ready: {key insight or anomaly} · see _meta/eval-history/monthly-summary-{date}.md`
+- Append to `meta/queue/notifications.md`: `[{ISO8601}] 📅 Monthly summary ready: {key insight or anomaly} · see meta/eval-history/monthly-summary-{date}.md`
 
 Otherwise silent (file-only).
 
@@ -78,7 +78,7 @@ Otherwise silent (file-only).
 
 - **Pure aggregation**. No subjective interpretation; that's ADVISOR's job (advisor-monthly already ran at 06:00).
 - **Read-only on session and journal data**.
-- **Audit trail**: `_meta/runtime/{sid}/eval-history-monthly.json` (R11)
+- **Audit trail**: `meta/runtime/{sid}/eval-history-monthly.json` (R11)
 - **Git push** summary at end
 
 ## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
@@ -100,7 +100,7 @@ Use Edit tool (NOT Write). Pattern per anomaly:
   type: action-item | violation
   priority: P0 | P1 | P2
   summary: <one line — what anomaly, by how much>
-  detail_path: _meta/eval-history/monthly-summary-{YYYY-MM}.md
+  detail_path: meta/eval-history/monthly-summary-{YYYY-MM}.md
   related: []
   suggested_action: <investigate cause, restore baseline, etc>
   status: open

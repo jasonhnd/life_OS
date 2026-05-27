@@ -89,7 +89,7 @@ support burden.
 tools/
 ├── __init__.py
 │  (cli.py removed in R-1.8.0-011 — invoke modules directly)
-├── reindex.py             # v1.7 core — compile _meta/sessions/INDEX.md
+├── reindex.py             # v1.7 core — compile meta/sessions/INDEX.md
 ├── reconcile.py           # v1.7 core — schema / link / orphan checker
 ├── stats.py               # v1.7 core — usage + quality statistics
 ├── embed.py               # v1.7 skip (user decision #3)
@@ -262,15 +262,15 @@ exit codes, runtime budget, and trigger mode. Trigger modes:
 
 ### 6.1 `reindex.py` — Compile Session Index
 
-Scan `_meta/sessions/*.md`, emit `_meta/sessions/INDEX.md` with one row
+Scan `meta/sessions/*.md`, emit `meta/sessions/INDEX.md` with one row
 per session sorted by date descending.
 
 ```bash
 uv run tools/reindex.py [--verbose]
 ```
 
-- **Input**: all session summary files under `_meta/sessions/`
-- **Output**: `_meta/sessions/INDEX.md` (overwritten atomically)
+- **Input**: all session summary files under `meta/sessions/`
+- **Output**: `meta/sessions/INDEX.md` (overwritten atomically)
 - **Side effects**: none
 - **Exit codes**: `0` success, `1` on I/O error or unreadable frontmatter
 - **Runtime**: < 5 seconds for 1,000 sessions
@@ -293,7 +293,7 @@ uv run tools/reconcile.py [--fix] [--verbose]
 ```
 
 - **Input**: all markdown under second-brain root
-- **Output**: `_meta/reconcile-report-{YYYY-MM-DD}.md`. On same-day
+- **Output**: `meta/reconcile-report-{YYYY-MM-DD}.md`. On same-day
   re-run the file is **overwritten** (idempotent): the report is a
   snapshot of current state, not a history log. Historical reports
   are kept in git, not via timestamp suffixes.
@@ -318,10 +318,10 @@ Markdown report for self-review.
 uv run tools/stats.py [--period month|quarter|year] [--since YYYY-MM-DD] [--output FILE]
 ```
 
-- **Input**: `_meta/sessions/`, `_meta/eval-history/`,
-  `_meta/snapshots/`, `SOUL.md`
+- **Input**: `meta/sessions/`, `meta/eval-history/`,
+  `meta/snapshots/`, `SOUL.md`
 - **Output**: stdout markdown (default). With `--output FILE` writes
-  to path instead (for piping into `_meta/self-review-{YYYY-MM}.md`).
+  to path instead (for piping into `meta/self-review-{YYYY-MM}.md`).
 - **Default period**: if neither `--period` nor `--since` is given,
   defaults to `--period month` covering the last 30 days.
 - **Reports**: session count, avg `overall_score`, domain distribution,
@@ -409,44 +409,44 @@ automatic `--prune 30d` flag is out of scope for v1.7.
 
 ### 6.7 `migrate.py` — v1.6.2a → v1.7 Schema Migration
 
-One-time migration. v1.6.2a stored decisions in `_meta/journal/`; v1.7
-introduces `_meta/sessions/`, `_meta/concepts/`, `_meta/snapshots/`,
-`_meta/eval-history/`, `_meta/methods/`. This tool backfills the new
+One-time migration. v1.6.2a stored decisions in `meta/journal/`; v1.7
+introduces `meta/sessions/`, `meta/concepts/`, `meta/snapshots/`,
+`meta/eval-history/`, `meta/methods/`. This tool backfills the new
 layout.
 
 ```bash
 uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 ```
 
-- **Input**: existing `_meta/journal/` (source of truth for backfill),
+- **Input**: existing `meta/journal/` (source of truth for backfill),
   `SOUL.md` (read-only — synth snapshot input), `wiki/` (read-only —
   concept anchor evidence), `user-patterns.md` (untouched)
 - **Backfill scope**: last **3 months** of journal (user decision #7).
-  Older entries remain in `_meta/journal/` untouched. This window is
+  Older entries remain in `meta/journal/` untouched. This window is
   uniform across all migration targets — see the per-target rules below.
 - **Per-target rules** (each target honours its own authoritative spec):
-  - `_meta/sessions/{session_id}.md` + `INDEX.md` — synthesises per-session
+  - `meta/sessions/{session_id}.md` + `INDEX.md` — synthesises per-session
     summaries (best-effort frontmatter, null for pre-v1.7 fields).
     Defaults `platform: claude`, derives session-id from journal mtime.
     See `references/session-index-spec.md` §9.
-  - `_meta/concepts/**` — runs the 6-criteria + privacy filter pipeline.
+  - `meta/concepts/**` — runs the 6-criteria + privacy filter pipeline.
     `activation_count ≥ 3` promotes from `_tentative/` to `{domain}/`
     with `status: confirmed`; `≥ 10` promotes to `canonical`. Edge
     weights from co-occurrence, capped at 10. See
     `references/concept-spec.md` §Migration.
-  - `_meta/snapshots/soul/**` — scans journal for `🔮 SOUL Delta` blocks,
+  - `meta/snapshots/soul/**` — scans journal for `🔮 SOUL Delta` blocks,
     emits synthetic snapshots with `provenance: synthetic` frontmatter.
     3-month window (aligned). See `references/snapshot-spec.md` §Migration.
-  - `_meta/methods/_tentative/**` — extracts top-5 candidate methods from
+  - `meta/methods/_tentative/**` — extracts top-5 candidate methods from
     language patterns ("approach", "pattern", "framework", "流れ", "やり方",
     "手順"). All start `status: tentative`, never auto-promoted. See
     `references/method-library-spec.md` §15.
 - **Explicitly NOT migrated**:
-  - `_meta/eval-history/` — **no backfill**. Starts fresh at v1.7 day one.
+  - `meta/eval-history/` — **no backfill**. Starts fresh at v1.7 day one.
     See `references/eval-history-spec.md` §11.
   - `SOUL.md`, `wiki/`, `user-patterns.md` — read as inputs for synthesis,
     never modified.
-- **Output log**: `_meta/cortex/bootstrap-status.md` (canonical; cross-
+- **Output log**: `meta/cortex/bootstrap-status.md` (canonical; cross-
   referenced by concept-spec and snapshot-spec).
 - **Side effects**: writes new files; does not delete old; optionally
   calls `backup.py` with `--with-backup`
@@ -467,7 +467,7 @@ Return top N sessions most likely to contain an answer.
 uv run tools/search.py "我要不要辞职" [--top N]
 ```
 
-- **Input**: `_meta/sessions/INDEX.md` (fast path), then relevant
+- **Input**: `meta/sessions/INDEX.md` (fast path), then relevant
   session files; query on argv
 - **Output**: stdout ranked list (path, snippet, score)
 - **Exit codes**: `0` always (empty results are valid)
@@ -506,8 +506,8 @@ Export second-brain content into portable formats.
 ```bash
 uv run tools/export.py --format pdf --scope projects/passpay
 uv run tools/export.py --format html --scope wiki
-uv run tools/export.py --format json --scope _meta/sessions
-uv run tools/export.py --format anki --scope _meta/concepts
+uv run tools/export.py --format json --scope meta/sessions
+uv run tools/export.py --format anki --scope meta/concepts
 ```
 
 - **Input**: scope directory or file pattern
@@ -542,8 +542,8 @@ uv run tools/seed.py --path ~/second-brain
 - **Input**: target directory path
 - **Output**: directory populated with `SOUL.md` skeleton,
   `.life-os.toml` stub, `projects/example-project/index.md`,
-  `_meta/sessions/`, `_meta/concepts/`, `_meta/snapshots/`,
-  `_meta/eval-history/`, `inbox/`, `wiki/` (each with `.gitkeep`), and
+  `meta/sessions/`, `meta/concepts/`, `meta/snapshots/`,
+  `meta/eval-history/`, `inbox/`, `wiki/` (each with `.gitkeep`), and
   a `.gitignore` with recommended entries
 - **Side effects**: runs `git init` and creates initial commit
 - **Exit codes**: `0` success; `1` if target path exists and is non-empty
@@ -559,10 +559,10 @@ disconnected, transient error, rate limit — retry outside the session.
 uv run tools/sync_notion.py [--retry] [--since YYYY-MM-DD] [--verbose]
 ```
 
-- **Input**: `_meta/STATUS.md`, active projects, `_meta/eval-history/`,
+- **Input**: `meta/STATUS.md`, active projects, `meta/eval-history/`,
   Notion sync log
 - **Output**: Notion pages updated via the Notion HTTP API; entries
-  appended to `_meta/notion-sync-log.md`
+  appended to `meta/notion-sync-log.md`
 - **Transport**: uses the **official `notion-client` Python package**
   (Notion REST API over HTTPS). This is NOT an LLM API call — Notion
   API is a plain database API, consistent with Life OS's v1.6.2a
@@ -579,7 +579,7 @@ uv run tools/sync_notion.py [--retry] [--since YYYY-MM-DD] [--verbose]
      token_env_var = "NOTION_TOKEN"  # name of env var holding token
      workspace_id = "..."
      ```
-- **Workspace resolution**: tool reads `_meta/config.md` `[notion]`
+- **Workspace resolution**: tool reads `meta/config.md` `[notion]`
   section for workspace / database IDs; never hardcoded.
 - **Clarification on user decision #16 ("No external API in v1.7")**:
   that decision scopes to **LLM provider APIs** (OpenAI, Anthropic

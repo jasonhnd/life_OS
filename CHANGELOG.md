@@ -6,6 +6,59 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency
+
+```yaml
+---
+version: 1.9.0
+date: 2026-05-27
+type: minor (breaking vault layout)
+breaking_changes:
+  - "Vault directory layout: _meta/ → meta/ (drop underscore prefix; transparency surface)"
+  - "meta/inbox/ → meta/queue/ (rename to avoid confusion with vault-root inbox/)"
+  - "decisions consolidation: projects/*/decisions/ + meta/incidents/*.yml → meta/decisions/<YYYY-MM>/<id>.md (single canonical path, monthly subdirs)"
+  - "archive: physical move replaced by frontmatter `lifecycle_stage: archived` (no more wikilink breakage)"
+  - "journal: time-axis canonical at meta/journal/<YYYY-MM-DD>.md; projects/*/journal/ removed (Dataview + Recent 5 wikilinks reverse query)"
+  - "areas: predefined 10 categories softened to 'recommended seeds' (FIRST-RUN no longer creates empty dirs)"
+  - "user-patterns.md moved from vault-root to meta/user-patterns.md (alignment with compiled-artifact category)"
+  - "frontmatter cross-references (Opt #8): decisions get applied_methods + journal_date; methods get born_from_decisions; journal gets referenced_decisions + referenced_methods"
+  - "decision schema: applied_method (singular) → applied_methods (list); domains is closed enum (6 functional IDs); type adds escalation+superseded"
+  - "lifecycle_stage enum reduced from 5 to 4 values (drop dormant); add paused_until field for time-bounded pause semantic"
+  - "archived_at_source enum: 4 values git-log | migrated-unknown | manual | auto"
+  - "method.applied_in_decisions field removed (Q-11 DR-1.9.24); reverse query via Dataview + Recent 5 wikilinks pattern instead"
+new_features:
+  - "/migrate-v1.9 slash command — 8-stage migration with Pre-flight HARD GATEs (git working dir clean + cross-version check + archive non-project content refuse)"
+  - "/verify-v1.9 slash command — 8-check post-migration acceptance validation"
+  - "Decision ID format: dec-<YYYY-MM-DD>-<NNN> (per-day sequence) — sortable, human-readable, cross-language friendly"
+  - "Project index.md gets ## Journal + ## Decisions sections with Dataview block + Recent 5 wikilinks (symmetric pattern)"
+  - "Method pages get ## Applied in decisions Dataview block + Recent 5 fallback (consistent with project index pattern)"
+  - "STRATEGIC-MAP displays archived projects with strikethrough markers + cleanup prompt"
+  - "Migration report appended to journal entry (type_tags: [migration]) per DR-1.9.28"
+fixes:
+  - "v1.8.5 Stage 7 .yml incidents — incompatible with v1.8.7 md-only ontological constraint; converted to .md with YAML frontmatter (DR-1.9.2)"
+alternatives_considered:
+  - option: "Hide audit/runtime data under meta/.system/ subdirectory"
+    rejected_because: "Per TRANSPARENCY decision (DR-1.9.1) — lifeos is single-user; system should have no secrets from user; .system/ hiding broke Obsidian graph view completeness; user vetoed during 2026-05-26 design discussion"
+  - option: "Cross-version automatic chain (v1.6 → v1.7 → v1.8 → v1.9 in one command)"
+    rejected_because: "Per DR-1.9.14 — complexity explosion; each generation's migration needs independent dry-run review + git commit; v1.6/v1.7 users are mostly zombie vaults"
+  - option: "Concurrency lock for /migrate-v1.9"
+    rejected_because: "Per DR-1.9.15 — user opted to trust self-discipline over implementation complexity (single-user system; git can roll back if collision)"
+  - option: "Year subdirectory for meta/decisions/<YYYY>/"
+    rejected_because: "Per DR-1.9.18 — user chose month subdirs (<YYYY-MM>/) for finer-grained navigation; year was draft RFC default"
+acceptance_evals:
+  - evals/scenarios/v1.9-migration-correctness.md
+  - evals/scenarios/v1.9-wikilink-preservation.md
+  - evals/scenarios/v1.9-decision-consolidation.md
+  - evals/scenarios/v1.9-cross-reference-fields.md
+---
+```
+
+See `_meta/rfc/v1.9-second-brain-structure-optimization.md` for full RFC with 29 DRs (DR-1.9.1 through DR-1.9.29) and 24 locked decisions across two decision rounds (Q1-Q5 + transparency + Q-meta-3/4 + Q-undecided-1 through Q-undecided-16).
+
+**Upgrade path**: All v1.8.x vaults run `/migrate-v1.9` once. Pre-flight will refuse if (a) git working dir not clean, (b) vault is < v1.8.0 (run intermediate migrations first), or (c) `archive/` contains non-project content (clean it manually first). Verify with `/verify-v1.9` after migration.
+
+---
+
 ## [1.8.7] - 2026-05-25 - OpenHuman-inspired hardening (md-only ontological constraint)
 
 ```yaml

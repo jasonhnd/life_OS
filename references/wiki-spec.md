@@ -12,7 +12,7 @@ supersedes: wiki.v1 (v1.8.4 and earlier; v1 entries auto-deprecate 2027-05-23 pe
 
 Wiki is the system's knowledge archive — a living collection of reusable conclusions about the world. It lives in the `wiki/` directory of the second-brain.
 
-> **v1.8.5 wiki v2 pivot — borrowed from eou-foundry**: Wiki entries are no longer free-form prose with confidence/evidence metadata. v2 entries have structured frontmatter (6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against). Per Stage 5 of RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`.
+> **v1.8.5 wiki v2 pivot — borrowed from eou-foundry**: Wiki entries are no longer free-form prose with confidence/evidence metadata. v2 entries have structured frontmatter (6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against). Per Stage 5 of RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md`.
 
 > **v2.0 future direction (v1.8.7 A1 spec proposal)**: `references/memory-tree-spec.md` (status: proposal) defines L0 → L1 → L2 → L3 cascade seal architecture for wiki + sessions, borrowed from `tinyhumansai/openhuman` Memory Tree. NOT implemented in v1.8.7 — see that spec for the future direction and rationale.
 
@@ -24,14 +24,14 @@ Wiki is the system's knowledge archive — a living collection of reusable concl
 | `user-patterns.md` | What you do (behavioral patterns) | "Tends to avoid financial dimensions" |
 | `SOUL.md` | Who you are (values, personality) — **v2 schema per `references/soul-spec.md`** | "Truth over comfort" (priority 1) |
 | `wiki/` | What you know — declarative knowledge — **v2 schema this doc** | "NPO lending in Japan has no 貸金業法 exemption" |
-| `_meta/concepts/` | Synaptic graph — how ideas connect | "company-a-holding" node with weighted edges |
-| `_meta/methods/` | Procedural memory — reusable workflows | "Refine documents in 5 escalating quality rounds" |
+| `meta/concepts/` | Synaptic graph — how ideas connect | "company-a-holding" node with weighted edges |
+| `meta/methods/` | Procedural memory — reusable workflows | "Refine documents in 5 escalating quality rounds" |
 
 **Not wiki material** (goes elsewhere):
 - Identity / values / personal preferences → `SOUL.md` v2
 - Behavioral patterns → `user-patterns.md`
-- Procedural workflows → `_meta/methods/`
-- Concept-level associations → `_meta/concepts/`
+- Procedural workflows → `meta/methods/`
+- Concept-level associations → `meta/concepts/`
 
 ## Principles (v1 preserved)
 

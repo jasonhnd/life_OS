@@ -35,7 +35,7 @@ EN spec 文件在 `references/*.md` 在两个 tag 间变化时，对应的 ZH/JA
 - `pro/gotchas.md` —— 单文件（dev 内部知识库）
 - `pro/agents/*.md` —— 每 agent 单文件（themes/ 处理显示）
 - `pro/*.md`（CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md）—— host 特定编排，不是用户面翻译
-- `_meta/**/*` —— 运行时工件和 RFC
+- `meta/**/*` —— 运行时工件和 RFC
 - `themes/*.md` —— theme 文件用原生文化语言
 
 ## 改动识别（章节级）
@@ -147,6 +147,6 @@ AUDITOR Mode 7 M7-5 尊重这些例外。
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
 - 模式来源：`tinyhumansai/openhuman` AGENTS.md:118-120（改动行覆盖率通过 diff-cover）—— 适配 i18n 镜像
 - `pro/compliance/violations.md` —— 本 spec 旨在防止的历史漂移事件

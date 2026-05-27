@@ -26,7 +26,7 @@ session index 存在的意义是：让 hippocampus 子 agent 能在没有向量�
 ## 2. 文件位置（File Locations）
 
 ```
-_meta/sessions/
+meta/sessions/
 ├── INDEX.md                    # 由 retrospective 编译（Mode 0，在 Start Session）
 └── {session_id}.md             # 由 archiver 写入（Phase 1，在会话结束时）
 ```
@@ -189,18 +189,18 @@ method 候选探测、SYNAPSES-INDEX 重建、SOUL snapshot dump 之后）：
    - methods_used, methods_discovered（来自 method 候选探测）
    - concepts_activated, concepts_discovered（来自 concept 抽取）
 5. archiver 抽取 keywords（§7）—— 最多 10 个
-6. archiver 写入 _meta/outbox/{session_id}/sessions/{session_id}.md
+6. archiver 写入 meta/outbox/{session_id}/sessions/{session_id}.md
 7. 文件被加入 outbox 目录，与其他会话 artifact 一起做原子 git 提交
 ```
 
 **不可变性（Immutability）**：archiver 写入后，文件永不再被编辑。若需更正（罕见），追加一份 `corrections/{session_id}.md` 备注，而不是改动原件。这与 journal 条目的不可变性相呼应 —— 仅追加，不重写。
 
-**放在 outbox 下**：在 archiver Phase 1，新文件最初落在 `_meta/outbox/{session_id}/sessions/{session_id}.md`。outbox merge（retrospective Mode 0 Step 7）把它移到规范位置 `_meta/sessions/{session_id}.md`。这与决策、任务、journal 条目的现有 outbox 模式一致。
+**放在 outbox 下**：在 archiver Phase 1，新文件最初落在 `meta/outbox/{session_id}/sessions/{session_id}.md`。outbox merge（retrospective Mode 0 Step 7）把它移到规范位置 `meta/sessions/{session_id}.md`。这与决策、任务、journal 条目的现有 outbox 模式一致。
 
 **失败模式**：
 
 - `date` 命令不可用（极罕见）→ archiver 终止 Phase 1 并报清晰错误；没有真实时间戳就无法安全归档会话
-- outbox 目录写入失败（磁盘满、权限）→ archiver 记录到 `_meta/sync-log.md`，不创建会话摘要文件，后续 retrospective 编译步骤直接把该会话从 INDEX 省略
+- outbox 目录写入失败（磁盘满、权限）→ archiver 记录到 `meta/sync-log.md`，不创建会话摘要文件，后续 retrospective 编译步骤直接把该会话从 INDEX 省略
 - 部分 frontmatter（如 Summary Report 缺失）→ archiver 用哨兵值填入必填字段（`overall_score: null`、空数组）并继续；retrospective 解析器把 null 分数在 INDEX 中当作 `n/a`
 
 ### INDEX 编译（retrospective Mode 0）（INDEX compilation）
@@ -209,7 +209,7 @@ retrospective 只编译 —— 绝不写单会话文件。扩展既有 Mode 0 �
 
 ```
 1. Start Session 触发
-2. retrospective 枚举 _meta/sessions/*.md（glob 模式：*.md 排除 INDEX.md）
+2. retrospective 枚举 meta/sessions/*.md（glob 模式：*.md 排除 INDEX.md）
 3. 对每个文件，解析 YAML frontmatter —— 抽取：
    - date
    - project
@@ -219,14 +219,14 @@ retrospective 只编译 —— 绝不写单会话文件。扩展既有 Mode 0 �
    - session_id
 4. 按 date desc 排序（同日次级排序：started_at desc）
 5. 按从 date 字段派生的 YYYY-MM 分组
-6. 以编译结果覆盖写入 _meta/sessions/INDEX.md
+6. 以编译结果覆盖写入 meta/sessions/INDEX.md
 7. 若本次编译在结构上产生不同输出，在 retrospective 的 Start Session 报告中
    记下差异规模（"📚 Session Index: N sessions indexed"）
 ```
 
 **编译是幂等的（idempotent）**。运行两次（给同样的输入文件）产生字节相同的输出。这点很重要，因为 retrospective 每次 Start Session 都运行 —— 不需要增量逻辑。幂等性也简化了调试：如果 index 看起来不对，删了重编不会丢数据。
 
-**解析失败**：若某个 `{session_id}.md` 文件 YAML 格式错误，retrospective 把文件名记入 `_meta/sync-log.md` 并继续。损坏的会话被从 INDEX 省略，但文件本身保留以便人工检查。这与 v1.6.2 对 snapshot 损坏的姿态一致 —— 优雅降级，永不阻塞 Start Session 晨报。
+**解析失败**：若某个 `{session_id}.md` 文件 YAML 格式错误，retrospective 把文件名记入 `meta/sync-log.md` 并继续。损坏的会话被从 INDEX 省略，但文件本身保留以便人工检查。这与 v1.6.2 对 snapshot 损坏的姿态一致 —— 优雅降级，永不阻塞 Start Session 晨报。
 
 ## 6. 读取流程（Hippocampus）（Read Flow · Hippocampus）
 
@@ -234,7 +234,7 @@ hippocampus 子 agent 消费 session index。按 `devdocs/architecture/cortex-in
 
 ```
 1. Hippocampus 收到当前主题（来自 Step 0.5）
-2. Hippocampus 读取 _meta/sessions/INDEX.md（一个文件，快）
+2. Hippocampus 读取 meta/sessions/INDEX.md（一个文件，快）
 3. LLM 判断识别语义上最相关的 top 5-7 会话
    - Wave 1：直接关键词匹配 keywords 列
    - Wave 2：与主题的语义邻近（LLM 对 80 字符主题短语作判断）
@@ -283,12 +283,12 @@ Keywords 是 hippocampus 的 Wave 1 过滤器。archiver Phase 1 用如下程序
 
 ## 9. 从 v1.6.2a 迁移（Migration from v1.6.2a）
 
-v1.7 之前不存在 `_meta/sessions/` 目录。迁移是尽力而为、一次性的，按 cortex brainstorm 的用户决策 #7：
+v1.7 之前不存在 `meta/sessions/` 目录。迁移是尽力而为、一次性的，按 cortex brainstorm 的用户决策 #7：
 
-`tools/migrate.py` 扫描近 3 个月的 `_meta/journal/`：
+`tools/migrate.py` 扫描近 3 个月的 `meta/journal/`：
 
 ```
-1. 枚举近 90 天创建的 _meta/journal/*.md
+1. 枚举近 90 天创建的 meta/journal/*.md
 2. 对每份 journal 条目：
    a. 解析 metadata（日期、项目、决策标题）
    b. 合成 YAML frontmatter —— 尽力而为，承认缺口：
@@ -301,8 +301,8 @@ v1.7 之前不存在 `_meta/sessions/` 目录。迁移是尽力而为、一次�
       - dream_triggers：若时间戳匹配，从 -dream.md journals 抽取
       - keywords：LLM 从决策标题 + 项目抽取
    c. 从决策摘要与结果行合成正文节
-   d. 写入 _meta/sessions/{synthesized-session-id}.md
-3. 所有文件写完后，重编 _meta/sessions/INDEX.md
+   d. 写入 meta/sessions/{synthesized-session-id}.md
+3. 所有文件写完后，重编 meta/sessions/INDEX.md
 ```
 
 **迁移条目的 session-id**：`{platform}-{YYYYMMDD}-{HHMM}`，使用 journal 的修改时间戳。若无法推断原平台，默认 `claude`。
@@ -318,8 +318,8 @@ v1.7 之前不存在 `_meta/sessions/` 目录。迁移是尽力而为、一次�
 - **编辑既有会话摘要文件** —— archiver 写入后不可变。更正住在 `corrections/{session_id}.md`。改动会话摘要会使任何下游分析（趋势报告、DREAM 期模式探测）失效，因为它们从原件读取。
 - **跳过 keyword 抽取** —— 零 keyword 的会话对 hippocampus Wave 1 扫描不可见。Phase 1 archiver 必须总是至少产出一个 keyword（项目名兜底）。
 - **在 archiver 期间编译 INDEX** —— 编译是 retrospective 的职责。拆分职责会在两个平台并发结束会话时产生竞态，并把散朝延迟耦合到编译成本。
-- **把原始消息内容放进会话摘要** —— 只放结构化抽取（subject、key decisions、outcome、signals）。原始消息属于 `_meta/journal/`，不属于这里。面向检索的摘要应比 journal 条目短，而不是它的拷贝。
-- **把 `_meta/sessions/` 同步到 Notion** —— 按用户决策 #12，Cortex 数据留本地。Notion 承载用户的手机友好视图（STATUS、Todo、Working Memory、Inbox）；它不承载认知基底。
+- **把原始消息内容放进会话摘要** —— 只放结构化抽取（subject、key decisions、outcome、signals）。原始消息属于 `meta/journal/`，不属于这里。面向检索的摘要应比 journal 条目短，而不是它的拷贝。
+- **把 `meta/sessions/` 同步到 Notion** —— 按用户决策 #12，Cortex 数据留本地。Notion 承载用户的手机友好视图（STATUS、Todo、Working Memory、Inbox）；它不承载认知基底。
 - **让 archiver 重试 session-id 生成** —— `date` HARD RULE 意味着每会话只调用一次 `date`。重试有使文件名与 `started_at` 时间戳漂移的风险。
 - **增量编译 INDEX** —— 始终覆盖。幂等性是设计属性；不得为少量性能收益而交换它。
 - **依赖文件修改时间排序** —— 按 frontmatter 的 `date` 字段排序。文件 mtime 可能因 git 操作或跨设备同步而漂移。
@@ -337,14 +337,14 @@ Life OS 跑在 Claude、Gemini、Codex 上 —— 并且一个用户可能有多
 
 - archiver 不得覆盖既有文件。`Write` 之前，它检查文件名碰撞。
 - 碰撞时，archiver 追加秒级后缀：`{platform}-{YYYYMMDD}-{HHMMSS}`。
-- 碰撞情况记入 `_meta/sync-log.md` 以便后续审阅。
+- 碰撞情况记入 `meta/sync-log.md` 以便后续审阅。
 
 ### outbox 合并并发
 
-下次 Start Session 开始时，可能两台设备都在归档。Retrospective Mode 0 Step 7 已经用 `_meta/.merge-lock` 处理此情形。session index 随之搭车：
+下次 Start Session 开始时，可能两台设备都在归档。Retrospective Mode 0 Step 7 已经用 `meta/.merge-lock` 处理此情形。session index 随之搭车：
 
 - 每个 outbox 目录自带 `sessions/{session_id}.md`。
-- 合并逐个把它们移入 `_meta/sessions/`。
+- 合并逐个把它们移入 `meta/sessions/`。
 - 若两个 outbox 不知何故产出相同 session-id，合并通过追溯性追加秒级后缀保留两者，然后记录冲突。
 
 ### 跨设备 git 冲突
@@ -360,7 +360,7 @@ Life OS 跑在 Claude、Gemini、Codex 上 —— 并且一个用户可能有多
 
 用户就 `passpay` 项目关于白皮书精炼进行 90 分钟商讨。archiver 产出：
 
-文件名：`_meta/outbox/claude-20260419-1238/sessions/claude-20260419-1238.md`
+文件名：`meta/outbox/claude-20260419-1238/sessions/claude-20260419-1238.md`
 
 ```yaml
 ---
@@ -426,7 +426,7 @@ retrospective 编译步骤随后产出 `INDEX.md` 行：
 ## 14. 相关规范（Related Specs）
 
 - `references/soul-spec.md` —— SOUL 维度生命周期、snapshot 机制（平行模式：每会话文件 + INDEX 编译）
-- `references/concept-spec.md` —— concept 在 `_meta/concepts/` 的存储，hippocampus 与 session index 一同查询
+- `references/concept-spec.md` —— concept 在 `meta/concepts/` 的存储，hippocampus 与 session index 一同查询
 - `references/hippocampus-spec.md` —— 本 artifact 的消费者；定义三波激活
 - `references/gwt-spec.md` —— 接收 hippocampus 输出的 GWT arbitrator
 - `devdocs/architecture/cortex-integration.md` §3.1 —— 架构背景与扫描成本估算

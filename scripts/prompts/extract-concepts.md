@@ -23,8 +23,8 @@ first pass — the human or archiver subagent does LLM judgment on top.
 
 1. **Input**: ask user for source — typically:
    - "current session transcript"
-   - "session file at _meta/sessions/{sid}.md"
-   - "all sessions in _meta/sessions/{YYYY-MM}-*.md"
+   - "session file at meta/sessions/{sid}.md"
+   - "all sessions in meta/sessions/{YYYY-MM}-*.md"
 2. **Read + concatenate** all source text
 3. **Tokenize**: split into 1-3 word noun-phrase candidates (alphanumeric + Chinese chars)
 4. **Filter stopwords** (中英日 common words):

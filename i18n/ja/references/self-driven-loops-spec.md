@@ -157,7 +157,7 @@ allowed-tools: [Bash, Read, Edit, ScheduleWakeup, ...]
 
 ## Audit trail
 
-自己駆動ループの各イテレーションは `_meta/runtime/<sid>/<command>-tick-<N>.md` に書き込み**推奨**：
+自己駆動ループの各イテレーションは `meta/runtime/<sid>/<command>-tick-<N>.md` に書き込み**推奨**：
 
 - tickCount（現在）
 - タイムスタンプ
@@ -169,6 +169,6 @@ audit trail はループが N tick かかった理由や、なぜ途中で抜け
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
 - パターン源：`tinyhumansai/openhuman` `.claude/commands/ship-and-babysit.md`（Phase 4 babysit ループ）
 - 連携：`SKILL.md` "Self-driven loops with ScheduleWakeup" セクション

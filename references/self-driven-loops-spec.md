@@ -157,7 +157,7 @@ If non-Claude-Code host: error out per spec, point to `/<base-command>` for manu
 
 ## Audit trail
 
-Every iteration of a self-driven loop SHOULD write to `_meta/runtime/<sid>/<command>-tick-<N>.md` with:
+Every iteration of a self-driven loop SHOULD write to `meta/runtime/<sid>/<command>-tick-<N>.md` with:
 
 - tickCount (current)
 - timestamp
@@ -169,6 +169,6 @@ The audit trail allows post-hoc reconstruction of why a loop took N ticks or why
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
 - Pattern source: `tinyhumansai/openhuman` `.claude/commands/ship-and-babysit.md` (Phase 4 babysit loop)
 - Companion: `SKILL.md` "Self-driven loops with ScheduleWakeup" section

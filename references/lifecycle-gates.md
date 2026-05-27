@@ -40,7 +40,7 @@ Required evidence:
 ### 3. simulated → pilot
 
 Required evidence:
-- ✅ Simulation run recorded (`_meta/runtime/<sid>/simulation-<artifact>.json`)
+- ✅ Simulation run recorded (`meta/runtime/<sid>/simulation-<artifact>.json`)
 - ✅ No critical findings (F1/F3/F6a/F10/F14/F15/F17) from simulation
 - ✅ Human reviewer sign-off on simulation results
 - ✅ All `open_questions` resolved or explicitly deferred with rationale
@@ -48,7 +48,7 @@ Required evidence:
 ### 4. pilot → active
 
 Required evidence:
-- ✅ At least 1 successful real-world invocation with trace evidence in `_meta/runtime/<sid>/`
+- ✅ At least 1 successful real-world invocation with trace evidence in `meta/runtime/<sid>/`
 - ✅ Audit passed: AUDITOR Mode 3 returned PASS verdict on this artifact
 - ✅ Regression suite passing (`/run-regression` clean)
 - ✅ Named human owner approval (`approval.approver` is a real person identifier, not a role label like "user")
@@ -79,7 +79,7 @@ Required evidence:
 
 Required evidence:
 - ✅ All known consumers have migrated (verified by `/check-spec-drift` → zero broken-path references)
-- ✅ Final trace archived (`_meta/v1.8.4-snapshot/` or equivalent)
+- ✅ Final trace archived (`meta/v1.8.4-snapshot/` or equivalent)
 - ✅ Frontmatter updated with `status: legacy` + retirement date
 
 ## Special transitions

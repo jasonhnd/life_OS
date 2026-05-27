@@ -78,7 +78,7 @@ GWT 仲裁器(Global Workspace Theory arbitrator)用 4 个维度打分—— **u
 
 ### 5. Start Session 简报可能出现"系统性问题检测"块
 
-AUDITOR 每次 session 结束都给自己打 10 维度的分,写进 `_meta/eval-history/`。RETROSPECTIVE 每次 Start Session 读最近 10 份。如果检测到"连续 3 次 adjourn 不完整""narrator 引用失败 >20%"之类的模式,会在简报 DREAM 区块后面放一条警告。
+AUDITOR 每次 session 结束都给自己打 10 维度的分,写进 `meta/eval-history/`。RETROSPECTIVE 每次 Start Session 读最近 10 份。如果检测到"连续 3 次 adjourn 不完整""narrator 引用失败 >20%"之类的模式,会在简报 DREAM 区块后面放一条警告。
 
 → 详见 [auditor-eval-history.md](./auditor-eval-history.md)
 
@@ -111,7 +111,7 @@ AUDITOR 每次 session 结束都给自己打 10 维度的分,写进 `_meta/eval-
 - **ROUTER 的分诊逻辑没改**——Cortex 只给 ROUTER 更好的输入,ROUTER 可以参考、也可以忽略
 - **信息隔离没改**——PLANNER 依旧看不到 ROUTER 的推理、REVIEWER 依旧只看规划文档,这张安全模型表在 v1.7 只是**加了 3 行**(hippocampus、gwt-arbitrator、narrator-validator 各一行),没动旧行
 - **Markdown-first 没改**——所有新数据都是 `.md + YAML frontmatter`。没有新数据库、没有 Python runtime、没有 cron、没有外部 API key
-- **Notion 同步范围没改**——Cortex 数据**不同步到 Notion**。概念图谱、session 摘要、eval-history 都是本地 `_meta/` 下的内省资产
+- **Notion 同步范围没改**——Cortex 数据**不同步到 Notion**。概念图谱、session 摘要、eval-history 都是本地 `meta/` 下的内省资产
 - **降级兜底**——Cortex 任何 subagent 失败(超时、文件读不到),orchestrator 自动退化到 v1.6.2a 行为(原始消息直送 ROUTER),session 照常进行
 
 **换句话说:Cortex 是一个加法层,不是一次破坏性升级**。哪怕 Cortex 全部跑炸了,你的 Life OS 依然是你熟悉的那个 Life OS,只是少了历史检索和引用。
@@ -128,12 +128,12 @@ uv run tools/migrate.py
 
 这个脚本会:
 
-1. 扫你**最近 3 个月**的 `_meta/journal/*.md`——更老的内容**不碰**(老 journal 里常含过时项目和被降级价值观,拖进来只会污染概念图谱)
-2. 为每个历史 session 生成一份摘要写到 `_meta/sessions/{session_id}.md`
-3. 把反复出现的实体和方法抽成候选 concept,扔到 `_meta/concepts/_tentative/`
+1. 扫你**最近 3 个月**的 `meta/journal/*.md`——更老的内容**不碰**(老 journal 里常含过时项目和被降级价值观,拖进来只会污染概念图谱)
+2. 为每个历史 session 生成一份摘要写到 `meta/sessions/{session_id}.md`
+3. 把反复出现的实体和方法抽成候选 concept,扔到 `meta/concepts/_tentative/`
 4. 重建 `SYNAPSES-INDEX.md` 和 `INDEX.md`
 5. 补全一些 SOUL snapshot
-6. 把过程写到 `_meta/cortex/bootstrap-status.md`
+6. 把过程写到 `meta/cortex/bootstrap-status.md`
 
 脚本是**幂等的**——跑两遍不会重复创建。如果 migrate 失败,orchestrator 退化到 v1.6.2a 行为,你可以稍后重试。
 
@@ -178,7 +178,7 @@ Step 0.5 的总预算是 **< 7 秒**(hippocampus 5s 软超时 + concept lookup �
 
 ### 我可以关掉 Cortex 吗?
 
-可以。编辑 `_meta/config.md`,把 `cortex_enabled: true` 改成 `false`,下一次 Start Session 就退化到 v1.6.2a 行为。每个子能力也有单独开关:`hippocampus_enabled`、`gwt_arbitrator_enabled`、`narrator_validator_enabled`、`concept_extraction_enabled`。
+可以。编辑 `meta/config.md`,把 `cortex_enabled: true` 改成 `false`,下一次 Start Session 就退化到 v1.6.2a 行为。每个子能力也有单独开关:`hippocampus_enabled`、`gwt_arbitrator_enabled`、`narrator_validator_enabled`、`concept_extraction_enabled`。
 
 但**不推荐长期关闭**——几次上朝下来,你会发现系统对"你以前怎么决定过"的敏感度显著提升,关了反而觉得 AI 退化。
 
@@ -187,7 +187,7 @@ Step 0.5 的总预算是 **< 7 秒**(hippocampus 5s 软超时 + concept lookup �
 两个兜底:
 
 1. **Narrator 层的 citation 强制引用真实 signal**——如果 narrator 说"你过去 5 次决策都保守",它必须指向 5 个真实 session 文件,否则 validator 直接打回重写。你可以对任何带括号引用的断言说"trace 这句",系统把原文给你看。
-2. **Three-tier 撤销机制**——如果某个概念被错误升级了,你说"撤销最近的 concept"或直接删除 `_meta/concepts/{domain}/{concept_id}.md`,archiver 下一次会重建 SYNAPSES-INDEX 并剪掉悬挂边。
+2. **Three-tier 撤销机制**——如果某个概念被错误升级了,你说"撤销最近的 concept"或直接删除 `meta/concepts/{domain}/{concept_id}.md`,archiver 下一次会重建 SYNAPSES-INDEX 并剪掉悬挂边。
 
 更严重的矛盾(比如 SOUL 维度被错误写入)走 SOUL 本身的撤销流程,不是 Cortex 层的事。
 

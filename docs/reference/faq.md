@@ -104,7 +104,7 @@ git config --unset extensions.worktreeConfig
 ### Q：多会话并行会不会打架？
 
 **不会**。v1.4.2 引入 outbox 模式：
-- 每个会话写自己独立的 `_meta/outbox/{session_id}/`
+- 每个会话写自己独立的 `meta/outbox/{session_id}/`
 - 合并在下次 Start Court 进行
 - 零冲突保证——不同目录、不同文件
 
@@ -220,9 +220,9 @@ v1.6.2 后 Wiki **自动写入，不询问确认**，但必须通过 **6 条严�
 DREAM 在每次 Adjourn Court 时作为 ARCHIVER 的 Phase 3 运行：
 - Phase 1 归档 → Phase 2 知识提取 → Phase 3 DREAM（3 阶段：N1-N2、N3、REM）→ Phase 4 同步
 
-DREAM 不会打断你——它只在你主动说 "adjourn"（或主题等价词）时运行，且所有输出写入 `_meta/journal/{date}-dream.md`，在下次 Start Session 时才呈现给你。
+DREAM 不会打断你——它只在你主动说 "adjourn"（或主题等价词）时运行，且所有输出写入 `meta/journal/{date}-dream.md`，在下次 Start Session 时才呈现给你。
 
-若 DREAM 失败或超时 → 记录警告到 `_meta/sync-log.md`，不阻塞会话结束。
+若 DREAM 失败或超时 → 记录警告到 `meta/sync-log.md`，不阻塞会话结束。
 
 ### Q：DREAM 的 10 个自动触发动作是什么？
 

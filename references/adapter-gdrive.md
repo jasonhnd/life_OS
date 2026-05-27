@@ -13,7 +13,7 @@ Mirror of the GitHub second-brain structure, as a folder hierarchy in Google Dri
 ```
 second-brain/          ← Root folder in Google Drive
 ├── inbox/
-├── _meta/
+├── meta/
 ├── projects/{name}/
 ├── areas/{name}/
 ├── wiki/

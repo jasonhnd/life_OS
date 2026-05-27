@@ -248,7 +248,7 @@ groundedness_score = valid / max(total_citations + missing_citation_count, 1)
 signal_sources:
   - id: S:claude-20260419-1238
     type: session
-    file: _meta/sessions/claude-20260419-1238.md
+    file: meta/sessions/claude-20260419-1238.md
     producer: hippocampus
   - id: SOUL:risk-tolerance-v3
     type: soul_dimension
@@ -256,7 +256,7 @@ signal_sources:
     producer: soul_check
   - id: C:method:iterative-document-refinement
     type: concept
-    file: _meta/concepts/method/iterative-document-refinement.md
+    file: meta/concepts/method/iterative-document-refinement.md
     producer: concept_lookup
   - id: D:GOVERNANCE-score-5
     type: domain_score
@@ -268,7 +268,7 @@ signal_sources:
     producer: wiki_index
   - id: P:avoids-family-topic-on-weekends
     type: pattern
-    ref: _meta/user-patterns.md#avoids-family-topic-on-weekends
+    ref: meta/user-patterns.md#avoids-family-topic-on-weekends
     producer: retrospective
 ```
 
@@ -298,7 +298,7 @@ signal_sources:
 4. 耗尽时：
    - 回退到**未引用的 Summary Report**（Step 7 的原始输出，而非重写版本）。
    - 发出 AUDITOR 标记：`narrator_failed_after_3_attempts`。
-   - 将失败记录到 `_meta/eval-history/` 以供日后审查。
+   - 将失败记录到 `meta/eval-history/` 以供日后审查。
 
 用户仍会收到一份报告。报告只是不那么"被叙述"（less narrated）。
 
@@ -387,7 +387,7 @@ shows a similar 5-round iteration pattern"?
 
 System:
 - Signal: S:claude-20260419-1238
-- Source: _meta/sessions/claude-20260419-1238.md
+- Source: meta/sessions/claude-20260419-1238.md
 - Snippet: "Session ran 5 revision rounds on payment gateway spec. Each
   round tightened governance controls. Final GOVERNANCE score 5/10 due
   to incomplete fraud-response plan."
@@ -436,7 +436,7 @@ ROUTER 通过意图分类检测这些（ROUTER 已经在对用户输入做模式
 
 Cited signals:
 1. S:claude-20260419-1238
-   Source: _meta/sessions/claude-20260419-1238.md
+   Source: meta/sessions/claude-20260419-1238.md
    Content match: "Session ran 5 revision rounds on payment gateway spec.
      Each round tightened governance controls. Final GOVERNANCE score
      5/10 due to incomplete fraud-response plan."

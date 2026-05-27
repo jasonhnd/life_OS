@@ -176,7 +176,7 @@ REVIEWER **不会**自动否决（wiki 可能过时），但会把矛盾浮现�
 archiver 在 session 结束时扫所有材料，对每个候选结论跑 6 条标准 + 隐私过滤器。通过的自动写入：
 
 ```
-_meta/outbox/{session_id}/wiki/{domain}/{topic}.md
+meta/outbox/{session_id}/wiki/{domain}/{topic}.md
 ```
 
 session 结束 git push 后，下次 Start Session RETROSPECTIVE 会把 outbox 的 wiki 文件移到正式的 `wiki/{domain}/` 目录，然后重新编译 INDEX.md。

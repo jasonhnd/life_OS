@@ -99,7 +99,7 @@ SOUL 档案尚未初始化。
 4. **休眠维度**：30+ 天无证据增量。可能是它不再重要了，也可能是你最近没面对这个维度的决策 —— 值得思考
 
 趋势箭头怎么算：
-- 每次会话结束时，ARCHIVER 在 `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` 存一份完整快照
+- 每次会话结束时，ARCHIVER 在 `meta/snapshots/soul/YYYY-MM-DD-HHMM.md` 存一份完整快照
 - 下次上朝 RETROSPECTIVE 读最新快照 + 当前 SOUL.md 做 diff
 - 阈值 ±0.05 confidence。小波动不显示箭头避免噪音
 

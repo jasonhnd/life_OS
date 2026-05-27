@@ -24,20 +24,20 @@ log entry. This is local snapshot only — git push is the user's call.
 
 ```
 TS=$(date -u +%Y-%m-%d-%H%M)
-ARCHIVE=_meta/snapshots/backup-${TS}.tar.gz
-LOG=_meta/eval-history/backup-$(date -u +%Y-%m-%d).md
+ARCHIVE=meta/snapshots/backup-${TS}.tar.gz
+LOG=meta/eval-history/backup-$(date -u +%Y-%m-%d).md
 ```
 
 ### 2. Build archive (Bash)
 
 ```bash
-mkdir -p _meta/snapshots
+mkdir -p meta/snapshots
 tar czf "$ARCHIVE" \
-  --exclude='_meta/snapshots/*.tar.gz' \
+  --exclude='meta/snapshots/*.tar.gz' \
   --exclude='.git' \
   --exclude='node_modules' \
   --exclude='__pycache__' \
-  _meta/ wiki/ SOUL.md projects/ areas/ inbox/
+  meta/ wiki/ SOUL.md projects/ areas/ inbox/
 ```
 
 If a directory doesn't exist, omit it from the tar list and continue.
@@ -56,7 +56,7 @@ Write `$LOG` (Write tool):
 ```markdown
 # Backup · {YYYY-MM-DD}
 
-- archive: _meta/snapshots/backup-{TS}.tar.gz
+- archive: meta/snapshots/backup-{TS}.tar.gz
 - size: {archive_size}
 - files: {file_count}
 - created: {ISO8601}
@@ -66,14 +66,14 @@ Write `$LOG` (Write tool):
 
 ```
 💾 backup done
-   archive: _meta/snapshots/backup-{TS}.tar.gz ({size}, {files} files)
-   log:     _meta/eval-history/backup-{date}.md
+   archive: meta/snapshots/backup-{TS}.tar.gz ({size}, {files} files)
+   log:     meta/eval-history/backup-{date}.md
 ```
 
 ## Output paths
 
-- `_meta/snapshots/backup-{YYYY-MM-DD-HHMM}.tar.gz`
-- `_meta/eval-history/backup-{YYYY-MM-DD}.md`
+- `meta/snapshots/backup-{YYYY-MM-DD-HHMM}.tar.gz`
+- `meta/eval-history/backup-{YYYY-MM-DD}.md`
 
 ## Notes
 

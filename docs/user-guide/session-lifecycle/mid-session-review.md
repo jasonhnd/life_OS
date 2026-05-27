@@ -49,12 +49,12 @@ Line 2: Launch(retrospective) as subagent in Mode 2
 ## Mode 2 的数据源
 
 ```
-1. 读 ~/second-brain/_meta/STATUS.md — 全局状态
+1. 读 ~/second-brain/meta/STATUS.md — 全局状态
 2. 遍历 ~/second-brain/projects/*/tasks/ — 算完成率
 3. 读 ~/second-brain/areas/*/goals.md — 目标进度
-4. 读 ~/second-brain/_meta/journal/ — 最近 log
+4. 读 ~/second-brain/meta/journal/ — 最近 log
 5. 读 ~/second-brain/projects/*/journal/ — 项目级 log
-6. 读 _meta/STRATEGIC-MAP.md — 战略线健康趋势（如存在）
+6. 读 meta/STRATEGIC-MAP.md — 战略线健康趋势（如存在）
 ```
 
 注意：**读已有的 STRATEGIC-MAP.md，不重新编译**。Mode 0 会 recompile；Mode 2 不会。
@@ -180,7 +180,7 @@ Mode 2 不阻塞。用户复盘完可以继续做任何事。ROUTER 接手正常
 
 ### Mode 2 的文件写入
 
-**零文件写入**。纯读。这是和 Mode 0 最大的区别 — Mode 0 要写 `_meta/STRATEGIC-MAP.md`、`wiki/INDEX.md`、`_meta/sync-log.md`，Mode 2 都不写。
+**零文件写入**。纯读。这是和 Mode 0 最大的区别 — Mode 0 要写 `meta/STRATEGIC-MAP.md`、`wiki/INDEX.md`、`meta/sync-log.md`，Mode 2 都不写。
 
 ---
 

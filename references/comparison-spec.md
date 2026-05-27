@@ -1,7 +1,7 @@
 # Comparison Page Spec (v1.8.0 R-1.8.0-013)
 
 > Page taxonomy expansion borrowed from llm_wiki (comparisons).
-> Defines `_meta/comparisons/<id>.md` — explicit "X vs Y" decision artifacts.
+> Defines `meta/comparisons/<id>.md` — explicit "X vs Y" decision artifacts.
 
 ## Why a separate page type
 
@@ -20,7 +20,7 @@ Splitting them out enables:
 ## File path
 
 ```
-_meta/comparisons/<id>.md
+meta/comparisons/<id>.md
 ```
 
 `<id>` = slug from title (lowercase, hyphenated, max 50 chars). Examples:

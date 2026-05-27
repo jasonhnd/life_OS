@@ -1,4 +1,4 @@
-# セカンドブレイン — アーキテクチャとセットアップ
+# セカンドブレイン — アーキテクチャとセットアップ（v1.9）
 
 ## コアアーキテクチャ
 
@@ -11,154 +11,245 @@ CC（丞相 / 早朝官）= 両側に触れる唯一の役割
 ### データチャネル
 
 ```
-モバイル: Claude.ai ↔ Notion MCP
-デスクトップ: CC ↔ GitHub second-brain + Notion MCP
+モバイル：Claude.ai ↔ Notion MCP
+デスクトップ：CC ↔ GitHub second-brain + Notion MCP
 ```
 
 ### 同期ルール
 
-**git commit = Notion 更新、機械的に紐づけ。** ファイル変更が同期をトリガーし、純粋なチャットではトリガーしない。
+**git commit = Notion 更新、機械的にバインド**。ファイル変更が同期をトリガー；純チャットはトリガーしない。
 
 ---
 
-## GitHub second-brain ディレクトリ
+## Vault ディレクトリ構造（v1.9）
 
 ```
-second-brain/
+<vault root>/
 │
-├── inbox/                    # 📥 未処理（キャプチャ、資料、メモ、生のリサーチ）
+├── inbox/                          # 📥 ユーザー投函エリア（生材料、キャプチャ、研究ノート）
+├── SOUL.md                         # 🧬 アイデンティティ — 価値観、原則、行動パターン（ルートに保持）
 │
-├── SOUL.md                   # 🧬 アイデンティティ — 価値観、原則、行動パターン
-├── user-patterns.md          # 📊 セッション横断で観察された行動パターン
-│
-├── _meta/                    # 🔧 システムメタデータ
-│   ├── STATUS.md             # グローバルステータスのスナップショット（コンパイル生成）
-│   ├── STRATEGIC-MAP.md      # 🗺️ 戦略マップ（プロジェクトの strategic フィールドからコンパイル生成 — v1.6.0）
-│   ├── strategic-lines.md    # 戦略ライン定義（ユーザー定義 — v1.6.0）
-│   ├── MAP.md                # ナレッジマップ
-│   ├── outbox/               # 📤 外部同期待ちの出力
-│   ├── decisions/            # 横断的な重大な決定
-│   ├── journal/              # 早朝の報告、御史台/諫官レポート
-│   ├── extraction-rules.md
-│   ├── extraction-log.md
-│   ├── lint-rules.md
+├── meta/                           # 🔧 システムメタデータ — 透明、隠しサブディレクトリなし（v1.9）
+│   │
+│   │  ★ カテゴリ 1：設定（あなたが書く）
+│   ├── config.md                   # バックエンド設定 + migrated_to
+│   ├── strategic-lines.md          # 戦略ライン定義
+│   ├── extraction-rules.md         # 抽出ルール
+│   ├── lint-rules.md               # 品質チェックルール
+│   │
+│   │  ★ カテゴリ 2：コンパイル成果物（システムが見せる）
+│   ├── STATUS.md                   # グローバルステータススナップショット
+│   ├── STRATEGIC-MAP.md            # 戦略マップ（プロジェクトの strategic フィールドから編集）
+│   ├── MAP.md                      # 知識マップ
+│   ├── sessions/INDEX.md           # セッションインデックス（hippocampus データソース）
+│   ├── user-patterns.md            # ★ v1.9：vault-root から meta/ に移動
+│   │
+│   │  ★ カテゴリ 3：精選コンテンツ（あなたとシステムの協働）
+│   ├── decisions/<YYYY-MM>/<id>.md # ★ v1.9：月サブディレクトリ、単一正規パス
+│   ├── journal/<YYYY-MM-DD>.md     # ★ v1.9：時間軸 canonical
+│   ├── methods/<name>.md           # メソッドライブラリ（born_from_decisions フィールド含む）
+│   ├── queue/                      # ★ v1.9：inbox/ から改名
+│   │   ├── to-process/.gitkeep
+│   │   ├── notifications.md
+│   │   └── README.md
+│   │
+│   │  ★ カテゴリ 4：監査ログ（システムの説明責任アーカイブ）
+│   ├── compliance/violations.md    # 御史台違反記録
+│   ├── eval-history/<YYYY-MM>/     # 監査統計
+│   ├── snapshots/soul/<YYYY-MM-DD-HHMM>.md  # SOUL 履歴スナップショット
 │   ├── lint-state.md
 │   ├── lint-reports/
-│   └── roles/                # システム役割の定義
+│   ├── extraction-log.md
+│   │
+│   │  ★ カテゴリ 5：ランタイム状態（システムの一時作業台）
+│   ├── runtime/<sid>/              # 監査トレイル（R11/R12/R13）
+│   ├── outbox/                     # オフラインセッションステージング
+│   └── .merge-lock                 # 単一ファイルロック（dot-prefix はソートヒント、非表示意図ではない）
 │
-├── projects/{name}/          # 🎯 終点のあるもの
-│   ├── index.md              # 目標、ステータス、関連エリア
-│   ├── tasks/                # ネクストアクション
-│   ├── decisions/            # プロジェクト固有の奏折
-│   ├── research/             # プロジェクト固有のリサーチ
-│   └── journal/              # プロジェクト固有のログ
+├── projects/{name}/                # 🎯 終点のあるプロジェクト（archived 含む、frontmatter で区別）
+│   ├── index.md                    # ★ v1.9：frontmatter に lifecycle_stage + ## Journal/Decisions セクション
+│   ├── tasks/                      # 次のアクション
+│   └── research/                   # プロジェクト固有の研究
+│       # decisions/ は meta/decisions/ に移動済み
+│       # journal/ は meta/journal/ に移動済み
 │
-├── areas/{name}/             # 🌊 継続的な生活領域
-│   ├── index.md              # 方向性、関連プロジェクト
-│   ├── goals.md              # 目標
-│   ├── tasks/                # エリアタスク
-│   └── notes/                # エリアノート
+├── areas/                          # 🌊 長期的な生活領域（命名強制なし）
+│   ├── README.md                   # ★ v1.9：「推奨シード、強制ではない」を説明
+│   └── {name}/                     # ユーザーの実際の area
 │
-├── wiki/                     # 📚 知識アーカイブ — 再利用可能な結論（DREAMから成長）
-│   ├── INDEX.md              # Wikiインデックス
-│   └── {domain}/{topic}.md   # ドメイン別に整理された知識ページ
+├── wiki/                           # 📚 ナレッジアーカイブ（v1.9 で変更なし）
+│   ├── INDEX.md
+│   ├── log.md
+│   ├── OBSIDIAN-SETUP.md
+│   ├── .templates/
+│   └── {domain}/{topic}.md
 │
-├── archive/                  # 🗄️ 完了プロジェクトのアーカイブ
-│
-└── templates/                # 📋 テンプレート
+└── templates/                      # 📋 トップレベルテンプレート（v1.9 で変更なし）
 ```
 
-## エリア一覧 (areas/)
-
-```
-career/    product/    finance/    health/    family/
-social/    learning/   ops/        creation/  spirit/
-```
+**v1.9 変更概要**：
+- `_meta/` → `meta/`（アンダースコア接頭辞削除；透明性）
+- `meta/inbox/` → `meta/queue/`（vault-root inbox/ との混同回避）
+- decisions を `meta/decisions/<YYYY-MM>/<id>.md` に統合
+- archive を frontmatter `lifecycle_stage: archived` で代替（projects/ に留まる）
+- journal 時間軸 canonical を `meta/journal/<YYYY-MM-DD>.md` に
+- `user-patterns.md` を `meta/` に移動
+- areas は 10 個の空ディレクトリを事前作成しない
 
 ---
 
-## 主要コンセプト
+## `meta/` の理解 — 5 クラスの心智モデル（v1.9）
 
-### _meta/ — システムメタデータ
+v1.9 RFC §3.1 により、`meta/` 内容は 5 つの大きなカテゴリに分類されます。すべて可視（`.system/` 隠し層なし）；カテゴリはドキュメント解釈のみで、ディレクトリ境界で表現しない。
 
-脳についての脳。以下を含みます：
-- **STATUS.md**: すべてのプロジェクトとエリアにわたる現在の状況のグローバルスナップショット。セッション開始時に早朝官が読み取り（ブリーフィング + パトロール）、セッション終了時に起居郎が書き込む（アーカイブ + DREAM + 同期）。
-- **MAP.md**: wiki/ にわたるコンセプトをリンクするナレッジマップ。
-- **decisions/**: 単一のプロジェクトに属さない横断的な決定。
-- **journal/**: システムレベルのログ — 早朝の報告、御史台と諫官のレポート。
-- **roles/**: 品質管理のためのシステム役割定義（御史台、史官、門下省当番）。
-- **lint-***: セカンドブレイン自体の品質チェックルールとレポート。
-- **extraction-***: 生の素材からインサイトを抽出するためのルールとログ。
+| カテゴリ | 例 | 誰が書く | 誰が読む | 保存期間 |
+|----------|-----|--------|--------|--------|
+| **設定**（あなたが書く） | `config.md`、`strategic-lines.md`、`extraction-rules.md`、`lint-rules.md` | 人間 | 全エージェント | 永久 |
+| **コンパイル成果物**（システムが見せる） | `STATUS.md`、`STRATEGIC-MAP.md`、`MAP.md`、`sessions/INDEX.md`、`user-patterns.md` | retrospective / archiver / advisor | 人間 + ROUTER | 再生成可能、削除可 |
+| **精選コンテンツ**（人間 + 機械の協働） | `decisions/`、`journal/`、`methods/`、`queue/notifications.md` | 人間 + 機械の協働 | 人間 + 全エージェント | 永久 |
+| **監査ログ**（システムの説明責任） | `compliance/violations.md`、`eval-history/`、`snapshots/soul/`、`lint-reports/`、`extraction-log.md` | エージェント（機械） | auditor / advisor / 時々人間 | 長期 |
+| **ランタイム状態**（システムの一時作業台） | `runtime/<sid>/`、`outbox/`、`.merge-lock` | エージェント（機械） | auditor Mode 3 | 短期（30-90 日） |
+
+**透明性原則**：lifeos はシングルユーザーシステム；システムはユーザーに対して秘密を持たない。監査トレイルやランタイムデータも可視 —— `cd meta/runtime/<sid>/` でエージェントが行った各ステップを読める。これは意図的（DR-1.9.1）。
+
+---
+
+## Areas — 推奨シード、強制ではない（v1.9）
+
+v1.9 では、`areas/` は FIRST-RUN で 10 個のカテゴリを事前作成しなくなりました。代わりに、空の `areas/` ディレクトリ + 推奨シードを列挙する `README.md` を取得します：
+
+```
+career     · 仕事 / キャリア方向
+product    · 取り組んでいる製品/プロジェクト
+finance    · 収支、投資、税金、保険
+health     · 身体、睡眠、栄養、運動
+family     · 家族、パートナー、子供
+social     · 友人、協力者、コミュニティ
+learning   · 学習計画、スキルアップ、パーソナルブランド
+ops        · デジタルインフラ、生活ワークフロー、住環境
+creation   · 創作、コンテンツ、表現
+spirit     · 価値観、人生の方向、精神世界
+```
+
+**システムは命名を強制しない**。あなたは：
+- 該当しないものを削除
+- 新しいものを追加（`art/`、`travel/`、`spiritual-practice/` 何でも）
+- 自由に改名
+- ゼロから始めて必要に応じて構築
+
+lifeos の `areas/<name>/` 処理はディレクトリの存在のみを確認し、命名規約はチェックしません。
+
+---
+
+## キーコンセプト
 
 ### projects/ — 終点のあるもの
 
-各プロジェクトは独自の自己完結した世界を持ちます：タスク、決定、リサーチ、ジャーナル。プロジェクトが完了すると、フォルダ全体がarchive/に移動します。wiki/に抽出された知識はそのまま残り、成長を続けます。
+各プロジェクトは独自の世界を持つ：tasks、research、`index.md`（`## Journal` と `## Decisions` セクションを含む、archiver が Dataview block + Recent 5 wikilinks fallback として自動メンテナンス）。
 
-### areas/ — 継続的な生活領域
+**v1.9 変更**：プロジェクト完了時に `archive/` に **mv しない**。代わりにプロジェクトの `index.md` frontmatter に `lifecycle_stage: archived` を設定。プロジェクトは `projects/` に留まる —— それを参照するすべての wikilinks を保護。インデックスレイヤー（retrospective Mode 0 が STATUS をコンパイル、archiver Phase 1）は `lifecycle_stage` でフィルタしデフォルトビューから archived を隠す；Obsidian graph view は "archived" colorGroup でグレー化。
 
-終点なし、期限なし。各エリアには目標、タスク、ノートがあります。プロジェクトはエリアを参照でき、エリアはプロジェクトを生み出せます。
+### areas/ — 長期的な生活領域
 
-### wiki/ — 知識アーカイブ
+終点なし、deadline なし。各 area は goals、tasks、notes を持つ。プロジェクトは area を参照可能；area はプロジェクトを派生可能。
 
-以前のzettelkasten構造を置き換えます。INDEX.mdをエントリーポイントとする、ドメイン別に整理された相互リンクのwikiです。プロジェクトに縛られない — プロジェクトは終わるが、知識は生き続ける。DREAMから成長：起居郎がセッション分析から再利用可能な結論を抽出し、wikiページに書き込みます。
+### wiki/ — ナレッジアーカイブ
 
-### SOUL.md — アイデンティティプロファイル
+旧 zettelkasten 構造を置き換え。ドメインで組織化され相互リンクされたノート + INDEX.md エントリ。特定プロジェクトに紐付かない —— プロジェクトは死に、知識は生きる。DREAM で成長：早朝官がセッション分析から再利用可能な結論を抽出して wiki ページに書き込む。**v1.9：wiki 内部は変更なし**。
 
-ユーザーのコアバリュー、原則、意思決定の傾向、行動パターンを記録。諫官と翰林院がパーソナライズされた助言を提供する際に参照します。
+### SOUL.md — アイデンティティアーカイブ
 
-### DREAM — 知識抽出
+ユーザーのコア価値、原則、意思決定傾向、行動パターンをキャプチャ。諫官と翰林院が個人化アドバイスのために参照。**v1.9：vault ルートに保持**（高頻度参照 + wikilink シンプル性 `[[SOUL]]` + ~50 か所の spec 参照）。
 
-起居郎のセッション終了プロセス：セッションをレビューし、再利用可能なインサイトを抽出し、永続的な知識エントリとしてwiki/に書き込みます。一時的な分析が永続的な知識に変わるプロセスです。
+### DREAM — ナレッジ抽出
+
+早朝官の session-close プロセス：セッションをレビュー、再利用可能な洞察を抽出、wiki/ に永久知識として書き込む。これが一時的な分析が持続的な知識になる方法。
+
+### decisions / methods / journal 三方相互参照（v1.9 Opt #8）
+
+`meta/` の 3 つの artifact タイプは frontmatter フィールドで相互にリンク：
+
+```
+methods            decisions          journal
+   │                  │                  │
+   ├── born_from_decisions → ←──┘                  │
+   │                  │                  │
+   │ ←── applied_methods                │
+   │                  │                  │
+   │                  │ ←── referenced_decisions
+   │                  │                  │
+   │ ←─────────────── referenced_methods
+```
+
+逆引きクエリ（例：「このメソッドを適用した decisions は？」）は Dataview + Recent 5 wikilinks パターンを使用 —— 逆方向フィールドは維持しない。詳細は `_meta/rfc/v1.9-second-brain-structure-optimization.md` §3.8 を参照。
 
 ---
 
-## 三省六部の出力先
+## 三省六部出力先（v1.9）
 
 | 出力 | GitHub パス |
-|--------|------------|
-| 決裁の奏折（プロジェクト） | `projects/{p}/decisions/` |
-| 決裁の奏折（横断） | `_meta/decisions/` |
-| アクションアイテム | `projects/{p}/tasks/` または `areas/{a}/tasks/` |
-| 早朝の報告 | `_meta/journal/` |
-| 御史台/諫官レポート | `_meta/journal/` |
-| リサーチ | `projects/{p}/research/` |
-| 横断的知識 | `wiki/` |
-| 目標 | `areas/{a}/goals.md` |
-| セッションジャーナル（セッション終了） | `_meta/journal/`（起居郎による） |
-| Wiki抽出（セッション終了） | `wiki/{domain}/{topic}.md`（起居郎による） |
-| グローバルステータス | `_meta/STATUS.md` |
+|------|------------|
+| 決定備忘録（すべて） | `meta/decisions/<YYYY-MM>/<id>.md`（type / projects / domains / applied_methods / journal_date frontmatter 含む） |
+| アクションアイテム | `projects/{project}/tasks/` または `areas/{area}/tasks/` |
+| 早朝ブリーフィング | `meta/journal/<date>.md`（type_tags: [briefing] 含む） |
+| 御史台/諫官レポート | `meta/journal/<date>.md`（type_tags: [auditor] / [advisor] 含む） |
+| 研究 | `projects/{project}/research/` |
+| ドメイン横断知識 | `wiki/{domain}/{topic}.md` |
+| 目標 | `areas/{area}/goals.md` |
+| セッションジャーナル（session-close） | `meta/journal/<date>.md`（type_tags: [dream] 含む） |
+| Wiki 抽出（session-close） | `wiki/{domain}/{topic}.md`（早朝官） |
+| グローバルステータス | `meta/STATUS.md` |
+| ユーザー行動パターン | `meta/user-patterns.md`（v1.9：vault-root から移動） |
 
 ---
 
-## Notion メモリ（4コンポーネント）
+## Notion メモリ（4 コンポーネント）
 
 ### 📬 Inbox（データベース）
 
-モバイルとデスクトップ間のメッセージキュー。フィールド: Content / Source (Mobile/Desktop) / Status (Pending/Synced) / Time。
+モバイル / デスクトップ間のメッセージキュー。フィールド：Content / Source（Mobile/Desktop）/ Status（Pending/Synced）/ Time。
 
 ### 🧠 Current Status（ページ）
 
-`_meta/STATUS.md` のミラー。セッション終了時に起居郎が上書き（アーカイブ + 同期フローの一部として）。
+`meta/STATUS.md` をミラー。早朝官がセッション終了時に上書き（archive + sync の一部として）。
 
 ### 📝 Working Memory（トピックページ）
 
-アクティブなトピックごとに1ページ（約5-10件）。アクティブでなくなったら、GitHubにアーカイブしてNotionから削除。
+アクティブトピックごとに 1 ページ（約 5-10 個）。アクティブでなくなった時、GitHub にアーカイブして Notion から削除。
 
 ### 📋 Todo Board（データベース）
 
-projects/*/tasks/ と areas/*/tasks/ から同期されたアクティブなタスク。モバイルで閲覧・チェックが可能。
+projects/*/tasks/ と areas/*/tasks/ から同期されるアクティブタスク。モバイルで閲覧 / チェック可能。
 
 ---
 
-## マルチリポジトリワークフロー
+## マルチ Repo ワークフロー
 
-- **プロジェクトコード**（例：life_OS）→ それぞれ独自のリポジトリ
-- **プロジェクトについての思考**（決定、メモ、タスク）→ second-brain リポジトリ
+- **プロジェクトコード**（life_OS など）→ それぞれ独自の repo
+- **プロジェクトに関する思考**（決定、ノート、tasks）→ second-brain repo
 
-同じCC会話が両方のディレクトリに接続します。`/save` コマンド: ファイルを書き込む → cd ~/second-brain → git commit/push → プロジェクトに戻る。
+同じ CC 対話が両方のディレクトリを接続。`/save` コマンド：ファイル書き込み → cd ~/second-brain → git commit/push → プロジェクトに戻る。
+
+---
+
+## v1.8.x から v1.9 への移行
+
+`/migrate-v1.9` を 1 回実行。ツールが行うこと：
+
+1. Pre-flight チェック（git working dir clean、バージョン ≥ v1.8.0、archive に非プロジェクト内容なし）
+2. per-stage dry-run サマリーを出力
+3. ユーザーが `go` を確認後、8 段階を実行
+4. 当日の journal にマイグレーションレポートを追記
+5. 最終 `git commit`
+
+マイグレーション完了後、`/verify-v1.9` を実行して 8 項目の受け入れ基準を確認。
+
+詳細 RFC：`_meta/rfc/v1.9-second-brain-structure-optimization.md`
+
+vault が v1.8.0 より古い場合（v1.6 / v1.7）、`docs/guides/cross-version-migration.md` を参照 —— v1.9 は複数世代のマイグレーションを自動チェインしない。
 
 ---
 
 ## データレイヤーなしの場合
 
-セカンドブレインを設定しない場合でも、すべての機能は通常通り動作します — 永続化やクロスセッションメモリがないだけです。
+second-brain を設定しなくても、すべての機能は通常通り動作します —— ただし永続化とクロスセッション記憶がなくなります。

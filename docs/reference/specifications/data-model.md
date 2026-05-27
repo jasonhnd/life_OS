@@ -90,7 +90,7 @@
 
 ### StrategicLine（战略线）
 
-存储于 `_meta/strategic-lines.md`（用户 second-brain）。多条战略线用 `---` 分隔。
+存储于 `meta/strategic-lines.md`（用户 second-brain）。多条战略线用 `---` 分隔。
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
@@ -109,7 +109,7 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| strategic.line | string | 否 | 战略线 ID（引用 `_meta/strategic-lines.md`） |
+| strategic.line | string | 否 | 战略线 ID（引用 `meta/strategic-lines.md`） |
 | strategic.role | enum | 否 | `critical-path` / `enabler` / `accelerator` / `insurance` |
 | strategic.flows_to[] | array | 否 | 流向：[{target, type, description}] |
 | strategic.flows_from[] | array | 否 | 流入：[{source, type, description}] |
@@ -158,7 +158,7 @@
 
 1. 先写 primary 后端
 2. 再按顺序写每个 sync 后端
-3. 若任何 sync 失败 → 标注 `⚠️ [backend] write failed`，记入 `_meta/sync-log.md`，继续其他
+3. 若任何 sync 失败 → 标注 `⚠️ [backend] write failed`，记入 `meta/sync-log.md`，继续其他
 4. 下次会话自动重试失败写入
 
 ### 读取顺序
@@ -174,7 +174,7 @@
 ### 会话开始（RETROSPECTIVE 整理）
 
 ```
-0. 读 _meta/config.md → 获取后端列表和上次同步时间
+0. 读 meta/config.md → 获取后端列表和上次同步时间
 1. 探测每个配置后端是否可用：
    - GitHub：检查 git repo 可访问（git status）
    - GDrive：检查 Google Drive MCP 是否连接（尝试 list）
@@ -193,8 +193,8 @@
    - 时间差 < 1 分钟 → 标记 CONFLICT，保留两个版本
 4. 把胜出的变化应用到 primary
 5. 推送 primary 状态到所有 sync 后端
-6. 更新 _meta/sync-log.md 记录同步结果
-7. 更新本平台的 last_sync_time 在 _meta/config.md（不动其他平台的时间戳）
+6. 更新 meta/sync-log.md 记录同步结果
+7. 更新本平台的 last_sync_time 在 meta/config.md（不动其他平台的时间戳）
 ```
 
 ### 会话结束（RETROSPECTIVE 收尾）
@@ -202,7 +202,7 @@
 ```
 1. 写所有输出到 primary 后端
 2. 写所有输出到每个 sync 后端
-3. 更新 _meta/config.md last_sync_time
+3. 更新 meta/config.md last_sync_time
 4. 任何后端失败 → 记录，不阻塞
 ```
 
@@ -236,7 +236,7 @@
 | 后端写入时离线 | 跳过该后端，标注 ⚠️，记入 sync-log.md。下次会话自动重试 |
 | 同步中途崩溃 | 下次启动：比较所有后端的 last_modified，检测不一致，从最新者自动修复 |
 | 某后端数据损坏 | ROUTER 检测异常，问用户："从 [其他后端] 恢复？" |
-| 新设备 | 配置存于 _meta/config.md。Git clone → 配置就绪。无 second-brain → 会话级配置 |
+| 新设备 | 配置存于 meta/config.md。Git clone → 配置就绪。无 second-brain → 会话级配置 |
 | 新增后端 | ROUTER 问："从 [primary] 同步既有数据到 [new backend] 吗？" |
 | 移除后端 | ROUTER 问："保留 [removed backend] 的数据，还是清理？" |
 
@@ -244,7 +244,7 @@
 
 ## 配置
 
-存储在 `_meta/config.md`（second-brain repo 中）：
+存储在 `meta/config.md`（second-brain repo 中）：
 
 ```yaml
 storage:
@@ -268,9 +268,9 @@ storage:
 
 ## 约束清单
 
-- **多个会话可以同时操作 second-brain**，使用 outbox 模式。每个会话写入自己的 outbox 目录（`_meta/outbox/{session_id}/`）。下次 Start Court 合并所有 outbox 到主结构。对共享文件（STATUS.md、user-patterns.md、index.md）的直接写入只发生在 Start Court 的 outbox 合并步骤
+- **多个会话可以同时操作 second-brain**，使用 outbox 模式。每个会话写入自己的 outbox 目录（`meta/outbox/{session_id}/`）。下次 Start Court 合并所有 outbox 到主结构。对共享文件（STATUS.md、user-patterns.md、index.md）的直接写入只发生在 Start Court 的 outbox 合并步骤
 - **Session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在 adjourn 时生成（不是会话开始时）。示例：`claude-20260412-1700`、`gemini-20260412-1900`
-- **Outbox 合并锁**：合并期间写 `_meta/.merge-lock`。若存在且 <5 分钟，跳过合并照常进入。合并完成后删除
+- **Outbox 合并锁**：合并期间写 `meta/.merge-lock`。若存在且 <5 分钟，跳过合并照常进入。合并完成后删除
 - **空会话**：若会话无输出（无决策、任务、日志条目），不创建 outbox
 - 移动设备通过 Notion inbox 或 GDrive inbox 写入，不直接写结构化数据
 - 所有 adapter 必须支持 7 个标准操作

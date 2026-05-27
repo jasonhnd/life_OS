@@ -330,7 +330,7 @@ Area 状态:
 
 你选"先贾伯斯一对一"。翰林院启动一个独立 subagent 扮演贾伯斯，开始对话。15 分钟后你说"够了"。
 
-翰林院做结束仪式：贾伯斯一句 parting word，翰林院写摘要，归档到 `_meta/journal/2026-04-20-strategist-perfectionism.md`。
+翰林院做结束仪式：贾伯斯一句 parting word，翰林院写摘要，归档到 `meta/journal/2026-04-20-strategist-perfectionism.md`。
 
 **不会**进议程（没有评分、没有奏折）。翰林院是思考，不是决策。
 

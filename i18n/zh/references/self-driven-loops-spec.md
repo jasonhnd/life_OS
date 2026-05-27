@@ -157,7 +157,7 @@ allowed-tools: [Bash, Read, Edit, ScheduleWakeup, ...]
 
 ## Audit trail
 
-自驱循环每次迭代**应**写 `_meta/runtime/<sid>/<command>-tick-<N>.md`，含：
+自驱循环每次迭代**应**写 `meta/runtime/<sid>/<command>-tick-<N>.md`，含：
 
 - tickCount（当前）
 - 时间戳
@@ -169,6 +169,6 @@ audit trail 允许事后重构循环用了 N tick 的原因，或为何中途退
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
 - 模式来源：`tinyhumansai/openhuman` `.claude/commands/ship-and-babysit.md`（Phase 4 babysit 循环）
 - 配套：`SKILL.md` "Self-driven loops with ScheduleWakeup" 章节

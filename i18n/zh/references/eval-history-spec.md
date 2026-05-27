@@ -18,7 +18,7 @@ Eval history 是 Life OS 随时间自我检视的机制。
 
 单次 AUDITOR 报告已经会对每个 session 的 agent 表现打分，但在 session 结束后就蒸发了。它们对于*本次*审议是有用的；但它们不会告诉系统*最近十次审议*发生了什么。那个缺失的回路正是 eval history 要闭合的。
 
-- **AUDITOR** 是写入者。每次完整审议或 express workflow 之后，它把自己的判断以结构化 YAML + markdown 形式序列化进 `_meta/eval-history/`。
+- **AUDITOR** 是写入者。每次完整审议或 express workflow 之后，它把自己的判断以结构化 YAML + markdown 形式序列化进 `meta/eval-history/`。
 - **RETROSPECTIVE Mode 0** 是主要读者。每次 Start Session 时它读最近 10 个 eval 文件，检测系统性模式——重复违规、分数下滑、伪造引用、跳过的 phase。
 - **Tools**（stats、reconcile）读取历史用于月度汇总与 orphan 检测。
 
@@ -31,7 +31,7 @@ Eval history 是 Life OS 随时间自我检视的机制。
 ## 2. 文件位置（File Location）
 
 ```
-_meta/eval-history/
+meta/eval-history/
 └── {YYYY-MM-DD}-{project}.md
 ```
 
@@ -41,7 +41,7 @@ _meta/eval-history/
 - `{project}` —— 绑定项目的 slug（kebab-case、小写）。
 - 同一项目同日多 session 追加 `-{HHMM}` 做消歧：`2026-04-20-career-change-1430.md`。
 
-Eval 文件和其他 `_meta/` artifacts 并列（STATUS.md、STRATEGIC-MAP.md、lint-state.md），遵守同样的约定：由 agent 编译、给人类读、事后不得手动编辑。
+Eval 文件和其他 `meta/` artifacts 并列（STATUS.md、STRATEGIC-MAP.md、lint-state.md），遵守同样的约定：由 agent 编译、给人类读、事后不得手动编辑。
 
 ---
 
@@ -52,7 +52,7 @@ Eval 文件和其他 `_meta/` artifacts 并列（STATUS.md、STRATEGIC-MAP.md、
 ```yaml
 ---
 eval_id: {YYYY-MM-DD-HHMM}-{project}
-session_id: string                 # references _meta/sessions/{session_id}.md
+session_id: string                 # references meta/sessions/{session_id}.md
 evaluator: auditor | auditor-patrol
 evaluation_mode: decision-review | patrol-inspection
 date: ISO 8601 timestamp
@@ -275,7 +275,7 @@ RETROSPECTIVE Mode 0 在 Start Session 时读最近 10 个 eval 文件，并套�
 ## 8. 归档策略（Archive Policy）
 
 - Eval 文件永久保留。每个文件很小（~5 KB），1000 个 session 总计约 5 MB。
-- 超过 6 个月的文件可被压缩为季度摘要 `_meta/eval-history/_digest/{YYYY-Q}.md`，原文件移到 `_meta/eval-history/_archive/`。摘要保留头条分数与系统性模式；单次 session 依然可读。
+- 超过 6 个月的文件可被压缩为季度摘要 `meta/eval-history/_digest/{YYYY-Q}.md`，原文件移到 `meta/eval-history/_archive/`。摘要保留头条分数与系统性模式；单次 session 依然可读。
 - 摘要由 `tools/stats.py` 在带 `--compress-old` 运行时写入，从不自动写。
 
 ---
@@ -298,7 +298,7 @@ RETROSPECTIVE Mode 0 在 Start Session 时读最近 10 个 eval 文件，并套�
 ## 10. 写流程（Write Flow）
 
 - 触发：AUDITOR 在完整审议 Step 8 完成 Decision Review（或 express path 的 Brief-Report 等价物，或 Patrol Inspection）。
-- 路径：`_meta/eval-history/{YYYY-MM-DD}-{project}.md`。
+- 路径：`meta/eval-history/{YYYY-MM-DD}-{project}.md`。
 - 冲突解决：若文件已存在（同日期、同项目、当天第二次或以后 session），AUDITOR 在文件名后附 `-{HHMM}`：`2026-04-20-career-change-1430.md`。
 - 失败处理：若写入失败（磁盘满、权限错误、路径缺失），AUDITOR 在其常规 Decision Review 输出中报告。session 继续。失败本身作为 process compliance 违规记入下次 session 的 eval。
 - 不可变性：eval 文件创建之后永不编辑。若评估错了，下次 session 写一个新文件并附反转说明。旧文件作为历史记录留存。
@@ -309,9 +309,9 @@ RETROSPECTIVE Mode 0 在 Start Session 时读最近 10 个 eval 文件，并套�
 
 v1.7 之前不存在 eval history。
 
-- `tools/migrate.py` **不**回填 `_meta/journal/` 里的历史 AUDITOR 报告。那些报告是无结构的散文，不匹配 schema；回填只会产生低信号噪声，污染系统性检测。
+- `tools/migrate.py` **不**回填 `meta/journal/` 里的历史 AUDITOR 报告。那些报告是无结构的散文，不匹配 schema；回填只会产生低信号噪声，污染系统性检测。
 - Eval history 在 v1.7 第一天清零起步。v1.7 的第一次 Start Session 不会显示任何系统性警告（没有历史可扫）。警告会在至少 3 次连续 session 被记录后开始出现。
-- 需要分析 v1.7 之前 session 历史的用户应直接使用已有的 `_meta/journal/` 报告；它们不被迁移。
+- 需要分析 v1.7 之前 session 历史的用户应直接使用已有的 `meta/journal/` 报告；它们不被迁移。
 
 ---
 

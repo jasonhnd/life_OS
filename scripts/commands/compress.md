@@ -25,7 +25,7 @@ User invoked: `/compress $ARGUMENTS`
    - `$ARGUMENTS` focus 直接相关的所有 turn
 
 4. **写 compression 档案**：
-   - 创建 `_meta/compression/<sid>-compress-<timestamp>.md`
+   - 创建 `meta/compression/<sid>-compress-<timestamp>.md`
    - 内容：被归档的 turns 摘要（每条 1-2 句）+ 完整原文（可恢复）
 
 5. **报告给用户**（必含）：
@@ -34,7 +34,7 @@ User invoked: `/compress $ARGUMENTS`
    📦 压缩完成
      原 turn 数：N
      保留：M
-     归档到：_meta/compression/<file>
+     归档到：meta/compression/<file>
      释放估计：~X tokens
      保留的关键决策：[列表]
    ```

@@ -23,7 +23,7 @@ Notion 既可作为完整的存储后端（当被选择时），也可作为传�
 
 仅使用 3 个组件：
 - 📬 Inbox（数据库）：设备间的消息队列
-- 🧠 Status Dashboard（页面）：`_meta/STATUS.md` 的镜像
+- 🧠 Status Dashboard（页面）：`meta/STATUS.md` 的镜像
 - 🗄️ Archive：只读归档访问
 
 ## 字段映射

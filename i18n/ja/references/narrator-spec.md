@@ -248,7 +248,7 @@ narrator 出力を出荷するには `groundedness_score ≥ 0.9` が必要で�
 signal_sources:
   - id: S:claude-20260419-1238
     type: session
-    file: _meta/sessions/claude-20260419-1238.md
+    file: meta/sessions/claude-20260419-1238.md
     producer: hippocampus
   - id: SOUL:risk-tolerance-v3
     type: soul_dimension
@@ -256,7 +256,7 @@ signal_sources:
     producer: soul_check
   - id: C:method:iterative-document-refinement
     type: concept
-    file: _meta/concepts/method/iterative-document-refinement.md
+    file: meta/concepts/method/iterative-document-refinement.md
     producer: concept_lookup
   - id: D:GOVERNANCE-score-5
     type: domain_score
@@ -268,7 +268,7 @@ signal_sources:
     producer: wiki_index
   - id: P:avoids-family-topic-on-weekends
     type: pattern
-    ref: _meta/user-patterns.md#avoids-family-topic-on-weekends
+    ref: meta/user-patterns.md#avoids-family-topic-on-weekends
     producer: retrospective
 ```
 
@@ -298,7 +298,7 @@ validator が `groundedness_score < 0.9` を返した場合:
 4. 使い切った場合:
    - **引用なしの Summary Report**(Step 7 の raw 出力、書き直しではない)にフォールバック。
    - AUDITOR フラグ `narrator_failed_after_3_attempts` を emit。
-   - 後のレビューのために `_meta/eval-history/` に失敗をログ。
+   - 後のレビューのために `meta/eval-history/` に失敗をログ。
 
 ユーザーは依然としてレポートを受け取ります。そのレポートは単に narrate が少ないだけです。
 
@@ -387,7 +387,7 @@ shows a similar 5-round iteration pattern"?
 
 System:
 - Signal: S:claude-20260419-1238
-- Source: _meta/sessions/claude-20260419-1238.md
+- Source: meta/sessions/claude-20260419-1238.md
 - Snippet: "Session ran 5 revision rounds on payment gateway spec. Each
   round tightened governance controls. Final GOVERNANCE score 5/10 due
   to incomplete fraud-response plan."
@@ -436,7 +436,7 @@ ROUTER は intent 分類でこれらを検出します(ROUTER はすでにユー
 
 Cited signals:
 1. S:claude-20260419-1238
-   Source: _meta/sessions/claude-20260419-1238.md
+   Source: meta/sessions/claude-20260419-1238.md
    Content match: "Session ran 5 revision rounds on payment gateway spec.
      Each round tightened governance controls. Final GOVERNANCE score
      5/10 due to incomplete fraud-response plan."

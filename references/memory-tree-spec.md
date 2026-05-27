@@ -9,7 +9,7 @@ introduced_in: v1.8.7 (spec only)
 referenced_by:
   - references/wiki-spec.md (v2.0 direction reference)
   - references/session-index-spec.md (v2.0 direction reference)
-  - _meta/rfc/v1.8.7-openhuman-borrowed-patterns.md §2.6 A1
+  - meta/rfc/v1.8.7-openhuman-borrowed-patterns.md §2.6 A1
 ---
 
 # Memory Tree Specification (PROPOSAL · v1.9 / v2.0 target)
@@ -20,15 +20,15 @@ referenced_by:
 
 Current lifeos sessions/wiki structure (as of v1.8.6):
 
-- `_meta/sessions/<sid>.md` — flat directory, all sessions accumulate forever
-- `_meta/wiki/<topic>/<entry>.md` — flat per-topic, no automatic compression
-- `_meta/concepts/<concept>.md` — flat with hotness counts but no derived summary files
+- `meta/sessions/<sid>.md` — flat directory, all sessions accumulate forever
+- `meta/wiki/<topic>/<entry>.md` — flat per-topic, no automatic compression
+- `meta/concepts/<concept>.md` — flat with hotness counts but no derived summary files
 
 Problem after years of accumulation:
 
 - `archiver` reading "last 30 days" is fine; reading "last 2 years" becomes expensive
 - `hippocampus` spreading activation over thousands of sessions slows linearly
-- User browsing `_meta/sessions/` sees 1000+ files with no navigation
+- User browsing `meta/sessions/` sees 1000+ files with no navigation
 - Wiki entries that grew through 50 sessions don't have a compact "what does this concept mean now" summary
 
 OpenHuman's Memory Tree solves this with L0 → L1 → L2 cascade summarization. Borrowing the pattern (not the implementation — OpenHuman uses SQLite, lifeos stays md-only per DR-10).
@@ -36,7 +36,7 @@ OpenHuman's Memory Tree solves this with L0 → L1 → L2 cascade summarization.
 ## Proposed layout
 
 ```
-_meta/sessions/
+meta/sessions/
 ├── L0/                          # raw sessions, recent 30 days
 │   ├── 2026-05-25-<sid>.md
 │   └── ...
@@ -51,7 +51,7 @@ _meta/sessions/
     └── ...
 ```
 
-Same pattern for `_meta/wiki/` (sealed wiki entries) and `_meta/concepts/` (canonical concept rollups).
+Same pattern for `meta/wiki/` (sealed wiki entries) and `meta/concepts/` (canonical concept rollups).
 
 ## L0 → L1 cascade seal algorithm
 
@@ -59,7 +59,7 @@ Same pattern for `_meta/wiki/` (sealed wiki entries) and `_meta/concepts/` (cano
 Each archiver Adjourn (in v1.9 / v2.0):
 
 1. Check L0 buffer state:
-   - count files in _meta/sessions/L0/
+   - count files in meta/sessions/L0/
    - check oldest file timestamp
 
 2. Trigger conditions for "seal L0 → L1":
@@ -70,8 +70,8 @@ Each archiver Adjourn (in v1.9 / v2.0):
    a. Determine the week being sealed (oldest week with >0 sessions in L0)
    b. Read all L0 session files for that week
    c. Call chat model with sealing prompt → produce week digest
-   d. Write to _meta/sessions/L1-weekly/<YYYY>-W<NN>.md
-   e. Move sealed L0 files to _meta/sessions/_archive/L0-pre-seal/
+   d. Write to meta/sessions/L1-weekly/<YYYY>-W<NN>.md
+   e. Move sealed L0 files to meta/sessions/_archive/L0-pre-seal/
    f. (do NOT delete; preserve for audit)
 
 4. Cascade to L2 if L1 buffer reaches threshold:
@@ -116,7 +116,7 @@ Prompts live at `pro/seal-prompts/L0-to-L1.md` / etc. (location TBD, not built i
 
 To be explicit:
 
-- ❌ No `_meta/sessions/L0/` directory created (existing flat layout stays)
+- ❌ No `meta/sessions/L0/` directory created (existing flat layout stays)
 - ❌ No archiver cascade seal logic
 - ❌ No seal prompt files
 - ❌ No automatic L1/L2/L3 generation
@@ -132,8 +132,8 @@ What v1.8.7 DOES do:
 The following are deliberately NOT resolved in this proposal — they require validation on real data:
 
 1. Should L3 yearly cascade further (decadal? lifelong)? Likely no, but check after 3 years of accumulation
-2. How to handle `_meta/snapshots/soul/` SOUL snapshots in cascade — separate cadence or integrated?
-3. Are L1 weekly digests written to vault (Obsidian-visible) or stay in `_meta/sessions/` (dev-internal)?
+2. How to handle `meta/snapshots/soul/` SOUL snapshots in cascade — separate cadence or integrated?
+3. Are L1 weekly digests written to vault (Obsidian-visible) or stay in `meta/sessions/` (dev-internal)?
 4. When a sealed L1/L2 file conflicts with a fresh-context session (user references "that week in May" but the L1 has paraphrased what really happened), how is provenance recovered? Path to L0 archive must remain accessible
 5. Cost calibration: ~$0.50-$2 per L1 weekly digest (1500 tokens at frontier model rates), ~$2-$10 per L2 monthly. Annual cost for active user: $300-$800/year of LLM bills just for sealing. Worth it?
 
@@ -144,15 +144,15 @@ These questions are why v1.8.7 stays at spec-only. Real-data trial answers them.
 When future version implements:
 
 1. Add new directories without touching existing flat layout
-2. Run a one-time backfill: `/seal-backfill` slash command that walks the existing flat `_meta/sessions/` and produces L1/L2/L3 in append-only fashion
+2. Run a one-time backfill: `/seal-backfill` slash command that walks the existing flat `meta/sessions/` and produces L1/L2/L3 in append-only fashion
 3. After backfill, future archiver Adjourns run incremental seal
-4. Existing files remain at `_meta/sessions/<sid>.md` paths (not moved) for backward compatibility — only NEW sessions go directly to L0 buffer
+4. Existing files remain at `meta/sessions/<sid>.md` paths (not moved) for backward compatibility — only NEW sessions go directly to L0 buffer
 
 This migration is non-destructive and reversible.
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.6 A1
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.6 A1
 - Pattern source: `tinyhumansai/openhuman` `gitbooks/features/obsidian-wiki/memory-tree.md` (three trees / L0→L1 cascade seal)
 - Implementation note: OpenHuman uses SQLite `memory_tree/chunks.db` + tokio task pool. lifeos stays md-only per DR-10 (`SKILL.md` HARD RULE) — directory layout above is the lifeos substrate
 - Companion: `references/concept-spec.md` §Hotness thresholds (cascade seal triggers + hotness materialization are sister concepts)

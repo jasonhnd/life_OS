@@ -1,6 +1,6 @@
 ---
 spec_id: gotchas-spec.v1
-description: Specification for `pro/gotchas.md` — the project-level technical gotcha knowledge base. Each entry records "踩过的坑 + 文件路径 + 修复方法" so ROUTER and downstream agents can short-circuit known issues. Distinct from `pro/compliance/violations.md` (process violations) and `_meta/sessions/` (per-session record). Pattern borrowed from tinyhumansai/openhuman `.claude/memory.md`; lifeos adaptation is md-only and writes by `memory-keeper` agent.
+description: Specification for `pro/gotchas.md` — the project-level technical gotcha knowledge base. Each entry records "踩过的坑 + 文件路径 + 修复方法" so ROUTER and downstream agents can short-circuit known issues. Distinct from `pro/compliance/violations.md` (process violations) and `meta/sessions/` (per-session record). Pattern borrowed from tinyhumansai/openhuman `.claude/memory.md`; lifeos adaptation is md-only and writes by `memory-keeper` agent.
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/memory.md (259 lines flat single file with topical grouping)
@@ -19,13 +19,13 @@ referenced_by:
 
 | Store | What it records | Lifecycle |
 |-------|----------------|-----------|
-| `_meta/sessions/<sid>.md` | Per-session timeline + decisions made | One file per session, archived |
+| `meta/sessions/<sid>.md` | Per-session timeline + decisions made | One file per session, archived |
 | `pro/compliance/violations.md` | Process violations (A1/A2/A3/B/C/D/E/F + F1-F17) | Append-only audit log |
-| `_meta/wiki/<topic>.md` | Reusable world knowledge ("NPO lending has no 貸金業法 exemption") | Manually curated |
-| `_meta/concepts/<concept>.md` | Synaptic graph nodes (Cortex) | Hippocampus activates them |
+| `meta/wiki/<topic>.md` | Reusable world knowledge ("NPO lending has no 貸金業法 exemption") | Manually curated |
+| `meta/concepts/<concept>.md` | Synaptic graph nodes (Cortex) | Hippocampus activates them |
 | **`pro/gotchas.md`** | **Project technical坑 + file path + fix** | **Continuously extracted by memory-keeper** |
 
-Gotchas are **not** violations (those go to `compliance/violations.md`). Gotchas are **not** reusable world knowledge (that goes to `_meta/wiki/`). Gotchas are **dev-internal short-circuit memory**: "next time we touch X, here's what to know first".
+Gotchas are **not** violations (those go to `compliance/violations.md`). Gotchas are **not** reusable world knowledge (that goes to `meta/wiki/`). Gotchas are **dev-internal short-circuit memory**: "next time we touch X, here's what to know first".
 
 ## File location and scope
 
@@ -59,7 +59,7 @@ Each gotcha is a single bullet under a topical `##` section:
 ```markdown
 ## archiver
 
-- **archiver Phase 2 candidate scan blocks on missing wiki** — When `_meta/wiki/` directory doesn't exist, Phase 2 hangs instead of skipping. Fix: archiver first creates the directory if missing. (#v1.8.7-C6-task-2d)
+- **archiver Phase 2 candidate scan blocks on missing wiki** — When `meta/wiki/` directory doesn't exist, Phase 2 hangs instead of skipping. Fix: archiver first creates the directory if missing. (#v1.8.7-C6-task-2d)
 
 - **archiver wrap-up phase 5 (memory-keeper) is mandatory after v1.8.7** — Skipping phase 5 = missing gotchas extraction. Fix: archiver Mode 0 enforces phase 5 even on short sessions; gotchas table can be empty but phase must run. (#RFC-v1.8.7)
 ```
@@ -76,7 +76,7 @@ Capture:
 Do NOT capture:
 - ❌ One-off session content (use sessions/ for that)
 - ❌ Process violations (use compliance/violations.md)
-- ❌ Reusable world knowledge unrelated to lifeos itself (use _meta/wiki/)
+- ❌ Reusable world knowledge unrelated to lifeos itself (use meta/wiki/)
 - ❌ User personal information (use SOUL.md if it's identity-level; sessions/ if it's transient)
 - ❌ Anything already documented in pro/CLAUDE.md or other authoritative source
 
@@ -99,9 +99,9 @@ Update flow (memory-keeper invoked from archiver wrap-up phase 5):
 
 Per RFC §7 退出标准, memory-keeper's first run on v1.8.7 release session must produce ≥10 seed entries by scanning:
 
-- `_meta/rfc/v1.8.4-*.md`
-- `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
-- `_meta/rfc/v1.8.6-*.md`
+- `meta/rfc/v1.8.4-*.md`
+- `meta/rfc/v1.8.5-cleanup-and-hardening.md`
+- `meta/rfc/v1.8.6-*.md`
 - `pro/compliance/violations.md` (filter: entries where root cause is technical, not pure process)
 
 Seed entries are still gotchas (technical), not process violations.
@@ -125,4 +125,4 @@ Seed entries are still gotchas (technical), not process violations.
 
 - `pro/agents/memory-keeper.md` — agent definition
 - `references/compliance-spec.md` — distinguish gotchas from violations
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 — origin of this spec
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 — origin of this spec

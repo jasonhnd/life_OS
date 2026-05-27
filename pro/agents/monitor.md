@@ -12,10 +12,10 @@ operating_hypothesis: |
   low risk of engaging in business deliberation while in monitor mode.
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, scripts/prompts/]
-  supporting: [_meta/inbox/notifications.md, _meta/eval-history/]
+  supporting: [meta/queue/notifications.md, meta/eval-history/]
   forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, pro/agents/archiver.md (monitor is OPS, not business)]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/monitor-*.json, outputs from invoked job prompts]
+  allowed_scope: [meta/runtime/<sid>/monitor-*.json, outputs from invoked job prompts]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/]
 failure_modes:
   known: ["Engages in business deliberation while in monitor mode (scope creep)", "Tries to run retired cron jobs"]
@@ -41,10 +41,10 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
 ## What You Do
 
 1. **Read recent maintenance activity** (v1.8.0 R-1.8.0-011 — cron removed; all maintenance is user-invoked):
-   - `_meta/eval-history/maintenance/` last 24h (formerly `cron-runs/` pre-pivot)
-   - `_meta/eval-history/recovery/` last 24h (archiver-recovery user invocations)
-   - `_meta/inbox/notifications.md` last 30 lines
-   - `_meta/eval-history/{advisor-monthly,auditor-patrol,strategic-consistency,monthly-summary,wiki-decay,spec-compliance,recovery}/*.md` last 7 days
+   - `meta/eval-history/maintenance/` last 24h (formerly `cron-runs/` pre-pivot)
+   - `meta/eval-history/recovery/` last 24h (archiver-recovery user invocations)
+   - `meta/queue/notifications.md` last 30 lines
+   - `meta/eval-history/{advisor-monthly,auditor-patrol,strategic-consistency,monthly-summary,wiki-decay,spec-compliance,recovery}/*.md` last 7 days
 
 2. **Generate dashboard for user** (initial output after identity declaration):
 
@@ -66,7 +66,7 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
    - Archiver violations 上周: {N} 次
 
    ## 你可以说 (v1.8.0 R-1.8.0-011: cron 已删除，全部 user-invoked)
-   - "看 X 详情" → Read 对应 _meta/eval-history/ 文件
+   - "看 X 详情" → Read 对应 meta/eval-history/ 文件
    - "跑 X" / "立刻跑 X" → Read scripts/prompts/X.md，按 prompt 内联执行
    - "处理 wiki stale" / "处理 SOUL drift" / "处理 queue" → 进入对应 action items 处理流程
    - "/exit-monitor" → 切回业务 session 模式
@@ -76,7 +76,7 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
 
    | User says | You do |
    |-----------|--------|
-   | "看 X 详情" | `Read` 对应 `_meta/eval-history/` 文件 |
+   | "看 X 详情" | `Read` 对应 `meta/eval-history/` 文件 |
    | "跑 X" / "立刻跑 X" | `Read scripts/prompts/X.md` and execute the prompt inline. (Was `bash scripts/run-cron-now.sh X` pre-pivot; that script was deleted in R-1.8.0-011.) |
    | "处理 wiki stale" | 读 wiki-decay 报告，逐项过 (keep / delete / refresh confidence)，应用到 wiki/ (用户确认后) |
    | "处理 SOUL drift" | 读 advisor-monthly 报告，逐维度过 (retire / commit-restart)，应用到 SOUL.md (用户确认后) |
@@ -94,7 +94,7 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
 
 ## Audit Trail (R11, HARD RULE)
 
-Before returning, write `_meta/runtime/<sid>/monitor.json` with:
+Before returning, write `meta/runtime/<sid>/monitor.json` with:
 - `subagent: monitor`
 - `step_or_phase: monitor_session`
 - `started_at` / `ended_at`
@@ -128,7 +128,7 @@ Before returning, write `_meta/runtime/<sid>/monitor.json` with:
 
 ## v1.8.0 R-1.8.0-013 · Review Queue Dashboard
 
-When monitor mode starts, after showing maintenance task timestamps, **also read `_meta/review-queue.md`** and render a queue dashboard:
+When monitor mode starts, after showing maintenance task timestamps, **also read `meta/review-queue.md`** and render a queue dashboard:
 
 ```markdown
 ## 📋 Open Review Queue ({total} items)

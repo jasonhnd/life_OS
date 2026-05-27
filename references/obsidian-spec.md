@@ -36,7 +36,7 @@ After `tools/seed.py` runs, second-brain root contains:
 │   ├── core-plugins.json     # enabled core plugins
 │   └── .gitignore            # excludes per-device state
 ├── SOUL.md
-├── _meta/
+├── meta/
 ├── wiki/
 ├── projects/
 ├── inbox/
@@ -55,9 +55,9 @@ Key settings written by `_write_obsidian_vault()`:
   "showLineNumber": true,
   "spellcheck": false,
   "userIgnoreFilters": [
-    "_meta/runtime/",
-    "_meta/eval-history/recovery/",
-    "_meta/eval-history/maintenance/",
+    "meta/runtime/",
+    "meta/eval-history/recovery/",
+    "meta/eval-history/maintenance/",
     ".git/",
     "scripts/",
     "tools/",
@@ -68,7 +68,7 @@ Key settings written by `_write_obsidian_vault()`:
 ```
 
 - `useMarkdownLinks: false` — use `[[wikilinks]]`, not `[text](path)`
-- `newLinkFormat: shortest` — `[[concept-id]]` not `[[_meta/concepts/foo/concept-id]]`
+- `newLinkFormat: shortest` — `[[concept-id]]` not `[[meta/concepts/foo/concept-id]]`
 - `userIgnoreFilters` — runtime + cache + dev folders hidden in Obsidian UI
 
 ## .obsidian/core-plugins.json (seeded)
@@ -158,11 +158,11 @@ Recommend in user's per-device `.obsidian/graph.json` (not seeded):
 
 | Page type | Color |
 |-----------|-------|
-| `_meta/concepts/` | blue |
-| `_meta/people/` | green |
-| `_meta/comparisons/` | orange |
-| `_meta/methods/` | purple |
-| `_meta/sessions/` | gray |
+| `meta/concepts/` | blue |
+| `meta/people/` | green |
+| `meta/comparisons/` | orange |
+| `meta/methods/` | purple |
+| `meta/sessions/` | gray |
 | `wiki/` | cyan |
 | SOUL.md | gold (single node) |
 

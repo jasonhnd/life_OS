@@ -89,10 +89,10 @@ Hermes 的 14 个核心能力，Life OS 在 markdown 架构下的对应方式：
 | 并行工具执行 | 纯 runtime | 无 |
 | 上下文压缩 | 纯 runtime | 无 |
 | 上下文压缩算法 | 纯 runtime | 无 |
-| Gateway 平台路由 | `_meta/config.md` 的 YAML | 无 |
+| Gateway 平台路由 | `meta/config.md` 的 YAML | 无 |
 | Cron 定时任务 | 可选调度器（launchd / cron / GitHub Actions / Cloudflare Workers / Vercel Cron 等）+ 脚本 | 调度器之一（可选，非必须） |
-| Trajectory 记录 | `_meta/journal/{date}.md` | 无 |
-| 凭证池 | `_meta/config.md` + env | 无 |
+| Trajectory 记录 | `meta/journal/{date}.md` | 无 |
+| 凭证池 | `meta/config.md` + env | 无 |
 | OAuth 刷新 | 适配器自管（Notion/GDrive） | 各 MCP |
 | 插件记忆提供者 | 各插件自管 | 无 |
 | **Cross-session 搜索** | **INDEX.md + LLM 筛选** | **见 §4.1** |
@@ -110,7 +110,7 @@ Hermes 的 14 个核心能力，Life OS 在 markdown 架构下的对应方式：
 **文件结构**：
 
 ```
-_meta/
+meta/
 ├── sessions/
 │   ├── INDEX.md                              ← 编译产物，一行一条
 │   ├── claude-20260412-1700.md               ← 完整摘要
@@ -176,7 +176,7 @@ LLM 读这 15 行,筛出与"决策"相关的 5 条 (≈ 3000 token, <$0.01)
 **文件结构**：
 
 ```
-_meta/concepts/
+meta/concepts/
 ├── INDEX.md                                  ← 所有 concept 的 one-liner
 ├── SYNAPSES-INDEX.md                         ← 反向索引（编译产物）
 ├── finance/
@@ -238,14 +238,14 @@ for edge in concept["outgoing_edges"]:
 **反向查询（谁指向我）**：
 
 ```bash
-rg "to: company-a-holding" _meta/concepts/ --type md -l
+rg "to: company-a-holding" meta/concepts/ --type md -l
 ```
 
 结果：
 
 ```
-_meta/concepts/finance/subsidiary-holdings.md
-_meta/concepts/career/board-overlap.md
+meta/concepts/finance/subsidiary-holdings.md
+meta/concepts/career/board-overlap.md
 ```
 
 或查预编译的 `SYNAPSES-INDEX.md`：
@@ -269,7 +269,7 @@ SYNAPSES-INDEX.md 在 archiver Phase 2 末尾重新生成——遍历所有 conc
 **文件结构**：
 
 ```
-_meta/snapshots/soul/
+meta/snapshots/soul/
 ├── 2026-04-12-1700.md
 ├── 2026-04-15-1430.md
 ├── 2026-04-18-0900.md
@@ -315,7 +315,7 @@ risk_tolerance 连续两次 session 下降,AUDITOR 建议观察。
 **趋势计算（RETROSPECTIVE Mode 0）**：
 
 ```
-1. 读取 _meta/snapshots/soul/ 下最近两个文件
+1. 读取 meta/snapshots/soul/ 下最近两个文件
 2. 对齐每个 dimension,diff confidence
 3. Δ > +0.05 → ↗
    Δ < -0.05 → ↘
@@ -338,7 +338,7 @@ risk_tolerance 连续两次 session 下降,AUDITOR 建议观察。
 **文件结构**：
 
 ```
-_meta/eval-history/
+meta/eval-history/
 ├── 2026-04-12-whitepaper.md
 ├── 2026-04-15-whitepaper.md
 ├── 2026-04-18-career.md
@@ -460,9 +460,9 @@ Life OS 的 markdown 系统默认是被动的——只有用户打开 session �
 
 | 任务 | 频率 | 做什么 |
 |------|------|--------|
-| stale commitment 扫描 | 每天 8:00 JST | ripgrep 所有 `projects/**/tasks/` 里 status=waiting 超过 30 天的,写入 `_meta/briefings/{date}.md` 供下次 session 读取 |
-| 系统性问题扫描 | 每周日 20:00 | 读 `_meta/eval-history/` 近 10 条,检测连续劣化,写入 briefing |
-| SOUL 趋势月报 | 每月 1 日 9:00 | 读 `_meta/snapshots/soul/` 月度对比,生成月报写入 `_meta/briefings/` |
+| stale commitment 扫描 | 每天 8:00 JST | ripgrep 所有 `projects/**/tasks/` 里 status=waiting 超过 30 天的,写入 `meta/briefings/{date}.md` 供下次 session 读取 |
+| 系统性问题扫描 | 每周日 20:00 | 读 `meta/eval-history/` 近 10 条,检测连续劣化,写入 briefing |
+| SOUL 趋势月报 | 每月 1 日 9:00 | 读 `meta/snapshots/soul/` 月度对比,生成月报写入 `meta/briefings/` |
 | Notion inbox 拉取 | 每小时 | 拉 Notion inbox 未处理项 → 写入本地 `inbox/` (待用户下次 session 处理) |
 
 **原则**：脚本只做 I/O 和模式匹配。复杂推理留给 session 里的 Claude——脚本写 briefing 文件说"你有 3 个 stale task"，下次 session 打开时 RETROSPECTIVE Mode 0 呈现给 Claude 处理。**不做独立 bot / 常驻 agent / 跨平台消息推送**——Life OS 是本地 Claude Code 内的决策引擎，不是独立 bot / agent 产品（v1.7 scope 明确剥离）。
@@ -575,7 +575,7 @@ Life OS 的 markdown 系统默认是被动的——只有用户打开 session �
 ```
 症状: iPad 和 Mac 看到不同版本的 SOUL.md
 兜底:
-  1. RETROSPECTIVE Mode 0 首先读 _meta/config.md 的 last_sync_time
+  1. RETROSPECTIVE Mode 0 首先读 meta/config.md 的 last_sync_time
   2. 比对 git log,用 git 的时间戳为准
   3. 冲突时按 conflict resolution 规则(time diff < 1min → 保留两份,问用户)
   4. 最坏情况: 完全以 GitHub 的为准,iCloud 覆盖
@@ -587,7 +587,7 @@ Life OS 的 markdown 系统默认是被动的——只有用户打开 session �
 症状: push 失败,网络问题或 GH outage
 兜底:
   1. 本地 markdown 继续工作,session 不受影响
-  2. archiver Phase 4 的 git push 标记为失败,写 _meta/sync-log.md
+  2. archiver Phase 4 的 git push 标记为失败,写 meta/sync-log.md
   3. 下次 session 开始时 RETROSPECTIVE 重试
   4. 期间 iCloud 保证多设备还能同步
 ```

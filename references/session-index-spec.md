@@ -25,7 +25,7 @@ This two-tier design matches the brain analogy: `INDEX.md` is the "session gist,
 ## 2. File Locations
 
 ```
-_meta/sessions/
+meta/sessions/
 ├── INDEX.md                    # Compiled by retrospective (Mode 0, at Start Session)
 └── {session_id}.md             # Written by archiver (Phase 1, at session close)
 ```
@@ -189,18 +189,18 @@ method-candidate detection, SYNAPSES-INDEX regeneration, SOUL snapshot dump):
    - methods_used, methods_discovered (from method-candidate detection)
    - concepts_activated, concepts_discovered (from concept extraction)
 5. archiver extracts keywords (§7) — max 10
-6. archiver writes _meta/outbox/{session_id}/sessions/{session_id}.md
+6. archiver writes meta/outbox/{session_id}/sessions/{session_id}.md
 7. File is added to the outbox directory for atomic git commit alongside other session artifacts
 ```
 
 **Immutability**: once archiver writes the file, it is never re-edited. If a correction is needed (rare), add a `corrections/{session_id}.md` note rather than mutating the original. This parallels the immutability of journal entries — append-only, never rewritten.
 
-**Placement under outbox**: during the archiver's Phase 1, the new file initially lands at `_meta/outbox/{session_id}/sessions/{session_id}.md`. Outbox merge (retrospective Mode 0 Step 7) moves it to the canonical `_meta/sessions/{session_id}.md` location. This matches the existing outbox pattern for decisions, tasks, and journal entries.
+**Placement under outbox**: during the archiver's Phase 1, the new file initially lands at `meta/outbox/{session_id}/sessions/{session_id}.md`. Outbox merge (retrospective Mode 0 Step 7) moves it to the canonical `meta/sessions/{session_id}.md` location. This matches the existing outbox pattern for decisions, tasks, and journal entries.
 
 **Failure modes**:
 
 - `date` command unavailable (extremely rare) → archiver halts Phase 1 with a clear error; session cannot be safely archived without a real timestamp
-- Outbox directory write fails (disk full, permission) → archiver logs to `_meta/sync-log.md`, session summary file is not created, subsequent retrospective compile step simply omits the session from INDEX
+- Outbox directory write fails (disk full, permission) → archiver logs to `meta/sync-log.md`, session summary file is not created, subsequent retrospective compile step simply omits the session from INDEX
 - Partial frontmatter (e.g., Summary Report missing) → archiver fills required fields with sentinels (`overall_score: null`, empty arrays) and proceeds; retrospective's parser treats null scores as `n/a` in INDEX
 
 ### INDEX compilation (retrospective Mode 0)
@@ -209,7 +209,7 @@ The retrospective compiles — never writes per-session files. Extends the exist
 
 ```
 1. Start Session triggered
-2. retrospective enumerates _meta/sessions/*.md (glob pattern: *.md excluding INDEX.md)
+2. retrospective enumerates meta/sessions/*.md (glob pattern: *.md excluding INDEX.md)
 3. For each file, parse YAML frontmatter — extract:
    - date
    - project
@@ -219,14 +219,14 @@ The retrospective compiles — never writes per-session files. Extends the exist
    - session_id
 4. Sort by date desc (secondary sort: started_at desc for same-day ties)
 5. Group by YYYY-MM derived from the date field
-6. Overwrite _meta/sessions/INDEX.md with the compiled output
+6. Overwrite meta/sessions/INDEX.md with the compiled output
 7. If compilation produced a structurally different output, note the diff size in
    retrospective's Start Session report ("📚 Session Index: N sessions indexed")
 ```
 
 **Compilation is idempotent**. Running it twice produces byte-identical output (given the same input files). This matters because retrospective runs every Start Session — no incremental logic needed. Idempotence also simplifies debugging: if the index looks wrong, deleting it and recompiling cannot lose data.
 
-**Parse failures**: if a `{session_id}.md` file has malformed YAML, retrospective logs the filename to `_meta/sync-log.md` and continues. The corrupt session is omitted from INDEX but the file itself is preserved for manual inspection. This matches v1.6.2's posture on snapshot corruption — degrade gracefully, never block the Start Session briefing.
+**Parse failures**: if a `{session_id}.md` file has malformed YAML, retrospective logs the filename to `meta/sync-log.md` and continues. The corrupt session is omitted from INDEX but the file itself is preserved for manual inspection. This matches v1.6.2's posture on snapshot corruption — degrade gracefully, never block the Start Session briefing.
 
 ## 6. Read Flow (Hippocampus)
 
@@ -234,7 +234,7 @@ The hippocampus subagent consumes the session index. Per `devdocs/architecture/c
 
 ```
 1. Hippocampus receives the user's current subject (from Step 0.5)
-2. Hippocampus reads _meta/sessions/INDEX.md (one file, fast)
+2. Hippocampus reads meta/sessions/INDEX.md (one file, fast)
 3. LLM judgment identifies top 5-7 semantically relevant sessions
    - Wave 1: direct keyword match against the keywords column
    - Wave 2: semantic proximity to subject (LLM judgment over the 80-char subject blurbs)
@@ -283,12 +283,12 @@ Performance is load-bearing for this design — the hippocampus runs on every us
 
 ## 9. Migration from v1.6.2a
 
-No `_meta/sessions/` directory exists before v1.7. Migration is best-effort and one-shot, per user decision #7 from the cortex brainstorm:
+No `meta/sessions/` directory exists before v1.7. Migration is best-effort and one-shot, per user decision #7 from the cortex brainstorm:
 
-`tools/migrate.py` scans the last 3 months of `_meta/journal/`:
+`tools/migrate.py` scans the last 3 months of `meta/journal/`:
 
 ```
-1. Enumerate _meta/journal/*.md created in the last 90 days
+1. Enumerate meta/journal/*.md created in the last 90 days
 2. For each journal entry:
    a. Parse metadata (date, project, decision titles)
    b. Synthesize YAML frontmatter — best-effort, acknowledging gaps:
@@ -301,8 +301,8 @@ No `_meta/sessions/` directory exists before v1.7. Migration is best-effort and 
       - dream_triggers: extract from -dream.md journals if timestamp-matched
       - keywords: LLM extraction from decision titles + project
    c. Synthesize body sections from decision summaries and outcome lines
-   d. Write _meta/sessions/{synthesized-session-id}.md
-3. After all files written, recompile _meta/sessions/INDEX.md
+   d. Write meta/sessions/{synthesized-session-id}.md
+3. After all files written, recompile meta/sessions/INDEX.md
 ```
 
 **session-id for migrated entries**: `{platform}-{YYYYMMDD}-{HHMM}` using the journal's modification timestamp. If the original platform cannot be inferred, default to `claude`.
@@ -318,8 +318,8 @@ Do not:
 - **Edit existing session summary files** — immutable after archiver writes. Corrections live in `corrections/{session_id}.md`. Mutating a session summary invalidates any downstream analysis (trend reports, DREAM-era pattern detection) that reads from the original.
 - **Skip keyword extraction** — a session with zero keywords is invisible to the hippocampus Wave 1 scan. The Phase 1 archiver must always produce at least one keyword (the project name fallback).
 - **Compile INDEX during archiver** — compilation is retrospective's job. Splitting the responsibility produces race conditions when two platforms close sessions concurrently, and couples adjourn latency to compile cost.
-- **Include raw message content in the session summary** — only structured extractions (subject, key decisions, outcome, signals). Raw messages belong in `_meta/journal/`, not here. A retrieval-focused summary should be shorter than a journal entry, not a copy of it.
-- **Sync `_meta/sessions/` to Notion** — per user decision #12, Cortex data stays local. Notion holds the user's mobile-friendly views (STATUS, Todo, Working Memory, Inbox); it does not hold the cognition substrate.
+- **Include raw message content in the session summary** — only structured extractions (subject, key decisions, outcome, signals). Raw messages belong in `meta/journal/`, not here. A retrieval-focused summary should be shorter than a journal entry, not a copy of it.
+- **Sync `meta/sessions/` to Notion** — per user decision #12, Cortex data stays local. Notion holds the user's mobile-friendly views (STATUS, Todo, Working Memory, Inbox); it does not hold the cognition substrate.
 - **Let archiver retry session-id generation** — the `date` HARD RULE means one `date` call per session. Retries risk drift between the filename and the `started_at` timestamp.
 - **Compile INDEX incrementally** — always overwrite. Idempotence is a design property; do not trade it for a small performance win.
 - **Rely on file modification time for sorting** — sort by the `date` frontmatter field. File mtimes can drift after git operations or cross-device sync.
@@ -337,14 +337,14 @@ The `{platform}-{YYYYMMDD}-{HHMM}` session-id has minute resolution. Two session
 
 - Archiver must not overwrite an existing file. Before `Write`, it checks for filename collision.
 - On collision, archiver appends a second-precision suffix: `{platform}-{YYYYMMDD}-{HHMMSS}`.
-- The collision case is logged to `_meta/sync-log.md` for later review.
+- The collision case is logged to `meta/sync-log.md` for later review.
 
 ### Outbox merge concurrency
 
-Two devices may both be archiving when the next Start Session begins. Retrospective Mode 0 Step 7 already handles this with `_meta/.merge-lock`. The session index just rides along:
+Two devices may both be archiving when the next Start Session begins. Retrospective Mode 0 Step 7 already handles this with `meta/.merge-lock`. The session index just rides along:
 
 - Each outbox directory carries its own `sessions/{session_id}.md`.
-- Merge moves them one at a time into `_meta/sessions/`.
+- Merge moves them one at a time into `meta/sessions/`.
 - If both outboxes somehow produced the same session-id, the merge preserves both by appending the seconds suffix retroactively, then logs the conflict.
 
 ### Cross-device git conflicts
@@ -360,7 +360,7 @@ Two edge cases:
 
 A user holds a 90-minute deliberation on the `passpay` project about whitepaper refinement. The archiver produces:
 
-Filename: `_meta/outbox/claude-20260419-1238/sessions/claude-20260419-1238.md`
+Filename: `meta/outbox/claude-20260419-1238/sessions/claude-20260419-1238.md`
 
 ```yaml
 ---
@@ -426,7 +426,7 @@ Quick reference for common operations:
 ## 14. Related Specs
 
 - `references/soul-spec.md` — SOUL dimension lifecycle, snapshot mechanism (parallel pattern: per-session file + INDEX compilation)
-- `references/concept-spec.md` — concept storage under `_meta/concepts/`, which the hippocampus consults alongside the session index
+- `references/concept-spec.md` — concept storage under `meta/concepts/`, which the hippocampus consults alongside the session index
 - `references/hippocampus-spec.md` — the consumer of this artifact; defines three-wave activation
 - `references/gwt-spec.md` — the GWT arbitrator that receives hippocampus output
 - `devdocs/architecture/cortex-integration.md` §3.1 — architectural context and scan-cost estimates

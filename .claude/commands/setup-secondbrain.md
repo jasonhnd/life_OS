@@ -1,5 +1,5 @@
 ---
-description: Bootstrap a user's second-brain vault with the v1.8.1+ scaffolding (wiki/log.md, OBSIDIAN-SETUP.md, .templates/, _meta/inbox/). Idempotent — never overwrites existing files. Replaces v1.8.4 scripts/wiki/setup-secondbrain.sh as part of v1.8.5 hook layer retirement.
+description: Bootstrap a user's second-brain vault with the v1.8.1+ scaffolding (wiki/log.md, OBSIDIAN-SETUP.md, .templates/, meta/queue/). Idempotent — never overwrites existing files. Replaces v1.8.4 scripts/wiki/setup-secondbrain.sh as part of v1.8.5 hook layer retirement.
 argument-hint: "[--silent]  (silent: only print 'wrote N files' if anything changed)"
 allowed-tools:
   - Bash
@@ -16,10 +16,10 @@ Bootstrap a user vault with the canonical v1.8.5 scaffolding. Idempotent — fil
 
 ```bash
 pwd       # should be the vault root, e.g. /Users/owner/SecondBrain
-ls -la    # should look like a vault (may have wiki/, _meta/, projects/, areas/, etc.)
+ls -la    # should look like a vault (may have wiki/, meta/, projects/, areas/, etc.)
 ```
 
-If cwd doesn't look like a vault root (no `wiki/`, `_meta/`, `projects/`, `areas/` and no `.git`) → emit warning `⚠️ cwd does not look like a vault root; abort and cd into vault first`.
+If cwd doesn't look like a vault root (no `wiki/`, `meta/`, `projects/`, `areas/` and no `.git`) → emit warning `⚠️ cwd does not look like a vault root; abort and cd into vault first`.
 
 ## Files to create (only if missing)
 
@@ -40,7 +40,7 @@ Content (heredoc):
 Path: `wiki/OBSIDIAN-SETUP.md`
 Content: Read the canonical template from the installed skill at `$HOME/.claude/skills/life_OS/scripts/wiki/templates/OBSIDIAN-SETUP.template.md` if it exists, otherwise emit a minimal stub with these sections:
 - Wikilinks setting
-- Graph view color groups (wiki/, projects/, areas/, _meta/)
+- Graph view color groups (wiki/, projects/, areas/, meta/)
 - Templates directory configuration
 - Daily notes location
 - Recommended plugins
@@ -81,12 +81,12 @@ arguments_against: |
 <body>
 ```
 
-### F4: _meta/inbox/to-process/.gitkeep
-Path: `_meta/inbox/to-process/.gitkeep`
+### F4: meta/queue/to-process/.gitkeep
+Path: `meta/queue/to-process/.gitkeep`
 Content: empty file.
 
-### F5: _meta/inbox/README.md
-Path: `_meta/inbox/README.md`
+### F5: meta/queue/README.md
+Path: `meta/queue/README.md`
 Content:
 ```markdown
 # Inbox
@@ -125,8 +125,8 @@ Track `WROTE` count and `SKIPPED` count.
 ✓ wrote wiki/log.md  (or · already exists)
 ✓ wrote wiki/OBSIDIAN-SETUP.md
 ✓ wrote wiki/.templates/wiki-entry-template.md
-✓ wrote _meta/inbox/to-process/.gitkeep
-✓ wrote _meta/inbox/README.md
+✓ wrote meta/queue/to-process/.gitkeep
+✓ wrote meta/queue/README.md
 ✓ added wiki/ color group to .obsidian/graph.json  (or · skipped: no Obsidian config)
 
 Summary: WROTE N, SKIPPED M

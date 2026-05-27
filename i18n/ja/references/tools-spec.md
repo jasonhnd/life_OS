@@ -70,7 +70,7 @@ uv run life-os-tool {command} [args]
 tools/
 ├── __init__.py
 ├── cli.py                 # Unified entry: `uv run life-os-tool <cmd>`
-├── reindex.py             # v1.7 core — compile _meta/sessions/INDEX.md
+├── reindex.py             # v1.7 core — compile meta/sessions/INDEX.md
 ├── reconcile.py           # v1.7 core — schema / link / orphan checker
 ├── stats.py               # v1.7 core — usage + quality statistics
 ├── embed.py               # v1.7 skip (user decision #3)
@@ -246,15 +246,15 @@ side effects、exit codes、runtime budget、trigger mode。Trigger mode:
 
 ### 6.1 `reindex.py` — Session Index コンパイル
 
-`_meta/sessions/*.md` をスキャンし、日付降順でセッション毎に一行を持つ
-`_meta/sessions/INDEX.md` を emit します。
+`meta/sessions/*.md` をスキャンし、日付降順でセッション毎に一行を持つ
+`meta/sessions/INDEX.md` を emit します。
 
 ```bash
 uv run tools/reindex.py [--verbose]
 ```
 
-- **Input**: `_meta/sessions/` 配下のすべての session summary ファイル
-- **Output**: `_meta/sessions/INDEX.md`(atomically 上書き)
+- **Input**: `meta/sessions/` 配下のすべての session summary ファイル
+- **Output**: `meta/sessions/INDEX.md`(atomically 上書き)
 - **Side effects**: なし
 - **Exit codes**: `0` 成功、`1` I/O エラーまたは読めない frontmatter
 - **Runtime**: 1,000 セッションで 5 秒未満
@@ -277,7 +277,7 @@ uv run tools/reconcile.py [--fix] [--verbose]
 ```
 
 - **Input**: second-brain root 配下のすべての markdown
-- **Output**: `_meta/reconcile-report-{YYYY-MM-DD}.md`。同日再実行では
+- **Output**: `meta/reconcile-report-{YYYY-MM-DD}.md`。同日再実行では
   ファイルは **上書き** されます(idempotent): レポートは現在状態の
   スナップショットであり、履歴ログではありません。履歴レポートは
   タイムスタンプサフィックスではなく git で保持されます。
@@ -304,10 +304,10 @@ sessions、eval-history、snapshots、SOUL にわたる period 毎の
 uv run tools/stats.py [--period month|quarter|year] [--since YYYY-MM-DD] [--output FILE]
 ```
 
-- **Input**: `_meta/sessions/`、`_meta/eval-history/`、
-  `_meta/snapshots/`、`SOUL.md`
+- **Input**: `meta/sessions/`、`meta/eval-history/`、
+  `meta/snapshots/`、`SOUL.md`
 - **Output**: stdout markdown(デフォルト)。`--output FILE` 指定時は
-  代わりにパスに書き出します(`_meta/self-review-{YYYY-MM}.md` への
+  代わりにパスに書き出します(`meta/self-review-{YYYY-MM}.md` への
   piping 用)。
 - **デフォルト period**: `--period` も `--since` も与えられなかった
   場合、直近 30 日をカバーする `--period month` がデフォルトです。
@@ -397,46 +397,46 @@ manual。自動 `--prune 30d` フラグは v1.7 の scope 外です。
 
 ### 6.7 `migrate.py` — v1.6.2a → v1.7 スキーママイグレーション
 
-one-time マイグレーション。v1.6.2a は `_meta/journal/` に decisions を
-保存していました。v1.7 は `_meta/sessions/`、`_meta/concepts/`、
-`_meta/snapshots/`、`_meta/eval-history/`、`_meta/methods/` を導入
+one-time マイグレーション。v1.6.2a は `meta/journal/` に decisions を
+保存していました。v1.7 は `meta/sessions/`、`meta/concepts/`、
+`meta/snapshots/`、`meta/eval-history/`、`meta/methods/` を導入
 します。本ツールは新しいレイアウトを backfill します。
 
 ```bash
 uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 ```
 
-- **Input**: 既存の `_meta/journal/`(backfill の source of truth)、
+- **Input**: 既存の `meta/journal/`(backfill の source of truth)、
   `SOUL.md`(読み取り専用 — synth snapshot input)、`wiki/`(読み取り
   専用 — concept anchor evidence)、`user-patterns.md`(未変更)
 - **Backfill scope**: journal の直近 **3 ヶ月**(ユーザー決定 #7)。
-  それより古いエントリは `_meta/journal/` にそのまま残ります。この
+  それより古いエントリは `meta/journal/` にそのまま残ります。この
   ウィンドウはすべてのマイグレーションターゲットで統一 — 下記 per-target
   ルール参照。
 - **Per-target ルール**(各ターゲットは自身の権威 spec に従う):
-  - `_meta/sessions/{session_id}.md` + `INDEX.md` — セッション毎に
+  - `meta/sessions/{session_id}.md` + `INDEX.md` — セッション毎に
     summary を synthesize(best-effort frontmatter、pre-v1.7 フィールド
     は null)。デフォルト `platform: claude`、session-id は journal
     mtime から派生。`references/session-index-spec.md` §9 参照。
-  - `_meta/concepts/**` — 6-criteria + privacy filter パイプラインを
+  - `meta/concepts/**` — 6-criteria + privacy filter パイプラインを
     実行。`activation_count ≥ 3` は `_tentative/` から `{domain}/` に
     promote し `status: confirmed`。`≥ 10` は `canonical` に promote。
     エッジ weight は co-occurrence から、10 でキャップ。
     `references/concept-spec.md` §Migration 参照。
-  - `_meta/snapshots/soul/**` — journal から `🔮 SOUL Delta` ブロックを
+  - `meta/snapshots/soul/**` — journal から `🔮 SOUL Delta` ブロックを
     スキャン、`provenance: synthetic` frontmatter 付きの合成 snapshot を
     emit。3 ヶ月ウィンドウ(統一)。`references/snapshot-spec.md`
     §Migration 参照。
-  - `_meta/methods/_tentative/**` — 言語パターン(「approach」、
+  - `meta/methods/_tentative/**` — 言語パターン(「approach」、
     「pattern」、「framework」、「流れ」、「やり方」、「手順」)から
     候補 method の top 5 を抽出。すべて `status: tentative` で開始、
     自動 promote しない。`references/method-library-spec.md` §15 参照。
 - **明示的に migrate しないもの**:
-  - `_meta/eval-history/` — **backfill なし**。v1.7 初日にフレッシュ
+  - `meta/eval-history/` — **backfill なし**。v1.7 初日にフレッシュ
     スタート。`references/eval-history-spec.md` §11 参照。
   - `SOUL.md`、`wiki/`、`user-patterns.md` — synthesis の input として
     読み取り、決して変更しない。
-- **Output log**: `_meta/cortex/bootstrap-status.md`(canonical、
+- **Output log**: `meta/cortex/bootstrap-status.md`(canonical、
   concept-spec と snapshot-spec によりクロス参照)。
 - **Side effects**: 新ファイル書き込み、古いもの削除なし、オプションで
   `--with-backup` により `backup.py` を呼び出し
@@ -459,7 +459,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 uv run tools/search.py "我要不要辞职" [--top N]
 ```
 
-- **Input**: `_meta/sessions/INDEX.md`(fast path)、次に関連する
+- **Input**: `meta/sessions/INDEX.md`(fast path)、次に関連する
   セッションファイル、クエリは argv
 - **Output**: stdout にランク付きリスト(path、snippet、score)
 - **Exit codes**: 常に `0`(空結果は有効)
@@ -499,8 +499,8 @@ second-brain コンテンツをポータブルフォーマットにエクスポ�
 ```bash
 uv run tools/export.py --format pdf --scope projects/passpay
 uv run tools/export.py --format html --scope wiki
-uv run tools/export.py --format json --scope _meta/sessions
-uv run tools/export.py --format anki --scope _meta/concepts
+uv run tools/export.py --format json --scope meta/sessions
+uv run tools/export.py --format anki --scope meta/concepts
 ```
 
 - **Input**: scope ディレクトリまたはファイルパターン
@@ -533,8 +533,8 @@ uv run tools/seed.py --path ~/second-brain
 
 - **Input**: ターゲットディレクトリパス
 - **Output**: `SOUL.md` スケルトン、`.life-os.toml` スタブ、
-  `projects/example-project/index.md`、`_meta/sessions/`、
-  `_meta/concepts/`、`_meta/snapshots/`、`_meta/eval-history/`、
+  `projects/example-project/index.md`、`meta/sessions/`、
+  `meta/concepts/`、`meta/snapshots/`、`meta/eval-history/`、
   `inbox/`、`wiki/`(各 `.gitkeep` 付き)、推奨エントリ付き
   `.gitignore` を populate したディレクトリ
 - **Side effects**: `git init` を実行し初期 commit を作成
@@ -551,10 +551,10 @@ archiver のセッション内 Notion 同期(Phase 4)が失敗した場合 — M
 uv run tools/sync_notion.py [--retry] [--since YYYY-MM-DD] [--verbose]
 ```
 
-- **Input**: `_meta/STATUS.md`、active projects、`_meta/eval-history/`、
+- **Input**: `meta/STATUS.md`、active projects、`meta/eval-history/`、
   Notion 同期ログ
 - **Output**: Notion HTTP API 経由で Notion ページを更新、
-  `_meta/notion-sync-log.md` にエントリを append
+  `meta/notion-sync-log.md` にエントリを append
 - **Transport**: **公式 `notion-client` Python パッケージ** を使用
   (HTTPS 経由の Notion REST API)。これは LLM API コールではありません
   — Notion API はプレーンなデータベース API であり、Life OS の v1.6.2a
@@ -571,7 +571,7 @@ uv run tools/sync_notion.py [--retry] [--since YYYY-MM-DD] [--verbose]
      token_env_var = "NOTION_TOKEN"  # name of env var holding token
      workspace_id = "..."
      ```
-- **Workspace 解決**: tool は `_meta/config.md` の `[notion]` セクション
+- **Workspace 解決**: tool は `meta/config.md` の `[notion]` セクション
   から workspace / database ID を読み取る。ハードコードしない。
 - **ユーザー決定 #16「v1.7 では外部 API なし」の明確化**: この決定は
   **LLM プロバイダ API**(OpenAI、Anthropic HTTP、サードパーティ

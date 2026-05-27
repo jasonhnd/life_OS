@@ -107,4 +107,4 @@ Conclusion: [一句话结论]
 - **DISPATCHER**：INFRA 从 DISPATCHER 接收派遣令，按指令执行
 - **其他领域 agent**：并行执行时不看到其他领域的报告；但如果其他领域的方案会影响健康/生活质量，INFRA 必须在自己的报告中指出
 - **REVIEWER**：INFRA 报告提交给 REVIEWER 进行最终评议
-- **AUDITOR**（巡查模式）：在 `wiki/` 和 `_meta/` 巡查孤立文件、破损链接、规则有效性、格式问题等
+- **AUDITOR**（巡查模式）：在 `wiki/` 和 `meta/` 巡查孤立文件、破损链接、规则有效性、格式问题等

@@ -23,11 +23,11 @@ Write / Glob / Grep。
 
 ### 子命令 `list` (默认 — 无参数也按 list 处理)
 
-1. `Glob` 模式 `_meta/methods/**/*.md` 列出所有 method 文件
+1. `Glob` 模式 `meta/methods/**/*.md` 列出所有 method 文件
 2. 对每个文件 `Read` 头 30 行抽 frontmatter (`title:` / `description:`
    / `last_modified:`)
 3. 同时 `Grep` 整个 second-brain (`projects/**` + `areas/**` +
-   `_meta/journal/**`) 数每个 method 被引用次数 (用 method id 或
+   `meta/journal/**`) 数每个 method 被引用次数 (用 method id 或
    wikilink `[[method-X]]` 当 query)
 4. 输出表:
    ```
@@ -39,9 +39,9 @@ Write / Glob / Grep。
 ### 子命令 `create <name>`
 
 1. Slug: lowercase kebab-case, ≤ 50 chars
-2. 检查 `_meta/methods/<domain>/<slug>.md` 是否已存在 (Glob); 已存在
+2. 检查 `meta/methods/<domain>/<slug>.md` 是否已存在 (Glob); 已存在
    → 提示 user "已存在, 用 update 还是换 slug?"
-3. 如果新 method 跨 domain, 让 user 选 domain (从现有 `_meta/methods/`
+3. 如果新 method 跨 domain, 让 user 选 domain (从现有 `meta/methods/`
    下一级目录列表里挑, 或新建)
 4. `Write` 文件, 用以下 frontmatter 模板:
    ```yaml
@@ -73,11 +73,11 @@ Write / Glob / Grep。
    ## Related
    - [[wiki/<domain>/<entry>]]
    ```
-5. 报告: `✏️ 已创建 method: <name>。路径: _meta/methods/<domain>/<slug>.md`
+5. 报告: `✏️ 已创建 method: <name>。路径: meta/methods/<domain>/<slug>.md`
 
 ### 子命令 `update <name>`
 
-1. `Glob` 找到 `_meta/methods/**/<name>*.md` (允许部分匹配)
+1. `Glob` 找到 `meta/methods/**/<name>*.md` (允许部分匹配)
 2. 多个匹配 → 让 user 选; 0 个匹配 → 提示 "没找到, 是不是要 create?"
 3. `Read` 当前内容
 4. 询问 user 改什么 (Steps 加一步? Failure modes 加一条? status 升

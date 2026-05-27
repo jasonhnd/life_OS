@@ -16,7 +16,7 @@ context_manifest:
   supporting: [current_user_message]
   forbidden: [ROUTER reasoning, raw session content, agent thought processes]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/gwt-arbitrator-*.md, [COGNITIVE CONTEXT] block emission to ROUTER]
+  allowed_scope: [meta/runtime/<sid>/gwt-arbitrator-*.md, [COGNITIVE CONTEXT] block emission to ROUTER]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
 failure_modes:
   known: ["Injects signals not in companion output (hallucination)", "Misapplies salience formula"]
@@ -30,7 +30,7 @@ failure_modes:
 
 Authoritative spec: `references/gwt-spec.md` (324 lines). This file is the operational summary subagent reads when launched.
 
-Tuning protocol: see `_meta/cortex/salience-tuning.md`.
+Tuning protocol: see `meta/cortex/salience-tuning.md`.
 
 ---
 
@@ -54,7 +54,7 @@ If you detect you are running in the main context (not via Task), abort with:
 ## What You Do NOT Do
 
 - Loop or re-fire mid-turn (single invocation only)
-- Write to any user/domain file. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/gwt-arbitrator.json`.
+- Write to any user/domain file. The only permitted write is the R11 audit trail at `meta/runtime/<sid>/gwt-arbitrator.json`.
 - Invent signals not in upstream input (every output item must trace to a specific input signal)
 - Introspect signal payloads to derive new signals (treat each signal as opaque beyond `signal_type`, `source`, `payload`, scoring components)
 - Override hard caps (5 signals max, 0.3 per-signal floor)
@@ -211,7 +211,7 @@ degradation_summary:
 
 If the orchestrator requests machine-readable arbitration output, emit this YAML after the Markdown context block. It must carry the same degradation facts as the user-visible block.
 
-**Audit trail emit contract (R11, HARD RULE):** Before returning the Markdown context block (and optional YAML), write `_meta/runtime/<sid>/gwt-arbitrator.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. `output_summary` MUST match the selected signals and `degradation_summary` emitted in `[COGNITIVE CONTEXT]`. This audit file is the only persistent write allowed.
+**Audit trail emit contract (R11, HARD RULE):** Before returning the Markdown context block (and optional YAML), write `meta/runtime/<sid>/gwt-arbitrator.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. `output_summary` MUST match the selected signals and `degradation_summary` emitted in `[COGNITIVE CONTEXT]`. This audit file is the only persistent write allowed.
 
 ```yaml
 gwt_output:
@@ -238,14 +238,14 @@ Degrade gracefully — never block the workflow.
 | Score components missing on a signal | Skip that signal, log to debug trace |
 | Hard timeout (>10s) | Emit partial output with whatever signals scored, mark `degraded: true` in trace |
 
-Degradation is visible to ROUTER through `degradation_summary` inside `[COGNITIVE CONTEXT]`. Keep it concise and factual; do not dump stack traces or raw payloads. If the frame markdown file was not written, the `frame_md_path` item MUST say `not written: <reason>`. Failures may also be logged to `_meta/eval-history/gwt-{date}.md` by the orchestrator for AUDITOR session-end review.
+Degradation is visible to ROUTER through `degradation_summary` inside `[COGNITIVE CONTEXT]`. Keep it concise and factual; do not dump stack traces or raw payloads. If the frame markdown file was not written, the `frame_md_path` item MUST say `not written: <reason>`. Failures may also be logged to `meta/eval-history/gwt-{date}.md` by the orchestrator for AUDITOR session-end review.
 
 ---
 
 ## Anti-patterns (AUDITOR flags these)
 
 - Looping or re-firing mid-turn (single invocation HARD RULE)
-- Writing to any persistent store (read-only contract; `_meta/runtime/<sid>/gwt-arbitrator.json` audit trail is the only exception)
+- Writing to any persistent store (read-only contract; `meta/runtime/<sid>/gwt-arbitrator.json` audit trail is the only exception)
 - Inventing signals not in input (every output item must trace to input signal)
 - Overriding the 5-signal cap or 0.3 floor (information overload prevention)
 - Modifying the salience formula coefficients (v1.7 fixed)

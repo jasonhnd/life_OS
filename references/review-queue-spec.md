@@ -10,12 +10,12 @@ Before R-1.8.0-013, "things needing user attention" lived in 7 places:
 
 | Source | File |
 |---|---|
-| AUDITOR Mode 2 patrol | `_meta/eval-history/auditor-patrol/<date>.md` action items |
-| ADVISOR monthly | `_meta/eval-history/advisor-monthly-<month>.md` SOUL drift |
-| Strategic Consistency | `_meta/eval-history/strategic-consistency-<month>.md` conflicts |
-| Archiver recovery | `_meta/eval-history/recovery/<date>.md` results |
+| AUDITOR Mode 2 patrol | `meta/eval-history/auditor-patrol/<date>.md` action items |
+| ADVISOR monthly | `meta/eval-history/advisor-monthly-<month>.md` SOUL drift |
+| Strategic Consistency | `meta/eval-history/strategic-consistency-<month>.md` conflicts |
+| Archiver recovery | `meta/eval-history/recovery/<date>.md` results |
 | AUDITOR Mode 3 violations | `pro/compliance/violations.md` |
-| Cron notifications (deleted) | `_meta/inbox/notifications.md` |
+| Cron notifications (deleted) | `meta/queue/notifications.md` |
 | Summary Reports | scattered in session files |
 
 User had to integrate 7 sources mentally. Review queue consolidates all into
@@ -24,8 +24,8 @@ one ordered, actionable list.
 ## File path
 
 ```
-_meta/review-queue.md         (active queue, append + in-place status update)
-_meta/review-queue/archive/   (resolved items archived monthly)
+meta/review-queue.md         (active queue, append + in-place status update)
+meta/review-queue/archive/   (resolved items archived monthly)
 ```
 
 ## Item schema
@@ -39,7 +39,7 @@ YAML list inside the markdown file. Each item:
   type: stale-wiki                    # stale-wiki|drift|conflict|violation|action-item|decision-due|outcome-unmeasured|other
   priority: P1                        # P0 (urgent) | P1 (this week) | P2 (whenever)
   summary: "wiki entry X 90+ 天没更新且 confidence < 0.4"  # one-line, max 100 chars
-  detail_path: _meta/eval-history/auditor-patrol/2026-04-29.md  # full report or null
+  detail_path: meta/eval-history/auditor-patrol/2026-04-29.md  # full report or null
   related:                            # Obsidian wikilinks to related pages
     - "[[concept-foo]]"
     - "[[wiki-bar]]"
@@ -76,7 +76,7 @@ YAML list inside the markdown file. Each item:
 ```
 
 When `## Recently resolved` exceeds 100 entries, the oldest are moved to
-`_meta/review-queue/archive/{YYYY-MM}.md` (append-only monthly file).
+`meta/review-queue/archive/{YYYY-MM}.md` (append-only monthly file).
 
 ## Sources — what each appends
 
@@ -120,7 +120,7 @@ User can manually append via `scripts/prompts/review-queue.md` "add item" flow.
 
 When a maintenance prompt finds an action item:
 
-1. Read current `_meta/review-queue.md`
+1. Read current `meta/review-queue.md`
 2. Find the highest existing `r{TODAY}-{N}` id, increment N (start at 001 if no items today)
 3. Construct new item per schema
 4. Append to `## Open items` section (Edit tool, before "## Recently resolved")
@@ -148,13 +148,13 @@ Without locking, two appends in parallel could:
 
 **Mitigation (lock-free, optimistic):**
 
-1. Each appender re-reads `_meta/review-queue.md` IMMEDIATELY before
+1. Each appender re-reads `meta/review-queue.md` IMMEDIATELY before
    constructing its Edit (not 30 seconds before).
 2. Compute next id from re-read content.
 3. After Edit, re-read to verify the new id appears exactly once. If it
    appears twice (collision), DELETE the duplicate (keep first writer's
    item, discard second writer's), then re-attempt with id+1.
-4. If verify-and-retry fails 3 times, abort with `_meta/review-queue/lock-conflicts/{ISO}.md`
+4. If verify-and-retry fails 3 times, abort with `meta/review-queue/lock-conflicts/{ISO}.md`
    recording the conflict for user inspection.
 
 **Note**: lifeos is single-user single-session today, so collisions are
@@ -163,7 +163,7 @@ theoretical. Documenting protocol for future multi-process cron resurrection.
 ### Archive ordering source-of-truth
 
 When `## Recently resolved` exceeds 100 entries, oldest items move to
-`_meta/review-queue/archive/{YYYY-MM}.md` where `{YYYY-MM}` is parsed from
+`meta/review-queue/archive/{YYYY-MM}.md` where `{YYYY-MM}` is parsed from
 each item's `closed_at` field (NOT `created` — items can sit open for
 months). Within the monthly archive file, items are appended in
 **`closed_at` ASC order** (oldest first). Items with null `closed_at` are
@@ -187,8 +187,8 @@ reviewed → dismissed
 - `reviewed → open` is INVALID — same reasoning
 
 A walker prompt that detects an attempted back-transition MUST refuse and
-log to `_meta/runtime/{sid}/review-queue-walk.json`. Out-of-band YAML edits
-(user manually edits `_meta/review-queue.md` to re-open) are tolerated but
+log to `meta/runtime/{sid}/review-queue-walk.json`. Out-of-band YAML edits
+(user manually edits `meta/review-queue.md` to re-open) are tolerated but
 flagged at next walker run.
 
 When status changes from `open`:
@@ -235,7 +235,7 @@ transitions are persistent).
 ## Anti-patterns
 
 - DON'T append items for things that are FYI (not actionable). FYI goes
-  in `_meta/eval-history/` reports only.
+  in `meta/eval-history/` reports only.
 - DON'T let queue grow past ~100 open items — that means the system is
   surfacing too much. ADVISOR-monthly should flag this.
 - DON'T archive resolved items < 30 days old — user may want to review

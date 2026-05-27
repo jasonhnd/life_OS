@@ -33,7 +33,7 @@ in-vault `[name](path.md)` links get rewritten to `[[wikilinks]]`.
 
 ## Pre-flight
 
-1. Verify cwd is a second-brain repo (`_meta/` + `wiki/` exist). If not,
+1. Verify cwd is a second-brain repo (`meta/` + `wiki/` exist). If not,
    refuse with "/wiki-obsidian-upgrade only runs in a second-brain vault."
 2. `Glob` `wiki/**/*.md` (exclude `INDEX.md`, `SCHEMA.md`,
    `OBSIDIAN-SETUP.md`, `log.md`, `.templates/**`).

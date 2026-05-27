@@ -23,7 +23,7 @@ All 6 data types map to Notion databases:
 
 Only 3 components used:
 - 📬 Inbox (database): message queue between devices
-- 🧠 Status Dashboard (page): mirror of `_meta/STATUS.md`
+- 🧠 Status Dashboard (page): mirror of `meta/STATUS.md`
 - 🗄️ Archive: read-only archive access
 
 **Important**: In transport mode, Notion does NOT have Task/Decision/Journal databases. If the user edits content directly in Notion outside of the inbox, those changes are invisible to the sync protocol. The RETROSPECTIVE should remind the user on first setup: "In transport mode, use the 📬 Inbox for all mobile captures. Direct edits to Notion pages outside the inbox will not sync to GitHub/GDrive."

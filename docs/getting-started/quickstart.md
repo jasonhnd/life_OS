@@ -50,7 +50,7 @@
 输入数字（比如「13」表示 GitHub + Notion）：
 ```
 
-选完，系统自动建好目录结构（projects/、areas/、wiki/、_meta/ 等），然后进入正常的上朝流程。
+选完，系统自动建好目录结构（projects/、areas/、wiki/、meta/ 等），然后进入正常的上朝流程。
 
 ### 如果你已经有 second-brain
 

@@ -18,7 +18,7 @@
 
 ## Goal
 
-Produce a report at `_meta/eval-history/wiki-link-audit-{YYYY-MM-DD}.md`
+Produce a report at `meta/eval-history/wiki-link-audit-{YYYY-MM-DD}.md`
 covering:
 
 1. Counts (total entries, wikilinks, markdown links, broken, orphans, stale, low-confidence)
@@ -30,7 +30,7 @@ covering:
 
 ## Pre-flight
 
-1. Verify cwd is a second-brain repo (`_meta/` + `wiki/` exist). If not,
+1. Verify cwd is a second-brain repo (`meta/` + `wiki/` exist). If not,
    refuse and tell user this prompt only runs in a second-brain vault.
 2. Glob `wiki/**/*.md`. Exclude:
    - `wiki/INDEX.md`
@@ -97,7 +97,7 @@ Track:
 
 ## Step 5 · Write report
 
-Write to `_meta/eval-history/wiki-link-audit-{YYYY-MM-DD}.md` (overwrite
+Write to `meta/eval-history/wiki-link-audit-{YYYY-MM-DD}.md` (overwrite
 if exists):
 
 ```markdown
@@ -170,12 +170,12 @@ this report and propose deprecate / merge / refresh actions per
 🔗 wiki-link-audit done · {N} entries scanned
    broken: {Bw} wikilinks + {Bm} markdown links
    orphans: {O} · stale: {S} · low-conf: {L}
-   _meta/eval-history/wiki-link-audit-{date}.md
+   meta/eval-history/wiki-link-audit-{date}.md
 ```
 
 ## Output path
 
-- `_meta/eval-history/wiki-link-audit-{YYYY-MM-DD}.md`
+- `meta/eval-history/wiki-link-audit-{YYYY-MM-DD}.md`
 
 ## Notes
 

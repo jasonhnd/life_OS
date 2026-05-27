@@ -153,7 +153,7 @@ Life OS 没有「状态机引擎」这种东西。状态转换靠的是:
 
 1. 看 Summary Report 的 Audit Log 块 — 记录各阶段是否跑了
 2. 看 AUDITOR 报告 — 有没有标记 Process Issues
-3. 看 `_meta/outbox/{session_id}/manifest.md` — 记录了本次 session 的产出计数
+3. 看 `meta/outbox/{session_id}/manifest.md` — 记录了本次 session 的产出计数
 4. 看 `user-patterns.md` — 有没有累积的违规模式
 5. 对照本文件的合法转换表, 看当前状态跳到的下一状态是不是合法的
 

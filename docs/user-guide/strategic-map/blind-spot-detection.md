@@ -104,7 +104,7 @@
 
 **用户的选择**：
 - 下一个决策对齐 driving_force
-- 或者承认 driving_force 在变——更新 `_meta/strategic-lines.md`
+- 或者承认 driving_force 在变——更新 `meta/strategic-lines.md`
 - 或者承认这条线其实该降级/终止
 
 **为什么这是盲点**：行为一次不一致不明显；累积 5 次你自己都看不见。系统的价值就是"机械地数"。
@@ -181,7 +181,7 @@
 
 ## 在晨报里怎么显示
 
-所有盲点统一出现在 `_meta/STRATEGIC-MAP.md` 的 **🕳️ Blind Spots** 区域，位于每条战略线的叙事之后、"⚡ Today" 之前。
+所有盲点统一出现在 `meta/STRATEGIC-MAP.md` 的 **🕳️ Blind Spots** 区域，位于每条战略线的叙事之后、"⚡ Today" 之前。
 
 简报结构：
 

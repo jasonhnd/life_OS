@@ -39,7 +39,7 @@ ROUTER がユーザーメッセージで R1-R8 のいずれかを検出した場
 - 捏造されたものはすべて = F17 VALUE_HALLUCINATION + B 捏造パス違反。
 
 ### Req 3 — 決定記録
-- 結果は `_meta/decisions/<id>.md` に書かなければならない、以下を含む：
+- 結果は `meta/decisions/<id>.md` に書かなければならない、以下を含む：
   - subject
   - alternatives_considered（≥2 拒否されたオプション + 理由）
   - 決定の根拠
@@ -47,14 +47,14 @@ ROUTER がユーザーメッセージで R1-R8 のいずれかを検出した場
   - reviewer 名
   - reviewed_at
   - reversal_condition（再考慮する価値のある条件）
-- 決定が "no_change" / "not now" の場合 → Stage 7 `no_change_record` 形式（`_meta/incidents/` 内 7 フィールド YAML）。
+- 決定が "no_change" / "not now" の場合 → Stage 7 `no_change_record` 形式（`meta/decisions/` 内 7 フィールド YAML）。
 
 ### Req 4 — Cannot_delegate
 - 決定は subagent または将来の ROUTER session に委任**できない**。
 - subagent レポートは入力; 最終決定は orchestrator 主コンテキストでユーザー在席のもとで行われる。
 
 ### Req 5 — Trace 必須
-- 完全な監査 trail が R12 spec に従って `_meta/runtime/<sid>/` に存在しなければならない：
+- 完全な監査 trail が R12 spec に従って `meta/runtime/<sid>/` に存在しなければならない：
   - 各 subagent 呼び出し: `<subagent>-<step>.json`
   - REVIEWER 判定: `reviewer-final-verdict.json`、`value_invocations[]` 入力済み
   - ユーザー確認メッセージのタイムスタンプ + リテラルテキスト

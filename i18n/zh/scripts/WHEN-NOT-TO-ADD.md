@@ -38,6 +38,6 @@ ROUTER 内联读取的内部维护 prompt（无安装步骤）。由 `pro/CLAUDE
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - `SKILL.md` HARD RULE md-only 本体论约束（DR-10）
 - 模式来源：`tinyhumansai/openhuman` `.claude/rules/README.md`

@@ -1,7 +1,7 @@
 # People Page Spec (v1.8.0 R-1.8.0-013)
 
 > Page taxonomy expansion borrowed from llm_wiki (entities → people).
-> Defines `_meta/people/<id>.md` — persons relevant to user's decisions.
+> Defines `meta/people/<id>.md` — persons relevant to user's decisions.
 
 ## Why a separate page type
 
@@ -15,7 +15,7 @@ into `wiki/`. Splitting them out:
 ## File path
 
 ```
-_meta/people/<id>.md
+meta/people/<id>.md
 ```
 
 `<id>` = slug from canonical_name (lowercase, hyphenated; SHA-1 hash fallback
@@ -88,7 +88,7 @@ archiver Phase 2 + knowledge-extractor MUST apply BEFORE writing:
 
 ### Privacy validator (must run; planned for archiver Phase 2)
 
-Post-write lint that scans every `_meta/people/*.md` with `privacy_tier:
+Post-write lint that scans every `meta/people/*.md` with `privacy_tier:
 high` for these patterns in the BODY:
 - 10+ digit number sequences (phone / SSN / account)
 - street-address regex (e.g., `\d+\s+[A-Z][a-z]+\s+(St|Ave|Rd|Blvd)`)
@@ -118,8 +118,8 @@ Candidate is person if:
 Candidate is NOT person (route elsewhere):
 - Public figure cited only as concept source → mention in concept page,
   not own people page
-- Group / organization → `_meta/people/<org-id>.md` with
-  `relationship: organization` (or future `_meta/orgs/` if pattern emerges)
+- Group / organization → `meta/people/<org-id>.md` with
+  `relationship: organization` (or future `meta/orgs/` if pattern emerges)
 - Fictional / hypothetical → don't write at all
 
 ## Hebbian linking
@@ -134,7 +134,7 @@ People pages participate in 4-signal relevance per `references/hippocampus-spec.
 
 Existing wiki/ entries that are about persons (judged by LLM during next
 maintenance run via `scripts/prompts/migrate-to-wikilinks.md`) are migrated
-to `_meta/people/`. Old wiki path becomes a redirect stub or is deleted.
+to `meta/people/`. Old wiki path becomes a redirect stub or is deleted.
 
 ## Status lifecycle
 

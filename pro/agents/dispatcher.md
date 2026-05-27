@@ -18,13 +18,13 @@ operating_hypothesis: |
   of file-write conflicts when multiple domains run in parallel.
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, references/domains.md, references/scene-configs.md]
-  supporting: [_meta/STATUS.md]
+  supporting: [meta/STATUS.md]
   forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, decisions/]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/dispatcher-*.json]
+  allowed_scope: [meta/runtime/<sid>/dispatcher-*.json]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/, all domain-owned files]
 failure_modes:
-  known: ["Dispatches conflicting writes to same file (e.g. 2 domains both write _meta/STATUS.md)", "Forgets to enforce parallel/sequential split per file-write rule"]
+  known: ["Dispatches conflicting writes to same file (e.g. 2 domains both write meta/STATUS.md)", "Forgets to enforce parallel/sequential split per file-write rule"]
   warning_signs: ["Domain runtimes overlap in time AND target same path"]
   repair_actions: ["AUDITOR Mode 3 logs F4 SCOPE_FAILURE", "Re-dispatch with explicit sequence"]
 ---
@@ -72,7 +72,7 @@ When the router has flagged relevant wiki entries for this topic:
 
 ## Method Context Injection
 
-Before writing dispatch orders, perform a method lookup when `_meta/methods/INDEX.md` exists and is non-empty:
+Before writing dispatch orders, perform a method lookup when `meta/methods/INDEX.md` exists and is non-empty:
 - Consider only `confirmed` and `canonical` methods; never inject `_tentative/` methods.
 - Evaluate each method's `applicable_when` and `not_applicable_when` against the approved planning document, current subject, assigned domains, and reviewer conditions.
 - If a method matches, read the full method file and include it only in relevant domain briefs as `Known Method: {name}` with this label: "Known Method '{name}' applies - use this established approach unless the subject contradicts it."

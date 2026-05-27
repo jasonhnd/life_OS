@@ -38,6 +38,6 @@ If ANY answer is yes, prefer that. New command = forever maintenance + install/u
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - `SKILL.md` HARD RULE md-only ontological constraint (DR-10)
 - Pattern source: `tinyhumansai/openhuman` `.claude/rules/README.md`

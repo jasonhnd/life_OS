@@ -30,7 +30,7 @@ context_manifest:
   supporting:
     - wiki/INDEX.md
     - decisions/                      # historical decision precedents
-    - _meta/STRATEGIC-MAP.md
+    - meta/STRATEGIC-MAP.md
   forbidden:
     - pro/agents/planner.md           # peer — receives planner's output, not internals
     - pro/agents/archiver.md          # peer
@@ -38,7 +38,7 @@ context_manifest:
     - pro/agents/auditor.md           # peer (AUDITOR audits REVIEWER, not vice-versa)
 blast_radius:
   allowed_scope:
-    - _meta/runtime/<sid>/reviewer-*.json         # verdict trail with value_invocations[]
+    - meta/runtime/<sid>/reviewer-*.json         # verdict trail with value_invocations[]
     - (no file writes — tools: Read only; verdict returned via Task output)
   forbidden_scope:
     - SOUL.md                         # REVIEWER reads SOUL but ARCHIVER writes
@@ -157,7 +157,7 @@ If `wiki/INDEX.md` exists and has entries with confidence ≥ 0.7, check if the 
 
 ## Strategic Map Consistency Check
 
-If `_meta/STRATEGIC-MAP.md` exists, check the proposed decision against the flow graph:
+If `meta/STRATEGIC-MAP.md` exists, check the proposed decision against the flow graph:
 
 **Downstream propagation**:
 - If this decision changes a deliverable or conclusion that flows downstream (via `flows_to`):

@@ -23,7 +23,7 @@ Life OS 典型配置：
   ├── .git/
   ├── projects/
   ├── areas/
-  └── _meta/
+  └── meta/
 ```
 
 两个 repo，两份 .git。
@@ -236,7 +236,7 @@ cd ~/life-os-data/second-brain && \
 
 ### second-brain 路径在哪读
 
-CC 从 `_meta/config.md` 或用户配置里知道 second-brain 的本地路径。如果是 GitHub primary → 就是本地 clone 的路径。
+CC 从 `meta/config.md` 或用户配置里知道 second-brain 的本地路径。如果是 GitHub primary → 就是本地 clone 的路径。
 
 `/save` 不适合 GDrive primary — GDrive MCP 没有 "cd + git" 的语义。对 GDrive primary 用户，相当于 `/save` 降级为"用 GDrive MCP 上传一个文件"。
 

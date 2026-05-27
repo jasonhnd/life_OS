@@ -6,7 +6,7 @@ All roles use the opus model. See `references/data-layer.md` for data layer arch
 
 ## Theme System
 
-The theme file is loaded at session start. All display names (for agents, phases, domains, reports, and trigger words) come from the active theme. Users can switch themes by changing the active theme in `_meta/config.md`. Functional IDs in this file remain stable across all themes.
+The theme file is loaded at session start. All display names (for agents, phases, domains, reports, and trigger words) come from the active theme. Users can switch themes by changing the active theme in `meta/config.md`. Functional IDs in this file remain stable across all themes.
 
 ## Complete Workflow
 
@@ -176,11 +176,11 @@ Launch `knowledge-extractor` first, passing in:
 
 After knowledge-extractor returns its YAML output, launch `archiver` as subagent, passing in:
 - Summary Report + AUDITOR report + ADVISOR report
-- knowledge-extractor's YAML output + extraction reports directory path (`_meta/runtime/<sid>/extraction/`)
+- knowledge-extractor's YAML output + extraction reports directory path (`meta/runtime/<sid>/extraction/`)
 
 The ARCHIVER subagent handles the remaining 4 phases end-to-end in a single invocation:
 1. **Phase 1 · Archive**: decisions/tasks/journal → outbox
-2. **Phase 2 · Knowledge Extraction Summary**: read `_meta/runtime/<sid>/extraction/*.md` from knowledge-extractor, emit single-paragraph summary in Adjourn Report (no inline 7 sub-steps in primary path)
+2. **Phase 2 · Knowledge Extraction Summary**: read `meta/runtime/<sid>/extraction/*.md` from knowledge-extractor, emit single-paragraph summary in Adjourn Report (no inline 7 sub-steps in primary path)
 3. **Phase 3 · DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
 4. **Phase 4 · Sync**: git push + Notion sync (4 specific operations)
 
@@ -198,28 +198,28 @@ The archiver subagent cannot access Notion MCP tools (they are environment-speci
 - **warn** — hook emits a `<system-reminder>` listing matched Group B/C/D categories. Orchestrator MUST pause exactly once to ask the user `(a) sanitize / (b) skip / (c) override`. This override of the no-ask default is REQUIRED by the hook's reminder; ignoring the reminder and silently retrying is a process violation. The local outbox is unaffected regardless of choice — only the Notion mirror changes.
 - **block** — hook returns exit 2 (Group A hard secret detected). The Notion MCP call is cancelled by Claude Code. Orchestrator MUST NOT bypass the block via a different MCP tool, MUST NOT proxy the same content through a non-blocked path, and MUST surface the leak so the user can rotate the credential and rewrite. Logged as `CLASS_F` violation.
 
-The hook always writes `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` with the matched-pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time. See `references/outbound-pii-patterns.md` §5 for the audit schema.
+The hook always writes `meta/runtime/<sid>/notion-pii-scan-<ts>.json` with the matched-pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time. See `references/outbound-pii-patterns.md` §5 for the audit schema.
 
 The orchestrator MUST write the Step 10a audit trail to:
 
 ```text
-_meta/runtime/<sid>/notion-sync.json
+meta/runtime/<sid>/notion-sync.json
 ```
 
 This file records Notion sync attempt start/end times, tool availability, per-operation results, failures, and final checklist status using the audit trail schema in `references/audit-trail-spec.md`.
 
-**Sync targets are CONFIG-DRIVEN, not hardcoded.** The orchestrator MUST read `_meta/config.md` and only sync the Notion entities the user has actually configured. Previous v1.8.0 spec (pre R-1.8.0-022) hardcoded a 4-page list (`Status / Todo Board / Working Memory / Inbox`); real users often have a different layout (e.g. `status_page_id` + `mirror_page_id` + `inbox_database_id` only — no `Todo Board` or `Working Memory`). Hardcoding caused the orchestrator to report "Working Memory: failed" for entities that never existed.
+**Sync targets are CONFIG-DRIVEN, not hardcoded.** The orchestrator MUST read `meta/config.md` and only sync the Notion entities the user has actually configured. Previous v1.8.0 spec (pre R-1.8.0-022) hardcoded a 4-page list (`Status / Todo Board / Working Memory / Inbox`); real users often have a different layout (e.g. `status_page_id` + `mirror_page_id` + `inbox_database_id` only — no `Todo Board` or `Working Memory`). Hardcoding caused the orchestrator to report "Working Memory: failed" for entities that never existed.
 
 ```
-For each `*_page_id` / `*_database_id` field in _meta/config.md:
-  - status_page_id     → overwrite with latest _meta/STATUS.md content
+For each `*_page_id` / `*_database_id` field in meta/config.md:
+  - status_page_id     → overwrite with latest meta/STATUS.md content
   - mirror_page_id     → overwrite with session summary (subject, key conclusions, action items)
   - todo_database_id   → sync tasks from this session (new → create, completed → check off)
   - inbox_database_id  → mark processed items as "Synced"
   - <any other configured entity> → if a known semantic mapping exists in references/adapter-notion.md, apply it; otherwise skip with a one-line note in the checklist
 If a specific write fails → report which one, continue with others.
-If _meta/config.md has NO Notion entity configured → skip Step 10a entirely (no error, no warning), record skip reason in audit trail.
-If _meta/config.md HAS entities configured but Notion MCP unavailable at runtime → report: "⚠️ Notion sync failed — mobile will not see updates" with the list of entities that would have been synced.
+If meta/config.md has NO Notion entity configured → skip Step 10a entirely (no error, no warning), record skip reason in audit trail.
+If meta/config.md HAS entities configured but Notion MCP unavailable at runtime → report: "⚠️ Notion sync failed — mobile will not see updates" with the list of entities that would have been synced.
 ```
 
 After Notion sync completes, output the Notion portion of the checklist with one line PER CONFIGURED entity (skip lines for unconfigured ones — do not list them as "failed"):
@@ -242,13 +242,13 @@ The STRATEGIST does not go through the Draft-Review-Execute workflow. It operate
 3. STRATEGIST displays the 18-domain thinker index and recommends figures + mode
 4. User confirms → STRATEGIST launches each selected thinker as an **independent subagent**
 5. Dialogue proceeds (one-on-one / roundtable / debate)
-6. Ending: each thinker gives a parting word → STRATEGIST summarizes → writes to `_meta/journal/`
+6. Ending: each thinker gives a parting word → STRATEGIST summarizes → writes to `meta/journal/`
 
 **Information isolation**: Each thinker subagent receives only the topic and their own role. In roundtable/debate, the moderator passes speech summaries (not full text or thinking process) between thinkers.
 
 ### Note: DREAM is integrated into ARCHIVER agent
 
-DREAM (the AI sleep cycle) is Phase 3 of the ARCHIVER agent's closing flow — not a separate agent. The ARCHIVER agent runs DREAM automatically as part of every adjourn. Dream reports are stored in `_meta/journal/` and presented by the RETROSPECTIVE agent at the next Start Session.
+DREAM (the AI sleep cycle) is Phase 3 of the ARCHIVER agent's closing flow — not a separate agent. The ARCHIVER agent runs DREAM automatically as part of every adjourn. Dream reports are stored in `meta/journal/` and presented by the RETROSPECTIVE agent at the next Start Session.
 
 ### Wiki — Knowledge Archive
 
@@ -262,11 +262,11 @@ If `SOUL.md` exists in the user's second-brain, all agents read it per the confi
 
 ### Strategic Map — Strategic Relationship Layer
 
-If `_meta/strategic-lines.md` and/or projects with `strategic:` frontmatter fields exist in the user's second-brain, the RETROSPECTIVE agent compiles `_meta/STRATEGIC-MAP.md` at every Start Session. The compiled map includes strategic line health assessments (archetype-based, not numerical), flow graphs, cross-layer verification (SOUL x strategy, wiki x flows), blind spot detection, and action recommendations.
+If `meta/strategic-lines.md` and/or projects with `strategic:` frontmatter fields exist in the user's second-brain, the RETROSPECTIVE agent compiles `meta/STRATEGIC-MAP.md` at every Start Session. The compiled map includes strategic line health assessments (archetype-based, not numerical), flow graphs, cross-layer verification (SOUL x strategy, wiki x flows), blind spot detection, and action recommendations.
 
 The ROUTER reads the compiled map to frame cross-project questions. The PLANNER checks for cross-project impact during planning. The REVIEWER checks decision consistency against the flow graph and SOUL alignment. The execution domain uses strategic roles for priority weighting. The ARCHIVER agent detects new relationships during knowledge extraction, updates `last_activity` dates, and DREAM REM uses the flow graph as scaffolding for cross-layer insights.
 
-STRATEGIC-MAP.md is a compiled artifact — never hand-edit it. Strategic lines are defined in `_meta/strategic-lines.md`. Per-project relationships are stored in each `projects/{p}/index.md` frontmatter. See `references/strategic-map-spec.md` for the full specification.
+STRATEGIC-MAP.md is a compiled artifact — never hand-edit it. Strategic lines are defined in `meta/strategic-lines.md`. Per-project relationships are stored in each `projects/{p}/index.md` frontmatter. See `references/strategic-map-spec.md` for the full specification.
 
 ## Special Triggers
 
@@ -366,7 +366,7 @@ Suggestion format (proactive):
 
 ```
 📦 当前对话已 N turns（估算 context X%）。要不要我压缩一次？
-   归档低价值 turns 到 _meta/compression/<sid>-compress-<ts>.md
+   归档低价值 turns 到 meta/compression/<sid>-compress-<ts>.md
    保留：last 5 turns + SOUL/DREAM/决策相关 + <focus 关键词，如果你说>
    [回 "压缩" / "yes" / 给我 focus 关键词 来确认]
 ```
@@ -376,13 +376,13 @@ Auto-execute (no user confirm) when:
 
 ### Search auto-trigger (already automatic via Cortex)
 
-`hippocampus` in Step 0.5 automatically performs spreading-activation retrieval over `_meta/sessions/INDEX.md` and the concept graph for every Cortex-eligible message (pure LLM, no FTS5/Python). ROUTER reads the retrieved sessions from the `[COGNITIVE CONTEXT]` block; the user does NOT need to type `/search`.
+`hippocampus` in Step 0.5 automatically performs spreading-activation retrieval over `meta/sessions/INDEX.md` and the concept graph for every Cortex-eligible message (pure LLM, no FTS5/Python). ROUTER reads the retrieved sessions from the `[COGNITIVE CONTEXT]` block; the user does NOT need to type `/search`.
 
 The `/search <query>` slash command (LLM-driven Glob+Grep, see `scripts/commands/search.md`) exists ONLY for: "I want to precisely search keyword X right now without going through Cortex". 95%+ of search needs are handled automatically.
 
 ### Method auto-create (already automatic via archiver Phase 2)
 
-`archiver` Phase 2 auto-detects method candidates from the session (recurring decision patterns, method library hits) and writes/updates `_meta/methods/<name>.md`. ROUTER does NOT prompt the user to type `/method create`.
+`archiver` Phase 2 auto-detects method candidates from the session (recurring decision patterns, method library hits) and writes/updates `meta/methods/<name>.md`. ROUTER does NOT prompt the user to type `/method create`.
 
 The `/method create|update|list` slash command exists ONLY for: "I want to manually inspect or seed a specific method right now". 95%+ of method authoring is handled by archiver.
 
@@ -405,7 +405,7 @@ This is the standard Claude Code session. ROUTER, Cortex (now pull-based per §0
 
 ### Mode 2 · Monitor (optional, view-and-invoke, no business deliberation)
 
-Triggered by `/monitor` slash command. Loads `pro/agents/monitor.md` role. Purpose: **operations console for viewing maintenance state and manually invoking maintenance jobs**. Does NOT run 上朝/退朝. Does NOT trigger Cortex pull-based subagents. Does NOT engage in business deliberation. Reads `_meta/inbox/notifications.md` + `_meta/eval-history/` to show timestamps + recent reports. User says "跑 X" → ROUTER reads `scripts/prompts/X.md` and executes inline. Exits via `/exit-monitor`.
+Triggered by `/monitor` slash command. Loads `pro/agents/monitor.md` role. Purpose: **operations console for viewing maintenance state and manually invoking maintenance jobs**. Does NOT run 上朝/退朝. Does NOT trigger Cortex pull-based subagents. Does NOT engage in business deliberation. Reads `meta/queue/notifications.md` + `meta/eval-history/` to show timestamps + recent reports. User says "跑 X" → ROUTER reads `scripts/prompts/X.md` and executes inline. Exits via `/exit-monitor`.
 
 When in monitor mode, treat any business question as out-of-scope and politely redirect.
 
@@ -490,9 +490,9 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 4. **Pro environment forces real subagents** — must launch actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
 5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
-7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b; v1.7.2.2 default silent) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). The Mode 3 spec exists in `pro/agents/auditor.md` since v1.6.3 but no caller was wired — this rule fixes that gap. Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E), runs exactly the five active Bash checks defined in `pro/agents/auditor.md`, and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). Default briefing output is silent except for the required one-line signals: all-pass after retrospective Mode 0 writes only `🔱 御史台 · 静默通过` into retrospective `## 5`; P0 writes violations and emits only `🚨 御史台 · P0 违规 N 条,详 violations.md`; P1+ writes violations with no briefing output. Detailed 30-day tracking is surfaced only by explicit `/audit`, never by an auto-prepended Compliance Watch banner. Cannot be skipped. HARD RULE.
+7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b; v1.7.2.2 default silent) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). The Mode 3 spec exists in `pro/agents/auditor.md` since v1.6.3 but no caller was wired — this rule fixes that gap. Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E), runs exactly the five active Bash checks defined in `pro/agents/auditor.md`, and writes detected violations to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). Default briefing output is silent except for the required one-line signals: all-pass after retrospective Mode 0 writes only `🔱 御史台 · 静默通过` into retrospective `## 5`; P0 writes violations and emits only `🚨 御史台 · P0 违规 N 条,详 violations.md`; P1+ writes violations with no briefing output. Detailed 30-day tracking is surfaced only by explicit `/audit`, never by an auto-prepended Compliance Watch banner. Cannot be skipped. HARD RULE.
 
-8. **Subagent Audit Trail mandatory (rule #8)** — every launched subagent MUST write `_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json` before returning. AUDITOR Mode 3 verifies audit trail existence and schema against `references/audit-trail-spec.md`; missing, incomplete, or contradictory trails are violations. HARD RULE.
+8. **Subagent Audit Trail mandatory (rule #8)** — every launched subagent MUST write `meta/runtime/<session_id>/<subagent>-<step_or_phase>.json` before returning. AUDITOR Mode 3 verifies audit trail existence and schema against `references/audit-trail-spec.md`; missing, incomplete, or contradictory trails are violations. HARD RULE.
 
 9. **Fresh Invocation HARD RULE (R12, rule #9)** · every Start Session / Adjourn trigger MUST launch fresh full execution of retrospective Mode 0 (18 steps) or archiver (4 phases). No reuse, no 省步骤, no previous briefing references, and no phrases like "as last time" / "unchanged" / "see above". AUDITOR greps the transcript and audit trail for freshness violations; any violation is `C-fresh-skip` P0. HARD RULE.
 
@@ -500,7 +500,7 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
     1. `git push origin main` (commits)
     2. `git tag -a v<X.Y.Z> <sha> -m "..."` + `git push origin v<X.Y.Z>` (tag)
     3. `gh release create v<X.Y.Z> --title "..." --notes-file <RELEASE_NOTES> --latest`
-    4. **Run `bash scripts/verify-release.sh`** — must exit 0 with all ✅ checks (HEAD == origin/main, tag points to HEAD, tag on remote, GitHub Release exists, not Draft, marked as Latest). Any ❌ means the release is incomplete. HARD RULE.
+    4. **Run `/verify-release`** — must exit 0 with all ✅ checks (HEAD == origin/main, tag points to HEAD, tag on remote, GitHub Release exists, not Draft, marked as Latest). Any ❌ means the release is incomplete. HARD RULE.
 
 11. **Obsidian readability for ALL human-readable .md output (rule #11, v1.8.2)** · Every `.md` file Life OS produces that a human will read in Obsidian — wiki entries, session archives, retrospective Mode 0 briefings, archiver Phase outputs, daily-briefing, wiki-decay reports, eval-history aggregates, compliance logs, method library entries, DREAM entries, SOUL snapshots, all slash command outputs — MUST follow `references/obsidian-style.md`. The 3 non-negotiables:
     - **Callouts** (`> [!info]`, `> [!warning]`, `> [!question]`, `> [!tip]`, etc.) for any semantic block (TL;DR, Counterpoints, Open questions, Mandatory sections). Plain headings for these blocks render as flat text and are a HARD RULE violation.
@@ -517,7 +517,7 @@ When a wrapper helps clarity, ROUTER MAY use:
 
 ```text
 ## Subagent Output · {subagent_name}
-audit_trail: {_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
 usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
 duration: {duration_seconds}s (if available)
 cost: ${estimated_cost_usd} (if available or already estimated)
@@ -576,7 +576,7 @@ Adjourn is NOT a single step in the main workflow — it is an independent state
 
 ## Storage Backends
 
-Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or all 3). Users choose during first session; config stored in `_meta/config.md`. Multi-backend: writes to all selected, reads from primary (auto: GitHub > GDrive > Notion). Cross-device sync on every session start.
+Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or all 3). Users choose during first session; config stored in `meta/config.md`. Multi-backend: writes to all selected, reads from primary (auto: GitHub > GDrive > Notion). Cross-device sync on every session start.
 
 - Standard data model and operations: `references/data-model.md`
 - Backend-specific adapters: `references/adapter-github.md`, `references/adapter-gdrive.md`, `references/adapter-notion.md`
@@ -588,7 +588,7 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 
 | Role | Receives | Does Not Receive |
 |------|----------|------------------|
-| RETROSPECTIVE agent | User message (housekeeping), `_meta/strategic-lines.md` + all project strategic fields | No restrictions |
+| RETROSPECTIVE agent | User message (housekeeping), `meta/strategic-lines.md` + all project strategic fields | No restrictions |
 | ARCHIVER agent | Summary Report + reports + session conversation summary, all project strategic fields | Other agents' thought processes |
 | **HIPPOCAMPUS** (v1.7) | current_user_message + extracted_subject + current_project + current_theme + recent_inbox_items + current_strategic_lines | **Other Cortex outputs** (concept-lookup, soul-check), **SOUL.md full body**, prior session transcripts (only summaries via INDEX), other agents' thought processes |
 | **CONCEPT-LOOKUP** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | **Other Cortex outputs** (hippocampus, soul-check), raw concept body content (only INDEX scan + selective top file reads), other agents' thought processes |
@@ -596,7 +596,7 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 | **GWT-ARBITRATOR** (v1.7) | hippocampus_output + concept_lookup_output + soul_check_output + current_user_message | ROUTER reasoning, raw session content, agent thought processes |
 | **NARRATOR** (v1.7 Phase 2, ROUTER @ Step 7.5 narrator mode — NOT a standalone subagent; see `pro/compliance/2026-04-21-narrator-spec-violation.md`) | Draft Summary Report + cognitive_context (signals from GWT) | Other agents' thought processes, raw SOUL.md body, raw wiki/ files |
 | **NARRATOR-VALIDATOR** (v1.7 Phase 2.5) | narrator_output + cognitive_context (same as narrator received) | Anything outside its input |
-| ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `_meta/STRATEGIC-MAP.md` (compiled) + `[COGNITIVE CONTEXT]` block from GWT (when Cortex enabled) | — |
+| ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `meta/STRATEGIC-MAP.md` (compiled) + `[COGNITIVE CONTEXT]` block from GWT (when Cortex enabled) | — |
 | PLANNER | Subject + background + user message + bound project's strategic context (flows only, not full map) | ROUTER's reasoning, full strategic map |
 | REVIEWER | Planning document or Six Domains reports + flow graph relevant to current decision | Thought processes, full strategic map |
 | DISPATCHER | Approved planning document | Thought processes |
@@ -604,32 +604,68 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 | AUDITOR | Complete workflow record | No restrictions |
 | ADVISOR | Summary Report + user message (reads second-brain on its own) | Thought processes |
 
-## Decision Records (HARD RULE · v1.8.5 Stage 7, per RFC §7)
+## Decision Records (HARD RULE · v1.8.5 Stage 7 + v1.9 schema consolidation, per v1.9 RFC §3.3)
 
 > **A missing decision record looks identical to an uninvestigated incident.** Borrowed from eou-foundry `engine/governance.yml:119-133` — REVIEWER/PLANNER/ARCHIVER decisions to NOT change behavior MUST be recorded explicitly, not silently dropped.
+>
+> **v1.9 schema change**: Decisions consolidated to `meta/decisions/<YYYY-MM>/<id>.md` (single path, .md format, monthly subdirs). The pre-v1.9 split (`meta/decisions/`, `projects/{p}/decisions/`, `meta/incidents/<id>.no-change.yml`) is collapsed.
 
-When any agent (most commonly REVIEWER) decides to:
-- "wontfix" a flagged issue
-- "not now" a proposed action
-- accept current behavior despite diagnosis of a failure mode
-- close an incident without an ECP / change
+All decisions — change / no_change / escalation / superseded — write to:
 
-The agent MUST write `_meta/incidents/<id>.no-change.yml` with these 7 required fields:
-
-```yaml
-incident_id: <canonical id, e.g. inc-2026-05-23-001>
-eou_id: <which agent/spec/decision this is about>
-diagnosis_summary: <brief description of the diagnosed failure class>
-decision: no_change
-rationale: <why the cost of change exceeds the benefit>
-reviewed_by: <named human or specific agent id>
-reviewed_at: <ISO date>
-reopen_condition: <observable signal that would warrant reconsidering>
+```
+meta/decisions/<YYYY-MM>/<id>.md
 ```
 
-The `reopen_condition` field is what distinguishes a real decision-record from a silent skip. "Reconsider if X happens" turns a no-change into a deferred-monitoring posture; absence of `reopen_condition` is itself a violation (F10 RESPONSIBILITY_FAILURE).
+Where `<id>` = `dec-<YYYY-MM-DD>-<NNN>` (NNN = per-day sequence, archiver auto-increments).
 
-**Enforcement**: AUDITOR Mode 3 scans for incidents in `_meta/incidents/` without matching ECP or no_change_record; missing → flag.
+### Required frontmatter (v1.9 schema, per RFC §3.3.2 + §3.8.2)
+
+```yaml
+---
+id: dec-<YYYY-MM-DD>-<NNN>
+title: <短标题>
+type: change | no_change | escalation | superseded
+projects: [<project-name>, ...]   # [] = 跨项目
+domains: [governance | execution | finance | infra | people | growth, ...]   # 6 functional IDs, closed enum
+reviewed_by: <agent | human>
+reviewed_at: <ISO date>
+decision: |
+  <一句话决定>
+rationale: |
+  <为什么>
+reopen_condition: |               # type=no_change 必填
+  <什么信号触发重审>
+supersedes: [<dec-id>, ...]
+superseded_by: <dec-id> | null
+applied_methods: [<method-name>, ...]   # 列表，可为空
+journal_date: <YYYY-MM-DD>
+---
+```
+
+### `type` semantics
+
+| type | When |
+|------|------|
+| **change** | Standard decision that changes behavior, schema, scope, etc. |
+| **no_change** | Decided NOT to change current behavior (formerly `meta/incidents/<id>.no-change.yml`). `reopen_condition` mandatory. |
+| **escalation** | Decision involves R1-R8 risk domain; requires full 5-requirement escalation per `references/risk-domains.md` |
+| **superseded** | This decision is overridden by another (set `superseded_by`) |
+
+### Required fields by type
+
+- **All types**: `id`, `title`, `type`, `projects`, `domains`, `reviewed_by`, `reviewed_at`, `decision`, `rationale`, `applied_methods`, `journal_date`
+- **type=no_change**: `reopen_condition` MUST be non-empty
+- **type=superseded**: `superseded_by` MUST point to a valid dec-id
+
+The `reopen_condition` field is what distinguishes a real no_change decision from a silent skip. Absence of `reopen_condition` on a no_change decision is itself a violation (F10 RESPONSIBILITY_FAILURE).
+
+### Enforcement
+
+- **AUDITOR Mode 3** scans `meta/decisions/<YYYY-MM>/*.md` for:
+  - Missing `reopen_condition` on `type: no_change` → F10
+  - `domains` field with values outside the 6 functional IDs → schema violation
+  - `applied_methods` as string instead of list → schema violation
+  - `superseded` decisions without valid `superseded_by` → schema violation
 
 ## Minimality Rule (HARD RULE · v1.8.5 Stage 7, per RFC §7)
 

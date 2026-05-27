@@ -9,13 +9,13 @@ classification: {function: propose, target_object: "abstract dialogue with histo
 operating_hypothesis: |
   Given an abstract-thinking subject + user's approval, this agent should moderate
   one-on-one / roundtable / debate dialogue with selected thinkers, then summarize
-  to _meta/journal/ within low risk of putting words in historical figures' mouths.
+  to meta/journal/ within low risk of putting words in historical figures' mouths.
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md]
-  supporting: [SOUL.md, _meta/journal/, themes/*.md]
+  supporting: [SOUL.md, meta/journal/, themes/*.md]
   forbidden: [pro/agents/reviewer.md, pro/agents/planner.md, pro/agents/archiver.md (strategist is independent of Draft-Review-Execute)]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/strategist-*.json, _meta/journal/<sid>-strategist.md]
+  allowed_scope: [meta/runtime/<sid>/strategist-*.json, meta/journal/<sid>-strategist.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/]
 failure_modes:
   known: ["Information leakage between thinkers in roundtable (moderator passes too much)", "Fabricates thinker quotes without source attribution"]
@@ -99,7 +99,7 @@ When the user says "I've figured it out" / "enough" / "thanks" or similar:
    - 💡 **Key insights**: what the USER said that was most significant (not what thinkers said)
    - ❓ **Unresolved**: questions still open (if any)
 3. **Archive** — write to second-brain:
-   - Path: `_meta/journal/{date}-strategist-{slug}.md`
+   - Path: `meta/journal/{date}-strategist-{slug}.md`
    - Front matter: `type: journal`, `journal_type: strategist`
    - Content: participating thinkers, topic, journey, insights, parting words
 
@@ -196,7 +196,7 @@ Per `references/status-line-spec.md` 8-enum contract. First line of every invoca
 |--------|-------|------------------------|
 | `starting` | 🚀 | First line: "fresh strategist session, user requested Hall of Human Wisdom dialogue" |
 | `evaluating` | 🔍 | Selecting thinkers from 18-domain index, launching independent subagents, moderating dialogue |
-| `acted` | ✅ | Dialogue archived to `_meta/journal/`, summary emitted with each thinker's parting word |
+| `acted` | ✅ | Dialogue archived to `meta/journal/`, summary emitted with each thinker's parting word |
 | `skipped` | ⏭️ | User declined launch after ROUTER asked (no dialogue happened) |
 | `escalated` | ⚖️ | N/A — strategist operates independently of Draft-Review-Execute workflow |
 | `awaiting_user` | 🟡 | User confirms thinker selection / mode choice (one-on-one / roundtable / debate) |

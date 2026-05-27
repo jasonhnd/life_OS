@@ -26,7 +26,7 @@ session index は、hippocampus サブエージェントがベクトルデータ
 ## 2. ファイルの場所(File Locations)
 
 ```
-_meta/sessions/
+meta/sessions/
 ├── INDEX.md                    # retrospective(Mode 0、Start Session)でコンパイル
 └── {session_id}.md             # archiver(Phase 1、セッションクローズ)で書き込み
 ```
@@ -190,18 +190,18 @@ method-candidate 検出、SYNAPSES-INDEX 再生成、SOUL スナップショッ�
    - methods_used、methods_discovered(method-candidate 検出から)
    - concepts_activated、concepts_discovered(concept 抽出から)
 5. archiver が keywords を抽出(§7)— 最大 10
-6. archiver が _meta/outbox/{session_id}/sessions/{session_id}.md を書き込む
+6. archiver が meta/outbox/{session_id}/sessions/{session_id}.md を書き込む
 7. ファイルは他のセッションアーティファクトと並んでアトミックな git commit 用に outbox ディレクトリに追加される
 ```
 
 **Immutability(不変性)**: archiver がファイルを書いたら、決して再編集されません。修正が必要な場合(まれ)、元のものを変更するのではなく `corrections/{session_id}.md` ノートを追加します。これは journal エントリの不変性と並行します — append-only、決して書き直されない。
 
-**outbox 下の配置**: archiver の Phase 1 中、新規ファイルは最初に `_meta/outbox/{session_id}/sessions/{session_id}.md` に着地します。outbox マージ(retrospective Mode 0 Step 7)がそれを canonical な `_meta/sessions/{session_id}.md` の位置へ移動します。これは decision、task、journal エントリの既存の outbox パターンにマッチします。
+**outbox 下の配置**: archiver の Phase 1 中、新規ファイルは最初に `meta/outbox/{session_id}/sessions/{session_id}.md` に着地します。outbox マージ(retrospective Mode 0 Step 7)がそれを canonical な `meta/sessions/{session_id}.md` の位置へ移動します。これは decision、task、journal エントリの既存の outbox パターンにマッチします。
 
 **失敗モード(Failure modes)**:
 
 - `date` コマンドが利用不可(極めてまれ)→ archiver は明確なエラーで Phase 1 を停止; セッションは実際のタイムスタンプなしに安全にアーカイブできない
-- Outbox ディレクトリへの書き込みが失敗(ディスクフル、権限)→ archiver は `_meta/sync-log.md` にログ、セッションサマリーファイルは作成されず、その後の retrospective コンパイルステップはそのセッションを INDEX から単に省略
+- Outbox ディレクトリへの書き込みが失敗(ディスクフル、権限)→ archiver は `meta/sync-log.md` にログ、セッションサマリーファイルは作成されず、その後の retrospective コンパイルステップはそのセッションを INDEX から単に省略
 - 部分的な frontmatter(例: Summary Report が欠けている)→ archiver は必須フィールドをセンチネル値(`overall_score: null`、空配列)で埋め、続行; retrospective のパーサーは null スコアを INDEX で `n/a` として扱う
 
 ### INDEX コンパイル(retrospective Mode 0)(INDEX compilation)
@@ -210,7 +210,7 @@ retrospective はコンパイルします — セッションごとのファイ�
 
 ```
 1. Start Session がトリガー
-2. retrospective が _meta/sessions/*.md を列挙(glob パターン: INDEX.md を除く *.md)
+2. retrospective が meta/sessions/*.md を列挙(glob パターン: INDEX.md を除く *.md)
 3. 各ファイルについて、YAML frontmatter をパース — 抽出:
    - date
    - project
@@ -220,14 +220,14 @@ retrospective はコンパイルします — セッションごとのファイ�
    - session_id
 4. date desc でソート(セカンダリソート: 同日タイブレーカーに started_at desc)
 5. date フィールドから派生した YYYY-MM でグループ化
-6. _meta/sessions/INDEX.md をコンパイルされた出力で上書き
+6. meta/sessions/INDEX.md をコンパイルされた出力で上書き
 7. コンパイルが構造的に異なる出力を生成した場合、
    retrospective の Start Session レポートに差分サイズをノート("📚 Session Index: N sessions indexed")
 ```
 
 **コンパイルは冪等(idempotent)**。2 回走らせるとバイト単位で同一の出力を生成します(同じ入力ファイルで)。これは重要です、なぜなら retrospective は Start Session ごとに走るからです — インクリメンタルロジックは不要です。冪等性はデバッグも簡素化します: インデックスが間違って見える場合、削除して再コンパイルしてもデータは失われません。
 
-**パース失敗**: `{session_id}.md` ファイルの YAML が不正形式の場合、retrospective はファイル名を `_meta/sync-log.md` にログし、続行します。破損したセッションは INDEX から省略されますが、ファイル自体は手動検査用に保持されます。これは v1.6.2 のスナップショット破損に対する姿勢にマッチします — gracefully 劣化し、決して Start Session ブリーフィングをブロックしない。
+**パース失敗**: `{session_id}.md` ファイルの YAML が不正形式の場合、retrospective はファイル名を `meta/sync-log.md` にログし、続行します。破損したセッションは INDEX から省略されますが、ファイル自体は手動検査用に保持されます。これは v1.6.2 のスナップショット破損に対する姿勢にマッチします — gracefully 劣化し、決して Start Session ブリーフィングをブロックしない。
 
 ## 6. 読み取りフロー(Hippocampus)(Read Flow)
 
@@ -235,7 +235,7 @@ hippocampus サブエージェントは session index を消費します。`devd
 
 ```
 1. Hippocampus がユーザーの現在の subject を受け取る(Step 0.5 から)
-2. Hippocampus が _meta/sessions/INDEX.md を読む(1 ファイル、速い)
+2. Hippocampus が meta/sessions/INDEX.md を読む(1 ファイル、速い)
 3. LLM 判断がトップ 5-7 の意味的に関連するセッションを識別
    - Wave 1: keywords 列に対する直接キーワードマッチ
    - Wave 2: subject への意味的近接(80 文字の subject 短文に対する LLM 判断)
@@ -284,12 +284,12 @@ Keywords は hippocampus の Wave 1 フィルターです。archiver Phase 1 は
 
 ## 9. v1.6.2a からのマイグレーション(Migration from v1.6.2a)
 
-v1.7 以前は `_meta/sessions/` ディレクトリは存在しません。マイグレーションは best-effort かつ一度限りです、cortex brainstorm からのユーザー決定 #7 に従い:
+v1.7 以前は `meta/sessions/` ディレクトリは存在しません。マイグレーションは best-effort かつ一度限りです、cortex brainstorm からのユーザー決定 #7 に従い:
 
-`tools/migrate.py` は直近 3 ヶ月の `_meta/journal/` をスキャン:
+`tools/migrate.py` は直近 3 ヶ月の `meta/journal/` をスキャン:
 
 ```
-1. 直近 90 日に作成された _meta/journal/*.md を列挙
+1. 直近 90 日に作成された meta/journal/*.md を列挙
 2. 各 journal エントリについて:
    a. メタデータをパース(date、project、decision タイトル)
    b. YAML frontmatter を合成 — best-effort、ギャップを認める:
@@ -302,8 +302,8 @@ v1.7 以前は `_meta/sessions/` ディレクトリは存在しません。マ�
       - dream_triggers: タイムスタンプマッチなら -dream.md journals から抽出
       - keywords: decision タイトル + project からの LLM 抽出
    c. decision サマリーと outcome 行から本文セクションを合成
-   d. _meta/sessions/{synthesized-session-id}.md を書き込む
-3. すべてのファイルを書き込んだ後、_meta/sessions/INDEX.md を再コンパイル
+   d. meta/sessions/{synthesized-session-id}.md を書き込む
+3. すべてのファイルを書き込んだ後、meta/sessions/INDEX.md を再コンパイル
 ```
 
 **マイグレーションされたエントリの session-id**: journal の変更タイムスタンプを使った `{platform}-{YYYYMMDD}-{HHMM}`。元のプラットフォームが推論できない場合、`claude` にデフォルト。
@@ -319,8 +319,8 @@ v1.7 以前は `_meta/sessions/` ディレクトリは存在しません。マ�
 - **既存のセッションサマリーファイルを編集する** — archiver 書き込み後は immutable。修正は `corrections/{session_id}.md` に存在。セッションサマリーを変更することは、元のものから読む下流の分析(トレンドレポート、DREAM 時代のパターン検出)を無効化します。
 - **Keyword 抽出をスキップする** — keywords がゼロのセッションは hippocampus Wave 1 スキャンに不可視。Phase 1 archiver は常に少なくとも 1 つの keyword(プロジェクト名フォールバック)を生成しなければならない。
 - **archiver 中に INDEX をコンパイルする** — コンパイルは retrospective の仕事。責任を分割すると、2 つのプラットフォームが同時にセッションをクローズするときに競合状態が生じ、adjourn レイテンシがコンパイルコストに結合する。
-- **セッションサマリーに生のメッセージコンテンツを含める** — 構造化された抽出のみ(subject、key decisions、outcome、signals)。生のメッセージは `_meta/journal/` に属し、ここではない。検索焦点のサマリーは journal エントリより短くあるべきで、そのコピーではない。
-- **`_meta/sessions/` を Notion に同期する** — ユーザー決定 #12 に従い、Cortex データはローカルに留まる。Notion はユーザーのモバイルフレンドリーなビュー(STATUS、Todo、Working Memory、Inbox)を保持する; 認知基質は保持しない。
+- **セッションサマリーに生のメッセージコンテンツを含める** — 構造化された抽出のみ(subject、key decisions、outcome、signals)。生のメッセージは `meta/journal/` に属し、ここではない。検索焦点のサマリーは journal エントリより短くあるべきで、そのコピーではない。
+- **`meta/sessions/` を Notion に同期する** — ユーザー決定 #12 に従い、Cortex データはローカルに留まる。Notion はユーザーのモバイルフレンドリーなビュー(STATUS、Todo、Working Memory、Inbox)を保持する; 認知基質は保持しない。
 - **archiver に session-id 生成をリトライさせる** — `date` HARD RULE はセッションあたり 1 つの `date` 呼び出しを意味する。リトライはファイル名と `started_at` タイムスタンプの間のドリフトのリスク。
 - **INDEX をインクリメンタルにコンパイルする** — 常に上書き。冪等性は設計特性; 小さなパフォーマンスゲインのためにトレードしない。
 - **ソートにファイル修正時刻に頼る** — `date` frontmatter フィールドでソート。ファイル mtime は git 操作またはクロスデバイス同期後にドリフトできる。
@@ -338,14 +338,14 @@ Life OS は Claude、Gemini、Codex で、そしてユーザーあたり複数�
 
 - archiver は既存のファイルを上書きしてはならない。`Write` の前にファイル名の衝突をチェック。
 - 衝突時、archiver は秒精度のサフィックスを付加: `{platform}-{YYYYMMDD}-{HHMMSS}`。
-- 衝突ケースは後のレビュー用に `_meta/sync-log.md` にログ。
+- 衝突ケースは後のレビュー用に `meta/sync-log.md` にログ。
 
 ### Outbox マージ並行性(Outbox merge concurrency)
 
-次の Start Session が始まるときに 2 つのデバイスが両方ともアーカイブ中かもしれません。retrospective Mode 0 Step 7 はすでに `_meta/.merge-lock` でこれを扱います。session index は便乗します:
+次の Start Session が始まるときに 2 つのデバイスが両方ともアーカイブ中かもしれません。retrospective Mode 0 Step 7 はすでに `meta/.merge-lock` でこれを扱います。session index は便乗します:
 
 - 各 outbox ディレクトリは独自の `sessions/{session_id}.md` を持つ。
-- マージは一度に 1 つずつ `_meta/sessions/` に移動。
+- マージは一度に 1 つずつ `meta/sessions/` に移動。
 - 両方の outbox が同じ session-id を生成した場合、マージは秒サフィックスを遡及的に付加することで両方を保持し、衝突をログ。
 
 ### クロスデバイス git 衝突(Cross-device git conflicts)
@@ -361,7 +361,7 @@ Life OS は Claude、Gemini、Codex で、そしてユーザーあたり複数�
 
 ユーザーは `passpay` プロジェクトで whitepaper の洗練について 90 分の熟議を行う。archiver が生成:
 
-ファイル名: `_meta/outbox/claude-20260419-1238/sessions/claude-20260419-1238.md`
+ファイル名: `meta/outbox/claude-20260419-1238/sessions/claude-20260419-1238.md`
 
 ```yaml
 ---
@@ -427,7 +427,7 @@ retrospective のコンパイルステップが次の `INDEX.md` 行を生成:
 ## 14. 関連仕様(Related Specs)
 
 - `references/soul-spec.md` — SOUL 次元ライフサイクル、スナップショットメカニズム(並列パターン: セッションごとのファイル + INDEX コンパイル)
-- `references/concept-spec.md` — `_meta/concepts/` 下の concept ストレージ、hippocampus が session index と並んで参照
+- `references/concept-spec.md` — `meta/concepts/` 下の concept ストレージ、hippocampus が session index と並んで参照
 - `references/hippocampus-spec.md` — このアーティファクトの消費者; 3 波アクティベーションを定義
 - `references/gwt-spec.md` — hippocampus 出力を受け取る GWT arbitrator
 - `devdocs/architecture/cortex-integration.md` §3.1 — アーキテクチャコンテキストとスキャンコスト見積もり

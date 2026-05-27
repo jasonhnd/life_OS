@@ -13,7 +13,7 @@ Google Drive 中的文件夹层级镜像 GitHub second-brain 结构：
 ```
 second-brain/          ← Google Drive 中的根文件夹
 ├── inbox/
-├── _meta/
+├── meta/
 ├── projects/{name}/
 ├── areas/{name}/
 ├── wiki/

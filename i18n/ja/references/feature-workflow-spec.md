@@ -78,7 +78,7 @@ N/A: cleanup-only        # デッドコード/未使用参照の削除、挙動�
 ### 適用（HARD 強制）
 
 - ROUTER が PLANNER にエスカレートする計画文書（full deliberation パス）
-- agent 挙動または spec セマンティクスに触れる `_meta/rfc/v<X.Y>-*.md` 下の RFC
+- agent 挙動または spec セマンティクスに触れる `meta/rfc/v<X.Y>-*.md` 下の RFC
 - 新 agent（`pro/agents/<new>.md`）—— agent の主要挙動を検証する fixture が少なくとも 1 つ必要
 - SKILL.md または pro/CLAUDE.md に導入される新 HARD RULE
 
@@ -194,7 +194,7 @@ TBD エントリは明示的締切（v1.8.8）。Dispatcher は受諾；reviewer
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
 - パターン源：`tinyhumansai/openhuman` AGENTS.md:507-521（Feature design workflow + 計画ルール）
 - 連携：`pro/agents/planner.md`（テンプレート定義）、`pro/agents/dispatcher.md`（検証ロジック）
 - 関連：`references/agent-spec.md`（agent 定義もこの規律から恩恵を受ける）

@@ -39,7 +39,7 @@ introduced_in: v1.8.5
 - 任何虚构 = F17 VALUE_HALLUCINATION + B confabulated-path 违规。
 
 ### Req 3 — 决策记录
-- 结果**必须**写入 `_meta/decisions/<id>.md`，含：
+- 结果**必须**写入 `meta/decisions/<id>.md`，含：
   - subject
   - alternatives_considered（≥2 个被拒选项 + 拒因）
   - 决策理由
@@ -47,14 +47,14 @@ introduced_in: v1.8.5
   - reviewer 名字
   - reviewed_at
   - reversal_condition（什么情况下值得重新考虑）
-- 如果决策是 "no_change" / "not now" → 用 Stage 7 `no_change_record` 格式（`_meta/incidents/` 中 7 字段 YAML）。
+- 如果决策是 "no_change" / "not now" → 用 Stage 7 `no_change_record` 格式（`meta/decisions/` 中 7 字段 YAML）。
 
 ### Req 4 — Cannot_delegate
 - 决策**不可**委派给 subagent 或未来 ROUTER session。
 - subagent 报告是输入；最终决策在 orchestrator 主上下文 + 用户在场时做。
 
 ### Req 5 — Trace 必需
-- 按 R12 spec 必须有完整审计 trail 在 `_meta/runtime/<sid>/`：
+- 按 R12 spec 必须有完整审计 trail 在 `meta/runtime/<sid>/`：
   - 每次 subagent 调用：`<subagent>-<step>.json`
   - REVIEWER verdict：`reviewer-final-verdict.json`，含填好的 `value_invocations[]`
   - 用户确认消息时间戳 + 原文

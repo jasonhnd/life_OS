@@ -61,7 +61,7 @@ For these specific FAIL types, attempt auto-fix before next tick:
 
 | FAIL | Auto-fix action |
 |------|-----------------|
-| GitHub Release does NOT exist for tag | Run `gh release create <tag> --title "..." --notes-file _meta/release-notes/<tag>.md --latest` |
+| GitHub Release does NOT exist for tag | Run `gh release create <tag> --title "..." --notes-file meta/release-notes/<tag>.md --latest` |
 | Release exists but is Draft | Run `gh release edit <tag> --draft=false` |
 | Release not marked as Latest | Run `gh release edit <tag> --latest` |
 
@@ -94,7 +94,7 @@ If FAIL count > 0 and auto-fix attempted, mention the auto-fix:
 
 ### Step 6 · Audit trail (per tick)
 
-Write `_meta/runtime/<sid>/verify-release-and-watch-tick-<N>.md` with frontmatter:
+Write `meta/runtime/<sid>/verify-release-and-watch-tick-<N>.md` with frontmatter:
 
 ```yaml
 ---
@@ -162,5 +162,5 @@ If CONTINUE:
 
 - Base command: `.claude/commands/verify-release.md` (the 10 individual checks)
 - Spec: `references/self-driven-loops-spec.md`
-- RFC: `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
+- RFC: `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
 - Pattern: `tinyhumansai/openhuman` `.claude/commands/ship-and-babysit.md`

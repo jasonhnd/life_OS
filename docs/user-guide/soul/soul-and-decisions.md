@@ -147,7 +147,7 @@ REVIEWER 只看**当前**SOUL 状态。要计算"自上次 session 以来的变�
 
 ### 快照时机
 
-每次 session 结束时，archiver 的 Phase 2 Step 4 会在 `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md` 写一份 SOUL 快照：
+每次 session 结束时，archiver 的 Phase 2 Step 4 会在 `meta/snapshots/soul/YYYY-MM-DD-HHMM.md` 写一份 SOUL 快照：
 
 ```yaml
 ---
@@ -181,7 +181,7 @@ previous_snapshot: 2026-04-17-1850.md
 
 ### 归档策略
 
-- > 30 天：移到 `_meta/snapshots/soul/_archive/`
+- > 30 天：移到 `meta/snapshots/soul/_archive/`
 - > 90 天：从文件系统删除（git + Notion 已保留）
 
 ---

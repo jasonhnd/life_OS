@@ -13,18 +13,18 @@ ARCHIVER：Phase 1 归档 → Phase 2 知识提取
     ↓
 ARCHIVER：Phase 3 DREAM（运行下方三个阶段）
     ↓
-梦境报告写入 _meta/journal/{date}-dream.md
+梦境报告写入 meta/journal/{date}-dream.md
     ↓
 ARCHIVER：Phase 4 同步（git + Notion）→ 会话结束
 ```
 
-如果 DREAM 失败或超时 → 记录警告到 `_meta/sync-log.md`，不阻塞会话结束。
+如果 DREAM 失败或超时 → 记录警告到 `meta/sync-log.md`，不阻塞会话结束。
 
 ---
 
 ## 范围
 
-**默认：过去 3 天（72 小时）内修改的文件。** 如果 3 天内无任何变动，自动扩大到"上次做梦以来"（读取最近一份 `_meta/journal/*-dream.md` 的日期）。如果没有梦境报告，回退到最近 7 天。
+**默认：过去 3 天（72 小时）内修改的文件。** 如果 3 天内无任何变动，自动扩大到"上次做梦以来"（读取最近一份 `meta/journal/*-dream.md` 的日期）。如果没有梦境报告，回退到最近 7 天。
 
 检测方法：
 - GitHub 后端：`git log --since="3 days ago" --name-only --format=""` → 如为空，`git log --since="{上次做梦日期}" --name-only --format=""`
@@ -43,7 +43,7 @@ ARCHIVER：Phase 4 同步（git + Notion）→ 会话结束
 
 扫描最近 3 天的未完成事项：
 - `inbox/` 中尚未分类的条目 → 建议目标项目/领域/wiki
-- `_meta/journal/` 中可提取洞见的条目 → 建议更新 `user-patterns.md`
+- `meta/journal/` 中可提取洞见的条目 → 建议更新 `user-patterns.md`
 - `projects/*/tasks/` 中已过期或重复的任务 → 标记清理
 - 孤立文件（已创建但未从任何 index.md 链接） → 标记
 
@@ -84,11 +84,11 @@ N3 提出两个问题：
 
 当 REM 发现模式时，DREAM 自动执行以下行动——无需用户确认。每个触发器都有**硬性阈值**（定量规则）和**软性信号**（LLM 定性线索）。`mode: hard` 表示阈值自动满足；`mode: soft` 表示 LLM 检测到超出阈值的定性信号，自动行动需要 AUDITOR 审核。
 
-所有触发器均受 **24 小时反重复抑制**——如果相同触发器在过去 24 小时内已触发（查 `_meta/journal/*-dream.md`），则跳过。
+所有触发器均受 **24 小时反重复抑制**——如果相同触发器在过去 24 小时内已触发（查 `meta/journal/*-dream.md`），则跳过。
 
 #### 1. new-project-relationship
 
-- **数据源**：`projects/*/index.md` 战略字段，`_meta/strategic-lines.md`
+- **数据源**：`projects/*/index.md` 战略字段，`meta/strategic-lines.md`
 - **硬性阈值**：自上次梦境报告以来检测到新的跨项目依赖或瓶颈边
 - **软性信号**：近期决策隐式引用了另一个项目，但无正式战略关联
 - **自动行动**：写 STRATEGIC-MAP 候选 + 下次简报显眼位置展示
@@ -160,13 +160,13 @@ N3 提出两个问题：
 
 #### 10. repeated-decisions
 
-- **数据源**：`_meta/decisions/*.md` + 项目决策历史
+- **数据源**：`meta/decisions/*.md` + 项目决策历史
 - **硬性阈值**：同一问题/主题决定 ≥3 次且中间无执行
 - **软性信号**：用户改写问题措辞以避免识别为重复
 - **自动行动**：下次简报提示（"你又在决定 X——是在回避承诺吗？"）
 - **反重复**：若过去 24 小时内已触发则抑制
 
-所有标志都以结构化的 `triggered_actions` YAML 块写入 `_meta/journal/{date}-dream.md`。RETROSPECTIVE 在下次上朝时读取并在晨报中呈现相关标志。
+所有标志都以结构化的 `triggered_actions` YAML 块写入 `meta/journal/{date}-dream.md`。RETROSPECTIVE 在下次上朝时读取并在晨报中呈现相关标志。
 
 ---
 
@@ -239,7 +239,7 @@ N3 提出两个问题：
 
 ## 输出格式
 
-写入 `_meta/journal/{date}-dream.md`：
+写入 `meta/journal/{date}-dream.md`：
 
 ```yaml
 ---

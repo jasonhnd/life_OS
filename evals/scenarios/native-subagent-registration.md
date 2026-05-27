@@ -1,5 +1,10 @@
 ---
 scenario: native-subagent-registration
+status: legacy
+authoritative: false
+deprecated_in: v1.8.5
+superseded_by: ".claude/commands/install-agents.md (slash command)"
+note: "Pre-v1.8.5 bash-script-based agent registration eval. v1.8.5 retired bash hook layer + register-claude-agents.sh; current install path is `/install-agents` slash command. Kept as historical reference only."
 type: install-verification
 requires_claude: false
 expected_exit_code: 0

@@ -11,7 +11,7 @@ introduced_in: v1.8.5
 
 すべての `pro/agents/*.md` subagent 定義ファイルは v2 標準に準拠する YAML frontmatter を**必ず持たなければならない**。v1.8.5 Stage 6 は既存の 23 agent すべてを移行する。
 
-> **なぜ v2**: v1 agent frontmatter には `name + description + tools + model`（4 フィールド）のみ。v2 は eou-foundry から借用した 6 つの構造化フィールドを追加 —— agent 境界が grep 可能、blast radius が明示的、failure modes が文書化される。RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6 に従う。
+> **なぜ v2**: v1 agent frontmatter には `name + description + tools + model`（4 フィールド）のみ。v2 は eou-foundry から借用した 6 つの構造化フィールドを追加 —— agent 境界が grep 可能、blast radius が明示的、failure modes が文書化される。RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6 に従う。
 
 ## v2 標準 Frontmatter
 
@@ -53,7 +53,7 @@ context_manifest:
 # v2 新規: blast_radius（eou eou-contract.md §blast_radius）
 blast_radius:
   allowed_scope:       # この agent が書ける可能なファイル/パス
-    - _meta/runtime/<sid>/<name>-*.json
+    - meta/runtime/<sid>/<name>-*.json
     - <wiki/SOUL/specific-output-path>
   forbidden_scope:     # この agent が修正してはいけないファイル
     - SOUL.md          # ARCHIVER Phase 2 のみが SOUL candidate を書く
@@ -91,7 +91,7 @@ failure_modes:
 Stage 6 Day 17 で新 AUDITOR mode を追加。チェック:
 - **A1**: すべての agent がすべての v2 必須フィールドを持つ
 - **A2**: `tools` リストが agent の実際の使用と一致（tools に `Read` がないが agent が Read 呼び出しをする = drift）
-- **A3**: `forbidden_scope` がバイパスされていない（agent の `_meta/runtime/<sid>/` 出力 trail が forbidden パスへの書き込みなしを示す）
+- **A3**: `forbidden_scope` がバイパスされていない（agent の `meta/runtime/<sid>/` 出力 trail が forbidden パスへの書き込みなしを示す）
 - **A4**: agent の `failure_modes.known` が `pro/compliance/violations.md` の中でこの agent が関与する任意の違反クラスを含む
 
 発見は `references/failure-taxonomy.md` に従って分類。
@@ -111,7 +111,7 @@ eval scenarios を実行:
 合格率基準（D4）:
 - ≥ 95% baseline: 残り 20 agent の一括更新を続行
 - 90-95%: frontmatter を簡略化（最重フィールドを削除、再試行）
-- < 90%: その agent の v2 frontmatter をロールバック、理由を `_meta/rfc/v1.8.5-stage6-rollback.md` に文書化
+- < 90%: その agent の v2 frontmatter をロールバック、理由を `meta/rfc/v1.8.5-stage6-rollback.md` に文書化
 
 ## 各 agent の authority_level ガイド
 
@@ -134,7 +134,7 @@ eval scenarios を実行:
 | soul-check | audit | suggest_only | low |
 | narrator | specify | suggest_only（ROUTER-internal、テンプレートのみ）| low |
 | narrator-validator | validate | suggest_only（v1.8.0 削除、legacy テンプレートとして保持）| low |
-| knowledge-extractor | propose | write_candidate（`_meta/runtime/<sid>/extraction/` に書く）| medium |
+| knowledge-extractor | propose | write_candidate（`meta/runtime/<sid>/extraction/` に書く）| medium |
 | 6 domain agents（people/finance/growth/execution/governance/infra）| diagnose | write_candidate（domain report を書く）| medium |
 
 risk_level の根拠: REVIEWER ゲートなしで最終出力を生成する agent はリスクが高い（archiver publish、reviewer veto）。提案/読み取りのみの agent はリスクが低い。

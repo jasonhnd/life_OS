@@ -25,7 +25,7 @@ Launch the `advisor` subagent with monthly input:
 - `mode: monthly_self_review`
 - `lookback_window_days: 30`
 - `user_invoked: true`  # v1.8.0 R-1.8.0-011: cron removed, all maintenance is user-invoked
-- `output_path: _meta/eval-history/advisor-monthly-{YYYY-MM}.md`
+- `output_path: meta/eval-history/advisor-monthly-{YYYY-MM}.md`
 
 The advisor subagent will:
 
@@ -50,29 +50,29 @@ The advisor subagent will:
    - Identify trending dimensions
 
 5. **eval-history reading**:
-   - Read `_meta/eval-history/` last 30 days for cron health, archiver compliance, decision quality
+   - Read `meta/eval-history/` last 30 days for cron health, archiver compliance, decision quality
    - Aggregate into "system performance over month" subsection
 
 ## Output
 
-Write `_meta/eval-history/advisor-monthly-{YYYY-MM}.md` with sections: SOUL drift detection / Contradictory patterns / Regret accumulation / Cross-month trend / System performance / User action items / Audit trail.
+Write `meta/eval-history/advisor-monthly-{YYYY-MM}.md` with sections: SOUL drift detection / Contradictory patterns / Regret accumulation / Cross-month trend / System performance / User action items / Audit trail.
 
 ## Notification
 
 Always notify (monthly is significant):
-- Append to `_meta/inbox/notifications.md`: `[{ISO8601}] 📊 ADVISOR monthly: {N} SOUL drift items + {M} pattern flags · see _meta/eval-history/advisor-monthly-{date}.md`
+- Append to `meta/queue/notifications.md`: `[{ISO8601}] 📊 ADVISOR monthly: {N} SOUL drift items + {M} pattern flags · see meta/eval-history/advisor-monthly-{date}.md`
 - macOS notification: `osascript -e 'display notification "{N} SOUL drift items, {M} patterns flagged" with title "📊 Monthly SOUL review"'`
 
 ## HARD RULES
 
 - **Read-only on SOUL.md and wiki/**. Never modify.
-- **Audit trail**: `_meta/runtime/{sid}/advisor-monthly.json` (R11)
+- **Audit trail**: `meta/runtime/{sid}/advisor-monthly.json` (R11)
 - **Git push** report at end
 - **Respect session lock** (5 min retry, max 3)
 
 ## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
 
-After writing the monthly report, append YAML items to `_meta/review-queue.md` under `## Open items` for each significant finding. Spec: `references/review-queue-spec.md`.
+After writing the monthly report, append YAML items to `meta/review-queue.md` under `## Open items` for each significant finding. Spec: `references/review-queue-spec.md`.
 
 Use Edit tool (NOT Write). Append rules per finding type:
 
@@ -83,7 +83,7 @@ Use Edit tool (NOT Write). Append rules per finding type:
   type: drift | conflict | action-item | outcome-unmeasured
   priority: P0 | P1 | P2               # P0 = regret accumulation > 3; P1 = SOUL drift / contradictory pattern; P2 = comparison missing ## Outcome past 90d
   summary: <one line, max 100 chars>
-  detail_path: _meta/eval-history/advisor-monthly-{YYYY-MM}.md
+  detail_path: meta/eval-history/advisor-monthly-{YYYY-MM}.md
   related:
     - "[[<soul-dimension-or-pattern-id>]]"
   suggested_action: <what user can do — review SOUL dim, decide pattern resolution, etc>

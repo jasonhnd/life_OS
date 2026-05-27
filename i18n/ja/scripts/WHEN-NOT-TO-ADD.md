@@ -38,6 +38,6 @@ ROUTER がインライン読み取りする内部保守 prompt（インストー
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - `SKILL.md` HARD RULE md-only 本体論的制約（DR-10）
 - パターン源：`tinyhumansai/openhuman` `.claude/rules/README.md`

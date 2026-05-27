@@ -9,7 +9,7 @@ superseded_by: pro/CLAUDE.md
 
 > パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../index.md)
 
-> Life OS は背後の Claude モデルをファインチューニングできませんが、**自身のルールをファインチューニング**できます。AUDITOR は session 終了時に 10 次元で自己採点し、結果を `_meta/eval-history/{date}-{project}.md` に書き込みます。次回 Start Session で RETROSPECTIVE が直近 10 件をスキャンし、システミックなパターンを検出します——連続 3 回 adjourn 不完全?narrator 引用失敗率 >20%?これらは「システミックな問題検出」ブロックとしてブリーフィングに出現します。あなたはシステムのユーザーであるだけでなく、これらのルールを調整する人でもあります。
+> Life OS は背後の Claude モデルをファインチューニングできませんが、**自身のルールをファインチューニング**できます。AUDITOR は session 終了時に 10 次元で自己採点し、結果を `meta/eval-history/{date}-{project}.md` に書き込みます。次回 Start Session で RETROSPECTIVE が直近 10 件をスキャンし、システミックなパターンを検出します——連続 3 回 adjourn 不完全?narrator 引用失敗率 >20%?これらは「システミックな問題検出」ブロックとしてブリーフィングに出現します。あなたはシステムのユーザーであるだけでなく、これらのルールを調整する人でもあります。
 
 ## 一文概説 / One-Line Overview
 
@@ -29,7 +29,7 @@ v1.6.2a の AUDITOR は既に各決定終了時に各 agent を採点してい�
 
 ### v1.7 の閉ループ
 
-Eval-history は AUDITOR の採点を **`_meta/eval-history/` に永続化**——session ごとに `.md` ファイル、YAML frontmatter に 10 次元スコア、body に 長所 / 短所 / 推奨。
+Eval-history は AUDITOR の採点を **`meta/eval-history/` に永続化**——session ごとに `.md` ファイル、YAML frontmatter に 10 次元スコア、body に 長所 / 短所 / 推奨。
 
 **キーとなる二階機構**: RETROSPECTIVE Mode 0 が Start Session ごとに**直近 10 件**を読み、**5 つの検出ルール**でシステミックパターンを探す。検出された警告はブリーフィングに直接出現:
 
@@ -50,7 +50,7 @@ Eval-history は AUDITOR の採点を **`_meta/eval-history/` に永続化**—�
 
 全朝議決定を完了したばかり。session が Step 8 AUDITOR に到達。
 
-AUDITOR が本評価を行う同時に、`_meta/eval-history/2026-04-20-passpay.md` を**書き込む**(ファイル名形式:`{YYYY-MM-DD}-{project}.md`、同日同プロジェクト複数回は `-{HHMM}` 追記)。
+AUDITOR が本評価を行う同時に、`meta/eval-history/2026-04-20-passpay.md` を**書き込む**(ファイル名形式:`{YYYY-MM-DD}-{project}.md`、同日同プロジェクト複数回は `-{HHMM}` 追記)。
 
 あなたは直接このファイルを見ませんが、いつでも開けます。内容構造:
 
@@ -138,7 +138,7 @@ SOUL 次元を漏らしたこと、本決定は財務独立トピックに直接
   citation_groundedness <7
   推奨: 本 session では奏折中 [S:] [C:] 引用付き claim に重点関注、trace で検証
 
-(具体的にどの session か見るには _meta/eval-history/ を確認)
+(具体的にどの session か見るには meta/eval-history/ を確認)
 ```
 
 **このブロックは DREAM Auto-Triggers の直下、Strategic Overview の前に配置**——固定位置、強制可視。システミック問題がないときは**全ブロック省略**(placeholder 非表示)。
@@ -148,7 +148,7 @@ SOUL 次元を漏らしたこと、本決定は財務独立トピックに直接
 「直近の adjourn_completeness のトレンド」が知りたい:
 
 ```bash
-grep -h "adjourn_completeness" _meta/eval-history/*.md | tail -10
+grep -h "adjourn_completeness" meta/eval-history/*.md | tail -10
 ```
 
 結果:
@@ -286,7 +286,7 @@ eval-history 書き込み失敗(ディスク満杯、権限エラー、パス欠
 | **1000 session の総占有** | ~5MB |
 | **保持ポリシー** | **永久保持**、自動削除なし |
 | **アーカイブトリガー** | ファイル >6 ヶ月 + 明示 `tools/stats.py --compress-old` |
-| **アーカイブ先** | `_meta/eval-history/_digest/{YYYY-Q}.md`(四半期サマリー)、元ファイル → `_meta/eval-history/_archive/` |
+| **アーカイブ先** | `meta/eval-history/_digest/{YYYY-Q}.md`(四半期サマリー)、元ファイル → `meta/eval-history/_archive/` |
 | **digest 内容** | ヘッダースコア + システミックパターン、個別 session 依然アクセス可 |
 | **Notion 同期** | **同期なし**(ユーザー決定 #12——ローカル内省資産、Notion に push すると mobile view にノイズが多く消費者なし) |
 
@@ -297,7 +297,7 @@ eval-history 書き込み失敗(ディスク満杯、権限エラー、パス欠
 ### 1. 直近トレンドの確認
 
 ```bash
-ls -t _meta/eval-history/*.md | head -10
+ls -t meta/eval-history/*.md | head -10
 ```
 
 1 件開き、frontmatter の scores ブロックを確認、自身の期待と対比。
@@ -306,10 +306,10 @@ ls -t _meta/eval-history/*.md | head -10
 
 ```bash
 # 直近 10 件の cognitive_annotation_quality 値
-grep -h "cognitive_annotation_quality" _meta/eval-history/*.md | tail -10
+grep -h "cognitive_annotation_quality" meta/eval-history/*.md | tail -10
 
 # 直近 10 件の全 violations
-grep -A 3 "violations:" _meta/eval-history/*.md | tail -40
+grep -A 3 "violations:" meta/eval-history/*.md | tail -40
 ```
 
 ### 3. tools/stats.py で月次レポート
@@ -338,7 +338,7 @@ uv run tools/reconcile.py
 
 - **本 session で標的関注**——警告が「本 session で X に重点関注」と言っている、従う
 - **agent spec を改変**——例えばシステムが REVIEWER が dormant 次元を繰り返し漏らすと言うなら、`pro/agents/reviewer.md` を編集して checklist 項目を追加
-- **cortex config を改変**——例えばシステムが hippocampus retrieval 品質が低いと言うなら、`_meta/config.md` で `top_k_signals` や `per_signal_floor` 調整を検討
+- **cortex config を改変**——例えばシステムが hippocampus retrieval 品質が低いと言うなら、`meta/config.md` で `top_k_signals` や `per_signal_floor` 調整を検討
 - **手動反論**——システミックパターン検出に同意しない場合(例えば narrator 失敗率高いが暫定的問題でシステミックではないと思う)、現 session で「この検出は誤報と考える」と言う、AUDITOR が記録、後続 pattern 監視は継続だが重み下がる
 
 ### 6. パターンで user-patterns.md に昇格された behavior のクリーンアップ
@@ -407,7 +407,7 @@ Eval-history の anti-patterns に明言:
 
 理由: v1.6.2a の AUDITOR レポートは**非構造化散文**、v1.7 の YAML schema に合わない。強制回填は低信号ノイズを生み、**システミック検出**を汚染——connection 3 回低分ルールが誤トリガーし、本当の問題が埋もれる。
 
-**eval-history は v1.7 day 1 から再スタート**。v1.6.2a 歴史を見たい?`_meta/journal/` の session レポートを直接読む。
+**eval-history は v1.7 day 1 から再スタート**。v1.6.2a 歴史を見たい?`meta/journal/` の session レポートを直接読む。
 
 ### eval-history のスコアを編集するとどうなる?
 
@@ -451,10 +451,10 @@ panic しない。優先度順:
 
 ```bash
 # session ファイル数
-ls _meta/sessions/*.md | wc -l
+ls meta/sessions/*.md | wc -l
 
 # eval ファイル数
-ls _meta/eval-history/*.md | wc -l
+ls meta/eval-history/*.md | wc -l
 ```
 
 比率は 50–80% が妥当(direct-handle / Express 短 / STRATEGIST は書かないため)。比率 <30% なら:
@@ -476,11 +476,11 @@ uv run tools/reconcile.py
 
 ```bash
 # 古い eval を _archive/ にアーカイブ(削除しない)
-mkdir -p _meta/eval-history/_archive/
-mv _meta/eval-history/2026-03-*.md _meta/eval-history/_archive/
+mkdir -p meta/eval-history/_archive/
+mv meta/eval-history/2026-03-*.md meta/eval-history/_archive/
 ```
 
-RETROSPECTIVE は `_meta/eval-history/*.md` トップレベルのみ読み、`_archive/` は読まない。
+RETROSPECTIVE は `meta/eval-history/*.md` トップレベルのみ読み、`_archive/` は読まない。
 
 ### 「warning block がずっと出ないが、データに明らかな下落が見える」
 
@@ -488,7 +488,7 @@ RETROSPECTIVE は `_meta/eval-history/*.md` トップレベルのみ読み、`_a
 
 1. **ルール閾値が未トリガー**——「下落」と「連続 N 回閾値以下」は別。具体ルールの N 値を確認
 2. **RETROSPECTIVE Mode 0 の eval-history 読み込み失敗**——session 起動時の briefing に「⚠️ トレンド対比利用不可」類似の提示があれば、読み込み失敗
-3. **`_meta/eval-history/` が最近作成、数件のみ**——ルール 1/2/3 すべて 5–10 件レコードが必要、3 件未満ではトリガーせず
+3. **`meta/eval-history/` が最近作成、数件のみ**——ルール 1/2/3 すべて 5–10 件レコードが必要、3 件未満ではトリガーせず
 
 ---
 

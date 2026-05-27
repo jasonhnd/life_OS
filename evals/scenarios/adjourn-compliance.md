@@ -44,7 +44,7 @@ this guarantee.
 
 Phase 1 (Archive):
 - Generates session-id from real `date` command (no fabrication per v1.4.4b)
-- Creates `_meta/outbox/{session-id}/` directory
+- Creates `meta/outbox/{session-id}/` directory
 - Stages decisions / tasks / journal / index-delta / manifest
 
 Phase 2 (Knowledge Extraction):
@@ -69,11 +69,11 @@ Every checklist field MUST have a concrete value — no `TBD`, no `{...}`, no em
 
 ```
 ✅ Adjourn Completion Checklist:
-- Phase 1 outbox: _meta/outbox/{actual-session-id}/ (5 decisions, 3 tasks, 2 journal entries)
+- Phase 1 outbox: meta/outbox/{actual-session-id}/ (5 decisions, 3 tasks, 2 journal entries)
 - Phase 2 wiki auto-written: 2 entries (negotiation-tactics-jp, runway-formula)
 - Phase 2 SOUL auto-written: 1 dimension (autonomy-vs-stability, confidence 0.3)
 - Phase 2 Concepts: 4 activated (1 new), 6 Hebbian updates, 0 promotions
-- Phase 2 SessionSummary: written to _meta/outbox/{id}/sessions/{id}.md
+- Phase 2 SessionSummary: written to meta/outbox/{id}/sessions/{id}.md
 - Phase 2 SOUL snapshot: 2026-04-21-1530.md
 - Phase 3 DREAM: 3 N1-N2 items, 1 N3 consolidation, 2 REM triggers (stale-commitment, repeated-decisions)
 - Phase 4 git: pushed (hash {actual-sha}, 12 files changed)
@@ -233,16 +233,16 @@ Expected: `lifeos-compliance-check.sh briefing-completeness` exits 1 with
 R11 verifies the adjourn path leaves machine-readable runtime evidence for
 AUDITOR channel 1. The archiver must write one trail file per phase:
 
-- `_meta/runtime/<session_id>/archiver-phase-1.json`
-- `_meta/runtime/<session_id>/archiver-phase-2.json`
-- `_meta/runtime/<session_id>/archiver-phase-3.json`
-- `_meta/runtime/<session_id>/archiver-phase-4.json`
+- `meta/runtime/<session_id>/archiver-phase-1.json`
+- `meta/runtime/<session_id>/archiver-phase-2.json`
+- `meta/runtime/<session_id>/archiver-phase-3.json`
+- `meta/runtime/<session_id>/archiver-phase-4.json`
 
 Each `archiver-phase-{1,2,3,4}.json` file must contain both `input_summary`
 and `output_summary`.
 
 The orchestrator Step 10a Notion sync must also write
-`_meta/runtime/<session_id>/notion-sync.json`. That file must contain 4 MCP call
+`meta/runtime/<session_id>/notion-sync.json`. That file must contain 4 MCP call
 records, and each record must include both the MCP `input_payload` and
 `output_payload`.
 

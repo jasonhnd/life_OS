@@ -49,22 +49,22 @@ User invoked: `/monitor $ARGUMENTS`
 1. **检查 10 个维护任务的上次时间戳**：
    ```bash
    for task_glob in \
-     "_meta/sessions/INDEX.md" \
-     "_meta/eval-history/daily-briefing-*.md" \
-     "_meta/snapshots/backup-*.tar.gz" \
-     "_meta/eval-history/spec-compliance-*.md" \
-     "_meta/eval-history/wiki-decay-*.md" \
-     "_meta/eval-history/recovery/*.md" \
-     "_meta/eval-history/auditor-patrol/*.md" \
-     "_meta/eval-history/advisor-monthly-*.md" \
-     "_meta/eval-history/monthly-summary-*.md" \
-     "_meta/eval-history/strategic-consistency-*.md"; do
+     "meta/sessions/INDEX.md" \
+     "meta/eval-history/daily-briefing-*.md" \
+     "meta/snapshots/backup-*.tar.gz" \
+     "meta/eval-history/spec-compliance-*.md" \
+     "meta/eval-history/wiki-decay-*.md" \
+     "meta/eval-history/recovery/*.md" \
+     "meta/eval-history/auditor-patrol/*.md" \
+     "meta/eval-history/advisor-monthly-*.md" \
+     "meta/eval-history/monthly-summary-*.md" \
+     "meta/eval-history/strategic-consistency-*.md"; do
      ls -lt $task_glob 2>/dev/null | head -1
    done
    ```
 
 2. **读 inbox notifications**：
-   `tail -30 _meta/inbox/notifications.md 2>/dev/null`
+   `tail -30 meta/queue/notifications.md 2>/dev/null`
 
 3. **读最近 violations**：
    `tail -10 pro/compliance/violations.md`
@@ -102,7 +102,7 @@ User invoked: `/monitor $ARGUMENTS`
 
 ## 用户后续命令处理
 
-**"看 X 详情"**: 用 Read tool 打开对应 `_meta/eval-history/` 文件
+**"看 X 详情"**: 用 Read tool 打开对应 `meta/eval-history/` 文件
 
 **"跑 X" / "执行 X"** (where X is one of: reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency):
 - Read `scripts/prompts/X.md`

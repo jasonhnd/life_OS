@@ -90,7 +90,7 @@
 
 ### StrategicLine（战略线）
 
-存储在 `_meta/strategic-lines.md`（用户的第二大脑中）。多条线以 `---` 分隔。
+存储在 `meta/strategic-lines.md`（用户的第二大脑中）。多条线以 `---` 分隔。
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
@@ -109,7 +109,7 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| strategic.line | string | 否 | 战略线 ID（引用 `_meta/strategic-lines.md`） |
+| strategic.line | string | 否 | 战略线 ID（引用 `meta/strategic-lines.md`） |
 | strategic.role | enum | 否 | `critical-path` / `enabler` / `accelerator` / `insurance` |
 | strategic.flows_to[] | array | 否 | 输出流：[{target, type, description}] |
 | strategic.flows_from[] | array | 否 | 输入流：[{source, type, description}] |
@@ -158,7 +158,7 @@
 
 1. 先写入主后端
 2. 再依次写入每个同步后端
-3. 若某同步后端失败 → 标注 `⚠️ [backend] write failed`，记录至 `_meta/sync-log.md`，继续处理其他后端
+3. 若某同步后端失败 → 标注 `⚠️ [backend] write failed`，记录至 `meta/sync-log.md`，继续处理其他后端
 4. 下次 session 自动重试失败的写入
 
 ### 读取顺序
@@ -174,7 +174,7 @@
 ### Session 开始（RETROSPECTIVE家政）
 
 ```
-0. 读取 _meta/config.md → 获取后端列表和上次同步时间戳
+0. 读取 meta/config.md → 获取后端列表和上次同步时间戳
 1. 探测每个已配置后端的可用性：
    - GitHub：检查 git 仓库是否可访问（git status）
    - GDrive：检查 Google Drive MCP 是否已连接（尝试 list）
@@ -193,8 +193,8 @@
    - 时间差 < 1 分钟 → 标记为 CONFLICT，保留两个版本
 4. 将获胜变更应用到主后端
 5. 将主后端状态推送至所有同步后端
-6. 将同步结果写入 _meta/sync-log.md
-7. 在 _meta/config.md 中更新本平台的 last_sync_time（不修改其他平台的时间戳）
+6. 将同步结果写入 meta/sync-log.md
+7. 在 meta/config.md 中更新本平台的 last_sync_time（不修改其他平台的时间戳）
 ```
 
 ### Session 结束（RETROSPECTIVE收朝）
@@ -202,7 +202,7 @@
 ```
 1. 将所有产出写入主后端
 2. 将所有产出写入每个同步后端
-3. 更新 _meta/config.md 中的 last_sync_time
+3. 更新 meta/config.md 中的 last_sync_time
 4. 任何后端失败 → 记录，不阻塞流程
 ```
 
@@ -236,7 +236,7 @@
 | 写入时后端离线 | 跳过该后端，标注 ⚠️，记录至 sync-log.md。下次 session 自动重试。 |
 | 同步中途崩溃 | 下次启动时：比较所有后端的 last_modified，检测不一致性，从最新版本自动修复。 |
 | 某后端数据损坏 | ROUTER检测到异常，询问用户："是否从 [其他后端] 恢复？" |
-| 新设备 | 配置存储在 _meta/config.md。git clone → 配置就绪。无 second-brain → session 级别配置。 |
+| 新设备 | 配置存储在 meta/config.md。git clone → 配置就绪。无 second-brain → session 级别配置。 |
 | 添加新后端 | ROUTER询问："是否将现有数据从 [主后端] 同步至 [新后端]？" |
 | 移除后端 | ROUTER询问："保留 [被移除后端] 上的数据还是清理？" |
 
@@ -244,7 +244,7 @@
 
 ## 配置
 
-存储在 `_meta/config.md`（在 second-brain 仓库中）：
+存储在 `meta/config.md`（在 second-brain 仓库中）：
 
 ```yaml
 storage:
@@ -268,9 +268,9 @@ storage:
 
 ## 约束条件
 
-- **多个 session 可同时操作 second-brain**，使用 outbox 模式。每个 session 写入各自的 outbox 目录（`_meta/outbox/{session-id}/`）。下一个上朝的 session 将所有 outbox 合并到主结构中。直接写入共享文件（STATUS.md、user-patterns.md、index.md）只在上朝时的 Outbox 合并步骤中发生。
+- **多个 session 可同时操作 second-brain**，使用 outbox 模式。每个 session 写入各自的 outbox 目录（`meta/outbox/{session-id}/`）。下一个上朝的 session 将所有 outbox 合并到主结构中。直接写入共享文件（STATUS.md、user-patterns.md、index.md）只在上朝时的 Outbox 合并步骤中发生。
 - **session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在退朝时生成（非 session 开始时）。时间戳必须通过 date 命令从系统时钟获取，禁止编造。示例：`claude-20260412-1700`、`gemini-20260412-1900`。
-- **Outbox merge lock**：合并期间写入 `_meta/.merge-lock`。若该文件存在且时间 < 5 分钟，跳过合并正常进行。合并完成后删除。
+- **Outbox merge lock**：合并期间写入 `meta/.merge-lock`。若该文件存在且时间 < 5 分钟，跳过合并正常进行。合并完成后删除。
 - **空 session**：若 session 无任何产出（无决策、任务或日志），不创建 outbox。
 - 移动设备通过 Notion 收件箱或 GDrive 收件箱写入，不直接写入结构化数据
 - 所有适配器必须支持 7 个标准操作

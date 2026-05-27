@@ -45,7 +45,7 @@ introduced_in: v1.8.5
 ### 7. STOP-CONDITION-INJECTION（停止条件注入）
 - **使用時**: agent/EOU が無効、曖昧、または無権限の状態で停止して報告するのではなく、実行を継続している。
 - **成果**: `execution.stop_conditions` に観察可能なトリガー基準を持つ新しい停止条件 1 つ以上。
-- **例**: archiver は `_meta/config.md` に 0 個の Notion entity が設定されていても Phase 4 Notion sync を実行していた。停止条件追加: 0 entity → Phase 4 を静かにスキップし、スキップ理由を監査 trail に記録（pro/CLAUDE.md Step 10a R-1.8.0-022 修正による）。
+- **例**: archiver は `meta/config.md` に 0 個の Notion entity が設定されていても Phase 4 Notion sync を実行していた。停止条件追加: 0 entity → Phase 4 を静かにスキップし、スキップ理由を監査 trail に記録（pro/CLAUDE.md Step 10a R-1.8.0-022 修正による）。
 
 ### 8. RESPONSIBILITY-SEPARATION（責任分離）
 - **使用時**: 同じ当事者が実行と承認の両方を行う、または 2 つの異なる承認権限が 1 つの単位で処理される。
@@ -57,7 +57,7 @@ introduced_in: v1.8.5
 ### 9. ADD_CONTEXT_MANIFEST（context マニフェスト追加）
 - **使用時**: agent パフォーマンスが暗黙的または実行間で一貫しない方法でロードされる context（プロジェクト状態、SOUL、schema バージョン）に依存。
 - **成果**: agent の v2 frontmatter（Stage 6）に `context_manifest.source_of_truth + supporting + forbidden` リストを明示的に列挙。
-- **例**: hippocampus subagent は元々「必要に応じて」`_meta/sessions/` からロードしていた。v2 frontmatter は明示的リストを強制: source_of_truth=[INDEX.md]、supporting=[最近 7 snapshot]、forbidden=[完全 transcript]。
+- **例**: hippocampus subagent は元々「必要に応じて」`meta/sessions/` からロードしていた。v2 frontmatter は明示的リストを強制: source_of_truth=[INDEX.md]、supporting=[最近 7 snapshot]、forbidden=[完全 transcript]。
 
 ### 10. RETIRE_UNIT（単位の引退）
 - **使用時**: 単位が時代遅れ（より良いものに代替）、重複（既存でカバー）、またはネガティブ（コストが運用価値を超過）。

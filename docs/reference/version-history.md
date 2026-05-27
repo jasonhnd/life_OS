@@ -61,7 +61,7 @@ GitHub second-brain 取代 Notion 成为主数据库：
 - 御史台审计模式（第二种操作模式，除决策审查外加入巡检）
 - 四步知识提取训练
 
-**🔴 破坏性变更**：second-brain 目录重构 `zettelkasten/` → `wiki/`、`records/` → `_meta/journal/`，新增 `_meta/` 系统元数据层。**迁移**：旧仓库需要手动重命名目录并移动文件。
+**🔴 破坏性变更**：second-brain 目录重构 `zettelkasten/` → `wiki/`、`records/` → `meta/journal/`，新增 `meta/` 系统元数据层。**迁移**：旧仓库需要手动重命名目录并移动文件。
 
 ### v1.3.0 · 三平台 Pro 模式 + 存储抽象层（2026-04-10）
 
@@ -77,7 +77,7 @@ GitHub second-brain 取代 Notion 成为主数据库：
 - 尚书省从任务分配变为智能调度（依赖检测、咨询机制）
 - 丞相意图澄清的五类策略
 - 谏官从观察到学习（行为模式学习闭环、跨会话趋势分析、正向强化）
-- **架构修复**：`projects/{project}/index.md` 作为单一真相源，`_meta/STATUS.md` 从中编译
+- **架构修复**：`projects/{project}/index.md` 作为单一真相源，`meta/STATUS.md` 从中编译
 
 ### v1.4.1 · SOUL + DREAM（2026-04-12）
 
@@ -89,7 +89,7 @@ GitHub second-brain 取代 Notion 成为主数据库：
 ### v1.4.2 · Outbox 并行会话（2026-04-12）
 
 多会话并行无冲突：
-- 每个会话写入独立 outbox 目录（`_meta/outbox/{session_id}/`）
+- 每个会话写入独立 outbox 目录（`meta/outbox/{session_id}/`）
 - 合并在下次 Start Court 进行
 - Session-id 格式：`{platform}-{YYYYMMDD}-{HHMM}`
 - 零冲突保证
@@ -166,13 +166,13 @@ GitHub second-brain 取代 Notion 成为主数据库：
 
 **第二大脑目录重构**：
 - `zettelkasten/` → `wiki/`
-- `records/` → `_meta/journal/`
-- 新增 `_meta/` 系统元数据层
+- `records/` → `meta/journal/`
+- 新增 `meta/` 系统元数据层
 
 迁移步骤：
 1. 手动重命名 `zettelkasten/` 为 `wiki/`
-2. 把 `records/` 的内容移到 `_meta/journal/`
-3. 创建 `_meta/` 下的子目录（`decisions/`、`outbox/`、`snapshots/` 等）
+2. 把 `records/` 的内容移到 `meta/journal/`
+3. 创建 `meta/` 下的子目录（`decisions/`、`outbox/`、`snapshots/` 等）
 4. 旧文件的 wikilink 可能断——手动修复或用 Obsidian 的重命名功能
 
 ### v1.4.4 迁移

@@ -37,7 +37,7 @@
 
 **定着 → 連想（ROUTER + Wiki INDEX）**: ROUTERがセッション開始時に wiki/INDEX.md を読み取る。新しいリクエストが届くと、既存の知識が自動的に照合される — 「この領域について、すでに X がわかっています。」これにより蓄積された知識がアクティブなコンテキストに変わる。
 
-**連想 → 戦略化（戦略マップ）**: ROUTERがセッション開始時に `_meta/STRATEGIC-MAP.md` を読む。リクエストが戦略的関係を持つプロジェクトに関わる場合、システムは下流の依存関係、ボトルネックの状況、意思決定伝播の警告を自動的に表面化する。これにより、プロジェクト単位の分析が戦略ライン対応の分析に変わる。`references/strategic-map-spec.md` を参照。
+**連想 → 戦略化（戦略マップ）**: ROUTERがセッション開始時に `meta/STRATEGIC-MAP.md` を読む。リクエストが戦略的関係を持つプロジェクトに関わる場合、システムは下流の依存関係、ボトルネックの状況、意思決定伝播の警告を自動的に表面化する。これにより、プロジェクト単位の分析が戦略ライン対応の分析に変わる。`references/strategic-map-spec.md` を参照。
 
 **戦略化 → 創発（DREAM REM）**: Wiki エントリと戦略的関係が蓄積されると、DREAM の REM ステージがフローグラフを足場として領域横断のつながりを発見する — ユーザーを驚かせる洞察。知識と関係が定着するほど、創発が増える。AUDITORの巡検も wiki の矛盾、ナレッジギャップ、プロジェクト間の戦略的矛盾を検出する。
 
@@ -57,7 +57,7 @@ second-brain/
 │
 ├── inbox/                             # 📥 未処理（モバイルキャプチャ、資料、読書メモ、生のリサーチ）
 │
-├── _meta/                             # 🔧 システムメタデータ
+├── meta/                             # 🔧 システムメタデータ
 │   ├── STATUS.md                      # グローバルステータスダッシュボード（index.md ファイルからコンパイル）
 │   ├── STRATEGIC-MAP.md               # 戦略マップ（プロジェクト戦略フィールドからコンパイル）
 │   ├── strategic-lines.md             # 戦略ライン定義（ユーザー定義）
@@ -120,8 +120,8 @@ second-brain/
 ## 知識抽出: 4ステップトレーニング
 
 1. **ユーザーが決定**: デスクトップCCが「抽出提案」を生成し、ユーザーが確認/修正
-2. **サンプルを蓄積**: `_meta/extraction-log.md` に記録
-3. **LLMがルールを帰納**: ログから好みを帰納し、`_meta/extraction-rules.md` に書き込む（純粋なマークダウン、モデル非依存）
+2. **サンプルを蓄積**: `meta/extraction-log.md` に記録
+3. **LLMがルールを帰納**: ログから好みを帰納し、`meta/extraction-rules.md` に書き込む（純粋なマークダウン、モデル非依存）
 4. **定期的な修正**: ユーザーが月次でレビューし、誤分類を報告、CCがルールを更新
 
 核心: 「学習」の媒体はマークダウンファイルであり、モデルの重みではない。モデルの切り替えにはこれらのファイルを読み取るだけで良い。
@@ -138,7 +138,7 @@ AUDITORはDraft-Review-Executeシステム内で2つのモードで運用され�
 
 ### モード2: 巡検（新規）
 
-アイドル時に各部門が自身の管轄を巡検する。`_meta/roles/censor.md` で定義。
+アイドル時に各部門が自身の管轄を巡検する。`meta/roles/censor.md` で定義。
 
 #### トリガーレベル
 
@@ -155,7 +155,7 @@ AUDITORはDraft-Review-Executeシステム内で2つのモードで運用され�
 | FINANCE | areas/finance/ | 投資戦略の陳腐化、財務数値の更新必要性 |
 | EXECUTION | projects/ | プロジェクトの活動状況、TODOの完了率、リソースの競合 |
 | GROWTH | wiki/（人間関係） | 未履行の社会的コミットメント、新しい連絡先の記録 |
-| INFRA | wiki/ + _meta/ | 孤立ファイル、壊れたリンク、ルールの有効性 |
+| INFRA | wiki/ + meta/ | 孤立ファイル、壊れたリンク、ルールの有効性 |
 | PEOPLE | areas/career/ | キャリアの方向性と行動の一致 |
 | GOVERNANCE | 横断 | プロジェクト間の戦略的矛盾、リスク評価が欠けている決定 |
 
@@ -169,9 +169,9 @@ AUDITORはDraft-Review-Executeシステム内で2つのモードで運用され�
 
 #### 実装
 
-- 役割定義は `_meta/roles/censor.md` に保存、CLAUDE.mdはそれを参照するのみ
-- 巡検状態は `_meta/lint-state.md` に永続化（LLMのクロスセッションメモリの欠如を解決）
-- 巡検レポートは `_meta/lint-reports/` に保存、サマリーもインボックスに送信
+- 役割定義は `meta/roles/censor.md` に保存、CLAUDE.mdはそれを参照するのみ
+- 巡検状態は `meta/lint-state.md` に永続化（LLMのクロスセッションメモリの欠如を解決）
+- 巡検レポートは `meta/lint-reports/` に保存、サマリーもインボックスに送信
 - モデルの切り替え: 役割ファイルは変更なし、CLAUDE.mdの参照のみ変更
 
 ---
@@ -180,9 +180,9 @@ AUDITORはDraft-Review-Executeシステム内で2つのモードで運用され�
 
 | 役割 | ファイル | 機能 |
 |------|------|----------|
-| AUDITOR | `_meta/roles/censor.md` | 巡検（必須） |
-| 史官 | `_meta/roles/historian.md` | セッション終了時に日々の作業を自動記録（オプション） |
-| REVIEWER当番 | `_meta/roles/reviewer.md` | 書込時にコンテンツ品質をレビュー（オプション） |
+| AUDITOR | `meta/roles/censor.md` | 巡検（必須） |
+| 史官 | `meta/roles/historian.md` | セッション終了時に日々の作業を自動記録（オプション） |
+| REVIEWER当番 | `meta/roles/reviewer.md` | 書込時にコンテンツ品質をレビュー（オプション） |
 
 ---
 
@@ -225,30 +225,30 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 ### ハウスキーピングモード（会話開始時）
 
 ```
-0. _meta/config.md を読取 → バックエンドリストと「このプラットフォーム」の最終同期タイムスタンプを取得
-0. データレイヤーチェック: _meta/config.md が存在しない場合 → 初回実行モード:
+0. meta/config.md を読取 → バックエンドリストと「このプラットフォーム」の最終同期タイムスタンプを取得
+0. データレイヤーチェック: meta/config.md が存在しない場合 → 初回実行モード:
    - ユーザーにストレージバックエンドの選択を尋ねる（GitHub / GDrive / Notion）
-   - 最小ディレクトリ構造を作成: _meta/（config.md、STATUS.md、journal/、outbox/）、projects/、areas/、wiki/、inbox/、archive/、templates/
-   - 選択したバックエンドで _meta/config.md を書き込む
+   - 最小ディレクトリ構造を作成: meta/（config.md、STATUS.md、journal/、outbox/）、projects/、areas/、wiki/、inbox/、archive/、templates/
+   - 選択したバックエンドで meta/config.md を書き込む
    - ステップ 1-8 をスキップ、ブリーフィングに進む
-1. _meta/config.md を読取 → バックエンドリストと「このプラットフォーム」の最終同期タイムスタンプを取得
+1. meta/config.md を読取 → バックエンドリストと「このプラットフォーム」の最終同期タイムスタンプを取得
 2. 設定済みの各バックエンドの MCP 可用性を確認（利用不可のものは SKIPPED とマーク）
 3. マルチバックエンド同期（複数バックエンドが設定・利用可能な場合）:
    - 各利用可能な同期バックエンドに、このプラットフォームの last_sync_time 以降の変更をクエリ
    - 比較、競合解決（data-model.md を参照）
    - プライマリバックエンドに変更を適用
    - 同期バックエンドにプッシュ
-4. Outbox マージ: _meta/outbox/ 内の未マージ session をスキャン
-   - _meta/.merge-lock が存在し 5分未満 → マージをスキップ
+4. Outbox マージ: meta/outbox/ 内の未マージ session をスキャン
+   - meta/.merge-lock が存在し 5分未満 → マージをスキップ
    - .merge-lock を書き込む → 各 outbox をマージ → STATUS.md をコンパイル → commit + push → .merge-lock を削除
    - マージされた session をブリーフィングで報告
 5. インボックス（未処理アイテム）を読取 — プライマリバックエンド経由
-6. _meta/STATUS.md（グローバルステータス）を読取
-7. _meta/lint-state.md を読取（巡検が必要か確認: 最終実行から4時間以上）
+6. meta/STATUS.md（グローバルステータス）を読取
+7. meta/lint-state.md を読取（巡検が必要か確認: 最終実行から4時間以上）
 8. ReadProjectContext(バインドされたプロジェクト) — タスク、決定、ジャーナル
 9. user-patterns.md を読取
 10. グローバル概観: List Project + List Area（タイトル + ステータスのみ）
-11. 戦略マップのコンパイル: `_meta/strategic-lines.md` が存在する場合 → `_meta/STRATEGIC-MAP.md` をコンパイル。`references/strategic-map-spec.md` を参照。
+11. 戦略マップのコンパイル: `meta/strategic-lines.md` が存在する場合 → `meta/STRATEGIC-MAP.md` をコンパイル。`references/strategic-map-spec.md` を参照。
 12. lint-state.md が4時間以上を示す場合 → 軽量AUDITOR巡検をトリガー
 13. プラットフォーム検出 + バージョンチェック
 ```
@@ -257,15 +257,15 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 
 ```
 1. session-id を生成：date コマンドを実行して実際のタイムスタンプを取得し、{platform}-{YYYYMMDD}-{HHMM} 形式にする。捏造禁止——システムクロックを使用。HARD RULE。
-2. _meta/outbox/{session-id}/ を作成
-3. Save Decision / Save Task / Save JournalEntry → _meta/outbox/{session-id}/ へ（メインディレクトリには書き込まない）
+2. meta/outbox/{session-id}/ を作成
+3. Save Decision / Save Task / Save JournalEntry → meta/outbox/{session-id}/ へ（メインディレクトリには書き込まない）
 4. index-delta.md を書く（projects/{p}/index.md への変更）
 5. patterns-delta.md を書く（ADVISORが提案を持つ場合、user-patterns.md に追記する内容）
 6. manifest.md を書く（session メタデータ）
-7. git add _meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ）
+7. git add meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ）
 8. Notion に outbox を同期（設定されている場合）
-9. _meta/config.md のこのプラットフォームの last_sync_time を更新
-10. バックエンド障害 → _meta/sync-log.md にログ、ブロックしない
+9. meta/config.md のこのプラットフォームの last_sync_time を更新
+10. バックエンド障害 → meta/sync-log.md にログ、ブロックしない
 
 注意: projects/、STATUS.md、user-patterns.md には直接書き込まないこと。マージは次の上朝時に行う。
 ```
@@ -273,7 +273,7 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 ### レビューモード
 
 ```
-1. _meta/STATUS.md からグローバル状態を読取
+1. meta/STATUS.md からグローバル状態を読取
 2. List Task（全プロジェクト）→ 完了率を計算
 3. List Area → 目標を読取
 4. List JournalEntry（最近）→ ジャーナルと巡検レポート
@@ -291,19 +291,19 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 
 ## 唯一の情報源ルール
 
-**`projects/{p}/index.md` が各プロジェクトのバージョン、フェーズ、ステータスの権威ある情報源である。** `_meta/STATUS.md` はコンパイルされたダッシュボード — index.md ファイルから生成しなければならず、手書きしてはならない。
+**`projects/{p}/index.md` が各プロジェクトのバージョン、フェーズ、ステータスの権威ある情報源である。** `meta/STATUS.md` はコンパイルされたダッシュボード — index.md ファイルから生成しなければならず、手書きしてはならない。
 
 | データ | 権威ある情報源 | コンパイルされたビュー |
 |--------|-------------|-------------------|
-| プロジェクトのバージョン/フェーズ/ステータス | `projects/{p}/index.md` | `_meta/STATUS.md` |
-| エリアの目標/ステータス | `areas/{a}/index.md` | `_meta/STATUS.md` |
+| プロジェクトのバージョン/フェーズ/ステータス | `projects/{p}/index.md` | `meta/STATUS.md` |
+| エリアの目標/ステータス | `areas/{a}/index.md` | `meta/STATUS.md` |
 | タスク完了度 | `projects/{p}/tasks/*.md` | メトリクスダッシュボード |
 | 行動パターン | `user-patterns.md` | ADVISORレポート |
-| 戦略的関係 | `projects/{p}/index.md` 戦略フィールド + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
+| 戦略的関係 | `projects/{p}/index.md` 戦略フィールド + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **書込順序の強制**：常に権威ある情報源を先に更新し、次にダッシュボードをコンパイルする。STATUS.md にプロジェクトレベルの情報を直接書き込んではならない。
 
-**AUDITOR lint ルール**：巡検時に `_meta/STATUS.md` の各プロジェクトのバージョン/ステータスが `projects/{p}/index.md` と一致しているか確認する。不一致 → 🔴 を報告、権威ある情報源を正とする。
+**AUDITOR lint ルール**：巡検時に `meta/STATUS.md` の各プロジェクトのバージョン/ステータスが `projects/{p}/index.md` と一致しているか確認する。不一致 → 🔴 を報告、権威ある情報源を正とする。
 
 ---
 

@@ -4,9 +4,9 @@
 
 ## What does NOT belong here
 
-1. **Per-session reports, runtime artifacts, audit trails** — e.g. "the 2026-05-25 archiver output". → Goes to: `_meta/runtime/<sid>/` or `_meta/sessions/<sid>.md`.
+1. **Per-session reports, runtime artifacts, audit trails** — e.g. "the 2026-05-25 archiver output". → Goes to: `meta/runtime/<sid>/` or `meta/sessions/<sid>.md`.
 2. **User-facing tutorials or quickstarts** — e.g. "how to install lifeos". → Goes to: `README.md` / `docs/` / `gitbooks/`.
-3. **Internal design notes / brainstorms / drafts** — e.g. "ideas for v2.0 cascade seal". → Goes to: `_meta/rfc/v<X.Y>-*.md` (RFC) or `_meta/workpad/` (if introduced).
+3. **Internal design notes / brainstorms / drafts** — e.g. "ideas for v2.0 cascade seal". → Goes to: `meta/rfc/v<X.Y>-*.md` (RFC) or `meta/workpad/` (if introduced).
 4. **Agent definitions or theme files** — those are `pro/agents/` and `themes/` exclusive territory.
 5. **Pure narrative without normative content** — e.g. "history of lifeos versions". → Goes to: `CHANGELOG.md` / RFC bibliography.
 6. **Spec without three-language mirror** — every `references/*-spec.md` MUST have `i18n/zh/references/<same>.md` and `i18n/ja/references/<same>.md` ready before merge. No partial spec.
@@ -36,6 +36,6 @@ If ANY answer is yes, prefer that lower-cost option. New spec = three files (EN 
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - Pattern source: `tinyhumansai/openhuman` `.claude/rules/README.md`
 - Companion: `references/i18n-diff-parity-spec.md` (v1.8.7 ensures three-language alignment for everything here)

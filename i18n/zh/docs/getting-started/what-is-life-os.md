@@ -93,7 +93,7 @@ second-brain/
 ├── wiki/                   # 你知道什么(可复用知识)
 ├── projects/{name}/        # 你在做什么(活跃项目)
 ├── areas/{name}/           # 你持续关注什么(领域)
-├── _meta/
+├── meta/
 │   ├── STRATEGIC-MAP.md    # 项目之间怎么关联
 │   ├── journal/            # 每次会话报告、DREAM 日志
 │   ├── outbox/             # 并发会话暂存
@@ -119,7 +119,7 @@ second-brain/
 - 云服务可能停运,本地 markdown 文件永远在
 - 你的身份、知识、项目是你的,不应该被任何第三方产品锁死
 
-所以 Cortex 的 concept 图、突触权重、GWT 信号——**全部用 markdown + front matter 实现**,不引入 SQLite / Python runtime。即使 Life OS 整个项目消失,你的 `_meta/concepts/*.md` 依然可读可用。
+所以 Cortex 的 concept 图、突触权重、GWT 信号——**全部用 markdown + front matter 实现**,不引入 SQLite / Python runtime。即使 Life OS 整个项目消失,你的 `meta/concepts/*.md` 依然可读可用。
 
 ### 3.2 决策引擎(已有,稳定)
 
@@ -207,11 +207,11 @@ STRATEGIST 不走 Draft-Review-Execute 流程,是独立的"思想启发"通道�
 - **跨 session 记忆自动上场**：每次你开口,系统默认在背景翻你的历史 session,按相关度 + 强度取 top 5-7 条送进决策流程。不用你说"对了,我上个月想过类似的事"——它自己会带上来。
 - **多信号仲裁代替单线推理**：记忆、概念关联、SOUL 冲突检测几路信号并行产出,按"紧迫性 + 新颖性 + 相关性 + 重要性"四维加权竞争,最强的那条才进入 ROUTER 视野。你不会被淹没在一大堆"可能相关的东西"里,看到的是系统判断过"这几条值得你看"。
 - **Summary Report 每句话都带引用**：叙事层写出来的任何实质性论断,必须指向具体的 signal_id,没引用的会被校验 agent 打回重写。所以你读到"你最近 3 次决策都在挑战'保持灵活性'维度"时,能一路追到那 3 次决策的具体 journal 条目,不是 AI 替你编了个听起来像那么回事的故事。
-- **概念之间的关系会自己长出来**：你聊的每个主题都会落成一篇 concept 文件,共同出现过就加一条边、长期没激活就衰减、衰到 0 就修剪。半年后回看,`_meta/concepts/` 里不是一堆散乱标签,而是一张能看出"你这个人的思想地图"的网。
+- **概念之间的关系会自己长出来**：你聊的每个主题都会落成一篇 concept 文件,共同出现过就加一条边、长期没激活就衰减、衰到 0 就修剪。半年后回看,`meta/concepts/` 里不是一堆散乱标签,而是一张能看出"你这个人的思想地图"的网。
 - **SOUL 趋势而不只是 SOUL 快照**：每次 Adjourn dump 一张 SOUL 快照,下次 Start Session 自动比对——"过去 30 天'稳定性'维度被激活 8 次、'灵活性'只有 2 次,差距在扩大"之类的趋势会直接出现在晨报里。你看到的是**方向**,不只是**现状**。
 - **方法库当作程序性记忆用**：系统会把你反复走过的"怎么做 X"沉淀成可检索的 method 文件。下次遇到类似场景,Cortex 自动激活对应 method,不用你每次重新说"按我之前那个流程走"。至少跨 2 个独立 session 出现同一模式才会写,避免单次行为被当成习惯。
 
-**系统自我调整 · AUDITOR eval-history**：上面这些能力一旦开起来,就必然有"规则和你真实用法脱钩"的风险——衰减曲线是不是太快了、method 是不是识别过热、某条 SOUL 维度是不是其实早就不该是 tier-1。Cortex 不靠你手动调——AUDITOR 把每次决策的评估结果写进 `_meta/eval-history/`,一周一月累积成系统级的自反馈：哪些规则最近被反复违反、哪个 agent 的判断和 eval 分数长期不一致、哪种模式被 escalate 的频率超阈值。这些信号会固定出现在晨报的对应栏位,也会让 ADVISOR 下次 Summary Report 里标红提醒。**规则本身不会自己改**——真要调,你来定；但系统会诚实地把"该调了"这件事摆到你面前,不让"用着用着就跑偏"悄悄发生。
+**系统自我调整 · AUDITOR eval-history**：上面这些能力一旦开起来,就必然有"规则和你真实用法脱钩"的风险——衰减曲线是不是太快了、method 是不是识别过热、某条 SOUL 维度是不是其实早就不该是 tier-1。Cortex 不靠你手动调——AUDITOR 把每次决策的评估结果写进 `meta/eval-history/`,一周一月累积成系统级的自反馈：哪些规则最近被反复违反、哪个 agent 的判断和 eval 分数长期不一致、哪种模式被 escalate 的频率超阈值。这些信号会固定出现在晨报的对应栏位,也会让 ADVISOR 下次 Summary Report 里标红提醒。**规则本身不会自己改**——真要调,你来定；但系统会诚实地把"该调了"这件事摆到你面前,不让"用着用着就跑偏"悄悄发生。
 
 **封驳路径 B**(关键设计决策)：REVIEWER 的 veto 不是简单的 "inhibitory signal 强度高就压制"——必须携带完整论证包(reasoning chain + 被否决的 signal 引用 + rebuttal 机会)。Rebuttal 死循环自动 escalate 给用户。这是**让拒绝可审查**的结构化约束。这里的 "Path B" 定义见 `references/cortex-spec.md` §Structured veto with reasoning chain。
 
@@ -219,7 +219,7 @@ STRATEGIST 不走 Draft-Review-Execute 流程,是独立的"思想启发"通道�
 
 **核心洞察**：Life OS 有 SOUL / Wiki / Strategic Map / 决策引擎,但中间缺"真正的大脑运作"——信号竞争、广播、扩散激活、叙事包装、赫布强化。Cortex 不是新加一层,**是 Skill 层的升级**——在 ROUTER 之前加认知前置流水线,把现有 multiple agents 流程包在里面。
 
-**状态**：v1.7 已落地——突触 + 海马体 + GWT 基础版构成最小认知闭环,Markdown-first 实现,全部用 `_meta/concepts/*.md` + agent 定义文件承载,不引入额外 runtime。v1.7 内部分阶段推进,全部在 v1.7 内完成。权威设计详见 `references/cortex-spec.md`。
+**状态**：v1.7 已落地——突触 + 海马体 + GWT 基础版构成最小认知闭环,Markdown-first 实现,全部用 `meta/concepts/*.md` + agent 定义文件承载,不引入额外 runtime。v1.7 内部分阶段推进,全部在 v1.7 内完成。权威设计详见 `references/cortex-spec.md`。
 
 #### 3.3.2 Hermes 级执行力(v1.7 GA 已落地)
 
@@ -383,7 +383,7 @@ ARCHIVER 返回 Completion Checklist。Orchestrator 在主 context 执行 Notion
 
 **9:45 · Python 脚本后处理**(v1.7 GA 已落地)
 
-Adjourn 后,编排层在月末触发 `scripts/prompts/advisor-monthly.md` 流程(v1.7 cron 时代的 `scripts/monthly-review-check.py` 已在 R-1.8.0-011 删除,改为 user-invoked prompt)——生成 `_meta/self-review-2026-04.md`：
+Adjourn 后,编排层在月末触发 `scripts/prompts/advisor-monthly.md` 流程(v1.7 cron 时代的 `scripts/monthly-review-check.py` 已在 R-1.8.0-011 删除,改为 user-invoked prompt)——生成 `meta/self-review-2026-04.md`：
 - 统计本月 AUDITOR 召回率、REVIEWER 否决率、COUNCIL 触发率、Express 命中率
 - 比对 evals/ 跑出的分数和 AUDITOR 打的分数。如果 AUDITOR 都在打 8+ 但 eval 跑出 3 个 fail → 标记"互相护短"模式写进 user-patterns.md
 - 下次 ADVISOR 启动时自动读到这个 pattern,在 Summary Report 里标红提醒

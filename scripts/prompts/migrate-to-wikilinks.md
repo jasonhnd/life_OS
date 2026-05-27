@@ -39,13 +39,13 @@ Read these directories and count files needing migration:
 
 ```
 wiki/                                  # all .md (look for legacy refs in body)
-_meta/concepts/*.md                    # check provenance, outgoing_edges fields
-_meta/sessions/202*-*-*.md             # session journals — body refs
-_meta/methods/*.md                     # method body refs
-_meta/people/*.md                      # if any pre-existing
-_meta/comparisons/*.md                 # if any pre-existing
+meta/concepts/*.md                    # check provenance, outgoing_edges fields
+meta/sessions/202*-*-*.md             # session journals — body refs
+meta/methods/*.md                     # method body refs
+meta/people/*.md                      # if any pre-existing
+meta/comparisons/*.md                 # if any pre-existing
 SOUL.md                                # snapshots may reference concepts
-_meta/STRATEGIC-MAP.md                 # likely references projects/concepts
+meta/STRATEGIC-MAP.md                 # likely references projects/concepts
 ```
 
 Report inventory:
@@ -53,13 +53,13 @@ Report inventory:
 ```
 📋 Migration inventory
 - wiki/ — 12 files
-- _meta/concepts/ — 47 files (provenance + outgoing_edges to update)
-- _meta/sessions/ — 89 files (90 days)
-- _meta/methods/ — 5 files
-- _meta/people/ — 0 files
-- _meta/comparisons/ — 0 files
+- meta/concepts/ — 47 files (provenance + outgoing_edges to update)
+- meta/sessions/ — 89 files (90 days)
+- meta/methods/ — 5 files
+- meta/people/ — 0 files
+- meta/comparisons/ — 0 files
 - SOUL.md — 1 file
-- _meta/STRATEGIC-MAP.md — 1 file
+- meta/STRATEGIC-MAP.md — 1 file
 
 Total: 155 files. Estimated 800+ wikilinks to insert.
 
@@ -70,8 +70,8 @@ If user says N, exit silently.
 
 ### Phase 1: Build identifier index
 
-Scan all of `_meta/concepts/`, `wiki/`, `_meta/people/`, `_meta/comparisons/`,
-`_meta/methods/`. Build map:
+Scan all of `meta/concepts/`, `wiki/`, `meta/people/`, `meta/comparisons/`,
+`meta/methods/`. Build map:
 
 ```python
 identifier_map = {
@@ -119,7 +119,7 @@ For each file in inventory:
 
 ### Phase 3: Frontmatter exceptions
 
-For `_meta/concepts/*.md` only, also update (see `references/concept-spec.md`
+For `meta/concepts/*.md` only, also update (see `references/concept-spec.md`
 canonical schema):
 
 ```yaml
@@ -140,7 +140,7 @@ For all other frontmatter fields, KEEP as plain strings (machine-parseable).
 After all files migrated:
 
 1. Check for broken wikilinks: extract all `[[...]]` patterns, verify target file exists.
-2. Report broken links: `[[unknown-id]]` found in `_meta/sessions/2026-03-15.md` line 42.
+2. Report broken links: `[[unknown-id]]` found in `meta/sessions/2026-03-15.md` line 42.
 3. User decides: create stub / fix typo / leave as TODO.
 
 ### Slug collision handling (Phase 1.5)
@@ -161,12 +161,12 @@ execution order MUST be: 0 → 1 → 1.5 → 5 → 2 → 3 → 4 → 6.
 
 ```bash
 # Cross-platform: prefer Python copier for Windows compatibility
-mkdir -p _meta/migration-backup/{ISO-DATE}
+mkdir -p meta/migration-backup/{ISO-DATE}
 # Bash:
-cp -r wiki/ _meta/concepts/ _meta/sessions/ _meta/methods/ \
-       _meta/people/ _meta/comparisons/ \
-       SOUL.md _meta/STRATEGIC-MAP.md \
-       _meta/migration-backup/{ISO-DATE}/  2>/dev/null || true
+cp -r wiki/ meta/concepts/ meta/sessions/ meta/methods/ \
+       meta/people/ meta/comparisons/ \
+       SOUL.md meta/STRATEGIC-MAP.md \
+       meta/migration-backup/{ISO-DATE}/  2>/dev/null || true
 # Windows PowerShell equivalent:
 # Copy-Item -Path wiki,_meta\concepts,_meta\sessions,_meta\methods,SOUL.md,_meta\STRATEGIC-MAP.md -Destination _meta\migration-backup\{ISO-DATE}\ -Recurse
 ```
@@ -184,10 +184,10 @@ After migration:
 - Files modified: 92
 - Wikilinks inserted: 814
 - Broken links found: 3 (see report below)
-- Backup at: _meta/migration-backup/2026-04-29T10-30-00/
+- Backup at: meta/migration-backup/2026-04-29T10-30-00/
 
 Broken links:
-1. [[concept-undefined-foo]] in _meta/sessions/2026-03-15.md:42
+1. [[concept-undefined-foo]] in meta/sessions/2026-03-15.md:42
 2. [[person-bob]] in wiki/team-decisions.md:120 (typo? did you mean [[person-rob]]?)
 3. [[wiki-old-name]] in SOUL.md:200 (file renamed to wiki-new-name?)
 
@@ -203,10 +203,10 @@ Suggested actions:
 - **One Edit per pattern replacement** — atomic, easy to inspect/revert
 - **Skip code blocks** — `wikilinks` inside ```...``` are content, not refs
 - **Skip frontmatter (except known exceptions)** — YAML must stay parseable
-- **Privacy filter** — if migrating creates a `_meta/people/<id>.md` reference
+- **Privacy filter** — if migrating creates a `meta/people/<id>.md` reference
   with `privacy_tier: high`, ensure body context doesn't expose private info
 - **Idempotent** — re-running on already-migrated content is a no-op
-- **Audit trail**: write `_meta/runtime/{sid}/wikilink-migration.json`
+- **Audit trail**: write `meta/runtime/{sid}/wikilink-migration.json`
   with file count, link count, broken link list
 
 ## Anti-patterns
@@ -222,10 +222,10 @@ Suggested actions:
 
 If user reports issue post-migration:
 
-1. Restore from `_meta/migration-backup/{date}/` to affected paths
+1. Restore from `meta/migration-backup/{date}/` to affected paths
 2. Investigate which pattern caused issue
 3. Patch this prompt's Phase 2 logic
 4. Re-run on remaining files
 
-Backup retention: keep `_meta/migration-backup/` for 30 days, then delete
+Backup retention: keep `meta/migration-backup/` for 30 days, then delete
 (only via explicit user instruction — never auto-delete).

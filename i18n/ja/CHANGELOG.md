@@ -6,6 +6,50 @@
 
 ---
 
+## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性
+
+```yaml
+---
+version: 1.9.0
+date: 2026-05-27
+type: minor (vault レイアウト破壊的変更)
+breaking_changes:
+  - "Vault ディレクトリレイアウト：_meta/ → meta/（アンダースコア接頭辞削除；透明性の表面化）"
+  - "meta/inbox/ → meta/queue/（vault ルート inbox/ との混同回避のため改名）"
+  - "decisions 統合：projects/*/decisions/ + meta/incidents/*.yml → meta/decisions/<YYYY-MM>/<id>.md（単一正規パス、月サブディレクトリ）"
+  - "archive：物理移動を frontmatter `lifecycle_stage: archived` に変更（wikilinks が壊れなくなる）"
+  - "journal：時間軸 canonical を meta/journal/<YYYY-MM-DD>.md に統一；projects/*/journal/ 削除（Dataview + Recent 5 wikilinks による逆引き）"
+  - "areas：事前定義 10 分類を「推奨シード」に緩和（FIRST-RUN は空ディレクトリを事前作成しない）"
+  - "user-patterns.md を vault ルートから meta/user-patterns.md に移動（compiled artifact カテゴリと整合）"
+  - "frontmatter 相互参照フィールド（Opt #8）：decisions に applied_methods + journal_date 追加；methods に born_from_decisions 追加；journal に referenced_decisions + referenced_methods 追加"
+  - "decision schema：applied_method（単数）→ applied_methods（リスト）；domains は閉じた enum（6 functional IDs）；type に escalation + superseded を追加"
+  - "lifecycle_stage 列挙を 5 値から 4 値に削減（dormant 削除）；時限付き一時停止のため paused_until フィールド追加"
+  - "archived_at_source 列挙：4 値 git-log | migrated-unknown | manual | auto"
+  - "method.applied_in_decisions フィールド削除（Q-11 DR-1.9.24）；Dataview + Recent 5 wikilinks パターンで逆引きに変更"
+new_features:
+  - "/migrate-v1.9 slash コマンド — 8 段階の移行（Pre-flight HARD GATE：git working dir clean + クロスバージョンチェック + archive 非プロジェクト内容拒否）"
+  - "/verify-v1.9 slash コマンド — 8 項目の post-migration 受け入れ検証"
+  - "決定 ID フォーマット：dec-<YYYY-MM-DD>-<NNN>（日次連番）— ソート可能・人間可読・多言語フレンドリー"
+  - "プロジェクト index.md に ## Journal + ## Decisions セクション追加（Dataview block + Recent 5 wikilinks の対称パターン）"
+  - "Method ページに ## Applied in decisions Dataview block + Recent 5 fallback（プロジェクト index と同パターン）"
+  - "STRATEGIC-MAP で archived プロジェクトを strikethrough 表記 + 整理プロンプト"
+  - "移行レポートを journal entry に追記（type_tags: [migration]、DR-1.9.28）"
+fixes:
+  - "v1.8.5 Stage 7 .yml incidents — v1.8.7 md-only 本体論的制約と非互換；.md + YAML frontmatter に変換（DR-1.9.2）"
+acceptance_evals:
+  - evals/scenarios/v1.9-migration-correctness.md
+  - evals/scenarios/v1.9-wikilink-preservation.md
+  - evals/scenarios/v1.9-decision-consolidation.md
+  - evals/scenarios/v1.9-cross-reference-fields.md
+---
+```
+
+詳細は `_meta/rfc/v1.9-second-brain-structure-optimization.md` を参照 —— 29 件の DR（DR-1.9.1 〜 DR-1.9.29）+ 24 件のロック決定（Q1-Q5 + 透明性 + Q-meta-3/4 + Q-undecided-1 〜 Q-undecided-16）。
+
+**アップグレードパス**：すべての v1.8.x vault は `/migrate-v1.9` を 1 回実行。Pre-flight は以下を拒否：(a) git working dir が clean でない、(b) vault が < v1.8.0（先に中間バージョンの移行を実行）、(c) `archive/` に非プロジェクト内容（先に手動クリーンアップ）。移行完了後に `/verify-v1.9` で検証。
+
+---
+
 ## [1.8.7] - 2026-05-25 - OpenHuman 着想の強化（md-only 本体論的制約）
 
 ```yaml

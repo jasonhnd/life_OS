@@ -12,7 +12,7 @@ This index is the public pointer for non-overridable Life OS behavior. README fi
 ## v1.7.2 Release Deltas
 
 - **Hermes Local / paste compression**: `SKILL.md` now treats every launched subagent output as a compressed paste plus an R11 audit trail link. The compressed paste must preserve substantive claims, decisions, blockers, user-facing requests, file writes, tool side effects, and quoted evidence needed for review; it cannot be replaced by an unsupported summary.
-- **Manual compression trigger**: `/compress [focus]` is part of the `SKILL.md` Trigger Execution Templates section. v1.7.3 wires the slash command via `scripts/commands/compress.md` (installed to `~/.claude/commands/`). ROUTER does inline compression, archives to `_meta/compression/<sid>-compress-<ts>.md`, and reports original/retained turn count + rough tokens released + preserved decisions. The dead `tools/context_compressor.py` (1370 lines, 0 callers) and `tools/manual_compression_feedback.py` (51 lines, 0 callers) were removed in v1.7.3.
+- **Manual compression trigger**: `/compress [focus]` is part of the `SKILL.md` Trigger Execution Templates section. v1.7.3 wires the slash command via `scripts/commands/compress.md` (installed to `~/.claude/commands/`). ROUTER does inline compression, archives to `meta/compression/<sid>-compress-<ts>.md`, and reports original/retained turn count + rough tokens released + preserved decisions. The dead `tools/context_compressor.py` (1370 lines, 0 callers) and `tools/manual_compression_feedback.py` (51 lines, 0 callers) were removed in v1.7.3.
 - **Cortex pull-based scope (v1.8.0 pivot — supersedes v1.7.2 always-on)**: As of v1.8.0, Cortex Step 0.5 is **no longer always-on**. ROUTER decides per-message whether to launch any of the 4 Cortex subagents (hippocampus / concept-lookup / soul-check / gwt-arbitrator). The `pre-prompt-guard.sh` always-on enforcement block was removed. There is no `HARD RULE` marker for Cortex activation in the count below. See `pro/CLAUDE.md` §0.5 for the pull-based heuristics.
 
 ## v1.8.7 Release Deltas
@@ -22,7 +22,7 @@ This index is the public pointer for non-overridable Life OS behavior. README fi
   - No escape hatch / no conditional exception / applies to all future versions
   - Borrowing patterns from external projects: only borrow patterns, never implementation tech stacks
   - Audit gates: existing `/verify-release` check #8 (full-repo) + v1.8.7 new check #10 (diff-scoped) + AUDITOR Mode 7 M7-7 + 4 regression fixtures (sh existing, sql/json/db new)
-  - Reference: `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` DR-10 + §1.5
+  - Reference: `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` DR-10 + §1.5
 - **Implemented v1.8.7 additions** (Task 8 complete, ship verified at HEAD == tag v1.8.7):
   - B4 Self-driven loops with ScheduleWakeup section → **+1 marker** in `SKILL.md` (§ "HARD RULE · Self-driven loops with ScheduleWakeup (v1.8.7 B4)")
   - B5 evals_scenarios required field → **+0 markers in SKILL.md** (enforcement lives in `pro/agents/planner.md` template + `pro/agents/dispatcher.md` validation, per agent-local contract)

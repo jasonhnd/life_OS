@@ -58,7 +58,7 @@ c) Notion (mobile-friendly)
 You can pick multiple.
 ```
 
-你选完后，`_meta/config.md` 记录配置。另外两个平台启动时读这个配置，**直接接入同一个 second-brain**。
+你选完后，`meta/config.md` 记录配置。另外两个平台启动时读这个配置，**直接接入同一个 second-brain**。
 
 ---
 
@@ -94,7 +94,7 @@ You can pick multiple.
 # 平台通用临时文件
 *.tmp
 *.lock
-_meta/.merge-lock
+meta/.merge-lock
 ```
 
 **关键行**：`.claude/worktrees/` 必须 ignore。很多人的第一次 git push 带了 500MB worktree 就是因为少了这行。
@@ -168,13 +168,13 @@ context is prohibited.
 
 ```
 09:00  你在桌面 Claude Code "上朝" → 做完议程 → "退朝"
-         起居郎写: _meta/outbox/claude-20260420-0915/
+         起居郎写: meta/outbox/claude-20260420-0915/
          git push 到 GitHub
          Notion 同步
   
 12:00  午饭在咖啡馆，打开手机 Antigravity "开始"
-         早朝官 Phase B 读 _meta/config.md → git pull
-         发现 _meta/outbox/claude-20260420-0915/ 未合并
+         早朝官 Phase B 读 meta/config.md → git pull
+         发现 meta/outbox/claude-20260420-0915/ 未合并
          → Phase B.7 Outbox Merge
          合并到 projects/*/decisions, tasks, journal
          输出简报里显示: "📮 Merged 1 offline session"
@@ -193,7 +193,7 @@ context is prohibited.
 两边都做 outbox merge，可能冲突。
 ```
 
-系统有保护——`_meta/.merge-lock`：
+系统有保护——`meta/.merge-lock`：
 
 - 先到的平台写 lock + timestamp
 - 后到的平台看到 lock < 5 分钟 → 跳过 merge，只做读取
@@ -330,8 +330,8 @@ git log --oneline -5
 
 **排查**：
 ```bash
-ls ~/second-brain/_meta/snapshots/soul/ | tail -5
-cat ~/second-brain/_meta/.merge-lock 2>/dev/null  # 应该不存在
+ls ~/second-brain/meta/snapshots/soul/ | tail -5
+cat ~/second-brain/meta/.merge-lock 2>/dev/null  # 应该不存在
 ```
 
 如果 .merge-lock 存在且很旧 → 删掉，下次上朝会重新合并。
@@ -372,7 +372,7 @@ cat ~/second-brain/_meta/.merge-lock 2>/dev/null  # 应该不存在
 ## 常见问题
 
 **Q：能把 3 个平台的对话 log 合并吗？**
-A：已合并。所有平台写到同一个 `_meta/journal/` 和 `decisions/`。起居郎的 session-id 里带平台前缀（`claude-20260420-0915` / `gemini-20260420-1200`），便于追溯来源。
+A：已合并。所有平台写到同一个 `meta/journal/` 和 `decisions/`。起居郎的 session-id 里带平台前缀（`claude-20260420-0915` / `gemini-20260420-1200`），便于追溯来源。
 
 **Q：如果只想用 1 个平台需要做啥？**
 A：什么都不需要。单平台是默认状态。这篇文档是给多平台用户的。

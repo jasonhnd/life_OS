@@ -68,7 +68,7 @@ Life OS 三层架构：
 ### 存储位置
 
 - 当前会话的主题：在会话 context 里（不写盘）
-- 你的"默认偏好"：如果 `_meta/config.md` 里有 `default_theme: xx-yyy`，新会话会用它；否则询问
+- 你的"默认偏好"：如果 `meta/config.md` 里有 `default_theme: xx-yyy`，新会话会用它；否则询问
 
 ## 如何选主题
 
@@ -221,7 +221,7 @@ Type a-i
 ## 常见问题
 
 **Q：我能只用一个主题永远不换吗？**
-A：完全可以。在 `_meta/config.md` 里设 `default_theme: zh-classical` 就不会每次问。
+A：完全可以。在 `meta/config.md` 里设 `default_theme: zh-classical` 就不会每次问。
 
 **Q：我能改主题里的显示名吗？**
 A：能。主题文件是开放的 markdown，你改了立刻生效。但建议先做拷贝 → 你自己的私人主题，别改原装的。

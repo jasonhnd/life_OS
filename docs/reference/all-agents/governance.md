@@ -27,7 +27,7 @@ DISPATCHER 在派遣令中分配了 governance 领域时触发。PLANNER 如果�
 - 其他 agent 的思考过程
 
 **可请求读取**：
-- `~/second-brain/projects/*/decisions/` 与 `~/second-brain/_meta/decisions/` — 决策历史
+- `~/second-brain/projects/*/decisions/` 与 `~/second-brain/meta/decisions/` — 决策历史
 - 用户本地文件（合同、雇佣协议等）
 - WebSearch 查询法律条款
 - **主动询问用户是否有相关文件供参考**

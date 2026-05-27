@@ -1,6 +1,6 @@
 ---
 spec_id: gotchas-spec.v1
-description: 「pro/gotchas.md」规范 —— 项目级技术坑知识库。每条记录"踩过的坑 + 文件路径 + 修复方法"，让 ROUTER 和下游 agent 在新任务前 short-circuit 已知问题。区别于 `pro/compliance/violations.md`（流程违规）和 `_meta/sessions/`（单次会话记录）。模式借鉴自 tinyhumansai/openhuman `.claude/memory.md`；lifeos 落地是 md-only，由 `memory-keeper` agent 写入。
+description: 「pro/gotchas.md」规范 —— 项目级技术坑知识库。每条记录"踩过的坑 + 文件路径 + 修复方法"，让 ROUTER 和下游 agent 在新任务前 short-circuit 已知问题。区别于 `pro/compliance/violations.md`（流程违规）和 `meta/sessions/`（单次会话记录）。模式借鉴自 tinyhumansai/openhuman `.claude/memory.md`；lifeos 落地是 md-only，由 `memory-keeper` agent 写入。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/memory.md (259 行扁平单文件 + 主题分组)
@@ -19,13 +19,13 @@ referenced_by:
 
 | 存储 | 记录什么 | 生命周期 |
 |------|---------|---------|
-| `_meta/sessions/<sid>.md` | 单次会话的时间线 + 决策 | 一会话一文件，归档 |
+| `meta/sessions/<sid>.md` | 单次会话的时间线 + 决策 | 一会话一文件，归档 |
 | `pro/compliance/violations.md` | 流程违规（A1/A2/A3/B/C/D/E/F + F1-F17） | 仅追加审计日志 |
-| `_meta/wiki/<topic>.md` | 可复用的世界知识（"NPO 借贷无貸金業法 豁免"） | 人工策展 |
-| `_meta/concepts/<concept>.md` | 突触图节点（Cortex） | hippocampus 激活 |
+| `meta/wiki/<topic>.md` | 可复用的世界知识（"NPO 借贷无貸金業法 豁免"） | 人工策展 |
+| `meta/concepts/<concept>.md` | 突触图节点（Cortex） | hippocampus 激活 |
 | **`pro/gotchas.md`** | **项目技术坑 + 文件路径 + 修复** | **memory-keeper 持续提炼** |
 
-Gotchas **不是**违规（那是 `compliance/violations.md`）。Gotchas **不是**可复用世界知识（那是 `_meta/wiki/`）。Gotchas 是 **dev 内部 short-circuit 记忆**："下次碰 X，先看这里"。
+Gotchas **不是**违规（那是 `compliance/violations.md`）。Gotchas **不是**可复用世界知识（那是 `meta/wiki/`）。Gotchas 是 **dev 内部 short-circuit 记忆**："下次碰 X，先看这里"。
 
 ## 文件位置与范围
 
@@ -59,7 +59,7 @@ Gotchas **不是**违规（那是 `compliance/violations.md`）。Gotchas **不�
 ```markdown
 ## archiver
 
-- **archiver Phase 2 候选扫描遇 wiki 缺失会阻塞** — `_meta/wiki/` 目录不存在时 Phase 2 卡住而不是跳过。修复：archiver 先创建目录如果缺失。(#v1.8.7-C6-task-2d)
+- **archiver Phase 2 候选扫描遇 wiki 缺失会阻塞** — `meta/wiki/` 目录不存在时 Phase 2 卡住而不是跳过。修复：archiver 先创建目录如果缺失。(#v1.8.7-C6-task-2d)
 
 - **archiver wrap-up phase 5（memory-keeper）v1.8.7 后必跑** — 跳过 phase 5 = 漏 gotchas 提炼。修复：archiver Mode 0 强制 phase 5 即使短会话；gotchas 表可以空但 phase 必须跑。(#RFC-v1.8.7)
 ```
@@ -76,7 +76,7 @@ Gotchas **不是**违规（那是 `compliance/violations.md`）。Gotchas **不�
 **不**捕获：
 - ❌ 单次会话内容（用 sessions/）
 - ❌ 流程违规（用 compliance/violations.md）
-- ❌ 跟 lifeos 自身无关的可复用世界知识（用 _meta/wiki/）
+- ❌ 跟 lifeos 自身无关的可复用世界知识（用 meta/wiki/）
 - ❌ 用户个人信息（身份级用 SOUL.md；瞬时用 sessions/）
 - ❌ 已在 pro/CLAUDE.md 或其他权威源已有的内容
 
@@ -99,9 +99,9 @@ memory-keeper agent 是 `pro/gotchas.md` 的**唯一写入者**。人工直接�
 
 按 RFC §7 退出标准，memory-keeper 在 v1.8.7 release session 首次跑必须扫描以下来源产出 ≥10 条种子：
 
-- `_meta/rfc/v1.8.4-*.md`
-- `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
-- `_meta/rfc/v1.8.6-*.md`
+- `meta/rfc/v1.8.4-*.md`
+- `meta/rfc/v1.8.5-cleanup-and-hardening.md`
+- `meta/rfc/v1.8.6-*.md`
 - `pro/compliance/violations.md`（过滤：根因是技术性的而非纯流程的条目）
 
 种子条目仍是 gotcha（技术性），不是流程违规。
@@ -125,4 +125,4 @@ memory-keeper agent 是 `pro/gotchas.md` 的**唯一写入者**。人工直接�
 
 - `pro/agents/memory-keeper.md` —— agent 定义
 - `references/compliance-spec.md` —— 区分 gotchas 与 violations
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 —— 本 spec 起源
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 —— 本 spec 起源

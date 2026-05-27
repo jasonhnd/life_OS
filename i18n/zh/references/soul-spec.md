@@ -12,7 +12,7 @@ supersedes: soul.v1 (v1.8.4 及更早；v1 entry 2027-05-23 自动标 deprecated
 
 SOUL.md 是用户人格档案——一份活的宪法价值层，记录用户是谁、重视什么，以及规则冲突时价值如何决断。它存放在第二大脑根目录中。
 
-> **v1.8.5 SOUL v2 pivot——借鉴自 eou-foundry**: SOUL 不再是 confidence band 的自由 dim 列表。它现在是有优先级总序、X-over-Y formulation、outlier role slot 的结构化价值栈。按 RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 4。
+> **v1.8.5 SOUL v2 pivot——借鉴自 eou-foundry**: SOUL 不再是 confidence band 的自由 dim 列表。它现在是有优先级总序、X-over-Y formulation、outlier role slot 的结构化价值栈。按 RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 4。
 
 ## 为什么 v2
 

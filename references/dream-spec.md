@@ -13,18 +13,18 @@ ARCHIVER: Phase 1 Archive → Phase 2 Knowledge Extraction
     ↓
 ARCHIVER: Phase 3 DREAM (runs three stages below)
     ↓
-Dream report written to _meta/journal/{YYYY-MM-DD}-{slug}-dream.md
+Dream report written to meta/journal/{YYYY-MM-DD}-{slug}-dream.md
     ↓
 ARCHIVER: Phase 4 Sync (git + Notion) → Session ends
 ```
 
-If DREAM fails or times out → log warning to `_meta/sync-log.md`, don't block session end.
+If DREAM fails or times out → log warning to `meta/sync-log.md`, don't block session end.
 
 ---
 
 ## Scope
 
-**Default: files modified in the last 3 days (72 hours).** If no files were modified in the last 3 days, automatically expand to "since the last dream report" (read the date from the most recent `_meta/journal/*-dream.md`). If no dream report exists, scan the last 7 days as a fallback.
+**Default: files modified in the last 3 days (72 hours).** If no files were modified in the last 3 days, automatically expand to "since the last dream report" (read the date from the most recent `meta/journal/*-dream.md`). If no dream report exists, scan the last 7 days as a fallback.
 
 Detection method:
 - GitHub backend: `git log --since="3 days ago" --name-only --format=""` → if empty, `git log --since="{last_dream_date}" --name-only --format=""`
@@ -43,7 +43,7 @@ Inspired by human sleep architecture:
 
 Scan recent 3 days for loose ends:
 - `inbox/` items not yet classified → suggest target project/area/wiki
-- `_meta/journal/` entries with extractable insights → suggest `user-patterns.md` update
+- `meta/journal/` entries with extractable insights → suggest `user-patterns.md` update
 - `projects/*/tasks/` with expired due dates or duplicates → flag for cleanup
 - Orphan files (created but not linked from any index.md) → flag
 
@@ -84,11 +84,11 @@ Quality over quantity. 1-3 genuine insights. If nothing non-obvious emerges, say
 
 When REM discovers patterns, DREAM automatically performs these actions — no user confirmation. Each trigger has a **hard threshold** (quantitative rule) and **soft signals** (LLM qualitative cues). `mode: hard` means the threshold was met automatically; `mode: soft` means the LLM detected a qualitative signal beyond the threshold and the auto-action requires AUDITOR review.
 
-All triggers are subject to **24h anti-spam suppression** — if the same trigger fired within the last 24 hours (per `_meta/journal/*-dream.md`), it is skipped.
+All triggers are subject to **24h anti-spam suppression** — if the same trigger fired within the last 24 hours (per `meta/journal/*-dream.md`), it is skipped.
 
 #### 1. new-project-relationship
 
-- **Data source**: `projects/*/index.md` strategic fields, `_meta/strategic-lines.md`
+- **Data source**: `projects/*/index.md` strategic fields, `meta/strategic-lines.md`
 - **Hard threshold**: new cross-project dependency or bottleneck edge detected since last dream report
 - **Soft signals**: recent decisions implicitly reference another project without a formal strategic link
 - **Auto-action**: write STRATEGIC-MAP candidate + flag for next briefing prominent display
@@ -160,13 +160,13 @@ All triggers are subject to **24h anti-spam suppression** — if the same trigge
 
 #### 10. repeated-decisions
 
-- **Data source**: `_meta/decisions/*.md` + project decisions history
+- **Data source**: `meta/decisions/*.md` + project decisions history
 - **Hard threshold**: same question/subject decided ≥3 times without execution in between
 - **Soft signals**: user rephrases the question to avoid recognizing it as repetition
 - **Auto-action**: flag for next briefing ("You're deciding X again — are you avoiding commitment?")
 - **Anti-spam**: suppressed if fired within last 24h
 
-All flags are written to a full ISO dream journal path such as `_meta/journal/2026-04-25-baas-dream.md` with a structured `triggered_actions` YAML block. RETROSPECTIVE reads this at next Start Session and surfaces relevant flags in the briefing. Do not use date-only slug shorthand references.
+All flags are written to a full ISO dream journal path such as `meta/journal/2026-04-25-baas-dream.md` with a structured `triggered_actions` YAML block. RETROSPECTIVE reads this at next Start Session and surfaces relevant flags in the briefing. Do not use date-only slug shorthand references.
 
 ---
 
@@ -241,7 +241,7 @@ Users nudge wiki post-hoc (delete file = retire; "undo recent wiki" = rollback).
 
 ## Output Format
 
-Written to `_meta/journal/{YYYY-MM-DD}-{slug}-dream.md`, for example `_meta/journal/2026-04-25-baas-dream.md`. The full ISO path must be shown anywhere the report is referenced; date-only slug shorthand is not allowed.
+Written to `meta/journal/{YYYY-MM-DD}-{slug}-dream.md`, for example `meta/journal/2026-04-25-baas-dream.md`. The full ISO path must be shown anywhere the report is referenced; date-only slug shorthand is not allowed.
 
 ```yaml
 ---
@@ -305,7 +305,7 @@ Next session start, the RETROSPECTIVE reads the latest unread dream report and i
 
 ```
 💤 Last session the system had a dream:
-- Full report: _meta/journal/YYYY-MM-DD-{slug}-dream.md
+- Full report: meta/journal/YYYY-MM-DD-{slug}-dream.md
 - [paste the unread dream report verbatim, preserving evidence and triggered_actions context]
 - [Auto-written SOUL dimensions awaiting "What SHOULD BE" input, if any]
 - [Auto-written Wiki entries with paths, if any; user can delete to retire]
@@ -333,20 +333,20 @@ DREAM predates Cortex. With v1.7's concept graph, hippocampus, and session index
 
 ### What DREAM consumes from Cortex
 
-- **`_meta/concepts/INDEX.md`** — REM stage uses the concept graph as scaffolding for cross-domain associations. Where v1.6.2 REM looked for "unexpected connections" from raw decision history, v1.7 REM can traverse `outgoing_edges` with weight ≥ 2 to surface neighbour concepts that the 3-day scope missed on the surface.
-- **`_meta/concepts/SYNAPSES-INDEX.md`** — REM uses the reverse index to answer "what past decisions touched this newly-active concept?" without re-reading session files.
-- **`_meta/sessions/INDEX.md`** — DREAM's 3-day scope cross-references session summaries for quicker lookup than `git log + read file`.
-- **`_meta/snapshots/soul/`** — the last 3 snapshots feed the `value-drift` trigger (§7) with stronger signal than v1.6.2 prose-only detection (see "SOUL + Cortex signals" below).
+- **`meta/concepts/INDEX.md`** — REM stage uses the concept graph as scaffolding for cross-domain associations. Where v1.6.2 REM looked for "unexpected connections" from raw decision history, v1.7 REM can traverse `outgoing_edges` with weight ≥ 2 to surface neighbour concepts that the 3-day scope missed on the surface.
+- **`meta/concepts/SYNAPSES-INDEX.md`** — REM uses the reverse index to answer "what past decisions touched this newly-active concept?" without re-reading session files.
+- **`meta/sessions/INDEX.md`** — DREAM's 3-day scope cross-references session summaries for quicker lookup than `git log + read file`.
+- **`meta/snapshots/soul/`** — the last 3 snapshots feed the `value-drift` trigger (§7) with stronger signal than v1.6.2 prose-only detection (see "SOUL + Cortex signals" below).
 
 ### What DREAM writes to Cortex
 
-- **DREAM MAY write concept candidates.** `concept-spec.md §YAML Frontmatter Schema` allows `provenance.extracted_by: dream`. REM-detected cross-domain associations that meet the 6-criteria check land in `_meta/concepts/_tentative/{concept_id}.md` just like archiver-detected concepts. DREAM uses the same privacy filter and initial `status: tentative` — promotion to `confirmed` requires ≥3 independent sessions and is archiver's responsibility at subsequent Adjourn flows.
-- **DREAM MUST NOT write to `_meta/concepts/{domain}/` directly.** All new concepts land in `_tentative/` regardless of detector. Promotion pathways stay centralised in archiver Phase 2.
+- **DREAM MAY write concept candidates.** `concept-spec.md §YAML Frontmatter Schema` allows `provenance.extracted_by: dream`. REM-detected cross-domain associations that meet the 6-criteria check land in `meta/concepts/_tentative/{concept_id}.md` just like archiver-detected concepts. DREAM uses the same privacy filter and initial `status: tentative` — promotion to `confirmed` requires ≥3 independent sessions and is archiver's responsibility at subsequent Adjourn flows.
+- **DREAM MUST NOT write to `meta/concepts/{domain}/` directly.** All new concepts land in `_tentative/` regardless of detector. Promotion pathways stay centralised in archiver Phase 2.
 - **DREAM MUST NOT modify `outgoing_edges` or `SYNAPSES-INDEX.md`.** Hebbian updates remain archiver's exclusive write scope — DREAM is a pattern detector, not a graph writer. If REM surfaces a "these two concepts should be connected" insight, it writes it as a **concept candidate** with a textual note, not as an edge. Archiver Phase 2 will decide whether to actually create the edge on its next run if the two concepts co-activate.
 
 ### Deduplication with hippocampus
 
-The `cross-project-cognition-unused` trigger (#5) overlaps semantically with hippocampus per-message retrieval (v1.7 runs hippocampus **every message**, not just at DREAM time). Before firing trigger #5, DREAM checks the current session's recorded hippocampus signals (from `_meta/sessions/{session_id}.md` frontmatter's `concepts_activated`):
+The `cross-project-cognition-unused` trigger (#5) overlaps semantically with hippocampus per-message retrieval (v1.7 runs hippocampus **every message**, not just at DREAM time). Before firing trigger #5, DREAM checks the current session's recorded hippocampus signals (from `meta/sessions/{session_id}.md` frontmatter's `concepts_activated`):
 
 - If hippocampus already surfaced the wiki entry in the current session → DREAM **skips** the trigger (no double-flagging)
 - If hippocampus did not surface it → DREAM **fires** as in v1.6.2
@@ -355,7 +355,7 @@ This preserves DREAM's role as the **offline, cross-session** complement to hipp
 
 ### SOUL + Cortex signals for value-drift detection
 
-The `value-drift` trigger (#7) in v1.7 reads the last 3 SOUL snapshots from `_meta/snapshots/soul/` in addition to 30-day decision history. If a dimension's `confidence` dropped by ≥ 0.2 across the three snapshots **AND** the net (evidence − challenges) trend is negative, DREAM fires with higher confidence than v1.6.2 prose-only detection. The snapshot trend gives DREAM a trust-worthy numeric substrate that doesn't require re-reading decision texts.
+The `value-drift` trigger (#7) in v1.7 reads the last 3 SOUL snapshots from `meta/snapshots/soul/` in addition to 30-day decision history. If a dimension's `confidence` dropped by ≥ 0.2 across the three snapshots **AND** the net (evidence − challenges) trend is negative, DREAM fires with higher confidence than v1.6.2 prose-only detection. The snapshot trend gives DREAM a trust-worthy numeric substrate that doesn't require re-reading decision texts.
 
 ### REM safety invariants
 

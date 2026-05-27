@@ -215,7 +215,7 @@ These are deferred — v1.8.7 path D explicitly scopes to user-in-loop only.
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 path D + DR-11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 path D + DR-11
 - Pattern source: `tinyhumansai/openhuman` `gitbooks/features/subconscious.md` (idle autonomous Subconscious Loop, daemon-based)
 - Companion: `references/status-line-spec.md` (each patrol task uses 8 enum status)
 - Companion: `pro/agents/retrospective.md` Mode 0 (where Conscious Patrol runs)

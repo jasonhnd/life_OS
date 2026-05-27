@@ -215,7 +215,7 @@ v1.8.7 **做**：
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 路径 D + DR-11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 路径 D + DR-11
 - 模式来源：`tinyhumansai/openhuman` `gitbooks/features/subconscious.md`（idle autonomous Subconscious Loop，基于 daemon）
 - 配套：`references/status-line-spec.md`（每 patrol task 用 8 enum status）
 - 配套：`pro/agents/retrospective.md` Mode 0（Conscious Patrol 运行处）

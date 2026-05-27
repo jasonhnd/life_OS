@@ -333,7 +333,7 @@ ROUTER は:
 
 ### 5. salience 閾値の調整
 
-`_meta/config.md` を編集:
+`meta/config.md` を編集:
 
 ```yaml
 salience_weights:
@@ -445,13 +445,13 @@ novelty 減衰は反スクロール疲れ機構であり、「関連情報を隠
 1. **普段 direct-handle や Express しか使わない**——これらのシナリオは Step 0.5 を走らない
 2. **migration を走らせていない**——INDEX.md / concepts は空、signal registry に並べる物がなく、GWT が空マーカーを送る
 3. **全シグナル salience < 0.3**——GWT は `(no high-salience signals)` マーカーを送ったが見えていない(ROUTER が「その他」に折りたたんだ可能性)
-4. **cortex_enabled: false**——`_meta/config.md` で切られている
+4. **cortex_enabled: false**——`meta/config.md` で切られている
 
 診断:
 
 ```bash
 # 本 session の arbitration record を確認(session frame md に記録)
-grep -l "gwt_arbitration" _meta/sessions/$(ls -t _meta/sessions/ | head -1)
+grep -l "gwt_arbitration" meta/sessions/$(ls -t meta/sessions/ | head -1)
 ```
 
 ### 「SOUL CONFLICT が繰り返し誤昇格」
@@ -460,7 +460,7 @@ grep -l "gwt_arbitration" _meta/sessions/$(ls -t _meta/sessions/ | head -1)
 
 対処:
 - 短期: 誤昇格時に反論(「今回の SOUL CONFLICT は適用外」)、AUDITOR に証拠を蓄積させる
-- 長期: AUDITOR が retuning 需要を flag 後、SOUL check subagent の次元マッチ閾値を調整する可能性あり——`_meta/config.md` レベルの調整、ユーザー決定 #4 では「モジュールを自動で閉じる」はトリガーしないが、あなたが手動調整を決定可能
+- 長期: AUDITOR が retuning 需要を flag 後、SOUL check subagent の次元マッチ閾値を調整する可能性あり——`meta/config.md` レベルの調整、ユーザー決定 #4 では「モジュールを自動で閉じる」はトリガーしないが、あなたが手動調整を決定可能
 
 ### 「annotation_utilization_rate が長期 <20%」
 
@@ -483,7 +483,7 @@ Concept lookup が**過度に広くマッチ**の可能性——すべての con
 対処:
 - 短期: この類の問題は AUDITOR が `cognitive_annotation_quality` 低で flag
 - 中期: concept-lookup の prompt 最適化を待つ(v1.7 spec で open question と明言)
-- 臨時回避: `_meta/config.md` で `per_signal_floor` を 0.3 から 0.5 に上げ、中程度関連ノイズを濾過
+- 臨時回避: `meta/config.md` で `per_signal_floor` を 0.3 から 0.5 に上げ、中程度関連ノイズを濾過
 
 ---
 

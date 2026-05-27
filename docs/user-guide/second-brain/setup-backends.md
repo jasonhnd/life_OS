@@ -79,8 +79,8 @@ Notion 格式不一样 — 是数据库和属性。迁出 Notion 需要导出 + 
 1. 在 GitHub 创建一个叫 `second-brain`（或任何名字）的 private repo。
 2. 本地 clone 到 `~/second-brain`。
 3. 首次上朝：RETROSPECTIVE 进入 FIRST-RUN 模式，问你存哪里。选 "a) GitHub"。
-4. 系统在你的 repo 里创建标准目录（`_meta/`、`projects/`、`areas/`、`wiki/`、`inbox/`、`archive/`、`templates/`）。
-5. 写 `_meta/config.md` 记录选的后端。
+4. 系统在你的 repo 里创建标准目录（`meta/`、`projects/`、`areas/`、`wiki/`、`inbox/`、`archive/`、`templates/`）。
+5. 写 `meta/config.md` 记录选的后端。
 6. 首次 commit + push。
 
 之后每次上朝自动 `git pull`，每次退朝自动 `git commit + push`。
@@ -91,7 +91,7 @@ Notion 格式不一样 — 是数据库和属性。迁出 Notion 需要导出 + 
 2. 配置 Google Drive MCP（见 `docs/installation.md`）。
 3. 首次上朝：选 "b) GDrive"。
 4. 系统在 Drive 里创建标准目录。
-5. 写 `_meta/config.md`。
+5. 写 `meta/config.md`。
 
 同步依赖 Drive 的 `modifiedTime` 字段。没有 git 那样的精细 diff，但有 Drive 自己的版本历史可以恢复。
 
@@ -100,7 +100,7 @@ Notion 格式不一样 — 是数据库和属性。迁出 Notion 需要导出 + 
 1. 配置 Notion MCP。
 2. 首次上朝：选 "c) Notion"。
 3. 系统创建 6 个数据库（🤔 Decisions、✅ Tasks、📓 Journal、📚 Wiki、🎯 Projects、🌊 Areas）。或者用模板。
-4. 写 `_meta/config.md`（本地存一份，保证 session 间能读到配置）。
+4. 写 `meta/config.md`（本地存一份，保证 session 间能读到配置）。
 
 完整后端模式下 Notion 存所有东西。传输模式下只用 4 个组件。两者区别在 `docs/user-guide/storage-and-sync/notion-as-transport.md`。
 
@@ -110,7 +110,7 @@ Notion 格式不一样 — 是数据库和属性。迁出 Notion 需要导出 + 
 
 1. 在 GitHub 建目录。
 2. 在 Notion 建 4 个传输层组件（Inbox / Status / Working Memory / Todo Board）。
-3. `_meta/config.md` 记录 `backends: [github: primary, notion: sync]`。
+3. `meta/config.md` 记录 `backends: [github: primary, notion: sync]`。
 
 ---
 
@@ -145,7 +145,7 @@ last_modified: "2026-04-08T15:30:00+09:00"
 
 多个会话同时上朝可能同时合并 outbox。为了防止互相覆盖：
 
-- 合并 outbox 前写 `_meta/.merge-lock`。
+- 合并 outbox 前写 `meta/.merge-lock`。
 - 合并完删掉。
 - 上朝时看到 `.merge-lock` 存在且 < 5 分钟 → 跳过合并（假定另一个会话在做）。
 - > 5 分钟 → 视为 stale 锁，清掉并自己合并。
@@ -175,7 +175,7 @@ last_modified: "2026-04-08T15:30:00+09:00"
 | 情况 | 处理 |
 |------|------|
 | Primary 不可用 | 临时提升下一个可用 backend 为 primary，晨报标注 "⚠️ primary backend unavailable" |
-| Sync backend 不可用 | 标⚠️，记录到 `_meta/sync-log.md`，下次会话自动重试 |
+| Sync backend 不可用 | 标⚠️，记录到 `meta/sync-log.md`，下次会话自动重试 |
 | 所有后端都不可用 | 正常跑会话，输出显示在对话里，不持久化 |
 
 降级规则的好处：你在飞机上 / 没 WiFi / Notion 挂了 — Life OS 依然能用。

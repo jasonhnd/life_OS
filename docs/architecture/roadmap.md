@@ -59,7 +59,7 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 - **LLM 偷懒问题**：已出现 `court-start-violation`，ROUTER 跳过 Phase 1/2 逻辑；纯 prompt 级约束不可靠
 - **无主动执行能力**：系统只在用户打开对话时响应；不能定时提醒、不能主动扫描 stale commitment
 - **跨 session 认知缺失**：记忆只在 SOUL / Wiki / STRATEGIC-MAP 里；概念之间没有连接；海马体未实现
-- **概念图谱未建立**：`_meta/concepts/` 目录不存在；Hebbian 强化 / sub-threshold pre-activation 还没落地
+- **概念图谱未建立**：`meta/concepts/` 目录不存在；Hebbian 强化 / sub-threshold pre-activation 还没落地
 
 ---
 
@@ -88,10 +88,10 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 
 **Cortex 数据结构**（目录结构就绪，但**暂不激活**）：
 
-- `_meta/concepts/` — 概念目录（Hebbian 突触网络的素材）
-- `_meta/sessions/` — 结构化 session summaries（带 concepts_fired 字段）
-- `_meta/snapshots/soul/` — SOUL 快照（趋势计算用，v1.6.2 已引入）
-- `_meta/eval-history/` — 评估历史（Strategic Map 的时间序列）
+- `meta/concepts/` — 概念目录（Hebbian 突触网络的素材）
+- `meta/sessions/` — 结构化 session summaries（带 concepts_fired 字段）
+- `meta/snapshots/soul/` — SOUL 快照（趋势计算用，v1.6.2 已引入）
+- `meta/eval-history/` — 评估历史（Strategic Map 的时间序列）
 
 **阶段 A 出口判据**：
 
@@ -111,7 +111,7 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 **现有 agent 扩展**：
 
 - `archiver.md` Phase 2 加三件事：
-  1. **概念抽取**：session 结论里提取新概念，写入 `_meta/concepts/_tentative/`
+  1. **概念抽取**：session 结论里提取新概念，写入 `meta/concepts/_tentative/`
   2. **赫布强化**：共同激活的概念对，边权重 +1；长期未激活 → 衰减
   3. **SOUL snapshot dump**：已有（v1.6.2 引入），合入 Phase 2 统一批次
 - `router.md` — 改为接收"带认知标注的输入"（annotated input），不再是原始 user message
@@ -131,7 +131,7 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 **阶段 B 出口判据**：
 
 - "上朝"时能自动浮现 5-7 条相关历史决策（曾经在类似场景做过什么）
-- 概念图在 second-brain 里持续增长：每次 session 末 `_meta/concepts/` 有新增或权重变化
+- 概念图在 second-brain 里持续增长：每次 session 末 `meta/concepts/` 有新增或权重变化
 - SOUL 趋势箭头计算可用（基于阶段 A 的 snapshot 基础设施）
 - 评估场景通过：给定一个"你之前说过类似的话"情境，hippocampus 能命中
 
@@ -160,7 +160,7 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 
 3. **元认知审计**（被动扫描）
    - 每周一次审计：冲突 salience / 激活频率大幅下降 / 用户反复纠正的领域
-   - 生成 `_meta/audit/suspicious.md` 可疑清单，用户确认才执行 demotion
+   - 生成 `meta/audit/suspicious.md` 可疑清单，用户确认才执行 demotion
 
 **Python 工具**：
 
@@ -181,12 +181,12 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 **执行扩展**（本地化，不跨平台）：
 
 - **本地 launchd / crontab**（用户决策 #1：v1.7 从 Claude Code Bash 本地触发；不做 Telegram bot / GitHub Actions / 远程 cron / 独立常驻 agent）
-- **家里 Mac 定时任务**（可选）— launchd 跑 daily briefing / 周复盘 / stale commitment 扫描，输出到 `_meta/briefings/{date}.md` 供下次 session 消化
+- **家里 Mac 定时任务**（可选）— launchd 跑 daily briefing / 周复盘 / stale commitment 扫描，输出到 `meta/briefings/{date}.md` 供下次 session 消化
 - **本地通知**（可选）— macOS `osascript` / `terminal-notifier` 等原生通道推送 SOUL 冲突 / stale commitment / DREAM 触发器信号，**不做跨平台消息 bot**
 
 **方法库**（v1.7 核心交付之一）：
 
-- `_meta/methods/` 目录结构：每个方法一个 md 文件，YAML frontmatter 标 domain / trigger / evidence_count（详见 `references/method-library-spec.md`）
+- `meta/methods/` 目录结构：每个方法一个 md 文件，YAML frontmatter 标 domain / trigger / evidence_count（详见 `references/method-library-spec.md`）
 - 自动沉淀：ARCHIVER Phase 2 识别"这次 session 用的方法和过去相似" → 写入 method
 - 使用回路：DISPATCHER 分配任务时检查方法库，命中则"按已有方法执行"而不是从头推理
 
@@ -199,7 +199,7 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 
 **阶段 D 出口判据**：
 
-- 本地 launchd / crontab 任一方案接通每日 briefing，输出到 `_meta/briefings/`
+- 本地 launchd / crontab 任一方案接通每日 briefing，输出到 `meta/briefings/`
 - 本地通知通道接通（macOS 原生 / 等价机制），SOUL 冲突 / stale commitment 能主动提醒
 - 方法库累计 ≥ 10 条自动沉淀的方法
 - 整套系统在 1000 session 规模下流畅运行（2-5 秒 INDEX 扫描可接受）

@@ -109,7 +109,7 @@
 
 严格对应 retrospective.md Step 11 的 6 个子步骤：
 - 11.1 当前 SOUL
-- 11.2 最新 snapshot（`_meta/snapshots/soul/`）
+- 11.2 最新 snapshot（`meta/snapshots/soul/`）
 - 11.3 delta 计算
 - 11.4 箭头推导
 - 11.5 特殊状态
@@ -203,7 +203,7 @@ DREAM REM 阶段在 archiver 里会评估 10 个触发模式。任何命中都�
    → Action: [今日含义]
 ```
 
-只有 `_meta/strategic-lines.md` 存在才显示。否则回退到扁平 Area status 列表。
+只有 `meta/strategic-lines.md` 存在才显示。否则回退到扁平 Area status 列表。
 
 ### archetype indicator
 

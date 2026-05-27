@@ -6,7 +6,7 @@ allowed-tools: Read, Grep, Glob
 
 # /search · 历史会话搜索 (v1.8.0 pivot)
 
-> **v1.8.0 pivot 注解**：之前调用 `python -m tools.session_search`（SQLite FTS5），但 `tools/session_search.py` 在 v1.8.0 pivot 中被删除。Search 现在用 Grep tool 直接搜 `_meta/sessions/*.md`，没有 python 中间层。
+> **v1.8.0 pivot 注解**：之前调用 `python -m tools.session_search`（SQLite FTS5），但 `tools/session_search.py` 在 v1.8.0 pivot 中被删除。Search 现在用 Grep tool 直接搜 `meta/sessions/*.md`，没有 python 中间层。
 
 > **Backup mode**: 主要路径是 ROUTER 在 Cortex pull-based 调度下 launch `hippocampus` subagent，结果出现在 `[COGNITIVE CONTEXT]` 块里。这个命令是给"我想精确搜某个关键词不走 Cortex"的备份。详见 `pro/CLAUDE.md` → §0.5 (Cortex pull-based)。
 
@@ -17,7 +17,7 @@ User invoked: `/search $ARGUMENTS`
 1. **用 Grep 工具直接搜**：
 
    ```
-   Grep(pattern="$ARGUMENTS", path="_meta/sessions/", output_mode="files_with_matches", head_limit=10)
+   Grep(pattern="$ARGUMENTS", path="meta/sessions/", output_mode="files_with_matches", head_limit=10)
    ```
 
 2. **对每个命中文件，Read frontmatter + 摘录命中行的上下文**：

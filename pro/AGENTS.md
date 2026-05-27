@@ -45,7 +45,7 @@ Conventions: Modern, direct language. No archaic tone. Honest scores.
 
 ## Theme System
 
-The theme file is loaded at session start. All display names (for agents, phases, domains, reports, and trigger words) come from the active theme. Users can switch themes by changing the active theme in `_meta/config.md`. Functional IDs in this file remain stable across all themes.
+The theme file is loaded at session start. All display names (for agents, phases, domains, reports, and trigger words) come from the active theme. Users can switch themes by changing the active theme in `meta/config.md`. Functional IDs in this file remain stable across all themes.
 
 ## Complete Workflow
 
@@ -247,13 +247,13 @@ The STRATEGIST does not go through the Draft-Review-Execute workflow. It operate
 3. STRATEGIST displays the 18-domain thinker index and recommends figures + mode
 4. User confirms → STRATEGIST spawns each selected thinker as an **independent subagent**
 5. Dialogue proceeds (one-on-one / roundtable / debate)
-6. Ending: each thinker gives a parting word → STRATEGIST summarizes → writes to `_meta/journal/`
+6. Ending: each thinker gives a parting word → STRATEGIST summarizes → writes to `meta/journal/`
 
 **Information isolation**: Each thinker subagent receives only the topic and their own role. In roundtable/debate, the moderator passes speech summaries (not full text or thinking process) between thinkers.
 
 ### Note: DREAM is integrated into ARCHIVER agent
 
-DREAM (the AI sleep cycle) is Phase 3 of the ARCHIVER agent's closing flow — not a separate agent. The ARCHIVER agent runs DREAM automatically as part of every adjourn. Dream reports are stored in `_meta/journal/` and presented by the RETROSPECTIVE agent at the next Start Session.
+DREAM (the AI sleep cycle) is Phase 3 of the ARCHIVER agent's closing flow — not a separate agent. The ARCHIVER agent runs DREAM automatically as part of every adjourn. Dream reports are stored in `meta/journal/` and presented by the RETROSPECTIVE agent at the next Start Session.
 
 ### Wiki — Knowledge Archive
 
@@ -267,11 +267,11 @@ If `SOUL.md` exists in the user's second-brain, all agents read it per the confi
 
 ### Strategic Map — Strategic Relationship Layer
 
-If `_meta/strategic-lines.md` and/or projects with `strategic:` frontmatter fields exist in the user's second-brain, the RETROSPECTIVE agent compiles `_meta/STRATEGIC-MAP.md` at every Start Session. The compiled map includes strategic line health assessments (archetype-based, not numerical), flow graphs, cross-layer verification (SOUL x strategy, wiki x flows), blind spot detection, and action recommendations.
+If `meta/strategic-lines.md` and/or projects with `strategic:` frontmatter fields exist in the user's second-brain, the RETROSPECTIVE agent compiles `meta/STRATEGIC-MAP.md` at every Start Session. The compiled map includes strategic line health assessments (archetype-based, not numerical), flow graphs, cross-layer verification (SOUL x strategy, wiki x flows), blind spot detection, and action recommendations.
 
 The ROUTER reads the compiled map to frame cross-project questions. The PLANNER checks for cross-project impact during planning. The REVIEWER checks decision consistency against the flow graph and SOUL alignment. The execution domain uses strategic roles for priority weighting. The ARCHIVER agent detects new relationships during knowledge extraction, updates `last_activity` dates, and DREAM REM uses the flow graph as scaffolding for cross-layer insights.
 
-STRATEGIC-MAP.md is a compiled artifact — never hand-edit it. Strategic lines are defined in `_meta/strategic-lines.md`. Per-project relationships are stored in each `projects/{p}/index.md` frontmatter. See `references/strategic-map-spec.md` for the full specification.
+STRATEGIC-MAP.md is a compiled artifact — never hand-edit it. Strategic lines are defined in `meta/strategic-lines.md`. Per-project relationships are stored in each `projects/{p}/index.md` frontmatter. See `references/strategic-map-spec.md` for the full specification.
 
 ## Special Triggers
 
@@ -322,7 +322,7 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 4. **Pro environment forces real subagents** — must spawn actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
 5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and spawn it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
-7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST spawn `auditor` in Mode 3 (Compliance Patrol). Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). All-pass output: `🔱 [theme: auditor] · ✅ Compliance Patrol passed`. Cannot be skipped. HARD RULE.
+7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST spawn `auditor` in Mode 3 (Compliance Patrol). Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). All-pass output: `🔱 [theme: auditor] · ✅ Compliance Patrol passed`. Cannot be skipped. HARD RULE.
 
 8. **Obsidian readability for ALL human-readable .md output (v1.8.2)** · Every `.md` file Life OS produces that a human will read in Obsidian — wiki entries, session archives, retrospective Mode 0 briefings, archiver Phase outputs, daily-briefing, wiki-decay reports, eval-history aggregates, compliance logs, method library entries, DREAM entries, SOUL snapshots, all slash command outputs — MUST follow `references/obsidian-style.md`. The 3 non-negotiables: callouts (`> [!info]`, `> [!warning]`, etc.) for semantic blocks; `[[wikilinks]]` for in-vault references; nested tags (`fintech/stablecoin`) over flat tags. Out of scope: pure data files, source code, agent definition files. HARD RULE.
 
@@ -375,7 +375,7 @@ Adjourn is NOT a single step in the main workflow — it is an independent state
 
 ## Storage Backends
 
-Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or all 3). Config in `_meta/config.md`. Multi-backend: writes to all, reads from primary (GitHub > GDrive > Notion).
+Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or all 3). Config in `meta/config.md`. Multi-backend: writes to all, reads from primary (GitHub > GDrive > Notion).
 
 - Data model: `references/data-model.md`
 - Adapters: `references/adapter-github.md`, `references/adapter-gdrive.md`, `references/adapter-notion.md`
@@ -385,7 +385,7 @@ Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or 
 
 | Role | Receives | Does Not Receive |
 |------|----------|------------------|
-| RETROSPECTIVE agent | User message (housekeeping), `_meta/strategic-lines.md` + all project strategic fields | No restrictions |
+| RETROSPECTIVE agent | User message (housekeeping), `meta/strategic-lines.md` + all project strategic fields | No restrictions |
 | ARCHIVER agent | Summary Report + reports + session conversation summary, all project strategic fields | Other agents' thought processes |
 | **HIPPOCAMPUS** (v1.7) | current_user_message + extracted_subject + current_project + current_theme + recent_inbox_items + current_strategic_lines | **Other Cortex outputs** (concept-lookup, soul-check), **SOUL.md full body**, prior session transcripts (only summaries via INDEX), other agents' thought processes |
 | **CONCEPT-LOOKUP** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | **Other Cortex outputs** (hippocampus, soul-check), raw concept body content (only INDEX scan + selective top file reads), other agents' thought processes |
@@ -393,7 +393,7 @@ Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or 
 | **GWT-ARBITRATOR** (v1.7) | hippocampus_output + concept_lookup_output + soul_check_output + current_user_message | ROUTER reasoning, raw session content, agent thought processes |
 | **NARRATOR** (v1.7 Phase 2, ROUTER @ Step 7.5 narrator mode — NOT a standalone subagent; see `pro/compliance/2026-04-21-narrator-spec-violation.md`) | Draft Summary Report + cognitive_context (signals from GWT) | Other agents' thought processes, raw SOUL.md body, raw wiki/ files |
 | **NARRATOR-VALIDATOR** (v1.7 Phase 2.5) | narrator_output + cognitive_context (same as narrator received) | Anything outside its input |
-| ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `_meta/STRATEGIC-MAP.md` (compiled) + `[COGNITIVE CONTEXT]` block from GWT (when Cortex enabled) | — |
+| ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `meta/STRATEGIC-MAP.md` (compiled) + `[COGNITIVE CONTEXT]` block from GWT (when Cortex enabled) | — |
 | PLANNER | Subject + background + user message + bound project's strategic context (flows only, not full map) | ROUTER's reasoning, full strategic map |
 | REVIEWER | Planning document or Six Domains reports + flow graph relevant to current decision | Thought processes, full strategic map |
 | DISPATCHER | Approved planning document | Thought processes |
@@ -405,7 +405,7 @@ Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or 
 
 > See `pro/CLAUDE.md` §"Decision Records" for full spec. Codex sync — same 7-field schema applies.
 
-When any agent (most commonly REVIEWER) decides to NOT change behavior, MUST write `_meta/incidents/<id>.no-change.yml` with 7 fields: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition. Missing `reopen_condition` = F10 RESPONSIBILITY_FAILURE.
+When any agent (most commonly REVIEWER) decides to NOT change behavior, MUST write `meta/decisions/<id>.no-change.yml` with 7 fields: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition. Missing `reopen_condition` = F10 RESPONSIBILITY_FAILURE.
 
 ## Minimality Rule (HARD RULE · v1.8.5 Stage 7)
 

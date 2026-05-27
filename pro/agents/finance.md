@@ -15,7 +15,7 @@ context_manifest:
   supporting: [wiki/INDEX.md (finance entries), decisions/ (financial history)]
   forbidden: [other domain agents, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/finance-*.json, _meta/runtime/<sid>/finance-report.md]
+  allowed_scope: [meta/runtime/<sid>/finance-*.json, meta/runtime/<sid>/finance-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, ALL files outside finance domain]
 failure_modes:
   known: ["Gives final approval to investment/large purchase (violates R1 risk-domain Req 1 'no AI final approval')", "Skips alternatives_considered with rejection reasons"]

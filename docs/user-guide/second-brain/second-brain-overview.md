@@ -18,7 +18,7 @@ second-brain/
 ├── SOUL.md                   # 🧬 身份 — 价值观、原则、行为倾向
 ├── user-patterns.md          # 📊 跨会话观察到的行为模式
 │
-├── _meta/                    # 🔧 系统元数据
+├── meta/                    # 🔧 系统元数据
 │   ├── STATUS.md             # 全局状态快照（编译）
 │   ├── STRATEGIC-MAP.md      # 🗺️ 战略地图（从项目 strategic 字段编译）
 │   ├── strategic-lines.md    # 战略线定义（用户手写）
@@ -81,7 +81,7 @@ social/     learning/   ops/        creation/  spirit/
 
 项目和领域可以互相引用。搬家项目属于 life area，但也会拉 finance area 进来算钱。
 
-### _meta/ — 关于大脑的大脑
+### meta/ — 关于大脑的大脑
 
 系统元数据。不是你的记忆，是系统怎么管理你记忆的规则。
 
@@ -123,7 +123,7 @@ Second-brain 在 GitHub / Google Drive 上时，Notion 可以作为轻量记忆�
 | 组件 | 类型 | 作用 |
 |------|------|------|
 | 📬 Inbox | 数据库 | 手机 ↔ 桌面的消息队列。Content / Source / Status / Time。 |
-| 🧠 Current Status | 页面 | 镜像 `_meta/STATUS.md`。会话结束由 orchestrator 覆写。 |
+| 🧠 Current Status | 页面 | 镜像 `meta/STATUS.md`。会话结束由 orchestrator 覆写。 |
 | 📝 Working Memory | 话题页 | 每个活跃话题一页（5-10 个）。不活跃了归档到 GitHub + 从 Notion 删掉。 |
 | 📋 Todo Board | 数据库 | 从 `projects/*/tasks/` 和 `areas/*/tasks/` 同步。手机可勾可看。 |
 
@@ -175,11 +175,11 @@ Second-brain 在 GitHub / Google Drive 上时，Notion 可以作为轻量记忆�
 
 | 数据 | 权威源 | 编译视图 |
 |------|--------|---------|
-| 项目版本 / 状态 | `projects/{project}/index.md` | `_meta/STATUS.md` |
-| 领域目标 / 状态 | `areas/{area}/index.md` | `_meta/STATUS.md` |
+| 项目版本 / 状态 | `projects/{project}/index.md` | `meta/STATUS.md` |
+| 领域目标 / 状态 | `areas/{area}/index.md` | `meta/STATUS.md` |
 | 任务完成率 | `projects/{project}/tasks/*.md` | Metrics dashboard |
 | 行为模式 | `user-patterns.md` | ADVISOR 报告 |
-| 战略关系 | `projects/{project}/index.md` strategic 字段 + `_meta/strategic-lines.md` | `_meta/STRATEGIC-MAP.md` |
+| 战略关系 | `projects/{project}/index.md` strategic 字段 + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **写入顺序强制**：先改权威源，再让系统编译视图。永远不要直接写 STATUS.md。AUDITOR 巡查时如果发现 STATUS.md 和 index.md 矛盾，会标🔴并以 index.md 为准。
 

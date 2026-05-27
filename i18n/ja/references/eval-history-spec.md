@@ -18,7 +18,7 @@ Eval history は、Life OS が時間経過を通じて自分自身を検査す�
 
 個々の AUDITOR レポートはすでに各セッションのエージェントパフォーマンスを採点していますが、セッションが終了すると蒸発してしまいます。それらは *今回の* 審議には有用ですが、*過去 10 回の審議* についてはシステムに何も語ってくれません。その欠落したループを閉じるのが eval history です。
 
-- **AUDITOR** は writer です。full deliberation または express workflow が終わるたびに、その判定を構造化 YAML + markdown として `_meta/eval-history/` にシリアライズします。
+- **AUDITOR** は writer です。full deliberation または express workflow が終わるたびに、その判定を構造化 YAML + markdown として `meta/eval-history/` にシリアライズします。
 - **RETROSPECTIVE Mode 0** が一次 reader です。各 Start Session において直近 10 件の eval ファイルを読み、システミックパターン — 繰り返される違反、低下するスコア、hallucinated な引用、スキップされたフェーズ — を検出します。
 - **Tools**(stats、reconcile)は月次サマリーや orphan 検出のために履歴を読みます。
 
@@ -31,7 +31,7 @@ Eval history は、Life OS が時間経過を通じて自分自身を検査す�
 ## 2. ファイル配置(File Location)
 
 ```
-_meta/eval-history/
+meta/eval-history/
 └── {YYYY-MM-DD}-{project}.md
 ```
 
@@ -41,7 +41,7 @@ AUDITOR を通ったセッション一件につきファイル一つ。
 - `{project}` — バインドされたプロジェクトのスラグ(kebab-case、小文字)。
 - 同日同一プロジェクトの複数セッションは `-{HHMM}` を付加して曖昧性を排除します: `2026-04-20-career-change-1430.md`。
 
-Eval ファイルは他の `_meta/` アーティファクト(STATUS.md、STRATEGIC-MAP.md、lint-state.md)と同居し、同じ規約に従います: エージェントがコンパイルし、人間が読める、事後の手編集は行わない。
+Eval ファイルは他の `meta/` アーティファクト(STATUS.md、STRATEGIC-MAP.md、lint-state.md)と同居し、同じ規約に従います: エージェントがコンパイルし、人間が読める、事後の手編集は行わない。
 
 ---
 
@@ -52,7 +52,7 @@ Eval ファイルは他の `_meta/` アーティファクト(STATUS.md、STRATEG
 ```yaml
 ---
 eval_id: {YYYY-MM-DD-HHMM}-{project}
-session_id: string                 # references _meta/sessions/{session_id}.md
+session_id: string                 # references meta/sessions/{session_id}.md
 evaluator: auditor | auditor-patrol
 evaluation_mode: decision-review | patrol-inspection
 date: ISO 8601 timestamp
@@ -275,7 +275,7 @@ RETROSPECTIVE Mode 0 は Start Session 時に直近 10 件の eval ファイル�
 ## 8. アーカイブポリシー(Archive Policy)
 
 - Eval ファイルは無期限に保持されます。各ファイルは小さい(〜5 KB)ので、1000 セッションでも合計 〜5 MB です。
-- 6 ヶ月より古いファイルは `_meta/eval-history/_digest/{YYYY-Q}.md` に四半期 digest としてまとめられ、元のファイルは `_meta/eval-history/_archive/` に移されます。Digest はヘッドラインスコアとシステミックパターンを保持します。個々のセッションは引き続きアクセス可能です。
+- 6 ヶ月より古いファイルは `meta/eval-history/_digest/{YYYY-Q}.md` に四半期 digest としてまとめられ、元のファイルは `meta/eval-history/_archive/` に移されます。Digest はヘッドラインスコアとシステミックパターンを保持します。個々のセッションは引き続きアクセス可能です。
 - Digest は `tools/stats.py` を `--compress-old` で実行したときに書かれます。自動では決して書かれません。
 
 ---
@@ -298,7 +298,7 @@ Reader は欠落フィールドを許容しなければなりません(異なる
 ## 10. 書き込みフロー(Write Flow)
 
 - トリガー: AUDITOR が full deliberation workflow の Step 8 で Decision Review を完了(または express path の Brief-Report 相当、または Patrol Inspection)。
-- パス: `_meta/eval-history/{YYYY-MM-DD}-{project}.md`。
+- パス: `meta/eval-history/{YYYY-MM-DD}-{project}.md`。
 - コンフリクト解消: ファイルが既に存在する場合(同日同一プロジェクトの 2 回目以降のセッション)、AUDITOR はファイル名に `-{HHMM}` を付加します: `2026-04-20-career-change-1430.md`。
 - 失敗処理: 書き込みが失敗した場合(ディスクフル、パーミッションエラー、パス欠落)、AUDITOR は通常の Decision Review 出力で失敗を報告します。セッションは続行されます。失敗自体は次セッションの eval に process compliance 違反として記録されます。
 - 不変性(Immutability): eval ファイルは作成後に編集されることはありません。評価が誤っていた場合、次セッションで reversal note 付きの新ファイルが書かれます。先行ファイルは歴史的記録として残ります。
@@ -309,9 +309,9 @@ Reader は欠落フィールドを許容しなければなりません(異なる
 
 v1.7 以前に eval history は存在しませんでした。
 
-- `tools/migrate.py` は `_meta/journal/` から過去の AUDITOR レポートを **backfill しません**。それらのレポートは unstructured prose であってスキーマに合わず、backfill を試みると low-signal noise を生じ、システミック検出を汚染します。
+- `tools/migrate.py` は `meta/journal/` から過去の AUDITOR レポートを **backfill しません**。それらのレポートは unstructured prose であってスキーマに合わず、backfill を試みると low-signal noise を生じ、システミック検出を汚染します。
 - Eval history は v1.7 初日にフレッシュスタートします。v1.7 の最初の Start Session はシステミック警告を表示しません(スキャンすべき履歴なし)。3 セッション以上連続で記録されると警告が出始めます。
-- v1.7 以前のセッションの履歴分析を求めるユーザーは既存の `_meta/journal/` レポートを直接使用してください。これらは migrate されません。
+- v1.7 以前のセッションの履歴分析を求めるユーザーは既存の `meta/journal/` レポートを直接使用してください。これらは migrate されません。
 
 ---
 

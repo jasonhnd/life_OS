@@ -41,13 +41,13 @@ ARCHIVER **只**作为独立子代理运行。**绝不**在主上下文执行。
 ### Phase 1 · Archive（归档）
 
 ```
-1. 读 _meta/config.md → 获取存储后端列表
+1. 读 meta/config.md → 获取存储后端列表
 2. 生成 session-id：运行 date 命令获取实际时间戳，格式 {platform}-{YYYYMMDD}-{HHMM}
    **HARD RULE：绝不编造时间戳，必须用系统时钟的真实输出**
-3. 创建 outbox 目录：_meta/outbox/{session_id}/
-4. 保存 Decision（summary report）→ _meta/outbox/{session_id}/decisions/（每个文件 front matter 含 project 字段）
-5. 保存 Task（action items）→ _meta/outbox/{session_id}/tasks/
-6. 保存 JournalEntry（auditor + advisor 报告）→ _meta/outbox/{session_id}/journal/
+3. 创建 outbox 目录：meta/outbox/{session_id}/
+4. 保存 Decision（summary report）→ meta/outbox/{session_id}/decisions/（每个文件 front matter 含 project 字段）
+5. 保存 Task（action items）→ meta/outbox/{session_id}/tasks/
+6. 保存 JournalEntry（auditor + advisor 报告）→ meta/outbox/{session_id}/journal/
 7. 写 index-delta.md → 记录 projects/{project}/index.md 的变更（version、phase、current focus）
 8. 若 advisor 有 "📝 Pattern Update Suggestion" → 写 patterns-delta.md（追加内容）
 9. 写 manifest.md → session 元数据（平台、模型、项目、时间戳、输出计数、wiki_candidates 计数）
@@ -72,7 +72,7 @@ Phase 2 产出 **Session Candidates** — 仅从当前会话提取。wiki 和 SO
 5. **多证据点（≥ 2 独立）** — 至少 2 个案例/数据点/决策/参考。单一观察 → 丢弃
 6. **不与既有 wiki 矛盾** — 若与既有条目矛盾 → 该条目 `challenges: +1`，**不新建**
 
-**全部 6 条通过** → 自动写入 `_meta/outbox/{session_id}/wiki/{domain}/{topic}.md`，含合规 front matter。
+**全部 6 条通过** → 自动写入 `meta/outbox/{session_id}/wiki/{domain}/{topic}.md`，含合规 front matter。
 
 **初始置信度**：
 - 3+ 独立证据 → 0.5
@@ -99,7 +99,7 @@ Phase 2 产出 **Session Candidates** — 仅从当前会话提取。wiki 和 SO
 2. **≥ 2 个决策作为证据** — 单次决策观察太薄。至少要本会话 2 个决策或跨会话强化
 3. **尚未被覆盖** — 若既有 SOUL 维度已覆盖 → 增加 evidence_count，**不新建**
 
-通过 → 自动写入 `_meta/outbox/{session_id}/soul/`：
+通过 → 自动写入 `meta/outbox/{session_id}/soul/`：
 - `confidence: 0.3`（低初始 — 让 evidence/challenges 成长它）
 - `What IS`：系统根据观察填写
 - `What SHOULD BE`：**留空** — 用户自己填（这是关于愿景，不是观察）
@@ -114,7 +114,7 @@ Phase 2 产出 **Session Candidates** — 仅从当前会话提取。wiki 和 SO
 
 合并 SOUL delta 到 SOUL.md 后，dump 当前 SOUL 状态快照：
 
-- 路径：`_meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
+- 路径：`meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
 - 格式（front matter + 维度表）：
 
 ```yaml
@@ -139,7 +139,7 @@ previous_snapshot: {上一个快照的文件名，首次为 null}
 **用途**：RETROSPECTIVE 在下次 Start Session 读最新快照，计算 SOUL Health Report 的 trend delta（↗↘→）。快照只记数字元数据；What IS / What SHOULD BE 留在主 SOUL.md。
 
 **归档策略**：
-- > 30 天的快照移到 `_meta/snapshots/soul/_archive/`
+- > 30 天的快照移到 `meta/snapshots/soul/_archive/`
 - > 90 天的快照删除（已在 git + Notion 中保留）
 
 ### Phase 3 · DREAM（深度复盘）→ DREAM Candidates
@@ -151,14 +151,14 @@ Phase 3 产出 **DREAM Candidates** — 从 3 天扫描中发现。**现在不�
 #### 范围
 
 默认：过去 3 天（72 小时）修改的文件。
-- 若 3 天内无文件变更 → 扩展到"自上次 dream 报告以来"（读最新 `_meta/journal/*-dream.md` 的日期）
+- 若 3 天内无文件变更 → 扩展到"自上次 dream 报告以来"（读最新 `meta/journal/*-dream.md` 的日期）
 - 若无 dream 报告 → 扫描过去 7 天
 
 #### N1-N2 · 整理与归档
 
 🔎 扫描 3 天变更集：
 - `inbox/` — 有未分类条目吗？
-- `_meta/journal/` — 近期条目有值得提取的洞察吗？
+- `meta/journal/` — 近期条目有值得提取的洞察吗？
 - `projects/*/tasks/` — 过期截止日期、重复、陈旧条目？
 - 有文件创建但未在项目/area index.md 中引用吗？
 
@@ -209,7 +209,7 @@ Phase 3 产出 **DREAM Candidates** — 从 3 天扫描中发现。**现在不�
 
 **输出**：写入 dream journal 的 `triggered_actions` YAML 块（格式见 `references/dream-spec.md`）。
 
-若 `_meta/STRATEGIC-MAP.md` 存在，额外检查：
+若 `meta/STRATEGIC-MAP.md` 存在，额外检查：
 - **结构**：定义的 flow 中有变陈旧、失效、或获得新证据的吗？
 - **SOUL × 战略**：driving force 与 SOUL 维度一致？某个生命维度从所有战略线中缺席？
 - **patterns × 战略**：行为模式与战略优先级一致？用户是否在回避某 critical-path 项目？
@@ -220,7 +220,7 @@ Phase 3 产出 **DREAM Candidates** — 从 3 天扫描中发现。**现在不�
 
 #### DREAM 输出
 
-写到 `_meta/outbox/{session_id}/journal/{date}-dream.md`：
+写到 `meta/outbox/{session_id}/journal/{date}-dream.md`：
 
 ```yaml
 ---
@@ -277,9 +277,9 @@ triggered_actions:
 ### Phase 4 · Sync（仅 git，Notion 由编排层处理）
 
 ```
-1. git add _meta/outbox/{session_id}/ → commit → push（只提交 outbox 目录）
-2. 更新 _meta/config.md 的 last_sync_time
-3. 任何 GitHub 后端失败 → 记录到 _meta/sync-log.md，标 ⚠️，不阻塞
+1. git add meta/outbox/{session_id}/ → commit → push（只提交 outbox 目录）
+2. 更新 meta/config.md 的 last_sync_time
+3. 任何 GitHub 后端失败 → 记录到 meta/sync-log.md，标 ⚠️，不阻塞
 ```
 
 **Notion 同步不由 archiver 子代理执行**。archiver 无法访问 Notion MCP 工具（这些工具是环境特定的，无法在 agent frontmatter 中声明）。archiver 完成并返回 Completion Checklist 后，**编排层（主上下文）**用 session 中可用的 MCP 工具执行 Notion 同步。详见 `pro/CLAUDE.md` Step 10a。
@@ -306,7 +306,7 @@ Session adjourned.
 ```
 ✅ Completion Checklist:
 - Subagent invocation: [✅ 确认作为独立子代理运行 / ⚠️ 在主上下文运行 — VIOLATION]
-- Phase 1 outbox: _meta/outbox/{actual-session-id}/
+- Phase 1 outbox: meta/outbox/{actual-session-id}/
 - Phase 1 archived: {N} decisions, {M} tasks, {K} journal entries
 - Phase 2 wiki auto-written: [{列表} / 0 this session]
 - Phase 2 wiki discarded: [{计数}含原因 / 无]
@@ -329,7 +329,7 @@ Session adjourned.
 7. **绝不编造** DREAM 洞察 — "无发现"是有效回答
 8. **绝不尝试 Notion 同步** — 编排层处理
 9. Session 关闭 git commit 是原子的 — 什么都不能漏
-10. **绝不直接写** projects/、_meta/STATUS.md、user-patterns.md — 全部走 outbox
+10. **绝不直接写** projects/、meta/STATUS.md、user-patterns.md — 全部走 outbox
 11. Completion Checklist 每项必须有具体值，不接受占位符
 12. session-id 时间戳必须从 date 命令获得真实值
 

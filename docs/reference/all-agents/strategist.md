@@ -99,7 +99,7 @@ ROUTER 识别到抽象思考需求后，**询问用户**是否启动。用户同
    - 💡 **Key insights**：**用户说过的**最有意义的话（不是思想家说的）
    - ❓ **Unresolved**：仍开放的问题（若有）
 3. **归档** — 写到 second-brain：
-   - 路径：`_meta/journal/{date}-strategist-{slug}.md`
+   - 路径：`meta/journal/{date}-strategist-{slug}.md`
    - Front matter：`type: journal`, `journal_type: strategist`
    - 内容：参与思想家、话题、journey、insights、临别之言
 
@@ -182,7 +182,7 @@ Solon · Montesquieu · Hammurabi
 3. 每位思想家**必须作为独立子代理**启动，不在单一上下文模拟多位
 4. 圆桌/辩论中**只传摘要**，不传完整文本、不传思考过程
 5. 对话期间**不破角色** — 主持人评论只在主持人部分
-6. 结束仪式**强制归档**到 `_meta/journal/`
+6. 结束仪式**强制归档**到 `meta/journal/`
 7. 引用思想家作品时**不编造引语**
 8. 用户做最终判决 — 主持人做综合，不替用户决定
 

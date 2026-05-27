@@ -17,8 +17,8 @@ Cortex data has three lifecycle phases corresponding to where in a session it ge
 
 | Phase | Who | When | Files touched |
 |-------|-----|------|---------------|
-| **Write** | archiver | Adjourn (Phase 2) | `_meta/sessions/{id}.md`, `_meta/concepts/{domain}/{id}.md`, `_meta/snapshots/soul/{ts}.md` |
-| **Compile** | retrospective | Start Session (Mode 0) | `_meta/sessions/INDEX.md`, `_meta/concepts/{INDEX,SYNAPSES-INDEX}.md` |
+| **Write** | archiver | Adjourn (Phase 2) | `meta/sessions/{id}.md`, `meta/concepts/{domain}/{id}.md`, `meta/snapshots/soul/{ts}.md` |
+| **Compile** | retrospective | Start Session (Mode 0) | `meta/sessions/INDEX.md`, `meta/concepts/{INDEX,SYNAPSES-INDEX}.md` |
 | **Read** | hippocampus / concept-lookup / soul-check / GWT | Every user message (Step 0.5) | All compiled INDEX files + selected per-session/per-concept files |
 
 **Strict separation**: writers never compile; compilers never write per-record files; readers never modify anything. Mutations happen only in archiver Phase 2.
@@ -63,7 +63,7 @@ orchestrator step 10a: Notion sync via MCP
 
 AUDITOR Mode 3 (auto, per Orchestration rule #7):
   · Audits 4 Adjourn checks (C/D/E/A3) + 7 Cortex checks (CX1-CX7)
-  · Logs violations to pro/compliance/violations.md or _meta/compliance/violations.md
+  · Logs violations to pro/compliance/violations.md or meta/compliance/violations.md
 ```
 
 ```
@@ -77,8 +77,8 @@ ROUTER: 🌅 Trigger: 上朝 → Action: Launch(retrospective) Mode 0
      ↓
 retrospective Mode 0 (18 steps):
   · Step 7 outbox merge (decisions/tasks/journal/sessions move to canonical)
-  · NEW: Compile session INDEX.md from _meta/sessions/*.md
-  · NEW: Compile concept INDEX.md + SYNAPSES-INDEX.md from _meta/concepts/{domain}/*.md
+  · NEW: Compile session INDEX.md from meta/sessions/*.md
+  · NEW: Compile concept INDEX.md + SYNAPSES-INDEX.md from meta/concepts/{domain}/*.md
   · ... rest of 18 steps (SOUL Health Report, Strategic Map, briefing, ...)
 
 AUDITOR Mode 3 (auto): audits Mode 0 for 6 Start Session compliance checks
@@ -208,7 +208,7 @@ Without Cortex (v1.6.3 baseline): ROUTER + planner + reviewer + 6 domains + audi
 
 CX6 + CX7 are P0 (HARD RULE breaches). CX1-CX5 are P1 (process violations, system degrades to v1.6.3 behaviour but should be fixed).
 
-Deprecated `cortex_enabled` values in `_meta/config.md` do not disable CX checks in v1.7.2.
+Deprecated `cortex_enabled` values in `meta/config.md` do not disable CX checks in v1.7.2.
 
 ---
 
@@ -218,14 +218,14 @@ Quick map from on-disk path to dataclass + spec:
 
 | File path | Dataclass | Spec |
 |-----------|-----------|------|
-| `_meta/sessions/{id}.md` | `SessionSummary` | session-index-spec.md §3 |
-| `_meta/sessions/INDEX.md` | (compiled artifact) | session-index-spec.md §4 |
-| `_meta/concepts/{domain}/{id}.md` | `Concept` | concept-spec.md |
-| `_meta/concepts/INDEX.md` | (compiled artifact) | concept-spec.md (INDEX section) |
-| `_meta/concepts/SYNAPSES-INDEX.md` | (compiled artifact) | concept-spec.md (SYNAPSES section) |
-| `_meta/snapshots/soul/{ts}.md` | `SoulSnapshot` | snapshot-spec.md |
-| `_meta/eval-history/{date}-{project}.md` | `EvalEntry` | eval-history-spec.md |
-| `_meta/methods/{domain}/{id}.md` | `Method` | method-library-spec.md |
+| `meta/sessions/{id}.md` | `SessionSummary` | session-index-spec.md §3 |
+| `meta/sessions/INDEX.md` | (compiled artifact) | session-index-spec.md §4 |
+| `meta/concepts/{domain}/{id}.md` | `Concept` | concept-spec.md |
+| `meta/concepts/INDEX.md` | (compiled artifact) | concept-spec.md (INDEX section) |
+| `meta/concepts/SYNAPSES-INDEX.md` | (compiled artifact) | concept-spec.md (SYNAPSES section) |
+| `meta/snapshots/soul/{ts}.md` | `SoulSnapshot` | snapshot-spec.md |
+| `meta/eval-history/{date}-{project}.md` | `EvalEntry` | eval-history-spec.md |
+| `meta/methods/{domain}/{id}.md` | `Method` | method-library-spec.md |
 
 Python dataclasses live in `tools/lib/second_brain.py`. IO helpers in `tools/lib/cortex/{session_index,concept,snapshot}.py`.
 

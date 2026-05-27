@@ -1,5 +1,5 @@
 ---
-description: After ROUTER calls the Notion MCP at Step 10a (archiver Phase 4 → Notion sync), write the audit trail JSON to _meta/runtime/<sid>/notion-sync.json. Replaces v1.8.4 scripts/notion-sync.sh as part of v1.8.5 hook layer retirement.
+description: After ROUTER calls the Notion MCP at Step 10a (archiver Phase 4 → Notion sync), write the audit trail JSON to meta/runtime/<sid>/notion-sync.json. Replaces v1.8.4 scripts/notion-sync.sh as part of v1.8.5 hook layer retirement.
 argument-hint: "[--sid SID] [--input SUMMARY] [--output SUMMARY] [--payload TEXT]"
 allowed-tools:
   - Write
@@ -26,17 +26,17 @@ Parse `$ARGUMENTS` for:
 
 ### 1. Compute path
 ```
-target_dir = _meta/runtime/<sid>/
-target_file = _meta/runtime/<sid>/notion-sync-<timestamp>.json
+target_dir = meta/runtime/<sid>/
+target_file = meta/runtime/<sid>/notion-sync-<timestamp>.json
 ```
 - `<sid>` is the session id from `--sid`
 - `<timestamp>` is current ISO-8601 (e.g. `20260522T180000Z`)
 
 ### 2. Determine trigger_count_in_session
-Per `references/audit-trail-spec.md`, count existing audit trail entries for this subagent in `_meta/runtime/<sid>/` and add 1. If directory doesn't exist yet, count = 1.
+Per `references/audit-trail-spec.md`, count existing audit trail entries for this subagent in `meta/runtime/<sid>/` and add 1. If directory doesn't exist yet, count = 1.
 
 ```bash
-ls _meta/runtime/<sid>/router-step-10a-*.json 2>/dev/null | wc -l
+ls meta/runtime/<sid>/router-step-10a-*.json 2>/dev/null | wc -l
 ```
 
 ### 3. Build JSON payload
@@ -68,13 +68,13 @@ Set `status`:
 
 ### 4. Write JSON
 
-Use the `Write` tool to create the file. Ensure parent directory exists first (use `Bash` `mkdir -p _meta/runtime/<sid>/` if needed).
+Use the `Write` tool to create the file. Ensure parent directory exists first (use `Bash` `mkdir -p meta/runtime/<sid>/` if needed).
 
 ### 5. Report
 
 Emit one line:
 ```
-✅ Notion sync audit trail written: _meta/runtime/<sid>/notion-sync-<ts>.json (status: <status>)
+✅ Notion sync audit trail written: meta/runtime/<sid>/notion-sync-<ts>.json (status: <status>)
 ```
 
 ## HARD RULES

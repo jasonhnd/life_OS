@@ -12,10 +12,10 @@ operating_hypothesis: |
   within low risk of pattern-fabrication or value-hallucination (F17).
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, SOUL.md, references/soul-spec.md, user-patterns.md]
-  supporting: [decisions/, _meta/journal/]
+  supporting: [decisions/, meta/journal/]
   forbidden: [pro/agents/reviewer.md, pro/agents/planner.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/advisor-*.json]
+  allowed_scope: [meta/runtime/<sid>/advisor-*.json]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
 failure_modes:
   known: ["Cites SOUL dim that doesn't exist (F17)", "Reports drift without 3+ similar incident evidence (F16 false positive)"]
@@ -34,17 +34,17 @@ Use all data you can access to make your judgment. Note what you cannot access, 
 
 ```
 1. Read user-patterns.md (if it exists) → Understand known behavioral patterns
-2. Read ~/second-brain/_meta/journal/ last 3 advisor reports → Compare behavioral changes
-3. Read ~/second-brain/projects/*/decisions/ + _meta/decisions/ last 5 decisions → Dimension avoidance / decision frequency / quality trends
+2. Read ~/second-brain/meta/journal/ last 3 advisor reports → Compare behavioral changes
+3. Read ~/second-brain/projects/*/decisions/ + meta/decisions/ last 5 decisions → Dimension avoidance / decision frequency / quality trends
 4. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rate → Follow-through index
-5. Monthly self-review only: read ~/second-brain/_meta/eval-history/ recent entries -> feed recurring evidence into `user-patterns.md` guidance
+5. Monthly self-review only: read ~/second-brain/meta/eval-history/ recent entries -> feed recurring evidence into `user-patterns.md` guidance
 ```
 
 If the second-brain is unreachable or data is empty, note "[Data basis: based on current conversation only]" and focus on signals from the current conversation.
 
 ## Monthly Self-Review (eval-history closed loop)
 
-When invoked for monthly self-review, read `_meta/eval-history/*.md` from the last 30 days (or the latest 10 entries if date parsing is unavailable) before drafting guidance.
+When invoked for monthly self-review, read `meta/eval-history/*.md` from the last 30 days (or the latest 10 entries if date parsing is unavailable) before drafting guidance.
 
 1. Separate system/process defects from user behavioral patterns; do not blame the user for agent/tool failures.
 2. Convert repeated user-facing patterns into concise `user-patterns.md guidance`: keep, update, merge, or retire.
@@ -135,7 +135,7 @@ Produce a per-dimension impact table (shown to user in Step 5).
 
 ### Step 2: Write evidence/challenge deltas
 
-Write to `_meta/outbox/{session-id}/patterns-delta.md`. Merged into SOUL.md by archiver at session end.
+Write to `meta/outbox/{session-id}/patterns-delta.md`. Merged into SOUL.md by archiver at session end.
 
 ### Step 3: New dimension detection
 
@@ -144,7 +144,7 @@ Scan current session + last 30 days of decisions for NEW value/principle pattern
 2. ≥2 decisions as evidence (current session + recent history)
 3. Not already covered by an existing dimension (even low-confidence ones — if covered, increment evidence instead)
 
-If ALL 3 pass → auto-write to `_meta/outbox/{session-id}/soul-new-dimensions.md`:
+If ALL 3 pass → auto-write to `meta/outbox/{session-id}/soul-new-dimensions.md`:
 - `confidence: 0.3`
 - `What IS`: system-described observation
 - `What SHOULD BE`: **blank** (user fills in later)
@@ -176,8 +176,8 @@ Present in ADVISOR report after Summary Report:
   (omit section if no conflicts)
 
 【Writes】
-  _meta/outbox/{session-id}/patterns-delta.md
-  _meta/outbox/{session-id}/soul-new-dimensions.md (if new dimensions found)
+  meta/outbox/{session-id}/patterns-delta.md
+  meta/outbox/{session-id}/soul-new-dimensions.md (if new dimensions found)
 ```
 
 This runs in EVERY decision workflow, not just at adjourn. Users see SOUL moving in real time.

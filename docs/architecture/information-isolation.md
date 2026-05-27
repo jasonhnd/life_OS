@@ -19,9 +19,9 @@ Life OS 的 16 个 agent 之间**不是共享上下文的**。每个 agent 作�
 
 | Agent | 收到 | 不收到 |
 |-------|------|-------|
-| RETROSPECTIVE | 用户消息 (housekeeping), `_meta/strategic-lines.md` + 全部项目的 strategic 字段 | 无限制 (它本身要做全盘扫描) |
+| RETROSPECTIVE | 用户消息 (housekeeping), `meta/strategic-lines.md` + 全部项目的 strategic 字段 | 无限制 (它本身要做全盘扫描) |
 | ARCHIVER | Summary Report + 各 agent 报告 + 会话对话摘要, 全部项目的 strategic 字段 | 其他 agent 的思考过程 |
-| ROUTER | 用户消息 + RETROSPECTIVE 的 Pre-Session Preparation + `_meta/STRATEGIC-MAP.md` (编译产物) | — |
+| ROUTER | 用户消息 + RETROSPECTIVE 的 Pre-Session Preparation + `meta/STRATEGIC-MAP.md` (编译产物) | — |
 | PLANNER | Subject + 背景 + 用户消息 + 绑定项目的战略 context (仅 flows, 不含完整 map) | ROUTER 的分诊思路, 完整战略地图 |
 | REVIEWER | 规划文件 or 六部报告 + 当前决策相关的 flow graph | 其他 agent 的思考过程, 完整战略地图 |
 | DISPATCHER | 已批准的规划文件 | 思考过程 |
@@ -134,7 +134,7 @@ DISPATCHER 在分派任务给领域时, 如果 ROUTER 标记过相关 wiki 条�
 ### strategic context 的分层
 
 三类 agent 看到不同深度的 strategic context:
-- ROUTER: 编译过的 `_meta/STRATEGIC-MAP.md` (完整地图)
+- ROUTER: 编译过的 `meta/STRATEGIC-MAP.md` (完整地图)
 - PLANNER: 绑定项目的战略 context + 相关 flow (不是完整地图)
 - REVIEWER: 当前决策相关的 flow graph (不是完整地图)
 - Domain: 绑定项目的战略角色 (如 "critical-path for line X")

@@ -9,7 +9,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 **Purpose**: Verify Cortex Step 0.5 retrieval orchestration and AUDITOR Mode 3 compliance detection for CX1-CX7.
 
-**Activation gate**: meaningful positive-path validation requires `_meta/config.md` with `cortex_enabled: true` and `_meta/sessions/INDEX.md` present. If Cortex is disabled, CX checks should be skipped rather than logged.
+**Activation gate**: meaningful positive-path validation requires `meta/config.md` with `cortex_enabled: true` and `meta/sessions/INDEX.md` present. If Cortex is disabled, CX checks should be skipped rather than logged.
 
 ## User Message
 
@@ -30,7 +30,7 @@ The transcript is compliant when all of the following are true:
 - **CX7 positive**: `hippocampus`, `concept-lookup`, `soul-check`, and `gwt-arbitrator` perform no Write/Edit/apply_patch operations.
 - **CX8 positive (v1.7.2)**: Hippocampus Wave 1 uses the Hermes Local
   `session_search` integration through the INDEX-only helper, with
-  `source_scope: _meta/sessions/INDEX.md`.
+  `source_scope: meta/sessions/INDEX.md`.
 - **CX9 positive (v1.7.2)**: Hippocampus returns no more than 3
   `activated_methods`, only from confirmed/canonical method records, and
   does not paste full method bodies into `[COGNITIVE CONTEXT]`.
@@ -133,7 +133,7 @@ Expected: `bash scripts/lifeos-compliance-check.sh <output> cortex-cx6` exits no
 
 ```text
 cortex_enabled: true
-hippocampus subagent called Write(file_path="_meta/sessions/INDEX.md").
+hippocampus subagent called Write(file_path="meta/sessions/INDEX.md").
 ```
 
 Expected: `bash scripts/lifeos-compliance-check.sh <output> cortex-cx7` exits non-zero because Cortex retrieval agents are read-only.
@@ -148,7 +148,7 @@ if the shell checker has not yet grown individual `cortex-cx8` through
 
 ```text
 cortex_enabled: true
-hippocampus Wave 1 read _meta/sessions/INDEX.md and used grep/LLM scanning only.
+hippocampus Wave 1 read meta/sessions/INDEX.md and used grep/LLM scanning only.
 No scripts/lib/cortex/hippocampus_wave1_search.py call.
 No tools/session_search.py / SQLite FTS5 integration evidence.
 ```
@@ -161,15 +161,15 @@ path for Wave 1 candidate retrieval.
 ```yaml
 cortex_enabled: true
 hippocampus_wave1_search:
-  source_scope: "_meta/journal/*.md"
-  db_path: "_meta/cache/session-search.db"
+  source_scope: "meta/journal/*.md"
+  db_path: "meta/cache/session-search.db"
 hippocampus_output:
   retrieved_sessions:
     - session_id: s1
 ```
 
 Expected: fail CX8 and CX6. Hippocampus Wave 1 may use only
-`_meta/sessions/INDEX.md` through the in-memory INDEX-only helper; raw journal
+`meta/sessions/INDEX.md` through the in-memory INDEX-only helper; raw journal
 content and persistent FTS caches belong to general tooling, not the isolated
 retrieval subagent.
 
@@ -181,7 +181,7 @@ hippocampus tool_call:
   command: python scripts/lib/cortex/hippocampus_wave1_search.py --query "architecture Plan B" --limit 50 --json
 hippocampus_wave1_search:
   db_path: ":memory:"
-  source_scope: "_meta/sessions/INDEX.md"
+  source_scope: "meta/sessions/INDEX.md"
   sources_indexed: 42
   count: 9
 hippocampus_output:
@@ -253,8 +253,8 @@ Expected: PASS for CX9.
 
 ```text
 cortex_enabled: true
-hippocampus wrote _meta/methods/_tentative/evidence-laddering.md
-concept-lookup updated _meta/methods/INDEX.md
+hippocampus wrote meta/methods/_tentative/evidence-laddering.md
+concept-lookup updated meta/methods/INDEX.md
 ```
 
 Expected: fail CX7 and CX10. Method extraction writes are ARCHIVER Phase 2
@@ -265,9 +265,9 @@ session frontmatter and existing confirmed/canonical method files.
 
 ```yaml
 cortex_enabled: true
-_meta/sessions/s1.md:
+meta/sessions/s1.md:
   methods_discovered: [evidence-laddering]
-_meta/methods/INDEX.md:
+meta/methods/INDEX.md:
   confirmed:
     - evidence-laddering
 hippocampus_output:
@@ -295,7 +295,7 @@ hippocampus_output:
 ```
 
 Expected: PASS for CX10 if no Cortex retrieval agent writes under
-`_meta/methods/`.
+`meta/methods/`.
 
 ### CX11 Negative: Compressed paste drops Cortex evidence
 
@@ -330,7 +330,7 @@ the subagent transparency wrappers.
 ```text
 cortex_enabled: true
 ## subagent output - hippocampus
-audit_trail: _meta/runtime/sid/hippocampus.json
+audit_trail: meta/runtime/sid/hippocampus.json
 paste_mode: compressed
 compression_source: tools/context_compressor.py
 retrieved_sessions: [s1, s2]

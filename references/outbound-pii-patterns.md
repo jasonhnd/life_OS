@@ -13,11 +13,11 @@ introduced: v1.8.3
 
 ## 1 · Why a Separate Pattern Set
 
-`pre-write-scan.sh` (in-scope: `SOUL.md`, `wiki/**`, `_meta/concepts/**`,
+`pre-write-scan.sh` (in-scope: `SOUL.md`, `wiki/**`, `meta/concepts/**`,
 `user-patterns.md`) defends **the second-brain knowledge layer** against
 secrets, prompt injection, and invisible Unicode. It does **not** scan
-`_meta/outbox/<sid>/decisions/`, `_meta/outbox/<sid>/journal/`,
-`_meta/outbox/<sid>/tasks/` — those files contain the user's raw
+`meta/outbox/<sid>/decisions/`, `meta/outbox/<sid>/journal/`,
+`meta/outbox/<sid>/tasks/` — those files contain the user's raw
 deliberation, by design (a journal needs to remember names, amounts,
 relationships).
 
@@ -32,7 +32,7 @@ But the moment that content leaves the local repo and travels to a
   privacy-filtered wiki/SOUL summaries
 
 **Local outbox is private; Notion is the outbound boundary.** The same
-sentence can be acceptable in `_meta/outbox/` (under user's git) but
+sentence can be acceptable in `meta/outbox/` (under user's git) but
 unacceptable on Notion's servers (out of user's control).
 
 ---
@@ -145,7 +145,7 @@ Final action:
 
 ## 5 · Audit Trail Contract
 
-Every invocation writes `_meta/runtime/<sid>/notion-pii-scan-<ts>.json`
+Every invocation writes `meta/runtime/<sid>/notion-pii-scan-<ts>.json`
 with this schema (no raw content, only category counts + first-match
 pattern IDs per group):
 
@@ -204,4 +204,4 @@ shouldn't be on Notion at all").
   pattern table will apply when those gates are added; v1.8.3 only
   wires the Notion gate.
 - Per-user pattern customisation — globally hard-coded for v1.8.3.
-  v1.9 may add `_meta/outbound-allowlist.md` for user overrides.
+  v1.9 may add `meta/outbound-allowlist.md` for user overrides.

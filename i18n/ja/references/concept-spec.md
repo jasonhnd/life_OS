@@ -18,7 +18,7 @@ Concept ファイルは、Cortex の synaptic network におけるノードで�
 | `user-patterns.md` | 何を行うか(行動パターン) | "Tends to avoid financial dimensions" |
 | `SOUL.md` | あなたが誰であるか(価値観、人格) | "Risk appetite: medium-high" |
 | `wiki/` | あなたが知っていること(再利用可能な世界結論) | "NPO lending has no 貸金業法 exemption" |
-| `_meta/concepts/` | **何と何が接続するか(synaptic graph)** | "company-a-holding" ノード + 他の概念へのエッジ |
+| `meta/concepts/` | **何と何が接続するか(synaptic graph)** | "company-a-holding" ノード + 他の概念へのエッジ |
 
 SOUL は人を管理します。Wiki は知識を管理します。Concepts は、「A が活性化されたら、他に何が点灯すべきか」をシステムが知るためのグラフを管理します。これらは混在させてはなりません。
 
@@ -26,7 +26,7 @@ SOUL は人を管理します。Wiki は知識を管理します。Concepts は�
 
 ## 原則(Principles)
 
-1. **ゼロから成長する** — `_meta/concepts/` は空で開始します。初期化は不要です。
+1. **ゼロから成長する** — `meta/concepts/` は空で開始します。初期化は不要です。
 2. **1 概念 = 1 ファイル(厳格)** — マルチトピックの編纂はありません。単一の概念を複数ファイルに分割することは禁止されています(anti-pattern、§10 参照)。
 3. **エッジはノードと共に存在** — Outgoing synapse エッジはソース concept の YAML frontmatter に格納されます。逆方向インデックスは `SYNAPSES-INDEX.md` にコンパイルされます(手書きは決してしません)。
 4. **厳格な基準のもとで自動書き込み** — 概念は、エビデンスが蓄積されたときに `archiver` Phase 2 によって自動作成されます。ユーザーは削除または「undo recent concept」と言うことでナッジします。
@@ -38,12 +38,12 @@ SOUL は人を管理します。Wiki は知識を管理します。Concepts は�
 ## ファイルの場所(File Location)
 
 ```
-_meta/concepts/{domain}/{concept_id}.md
+meta/concepts/{domain}/{concept_id}.md
 ```
 
 | パスセグメント | 意味 |
 |--------------|---------|
-| `_meta/concepts/` | concept network のルート |
+| `meta/concepts/` | concept network のルート |
 | `{domain}/` | テーマパーティション(下記参照) |
 | `{concept_id}.md` | 1 ファイル 1 概念、ID で命名される |
 
@@ -65,10 +65,10 @@ Domain は、concept のためのトップレベルのテーマスロットで�
 
 ### 予約パス
 
-- `_meta/concepts/INDEX.md` — すべての concept のコンパイル済み 1 行要約(`retrospective` Mode 0 で再生成)
-- `_meta/concepts/SYNAPSES-INDEX.md` — コンパイル済みの逆方向エッジインデックス(`archiver` Phase 2 で再生成)
-- `_meta/concepts/_tentative/` — confidence しきい値未満の concept のステージングエリア
-- `_meta/concepts/_archive/` — 引退した concept(監査用に保持、activation 時には無視)
+- `meta/concepts/INDEX.md` — すべての concept のコンパイル済み 1 行要約(`retrospective` Mode 0 で再生成)
+- `meta/concepts/SYNAPSES-INDEX.md` — コンパイル済みの逆方向エッジインデックス(`archiver` Phase 2 で再生成)
+- `meta/concepts/_tentative/` — confidence しきい値未満の concept のステージングエリア
+- `meta/concepts/_archive/` — 引退した concept(監査用に保持、activation 時には無視)
 
 ---
 
@@ -133,7 +133,7 @@ Body content (markdown, optional but encouraged)...
 2. 📈 Reinforcement — 各セッションの activation が activation_count をインクリメントし、last_activated を更新し、エッジを強化します
 3. ✅ Promotion — tentative → confirmed(≥3 independent sessions)→ canonical(user-pin または ≥10 independent sessions)
 4. 📉 Decay — archiver が Adjourn ごとに decay pass を実行します(user decision #10)
-5. 💤 Retirement — last_activated > 90 days + all outgoing edges weight < 1.0 + permanence ≠ identity → move to _meta/concepts/_archive/ (activation_count preserved, never decremented)
+5. 💤 Retirement — last_activated > 90 days + all outgoing edges weight < 1.0 + permanence ≠ identity → move to meta/concepts/_archive/ (activation_count preserved, never decremented)
 6. ↩️ Undo — ユーザーが「undo recent concept」と言う、あるいはファイルを手動削除します
 ```
 
@@ -149,7 +149,7 @@ Body content (markdown, optional but encouraged)...
    4. **人物、価値、特性、手順ではない** — 人々は SOUL / user-patterns に属し、価値 / 特性は SOUL に属し、手順は method library に属する
    5. **Privacy filter clears** — 氏名(公人でない限り)、具体的な金額 / 口座 / ID、家族・友人への言及、追跡可能な日時+場所の組み合わせを除去する。除去後に候補が意味を失う場合 → 破棄(それは個人メモであり、再利用可能な概念ではなかった)
    6. **Domain routing succeeds** — LLM が §File Location Domain partitions にリストされた domain の 1 つを選ぶ(あるいは新しい domain ディレクトリを作成する)。どの domain にもルーティングできない候補はまだ concept ではない
-3. 6 つすべて合格 → `_meta/concepts/_tentative/{domain}/{concept_id}.md` にファイルを作成
+3. 6 つすべて合格 → `meta/concepts/_tentative/{domain}/{concept_id}.md` にファイルを作成
 4. いずれかの基準が不合格 → 破棄し、後の監査のため `decay-log.md` に記録
 
 > 実装: `pro/agents/archiver.md` §Phase 2 Mid-Step(Concept Extraction + Hebbian Update)と `tools/migrate.py` は同じ 6 基準の列挙を使用します。本 spec が変更される際は、これらも lock-step で更新する必要があります。
@@ -161,7 +161,7 @@ Body content (markdown, optional but encouraged)...
 | `tentative → confirmed` | Concept が **≥3 個の独立したセッション** にわたって活性化された。ファイルは `_tentative/` から `{domain}/` に移動 |
 | `confirmed → canonical` | ユーザーが手動でピン留めするか(frontmatter の `status: canonical`)、または concept が **≥10 個の独立したセッション** にわたって活性化された |
 
-Promotion は `_meta/cortex/decay-log.md` にタイムスタンプとトリガーセッションと共に記録されます。
+Promotion は `meta/cortex/decay-log.md` にタイムスタンプとトリガーセッションと共に記録されます。
 
 ### Hotness 閾値の根拠（v1.8.7 で明示化、RFC §2.7 A3 による）
 
@@ -173,7 +173,7 @@ Promotion は `_meta/cortex/decay-log.md` にタイムスタンプとトリガ�
 
 これらの閾値は元々 `archiver` Phase 2 と `pro/agents/knowledge-extractor.md` のコードパスに暗黙的だった。v1.8.7 は **本仕様で明示化** —— 監査可能、調整可能、コード探索なしで将来の読者に可視に。**v1.8.6 からの挙動変更なし** —— ドキュメント表層の昇格のみ。
 
-パターン源：tinyhumansai/openhuman "hotness-driven topic materialization"（エンティティの出現が多いほど、その topic tree がより積極的に構築される）。lifeos はこれら閾値で hotness *概念* を採用するが、手動トリガー（knowledge-extractor が決定）を維持する —— lifeos は既存 concept ファイルを超えた要約を自動実体化しない。手動を維持し自動昇格しない根拠は `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.7 A3 参照。
+パターン源：tinyhumansai/openhuman "hotness-driven topic materialization"（エンティティの出現が多いほど、その topic tree がより積極的に構築される）。lifeos はこれら閾値で hotness *概念* を採用するが、手動トリガー（knowledge-extractor が決定）を維持する —— lifeos は既存 concept ファイルを超えた要約を自動実体化しない。手動を維持し自動昇格しない根拠は `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.7 A3 参照。
 
 ### Reinforcement
 
@@ -203,7 +203,7 @@ Retirement は **dormancy + エッジ weight の崩壊** によって駆動さ�
 2. **エッジ weight の崩壊** — 現在の Adjourn の decay pass 後に `outgoing_edges` のすべてのエッジが `weight < 1.0` である(つまり concept がライブグラフから切断された)、**かつ**
 3. **Permanence ティアが `identity` ではない** — identity ティアの concept は決して retire しない(§5 Decay テーブル参照)
 
-3 つすべての条件が満たされた場合、concept は次の Adjourn pass で `_meta/concepts/_archive/{domain}/{concept_id}.md` に移動されます。アーカイブされた concept は:
+3 つすべての条件が満たされた場合、concept は次の Adjourn pass で `meta/concepts/_archive/{domain}/{concept_id}.md` に移動されます。アーカイブされた concept は:
 - 依然として git 履歴の中にある(データロスなし)
 - 活性化時に hippocampus によって無視される
 - patrol 中に AUDITOR から見える
@@ -339,16 +339,16 @@ Concept ファイルは **クロスセッションで再利用可能な知識** 
 
 v1.7 以前には concepts ディレクトリがありません。v1.7 へのマイグレーションは一度だけ実行され、`tools/migrate.py` によってオーケストレーションされます(user decision #7):
 
-1. `_meta/journal/` エントリの **直近 3 ヶ月** をスキャン(バウンドされたウィンドウ — より古い材料は触らない)
+1. `meta/journal/` エントリの **直近 3 ヶ月** をスキャン(バウンドされたウィンドウ — より古い材料は触らない)
 2. archiver の Hebbian pass と同じアルゴリズムで候補 concept を抽出
 3. 6 基準チェックとプライバシーフィルタを通過した各候補について:
-   - `_meta/concepts/_tentative/{domain}/{concept_id}.md` にファイルを作成
+   - `meta/concepts/_tentative/{domain}/{concept_id}.md` にファイルを作成
    - 初期 `activation_count` = concept が出現した独立セッション数(10 で上限)
 4. 同じ journal エントリでの co-occurrence から初期 synapse weight を計算(10 で上限)
 5. `activation_count ≥ 3` の concept を `_tentative/` から `{domain}/` に移動し、`status: confirmed` を設定
 6. `activation_count ≥ 10` の concept は `status: canonical` を取得
 7. 最初の `SYNAPSES-INDEX.md` と `INDEX.md` を生成
-8. マイグレーション結果を `_meta/cortex/bootstrap-status.md` にログ
+8. マイグレーション結果を `meta/cortex/bootstrap-status.md` にログ
 
 マイグレーションは idempotent — 既にマイグレーション済みのツリーに対して再実行しても追加ファイルは生成されません。
 
@@ -369,17 +369,17 @@ v1.7 以前には concepts ディレクトリがありません。v1.7 へのマ
 
 ## 各役割が concept をどう使うか(How Each Role Uses Concepts)
 
-すべての役割は、参照する前に `_meta/concepts/INDEX.md` が存在するかをチェックします。存在しないまたは空の場合、その役割は concept 入力なしで通常通り動作します。
+すべての役割は、参照する前に `meta/concepts/INDEX.md` が存在するかをチェックします。存在しないまたは空の場合、その役割は concept 入力なしで通常通り動作します。
 
 | 役割 | 読むもの | 使い方 |
 |------|---------------|-----------------|
-| **hippocampus** | `_meta/concepts/INDEX.md` + 活性化拡散パス上のファイル | GWT 仲裁用の「warm concepts」シグナルを生成 |
+| **hippocampus** | `meta/concepts/INDEX.md` + 活性化拡散パス上のファイル | GWT 仲裁用の「warm concepts」シグナルを生成 |
 | **gwt-arbitrator** | hippocampus が生成した concept-link シグナル | concept シグナルを salience スカラーに重み付け |
 | **ROUTER** | warm concepts を含む注釈付き入力 | より鋭い意図分類 — warm concept を事実ではなくコンテキストとして扱う |
 | **Six Domains (Pro)** | dispatch コンテキストで渡される concept エントリ | 再導出ではなく、確立されたアイデアから分析を開始 |
-| **REVIEWER** | `_meta/concepts/INDEX.md` | 一貫性チェック — 新しい結論が canonical な concept と衝突する場合にフラグ |
-| **AUDITOR** | `_meta/concepts/` ディレクトリ(patrol 中) | Concept ヘルス — stale ノード、孤立エッジ、プライバシー違反 |
-| **DREAM** | `_meta/concepts/INDEX.md` + `SYNAPSES-INDEX.md` | N3 はグラフをクロスドメイン連想に使用、REM は creative な接続 |
+| **REVIEWER** | `meta/concepts/INDEX.md` | 一貫性チェック — 新しい結論が canonical な concept と衝突する場合にフラグ |
+| **AUDITOR** | `meta/concepts/` ディレクトリ(patrol 中) | Concept ヘルス — stale ノード、孤立エッジ、プライバシー違反 |
+| **DREAM** | `meta/concepts/INDEX.md` + `SYNAPSES-INDEX.md` | N3 はグラフをクロスドメイン連想に使用、REM は creative な接続 |
 | **archiver** | セッションフレーム + 既存 concept ファイル | Phase 2 で Hebbian 更新アルゴリズム + decay pass を実行する(`outgoing_edges`、`SYNAPSES-INDEX.md` を書き込み、`activation_count` / `last_activated` を更新する) |
 | **retrospective** | すべての concept ファイル(Mode 0 中) | `INDEX.md` を再生成する(read-only。decay は archiver の書き込み責務、§Decay 参照)。briefing で dormant concept をフラグする。 |
 
@@ -393,9 +393,9 @@ v1.7 以前には concepts ディレクトリがありません。v1.7 へのマ
 - **エッジ weight は 100 で上限** — runaway reinforcement はバウンドされる
 - **活性化拡散は top 5-7 でバウンド** — 認知的洪水を防ぐ
 - **Concept ID ≤ 64 chars、lowercase + hyphen、letter で開始**
-- **マイグレーションは `_meta/journal/` の直近 3 ヶ月のみを読む** — より古い材料は触らない
+- **マイグレーションは `meta/journal/` の直近 3 ヶ月のみを読む** — より古い材料は触らない
 - **SYNAPSES-INDEX.md と INDEX.md はコンパイルされる** — 決して手書きしない
-- **ローカル専用 — Notion sync なし** — concept は `_meta/` に留まる(user decision #12)
+- **ローカル専用 — Notion sync なし** — concept は `meta/` に留まる(user decision #12)
 
 ---
 
@@ -405,7 +405,7 @@ v1.7 以前には concepts ディレクトリがありません。v1.7 へのマ
 - `references/hippocampus-spec.md` — 活性化拡散出力の consumer(Wave 2/3 は `outgoing_edges` をたどる)
 - `references/gwt-spec.md` — arbitrator が concept lookup から導出される `canonical_concept`/`emerging_concept` シグナルを消費
 - `references/session-index-spec.md` — セッション frontmatter が concept ファイルにマップバックする `concepts_activated` / `concepts_discovered` を追跡
-- `references/snapshot-spec.md` — sibling の `_meta/` アーティファクト。markdown-first + ローカル専用制約を共有
+- `references/snapshot-spec.md` — sibling の `meta/` アーティファクト。markdown-first + ローカル専用制約を共有
 - `references/method-library-spec.md` — method はこのネットワークを指す `related_concepts: [concept_id]` を携帯
 - `references/wiki-spec.md` — wiki エントリは concept エビデンスを anchor できる。プライバシーフィルタはそこで定義されている
 - `references/soul-spec.md` — SOUL 境界(個人的な人々はそこに属し、concept には属さない)

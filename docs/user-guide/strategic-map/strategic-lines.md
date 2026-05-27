@@ -4,7 +4,7 @@
 
 ## 存在哪
 
-`_meta/strategic-lines.md`
+`meta/strategic-lines.md`
 
 **注意**：这个文件放在你的 second-brain 里，不是放在 Life OS 代码库里。多条战略线用 `---` 分隔。
 
@@ -91,7 +91,7 @@ ADVISOR 会检查"行为 vs driving_force"，不是"行为 vs purpose"。因为�
 1. 你定义一条战略线，填了 `driving_force`
 2. **第一次** RETROSPECTIVE 编译时，基于 `driving_force` 提议 health_signals
 3. 你确认或修改
-4. 确认后的 signals 存回 `_meta/strategic-lines.md`
+4. 确认后的 signals 存回 `meta/strategic-lines.md`
 5. 以后的每次编译都用这些确认过的 signals
 6. DREAM 可能会提议更新（比如某个 signal 从来不出现，或新 signal 出现）
 
@@ -169,11 +169,11 @@ ROUTER 会问三个问题：
 2. **"它们之间有什么在流动？"**——定义 flow
 3. **"真正驱动你投入这条线的是什么？"**——挖 driving_force
 
-ARCHIVER 退朝时会把答案写成 `_meta/strategic-lines.md` + 各项目的 `strategic:` frontmatter。
+ARCHIVER 退朝时会把答案写成 `meta/strategic-lines.md` + 各项目的 `strategic:` frontmatter。
 
 ### 方法 2：自己写
 
-打开 `_meta/strategic-lines.md`，按上面的 YAML 格式写。先填 id / name / purpose / driving_force，其他字段留空——第一次 RETROSPECTIVE 编译会补 health_signals 提议。
+打开 `meta/strategic-lines.md`，按上面的 YAML 格式写。先填 id / name / purpose / driving_force，其他字段留空——第一次 RETROSPECTIVE 编译会补 health_signals 提议。
 
 ### 新手常见误区
 
@@ -201,16 +201,16 @@ ARCHIVER 退朝时会把答案写成 `_meta/strategic-lines.md` + 各项目的 `
    ...
 ```
 
-想看原始定义：直接打开 `_meta/strategic-lines.md`。
+想看原始定义：直接打开 `meta/strategic-lines.md`。
 
-想看编译后的完整视图：打开 `_meta/STRATEGIC-MAP.md`（只读参考，不要手改）。
+想看编译后的完整视图：打开 `meta/STRATEGIC-MAP.md`（只读参考，不要手改）。
 
 ---
 
 ## 相关文件
 
-- `_meta/strategic-lines.md`——你的战略线定义
-- `_meta/STRATEGIC-MAP.md`——编译产物（只读）
+- `meta/strategic-lines.md`——你的战略线定义
+- `meta/STRATEGIC-MAP.md`——编译产物（只读）
 - `references/strategic-map-spec.md`——字段完整 spec
 - `docs/user-guide/strategic-map/project-roles.md`——项目在战略线里的角色
 - `docs/user-guide/strategic-map/health-archetypes.md`——6 种健康原型

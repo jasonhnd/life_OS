@@ -62,7 +62,7 @@ lockfile。新用户克隆仓库，跑 `uv sync`，每个工具都能用——�
 tools/
 ├── __init__.py
 ├── cli.py                 # Unified entry: `uv run life-os-tool <cmd>`
-├── reindex.py             # v1.7 core — compile _meta/sessions/INDEX.md
+├── reindex.py             # v1.7 core — compile meta/sessions/INDEX.md
 ├── reconcile.py           # v1.7 core — schema / link / orphan checker
 ├── stats.py               # v1.7 core — usage + quality statistics
 ├── embed.py               # v1.7 skip (user decision #3)
@@ -231,15 +231,15 @@ class SecondBrain:
 
 ### 6.1 `reindex.py` — Compile Session Index(编译 session 索引)
 
-扫描 `_meta/sessions/*.md`，产出 `_meta/sessions/INDEX.md`，按日期
+扫描 `meta/sessions/*.md`，产出 `meta/sessions/INDEX.md`，按日期
 降序每个 session 一行。
 
 ```bash
 uv run tools/reindex.py [--verbose]
 ```
 
-- **输入**：`_meta/sessions/` 下所有 session 摘要文件
-- **输出**：`_meta/sessions/INDEX.md`（原子覆写）
+- **输入**：`meta/sessions/` 下所有 session 摘要文件
+- **输出**：`meta/sessions/INDEX.md`（原子覆写）
 - **副作用**：无
 - **退出码**：`0` 成功，`1` I/O 错误或 frontmatter 不可读
 - **运行时**：1000 个 session 下 < 5 秒
@@ -261,7 +261,7 @@ uv run tools/reconcile.py [--fix] [--verbose]
 ```
 
 - **输入**：second-brain 根下所有 markdown
-- **输出**：`_meta/reconcile-report-{YYYY-MM-DD}.md`。同日重跑文件被
+- **输出**：`meta/reconcile-report-{YYYY-MM-DD}.md`。同日重跑文件被
   **覆写**（幂等）：报告是当前状态快照，不是历史日志。历史报告保存在
   git 里，不靠时间戳后缀。
 - **`--fix`**：插入缺失的 frontmatter 默认值；把 orphan 移到
@@ -283,10 +283,10 @@ markdown 报告。
 uv run tools/stats.py [--period month|quarter|year] [--since YYYY-MM-DD] [--output FILE]
 ```
 
-- **输入**：`_meta/sessions/`、`_meta/eval-history/`、
-  `_meta/snapshots/`、`SOUL.md`
+- **输入**：`meta/sessions/`、`meta/eval-history/`、
+  `meta/snapshots/`、`SOUL.md`
 - **输出**：默认 stdout markdown。带 `--output FILE` 写到路径
-  （便于管道进 `_meta/self-review-{YYYY-MM}.md`）。
+  （便于管道进 `meta/self-review-{YYYY-MM}.md`）。
 - **默认周期**：若没给 `--period` 也没给 `--since`，默认 `--period month`
   覆盖最近 30 天。
 - **报告项**：session 数、平均 `overall_score`、domain 分布、SOUL 趋势、
@@ -365,41 +365,41 @@ uv run tools/backup.py [--dest /path] [--gpg KEY_ID]
 
 ### 6.7 `migrate.py` — v1.6.2a → v1.7 Schema Migration(模式迁移)
 
-一次性迁移。v1.6.2a 把决策存在 `_meta/journal/`；v1.7 引入
-`_meta/sessions/`、`_meta/concepts/`、`_meta/snapshots/`、
-`_meta/eval-history/`、`_meta/methods/`。此工具回填新布局。
+一次性迁移。v1.6.2a 把决策存在 `meta/journal/`；v1.7 引入
+`meta/sessions/`、`meta/concepts/`、`meta/snapshots/`、
+`meta/eval-history/`、`meta/methods/`。此工具回填新布局。
 
 ```bash
 uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 ```
 
-- **输入**：已有 `_meta/journal/`（回填的事实来源）、`SOUL.md`
+- **输入**：已有 `meta/journal/`（回填的事实来源）、`SOUL.md`
   （只读——synth snapshot 输入）、`wiki/`（只读——concept 锚点证据）、
   `user-patterns.md`（不动）
 - **回填范围**：最近 **3 个月** 的 journal（用户决策 #7）。更旧的条目
-  留在 `_meta/journal/` 不动。这个窗口对所有迁移目标统一——见下面
+  留在 `meta/journal/` 不动。这个窗口对所有迁移目标统一——见下面
   逐目标规则。
 - **逐目标规则**（每个目标遵守自己的权威规范）：
-  - `_meta/sessions/{session_id}.md` + `INDEX.md` —— 合成逐 session 摘要
+  - `meta/sessions/{session_id}.md` + `INDEX.md` —— 合成逐 session 摘要
     （best-effort frontmatter，v1.7 之前的字段为 null）。默认
     `platform: claude`，从 journal mtime 推导 session-id。
     见 `references/session-index-spec.md` §9。
-  - `_meta/concepts/**` —— 跑 6 准则 + 隐私过滤器流水线。
+  - `meta/concepts/**` —— 跑 6 准则 + 隐私过滤器流水线。
     `activation_count ≥ 3` 从 `_tentative/` 提升到 `{domain}/`，
     状态为 `status: confirmed`；`≥ 10` 提升为 `canonical`。边权
     来自共现，上限 10。见 `references/concept-spec.md` §Migration。
-  - `_meta/snapshots/soul/**` —— 扫 journal 里的 `🔮 SOUL Delta` 块，
+  - `meta/snapshots/soul/**` —— 扫 journal 里的 `🔮 SOUL Delta` 块，
     产出 `provenance: synthetic` frontmatter 的合成快照。3 个月窗口
     （对齐）。见 `references/snapshot-spec.md` §Migration。
-  - `_meta/methods/_tentative/**` —— 从语言模式（"approach"、"pattern"、
+  - `meta/methods/_tentative/**` —— 从语言模式（"approach"、"pattern"、
     "framework"、"流れ"、"やり方"、"手順"）里抽取前 5 个候选方法。
     全以 `status: tentative` 开始，永不自动晋升。见
     `references/method-library-spec.md` §15。
 - **明确不迁移**：
-  - `_meta/eval-history/` —— **不回填**。v1.7 第一天清零起步。
+  - `meta/eval-history/` —— **不回填**。v1.7 第一天清零起步。
     见 `references/eval-history-spec.md` §11。
   - `SOUL.md`、`wiki/`、`user-patterns.md` —— 作为合成输入被读，永不修改。
-- **输出日志**：`_meta/cortex/bootstrap-status.md`（canonical；被
+- **输出日志**：`meta/cortex/bootstrap-status.md`（canonical；被
   concept-spec 与 snapshot-spec 交叉引用）。
 - **副作用**：写新文件；不删旧文件；`--with-backup` 可选触发 `backup.py`
 - **LLM-free**：基于规则的文件名与 frontmatter 匹配；隐私过滤器用和
@@ -418,7 +418,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 uv run tools/search.py "我要不要辞职" [--top N]
 ```
 
-- **输入**：`_meta/sessions/INDEX.md`（快路径），然后相关 session
+- **输入**：`meta/sessions/INDEX.md`（快路径），然后相关 session
   文件；argv 上给查询
 - **输出**：stdout 排名列表（path、snippet、score）
 - **退出码**：`0` 总是（空结果合法）
@@ -457,8 +457,8 @@ final_score = base_score × recency_multiplier
 ```bash
 uv run tools/export.py --format pdf --scope projects/passpay
 uv run tools/export.py --format html --scope wiki
-uv run tools/export.py --format json --scope _meta/sessions
-uv run tools/export.py --format anki --scope _meta/concepts
+uv run tools/export.py --format json --scope meta/sessions
+uv run tools/export.py --format anki --scope meta/concepts
 ```
 
 - **输入**：scope 目录或文件 pattern
@@ -491,8 +491,8 @@ uv run tools/seed.py --path ~/second-brain
 
 - **输入**：目标目录路径
 - **输出**：填充了 `SOUL.md` 骨架、`.life-os.toml` 占位、
-  `projects/example-project/index.md`、`_meta/sessions/`、
-  `_meta/concepts/`、`_meta/snapshots/`、`_meta/eval-history/`、
+  `projects/example-project/index.md`、`meta/sessions/`、
+  `meta/concepts/`、`meta/snapshots/`、`meta/eval-history/`、
   `inbox/`、`wiki/`（各带 `.gitkeep`）以及带建议条目的 `.gitignore`
   的目录
 - **副作用**：跑 `git init` 并创建初始 commit
@@ -509,10 +509,10 @@ uv run tools/seed.py --path ~/second-brain
 uv run tools/sync_notion.py [--retry] [--since YYYY-MM-DD] [--verbose]
 ```
 
-- **输入**：`_meta/STATUS.md`、active project、`_meta/eval-history/`、
+- **输入**：`meta/STATUS.md`、active project、`meta/eval-history/`、
   Notion sync log
 - **输出**：通过 Notion HTTP API 更新 Notion 页面；条目追加到
-  `_meta/notion-sync-log.md`
+  `meta/notion-sync-log.md`
 - **传输**：使用**官方 `notion-client` Python 包**（Notion REST API
   over HTTPS）。这**不是** LLM API 调用——Notion API 是普通的
   database API，与 Life OS v1.6.2a archiver Phase 4 机制一致（后者
@@ -528,7 +528,7 @@ uv run tools/sync_notion.py [--retry] [--since YYYY-MM-DD] [--verbose]
      token_env_var = "NOTION_TOKEN"  # name of env var holding token
      workspace_id = "..."
      ```
-- **workspace 解析**：工具读 `_meta/config.md` 的 `[notion]` 段获取
+- **workspace 解析**：工具读 `meta/config.md` 的 `[notion]` 段获取
   workspace / database ID；绝不硬编码。
 - **对用户决策 #16("v1.7 无外部 API")的澄清**：该决策范围是
   **LLM provider API**（OpenAI、Anthropic HTTP、第三方 embedding

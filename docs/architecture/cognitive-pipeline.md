@@ -31,7 +31,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 | Judge | 三省六部 (Draft-Review-Execute) | 决策流程 |
 | Settle | SOUL (人) + Wiki (世界) | SOUL.md + wiki/ |
 | Associate | ROUTER 读 Wiki INDEX | wiki/INDEX.md |
-| Strategize | Strategic Map | _meta/STRATEGIC-MAP.md |
+| Strategize | Strategic Map | meta/STRATEGIC-MAP.md |
 | Emerge | DREAM REM | dream journal |
 
 ---
@@ -78,7 +78,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 **载体**: 决策过程在对话里, 产出落盘在:
 - `projects/{project}/decisions/{YYYYMMDD-slug}.md`
 - `projects/{project}/tasks/`
-- `_meta/journal/`
+- `meta/journal/`
 
 **谁执行**: 所有 13 个 agent (除 retrospective/archiver/strategist) 都参与 Judge 阶段。
 
@@ -105,7 +105,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 
 **用户事后纠正**: 删掉不认同的文件, 或说「undo recent wiki」回滚最近的 auto-write。不需要事前确认。
 
-**SOUL Snapshot**: archiver 在每次 session 结束时 dump 一份 SOUL 状态快照到 `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md`, 用于 RETROSPECTIVE 下次 start 时算 trend delta。
+**SOUL Snapshot**: archiver 在每次 session 结束时 dump 一份 SOUL 状态快照到 `meta/snapshots/soul/YYYY-MM-DD-HHMM.md`, 用于 RETROSPECTIVE 下次 start 时算 trend delta。
 
 ---
 
@@ -137,15 +137,15 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 把「单项目分析」升级为「战略线感知分析」。
 
 **触发时机**:
-1. 用户定义 `_meta/strategic-lines.md` (几条战略线的 driving_force, deadline, health_signals)
+1. 用户定义 `meta/strategic-lines.md` (几条战略线的 driving_force, deadline, health_signals)
 2. 在各项目 `projects/{project}/index.md` 的 frontmatter 里加 `strategic:` 字段 (role, flows_to, flows_from)
-3. RETROSPECTIVE 在每次 start session 编译 `_meta/STRATEGIC-MAP.md`
+3. RETROSPECTIVE 在每次 start session 编译 `meta/STRATEGIC-MAP.md`
 4. ROUTER / PLANNER / REVIEWER 读这份编译产物
 
 **载体**:
-- `_meta/strategic-lines.md` (用户手写, 几条线定义)
+- `meta/strategic-lines.md` (用户手写, 几条线定义)
 - `projects/*/index.md` 的 `strategic:` frontmatter (每项目的关系定义)
-- `_meta/STRATEGIC-MAP.md` (编译产物)
+- `meta/STRATEGIC-MAP.md` (编译产物)
 
 **跨层验证**: RETROSPECTIVE 在编译时做:
 - SOUL × 战略: driving_force 和 SOUL 维度一致吗?
@@ -172,7 +172,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 **价值**: 系统不只是「帮用户做决策」, 而是**主动发现用户的盲区**。用户越用系统, 它越能发现用户自己看不到的模式。
 
 **载体**:
-- `_meta/journal/{date}-dream.md` — DREAM 报告
+- `meta/journal/{date}-dream.md` — DREAM 报告
 - `triggered_actions` YAML 块 — auto-trigger 的记录
 - 下次 start session 时 RETROSPECTIVE 在 "💤 DREAM Auto-Triggers" 块里展示
 

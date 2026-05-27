@@ -9,7 +9,7 @@
 3. **Translations of agent behavior** — themes only translate **display names**, NOT behaviors. Behavior remains identical across themes.
 4. **A new cultural setting "just because"** — see "Before adding a new theme" below.
 5. **Theme variants for sub-domains** — e.g. "zh-classical-finance" with money-focused display names. Themes are session-wide, not per-domain.
-6. **Per-user customization** — users edit `_meta/config.md` to switch themes; they don't add new ones.
+6. **Per-user customization** — users edit `meta/config.md` to switch themes; they don't add new ones.
 
 ## What DOES belong here
 
@@ -44,6 +44,6 @@ Adding a 10th theme requires user-facing justification + RFC entry + commitment 
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12 + §9 Q3 (memory-keeper added across all 9 themes simultaneously — illustrative of the cost)
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12 + §9 Q3 (memory-keeper added across all 9 themes simultaneously — illustrative of the cost)
 - Pattern source: `tinyhumansai/openhuman` `.claude/rules/README.md`
 - Companion: SKILL.md `## Theme System`

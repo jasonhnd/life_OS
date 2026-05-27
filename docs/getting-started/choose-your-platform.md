@@ -114,7 +114,7 @@ Claude Code Max 计划日常日用足够；API 直接 billing 大概每天 $3-8 
 换平台步骤：
 1. 旧平台里说「退朝」，确保这次数据都 sync 上去了
 2. 新平台上装 Life OS（命令见上表）
-3. 第一次说「上朝」，系统会读你在 `_meta/config.md` 里声明的存储后端，自动 pull 所有历史
+3. 第一次说「上朝」，系统会读你在 `meta/config.md` 里声明的存储后端，自动 pull 所有历史
 4. SOUL / wiki / user-patterns / strategic-map 全部还在
 
 会丢的东西：平台原生的对话历史（不是 Life OS 写的 markdown），这个本来就不由 Life OS 管。

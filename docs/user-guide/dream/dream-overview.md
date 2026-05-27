@@ -34,13 +34,13 @@ Session 结束
 
 不需要你手动触发 DREAM。只要你说了退朝，它就自动跑。
 
-如果 DREAM 失败或超时：**不会阻断 session 结束**。警告写进 `_meta/sync-log.md`，你下次 session 会看到。
+如果 DREAM 失败或超时：**不会阻断 session 结束**。警告写进 `meta/sync-log.md`，你下次 session 会看到。
 
 ## 扫描范围（硬规则）
 
 **默认：最近 3 天（72 小时）内修改过的文件。**
 
-如果最近 3 天没有文件改动：自动扩展到"上一份 dream 报告之后"（读取最新 `_meta/journal/*-dream.md` 的日期）。
+如果最近 3 天没有文件改动：自动扩展到"上一份 dream 报告之后"（读取最新 `meta/journal/*-dream.md` 的日期）。
 
 如果从来没有过 dream 报告：扫描最近 7 天作为兜底。
 
@@ -59,7 +59,7 @@ Session 结束
 
 扫描最近 3 天：
 - `inbox/` 里还没分类的东西 → 建议归到哪个项目/领域
-- `_meta/journal/` 里有可提取洞察的条目 → 建议更新 `user-patterns.md`
+- `meta/journal/` 里有可提取洞察的条目 → 建议更新 `user-patterns.md`
 - `projects/*/tasks/` 里过期或重复的任务 → 标记清理
 - 创建了但没被任何 index.md 引用的孤立文件 → 标记
 
@@ -89,7 +89,7 @@ REM 也会评估 10 个自动触发器（详见 `10-auto-triggers.md`）。
 
 ## Dream 报告格式
 
-写入 `_meta/journal/{date}-dream.md`：
+写入 `meta/journal/{date}-dream.md`：
 
 ```yaml
 ---

@@ -65,7 +65,7 @@ ROUTER 将复杂请求升级到全套审议时触发。PLANNER 是"起草-评议
 
 ### 5. Strategic Map 跨项目影响检查
 
-若 `_meta/STRATEGIC-MAP.md` 存在且 subject 涉及有战略关系的项目：
+若 `meta/STRATEGIC-MAP.md` 存在且 subject 涉及有战略关系的项目：
 1. 读取绑定项目的 `strategic.flows_to` 和 `strategic.flows_from`
 2. 如果 subject 的结论会影响下游项目（通过 decision 或 cognition flow）：
    - 补入维度"跨项目影响评估" → 分配给下游项目范围最相关的领域

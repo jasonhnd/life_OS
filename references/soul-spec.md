@@ -12,7 +12,7 @@ supersedes: soul.v1 (v1.8.4 and earlier; v1 entries auto-deprecate 2027-05-23 pe
 
 SOUL.md is the user's personality archive — a living constitutional value layer that records who the user is, what they value, and how value conflicts get resolved when rules collide. It lives in the second-brain root directory.
 
-> **v1.8.5 SOUL v2 pivot — borrowed from eou-foundry**: SOUL is no longer a free-form list of dimensions with confidence bands. It is now a structured value stack with priority total order, X-over-Y formulation, and outlier role slot. Per Stage 4 of RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md`.
+> **v1.8.5 SOUL v2 pivot — borrowed from eou-foundry**: SOUL is no longer a free-form list of dimensions with confidence bands. It is now a structured value stack with priority total order, X-over-Y formulation, and outlier role slot. Per Stage 4 of RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md`.
 
 ## Why v2
 

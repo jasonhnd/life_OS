@@ -24,13 +24,13 @@ context_manifest:
     - SOUL.md
     - references/soul-spec.md
     - references/data-layer.md
-    - _meta/sessions/INDEX.md
-    - _meta/STATUS.md
+    - meta/sessions/INDEX.md
+    - meta/STATUS.md
   supporting:
     - references/audit-trail-spec.md
     - references/obsidian-style.md
     - themes/*.md
-    - _meta/inbox/notifications.md
+    - meta/queue/notifications.md
   forbidden:
     - pro/agents/archiver.md
     - pro/agents/reviewer.md
@@ -39,8 +39,8 @@ context_manifest:
     - foundry/eous/
 blast_radius:
   allowed_scope:
-    - _meta/runtime/<sid>/retrospective-step-*.md
-    - _meta/STATUS.md
+    - meta/runtime/<sid>/retrospective-step-*.md
+    - meta/STATUS.md
   forbidden_scope:
     - SOUL.md
     - wiki/
@@ -50,7 +50,7 @@ blast_radius:
 failure_modes:
   known:
     - "Skips DIRECTORY TYPE CHECK at step 1 when invoked from dev repo (COURT-START-001 historic)"
-    - "Confabulates non-existent file paths (e.g. _meta/roles/CLAUDE.md) when context unclear"
+    - "Confabulates non-existent file paths (e.g. meta/roles/CLAUDE.md) when context unclear"
     - "Reports 'briefing complete' with placeholder phases instead of real data"
   warning_signs:
     - "Output skips Subagent Self-Check first line"
@@ -89,35 +89,35 @@ Fill it with approximately 5-15 lines for Today's Focus + Pending Decisions: 1-3
 
 ### Auto-Follow: AUDITOR Compliance Patrol (v1.6.3b, HARD RULE)
 
-After Mode 0 completes (final briefing emitted), the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). Enforced by `pro/CLAUDE.md` Orchestration Code of Conduct rule #7. Mode 3 audits the just-completed Mode 0 flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo).
+After Mode 0 completes (final briefing emitted), the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). Enforced by `pro/CLAUDE.md` Orchestration Code of Conduct rule #7. Mode 3 audits the just-completed Mode 0 flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo).
 
 **The retrospective subagent does NOT launch AUDITOR itself** — orchestrator chains it. retrospective just emits its briefing and returns. The orchestrator launches AUDITOR Mode 3 as a separate subagent immediately after retrospective returns.
 
 ### Auto-Compile: Session INDEX.md (v1.7, Cortex Phase 1)
 
-After outbox merge (Mode 0 step 7) but before final briefing, retrospective MUST recompile `_meta/sessions/INDEX.md` from the session summary files written by archiver Phase 2.
+After outbox merge (Mode 0 step 7) but before final briefing, retrospective MUST recompile `meta/sessions/INDEX.md` from the session summary files written by archiver Phase 2.
 
 **Why**: hippocampus subagent reads INDEX.md as its first scan surface. Without recompilation, newly-archived sessions are invisible to cross-session retrieval until next manual rebuild.
 
-**Source**: per `references/session-index-spec.md` §5, scan `_meta/sessions/*.md` (exclude INDEX.md itself), parse YAML frontmatter, sort by date desc + started_at desc tie-break, group by YYYY-MM (## heading), most recent month first. Output one line per session in spec §4 format: `{date} | {project} | {subject-truncated-80} | {score}/10 | [{kw-top3}] | {session_id}`.
+**Source**: per `references/session-index-spec.md` §5, scan `meta/sessions/*.md` (exclude INDEX.md itself), parse YAML frontmatter, sort by date desc + started_at desc tie-break, group by YYYY-MM (## heading), most recent month first. Output one line per session in spec §4 format: `{date} | {project} | {subject-truncated-80} | {score}/10 | [{kw-top3}] | {session_id}`.
 
 **Inline compilation** (Option A pivot — python helper `tools/rebuild_session_index.py` deleted):
 
-Use Glob to enumerate `_meta/sessions/*.md` (exclude INDEX.md), Read each, parse frontmatter manually, format per spec §4, then Write to `_meta/sessions/INDEX.md`. Idempotent — safe if Mode 0 runs multiple times.
+Use Glob to enumerate `meta/sessions/*.md` (exclude INDEX.md), Read each, parse frontmatter manually, format per spec §4, then Write to `meta/sessions/INDEX.md`. Idempotent — safe if Mode 0 runs multiple times.
 
 Detail steps:
-1. `Glob _meta/sessions/*.md`
+1. `Glob meta/sessions/*.md`
 2. For each path (skip INDEX.md):
    - Read frontmatter YAML
    - Extract: `session_id`, `date`, `project`, `subject`, `outcome_score`, `keywords`
 3. Sort by `date` desc, `started_at` desc tie-break
 4. Group by `YYYY-MM` (## headings, most recent month first)
 5. Format each line: `{date} | {project} | {subject:80} | {score}/10 | [{keywords-top3}] | {session_id}`
-6. Write `_meta/sessions/INDEX.md`
+6. Write `meta/sessions/INDEX.md`
 
 For user-invoked manual rebuild (outside Mode 0), see `scripts/prompts/rebuild-session-index.md`.
 
-**Failure modes** (per spec §5): if individual session file has malformed YAML, log filename to `_meta/sync-log.md` and skip — corrupt session is omitted from INDEX but file preserved for inspection. Do not block briefing.
+**Failure modes** (per spec §5): if individual session file has malformed YAML, log filename to `meta/sync-log.md` and skip — corrupt session is omitted from INDEX but file preserved for inspection. Do not block briefing.
 
 **Reporting**: include `📚 Session Index: N sessions indexed` in Mode 0 briefing. If recompile diff size differs from previous run by >10 sessions, also note `(Δ +N / -M from previous index)`.
 
@@ -131,7 +131,7 @@ For user-invoked manual rebuild (outside Mode 0), see `scripts/prompts/rebuild-s
 ✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation).
 ✅ I am the RETROSPECTIVE subagent · this is a FRESH Mode 0 invocation (trigger N of session). Even if transcript shows previous Mode 0 output, I execute all 18 steps from scratch. Reuse-like phrases such as "as last time" are audit observation hints, not automatic violation triggers.
 Reading pro/agents/retrospective.md. Starting Step 0.5: primary-source scan.
-Audit trail will be written to _meta/runtime/<sid>/retrospective-step-N.md (md with YAML frontmatter, v1.8.6 R13) with `fresh_invocation: true` and `trigger_count_in_session: N`.
+Audit trail will be written to meta/runtime/<sid>/retrospective-step-N.md (md with YAML frontmatter, v1.8.6 R13) with `fresh_invocation: true` and `trigger_count_in_session: N`.
 ```
 
 **If you detect you are running in the main context (ROUTER/orchestrator), not as an independent subagent:**
@@ -238,8 +238,8 @@ which makes the rest of v1.7 ineffective.
 **Before Step 1 THEME RESOLUTION**, run the following primary-source precompute and keep the results in this session context for Steps 1-18 and the final briefing.
 
 **Forbidden**:
-- Do not read any numeric claim from `_meta/STATUS.md` as authoritative (`N days`, `K items`, `X%`, `N+`, etc.).
-- Do not increment stale numbers from `_meta/STATUS.md` (for example, "10+ days" -> "13+ days").
+- Do not read any numeric claim from `meta/STATUS.md` as authoritative (`N days`, `K items`, `X%`, `N+`, etc.).
+- Do not increment stale numbers from `meta/STATUS.md` (for example, "10+ days" -> "13+ days").
 - Do not estimate numeric claims during Steps 11-13 briefing preparation.
 
 **Required**:
@@ -268,7 +268,7 @@ The briefing MUST include these literal primary-source count markers, using valu
 - `[Maintenance overdue: <verbatim multi-line copy of '## Overdue maintenance' block computed inline by subagent · OR 'none' when no overdue items · source=subagent-recompute@<ISO8601>]` (v1.8.5+ subagent computes inline; pre-v1.8.5 used retired `scripts/hooks/session-start-inbox.sh`)
 
 Rules:
-- R8 marker disambiguation supersedes older R5 wording: `Y1` is the `_meta/STATUS.md` snapshot claim, `Y2` is the `INDEX.md` claim, and `Δ` is always computed as `X - Y2`.
+- R8 marker disambiguation supersedes older R5 wording: `Y1` is the `meta/STATUS.md` snapshot claim, `Y2` is the `INDEX.md` claim, and `Δ` is always computed as `X - Y2`.
 - `X` = Bash measured value; `Y` = `INDEX.md` claimed value; `Δ` = `X - Y`.
 - If `|Δ| >= 3`, append `⚠️ DRIFT` to that marker line.
 - Do not paste only `X` without `Y`.
@@ -277,8 +277,8 @@ Rules:
 
 ```bash
 # STATUS.md staleness check (HARD RULE · v1.7.0.1)
-if [ -f "_meta/STATUS.md" ]; then
-  STATUS_UPDATED=$(grep -m1 'last_updated:' _meta/STATUS.md | awk '{print $2}' || echo "")
+if [ -f "meta/STATUS.md" ]; then
+  STATUS_UPDATED=$(grep -m1 'last_updated:' meta/STATUS.md | awk '{print $2}' || echo "")
   REPO_LATEST=$(git log -1 --format=%cs 2>/dev/null || echo "")
   if [ -n "$STATUS_UPDATED" ] && [ -n "$REPO_LATEST" ]; then
     STATUS_DAYS=$(python3 -c "from datetime import date; a=date.fromisoformat('$STATUS_UPDATED'); b=date.fromisoformat('$REPO_LATEST'); print((b-a).days)" 2>/dev/null || echo "?")
@@ -293,12 +293,12 @@ fi
 
 **STATUS.md narrative suppression (HARD RULE · v1.7.0.1 R7)**:
 
-- If `STATUS_DAYS >= 7`, the briefing MUST NOT quote `_meta/STATUS.md` narrative numbers; use only Bash/git measured values.
+- If `STATUS_DAYS >= 7`, the briefing MUST NOT quote `meta/STATUS.md` narrative numbers; use only Bash/git measured values.
 - The briefing MUST include a status marker in this exact shape: `[STATUS staleness: HEAD-distance <N> days — <fresh|SUPPRESSED>]`.
 
 If `git`, `find`, or shell execution is unavailable in the current environment, put this warning at the very top of the briefing: `⚠️ primary-source unavailable; numeric claims degraded to STATUS narrative only`. In that degraded state, do not write any quantitative numbers.
 
-**Why**: On 2026-04-23, three Start Session briefings over-trusted `_meta/STATUS.md` as a secondary cache and produced stale numeric claims (wiki growth, project task counts, project inactivity days). This step locks briefing numbers to primary sources instead of cache narrative. See the future status-cache-drift incident note (planned, TBD: pro/compliance/2026-04-23-status-cache-drift.md will be created when the post-mortem is filed).
+**Why**: On 2026-04-23, three Start Session briefings over-trusted `meta/STATUS.md` as a secondary cache and produced stale numeric claims (wiki growth, project task counts, project inactivity days). This step locks briefing numbers to primary sources instead of cache narrative. See the future status-cache-drift incident note (planned, TBD: pro/compliance/2026-04-23-status-cache-drift.md will be created when the post-mortem is filed).
 
 ### Execution Steps
 
@@ -306,11 +306,11 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 
 For every LLM judgment / LLM assembly step in Mode 0 (steps 1, 6, 9, 16, and 18), RETROSPECTIVE MUST write an audit trail JSON file before moving past that step; Step 18 MUST write before returning the final briefing.
 
-Required path: `_meta/runtime/<sid>/retrospective-step-N.json`, where `<sid>` is the orchestrator-provided current session id. Do not fabricate `<sid>`; if the host did not provide one, write under `_meta/runtime/unknown/` and set `session_id_source: "missing"`.
+Required path: `meta/runtime/<sid>/retrospective-step-N.json`, where `<sid>` is the orchestrator-provided current session id. Do not fabricate `<sid>`; if the host did not provide one, write under `meta/runtime/unknown/` and set `session_id_source: "missing"`.
 
 Use inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`.
 
-R12 fresh invocation fields: every `_meta/runtime/<sid>/retrospective-step-N.json` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current Mode 0 trigger count within this session. Do not infer completion from previous Mode 0 transcript output; every fresh invocation executes all 18 steps from scratch before writing Step 18.
+R12 fresh invocation fields: every `meta/runtime/<sid>/retrospective-step-N.json` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current Mode 0 trigger count within this session. Do not infer completion from previous Mode 0 transcript output; every fresh invocation executes all 18 steps from scratch before writing Step 18.
 
 R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-0.sh` deleted): RETROSPECTIVE Mode 0 / Mode 2 runs all 18 steps from scratch each invocation. No ROUTER pre-fetch. Each step does its own Read/Grep/Glob work directly. Audit trail still required per step (R11). Cost: Mode 0 from ~1-2s pre-fetched + LLM filling → ~30-60s full LLM execution. Accepted in Option A pivot for architecture simplification.
 
@@ -340,7 +340,7 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - After selection: Read themes/*.md → load display names, emoji, tone, AND language
    - HARD RULE: All subsequent output MUST use the selected theme's language and display names. No mixing. No exceptions.
    - HARD RULE: When user switches theme mid-session, re-show the selector, load new theme, switch language immediately. Confirm in the NEW language.
-   - R11 AUDIT TRAIL: before proceeding to Step 2, write `_meta/runtime/<sid>/retrospective-step-1.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
+   - R11 AUDIT TRAIL: before proceeding to Step 2, write `meta/runtime/<sid>/retrospective-step-1.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
 
 2. DIRECTORY TYPE CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
    - If current directory contains SKILL.md + pro/agents/ + themes/:
@@ -353,13 +353,13 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
      → a: connect to second-brain path, continue with step 3
      → b: bind to life-os repo as dev project, skip steps 3-7 (no sync needed), proceed to step 8
      → c: proceed to step 3 first-run path
-   - If current directory contains _meta/ + projects/:
+   - If current directory contains meta/ + projects/:
      → This is a second-brain, proceed normally
    - Otherwise:
      → This is a regular project repo, proceed and look for second-brain at configured path
 
 3. DATA LAYER CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
-   - Check: does _meta/config.md exist?
+   - Check: does meta/config.md exist?
    - If YES → proceed to step 4
    - If NO → FIRST-RUN mode:
      a. Report: "📦 First session — no second-brain detected."
@@ -369,20 +369,20 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
         c) Notion (mobile-friendly)
         You can pick multiple."
      c. User answers → create directory structure at target path:
-        _meta/ (config.md, STATUS.md, journal/, outbox/)
+        meta/ (config.md, STATUS.md, journal/, outbox/)
         projects/
         areas/
         wiki/
         inbox/
         archive/
         templates/
-     d. Write _meta/config.md with chosen backends
+     d. Write meta/config.md with chosen backends
      e. Skip steps 4-7 (no data to sync), jump to step 8
      f. Briefing: "✅ Second-brain created. No projects yet. Tell me what you're working on."
 
 --- Phase B: Sync ---
 
-4. Read _meta/config.md → get storage backend list + last sync timestamp [v1.8.0 R-1.8.0-011 · retrospective executes inline]
+4. Read meta/config.md → get storage backend list + last sync timestamp [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
 5. GIT HEALTH CHECK — detect and report (before any sync) [v1.8.0 R-1.8.0-011 · retrospective executes inline]:
    - Run `git worktree list` → if any entry shows "prunable" or non-existent path, record
@@ -412,23 +412,27 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - Compare timestamps, resolve conflicts (see data-model.md)
    - Apply winning changes to primary backend
    - Push primary state to sync backends
-   - Update _meta/sync-log.md + last_sync_time
-   - R11 AUDIT TRAIL: before proceeding to Step 7, write `_meta/runtime/<sid>/retrospective-step-6.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
+   - Update meta/sync-log.md + last_sync_time
+   - R11 AUDIT TRAIL: before proceeding to Step 7, write `meta/runtime/<sid>/retrospective-step-6.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
 
-7. OUTBOX MERGE [v1.8.0 R-1.8.0-011 · inline tool calls + LLM narrative]: scan _meta/outbox/ for unmerged session directories
-   - If _meta/.merge-lock exists and < 5 minutes old → skip merge, proceed to step 8
-   - Write _meta/.merge-lock with {platform, timestamp}
+7. OUTBOX MERGE [v1.8.0 R-1.8.0-011 · inline tool calls + LLM narrative · v1.9 path schema]: scan meta/outbox/ for unmerged session directories
+   - If meta/.merge-lock exists and < 5 minutes old → skip merge, proceed to step 8
+   - Write meta/.merge-lock with {platform, timestamp}
    - For each outbox directory (sorted chronologically):
      a. Read manifest.md → session info and output counts
-     b. Move decisions/ → projects/{p}/decisions/
-     c. Move tasks/ → projects/{p}/tasks/
-     d. Move journal/ → _meta/journal/
-     e. Apply index-delta.md → update projects/{p}/index.md
-     f. Append patterns-delta.md → user-patterns.md
-     g. Move wiki/ → wiki/{domain}/{topic}.md
-     h. Delete outbox directory after successful merge
-   - After all merged: compile _meta/STATUS.md, git commit + push
-   - Delete _meta/.merge-lock
+     b. **Move decisions** → `meta/decisions/<YYYY-MM>/<id>.md` (v1.9 / DR-1.9.18: month subdir; v1.9 / DR-1.9.19: applied_methods is LIST). Source dir in outbox is `decisions/<YYYY-MM>/<id>.md` mirroring final structure.
+     c. Move tasks/ → projects/{p}/tasks/ (unchanged; project tasks stay per-project)
+     d. **Move journal** → `meta/journal/<YYYY-MM-DD>.md` (v1.9 / DR-1.9.3: time-axis canonical, single daily file per project-mention; merge frontmatter `projects:` list when day already exists). NO longer dual-write to projects/{p}/journal/.
+     e. **Apply index-delta.md** → update `projects/{p}/index.md` frontmatter (lifecycle_stage, paused_until if any) AND maintain `## Journal` + `## Decisions` sections (Dataview block + Recent 5 wikilinks fallback; per DR-1.9.9, DR-1.9.21).
+     f. Append patterns-delta.md → `meta/user-patterns.md` (v1.9 / Opt #7: moved to meta/)
+     g. Move wiki/ → wiki/{domain}/{topic}.md (unchanged)
+     h. Update cross-reference fields (v1.9 / Opt #8 / DR-1.9.13):
+        - For each new decision: ensure `applied_methods: [<m1>, <m2>, ...]` list (LIST, per DR-1.9.19) and `journal_date: <YYYY-MM-DD>` are set in frontmatter
+        - For each new journal entry: ensure `referenced_decisions: [...]` and `referenced_methods: [...]` reflect the decisions/methods written this session
+        - For methods (if Phase 2 created new): ensure `born_from_decisions: [...]` is set; DO NOT write `applied_in_decisions` field (DR-1.9.24 — that field is REMOVED in v1.9; use Dataview reverse query)
+     i. Delete outbox directory after successful merge
+   - After all merged: compile meta/STATUS.md (filter `lifecycle_stage: archived` per DR-1.9.4), git commit + push
+   - Delete meta/.merge-lock
    - Report: "📮 Merged N offline session(s): [details]"
    - No outboxes → skip silently
 
@@ -478,15 +482,15 @@ subagent 输出 "远端检查失败 (private repo 原因)" 完全虚构,
 9. PROJECT BINDING [LLM judgment]
    - If directory type was identified in step 2 → use that binding
    - Otherwise ask user: "Which project are we focusing on?"
-   - R11 AUDIT TRAIL: before proceeding to Step 10, write `_meta/runtime/<sid>/retrospective-step-9.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
+   - R11 AUDIT TRAIL: before proceeding to Step 10, write `meta/runtime/<sid>/retrospective-step-9.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
 
 --- Phase D: Context Loading ---
 
 Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
-    - If `_meta/eval-history/` exists, read the 10 most recent `*.md` entries by filename/date descending.
+    - If `meta/eval-history/` exists, read the 10 most recent `*.md` entries by filename/date descending.
     - Summarize each entry for the final briefing as `{date} | {type} | {verdict} | next_follow_up`.
     - If the directory is missing or empty, record `Eval-history loop: no prior entries`.
-    - Read-only: RETROSPECTIVE must not modify `_meta/eval-history/`.
+    - Read-only: RETROSPECTIVE must not modify `meta/eval-history/`.
 
 10. Read user-patterns.md (if exists) [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
@@ -494,7 +498,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
 
     11.1 Read current SOUL.md. If does not exist, mark as "uninitialized" and skip to 11.6.
 
-    11.2 Read the latest snapshot from `_meta/snapshots/soul/`. The latest file by filename (YYYY-MM-DD-HHMM.md sort descending). This represents SOUL state at the end of the previous session.
+    11.2 Read the latest snapshot from `meta/snapshots/soul/`. The latest file by filename (YYYY-MM-DD-HHMM.md sort descending). This represents SOUL state at the end of the previous session.
 
     11.3 For each dimension in current SOUL.md, compute delta vs snapshot:
          · evidence_Δ = current.evidence_count - snapshot.evidence_count
@@ -527,7 +531,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - Snapshot file corrupted or unparseable → fall back to "current state only, no trend comparison". Briefing adds: "⚠️ Trend comparison unavailable (previous snapshot not readable)."
     - Snapshot from >24 hours ago (session gap) → still used, but add note "Trends computed against state from {YYYY-MM-DD HH:MM}."
 
-12. Read _meta/STATUS.md + _meta/lint-state.md [v1.8.0 R-1.8.0-011 · retrospective executes inline]
+12. Read meta/STATUS.md + meta/lint-state.md [v1.8.0 R-1.8.0-011 · retrospective executes inline]
     - If lint-state >4h since last run → trigger AUDITOR lightweight patrol
 
 13. ReadProjectContext(bound project) — index.md + decisions + tasks + journal [v1.8.0 R-1.8.0-011 · retrospective executes inline]
@@ -537,7 +541,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
 --- Phase E: Strategy + Knowledge ---
 
 15. STRATEGIC MAP COMPILATION [v1.8.0 R-1.8.0-011 · inline tool calls + LLM narrative]
-    a. If _meta/strategic-lines.md does not exist → skip silently
+    a. If meta/strategic-lines.md does not exist → skip silently
     b. Read strategic-lines.md → all line definitions (driving_force, health_signals)
     c. Read all projects/*/index.md → collect strategic fields
     d. For each line:
@@ -550,9 +554,9 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
        - wiki × flows: cognition flow domains have wiki content?
        - user-patterns × roles: behavior aligned with strategic priorities?
     f. Generate action recommendations (🥇🥈🟢❓)
-    g. Compile _meta/STRATEGIC-MAP.md
+    g. Compile meta/STRATEGIC-MAP.md
 
-16. DREAM REPORT [LLM judgment] — read latest _meta/journal/*-dream.md (if exists, not yet presented):
+16. DREAM REPORT [LLM judgment] — read latest meta/journal/*-dream.md (if exists, not yet presented):
     - Include: "💤 Last session the system had a dream: [summary]"
     - Note auto-written SOUL dimensions (display awaiting "What SHOULD BE" input, confidence 0.3)
     - Note auto-written Wiki entries (list paths; user can delete any disagreement)
@@ -560,7 +564,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - Mark as presented
     - Read the triggered_actions YAML block from last dream journal. These feed the DREAM Auto-Triggers section of the briefing (always shown, fixed position).
     - **TRIGGER VALIDITY RE-CHECK (HARD RULE · v1.8.4 · Bug R-DREAM-STALE-TASK fix)**: DREAM journals are async overnight snapshots. A trigger that was valid when the DREAM was written may have already been resolved by the user before the next session start. For each HARD trigger that names a specific task path or task slug, the subagent MUST `Read` the referenced task file's frontmatter and inspect the `status:` field BEFORE promoting the trigger to Today's Focus. Match logic: if `status:` matches `closed`, `done`, `failed`, `archived`, `superseded`, or any prefix `closed-*`, render the trigger as `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>, no action needed.` and DO NOT promote to Today's Focus / P0. If task file does not exist on disk, attempt fuzzy match by slug under `projects/**/tasks/`; if found at a different path, treat as `renamed_candidate` (still validate status); if not found anywhere, promote with note `task slug not found on disk, treating as still-actionable`. Originating bug: 2026-05-16 briefing promoted `8938 revenue-uplift task closure` to P0 even though it had `status: closed-superseded` written the day before. Trigger `task_ref` field (defined in `references/dream-spec.md` triggered_actions schema, v1.8.4) is **optional** — only set when DREAM detected a trigger that points to a specific user task. Resolution order: (a) if `task_ref.task_path` present → `Read` that exact path; (b) elif `task_ref.task_slug` + `task_ref.project` present → fuzzy match under `projects/<project>/tasks/`; (c) elif neither, attempt LLM-parse of `detection.hard_signals` / `action` text for task-name mentions and fuzzy match under `projects/**/tasks/`; (d) if all three fail → mark `task_lookup: not_found` and promote with note `no task_ref on this trigger, treating as still-actionable` (no error). Behavioral triggers (e.g. trigger_id 4 dormant-SOUL, trigger_id 6 decision-fatigue) have no task to validate — skip this check entirely and record `task_lookup: not_applicable` in audit trail.
-    - R11 AUDIT TRAIL: before proceeding to Step 17, write `_meta/runtime/<sid>/retrospective-step-16.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json). Audit trail JSON MUST additionally include `dream_triggers_validated: [{trigger_id: N, trigger_type: HARD|SOFT, task_path: ..., task_status: ..., task_lookup: found_at_path|renamed_candidate|not_found, promoted_to_focus: true|false, reason: "..."}]` — one entry per HARD trigger; empty array `dream_triggers_validated: []` when zero HARD triggers.
+    - R11 AUDIT TRAIL: before proceeding to Step 17, write `meta/runtime/<sid>/retrospective-step-16.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json). Audit trail JSON MUST additionally include `dream_triggers_validated: [{trigger_id: N, trigger_type: HARD|SOFT, task_path: ..., task_status: ..., task_lookup: found_at_path|renamed_candidate|not_found, promoted_to_focus: true|false, reason: "..."}]` — one entry per HARD trigger; empty array `dream_triggers_validated: []` when zero HARD triggers.
 
 17. WIKI HEALTH CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
     a. wiki/ empty or doesn't exist → skip silently
@@ -571,7 +575,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
 --- Phase F: Output ---
 
 18. GENERATE BRIEFING [LLM assembly · v1.8.0 R-1.8.0-011 · uses inline-collected markers from steps 1-17 as ground truth] — compile all results from steps 1-17 into the output format below
-    - R11 AUDIT TRAIL: before returning the final briefing, write `_meta/runtime/<sid>/retrospective-step-18.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json). `output_summary` MUST match the briefing sections and ROUTER-visible paste markers.
+    - R11 AUDIT TRAIL: before returning the final briefing, write `meta/runtime/<sid>/retrospective-step-18.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json). `output_summary` MUST match the briefing sections and ROUTER-visible paste markers.
 ```
 
 ### Output Format (Start Session)
@@ -597,7 +601,7 @@ Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and
 🔮 SOUL Health Report  ← FIXED, always shown
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-(Data sources: step 11.1 current SOUL, 11.2 latest snapshot from `_meta/snapshots/soul/`, 11.3 deltas, 11.4 trend arrows, 11.5 special states, 11.6 trajectory.)
+(Data sources: step 11.1 current SOUL, 11.2 latest snapshot from `meta/snapshots/soul/`, 11.3 deltas, 11.4 trend arrows, 11.5 special states, 11.6 trajectory.)
 
 📊 Current Profile:
    Active dimensions (confidence > 0.5, with arrow + delta from step 11.3/11.4):
@@ -697,15 +701,15 @@ The session briefing is ready. What would you like to focus on?
 
 ```
 1. Platform detection + version check (same as Mode 0 step 8)
-2. Read _meta/config.md → backend list + last sync
+2. Read meta/config.md → backend list + last sync
 3. Multi-backend sync (if multiple backends configured, same logic as Mode 0 step 6)
 4. Outbox merge (if unmerged sessions found, same logic as Mode 0 step 7)
 5. Project binding: confirm the current associated project or area
 6. Read user-patterns.md (if exists)
 7. Read wiki/INDEX.md (if exists) → pass to router as known knowledge summary
-8. Read _meta/STRATEGIC-MAP.md (if exists) → pass to router as strategic context
-9. Read _meta/STATUS.md (global status)
-10. Read _meta/lint-state.md — if >4h since last run → trigger AUDITOR lightweight patrol
+8. Read meta/STRATEGIC-MAP.md (if exists) → pass to router as strategic context
+9. Read meta/STATUS.md (global status)
+10. Read meta/lint-state.md — if >4h since last run → trigger AUDITOR lightweight patrol
 11. ReadProjectContext(bound project) — index.md + decisions + tasks
 12. Global overview: list Project + Area (titles + status only)
 ```
@@ -740,12 +744,12 @@ Prepare with whatever data you can access. Note what you cannot:
 ### Data Sources
 
 ```
-1. Read ~/second-brain/_meta/STATUS.md for global state
+1. Read ~/second-brain/meta/STATUS.md for global state
 2. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rates
 3. Read ~/second-brain/areas/*/goals.md for goal progress
-4. Read ~/second-brain/_meta/journal/ for recent logs
+4. Read ~/second-brain/meta/journal/ for recent logs
 5. Read ~/second-brain/projects/*/journal/ for project-specific logs
-6. Read _meta/STRATEGIC-MAP.md for strategic line health trends (if exists)
+6. Read meta/STRATEGIC-MAP.md for strategic line health trends (if exists)
 7. Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5+ procedure): compute the `## Overdue maintenance` block inline per Step 0.5 procedure (read 10 maintenance job last-run timestamps + compute days-overdue per each SLA). Include in Review briefing as `[Maintenance overdue: <verbatim block> · source=subagent-recompute@<ISO8601>]`. Same source-of-truth contract as Mode 0 Step 0.5: do NOT byte-copy transcript stale values, do NOT re-estimate day count. Mode 2 reviews tend to span longer time windows than Mode 0 and are more vulnerable to drift, so the marker contract is mandatory here too. (Pre-v1.8.5 used `bash scripts/hooks/session-start-inbox.sh`; .sh retired with hook layer.)
 ```
 
@@ -873,7 +877,7 @@ Minimum content (v1.7.2.3 product fix · SOUL/DREAM display restored):
 ## 3. DREAM / 隔夜更新 (full latest dream report via Bash paste + LLM today implications)
 
 Minimum content (v1.7.2.3 product fix · DREAM display restored):
-- Bash skeleton outputs the **full latest `_meta/journal/*-dream.md` verbatim** in a fenced markdown block (LLM cannot compress).
+- Bash skeleton outputs the **full latest `meta/journal/*-dream.md` verbatim** in a fenced markdown block (LLM cannot compress).
 - LLM adds today implications based on the full DREAM content (cross-reference with current focus / SOUL / strategic).
 - If no DREAM file, emit one concise none line.
 - Rationale: DREAM is Life OS's AI 沉淀 core function. Compressing to 1-2 sentence digest loses the actual sleep cycle output. Full content is bash-pasted; LLM only adds today-relevance.
@@ -927,7 +931,7 @@ This makes the briefing navigable in Obsidian and powers the 4-signal
 relevance model in `references/hippocampus-spec.md`.
 
 **Review queue surfacing**: Mode 0 step 17 (final briefing assembly) MUST
-include a `## Open Review Queue` H2 if `_meta/review-queue.md` has open items:
+include a `## Open Review Queue` H2 if `meta/review-queue.md` has open items:
 
 ```markdown
 ## Open Review Queue (N items)
@@ -956,6 +960,6 @@ Per `references/status-line-spec.md`. retrospective emits status lines for Mode 
 | `escalated` ⚖️ | N/A — retrospective surfaces findings via briefing; user decision happens in main ROUTER flow | `N/A — retrospective surfaces, ROUTER + user decide` |
 | `awaiting_user` 🟡 | Conscious Patrol detected actionable items; ROUTER reports + waits for user response | "lifeos-002 — 3 P0 / 1 P1 overdue, run /process-queue?" |
 | `failed` ❌ | Cannot complete Mode 0: second-brain unreachable, missing required spec, hook failure | "`F8 SILENT_FAILURE: second-brain inbox unreachable` or `F4: Step 0.5 precompute markers missing`" |
-| `silent_pass` 🟢 | Per-patrol-task case: task ran, found nothing relevant, no surfacing (lifeos-004 / 005 / 006 / 007 clean) | "lifeos-`<00X>` — clean, no surfacing needed (audit trail at _meta/runtime/<sid>/retrospective-mode-0.md)" |
+| `silent_pass` 🟢 | Per-patrol-task case: task ran, found nothing relevant, no surfacing (lifeos-004 / 005 / 006 / 007 clean) | "lifeos-`<00X>` — clean, no surfacing needed (audit trail at meta/runtime/<sid>/retrospective-mode-0.md)" |
 
 See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

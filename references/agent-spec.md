@@ -11,7 +11,7 @@ introduced_in: v1.8.5
 
 Every `pro/agents/*.md` subagent definition file MUST have YAML frontmatter conforming to the v2 standard. v1.8.5 Stage 6 migrates all 23 existing agents.
 
-> **Why v2**: v1 agent frontmatter only had `name + description + tools + model` (4 fields). v2 adds 6 structural fields borrowed from eou-foundry that make agent boundaries grep-able, blast radius explicit, and failure modes documented. Per RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6.
+> **Why v2**: v1 agent frontmatter only had `name + description + tools + model` (4 fields). v2 adds 6 structural fields borrowed from eou-foundry that make agent boundaries grep-able, blast radius explicit, and failure modes documented. Per RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6.
 
 ## v2 Standard Frontmatter
 
@@ -53,7 +53,7 @@ context_manifest:
 # v2 NEW: blast_radius (eou eou-contract.md §blast_radius)
 blast_radius:
   allowed_scope:       # files/paths this agent may write
-    - _meta/runtime/<sid>/<name>-*.json
+    - meta/runtime/<sid>/<name>-*.json
     - <wiki/SOUL/specific-output-path>
   forbidden_scope:     # files this agent MUST NOT modify
     - SOUL.md          # only ARCHIVER Phase 2 writes SOUL candidates
@@ -91,7 +91,7 @@ For every `pro/agents/*.md`, the frontmatter MUST have:
 New AUDITOR mode added at Stage 6 Day 17. Checks:
 - **A1**: every agent has all v2 required fields
 - **A2**: `tools` list matches what agent actually uses (no `Read` in tools but agent does Read calls = drift)
-- **A3**: `forbidden_scope` is not bypassed (agent's output trail in `_meta/runtime/<sid>/` shows no write to forbidden paths)
+- **A3**: `forbidden_scope` is not bypassed (agent's output trail in `meta/runtime/<sid>/` shows no write to forbidden paths)
 - **A4**: agent's `failure_modes.known` includes any violation classes from `pro/compliance/violations.md` where the agent is implicated
 
 Findings classified per `references/failure-taxonomy.md`.
@@ -111,7 +111,7 @@ Run eval scenarios:
 Pass rate criteria (D4):
 - ≥ 95% baseline: proceed with batch update on remaining 20 agents
 - 90-95%: simplify frontmatter (drop heaviest field, retry)
-- < 90%: rollback that agent's v2 frontmatter, document why in `_meta/rfc/v1.8.5-stage6-rollback.md`
+- < 90%: rollback that agent's v2 frontmatter, document why in `meta/rfc/v1.8.5-stage6-rollback.md`
 
 ## Per-agent authority_level guidance
 
@@ -134,7 +134,7 @@ Pass rate criteria (D4):
 | soul-check | audit | suggest_only | low |
 | narrator | specify | suggest_only (ROUTER-internal, template-only) | low |
 | narrator-validator | validate | suggest_only (deleted v1.8.0, retained as legacy template) | low |
-| knowledge-extractor | propose | write_candidate (writes to `_meta/runtime/<sid>/extraction/`) | medium |
+| knowledge-extractor | propose | write_candidate (writes to `meta/runtime/<sid>/extraction/`) | medium |
 | 6 domain agents (people/finance/growth/execution/governance/infra) | diagnose | write_candidate (writes domain report) | medium |
 
 risk_level rationale: agents that produce final outputs without REVIEWER gate are higher risk (archiver publish, reviewer veto). Agents that only propose / read are lower risk.

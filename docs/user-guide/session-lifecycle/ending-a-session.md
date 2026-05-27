@@ -34,12 +34,12 @@ ROUTER **禁止** 做以下任何事（HARD RULE）：
 ## Phase 1 · Archive（归档）
 
 ```
-1. 读 _meta/config.md → storage backend 列表
+1. 读 meta/config.md → storage backend 列表
 2. 生成 session-id：运行 date 命令取真实时间戳，格式化 {platform}-{YYYYMMDD}-{HHMM}
-3. 创建 outbox 目录：_meta/outbox/{session_id}/
-4. Decision（summary report）→ _meta/outbox/{session_id}/decisions/
-5. Task（action items）→ _meta/outbox/{session_id}/tasks/
-6. JournalEntry（auditor + advisor reports）→ _meta/outbox/{session_id}/journal/
+3. 创建 outbox 目录：meta/outbox/{session_id}/
+4. Decision（summary report）→ meta/outbox/{session_id}/decisions/
+5. Task（action items）→ meta/outbox/{session_id}/tasks/
+6. JournalEntry（auditor + advisor reports）→ meta/outbox/{session_id}/journal/
 7. 写 index-delta.md → projects/{project}/index.md 的变更（version、phase、focus）
 8. 如 advisor 有 "📝 Pattern Update Suggestion" → 写 patterns-delta.md
 9. 写 manifest.md → 会话元数据
@@ -48,7 +48,7 @@ ROUTER **禁止** 做以下任何事（HARD RULE）：
 ### HARD RULE
 
 - **session-id 必须用真实时间戳**。`date` 命令的真实输出。不能编。编造时间戳是 HARD RULE 违反。
-- **所有写入必须到 outbox**，不能直接写 `projects/`、`_meta/STATUS.md`、`user-patterns.md`。原子性：全部进 outbox，合并时一起合。
+- **所有写入必须到 outbox**，不能直接写 `projects/`、`meta/STATUS.md`、`user-patterns.md`。原子性：全部进 outbox，合并时一起合。
 
 ### 每个 decision 文件
 
@@ -75,7 +75,7 @@ Phase 2 产出 **Session Candidates** — 仅从本次会话提取。基于严�
 5. **多证据（≥2 独立）** — 至少 2 个案例/数据点/决策/引用。单次观察 → 扔掉。
 6. **不与现有 wiki 矛盾** — 矛盾 → `challenges: +1` 到那个条目，不新建。
 
-全过 → 自动写入 `_meta/outbox/{session_id}/wiki/{domain}/{topic}.md`。
+全过 → 自动写入 `meta/outbox/{session_id}/wiki/{domain}/{topic}.md`。
 
 **初始 confidence**：
 - 3+ 独立证据 → 0.5
@@ -99,7 +99,7 @@ Phase 2 产出 **Session Candidates** — 仅从本次会话提取。基于严�
 2. **≥2 决策作为证据** — 单决策观察太薄。本次会话内至少 2 次，或跨会话强化。
 3. **未被已有覆盖** — 有覆盖 → `evidence_count +1`，不新建。
 
-通过 → 自动写入 `_meta/outbox/{session_id}/soul/`：
+通过 → 自动写入 `meta/outbox/{session_id}/soul/`：
 - `confidence: 0.3`（低初始 — 让 evidence/challenges 来养）
 - `What IS`：系统基于观察填
 - `What SHOULD BE`：**留空** — 用户自己在自己时间填
@@ -118,7 +118,7 @@ Phase 2 产出 **Session Candidates** — 仅从本次会话提取。基于严�
 
 ### SOUL Snapshot Dump
 
-Phase 2 结束后，dump 当前 SOUL 状态到 `_meta/snapshots/soul/YYYY-MM-DD-HHMM.md`。
+Phase 2 结束后，dump 当前 SOUL 状态到 `meta/snapshots/soul/YYYY-MM-DD-HHMM.md`。
 
 格式：
 
@@ -141,7 +141,7 @@ previous_snapshot: {上一个 snapshot 文件名 / null}
 
 **目的**：下次上朝 RETROSPECTIVE Step 11.2 读最新 snapshot，算 delta/箭头。只记数值元数据，What IS/What SHOULD BE 留在主 SOUL.md。
 
-**归档策略**：>30 天移 `_meta/snapshots/soul/_archive/`；>90 天删除（git + Notion 已保留）。
+**归档策略**：>30 天移 `meta/snapshots/soul/_archive/`；>90 天删除（git + Notion 已保留）。
 
 ---
 
@@ -159,14 +159,14 @@ Phase 3 产出 **DREAM Candidates** — 从 3 天扫描发现。**不是现在�
 FILES=$(git log --since="3 days ago" --name-only --format="" | sort -u)
 ```
 
-- 3 天无变更 → 扩到"上次 dream 之后"（读最近 `_meta/journal/*-dream.md` 的日期）。
+- 3 天无变更 → 扩到"上次 dream 之后"（读最近 `meta/journal/*-dream.md` 的日期）。
 - 无 dream report → 扫最近 7 天。
 
 ### N1-N2 · Organize & Archive
 
 🔎 扫 3 天变更：
 - `inbox/` — 未分类？
-- `_meta/journal/` — 有洞察值得提取？
+- `meta/journal/` — 有洞察值得提取？
 - `projects/*/tasks/` — 过期、重复、陈旧？
 - 创建但未 link 到项目 index 的文件？
 
@@ -201,7 +201,7 @@ FILES=$(git log --since="3 days ago" --name-only --format="" | sort -u)
 
 ### DREAM Output
 
-写到 `_meta/outbox/{session_id}/journal/{date}-dream.md`：
+写到 `meta/outbox/{session_id}/journal/{date}-dream.md`：
 
 ```yaml
 ---
@@ -233,9 +233,9 @@ triggered_actions:
 ## Phase 4 · Sync（仅 git；Notion 由 orchestrator 做）
 
 ```
-1. git add _meta/outbox/{session_id}/ → commit → push（只加 outbox 目录）
-2. 更新 _meta/config.md 的 last_sync_time
-3. GitHub backend 失败 → 写 _meta/sync-log.md，标 ⚠️，不阻塞
+1. git add meta/outbox/{session_id}/ → commit → push（只加 outbox 目录）
+2. 更新 meta/config.md 的 last_sync_time
+3. GitHub backend 失败 → 写 meta/sync-log.md，标 ⚠️，不阻塞
 ```
 
 ### archiver 不做 Notion sync
@@ -289,7 +289,7 @@ f. 单项失败 → 报告哪一项，其他继续
 
 ✅ Completion Checklist:
 - Subagent invocation: [✅ / ⚠️ ran in main context — VIOLATION]
-- Phase 1 outbox: _meta/outbox/{actual-session-id}/
+- Phase 1 outbox: meta/outbox/{actual-session-id}/
 - Phase 1 archived: {N} decisions, {M} tasks, {K} journal entries
 - Phase 2 wiki auto-written: [{list} / 0 this session]
 - Phase 2 wiki discarded: [{count} with reasons / none]

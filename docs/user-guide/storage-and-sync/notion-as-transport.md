@@ -34,7 +34,7 @@ Notion 只存 4 个组件，负责手机和桌面之间传话：
 | 组件 | 类型 | 作用 |
 |------|------|------|
 | 📬 Inbox | 数据库 | 手机 ↔ 桌面的消息队列 |
-| 🧠 Current Status | 页面 | 镜像 `_meta/STATUS.md` |
+| 🧠 Current Status | 页面 | 镜像 `meta/STATUS.md` |
 | 📝 Working Memory | 话题页 | 当前活跃的 5-10 个话题 |
 | 📋 Todo Board | 数据库 | 活跃任务供手机勾选 |
 
@@ -46,7 +46,7 @@ Primary backend 是 GitHub 或 GDrive — 所有 .md 文件的真源。Notion �
 
 ## 怎么判断自己是哪种模式
 
-看 `_meta/config.md`：
+看 `meta/config.md`：
 
 ```yaml
 # 模式 1 · Notion 完整后端
@@ -105,12 +105,12 @@ ARCHIVER 把 Status 改成 Synced
 
 ### 🧠 Current Status 页面
 
-是一整页，不是数据库。里面是 Markdown，镜像了 `_meta/STATUS.md`。
+是一整页，不是数据库。里面是 Markdown，镜像了 `meta/STATUS.md`。
 
 每次退朝 orchestrator 在 Step 10a 覆写这一页：
 
 ```
-读 _meta/STATUS.md 最新内容
+读 meta/STATUS.md 最新内容
   ↓
 notion-update-page(status_page_id, content)
   ↓
@@ -265,7 +265,7 @@ ARCHIVER 是 subagent，只能用 subagent 能访问的工具。Notion MCP 是�
 ARCHIVER 返回后，orchestrator 执行：
 
 a. 🧠 Current Status page:
-   - 读 _meta/STATUS.md 最新内容
+   - 读 meta/STATUS.md 最新内容
    - notion-update-page 覆写对应页面
 
 b. 📋 Todo Board:

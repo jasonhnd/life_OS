@@ -7,7 +7,7 @@
 ## 设计原则
 
 1. **两层架构**：结构层（用户定义、缓变）+ 动态层（系统计算、每次 Start Court 刷新）
-2. **单一真相源**：`projects/{project}/index.md` frontmatter 存每项目战略数据；`_meta/strategic-lines.md` 存战略线定义；`_meta/STRATEGIC-MAP.md` 是编译产物（从不手工编辑）
+2. **单一真相源**：`projects/{project}/index.md` frontmatter 存每项目战略数据；`meta/strategic-lines.md` 存战略线定义；`meta/STRATEGIC-MAP.md` 是编译产物（从不手工编辑）
 3. **从零生长**：若无战略数据，系统正常运行——功能处于休眠状态，直到用户定义关系
 4. **结构变更由用户确认**：新战略线、项目角色、流动关系需要用户确认（类似 SOUL/wiki 候选）
 5. **模式匹配 + 叙事评估**：不使用数字评分——匹配健康原型并写出"发生什么 / 意味着什么 / 怎么办"的叙事
@@ -15,7 +15,7 @@
 
 ## 数据结构
 
-### 战略线（`_meta/strategic-lines.md`）
+### 战略线（`meta/strategic-lines.md`）
 
 存于用户的 second-brain（不在 Life OS repo）。多条战略线用 `---` 分隔。用户首次定义战略分组时创建。
 
@@ -198,14 +198,14 @@ DREAM 是跨三层知识（SOUL/wiki/strategic）的综合引擎。
 - **wiki × 流动**：知识是否真的在项目间传递？
 - **超越结构**：战略地图还没捕获的连接？
 
-## 编译输出：`_meta/STRATEGIC-MAP.md`
+## 编译输出：`meta/STRATEGIC-MAP.md`
 
 每次 Start Court 由 RETROSPECTIVE 编译（step 8.5）。从不手工编辑。
 
 ### 编译算法
 
 ```
-1. 读 _meta/strategic-lines.md → 所有线定义
+1. 读 meta/strategic-lines.md → 所有线定义
 2. 读 projects/*/index.md → 收集战略字段
 3. 对每条线：
    a. 收集 strategic.line 匹配的项目，按角色排序
@@ -219,7 +219,7 @@ DREAM 是跨三层知识（SOUL/wiki/strategic）的综合引擎。
 5. 列出未归属项目
 6. 从所有 flows_to/flows_from 构建流动图
 7. 生成操作建议（leverage 排序 + 可忽略 + 需决策）
-8. 写 _meta/STRATEGIC-MAP.md
+8. 写 meta/STRATEGIC-MAP.md
 ```
 
 ### 输出格式
@@ -319,7 +319,7 @@ Flow Graph
 
 ## 冷启动
 
-若 `_meta/strategic-lines.md` 不存在：
+若 `meta/strategic-lines.md` 不存在：
 - RETROSPECTIVE 静默跳过战略编译
 - 简报 fallback 到原本的扁平 Area Status 列表格式
 - 3+ 次会话后，若有多个项目，DREAM REM 可能提议："你有 N 个活跃项目但未定义战略关系。想梳理它们如何关联吗？"

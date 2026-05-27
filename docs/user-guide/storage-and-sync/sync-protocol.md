@@ -32,7 +32,7 @@ Life OS 的多后端同步发生在两个明确的时刻 — Session Start（全
 
 ### Step 4 · 读 config
 
-读 `_meta/config.md` 拿到：
+读 `meta/config.md` 拿到：
 
 - 配置的后端列表（`[github, notion]` 等）。
 - 本平台的 `last_sync_time`（例如 Claude Code 和 Gemini CLI 各自存一个）。
@@ -59,12 +59,12 @@ Life OS 的多后端同步发生在两个明确的时刻 — Session Start（全
 3. 解决冲突（规则见下方）。
 4. 把获胜版本写入 primary backend。
 5. 把 primary 状态推送到所有 sync backends。
-6. 更新 `_meta/sync-log.md`。
+6. 更新 `meta/sync-log.md`。
 7. 更新本平台 `last_sync_time`。
 
 ### Step 7 · Outbox merge
 
-扫 `_meta/outbox/` 下的未合并会话目录（之前会话退朝时写的 outbox）。按时间顺序合并到主目录。详见 `parallel-sessions.md`。
+扫 `meta/outbox/` 下的未合并会话目录（之前会话退朝时写的 outbox）。按时间顺序合并到主目录。详见 `parallel-sessions.md`。
 
 ---
 
@@ -93,11 +93,11 @@ Life OS 的多后端同步发生在两个明确的时刻 — Session Start（全
 CONFLICT 情况下在 outbox 里保留两份：
 
 ```
-_meta/conflicts/2026-04-08-career-decision-A.md
-_meta/conflicts/2026-04-08-career-decision-B.md
+meta/conflicts/2026-04-08-career-decision-A.md
+meta/conflicts/2026-04-08-career-decision-B.md
 ```
 
-下次 Session Start RETROSPECTIVE 检测到 `_meta/conflicts/` 里有东西 → 在晨报里提示：
+下次 Session Start RETROSPECTIVE 检测到 `meta/conflicts/` 里有东西 → 在晨报里提示：
 
 ```
 ⚠️ 未解决冲突: 1
@@ -121,10 +121,10 @@ _meta/conflicts/2026-04-08-career-decision-B.md
 ### 写入顺序
 
 ```
-1. 写所有输出到 primary backend（_meta/outbox/{session_id}/）
+1. 写所有输出到 primary backend（meta/outbox/{session_id}/）
 2. 写所有输出到每个 sync backend
-3. 更新 _meta/config.md last_sync_time
-4. 任何 backend 失败 → 记录到 _meta/sync-log.md，不阻塞
+3. 更新 meta/config.md last_sync_time
+4. 任何 backend 失败 → 记录到 meta/sync-log.md，不阻塞
 ```
 
 ### Outbox 模式
@@ -132,7 +132,7 @@ _meta/conflicts/2026-04-08-career-decision-B.md
 ARCHIVER **不直接写主目录**。先写进 outbox：
 
 ```
-_meta/outbox/claude-20260408-2200/
+meta/outbox/claude-20260408-2200/
 ├── manifest.md         ← 会话元信息
 ├── decisions/          ← 本会话的决策
 ├── tasks/              ← 本会话的任务
@@ -147,7 +147,7 @@ _meta/outbox/claude-20260408-2200/
 ### git commit · 只 stage outbox
 
 ```bash
-git add _meta/outbox/{session_id}/
+git add meta/outbox/{session_id}/
 git commit -m "[life-os] session {session_id} output"
 git push
 ```
@@ -187,7 +187,7 @@ f. 单个写入失败 → 报告具体哪个，继续其他
 
 ```
 Session X 开始合并 outbox：
-  1. 检查 _meta/.merge-lock 存在吗？
+  1. 检查 meta/.merge-lock 存在吗？
      - 不存在 → 走步骤 2
      - 存在但 > 5 分钟 → stale（上次崩溃了），清掉，走步骤 2
      - 存在且 < 5 分钟 → 跳过合并，假定另一个会话在做
@@ -224,7 +224,7 @@ Session A 合并完 → 删 lock。Session B 下次再上朝时看到 lock 没�
 不同平台独立维护自己的 `last_sync_time`。
 
 ```yaml
-# _meta/config.md
+# meta/config.md
 storage:
   backends:
     - type: github
@@ -257,7 +257,7 @@ Gemini CLI 上朝时查"自 Gemini 上次 sync 18:30 以来有啥变化" → 包
 | 情况 | 处理 |
 |------|------|
 | Primary 不可用 | 临时提升下一个可用 backend 为 primary，晨报标"⚠️ primary backend unavailable" |
-| Sync backend 不可用 | 继续其他，记录到 `_meta/sync-log.md`，下次会话自动重试 |
+| Sync backend 不可用 | 继续其他，记录到 `meta/sync-log.md`，下次会话自动重试 |
 | 所有都不可用 | 继续会话，输出只显示不持久化 |
 
 ### 网络断了
@@ -275,7 +275,7 @@ Step 6 Full Sync Pull 之前，RETROSPECTIVE 检查本地是否有未推送的 c
 
 ## sync-log.md · 审计
 
-`_meta/sync-log.md` 记录每次同步的结果：
+`meta/sync-log.md` 记录每次同步的结果：
 
 ```markdown
 ## 2026-04-08T22:00:00+09:00 · claude-code · Session End

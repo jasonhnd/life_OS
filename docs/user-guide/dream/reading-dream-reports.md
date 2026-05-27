@@ -7,10 +7,10 @@ DREAM 跑完之后，结果写到哪里？什么时候你会看到？这份文�
 每次退朝（adjourn）之后，ARCHIVER Phase 3 跑完 DREAM，写一份报告到：
 
 ```
-_meta/journal/{date}-dream.md
+meta/journal/{date}-dream.md
 ```
 
-比如今天是 2026-04-20，就会生成 `_meta/journal/2026-04-20-dream.md`。
+比如今天是 2026-04-20，就会生成 `meta/journal/2026-04-20-dream.md`。
 
 这个文件**从来不需要你手动读**——RETROSPECTIVE 会在下次 session start 时替你读。
 
@@ -21,7 +21,7 @@ _meta/journal/{date}-dream.md
 目录里会堆积多个 dream 报告：
 
 ```
-_meta/journal/
+meta/journal/
 ├── 2026-04-15-dream.md
 ├── 2026-04-17-dream.md
 ├── 2026-04-20-dream.md
@@ -39,7 +39,7 @@ _meta/journal/
 下次你说 start / 上朝 / 開始 / begin，RETROSPECTIVE 进入 Mode 0（Start Session），在第 16 步读取最新的、未展示过的 dream 报告：
 
 ```
-Step 16. DREAM REPORT — read latest _meta/journal/*-dream.md (if exists, not yet presented):
+Step 16. DREAM REPORT — read latest meta/journal/*-dream.md (if exists, not yet presented):
     - Include: "💤 Last session the system had a dream: [summary]"
     - Note auto-written SOUL dimensions (awaiting "What SHOULD BE" input, confidence 0.3)
     - Note auto-written Wiki entries (list paths; user can delete any disagreement)
@@ -209,13 +209,13 @@ Phase 3 的目标：从最近几天的累积里，抓住**冷的、累积的**�
 
 所以即使"已展示"的 dream 报告不会再出现在简报里，它们仍在被系统使用。
 
-不需要手动清理——文件小，堆几个月都不会有问题。如果一定要清理，30 天以上的可以手动归档到 `_meta/journal/_archive/`。
+不需要手动清理——文件小，堆几个月都不会有问题。如果一定要清理，30 天以上的可以手动归档到 `meta/journal/_archive/`。
 
 ---
 
 ## 相关文件
 
-- `_meta/journal/{date}-dream.md`——实际 dream 报告的位置
+- `meta/journal/{date}-dream.md`——实际 dream 报告的位置
 - `references/dream-spec.md`——权威 spec（Output Format 章节）
 - `pro/agents/retrospective.md`——Mode 0 Step 16 的 DREAM 读取逻辑
 - `pro/agents/archiver.md`——Phase 3 的 DREAM 写入逻辑

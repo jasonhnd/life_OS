@@ -13,7 +13,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 ## 一句话概述
 
-**概念图谱**(`_meta/concepts/`)是 Cortex 的神经元网络——每个 concept 是一个 `.md` 文件,**边**(synapses)直接存在 concept 自己的 YAML frontmatter 里。**方法库**(`_meta/methods/`)是"你怎么工作"的程序化记忆——可复用的多步工作流。两个目录都遵循 `tentative → confirmed → canonical` 的成熟度阶梯,archiver 自动抽候选,用户确认晋级。
+**概念图谱**(`meta/concepts/`)是 Cortex 的神经元网络——每个 concept 是一个 `.md` 文件,**边**(synapses)直接存在 concept 自己的 YAML frontmatter 里。**方法库**(`meta/methods/`)是"你怎么工作"的程序化记忆——可复用的多步工作流。两个目录都遵循 `tentative → confirmed → canonical` 的成熟度阶梯,archiver 自动抽候选,用户确认晋级。
 
 ---
 
@@ -39,7 +39,7 @@ v1.6.2a 的系统:不记得(或者从 wiki 里翻出一条"MVP Validation"的静
 
 ### 概念图谱的承诺
 
-Cortex 扫你每次的对话,发现"MVP 验证"这个概念反复出现 + 有多处独立证据 → 自动在 `_meta/concepts/method/mvp-validation.md` 创建一个 **tentative** 节点。下次你再聊到类似话题,hippocampus Wave 2 沿这个 concept 的强边扩散 → 把相关的历史 session 也拉出来。
+Cortex 扫你每次的对话,发现"MVP 验证"这个概念反复出现 + 有多处独立证据 → 自动在 `meta/concepts/method/mvp-validation.md` 创建一个 **tentative** 节点。下次你再聊到类似话题,hippocampus Wave 2 沿这个 concept 的强边扩散 → 把相关的历史 session 也拉出来。
 
 **随着你用得越多,它的 activation_count +1,相关边的 weight +1**。用到第 10 次,它晋级到 **canonical**。你未来任何时候 ROUTER 在 `[COGNITIVE CONTEXT]` 里都会自动带上它。
 
@@ -50,7 +50,7 @@ Cortex 扫你每次的对话,发现"MVP 验证"这个概念反复出现 + 有多
 - **2+ 个独立 session** 里出现同样模式
 - 你用语"approach / pattern / framework / 流れ / やり方 / 手順"
 
-archiver Phase 2 自动写一个 **tentative method** 到 `_meta/methods/_tentative/{method_id}.md`,下次 Start Session 问你:"新检测到方法 'Iterative Document Refinement',确认吗?"
+archiver Phase 2 自动写一个 **tentative method** 到 `meta/methods/_tentative/{method_id}.md`,下次 Start Session 问你:"新检测到方法 'Iterative Document Refinement',确认吗?"
 
 你一旦确认,**DISPATCHER 在未来每次相关决策中都会主动把这个方法的完整 body 注入六领域**——六领域不再从零重走,而是基于你已经打磨过的方法起步。
 
@@ -75,7 +75,7 @@ archiver 在 session 的 Completion Checklist 里记下:
 - Hebbian updates: 8 edges reinforced, 2 new edges
 ```
 
-然后 session 正常结束,Cortex artefacts 留在 `_meta/concepts/_tentative/` 和 `_meta/methods/_tentative/` 等下次确认。
+然后 session 正常结束,Cortex artefacts 留在 `meta/concepts/_tentative/` 和 `meta/methods/_tentative/` 等下次确认。
 
 ### 场景 B: 下次 Start Session 的候选确认块
 
@@ -104,7 +104,7 @@ Concept candidates (tentative, silently promoted):
 你回:**"c"** 或 **"confirm Iterative Document Refinement"**。
 
 系统:
-- 把 `_meta/methods/_tentative/iterative-document-refinement.md` 移到 `_meta/methods/method/iterative-document-refinement.md`
+- 把 `meta/methods/_tentative/iterative-document-refinement.md` 移到 `meta/methods/method/iterative-document-refinement.md`
 - 翻转 `status: tentative → confirmed`,`confidence` 从 0.3 跳到 0.5(或 0.6 如果已有 3+ source_sessions)
 - 下次 DISPATCHER 在相关主题的 dispatch 里会**自动注入**这个方法
 
@@ -179,7 +179,7 @@ decay_policy: skill               # 对应 permanence,不能错配
 **关键要点**:
 
 - **一个概念一个文件**——不能在同一个文件里写多个 concept(anti-pattern,archiver 会拒写)
-- **outgoing_edges 属于这个节点自己的 frontmatter**——不是独立的 graph 数据库。想看反向索引?`_meta/concepts/SYNAPSES-INDEX.md`(archiver 自动重建,**不要手改**)
+- **outgoing_edges 属于这个节点自己的 frontmatter**——不是独立的 graph 数据库。想看反向索引?`meta/concepts/SYNAPSES-INDEX.md`(archiver 自动重建,**不要手改**)
 - **activation_count 是单调递增的**——每激活一次 +1(在活跃生命周期里)
 - **weight 上限 100**——防止 runaway 强化
 - **permanence 和 decay_policy 必须一致**——identity 不衰退、skill 对数衰退、fact 指数衰退、transient cliff
@@ -188,7 +188,7 @@ decay_policy: skill               # 对应 permanence,不能错配
 
 ## 方法文件长什么样
 
-方法(`_meta/methods/{domain}/{method_id}.md`)是**程序化记忆**——可复用的决策工作流,和 wiki(事实性结论)并列。
+方法(`meta/methods/{domain}/{method_id}.md`)是**程序化记忆**——可复用的决策工作流,和 wiki(事实性结论)并列。
 
 ```yaml
 ---
@@ -256,7 +256,7 @@ related_methods:
 
 - 方法**从 tentative 开始**,必须用户 confirm 才能到 confirmed,canonical 自动(达到 `times_used ≥ 5 AND confidence ≥ 0.7 AND 最近 3 次无 challenge`)
 - **evidence_count 是"方法用了、奏效"**,challenges 是"用了但 REVIEWER 否决或 AUDITOR 标了不匹配"
-- 方法**不进 Notion 同步**——方法库是本地 `_meta/` 下的内省资产
+- 方法**不进 Notion 同步**——方法库是本地 `meta/` 下的内省资产
 - 方法**不能直接引用具体项目名、人名、金额**——隐私过滤器把这些从 body 里剥掉,否则"方法不是可复用的,只是一段笔记"
 
 ---
@@ -322,9 +322,9 @@ related_methods:
 
 ### 2. 手工新建概念/方法
 
-你可以直接在 `_meta/concepts/{domain}/{concept_id}.md` 创建一个文件,frontmatter 填好 `status: canonical` + `permanence: identity`(或你觉得合适的)——archiver 下次跑会把它纳入图谱。
+你可以直接在 `meta/concepts/{domain}/{concept_id}.md` 创建一个文件,frontmatter 填好 `status: canonical` + `permanence: identity`(或你觉得合适的)——archiver 下次跑会把它纳入图谱。
 
-方法同理:`_meta/methods/{domain}/{method_id}.md`。
+方法同理:`meta/methods/{domain}/{method_id}.md`。
 
 ### 3. 手工 pin 到 canonical
 
@@ -356,7 +356,7 @@ archiver 下一次会 roll back 最近一批自动写入(和 wiki undo 同机制
 
 ### 7. 查看图谱健康
 
-打开 `_meta/concepts/INDEX.md`——每次 Start Session 由 RETROSPECTIVE 编译,一行一个 concept 的 summary + status + activation + confidence。
+打开 `meta/concepts/INDEX.md`——每次 Start Session 由 RETROSPECTIVE 编译,一行一个 concept 的 summary + status + activation + confidence。
 
 健康信号:
 - Canonical 数量稳步增长(不是一次性暴增)
@@ -419,7 +419,7 @@ archiver Phase 2 有专门的 **routing decision tree**(详见 `references/corte
 
 **超过 30 天未激活** → RETROSPECTIVE 在 Start Session 简报里 flag 为 dormant(💤)。
 
-**canonical 概念的 activation_count 因长期 dormancy 被降到 0** → 归档到 `_meta/concepts/_archive/{domain}/{concept_id}.md`。归档后:
+**canonical 概念的 activation_count 因长期 dormancy 被降到 0** → 归档到 `meta/concepts/_archive/{domain}/{concept_id}.md`。归档后:
 - git 历史里仍在(无数据丢失)
 - hippocampus 在激活时**忽略** `_archive/` 下的 concept
 - AUDITOR 在巡查时仍能看到
@@ -434,7 +434,7 @@ archiver Phase 2 有专门的 **routing decision tree**(详见 `references/corte
 |------------|------|------|
 | ≤ 6 个月 | Active | 无动作 |
 | 6–12 个月 | Dormant | RETROSPECTIVE 在简报 flag "方法 'X' 已 N 个月未用" |
-| ≥ 12 个月 | Archived | archiver 自动挪到 `_meta/methods/_archive/` |
+| ≥ 12 个月 | Archived | archiver 自动挪到 `meta/methods/_archive/` |
 | Archived + 用户删除 | Retired | 文件删除,即使模式再现也不会自动重建 |
 
 **方法是挣来的——归档是系统对它最强的自动动作。最终删除永远归用户**。
@@ -453,11 +453,11 @@ archiver Phase 2 有专门的 **routing decision tree**(详见 `references/corte
 
 ### "候选方法一直沉在 `_tentative/`,我忘了确认"
 
-5 次连续 Start Session 无响应 → 自动 archive 到 `_meta/methods/_archive/`。**不会丢失**,但也不会自动再弹回确认队列。
+5 次连续 Start Session 无响应 → 自动 archive 到 `meta/methods/_archive/`。**不会丢失**,但也不会自动再弹回确认队列。
 
 恢复流程:
 ```bash
-mv _meta/methods/_archive/{method_id}.md _meta/methods/_tentative/{method_id}.md
+mv meta/methods/_archive/{method_id}.md meta/methods/_tentative/{method_id}.md
 ```
 下次 Start Session 会重新出现在确认块里。
 
@@ -467,7 +467,7 @@ Hub 问题。诊断:
 
 ```bash
 # 查某个 concept 的 outgoing_edges 数量
-grep -c '^  - to:' _meta/concepts/method/{concept_id}.md
+grep -c '^  - to:' meta/concepts/method/{concept_id}.md
 ```
 
 超过 20 条 outgoing edges 就是 hub 征兆。处理:

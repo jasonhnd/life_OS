@@ -20,7 +20,7 @@ executes:
 
 ## Goal
 
-Rebuild `_meta/sessions/INDEX.md` and `_meta/concepts/INDEX.md` from the
+Rebuild `meta/sessions/INDEX.md` and `meta/concepts/INDEX.md` from the
 actual session and concept files on disk so ROUTER's later lookups are
 correct.
 
@@ -29,11 +29,11 @@ correct.
 ### 1. Sessions index
 
 ```
-- Glob _meta/sessions/*.md (exclude INDEX.md and .gitkeep)
+- Glob meta/sessions/*.md (exclude INDEX.md and .gitkeep)
 - For each session file: Read frontmatter (id, created, title,
   outcome_score, domain, tags)
 - Sort by created descending
-- Write _meta/sessions/INDEX.md as a markdown table:
+- Write meta/sessions/INDEX.md as a markdown table:
     | sid | date | title | score | domain | tags |
 - Header: "# Sessions index · auto-rebuilt {ISO8601}"
 ```
@@ -41,11 +41,11 @@ correct.
 ### 2. Concepts index + synapses
 
 ```
-- Glob _meta/concepts/*.md
+- Glob meta/concepts/*.md
 - For each concept file: Read frontmatter (id, name, weight,
   last_coactivation, related_concepts)
-- Build _meta/concepts/INDEX.md (sorted by weight desc)
-- Build _meta/concepts/SYNAPSES-INDEX.md from `related_concepts` edges
+- Build meta/concepts/INDEX.md (sorted by weight desc)
+- Build meta/concepts/SYNAPSES-INDEX.md from `related_concepts` edges
   (one row per (source, target, weight) triple)
 ```
 
@@ -54,20 +54,20 @@ correct.
 Show a one-line summary:
 ```
 ✅ reindex done · {N} sessions · {M} concepts · {K} synapse edges
-   sessions:  _meta/sessions/INDEX.md
-   concepts:  _meta/concepts/INDEX.md
-   synapses:  _meta/concepts/SYNAPSES-INDEX.md
+   sessions:  meta/sessions/INDEX.md
+   concepts:  meta/concepts/INDEX.md
+   synapses:  meta/concepts/SYNAPSES-INDEX.md
 ```
 
 ## Output paths
 
-- `_meta/sessions/INDEX.md`
-- `_meta/concepts/INDEX.md`
-- `_meta/concepts/SYNAPSES-INDEX.md`
+- `meta/sessions/INDEX.md`
+- `meta/concepts/INDEX.md`
+- `meta/concepts/SYNAPSES-INDEX.md`
 
 ## Error handling
 
-- Missing `_meta/sessions/` → tell user "no sessions dir, did you seed?", exit
+- Missing `meta/sessions/` → tell user "no sessions dir, did you seed?", exit
 - Empty session file or malformed frontmatter → skip, log to user
 - No write permission → tell user, do not silently fail
 

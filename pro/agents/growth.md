@@ -15,7 +15,7 @@ context_manifest:
   supporting: [wiki/INDEX.md (growth-domain entries), decisions/ (learning/branding history)]
   forbidden: [other domain agents, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/growth-*.json, _meta/runtime/<sid>/growth-report.md]
+  allowed_scope: [meta/runtime/<sid>/growth-*.json, meta/runtime/<sid>/growth-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside growth domain]
 failure_modes:
   known: ["Approves R6 public claim without human-approver gate", "Generic 'become better' advice not grounded in SOUL dim"]

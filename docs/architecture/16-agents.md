@@ -46,7 +46,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 - `reviewer` — 规划后、执行后各触发一次
 - `dispatcher` — 审议通过后立即
 - `auditor` · Decision Review Mode — 每次完整流程结束后
-- `auditor` · Patrol Inspection Mode — `_meta/lint-state.md` 显示 >4h 未巡视时,RETROSPECTIVE 触发
+- `auditor` · Patrol Inspection Mode — `meta/lint-state.md` 显示 >4h 未巡视时,RETROSPECTIVE 触发
 - `advisor` — Summary Report 后
 - `archiver` — 完整决策流程结束后 (主动 adjourn 或流程完结)
 - `council` — REVIEWER 检测到跨部分差 ≥3 或结论直接对立时
@@ -105,7 +105,7 @@ ROUTER 还管理触发词模板 (上朝 / 退朝 / 复盘 / 辩论 / 快速 / �
 
 **auditor** (御史大夫): 双模式。
 - Decision Review: 每次完整决策后评审 agent 工作质量 (不评决策本身)。抓面子分(全 7-8 可疑)、抓分析说「严重风险」但评分 ≥6 的不一致、抓 REVIEWER 从不封驳的走过场。
-- Patrol Inspection: 巡视模式, 每个领域巡查自己的辖区。触发条件: RETROSPECTIVE 看 `_meta/lint-state.md` >4h 时自动 trigger。
+- Patrol Inspection: 巡视模式, 每个领域巡查自己的辖区。触发条件: RETROSPECTIVE 看 `meta/lint-state.md` >4h 时自动 trigger。
 
 **advisor** (谏议大夫): 不评规划, 只观察用户行为模式。检测认知偏差、情绪信号、承诺跟进、维度回避。每次决策后自动跑, 更新 SOUL 的 evidence/challenges 计数。
 
@@ -118,7 +118,7 @@ ROUTER 还管理触发词模板 (上朝 / 退朝 / 复盘 / 辩论 / 快速 / �
 
 信息隔离: 各辩论方作为独立 subagent, 只看到自己的报告 + 对方的「立场摘要」, 看不到对方的完整报告或思考过程。
 
-**strategist** (翰林院): 人类智库 — 93 位思想家横跨 18 个领域。一对一、圆桌、辩论三种模式。每位思想家作为**独立 subagent** 启动(HARD RULE)。不走决策流程, 不评分、不汇总报告。最后写一份 `_meta/journal/{date}-strategist-{slug}.md` 归档。
+**strategist** (翰林院): 人类智库 — 93 位思想家横跨 18 个领域。一对一、圆桌、辩论三种模式。每位思想家作为**独立 subagent** 启动(HARD RULE)。不走决策流程, 不评分、不汇总报告。最后写一份 `meta/journal/{date}-strategist-{slug}.md` 归档。
 
 **council 和 strategist 的区别**:
 - council 解决**数据驱动的部门冲突**

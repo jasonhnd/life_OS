@@ -17,10 +17,10 @@ operating_hypothesis: |
   decision within medium risk of mis-triaging high-risk-domain subjects per references/risk-domains.md.
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, SOUL.md, references/risk-domains.md, references/data-layer.md]
-  supporting: [references/scene-configs.md, themes/*.md, _meta/inbox/notifications.md, _meta/STATUS.md]
+  supporting: [references/scene-configs.md, themes/*.md, meta/queue/notifications.md, meta/STATUS.md]
   forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, pro/agents/archiver.md, pro/agents/retrospective.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/router-*.json, ~/.claude/lifeos-memory/<key>.json]
+  allowed_scope: [meta/runtime/<sid>/router-*.json, ~/.claude/lifeos-memory/<key>.json]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, .claude/settings.json, decisions/]
 failure_modes:
   known: ["Mis-classifies high-risk-domain subject as 'handle directly'", "Skips Cortex when message references prior session", "Confabulates agent path when delegating Task()"]
@@ -43,7 +43,7 @@ Each session **must confirm the associated project or area in the first response
 - If current directory contains `SKILL.md` + `pro/agents/` + `themes/`:
   → This is the **Life OS system repository** (product code), NOT a second-brain.
   → Do NOT auto-bind to this repo. The RETROSPECTIVE agent handles this in step 2.
-- If current directory contains `_meta/` + `projects/`:
+- If current directory contains `meta/` + `projects/`:
   → This is a second-brain. Bind normally.
 - Otherwise:
   → This is a regular project repo. Bind to it and look for second-brain at configured path.
@@ -95,7 +95,7 @@ If `wiki/INDEX.md` exists and was loaded by the retrospective agent during pre-s
 
 ## Strategic Map Reference
 
-If `_meta/STRATEGIC-MAP.md` exists and was loaded by the retrospective agent:
+If `meta/STRATEGIC-MAP.md` exists and was loaded by the retrospective agent:
 
 **Cross-project questions** ("What should I prioritize?", "How are things overall?"):
 - Read STRATEGIC-MAP.md for line health, bottleneck, and flow graph
@@ -196,7 +196,7 @@ If grouping improves readability, ROUTER MAY use a lightweight wrapper:
 
 ```text
 ## Subagent Output · {subagent_name}
-audit_trail: {_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
 usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
 duration: {duration_seconds}s (if available)
 cost: ${estimated_cost_usd} (if available or already estimated)

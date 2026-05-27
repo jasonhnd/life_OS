@@ -25,7 +25,7 @@ Violations are written to different paths depending on which repo type is detect
 | Context | Path | Who writes |
 |---------|------|-----------|
 | Life OS dev repo (`pro/agents/retrospective.md` exists) | `pro/compliance/violations.md` | Hooks + AUDITOR in dev repo |
-| User second-brain (`_meta/config.md` exists) | `_meta/compliance/violations.md` | Hooks + AUDITOR in user repo |
+| User second-brain (`meta/config.md` exists) | `meta/compliance/violations.md` | Hooks + AUDITOR in user repo |
 | Other (generic project) | *no log* | N/A (violations not recorded) |
 
 ### Path resolution logic
@@ -35,8 +35,8 @@ Used by `scripts/lifeos-pre-prompt-guard.sh` and AUDITOR's Compliance Patrol Mod
 ```bash
 if [ -f "./pro/agents/retrospective.md" ]; then
   LOG="./pro/compliance/violations.md"
-elif [ -f "./_meta/config.md" ]; then
-  LOG="./_meta/compliance/violations.md"
+elif [ -f "./meta/config.md" ]; then
+  LOG="./meta/compliance/violations.md"
 else
   LOG=""  # skip logging in non-Life-OS contexts
 fi
@@ -158,7 +158,7 @@ Deprecated v1.7.2.1 subclasses remain documented below only for old evals, incid
 
 ### Deprecated subclass: C-no-audit-trail (R11; not active v1.7.2.1)
 
-- **Definition**: A subagent returned, but no `_meta/runtime/<sid>/<subagent>-*.json` audit trail exists for the session.
+- **Definition**: A subagent returned, but no `meta/runtime/<sid>/<subagent>-*.json` audit trail exists for the session.
 - **Detection**: AUDITOR runs `bash scripts/lifeos-compliance-check.sh trail-completeness <session_id>`; the legacy CLI form `bash scripts/lifeos-compliance-check.sh <dummy-existing-file> trail-completeness <session_id>` is also supported.
 - **Logged fields**: `Type=C-no-audit-trail`; `Severity=P0`; `subagent: <name>`; `expected_trail_path: <path>`; `session_id: <session_id>`.
 - **Escalation**: Standard Class C ladder.
@@ -269,7 +269,7 @@ For each completed session with a trigger word:
 
 ### retrospective Mode 0 Step 11.5 (v1.6.3 new, optional)
 
-After Step 11 (SOUL trend), **read** `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo):
+After Step 11 (SOUL trend), **read** `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo):
 
 - Count entries in last 30 days grouped by Type
 - Count unresolved (`false` / `partial`) entries
@@ -350,7 +350,7 @@ Incidents are **companions to** violations.md, not substitutes. violations.md is
 ## Privacy
 
 - `pro/compliance/violations.md` (dev repo) — **public** via GitHub. No user data.
-- `_meta/compliance/violations.md` (user repo) — **private** second-brain.
+- `meta/compliance/violations.md` (user repo) — **private** second-brain.
 - Details field must NOT leak user data. Use generic descriptions:
   - ✅ "User decided to invest in a financial instrument"
   - ❌ "User decided to invest $50k in Tesla stock"

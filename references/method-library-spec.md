@@ -1,13 +1,34 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: pro/CLAUDE.md + _meta/rfc/v1.9-second-brain-structure-optimization.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md and v1.9 RFC."
 ---
 
 # Method Library Specification
 
-Method Library is Life OS's procedural memory — the "how you work best" layer. It lives in the `_meta/methods/` directory of the second-brain and stores reusable workflows that recur across sessions.
+> **v1.9 update**: Per RFC §3.8.2 (Opt #8), method schema adds `born_from_decisions: [<dec-id>, ...]` field (replaces/extends `source_sessions`). The `applied_in_decisions:` field that briefly appeared in v1.9 draft RFC was REMOVED (DR-1.9.24) — use Dataview reverse query via `## Applied in decisions` section instead. Every method page MUST append:
+>
+> ````markdown
+> ## Applied in decisions
+>
+> ```dataview
+> TABLE type, reviewed_at, decision
+> FROM "meta/decisions"
+> WHERE contains(applied_methods, this.file.name)
+> SORT reviewed_at DESC
+> LIMIT 20
+> ```
+>
+> ### Recent (auto-maintained, fallback for non-Dataview)
+>
+> - [[dec-YYYY-MM-DD-NNN]]
+> - ...（archiver maintains最新 5 条）
+> ````
+>
+> See `_meta/rfc/v1.9-second-brain-structure-optimization.md` §3.8 for full schema spec.
+
+Method Library is Life OS's procedural memory — the "how you work best" layer. It lives in the `meta/methods/` directory of the second-brain and stores reusable workflows that recur across sessions.
 
 ## 1. Purpose
 
@@ -48,7 +69,7 @@ Inspired by Hermes Skills (see `devdocs/research/2026-04-19-hermes-analysis.md`)
 Per user decision #11 (method library introduced in v1.7):
 
 ```
-_meta/methods/
+meta/methods/
 ├── INDEX.md                        # compiled summary (auto-generated)
 ├── _tentative/                     # candidate methods awaiting user confirmation
 │   └── {method_id}.md
@@ -166,7 +187,7 @@ Method candidates are detected by `archiver` Phase 2 (see `pro/agents/archiver.m
    - `evidence_count: 1`
 2. Check against existing methods (by `method_id` exact match, then by description similarity ≥ 0.7 against INDEX)
 3. If duplicate → increment `evidence_count` on the existing method, update `last_used`, write to evolution log — do NOT create a new candidate
-4. If new → write to `_meta/methods/_tentative/{method_id}.md`
+4. If new → write to `meta/methods/_tentative/{method_id}.md`
 5. Record in the session's Completion Checklist so RETROSPECTIVE can surface at next Start Session
 
 archiver does not promote candidates past `tentative` on its own. Promotion requires user input (section 7) or evidence accumulation (section 8).
@@ -188,7 +209,7 @@ Method candidates detected:
 ```
 
 User responses:
-- `c` or "confirm X" → move file from `_meta/methods/_tentative/` to `_meta/methods/{domain}/`, flip `status: tentative` → `confirmed`, bump confidence to 0.5 (or 0.6 if already has 3+ source_sessions)
+- `c` or "confirm X" → move file from `meta/methods/_tentative/` to `meta/methods/{domain}/`, flip `status: tentative` → `confirmed`, bump confidence to 0.5 (or 0.6 if already has 3+ source_sessions)
 - `r` or "reject X" → delete file
 - `e` or "edit X" → print file path, user edits, no state change
 - `s` or "skip" → leave in `_tentative/`, surface again in next Start Session
@@ -222,7 +243,7 @@ Methods move through three maturity tiers. Promotion follows evidence, not time.
 When a Draft-Review-Execute workflow reaches Step 4 (DISPATCHER Dispatch), the dispatcher performs a method lookup:
 
 ```
-1. Read _meta/methods/INDEX.md
+1. Read meta/methods/INDEX.md
 2. For each confirmed/canonical method, evaluate applicable_when conditions against current subject
 3. If a method matches → include its full body as "Known Method" in relevant domains' dispatch context
 4. Label clearly: "Known Method '{name}' applies — here is the established approach, use it unless the subject contradicts."
@@ -251,7 +272,7 @@ Every session that applies a method updates its state:
 
 **Minor revisions** (clarifying wording, adding a warning) are applied by archiver Phase 2 without user confirmation.
 
-**Major revisions** (step additions, step removals, condition changes) require user confirmation at next Start Session. archiver writes the proposed change to `_meta/methods/_tentative/_revisions/{method_id}-{date}.md` and surfaces it alongside new candidates.
+**Major revisions** (step additions, step removals, condition changes) require user confirmation at next Start Session. archiver writes the proposed change to `meta/methods/_tentative/_revisions/{method_id}-{date}.md` and surfaces it alongside new candidates.
 
 ---
 
@@ -263,7 +284,7 @@ Methods use `permanence: skill` decay — logarithmic decline to a floor, not fu
 |--------------------------|-------|--------|
 | ≤ 6 months | Active | No action |
 | 6–12 months | Dormant | RETROSPECTIVE flags in briefing: "Method '{name}' has been dormant for N months." |
-| ≥ 12 months | Archived | archiver moves file to `_meta/methods/_archive/{method_id}.md`. |
+| ≥ 12 months | Archived | archiver moves file to `meta/methods/_archive/{method_id}.md`. |
 | Archived + user explicitly deletes | Retired | File gone. No auto-recreation even if the pattern resurfaces. |
 
 Methods are never auto-deleted. Methods are earned; archiving is the strongest automatic action the system takes. Final deletion always requires the user.
@@ -288,7 +309,7 @@ Methods are stored locally only. They are never synced to Notion (user decision 
 
 ## 13. INDEX.md Format
 
-`_meta/methods/INDEX.md` is compiled by RETROSPECTIVE at every Start Session from the actual method files. Never hand-edit it.
+`meta/methods/INDEX.md` is compiled by RETROSPECTIVE at every Start Session from the actual method files. Never hand-edit it.
 
 ```markdown
 # Method Library Index
@@ -334,9 +355,9 @@ The method library borrows Hermes's YAML + markdown + evolution log pattern but 
 
 v1.6.2a does not have a method library. `tools/migrate.py` backfills from the existing session history:
 
-1. Scan `_meta/journal/*.md` and backfilled decisions for language that describes approaches: "approach", "pattern", "framework", "process", "流れ", "やり方", "手順".
+1. Scan `meta/journal/*.md` and backfilled decisions for language that describes approaches: "approach", "pattern", "framework", "process", "流れ", "やり方", "手順".
 2. Extract the top 5 most-referenced patterns (by cross-session mention count).
-3. Write each as a candidate to `_meta/methods/_tentative/{method_id}.md` with `status: tentative` and `confidence: 0.3`.
+3. Write each as a candidate to `meta/methods/_tentative/{method_id}.md` with `status: tentative` and `confidence: 0.3`.
 4. Flag for user review at next Start Session.
 
 Migration is one-shot. Further pattern detection happens through archiver Phase 2 on live sessions.
@@ -372,17 +393,17 @@ Explicitly out of scope for v1.7:
 
 ## 18. How Each Role Uses the Method Library
 
-All roles check if `_meta/methods/INDEX.md` exists before referencing it. If it does not exist or is empty, the role operates without method input.
+All roles check if `meta/methods/INDEX.md` exists before referencing it. If it does not exist or is empty, the role operates without method input.
 
 | Role | What they read | How they use it |
 |------|---------------|-----------------|
-| RETROSPECTIVE | `_meta/methods/INDEX.md` + `_tentative/` | Compiles INDEX at Start Session. Surfaces candidates for confirmation. Flags dormant methods. |
+| RETROSPECTIVE | `meta/methods/INDEX.md` + `_tentative/` | Compiles INDEX at Start Session. Surfaces candidates for confirmation. Flags dormant methods. |
 | ROUTER | INDEX (header) | Scans for domain-relevant methods during triage. May inform user "you have a known approach for this." |
 | PLANNER | INDEX (full) | Reviews which methods are applicable before drafting the planning document. May reference by name. |
 | DISPATCHER | Relevant method bodies | Injects into domain briefs as "Known Method" (section 9). |
 | Six Domains | Method bodies in dispatch context | Applies known method instead of re-deriving workflow. Reports adherence or deviation. |
 | REVIEWER | INDEX | Consistency check — if a planning document ignored an applicable method, flag it. |
-| AUDITOR | `_meta/methods/` directory | Patrol inspection — stale methods, contradictions, candidates sitting too long. |
+| AUDITOR | `meta/methods/` directory | Patrol inspection — stale methods, contradictions, candidates sitting too long. |
 | ARCHIVER | INDEX + all method files | Phase 2: detect candidates, update evolution logs, propose revisions. |
 | DREAM | INDEX | REM stage uses method patterns as connective tissue for cross-domain insights. |
 

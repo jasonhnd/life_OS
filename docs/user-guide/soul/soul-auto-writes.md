@@ -29,7 +29,7 @@ v1.6.2 把审批环节去掉，让 SOUL 实时演化。代价是会有一些你�
 
 ### Step 2：写入 Delta
 
-把增量写到 `_meta/outbox/{session_id}/patterns-delta.md`。archiver 在 session 结束时合并进 SOUL.md。
+把增量写到 `meta/outbox/{session_id}/patterns-delta.md`。archiver 在 session 结束时合并进 SOUL.md。
 
 ### Step 3：新维度检测
 
@@ -69,8 +69,8 @@ ADVISOR 在报告中输出本次变化：
   · 冒险偏好 最近 3 个决策都被挑战 → 下次 REVIEWER 重点关注
 
 【写入】
-  _meta/outbox/{session_id}/patterns-delta.md
-  _meta/outbox/{session_id}/soul-new-dimensions.md
+  meta/outbox/{session_id}/patterns-delta.md
+  meta/outbox/{session_id}/soul-new-dimensions.md
 ```
 
 你在报告里就能看到 SOUL **在你眼前移动**。

@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.8.7"
+version: "1.9.0"
 commit_sha: "PLACEHOLDER"
 install_date: "PLACEHOLDER"
 description: "A personal decision engine with multiple independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
@@ -185,7 +185,7 @@ When the user says `/compress` or `/compress <focus>`, ROUTER treats it as a use
 1. Inventory current conversation context (turn count + rough token estimate)
 2. Identify low-value turns to archive (debug noise, content unrelated to `<focus>`, stale exploration)
 3. Always preserve last 5 turns + any turn touching SOUL / DREAM / decisions / long-term plans
-4. Write archived content (summary + recoverable original) to `_meta/compression/<sid>-compress-<ts>.md`
+4. Write archived content (summary + recoverable original) to `meta/compression/<sid>-compress-<ts>.md`
 5. Report: original turn count, retained count, archived to `<file>`, rough tokens released, key decisions preserved
 
 v1.7.3 removed the unused `tools/context_compressor.py` (1370 lines, 0 callers) and `tools/manual_compression_feedback.py` (51 lines, 0 callers); compression is fully inline now.
@@ -205,7 +205,7 @@ Examples:
 - `🌅 Trigger: review → Action: Launch(retrospective) Mode 2`
 - `🏛️ Trigger: 朝堂议政 → Action: Launch(council) for 3-round debate`
 
-**Missing this line = Class A3 process violation.** The AUDITOR Compliance Patrol (Mode 3) will detect the absence and append an entry to `pro/compliance/violations.md` (dev repo) or `_meta/compliance/violations.md` (user repo). Format specification: `references/compliance-spec.md`.
+**Missing this line = Class A3 process violation.** The AUDITOR Compliance Patrol (Mode 3) will detect the absence and append an entry to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). Format specification: `references/compliance-spec.md`.
 
 This one-line check is the orchestrator-level gate in the v1.6.3 five-layer defense against COURT-START-001 (2026-04-19). The other four layers (post-v1.8.5 hook layer retirement, only 4 remain — Layer 1 retired):
 
@@ -251,7 +251,7 @@ After retrospective/archiver subagent returns briefing, BEFORE showing to user, 
 
 7. Subagent output visibility: before showing any optional summary, ROUTER checks that each completed subagent has a user-visible result path, either through the host's natural transcript output or an optional clarity wrapper. R11 audit trail links should be shown when available. ROUTER should not insert synthetic heavy-line wrappers or duplicate full subagent text solely to satisfy a wrapper count.
 
-8. **Maintenance overdue claims (v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5 update — hook retired)**: ROUTER MUST grep briefing for `[Maintenance overdue: ` marker. v1.8.4 originally specified verification via `bash scripts/hooks/session-start-inbox.sh`; that hook was retired in v1.8.5 Stage 2. **v1.8.5+ verification procedure**: ROUTER 自己 inline 检查 10 maintenance jobs 的 timestamps（scan `_meta/methods/last-runs/` or equivalent — actual scan procedure is owned by `pro/agents/retrospective.md` Mode 0 maintenance overdue step which the subagent runs inline）. byte-equal verification 简化为 "marker exists + day-count values plausible against ROUTER's own inline scan"; 任何明显冲突值 → strike marker 行并替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing 直到 subagent 重跑 Step 0.5。Beyond marker 自身,ROUTER 还要在 briefing 的 "系统状态 / Compliance Watch / Today's Focus" **三个 section 内**扫描 `\d+\s*d(ays)?\s*overdue` 模式邻接 10 个 maintenance 任务名(reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency);任何冲突值视为 confabulation 并 strike。Originating bug: 2026-05-16 briefing 自由发挥 `13d`,hook 实际只有 `3d`。Pre-v1.8.5 wrapper handling note (now obsolete since hook layer is gone): `<system-reminder>...</system-reminder>` 包裹 stdout 的细节随 hook 一起退役;v1.8.5+ subagent 直接产出 marker 文本无 wrapper。
+8. **Maintenance overdue claims (v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5 update — hook retired)**: ROUTER MUST grep briefing for `[Maintenance overdue: ` marker. v1.8.4 originally specified verification via `bash scripts/hooks/session-start-inbox.sh`; that hook was retired in v1.8.5 Stage 2. **v1.8.5+ verification procedure**: ROUTER 自己 inline 检查 10 maintenance jobs 的 timestamps（scan `meta/methods/last-runs/` or equivalent — actual scan procedure is owned by `pro/agents/retrospective.md` Mode 0 maintenance overdue step which the subagent runs inline）. byte-equal verification 简化为 "marker exists + day-count values plausible against ROUTER's own inline scan"; 任何明显冲突值 → strike marker 行并替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing 直到 subagent 重跑 Step 0.5。Beyond marker 自身,ROUTER 还要在 briefing 的 "系统状态 / Compliance Watch / Today's Focus" **三个 section 内**扫描 `\d+\s*d(ays)?\s*overdue` 模式邻接 10 个 maintenance 任务名(reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency);任何冲突值视为 confabulation 并 strike。Originating bug: 2026-05-16 briefing 自由发挥 `13d`,hook 实际只有 `3d`。Pre-v1.8.5 wrapper handling note (now obsolete since hook layer is gone): `<system-reminder>...</system-reminder>` 包裹 stdout 的细节随 hook 一起退役;v1.8.5+ subagent 直接产出 marker 文本无 wrapper。
 
 Additional display verification: there is no wrapper-count gate; one completed subagent call does not require a heavy-line wrapper pair or a transactional receipt. Audit trail requirements remain governed by R11.
 
@@ -264,7 +264,7 @@ When a wrapper helps clarity, ROUTER MAY use a concise form such as:
 
 ```text
 ## Subagent Output · {subagent_name}
-audit_trail: {_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
 usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
 duration: {duration_seconds}s (if available)
 cost: ${estimated_cost_usd} (if available or already estimated)
@@ -281,7 +281,7 @@ Token, duration, and cost metadata are displayed only when the host/tool provide
 Every launched subagent MUST write a structured audit trail file before returning to ROUTER:
 
 ```text
-_meta/runtime/<session_id>/<subagent>-<step_or_phase>.json
+meta/runtime/<session_id>/<subagent>-<step_or_phase>.json
 ```
 
 Required fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls[]`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
@@ -290,7 +290,7 @@ The audit trail is Channel 1 (file system evidence). It deliberately breaks the 
 
 AUDITOR must use the Channel 1 files as independent ground truth.
 
-AUDITOR reads `_meta/runtime/<session_id>/*.json` during Compliance Patrol / Mode 3 and verifies existence, schema completeness, and consistency with the visible workflow record. Violation mapping:
+AUDITOR reads `meta/runtime/<session_id>/*.json` during Compliance Patrol / Mode 3 and verifies existence, schema completeness, and consistency with the visible workflow record. Violation mapping:
 - Missing audit trail file -> `C-no-audit-trail`
 - Required field missing, empty, wrong type, or invalid timestamp -> `C-trail-incomplete`
 - Trail content contradicts ROUTER visible output, wrapper, launch reason, file writes, or handoff status -> `B-trail-mismatch`
@@ -428,9 +428,9 @@ This rule is no longer a "policy" that can be revisited or relaxed. It is the **
 **Borrowing patterns from external projects**: only borrow design **patterns**, never borrow **implementation** technology stacks. OpenHuman uses SQLite/JSON/Rust — lifeos uses md. The same pattern (memory hierarchy / token compression / self-driven loops) expressed in different substrates.
 
 **v1.8.5 / v1.8.6 expansion rationale** (preserved):
-- Audit trails (`_meta/runtime/<sid>/*.json` → `*.md`): R12 → R13 schema. Same machine-parseable YAML frontmatter, just wrapped in `.md`.
+- Audit trails (`meta/runtime/<sid>/*.json` → `*.md`): R12 → R13 schema. Same machine-parseable YAML frontmatter, just wrapped in `.md`.
 - Regression fixtures (`evals/regression-fixtures/*.yml` → `*.md`): v1.8.5 Stage 9 fixtures all converted.
-- Decision records (`_meta/incidents/*.yml` → `*.md`): same 7-field schema as frontmatter.
+- Decision records (`meta/decisions/*.yml` → `*.md`): same 7-field schema as frontmatter.
 - Memory KV (`~/.claude/lifeos-memory/<key>.json` → `<key>.md`): same key+value structure as frontmatter.
 - GitHub Actions (`.github/workflows/*.yml`): DELETED — CI moves to user-side `/run-eval` slash command per release readiness checklist.
 
@@ -449,7 +449,7 @@ MUST return empty. Both checks must PASS for release.
 - `/verify-release` check #8 (existing, full-repo scan) and #10 (v1.8.7 new, diff-scoped against last tag)
 - AUDITOR Mode 7 M7-7: scans newly added/modified md files for "needs SQL/JSON/sh/py to work" design drift
 - Regression fixtures: `rc-forbidden-extension-sh.md` (existing), `rc-forbidden-extension-sql.md` / `rc-forbidden-extension-json.md` / `rc-forbidden-extension-db.md` (v1.8.7 new)
-- Reference: `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` DR-10 + §1.5 ontological constraint
+- Reference: `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` DR-10 + §1.5 ontological constraint
 
 ### HARD RULE · violations.md F-Code required for v1.8.5+ entries (Stage 8)
 

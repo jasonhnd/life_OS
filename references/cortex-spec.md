@@ -56,7 +56,7 @@ Before v1.7, Life OS touched long-term memory only at session boundaries — RET
 
 Users felt this as "the AI is careful inside a session but forgets between sessions." Cortex fixes this by making cross-session memory and concept graphs a first-class input to every workflow.
 
-The failure mode is not that any single agent is weak — each of the 16 agents does its job well. The failure mode is that agents never see what other sessions learned. A PLANNER facing a financial decision in session 412 does not know that session 198 already landed on a conclusion about the same entity, because nothing carries that conclusion forward except the raw `_meta/journal/*.md` files, which nobody reads except at explicit user request. Cortex makes that carry-forward automatic.
+The failure mode is not that any single agent is weak — each of the 16 agents does its job well. The failure mode is that agents never see what other sessions learned. A PLANNER facing a financial decision in session 412 does not know that session 198 already landed on a conclusion about the same entity, because nothing carries that conclusion forward except the raw `meta/journal/*.md` files, which nobody reads except at explicit user request. Cortex makes that carry-forward automatic.
 
 ---
 
@@ -74,7 +74,7 @@ Cortex is always-on in v1.7.2, so every user message triggers a hippocampus suba
 
 Output: top 5-7 relevant historical sessions as a memory signal, emitted to the GWT arbitrator.
 
-Implementation relies on a two-stage scan: ripgrep filters `_meta/sessions/INDEX.md` (a compiled flat file of one-line session summaries) down to candidate sessions within milliseconds; the subagent then reads only the matched summaries (typically 15-20 lines) and returns the final top 5-7. At 1000 sessions × 200 characters per summary (≈600 bytes per UTF-8 encoded CJK summary, ≈200 bytes per ASCII-only summary) the full index is roughly 200KB–600KB depending on content language — trivial to scan in either case.
+Implementation relies on a two-stage scan: ripgrep filters `meta/sessions/INDEX.md` (a compiled flat file of one-line session summaries) down to candidate sessions within milliseconds; the subagent then reads only the matched summaries (typically 15-20 lines) and returns the final top 5-7. At 1000 sessions × 200 characters per summary (≈600 bytes per UTF-8 encoded CJK summary, ≈200 bytes per ASCII-only summary) the full index is roughly 200KB–600KB depending on content language — trivial to scan in either case.
 
 Full spec: `references/hippocampus-spec.md`.
 
@@ -109,7 +109,7 @@ Full spec: `references/narrator-spec.md`.
 
 ### 4. Synapses + Hebbian — Concept graph with use-it-or-lose-it reinforcement
 
-Each concept is a markdown file under `_meta/concepts/{domain}/{concept}.md`. Edges (synapses) live in the concept's own frontmatter. Co-activation increases edge weight by +1 (Hebbian rule); long unused edges decay.
+Each concept is a markdown file under `meta/concepts/{domain}/{concept}.md`. Edges (synapses) live in the concept's own frontmatter. Co-activation increases edge weight by +1 (Hebbian rule); long unused edges decay.
 
 Four permanence tiers — identity, skill, fact, transient — determine decay curve shape. Decay runs every adjourn, driven by ARCHIVER Phase 2.
 
@@ -139,12 +139,12 @@ Step 11:   STRATEGIST (optional) — unchanged
 
 In v1.7.2, Step 0.5 is attempted for every user message, including Start Session triggers. It runs after RETROSPECTIVE housekeeping / Pre-Session Preparation when those exist and before ROUTER Triage.
 
-Before spawning Cortex subagents, the orchestrator checks `_meta/sessions/INDEX.md`. If the index is missing or empty, the orchestrator runs `tools/migrate.py` to auto-bootstrap before Step 0.5. If bootstrap fails, the workflow does not block: ROUTER receives the original message, and any Cortex failure state is surfaced through the existing `degradation_summary` rules in `[COGNITIVE CONTEXT]`.
+Before spawning Cortex subagents, the orchestrator checks `meta/sessions/INDEX.md`. If the index is missing or empty, the orchestrator runs `tools/migrate.py` to auto-bootstrap before Step 0.5. If bootstrap fails, the workflow does not block: ROUTER receives the original message, and any Cortex failure state is surfaced through the existing `degradation_summary` rules in `[COGNITIVE CONTEXT]`.
 
 Three subagents run in parallel:
 
-1. **hippocampus** — scans `_meta/sessions/INDEX.md`, returns top 5-7 memory signals
-2. **concept lookup** — scans `_meta/concepts/` for directly matched concept nodes
+1. **hippocampus** — scans `meta/sessions/INDEX.md`, returns top 5-7 memory signals
+2. **concept lookup** — scans `meta/concepts/` for directly matched concept nodes
 3. **SOUL dimension check** — reuses RETROSPECTIVE's SOUL Health Report, emits an identity_check signal
 
 The three output streams feed the **gwt-arbitrator**, which applies the salience formula, ranks signals, and produces a single annotated-input block for ROUTER:
@@ -159,7 +159,7 @@ The three output streams feed the **gwt-arbitrator**, which applies the salience
 
 ROUTER may consult or ignore the annotation — its triage rules are unchanged. If Step 0.5 fails at any point (bootstrap failure, subagent timeout, file unreachable), the orchestrator falls back to raw message input and records the partial/failure state through the existing `degradation_summary` rules.
 
-**Traceability emit rule (v1.7.1 R8):** The full YAML payloads from `hippocampus`, `concept lookup`, and `SOUL dimension check`, plus the GWT `[COGNITIVE CONTEXT]`, must be pasted to the user by ROUTER and written to `_meta/journal/{date}-cortex.md`. The journal entry is the traceability surface for Cortex runtime payloads; no `_meta/cortex/frames/...` directory or frame md file is defined or used.
+**Traceability emit rule (v1.7.1 R8):** The full YAML payloads from `hippocampus`, `concept lookup`, and `SOUL dimension check`, plus the GWT `[COGNITIVE CONTEXT]`, must be pasted to the user by ROUTER and written to `meta/journal/{date}-cortex.md`. The journal entry is the traceability surface for Cortex runtime payloads; no `meta/cortex/frames/...` directory or frame md file is defined or used.
 
 **Express path interaction.** When ROUTER takes the Express path (1-3 domain agents, no PLANNER / REVIEWER), Step 0.5 still runs but in a reduced form: only the hippocampus subagent is spawned. Concept lookup and SOUL check are skipped to preserve Express's speed budget. The express-path annotated input is a single-line memory summary rather than the full three-section block. The gwt-arbitrator is not invoked when only one signal source is present.
 
@@ -173,11 +173,11 @@ Before the Summary Report is displayed, narrator-validator (Sonnet-tier Claude C
 
 ARCHIVER Phase 2 already handles wiki and SOUL auto-writes. In v1.7 it also performs:
 
-- **Concept extraction** — scan session materials for new concepts, classify permanence tier, write to `_meta/concepts/{domain}/{concept}.md`
+- **Concept extraction** — scan session materials for new concepts, classify permanence tier, write to `meta/concepts/{domain}/{concept}.md`
 - **Hebbian update** — for each co-activated pair (A, B) in the session, increment the A→B edge weight; create a new edge at weight 1 if none exists
 - **SYNAPSES-INDEX.md regeneration** — rebuild the reverse index after weight updates
 - **SOUL snapshot dump** — existing v1.6.2 mechanism, sustained under Cortex
-- **Session summary write** — emit `_meta/sessions/{session_id}.md` with subject, key decisions, activated concepts, and one-line YAML summary fields consumed by hippocampus on later reads
+- **Session summary write** — emit `meta/sessions/{session_id}.md` with subject, key decisions, activated concepts, and one-line YAML summary fields consumed by hippocampus on later reads
 
 All writes happen inside a single ARCHIVER invocation. The orchestrator does not interleave writes between phases. This preserves the Adjourn state machine defined in `pro/CLAUDE.md` — ARCHIVER emits one Completion Checklist when all phases are done, and the session ends.
 
@@ -192,7 +192,7 @@ Neither Pre-Session Preparation nor STRATEGIST are modified. SOUL Health Report 
 All Cortex data lives in markdown. New directories introduced in v1.7:
 
 ```
-_meta/
+meta/
 ├── concepts/
 │   ├── INDEX.md                         ← compiled one-liner index
 │   ├── SYNAPSES-INDEX.md                ← compiled reverse edge index
@@ -224,15 +224,15 @@ Each mechanism's data format is defined in its own spec file. This document does
 
 ### Cortex Runtime Files (schemas)
 
-Markdown artefacts track Cortex runtime state. None are source of truth — they are either config (user-editable) or compiled/log artefacts (archiver writes). User-editable config lives in `_meta/config.md`; compiled/log artefacts live under `_meta/cortex/` or `_meta/ambiguous_corrections/`. No config file lives under `_meta/cortex/`.
+Markdown artefacts track Cortex runtime state. None are source of truth — they are either config (user-editable) or compiled/log artefacts (archiver writes). User-editable config lives in `meta/config.md`; compiled/log artefacts live under `meta/cortex/` or `meta/ambiguous_corrections/`. No config file lives under `meta/cortex/`.
 
-#### `_meta/config.md` (Cortex thresholds and secondary switches)
+#### `meta/config.md` (Cortex thresholds and secondary switches)
 
 User-editable thresholds and secondary switches. Read by hippocampus, gwt-arbitrator, narrator-validator, and the decay pass. In v1.7.2, Cortex activation is always-on at the orchestration layer; `cortex_enabled` is deprecated and MUST NOT be used as an activation gate. If the field is present for legacy workspaces, readers ignore it for activation and use the hard-coded defaults listed below for all other settings.
 
 ```yaml
 ---
-file: _meta/config.md
+file: meta/config.md
 version: 1.7
 ---
 
@@ -264,7 +264,7 @@ decay_curves:
 escalate_rate_limit: 5            # per rolling 7-day window
 ambiguous_correction_confidence_bands:
   high: 0.85                      # ≥ apply immediately
-  mid_low: 0.5                    # mid-band lower bound (write to _meta/ambiguous_corrections/)
+  mid_low: 0.5                    # mid-band lower bound (write to meta/ambiguous_corrections/)
   low_floor: 0.0                  # logged but not acted
 
 ## Performance budgets (seconds, soft/hard)
@@ -275,13 +275,13 @@ narrator_validator_timeout: [3, 10]
 
 Users editing this file should commit to git so cross-device drift is tracked. Changes take effect at the next session start (retrospective Mode 0 reads the config).
 
-#### `_meta/cortex/bootstrap-status.md`
+#### `meta/cortex/bootstrap-status.md`
 
 Written once by `tools/migrate.py`. Read by retrospective Mode 0 to decide whether Cortex is ready.
 
 ```yaml
 ---
-file: _meta/cortex/bootstrap-status.md
+file: meta/cortex/bootstrap-status.md
 ---
 
 # Cortex Bootstrap Status
@@ -308,13 +308,13 @@ warnings:
 
 If this file is missing, the orchestrator attempts auto-bootstrap with `tools/migrate.py` before Step 0.5. Retrospective Mode 0 may still surface "Cortex not bootstrapped — run `uv run tools/migrate.py`" in the Start Session briefing when bootstrap has not succeeded. If bootstrap fails, Cortex degrades through the existing `degradation_summary` path and the workflow continues with the original message.
 
-#### `_meta/cortex/decay-log.md`
+#### `meta/cortex/decay-log.md`
 
 Append-only log written by archiver Phase 2 at the end of every adjourn. Each session contributes one dated block.
 
 ```yaml
 ---
-file: _meta/cortex/decay-log.md
+file: meta/cortex/decay-log.md
 rolling_window_days: 90
 ---
 
@@ -337,7 +337,7 @@ new_canonical: 0
 
 Blocks older than 90 days compact into a trailing `# Archive` section on the next adjourn write. Past archives live in git history — no deletion, no Notion sync.
 
-#### `_meta/ambiguous_corrections/{correction_id}.md`
+#### `meta/ambiguous_corrections/{correction_id}.md`
 
 One file per pending mid-confidence user correction. Created when the three-tier undo mechanism (§Design Principles → Three-tier undo) detects a correction with confidence in the 0.5–0.85 band: not high enough to apply immediately, not low enough to log-and-ignore.
 
@@ -393,7 +393,7 @@ Narrator is NOT a new agent file — narrator behavior lives inside ROUTER (see 
 Extensions to existing agents:
 
 - `pro/agents/archiver.md` Phase 2 — add concept extraction, Hebbian update, method-candidate detection, decay pass, session summary write, index rebuild
-- `pro/agents/retrospective.md` Mode 0 — regenerate `_meta/concepts/INDEX.md` and `_meta/sessions/INDEX.md`; flag dormant concepts
+- `pro/agents/retrospective.md` Mode 0 — regenerate `meta/concepts/INDEX.md` and `meta/sessions/INDEX.md`; flag dormant concepts
 - `pro/agents/router.md` — accept cognitive annotation in its input; own narrator composition at Step 7.5
 
 Claude Code reads each agent definition at spawn time; no runtime state persists between invocations.
@@ -404,7 +404,7 @@ The existing Information Isolation table in `pro/CLAUDE.md` gets three new rows 
 
 | Role | Receives | Does NOT Receive |
 |------|----------|------------------|
-| hippocampus | User message + `_meta/sessions/INDEX.md` + current session context | Other agents' thought processes, full concept graph |
+| hippocampus | User message + `meta/sessions/INDEX.md` + current session context | Other agents' thought processes, full concept graph |
 | gwt-arbitrator | Signal files from hippocampus / concept-lookup / soul-check | User's raw message (operates on signals only) |
 | narrator-validator | Summary Report draft + signal store | Agent thought processes, user's private data |
 
@@ -453,19 +453,19 @@ No system is useful if it cannot be corrected. Cortex provides three corrective 
 
 1. **Passive decay** — unused canonical concepts demote over time (fact-tier after 90 days). No user action required.
 2. **User correction** — "you got this wrong" triggers a concept_demotion modification with cascade marking on all affected synapses.
-3. **Meta-cognitive audit** — a weekly audit surfaces suspected drift (conflicting salience, frequency drops, repeated user corrections) to `_meta/audit/suspicious.md`; user confirms before demotion.
+3. **Meta-cognitive audit** — a weekly audit surfaces suspected drift (conflicting salience, frequency drops, repeated user corrections) to `meta/audit/suspicious.md`; user confirms before demotion.
 
-User correction confidence is tiered: high-confidence (>0.85) corrections apply immediately; mid-confidence (0.5-0.85) corrections are written to `_meta/ambiguous_corrections/` and surface at the next related activation for explicit confirmation; low-confidence (<0.5) corrections are logged but not acted upon. The initial thresholds are deliberately conservative — false negatives (missing a correction) cost less than false positives (demoting something the user did not want demoted).
+User correction confidence is tiered: high-confidence (>0.85) corrections apply immediately; mid-confidence (0.5-0.85) corrections are written to `meta/ambiguous_corrections/` and surface at the next related activation for explicit confirmation; low-confidence (<0.5) corrections are logged but not acted upon. The initial thresholds are deliberately conservative — false negatives (missing a correction) cost less than false positives (demoting something the user did not want demoted).
 
 The meta-cognitive audit is rate-limited: more than **5 escalations per rolling 7-day window** triggers a secondary audit of the module quality itself. The assumption is that a well-functioning system should rarely need to surface conflicts to the user; frequent escalations indicate module-level drift, not individual correction need.
 
-#### `_meta/audit/suspicious.md` format
+#### `meta/audit/suspicious.md` format
 
 The meta-cognitive audit writes a single rolling markdown file. Archiver Phase 2 appends candidates; retrospective Mode 0 surfaces unresolved rows in the Start Session briefing; user confirms or dismisses. Format:
 
 ```yaml
 ---
-file: _meta/audit/suspicious.md
+file: meta/audit/suspicious.md
 rolling_window_days: 30
 last_compacted: ISO 8601
 ---
@@ -490,7 +490,7 @@ Rows older than 30 days with `status: open` compact into a trailing "# Archive" 
 
 #### Escalate rate limit
 
-The 5-per-week threshold is monitored by AUDITOR during patrol inspection (not a hook or Python tool — stays in-session). When exceeded, AUDITOR writes a high-priority entry to `_meta/eval-history/{date}-{project}.md` with `violations[].type: escalate_rate_exceeded` and surfaces the pattern in retrospective Mode 0's next briefing. No module is automatically cut (user decision #4 — no pre-committed kill criteria); the user decides whether the underlying mechanism needs tuning.
+The 5-per-week threshold is monitored by AUDITOR during patrol inspection (not a hook or Python tool — stays in-session). When exceeded, AUDITOR writes a high-priority entry to `meta/eval-history/{date}-{project}.md` with `violations[].type: escalate_rate_exceeded` and surfaces the pattern in retrospective Mode 0's next briefing. No module is automatically cut (user decision #4 — no pre-committed kill criteria); the user decides whether the underlying mechanism needs tuning.
 
 ---
 
@@ -524,8 +524,8 @@ This is the authoritative decision tree. When any spec disagrees with this tree,
 |-------|---------|-------------------|------|
 | SOUL | Who you are (identity / values / preferences) | "user consistently prioritizes family over career growth" | `SOUL.md` (one file, dimensions inside) |
 | Wiki | What you know about the world (declarative) | "NPO lending in Japan has no 貸金業法 exemption" | `wiki/{domain}/{slug}.md` |
-| Concept | How ideas connect (associative graph nodes) | "Company-A" as an entity that connects to other concepts through weighted edges | `_meta/concepts/{domain}/{concept_id}.md` |
-| Method | How you work best (procedural memory) | "Refine documents in 5 escalating quality rounds" | `_meta/methods/{domain}/{method_id}.md` |
+| Concept | How ideas connect (associative graph nodes) | "Company-A" as an entity that connects to other concepts through weighted edges | `meta/concepts/{domain}/{concept_id}.md` |
+| Method | How you work best (procedural memory) | "Refine documents in 5 escalating quality rounds" | `meta/methods/{domain}/{method_id}.md` |
 | user-patterns | What you do (observed behavioural patterns, ADVISOR domain) | "Makes decisions faster after first-round clarification" | `user-patterns.md` (one file, entries inside) |
 
 ### Decision tree
@@ -546,12 +546,12 @@ Is the candidate about the user's identity, values, preferences, or red lines?
         ├── YES → Method
         │         (5+ sequential actions, cross-session echo in ≥2 sessions,
         │          user language like "approach/pattern/framework/流れ/やり方/手順";
-        │          lands in _meta/methods/_tentative/ with status: tentative)
+        │          lands in meta/methods/_tentative/ with status: tentative)
         │
         └── NO → Is it a recurring ENTITY / CONCEPT that connects to others?
             ├── YES → Concept
             │         (≥2 activations + ≥2 independent evidence points;
-            │          lands in _meta/concepts/_tentative/ until promotion;
+            │          lands in meta/concepts/_tentative/ until promotion;
             │          individuals → skip, OR route to SOUL (privacy filter))
             │
             └── NO → Is it a FACTUAL conclusion about the world?
@@ -581,7 +581,7 @@ Is the candidate about the user's identity, values, preferences, or red lines?
 
 **Fact with procedural edge**: "When negotiating rate increases, anchor with data first" can read as a method (procedure) OR a wiki conclusion (fact about the world). Rule: if the candidate describes a **sequence of user actions**, it's a method. If it describes **a property of the world**, it's wiki. When genuinely ambiguous, default to **wiki** — methods require stronger evidence (≥5 sequential steps across ≥2 sessions).
 
-**Concept with SOUL overlap**: "trust" as a relational dimension could be SOUL (a value) or a concept (relational entity type). Rule: concepts are about **things in the world that connect to other things**; SOUL is about **the user's orientation toward things**. "User values trust in business relationships" → SOUL. "Trust is a relationship capital type that flows between projects" → concept (in `_meta/concepts/relationship/`).
+**Concept with SOUL overlap**: "trust" as a relational dimension could be SOUL (a value) or a concept (relational entity type). Rule: concepts are about **things in the world that connect to other things**; SOUL is about **the user's orientation toward things**. "User values trust in business relationships" → SOUL. "Trust is a relationship capital type that flows between projects" → concept (in `meta/concepts/relationship/`).
 
 **Wiki with method flavour**: a step-by-step recipe that is a factual description of the world (not user's chosen workflow) → wiki. If the user has consciously adopted it as their own method → method. Heuristic: archiver asks "does the user own this workflow?" — if yes, method; if no (it's just a known technique), wiki.
 
@@ -590,8 +590,8 @@ Is the candidate about the user's identity, values, preferences, or red lines?
 Archiver Phase 2 assigns each candidate a routing confidence:
 
 - **High (>0.85)** — proceeds to the target layer with `status: tentative` (for concepts/methods) or auto-written to SOUL at confidence 0.3 / wiki at confidence 0.3-0.5
-- **Mid (0.5-0.85)** — written to `_meta/ambiguous_corrections/` as a routing-decision correction awaiting user confirmation at next related activation
-- **Low (<0.5)** — logged to `_meta/cortex/decay-log.md` as "routing-rejected candidate" with reason, not written anywhere
+- **Mid (0.5-0.85)** — written to `meta/ambiguous_corrections/` as a routing-decision correction awaiting user confirmation at next related activation
+- **Low (<0.5)** — logged to `meta/cortex/decay-log.md` as "routing-rejected candidate" with reason, not written anywhere
 
 This mirrors the three-tier undo mechanism (§Design Principles → Three-tier undo) — archiver errs toward caution when uncertain. False negatives (missed candidate) cost less than false positives (wrong-layer write that later needs surgical reversal).
 
@@ -627,7 +627,7 @@ v1.7 internal stages:
 
 | Stage | Scope |
 |-------|-------|
-| A — Data structure | `_meta/concepts/`, `_meta/sessions/INDEX.md`, ARCHIVER Phase 2 gains concept extraction (Hebbian off) |
+| A — Data structure | `meta/concepts/`, `meta/sessions/INDEX.md`, ARCHIVER Phase 2 gains concept extraction (Hebbian off) |
 | B — Cognitive pre-router online | hippocampus + gwt-arbitrator subagents live, Step 0.5 wired, Hebbian on |
 | C — Narrator + undo mechanism | Step 7.5 active, three-tier undo live, escalate rate limits |
 | D — Complete cortex + Hermes execution layer | downgraded modules backfilled, full execution layer |
@@ -640,19 +640,19 @@ AUDITOR tracks post-ship quality through `eval-history` entries (`references/eva
 
 ### Migration from v1.6.2a
 
-Cortex requires a backfill of the session index before the hippocampus can retrieve anything. The migration pulls the last 3 months of `_meta/journal/*.md` and produces per-session summaries.
+Cortex requires a backfill of the session index before the hippocampus can retrieve anything. The migration pulls the last 3 months of `meta/journal/*.md` and produces per-session summaries.
 
 ```
 Script: tools/migrate.py
-Input:  _meta/journal/*.md           (existing session journals)
+Input:  meta/journal/*.md           (existing session journals)
 Output:
-  - _meta/sessions/{session_id}.md   (one file per historical session)
-  - _meta/sessions/INDEX.md          (compiled one-liner index)
-  - _meta/concepts/**/*.md           (seed concepts from journal entities)
-  - _meta/snapshots/soul/**          (backfilled SOUL snapshots when possible)
+  - meta/sessions/{session_id}.md   (one file per historical session)
+  - meta/sessions/INDEX.md          (compiled one-liner index)
+  - meta/concepts/**/*.md           (seed concepts from journal entities)
+  - meta/snapshots/soul/**          (backfilled SOUL snapshots when possible)
 ```
 
-The migration script is invoked via Bash from Claude Code. It is idempotent — re-running it overwrites the compiled index without duplicating concepts. The same script is invoked automatically before Step 0.5 when `_meta/sessions/INDEX.md` is missing or empty and Cortex is enabled. After migration, the user runs one session with Cortex enabled; if the annotated input feels correct, Cortex is promoted to steady state.
+The migration script is invoked via Bash from Claude Code. It is idempotent — re-running it overwrites the compiled index without duplicating concepts. The same script is invoked automatically before Step 0.5 when `meta/sessions/INDEX.md` is missing or empty and Cortex is enabled. After migration, the user runs one session with Cortex enabled; if the annotated input feels correct, Cortex is promoted to steady state.
 
 If migration fails, the orchestrator falls back to raw message input and logs the failure through the existing `degradation_summary` rules. Users operate as in v1.6.2a until migration is retried.
 

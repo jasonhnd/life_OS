@@ -243,7 +243,7 @@ second-brain/
 │   │   └── intermittent-fasting.md
 │   └── _archive/        ← 退役条目
 ├── inbox/
-├── _meta/
+├── meta/
 ├── projects/
 ├── areas/
 └── archive/
@@ -257,7 +257,7 @@ second-brain/
 
 1. 在简报中报告："📚 Wiki is not yet initialized. Would you like to bootstrap from existing decisions?"
 2. 若用户同意：
-   a. 扫描 `decisions/` 和 `_meta/journal/` 寻找可提取结论（同 DREAM N3 Q2 逻辑）
+   a. 扫描 `decisions/` 和 `meta/journal/` 寻找可提取结论（同 DREAM N3 Q2 逻辑）
    b. 对每个候选应用 6 条自动写入标准 + 隐私过滤器
    c. 所有通过的候选自动写入 `wiki/{domain}/{topic}.md` 并附正确 frontmatter
    d. 编译 `wiki/INDEX.md`

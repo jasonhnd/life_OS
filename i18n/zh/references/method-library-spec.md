@@ -8,7 +8,7 @@ superseded_by: pro/CLAUDE.md
 
 # Method Library 规范（Method Library Specification）
 
-Method Library 是 Life OS 的**程序性记忆（procedural memory）**—— "你如何工作最顺手"那一层。它位于 second-brain 的 `_meta/methods/` 目录下，存放跨会话复现的可复用工作流。
+Method Library 是 Life OS 的**程序性记忆（procedural memory）**—— "你如何工作最顺手"那一层。它位于 second-brain 的 `meta/methods/` 目录下，存放跨会话复现的可复用工作流。
 
 ## 1. 目的（Purpose）
 
@@ -49,7 +49,7 @@ Methods 是**可复用的工作流（reusable workflows）**—— 适用于跨�
 按用户决策 #11（method library 在 v1.7 引入）：
 
 ```
-_meta/methods/
+meta/methods/
 ├── INDEX.md                        # 编译摘要（auto-generated）
 ├── _tentative/                     # 等待用户确认的候选 method
 │   └── {method_id}.md
@@ -167,7 +167,7 @@ Method 候选由 `archiver` Phase 2（参见 `pro/agents/archiver.md`）探测�
    - `evidence_count: 1`
 2. 与现有 methods 比对（先按 `method_id` 精确匹配，再按描述相似度 ≥ 0.7 与 INDEX 比对）
 3. 若重复 → 在已有 method 上 `evidence_count += 1`，更新 `last_used`，写入 Evolution Log —— 不创建新候选
-4. 若新 → 写入 `_meta/methods/_tentative/{method_id}.md`
+4. 若新 → 写入 `meta/methods/_tentative/{method_id}.md`
 5. 记入会话的 Completion Checklist，以便 RETROSPECTIVE 在下次 Start Session 提出
 
 archiver 自己不会把候选提升过 `tentative`。提升需要用户输入（第 7 节）或证据累积（第 8 节）。
@@ -189,7 +189,7 @@ Method candidates detected:
 ```
 
 用户响应：
-- `c` 或 "confirm X" → 将文件从 `_meta/methods/_tentative/` 移到 `_meta/methods/{domain}/`，翻转 `status: tentative` → `confirmed`，confidence 提升到 0.5（若 source_sessions 已有 3+ 则为 0.6）
+- `c` 或 "confirm X" → 将文件从 `meta/methods/_tentative/` 移到 `meta/methods/{domain}/`，翻转 `status: tentative` → `confirmed`，confidence 提升到 0.5（若 source_sessions 已有 3+ 则为 0.6）
 - `r` 或 "reject X" → 删除文件
 - `e` 或 "edit X" → 打印文件路径，用户编辑，状态不变
 - `s` 或 "skip" → 留在 `_tentative/`，下次 Start Session 再次浮现
@@ -223,7 +223,7 @@ Methods 经过三个成熟度 tier。提升遵循证据，不遵循时间。
 当 Draft-Review-Execute 工作流到达 Step 4（DISPATCHER Dispatch）时，dispatcher 执行一次 method 查找：
 
 ```
-1. 读取 _meta/methods/INDEX.md
+1. 读取 meta/methods/INDEX.md
 2. 对每个 confirmed/canonical method，用当前主题评估 applicable_when 条件
 3. 若某 method 匹配 → 将其完整正文作为 "Known Method" 包含在相关 domain 的 dispatch 上下文中
 4. 明确标注："Known Method '{name}' applies — here is the established approach, use it unless the subject contradicts."
@@ -252,7 +252,7 @@ Methods 经过三个成熟度 tier。提升遵循证据，不遵循时间。
 
 **小修订**（措辞澄清、增加警告）由 archiver Phase 2 在无用户确认下直接应用。
 
-**重大修订**（增删步骤、条件变更）需在下次 Start Session 取得用户确认。archiver 把拟议变更写到 `_meta/methods/_tentative/_revisions/{method_id}-{date}.md`，并与新候选一起浮现。
+**重大修订**（增删步骤、条件变更）需在下次 Start Session 取得用户确认。archiver 把拟议变更写到 `meta/methods/_tentative/_revisions/{method_id}-{date}.md`，并与新候选一起浮现。
 
 ---
 
@@ -264,7 +264,7 @@ Methods 使用 `permanence: skill` 衰减 —— 对数衰减到一个下限，�
 |--------------------------|-------|--------|
 | ≤ 6 个月 | Active | 无动作 |
 | 6–12 个月 | Dormant | RETROSPECTIVE 在 briefing 中标记："Method '{name}' has been dormant for N months." |
-| ≥ 12 个月 | Archived | archiver 将文件移到 `_meta/methods/_archive/{method_id}.md`。 |
+| ≥ 12 个月 | Archived | archiver 将文件移到 `meta/methods/_archive/{method_id}.md`。 |
 | Archived + 用户明确删除 | Retired | 文件消失。即使该模式重新出现也不自动重建。 |
 
 Methods 从不自动删除。Methods 是挣来的；归档是系统采取的最强自动动作。最终删除始终由用户决定。
@@ -289,7 +289,7 @@ Methods 仅本地存储。永不同步到 Notion（用户决策 #12）。
 
 ## 13. INDEX.md 格式（INDEX.md Format）
 
-`_meta/methods/INDEX.md` 由 RETROSPECTIVE 在每次 Start Session 基于实际 method 文件编译。绝不手工编辑。
+`meta/methods/INDEX.md` 由 RETROSPECTIVE 在每次 Start Session 基于实际 method 文件编译。绝不手工编辑。
 
 ```markdown
 # Method Library Index
@@ -335,9 +335,9 @@ method library 借用了 Hermes 的 YAML + markdown + evolution log 模式，但
 
 v1.6.2a 没有 method library。`tools/migrate.py` 从已有会话历史回填：
 
-1. 扫描 `_meta/journal/*.md` 和回填的决策，查找描述 approach 的语言："approach"、"pattern"、"framework"、"process"、"流れ"、"やり方"、"手順"。
+1. 扫描 `meta/journal/*.md` 和回填的决策，查找描述 approach 的语言："approach"、"pattern"、"framework"、"process"、"流れ"、"やり方"、"手順"。
 2. 抽取被跨会话提及次数最多的前 5 个模式。
-3. 把每一个作为候选写到 `_meta/methods/_tentative/{method_id}.md`，`status: tentative`、`confidence: 0.3`。
+3. 把每一个作为候选写到 `meta/methods/_tentative/{method_id}.md`，`status: tentative`、`confidence: 0.3`。
 4. 在下次 Start Session 标记给用户审阅。
 
 迁移是一次性（one-shot）的。之后的模式探测由 archiver Phase 2 在活会话上进行。
@@ -373,17 +373,17 @@ v1.6.2a 没有 method library。`tools/migrate.py` 从已有会话历史回填�
 
 ## 18. 每个角色如何使用 Method Library（How Each Role Uses the Method Library）
 
-所有角色在引用前检查 `_meta/methods/INDEX.md` 是否存在。若不存在或为空，该角色在无 method 输入下运作。
+所有角色在引用前检查 `meta/methods/INDEX.md` 是否存在。若不存在或为空，该角色在无 method 输入下运作。
 
 | 角色 | 读取什么 | 如何使用 |
 |------|---------------|-----------------|
-| RETROSPECTIVE | `_meta/methods/INDEX.md` + `_tentative/` | 在 Start Session 编译 INDEX。浮现候选供确认。标记 dormant methods。 |
+| RETROSPECTIVE | `meta/methods/INDEX.md` + `_tentative/` | 在 Start Session 编译 INDEX。浮现候选供确认。标记 dormant methods。 |
 | ROUTER | INDEX（表头） | 分诊时扫描 domain 相关 methods。可提示用户 "you have a known approach for this." |
 | PLANNER | INDEX（完整） | 起草规划文档前审视哪些 methods 适用。可按名引用。 |
 | DISPATCHER | 相关 method 正文 | 作为 "Known Method" 注入 domain brief（第 9 节）。 |
 | Six Domains | dispatch 上下文中的 method 正文 | 应用已知 method 而不是重导工作流。汇报遵从或偏离。 |
 | REVIEWER | INDEX | 一致性检查 —— 若某规划文档忽略了一个适用的 method，标记之。 |
-| AUDITOR | `_meta/methods/` 目录 | 巡检 —— 陈旧 methods、矛盾、滞留太久的候选。 |
+| AUDITOR | `meta/methods/` 目录 | 巡检 —— 陈旧 methods、矛盾、滞留太久的候选。 |
 | ARCHIVER | INDEX + 所有 method 文件 | Phase 2：探测候选、更新 evolution log、提议修订。 |
 | DREAM | INDEX | REM 阶段使用 method 模式作为跨 domain 洞察的连接组织。 |
 

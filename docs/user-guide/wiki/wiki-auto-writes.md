@@ -134,7 +134,7 @@ confidence 0.3 vs 0.5 的区别：
 2. 对每个候选结论：
    a. 检查 6 条标准
    b. 应用隐私过滤器
-   c. 全通过 → 写入 _meta/outbox/{session_id}/wiki/{domain}/{topic}.md
+   c. 全通过 → 写入 meta/outbox/{session_id}/wiki/{domain}/{topic}.md
    d. 任何失败 → 丢弃，记录原因
 3. 在 Completion Checklist 中报告：
    - Wiki 自动写入：N 条（列出标题）

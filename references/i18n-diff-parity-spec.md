@@ -35,7 +35,7 @@ All three-mirrored documents:
 - `pro/gotchas.md` — single file (dev-internal knowledge base)
 - `pro/agents/*.md` — single file per agent (themes/ handles display)
 - `pro/*.md` (CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md) — host-specific orchestration, not user-facing translations
-- `_meta/**/*` — runtime artifacts and RFCs
+- `meta/**/*` — runtime artifacts and RFCs
 - `themes/*.md` — theme files use native culture language
 
 ## Change identification (section-level)
@@ -147,6 +147,6 @@ AUDITOR Mode 7 M7-5 honors these exceptions.
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
 - Pattern source: `tinyhumansai/openhuman` AGENTS.md:118-120 (coverage on changed lines via diff-cover) — adapted for i18n mirroring
 - `pro/compliance/violations.md` — historical drift incidents this spec aims to prevent

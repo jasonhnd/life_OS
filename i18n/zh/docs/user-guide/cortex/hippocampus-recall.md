@@ -36,7 +36,7 @@ Hippocampus 是 Cortex 认知层的**跨 session 检索器**。每次你发消�
 
 ### Hippocampus 的承诺
 
-**你不需要贴,不需要解释,不需要提醒"我们上次聊过"**。Hippocampus 自动查你的 `_meta/sessions/INDEX.md`——一份编译好的、每个历史 session 一行摘要的索引——找到最相关的 3–5 条、读出详细 summary、再沿概念图谱扩散到另外 1–2 条"表面看不出关联但图谱上相邻"的 session。
+**你不需要贴,不需要解释,不需要提醒"我们上次聊过"**。Hippocampus 自动查你的 `meta/sessions/INDEX.md`——一份编译好的、每个历史 session 一行摘要的索引——找到最相关的 3–5 条、读出详细 summary、再沿概念图谱扩散到另外 1–2 条"表面看不出关联但图谱上相邻"的 session。
 
 **结果**: ROUTER 一上来就知道你在说的"那个信托结构方案"具体指什么,之前你是怎么推理的,GOVERNANCE 领域给了几分——所以 PLANNER 不会重走一遍,六领域不会重新分析同样的维度,REVIEWER 不会问你"这是不可逆决策吗"(它知道,上次就讨论过)。
 
@@ -89,7 +89,7 @@ ROUTER 奏折里会自然地引用历史:
 📎 Trace for: "上次 GOVERNANCE 当时给了 8/10"
 
 Cited signal: S:claude-20260315-1432
-Source: _meta/sessions/claude-20260315-1432.md
+Source: meta/sessions/claude-20260315-1432.md
 Content match: "GOVERNANCE 8/10 — 日本 NPO 不享受贷金业法豁免但
   对本次信托结构 B 无影响,因为信托本身不放贷。"
 Produced by: hippocampus (Step 0.5 Wave 1)
@@ -105,7 +105,7 @@ Hippocampus 的检索模型不是"搜索引擎匹配 + 排序"——而是模仿
 
 ### Wave 1 · 直接匹配
 
-1. 读 `_meta/sessions/INDEX.md`(一份编译好的一行摘要索引,~1MB at 2000 sessions,秒级扫描)
+1. 读 `meta/sessions/INDEX.md`(一份编译好的一行摘要索引,~1MB at 2000 sessions,秒级扫描)
 2. 如果 ROUTER 已经做了 subject 提取,先用 **ripgrep** 快过滤,把 1000+ 条压到 <50 条候选
 3. 把候选交给 Opus LLM 做**语义判断**(无 embedding、无 vector DB——用户决策 #3):"以下哪些 session 的 subject 和当前语义相关?"
 4. 读 top 3–5 的完整 summary 文件
@@ -114,7 +114,7 @@ Hippocampus 的检索模型不是"搜索引擎匹配 + 排序"——而是模仿
 ### Wave 2 · 强连接邻居
 
 从 Wave 1 的 session 拿到它们的 `concepts_activated` 列表,对每个 concept:
-- 读 `_meta/concepts/{domain}/{concept_id}.md`
+- 读 `meta/concepts/{domain}/{concept_id}.md`
 - 沿 `outgoing_edges` 走——**但只走权重 ≥ 3 的强边**
 - 找到每条邻居 concept 的 `provenance.source_sessions`——这些是"通过概念图谱间接相关"的 session
 - 去重(和 Wave 1 不重合)、排名、**最多加 2–3 条**
@@ -188,9 +188,9 @@ uv run tools/reindex.py
 
 ### 5. 调整阈值(谨慎)
 
-`_meta/config.md` 里:
+`meta/config.md` 里:
 
-字段的权威定义见 `references/cortex-spec.md` §`_meta/config.md`；下面只列与 hippocampus recall 最相关的几个开关。
+字段的权威定义见 `references/cortex-spec.md` §`meta/config.md`；下面只列与 hippocampus recall 最相关的几个开关。
 
 ```yaml
 top_k_signals: 5               # 最多播报几条信号到 ROUTER
@@ -206,7 +206,7 @@ hippocampus_timeout: [5, 15]   # 软超时/硬超时(秒)
 
 ### Hippocampus 会把我的隐私数据检索出来吗?
 
-**它只读 `_meta/sessions/*.md` 的 YAML summary**——这些摘要在 archiver Phase 2 写入时已经过隐私过滤。具体的私人细节(人名、金额、账号)**不会出现在 summary 里**,所以也不会进入 cognitive context。
+**它只读 `meta/sessions/*.md` 的 YAML summary**——这些摘要在 archiver Phase 2 写入时已经过隐私过滤。具体的私人细节(人名、金额、账号)**不会出现在 summary 里**,所以也不会进入 cognitive context。
 
 另外 hippocampus 的输出合同里每个 `summary` 字段**最多 1–2 句话**——杜绝把整段 session 原文贴给 ROUTER 的可能。
 
@@ -273,7 +273,7 @@ GWT 仲裁器能容忍**单源失败**——第一次 session、hippocampus 超�
 
 可能原因(按可能性排序):
 
-1. **你上周那次没走全朝议**——Express 快车道和 direct-handle 都不写 `_meta/sessions/{session_id}.md`,所以 INDEX.md 里没这条。解决: 让系统给那次对话补一个 retrospective,或手工在 `_meta/journal/` 里找到对应记录。
+1. **你上周那次没走全朝议**——Express 快车道和 direct-handle 都不写 `meta/sessions/{session_id}.md`,所以 INDEX.md 里没这条。解决: 让系统给那次对话补一个 retrospective,或手工在 `meta/journal/` 里找到对应记录。
 2. **subject 不匹配**——Wave 1 的 LLM 判断可能觉得本次 subject 和上周那次**不够语义相关**(比如上周你问的是"合伙人分工",本周问的是"授权边界")。解决: 直接贴出来——"参考 2026-03-15 合伙人分工的讨论"。
 3. **migration 没跑过**——新装 v1.7 后没跑 `uv run tools/migrate.py`,INDEX.md 是空的。解决: 先跑 migration。
 4. **时间窗外**——默认 3 个月。上次决策 100 天前,不进入默认扫描范围。解决: `uv run tools/migrate.py --since YYYY-MM-DD` 扩宽范围。
@@ -283,16 +283,16 @@ GWT 仲裁器能容忍**单源失败**——第一次 session、hippocampus 超�
 可能原因:
 
 - **Wave 1 LLM judgement 失准**——连续 2 周 median top-1 relevance 跌到 0.5 以下 = Wave 1 prompt 需要重新调优。这是 AUDITOR 的 `cognitive_annotation_quality` 指标会捕捉的模式(详见 [auditor-eval-history.md](./auditor-eval-history.md))。
-- **概念图谱存在"hub" 节点**(一个 concept 连了几十条强边)导致 Wave 2 扩散失控。检查 `_meta/concepts/SYNAPSES-INDEX.md`,找 edge count 特别高的节点,考虑拆分。
+- **概念图谱存在"hub" 节点**(一个 concept 连了几十条强边)导致 Wave 2 扩散失控。检查 `meta/concepts/SYNAPSES-INDEX.md`,找 edge count 特别高的节点,考虑拆分。
 - **短期内话题重复**——如果你一周问了 5 次类似问题,hippocampus 会反复返回同一批 session。GWT novelty 维度会降权,但如果 fatigue 还没触发,可能看起来很吵。等几次上朝就会平滑。
 
 ### "Trace 显示 '⚠️ signal no longer resolvable'"
 
 某个 `signal_id` 指向的文件被删除或改名了。常见原因:
 
-- 你手工在 `_meta/sessions/` 里删了某个历史 session 文件
+- 你手工在 `meta/sessions/` 里删了某个历史 session 文件
 - Git 分支切换后索引不一致
-- 概念被 retire 到 `_meta/concepts/_archive/`
+- 概念被 retire 到 `meta/concepts/_archive/`
 
 解决: 在 trace 出现这条警告时,原始 citation 仍然保留——你知道它**指向哪**,只是那个文件暂时/永久没了。如果是意外删除,从 git 历史恢复;如果是归档,内容仍在 `_archive/` 里可以手动看。
 

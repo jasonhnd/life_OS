@@ -109,7 +109,7 @@ GOVERNANCE/Audit 管"事后复盘"。和 EXECUTION 的"事前规划"形成闭环
 
 **用户问**："上个季度做了哪些决策，效果怎样？"
 
-GOVERNANCE/Audit 会读取 `_meta/decisions/` 和 `projects/*/decisions/`：
+GOVERNANCE/Audit 会读取 `meta/decisions/` 和 `projects/*/decisions/`：
 - 本季度有效决策：7 个
 - 事后评估：
   - 决策 A（换工作 offer）→ 评估 9/10（预期达成）
@@ -152,11 +152,11 @@ GOVERNANCE/Discipline 会帮用户设计外部约束：
   - 删除手机 app（不是暂时卸载，是删除）
   - 网站屏蔽（1Blocker / Cold Turkey）
   - 告诉朋友，每周 check in，违约有 $X 罚款
-- 记录到 `_meta/decisions/`，31 天后自动复盘
+- 记录到 `meta/decisions/`，31 天后自动复盘
 
 ## 可读取的资源
 
-- 决策历史：`~/second-brain/projects/*/decisions/` 和 `~/second-brain/_meta/decisions/`
+- 决策历史：`~/second-brain/projects/*/decisions/` 和 `~/second-brain/meta/decisions/`
 - 用户本地合同、雇佣协议
 - WebSearch 查询法律条文、诈骗模式
 - 主动问用户："有没有相关合同可以提供？"

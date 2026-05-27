@@ -19,7 +19,7 @@ Self-driven loop wrapping `/notion-sync`. Long-running Notion sync (large outbox
 ## Inputs
 
 - `$ARGUMENTS` (optional)
-  - `--resume` — continue from `_meta/runtime/<sid>/notion-sync-checkpoint.md` (set by previous failed tick)
+  - `--resume` — continue from `meta/runtime/<sid>/notion-sync-checkpoint.md` (set by previous failed tick)
   - empty — full sync, start fresh
 
 ## Host check (first action)
@@ -42,12 +42,12 @@ If invoked via ScheduleWakeup, extract tickCount from prior `reason` field. Else
 ### Step 2 · Load checkpoint (if --resume)
 
 If `--resume` flag OR prior tick produced a checkpoint:
-- Read `_meta/runtime/<sid>/notion-sync-checkpoint.md`
+- Read `meta/runtime/<sid>/notion-sync-checkpoint.md`
 - Restore: which entities are already synced, which pending, last error if any
 - Skip entities marked done in checkpoint
 
 If fresh start (no `--resume`, no prior checkpoint):
-- Read `_meta/config.md` for the list of configured Notion entities (`status_page_id` / `mirror_page_id` / `todo_database_id` / `inbox_database_id` / others)
+- Read `meta/config.md` for the list of configured Notion entities (`status_page_id` / `mirror_page_id` / `todo_database_id` / `inbox_database_id` / others)
 - Initialize pending list = all configured entities
 
 ### Step 3 · Run sync iteration
@@ -82,7 +82,7 @@ last_error: <if any>
 <tick history table>
 ```
 
-Write to `_meta/runtime/<sid>/notion-sync-checkpoint.md`. Overwrites the previous tick's checkpoint (single rolling checkpoint).
+Write to `meta/runtime/<sid>/notion-sync-checkpoint.md`. Overwrites the previous tick's checkpoint (single rolling checkpoint).
 
 ### Step 5 · Decide exit / continue / hard-cap
 
@@ -104,7 +104,7 @@ Always output one line:
 
 ### Step 7 · Audit trail (per tick)
 
-Write `_meta/runtime/<sid>/notion-sync-and-watch-tick-<N>.md` with frontmatter mirroring verify-release-and-watch's audit trail schema (but command name changed).
+Write `meta/runtime/<sid>/notion-sync-and-watch-tick-<N>.md` with frontmatter mirroring verify-release-and-watch's audit trail schema (but command name changed).
 
 ### Step 8 · Pacing
 
@@ -140,12 +140,12 @@ If CONTINUE:
 
 - **Checkpoint file corrupt** → fall back to fresh sync (warn user, do not block)
 - **Network total failure** → record in checkpoint, continue to next tick (not immediate retry)
-- **lifeos config (`_meta/config.md`) has NO Notion entity** → exit immediately with `Skipped: no Notion entity configured` (per Step 10a)
+- **lifeos config (`meta/config.md`) has NO Notion entity** → exit immediately with `Skipped: no Notion entity configured` (per Step 10a)
 
 ## Reference
 
 - Base command: `.claude/commands/notion-sync.md` (the single-iteration sync)
 - Spec: `references/self-driven-loops-spec.md`
-- RFC: `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
+- RFC: `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
 - Step 10a contract: `pro/CLAUDE.md` Step 10a (Notion sync responsibilities)
 - PII boundary: `references/outbound-pii-patterns.md`

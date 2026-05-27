@@ -329,7 +329,7 @@ in a day of user feedback than a month of polish."
 
 ### 3. 归档
 
-写到 `_meta/journal/2026-04-20-strategist-perfectionism.md`：
+写到 `meta/journal/2026-04-20-strategist-perfectionism.md`：
 
 ```yaml
 ---

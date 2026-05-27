@@ -78,7 +78,7 @@ Any reason outside this enum → dispatcher rejects with `F4 SCOPE_FAILURE: inva
 ### Applies (HARD enforcement)
 
 - Any planning doc that ROUTER escalates to PLANNER (full deliberation path)
-- Any RFC under `_meta/rfc/v<X.Y>-*.md` for features touching agent behavior or spec semantics
+- Any RFC under `meta/rfc/v<X.Y>-*.md` for features touching agent behavior or spec semantics
 - Any new agent (`pro/agents/<new>.md`) — requires at least 1 fixture verifying the agent's primary behavior
 - Any new HARD RULE introduced to SKILL.md or pro/CLAUDE.md
 
@@ -194,7 +194,7 @@ The TBD entry has explicit deadline (v1.8.8). Dispatcher accepts; reviewer-final
 
 ## Reference
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
 - Pattern source: `tinyhumansai/openhuman` AGENTS.md:507-521 (Feature design workflow + Planning rule)
 - Companion: `pro/agents/planner.md` (template definition), `pro/agents/dispatcher.md` (validation logic)
 - Related: `references/agent-spec.md` (agent definitions also benefit from this discipline)

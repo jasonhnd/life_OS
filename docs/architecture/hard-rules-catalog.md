@@ -305,7 +305,7 @@ Life OS 里散落在 SKILL.md、pro/CLAUDE.md、pro/GLOBAL.md、pro/agents/*.md 
 
 ### ST1. 单一真源规则
 
-**内容**: `projects/{project}/index.md` 是该项目 version/phase/status 的权威源。`_meta/STATUS.md` 是编译产物, 不可手写。
+**内容**: `projects/{project}/index.md` 是该项目 version/phase/status 的权威源。`meta/STATUS.md` 是编译产物, 不可手写。
 
 **出处**: `references/data-layer.md` 之 "Single Source of Truth Rules"
 
@@ -315,7 +315,7 @@ Life OS 里散落在 SKILL.md、pro/CLAUDE.md、pro/GLOBAL.md、pro/agents/*.md 
 
 ### ST2. 不直接写 projects/ / STATUS.md / user-patterns.md
 
-**内容**: archiver 只能写 `_meta/outbox/{session_id}/`, 不能直接写主目录的项目/状态/用户模式文件。合并由下次 RETROSPECTIVE 做。
+**内容**: archiver 只能写 `meta/outbox/{session_id}/`, 不能直接写主目录的项目/状态/用户模式文件。合并由下次 RETROSPECTIVE 做。
 
 **出处**: `pro/agents/archiver.md` 之 "Anti-patterns"
 

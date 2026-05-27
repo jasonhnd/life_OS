@@ -45,7 +45,7 @@ Free-form notes that won't fit elsewhere. The hippocampus retrieves by INDEX lin
 
 ---
 
-**Template usage**: copy this file to `_meta/concepts/{domain}/{your-concept-id}.md`, fill in real values, then run `life-os-tool rebuild-concept-index --root <your-second-brain>`.
+**Template usage**: copy this file to `meta/concepts/{domain}/{your-concept-id}.md`, fill in real values, then run `life-os-tool rebuild-concept-index --root <your-second-brain>`.
 
 Path conventions per `references/concept-spec.md`:
 - `concept_id`: lowercase, hyphenated, unique across the network

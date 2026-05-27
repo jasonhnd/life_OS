@@ -23,7 +23,7 @@ Notionは完全なストレージバックエンド（選択された場合）�
 
 3つのコンポーネントのみを使用：
 - 📬 Inbox（データベース）: デバイス間のメッセージキュー
-- 🧠 Status Dashboard（ページ）: `_meta/STATUS.md` のミラー
+- 🧠 Status Dashboard（ページ）: `meta/STATUS.md` のミラー
 - 🗄️ Archive: 読み取り専用のアーカイブアクセス
 
 ## フィールドマッピング

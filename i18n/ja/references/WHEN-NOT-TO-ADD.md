@@ -4,9 +4,9 @@
 
 ## ここに **属さない** もの
 
-1. **セッションごとのレポート、ランタイム成果物、audit trails** —— 例 "2026-05-25 archiver 出力"。→ 行き先：`_meta/runtime/<sid>/` または `_meta/sessions/<sid>.md`。
+1. **セッションごとのレポート、ランタイム成果物、audit trails** —— 例 "2026-05-25 archiver 出力"。→ 行き先：`meta/runtime/<sid>/` または `meta/sessions/<sid>.md`。
 2. **ユーザ向けチュートリアル / クイックスタート** —— 例 "lifeos インストール方法"。→ 行き先：`README.md` / `docs/` / `gitbooks/`。
-3. **内部設計メモ / ブレインストーミング / ドラフト** —— 例 "v2.0 cascade seal のアイデア"。→ 行き先：`_meta/rfc/v<X.Y>-*.md`（RFC）または `_meta/workpad/`（導入されれば）。
+3. **内部設計メモ / ブレインストーミング / ドラフト** —— 例 "v2.0 cascade seal のアイデア"。→ 行き先：`meta/rfc/v<X.Y>-*.md`（RFC）または `meta/workpad/`（導入されれば）。
 4. **Agent 定義または theme ファイル** —— それぞれ `pro/agents/` と `themes/` の専属領域。
 5. **規範性のない純粋なナラティブ** —— 例 "lifeos 各バージョンの歴史"。→ 行き先：`CHANGELOG.md` / RFC 参考。
 6. **三言語ミラーなしの spec** —— 各 `references/*-spec.md` はマージ前に `i18n/zh/references/<同名>.md` と `i18n/ja/references/<同名>.md` を準備必須。不完全な spec は不可。
@@ -36,6 +36,6 @@
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.4 F12
 - パターン源：`tinyhumansai/openhuman` `.claude/rules/README.md`
 - 連携：`references/i18n-diff-parity-spec.md`（v1.8.7 が本ディレクトリ全ファイル三言語整合を保証）

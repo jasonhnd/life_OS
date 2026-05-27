@@ -23,7 +23,7 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
 **接收**：
 - 用户原话（触发词）
 - 访问 second-brain 全部数据的权限
-- `_meta/strategic-lines.md` 和所有项目的 strategic 字段
+- `meta/strategic-lines.md` 和所有项目的 strategic 字段
 
 **不接收**：
 - 无限制（它是数据层的读者）
@@ -52,22 +52,22 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
 **2. DIRECTORY TYPE CHECK（目录类型检测）**
    - 含 `SKILL.md` + `pro/agents/` + `themes/` → Life OS 系统仓库（产品代码）
      询问："你在 Life OS 开发仓中。想做什么？a) 连接到 second-brain；b) 开发 Life OS，绑定此仓；c) 创建新 second-brain"
-   - 含 `_meta/` + `projects/` → second-brain，正常继续
+   - 含 `meta/` + `projects/` → second-brain，正常继续
    - 其他 → 普通项目仓库，按配置路径查找 second-brain
 
 **3. DATA LAYER CHECK（数据层检测）**
-   - `_meta/config.md` 存在 → 继续
+   - `meta/config.md` 存在 → 继续
    - 不存在 → **FIRST-RUN 模式**：
      a. 报告"📦 首次会话 — 未检测到 second-brain"
      b. 询问存储后端（GitHub / Google Drive / Notion，可多选）
-     c. 创建目录结构（`_meta/`, `projects/`, `areas/`, `wiki/`, `inbox/`, `archive/`, `templates/`）
-     d. 写 `_meta/config.md` 记录选定后端
+     c. 创建目录结构（`meta/`, `projects/`, `areas/`, `wiki/`, `inbox/`, `archive/`, `templates/`）
+     d. 写 `meta/config.md` 记录选定后端
      e. 跳过步骤 4-7，跳到步骤 8
      f. 简报："✅ Second-brain 已创建。还没有项目。告诉我你在做什么。"
 
 #### Phase B · 同步
 
-**4.** 读 `_meta/config.md` → 获取存储后端列表 + 上次同步时间戳
+**4.** 读 `meta/config.md` → 获取存储后端列表 + 上次同步时间戳
 
 **5. GIT 健康检查**（任何同步前先检测）：
    - `git worktree list` → 若有 "prunable" 或不存在路径，记录
@@ -81,22 +81,22 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
    - 对比时间戳，解决冲突（见 data-model.md）
    - 应用胜出的变更到主后端
    - 推送主后端状态到同步后端
-   - 更新 `_meta/sync-log.md` + last_sync_time
+   - 更新 `meta/sync-log.md` + last_sync_time
 
-**7. OUTBOX MERGE**：扫描 `_meta/outbox/` 中未合并的 session 目录
-   - 若 `_meta/.merge-lock` 存在且 < 5 分钟 → 跳过合并，进步骤 8
-   - 写 `_meta/.merge-lock` 记录 {platform, timestamp}
+**7. OUTBOX MERGE**：扫描 `meta/outbox/` 中未合并的 session 目录
+   - 若 `meta/.merge-lock` 存在且 < 5 分钟 → 跳过合并，进步骤 8
+   - 写 `meta/.merge-lock` 记录 {platform, timestamp}
    - 对每个 outbox 目录（按时间排序）：
      a. 读 manifest.md → session 信息和输出计数
      b. 移动 decisions/ → `projects/{project}/decisions/`
      c. 移动 tasks/ → `projects/{project}/tasks/`
-     d. 移动 journal/ → `_meta/journal/`
+     d. 移动 journal/ → `meta/journal/`
      e. 应用 index-delta.md → 更新 `projects/{project}/index.md`
      f. 追加 patterns-delta.md → `user-patterns.md`
      g. 移动 wiki/ → `wiki/{domain}/{topic}.md`
      h. 合并成功后删除 outbox 目录
-   - 全部合并后：编译 `_meta/STATUS.md`，git commit + push
-   - 删除 `_meta/.merge-lock`
+   - 全部合并后：编译 `meta/STATUS.md`，git commit + push
+   - 删除 `meta/.merge-lock`
    - 报告："📮 已合并 N 个离线 session：[详情]"
 
 #### Phase C · 版本 + 项目
@@ -116,7 +116,7 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
 
 **11. SOUL 状态 + 趋势**（用于 SOUL Health Report）
    - 11.1 读当前 `SOUL.md`。不存在则标 "uninitialized" 跳到 11.6
-   - 11.2 读 `_meta/snapshots/soul/` 最新快照（按文件名降序）
+   - 11.2 读 `meta/snapshots/soul/` 最新快照（按文件名降序）
    - 11.3 对每个维度计算 delta：evidence_Δ、challenges_Δ、confidence_Δ
      - 新增维度 → 🌱 NEW
      - 被删除 → 🗑️ REMOVED
@@ -128,7 +128,7 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
      - 最近 3 challenges > 最近 3 evidence → ❗ "conflict zone"
    - 11.6 喂入 SOUL Health Report：当前维度 + 新维度 + 被删除 + 特殊状态 + 趋势总结
 
-**12.** 读 `_meta/STATUS.md` + `_meta/lint-state.md`
+**12.** 读 `meta/STATUS.md` + `meta/lint-state.md`
    - lint-state 距上次运行 > 4h → 触发 AUDITOR lightweight patrol
 
 **13.** ReadProjectContext（绑定项目）— index.md + decisions + tasks + journal
@@ -138,15 +138,15 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
 #### Phase E · 战略 + 知识
 
 **15. STRATEGIC MAP COMPILATION**
-   - `_meta/strategic-lines.md` 不存在 → 静默跳过
+   - `meta/strategic-lines.md` 不存在 → 静默跳过
    - 读 strategic-lines.md → 所有 line 定义（driving_force、health_signals）
    - 读所有 `projects/*/index.md` → 收集 strategic 字段
    - 对每条 line：收集项目（按 role 排序，critical-path 优先）、匹配健康原型、写叙述、检测盲点
    - 跨层验证：SOUL × 战略线、wiki × flows、user-patterns × roles
    - 生成行动建议（🥇🥈🟢❓）
-   - 编译 `_meta/STRATEGIC-MAP.md`
+   - 编译 `meta/STRATEGIC-MAP.md`
 
-**16. DREAM REPORT**：读最新 `_meta/journal/*-dream.md`（若存在且未呈现）
+**16. DREAM REPORT**：读最新 `meta/journal/*-dream.md`（若存在且未呈现）
    - 包含："💤 上一会话系统做了一个梦：[摘要]"
    - 注明自动写入的 SOUL 维度（待 "What SHOULD BE" 填写，置信度 0.3）
    - 注明自动写入的 Wiki 条目（列路径，用户可删除不同意的）
@@ -252,15 +252,15 @@ v1.6.2 原则 "make SOUL and DREAM visible"：**SOUL Health Report** 和 **DREAM
 
 ```
 1. 平台检测 + 版本检查（同 Mode 0 步骤 8）
-2. 读 _meta/config.md → 后端列表 + 上次同步
+2. 读 meta/config.md → 后端列表 + 上次同步
 3. 多后端同步（若多后端，同 Mode 0 步骤 6）
 4. Outbox 合并（若有未合并的，同 Mode 0 步骤 7）
 5. 项目绑定：确认当前关联的项目或 area
 6. 读 user-patterns.md（若存在）
 7. 读 wiki/INDEX.md（若存在）→ 作为已知知识摘要传给 ROUTER
-8. 读 _meta/STRATEGIC-MAP.md（若存在）→ 作为战略上下文传给 ROUTER
-9. 读 _meta/STATUS.md
-10. 读 _meta/lint-state.md — 距上次 > 4h 则触发 AUDITOR lightweight patrol
+8. 读 meta/STRATEGIC-MAP.md（若存在）→ 作为战略上下文传给 ROUTER
+9. 读 meta/STATUS.md
+10. 读 meta/lint-state.md — 距上次 > 4h 则触发 AUDITOR lightweight patrol
 11. ReadProjectContext（绑定项目）— index.md + decisions + tasks
 12. 全局概览：列 Project + Area（仅标题和状态）
 ```
@@ -290,12 +290,12 @@ v1.6.2 原则 "make SOUL and DREAM visible"：**SOUL Health Report** 和 **DREAM
 ### 数据源
 
 ```
-1. _meta/STATUS.md（全局状态）
+1. meta/STATUS.md（全局状态）
 2. 遍历 projects/*/tasks/ 计算完成率
 3. areas/*/goals.md（目标进度）
-4. _meta/journal/（近期日志）
+4. meta/journal/（近期日志）
 5. projects/*/journal/（项目专属日志）
-6. _meta/STRATEGIC-MAP.md（战略线健康趋势，若存在）
+6. meta/STRATEGIC-MAP.md（战略线健康趋势，若存在）
 ```
 
 ### 决策追踪

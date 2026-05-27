@@ -189,8 +189,8 @@ ADVISOR 在以下条件满足时创建新的 SOUL 维度：
 
 ### 存储
 
-- 活跃快照：`_meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
-- 归档（>30 天）：`_meta/snapshots/soul/_archive/YYYY-MM-DD-HHMM.md`
+- 活跃快照：`meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
+- 归档（>30 天）：`meta/snapshots/soul/_archive/YYYY-MM-DD-HHMM.md`
 - 删除（>90 天）：从文件系统移除（git 和 Notion 中保留）
 
 ### 快照格式
@@ -284,7 +284,7 @@ SOUL.md 位于 second-brain 根目录：
 second-brain/
 ├── SOUL.md              ← 人格档案
 ├── user-patterns.md     ← 行为模式（不同：你做什么）
-├── _meta/
+├── meta/
 ├── projects/
 ├── areas/
 └── ...

@@ -8,7 +8,7 @@ Sole writer: pro/agents/memory-keeper.md (do NOT hand-edit; bypasses dedup)
 Invoked from: pro/agents/archiver.md wrap-up phase 5
 
 Initial seed populated by memory-keeper in seed mode during v1.8.7 release session.
-Sources scanned: _meta/rfc/v1.8.4-*.md / v1.8.5-cleanup-and-hardening.md /
+Sources scanned: meta/rfc/v1.8.4-*.md / v1.8.5-cleanup-and-hardening.md /
 v1.8.6-*.md / v1.8.7-openhuman-borrowed-patterns.md / pro/compliance/violations.md
 (technical-root-cause subset).
 
@@ -50,7 +50,7 @@ Subsequent updates: archiver Phase 5 invokes memory-keeper after every Adjourn.
 
 - **`.claude/settings.json` is gitignored — NOT a md-only violation** — Claude Code platform requires it; lifeos repo HARD RULE does not apply to gitignored platform-required files. Don't try to "fix" this file's presence on disk. (#v1.8.5/v1.8.6 expansion rationale)
 
-- **`_meta/` is gitignored — use `git add -f` for tracked files inside** — Adding new RFC or release-notes to `_meta/` needs `git add -f _meta/rfc/<new>.md` because `.gitignore:39` blanket-ignores `_meta/`. Existing tracked files (v1.8.5 RFC etc.) survive because git already tracks them, but new files default to ignored. (#v1.8.7 ship session)
+- **`meta/` is gitignored — use `git add -f` for tracked files inside** — Adding new RFC or release-notes to `meta/` needs `git add -f meta/rfc/<new>.md` because `.gitignore:39` blanket-ignores `meta/`. Existing tracked files (v1.8.5 RFC etc.) survive because git already tracks them, but new files default to ignored. (#v1.8.7 ship session)
 
 ## i18n + three-language sync
 

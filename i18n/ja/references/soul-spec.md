@@ -12,7 +12,7 @@ supersedes: soul.v1 (v1.8.4 以前；v1 エントリは 2027-05-23 に自動 dep
 
 SOUL.md はユーザーのパーソナリティアーカイブ —— 誰であるか、何を大切にしているか、ルールが衝突したときに価値がどう決断するかを記録する生きた憲法的価値層です。セカンドブレインのルートディレクトリに置かれます。
 
-> **v1.8.5 SOUL v2 ピボット —— eou-foundry より借用**: SOUL はもはや confidence band を持つ自由な dim リストではない。優先順位総順、X-over-Y formulation、outlier role slot を持つ構造化された価値スタックとなった。RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 4 に従う。
+> **v1.8.5 SOUL v2 ピボット —— eou-foundry より借用**: SOUL はもはや confidence band を持つ自由な dim リストではない。優先順位総順、X-over-Y formulation、outlier role slot を持つ構造化された価値スタックとなった。RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 4 に従う。
 
 ## なぜ v2
 

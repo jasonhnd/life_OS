@@ -8,7 +8,7 @@ introduced_in: v1.8.5
 
 # 失败分类法 F1-F17
 
-> AI agent 治理系统的架构级失败类别。每个类别有 definition + canonical repair。life_OS 从 eou-foundry 借鉴此分类法（Stage 3 Day 6 交付物，参考 `_meta/rfc/v1.8.5-cleanup-and-hardening.md`）。
+> AI agent 治理系统的架构级失败类别。每个类别有 definition + canonical repair。life_OS 从 eou-foundry 借鉴此分类法（Stage 3 Day 6 交付物，参考 `meta/rfc/v1.8.5-cleanup-and-hardening.md`）。
 
 ## 与现有 life_OS 分类法的关系
 
@@ -29,7 +29,7 @@ introduced_in: v1.8.5
 ### F2 — CONTEXT FAILURE
 - **定义**: 加载了错误 context 或遗漏权威源。
 - **修复**: 修 `context_manifest`。
-- **示例**: REVIEWER 决策但未读 SOUL.md；archiver Phase 4 读取过期的 `_meta/config.md`。
+- **示例**: REVIEWER 决策但未读 SOUL.md；archiver Phase 4 读取过期的 `meta/config.md`。
 
 ### F3 — SCHEMA FAILURE
 - **定义**: spec/输入/输出/validator schema 之间发散。
@@ -70,7 +70,7 @@ introduced_in: v1.8.5
 
 ### F9 — TRACE FAILURE
 - **定义**: 运行无法重建；trace 缺失或与声明步骤矛盾。
-- **修复**: 改进 trace 捕获；每步写入 `_meta/runtime/<sid>/`。
+- **修复**: 改进 trace 捕获；每步写入 `meta/runtime/<sid>/`。
 - **示例**: archiver Phase 4 完成但未写 `notion-sync-*.json` 审计 trail。
 
 ### F10 — RESPONSIBILITY FAILURE
@@ -117,8 +117,8 @@ introduced_in: v1.8.5
 
 并非每个诊断失败都变成改动。按 Stage 7 `no_change_record` 协议显式记录决策：
 
-- **change**: 已开 ECP（Edit-Change-Proposal）。详见 `_meta/incidents/{id}.change.md`。
-- **no_change**: 决定接受当前行为。按 Stage 7 §1 schema 记录到 `_meta/incidents/{id}.no-change.yml`（7 必填字段：incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition）。**缺记录看上去与未调查事件无异。**
+- **change**: 已开 ECP（Edit-Change-Proposal）。详见 `meta/decisions/{id}.change.md`。
+- **no_change**: 决定接受当前行为。按 Stage 7 §1 schema 记录到 `meta/decisions/{id}.no-change.yml`（7 必填字段：incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition）。**缺记录看上去与未调查事件无异。**
 
 ## 使用场景
 

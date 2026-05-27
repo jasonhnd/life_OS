@@ -15,7 +15,7 @@ context_manifest:
   supporting: [SOUL.md, the 2+ conflicting domain reports (summary only)]
   forbidden: [other domain agents' full thought processes, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/council-*.json]
+  allowed_scope: [meta/runtime/<sid>/council-*.json]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/]
 failure_modes:
   known: ["Leaks full report content between debating positions (information isolation breach)", "Converges to consensus too fast without 3 rounds"]

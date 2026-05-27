@@ -18,8 +18,8 @@
 ## Goal
 
 Cross-check what the spec docs (pro/agents/, pro/CLAUDE.md, references/)
-**promise** against what the runtime evidence (_meta/eval-history/,
-_meta/runtime/) actually **shows**. Surface gaps so the user knows what's
+**promise** against what the runtime evidence (meta/eval-history/,
+meta/runtime/) actually **shows**. Surface gaps so the user knows what's
 written-but-not-running.
 
 This is the v1.8.0 successor to the cron-driven audit; same logic, now
@@ -44,11 +44,11 @@ Build promise list: `(file, line, keyword, context_phrase)`.
 Look for matching evidence in:
 
 ```
-_meta/eval-history/maintenance/*     (current v1.8.0 path; user-invoked maintenance runs)
-_meta/eval-history/recovery/*        (archiver recovery runs)
-_meta/eval-history/auditor-patrol/*  (auditor patrol runs)
-_meta/eval-history/*-{YYYY-MM}.md    (monthly reports)
-_meta/runtime/*/X.json               (per-session audit trails)
+meta/eval-history/maintenance/*     (current v1.8.0 path; user-invoked maintenance runs)
+meta/eval-history/recovery/*        (archiver recovery runs)
+meta/eval-history/auditor-patrol/*  (auditor patrol runs)
+meta/eval-history/*-{YYYY-MM}.md    (monthly reports)
+meta/runtime/*/X.json               (per-session audit trails)
 ```
 
 For each promise, look for evidence file matching the topic + within the
@@ -64,7 +64,7 @@ Don't count `unverifiable` (e.g., promises about user behavior, not system).
 
 ### 4. Write report
 
-Write `_meta/eval-history/spec-compliance-{YYYY-MM-DD}.md`:
+Write `meta/eval-history/spec-compliance-{YYYY-MM-DD}.md`:
 
 ```markdown
 # Spec compliance audit · {YYYY-MM-DD}
@@ -96,12 +96,12 @@ Write `_meta/eval-history/spec-compliance-{YYYY-MM-DD}.md`:
 ```
 🔍 spec-compliance done · {ratio}% compliance
    {N} promises · {M} met · {K} gap
-   _meta/eval-history/spec-compliance-{date}.md
+   meta/eval-history/spec-compliance-{date}.md
 ```
 
 ## Output path
 
-- `_meta/eval-history/spec-compliance-{YYYY-MM-DD}.md`
+- `meta/eval-history/spec-compliance-{YYYY-MM-DD}.md`
 
 ## Notes
 

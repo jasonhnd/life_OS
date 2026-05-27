@@ -13,10 +13,10 @@ operating_hypothesis: |
   over-engineering proposals.
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, references/domains.md, references/refactoring-patterns.md, SOUL.md]
-  supporting: [wiki/INDEX.md (execution entries), _meta/methods/]
+  supporting: [wiki/INDEX.md (execution entries), meta/methods/]
   forbidden: [other domain agents, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/execution-*.json, _meta/runtime/<sid>/execution-report.md]
+  allowed_scope: [meta/runtime/<sid>/execution-*.json, meta/runtime/<sid>/execution-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside execution domain]
 failure_modes:
   known: ["Proposes new tool/agent when rule/schema/regression case would suffice (minimality fail)", "Skips energy/cost estimate"]
@@ -50,7 +50,7 @@ During analysis, you may request to read project files from the second-brain (`~
 
 ## Strategic Priority Weighting
 
-If `_meta/STRATEGIC-MAP.md` exists and the project under analysis has a strategic role:
+If `meta/STRATEGIC-MAP.md` exists and the project under analysis has a strategic role:
 - `critical-path`: Execution urgency is elevated. Delays here block the entire strategic line. Factor this into priority recommendations.
 - `enabler`: If the critical-path project is waiting on this enabler's output, treat as urgent even if the project's own deadline is far out.
 - `accelerator`: Normal priority unless the strategic line's time window is approaching.

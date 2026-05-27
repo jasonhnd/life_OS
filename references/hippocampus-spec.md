@@ -46,7 +46,7 @@ Hippocampus does **not**:
 
 **Parallelism**: Runs in parallel with two other Pre-Router Cognitive Layer components:
 
-- Concept lookup (reads `_meta/concepts/INDEX.md`)
+- Concept lookup (reads `meta/concepts/INDEX.md`)
 - SOUL dimension health check (reuses RETROSPECTIVE's SOUL Health Report)
 
 **Execution budget**:
@@ -78,7 +78,7 @@ model: opus
 
 - `Read`: load INDEX.md and individual session markdown files
 - `Grep`: fast pre-filter of INDEX.md before LLM judgment
-- `Glob`: enumerate `_meta/concepts/{domain}/*.md` for Wave 2/3 lookup
+- `Glob`: enumerate `meta/concepts/{domain}/*.md` for Wave 2/3 lookup
 - **No Write / Edit**: enforces read-only contract; modifications to concept files happen in ARCHIVER Phase 2 only
 
 **Model**: `opus`. The retrieval involves semantic matching across variable phrasing; Haiku does not have sufficient judgment for Wave 1 relevance scoring. v1.7 runs the entire Wave 1 pass on Opus.
@@ -96,8 +96,8 @@ hippocampus_input:
   current_project: string                # bound project scope, e.g. "passpay"
   current_theme: string                  # e.g. "zh-classical", "ja-kasumigaseki"
   session_context:
-    recent_inbox_items: [string]         # top 3-5 items from _meta/inbox/
-    current_strategic_lines: [string]    # line IDs from _meta/strategic-lines.md
+    recent_inbox_items: [string]         # top 3-5 items from meta/queue/
+    current_strategic_lines: [string]    # line IDs from meta/strategic-lines.md
   meta:
     invocation_id: string                # UUID for tracing
     timestamp: ISO 8601
@@ -123,11 +123,11 @@ The algorithm is modeled on biological **spreading activation** (Collins & Loftu
 
 ### Wave 1 — Direct Match
 
-1. **Read** `_meta/sessions/INDEX.md` (editor-generated one-line-per-session index; see `references/session-index-spec.md` for format).
+1. **Read** `meta/sessions/INDEX.md` (editor-generated one-line-per-session index; see `references/session-index-spec.md` for format).
 2. **Grep pre-filter**: if `extracted_subject` is available, run a case-insensitive regex pass across INDEX.md to cut 1000+ entries down to <50 candidates. If not, skip to LLM step with full INDEX.
 3. **LLM judgment** (user decision #3 — no embeddings, no vector DB): feed the pre-filtered index lines to Opus with the prompt:
    > "Current subject: `{subject}`. Below are past session summaries. Return the top 3-5 whose subject is semantically related to the current one. Return JSON only."
-4. **Read full content** of each candidate from `_meta/sessions/{session_id}.md`.
+4. **Read full content** of each candidate from `meta/sessions/{session_id}.md`.
 5. **Score**: `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap` where both sub-scores are Opus-judged on 0-1.
 6. Keep the top 3-5 sessions.
 
@@ -138,7 +138,7 @@ The algorithm is modeled on biological **spreading activation** (Collins & Loftu
 From Wave 1 sessions, expand along the **concept graph** to find related sessions that Wave 1 missed because they shared no surface keywords.
 
 1. For each Wave 1 session, extract the `concepts_activated` and `concepts_discovered` lists from its YAML frontmatter.
-2. For each concept ID, **Read** `_meta/concepts/{domain}/{concept}.md`.
+2. For each concept ID, **Read** `meta/concepts/{domain}/{concept}.md`.
 3. From that concept's `outgoing_edges` list, **follow edges with weight ≥ 3** (strong synapse — see `references/concept-spec.md` for weight semantics).
 4. For each neighbor concept, look up its `provenance.source_sessions` field — this yields sessions where the neighbor concept was activated.
 5. **Deduplicate** against the Wave 1 set, keep the **top 2-3 new sessions** ranked by the **4-signal relevance model** (v1.8.0 R-1.8.0-013, borrowed from llm_wiki, simplified for LLM-friendly computation):
@@ -278,15 +278,15 @@ Hippocampus must degrade gracefully — a failed retrieval should never block th
 
 | Failure | Behavior |
 |---------|----------|
-| `_meta/sessions/INDEX.md` does not exist | Orchestrator runs `tools/migrate.py` to auto-bootstrap before Step 0.5. If hippocampus still sees a missing index, return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` and let GWT surface it through `degradation_summary`. |
+| `meta/sessions/INDEX.md` does not exist | Orchestrator runs `tools/migrate.py` to auto-bootstrap before Step 0.5. If hippocampus still sees a missing index, return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` and let GWT surface it through `degradation_summary`. |
 | INDEX.md exists but is empty (new second-brain) | Return empty `retrieved_sessions`, note "first session — no cross-session memory yet" |
 | LLM judgment call fails (API error, rate limit) | Fallback to pure keyword match on INDEX.md (no semantic scoring), set `degraded: true` |
 | Concept files missing for Wave 2 target | Skip that specific branch, continue Wave 2 with remaining branches |
 | Entire concept graph missing | Skip Waves 2-3, return Wave 1 results with `waves_completed: [1]` |
-| Hard timeout (>15s) | Return partial results (whatever waves completed), log incident to `_meta/eval-history/hippocampus-{date}.md` |
+| Hard timeout (>15s) | Return partial results (whatever waves completed), log incident to `meta/eval-history/hippocampus-{date}.md` |
 | Read errors on session files | Skip that session, note in `degradation_reason` |
 
-**All failures log to `_meta/eval-history/`**, which AUDITOR reads during session-end patrol. Repeated failures of the same kind trigger a "module quality degradation" flag — same mechanism as the Escalate rate limit from brainstorm §6.
+**All failures log to `meta/eval-history/`**, which AUDITOR reads during session-end patrol. Repeated failures of the same kind trigger a "module quality degradation" flag — same mechanism as the Escalate rate limit from brainstorm §6.
 
 ---
 
@@ -300,7 +300,7 @@ Caching is out of scope for v1.7. If INDEX.md exceeds 5MB or hippocampus p95 lat
 
 ## 11. Quality Metrics
 
-Hippocampus is evaluated along three dimensions. Each is computed by AUDITOR at session-end and appended to `_meta/eval-history/cognitive-annotation-{date}.md`.
+Hippocampus is evaluated along three dimensions. Each is computed by AUDITOR at session-end and appended to `meta/eval-history/cognitive-annotation-{date}.md`.
 
 ### 11.1 `retrieved_session_count`
 
@@ -343,7 +343,7 @@ Explicit don'ts — violations are process errors, AUDITOR flags them.
 
 - **`references/cortex-spec.md`** — overall Cortex architecture, how hippocampus fits
 - **`references/concept-spec.md`** — concept markdown schema, edge weights, permanence tiers
-- **`references/session-index-spec.md`** — `_meta/sessions/INDEX.md` format, one-liner conventions
+- **`references/session-index-spec.md`** — `meta/sessions/INDEX.md` format, one-liner conventions
 - **`references/gwt-spec.md`** — GWT arbitrator that consumes hippocampus output
 - **`devdocs/architecture/cortex-integration.md`** — how Step 0.5 plugs into the 11-step workflow
 - **`devdocs/brainstorm/2026-04-19-cortex-architecture.md`** — original design discussion, user decisions, tradeoffs

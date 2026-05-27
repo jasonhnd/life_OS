@@ -18,10 +18,10 @@ operating_hypothesis: |
   omitting a relevant domain or top-3 SOUL dim.
 context_manifest:
   source_of_truth: [pro/CLAUDE.md, pro/GLOBAL.md, SOUL.md, references/refactoring-patterns.md, references/domains.md, references/scene-configs.md]
-  supporting: [wiki/INDEX.md, _meta/STRATEGIC-MAP.md, _meta/STATUS.md]
+  supporting: [wiki/INDEX.md, meta/STRATEGIC-MAP.md, meta/STATUS.md]
   forbidden: [pro/agents/reviewer.md, pro/agents/dispatcher.md, pro/agents/archiver.md, decisions/]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/planner-*.json]
+  allowed_scope: [meta/runtime/<sid>/planner-*.json]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
 failure_modes:
   known: ["Skips minimality first-ask (proposes new agent when rule/schema/regression would suffice)", "Plan omits a relevant domain (e.g. governance check missing for risk-domain subject)"]
@@ -91,7 +91,7 @@ If you're writing a planning doc for a change that genuinely doesn't need a fixt
 
 ## Strategic Map Cross-Impact Check
 
-If `_meta/STRATEGIC-MAP.md` exists and the Subject involves a project with strategic relationships:
+If `meta/STRATEGIC-MAP.md` exists and the Subject involves a project with strategic relationships:
 1. Read the bound project's `strategic.flows_to` and `strategic.flows_from`
 2. If the Subject's conclusions could affect downstream projects (via decision or cognition flows):
    → Add a dimension: "Cross-project impact assessment" → assign to the domain most relevant to the downstream project's scope

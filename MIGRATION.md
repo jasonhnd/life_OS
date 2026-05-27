@@ -1,6 +1,17 @@
 # Life OS 开发环境迁移手册
 
-> 把开发工作从一台 Mac 转到另一台。最后更新：2026-05-26（v1.8.7 ship + within-release patches）
+> 把开发工作从一台 Mac 转到另一台。最后更新：2026-05-27（v1.9.0 ship）
+
+> **v1.9.0 重要更新**：本手册下方诸多章节（特别是 §1.0 以前的 v1.6/v1.7/v1.8.0-1.8.4 升级路径）引用的 `bash setup-hooks.sh`、`scripts/lifeos-*.sh`、Python 依赖、hook 部署等 —— **均已在 v1.8.5 hook 层退役 + v1.8.7 md-only 本体论提交后不再适用**。
+>
+> v1.8.5+ 现状（保留作为历史参考的 .sh 提及说明）：
+> - 所有 `scripts/hooks/*.sh` 已删除（~30 个 bash hook 退役）
+> - `setup-hooks.sh`、`lifeos-version-check.sh`、`lifeos-pre-prompt-guard.sh` 等部署脚本已删除
+> - 当前 setup 跑 `/install-agents`（slash 命令，替代所有历史 bash 脚本）
+> - 当前 hooks 概念不再存在 — 替换为 inline LLM 程序（auditor Mode 3 等）
+> - 系统依赖：仅 git + Claude Code，不再需要 Python / jq / bash 脚本运行时
+>
+> 对从 v1.8.7 → v1.9.0 升级，参考 §0.0 v1.9.0 升级路径（待补，等 v1.9 release 后填）。
 
 ---
 
@@ -35,7 +46,7 @@ v1.8.7 新功能（全部按 spec 准备好，runtime 首次跑时激活）：
 - E10 Conscious Patrol 路径 D（retrospective Mode 0 user-in-loop checkpoint）
 - Karpathy 4 心法 + DA-1/DA-2/DA-3 default anti-patterns
 
-详见 `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` 完整 RFC + DR-01 至 DR-11 决策审计。
+详见 `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` 完整 RFC + DR-01 至 DR-11 决策审计。
 
 ### 0.2 从 v1.8.5 升级（跨 2 版本，需补 v1.8.6 中间）
 
@@ -61,11 +72,11 @@ v1.8.6 加了 md-only 强制（禁 `.yml` / `.json`），v1.8.7 又加 `.sql` / 
 
 ```bash
 1. 先读 release notes 了解累计变更：
-   - _meta/release-notes/v1.8.5.md
-   - _meta/release-notes/v1.8.6.md（如有，否则看 CHANGELOG.md v1.8.6 段）
-   - _meta/release-notes/v1.8.7.md
-2. 读 _meta/rfc/v1.8.5-cleanup-and-hardening.md（hook 退役 + EOU hardening，影响面大）
-3. 读 _meta/rfc/v1.8.7-openhuman-borrowed-patterns.md（v1.8.7 决策审计）
+   - meta/release-notes/v1.8.5.md
+   - meta/release-notes/v1.8.6.md（如有，否则看 CHANGELOG.md v1.8.6 段）
+   - meta/release-notes/v1.8.7.md
+2. 读 meta/rfc/v1.8.5-cleanup-and-hardening.md（hook 退役 + EOU hardening，影响面大）
+3. 读 meta/rfc/v1.8.7-openhuman-borrowed-patterns.md（v1.8.7 决策审计）
 4. 然后跟 v1.8.5 升级流程一样：git pull + /install-agents --refresh + /verify-release v1.8.7
 5. 第一次 session start 前检查 v1.8.5 hook 退役相关：
    - 你的 ~/.claude/settings.json 里如果还有 life-os-* hook 注册，可保留也可清理（v1.8.5+ 不依赖 hook 但旧 hook 残留不影响）
@@ -277,66 +288,59 @@ cp -r ~/Google_Antigravity/life-os ~/.claude/skills/life_OS
 
 ### Step 8 · 新机器：注册 hooks（v1.6.3a 加的自动安装）
 
+> ⚠️ **v1.8.5+ OBSOLETE** — `setup-hooks.sh` 已退役（hook layer 整体退役）。当前路径：在 Claude Code 跑 `/install-agents` slash 命令注册 agent wrappers。下方说明仅作历史参考。
+
 ```bash
+# pre-v1.8.5 only — script no longer exists
 bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 ```
 
-这个脚本会：
+这个脚本曾经会：
 1. 把 `lifeos-version-check.sh` + `lifeos-pre-prompt-guard.sh` 拷贝到 `~/.claude/scripts/`
 2. 在 `~/.claude/settings.json` 注册 SessionStart + UserPromptSubmit hooks
 3. 是幂等的——已注册的会跳过
 
 如果你之前在旧机器手动改过 `~/.claude/settings.json`，可以参考 `claude-global-settings.json`（迁移包里那份）merge 自定义部分。
 
-### Step 9 · 新机器：装 Python deps（可选，跑工具/测试时用）
+### Step 9 · ~~新机器：装 Python deps~~（v1.8.1+ OBSOLETE）
+
+> ⚠️ **v1.8.1+ OBSOLETE** — Layer 4 Python tools/ 在 v1.8.1 Wave 2 整体删除（zero-python pivot）。当前 lifeos 是 100% markdown，不需要 Python。下方说明仅作历史参考。
 
 ```bash
+# pre-v1.8.1 only — tools/ deleted entirely
 cd ~/Google_Antigravity/life-os
-
-# 用 uv（推荐）
 uv sync --extra dev
-
-# 或 pip
-python3.11 -m pip install --user pyyaml pytest ruff
 ```
 
 ### Step 10 · 新机器：验证
 
-跑一遍验证套件：
+> ⚠️ **大部分子步骤 v1.8.1/v1.8.5+ OBSOLETE** — make test / make bash-check / make lint / Python CLI / hook 触发测试都依赖已退役的层。**当前验证**：跑 `/verify-release v1.9.0`（slash 命令，含 11 check）。下方说明仅作历史参考。
 
 ```bash
+# pre-v1.8.5 historical verification (most steps no longer applicable)
 cd ~/Google_Antigravity/life-os
 
-# 1. 184 个测试应该全过
-make test
-# 期望: 184 passed in <1s
+# 1. 184 个测试 (v1.8.1 deleted Python; no longer available)
+# make test
 
-# 2. Bash 脚本语法 OK
-make bash-check
-# 期望: ✅ All bash scripts syntax OK
+# 2. Bash 脚本语法 (v1.8.5 deleted scripts/hooks/*.sh; no longer available)
+# make bash-check
 
-# 3. lint
-make lint
-# 期望: 至多几个 minor issues（4 个已知）
+# 3. lint (Python deleted)
+# make lint
 
-# 4. CLI smoke
-python3 tools/cli.py list
-python3 tools/cli.py stats
-# 期望: 列出 7 个子命令 + 显示真实 violations 统计
+# 4. CLI smoke (tools/cli.py deleted v1.8.1)
+# python3 tools/cli.py list
 
-# 5. Hook 触发测试
-echo '{"prompt":"上朝"}' | bash scripts/lifeos-pre-prompt-guard.sh | head -3
-# 期望: 出现 "🚨 LIFE OS HARD RULE · Trigger 上朝 detected"
+# 5. Hook 触发测试 (scripts/lifeos-pre-prompt-guard.sh deleted v1.8.5)
+# echo '{"prompt":"上朝"}' | bash scripts/lifeos-pre-prompt-guard.sh | head -3
 
-# 6. Hook 不误报测试
-LONG=$(printf '%.0sx' {1..600})
-echo "{\"prompt\":\"$LONG\"}" | bash scripts/lifeos-pre-prompt-guard.sh | head -3
-# 期望: 不出现 HARD RULE 提示（长 prompt 通过 v1.6.3a 守卫）
-
-# 7. Git 状态干净
+# 7. Git 状态干净 (still applicable)
 git status
 # 期望: working tree clean
 ```
+
+**v1.9.0 当前验证路径**：在 Claude Code 中跑 `/verify-release v1.9.0` slash 命令。
 
 ### Step 11 · 新机器：实战
 
@@ -428,7 +432,7 @@ A: 没有。所有 PII（人名、金额、具体公司、家人朋友）都被 
 A: 跑 `git log origin/main..HEAD` 看本地超前 commits。如果有：先 push 再迁移。今天的 44 commits 我全部 push 了，应该没残留。
 
 **Q: 新机器装完后 Cortex 默认是 OFF 吗？**
-A: 是。dev repo 里没有 `_meta/config.md`（dev repo 不是 second-brain）。只有在 use repo 才会读 cortex_enabled 配置。dev repo 始终 dev 模式。
+A: 是。dev repo 里没有 `meta/config.md`（dev repo 不是 second-brain）。只有在 use repo 才会读 cortex_enabled 配置。dev repo 始终 dev 模式。
 
 **Q: 我可以同时用两台机器吗？**
 A: 可以——v1.4.2 outbox 架构就是为多设备并行设计的。每台机器开 session 时各写自己 outbox，下次 Start Session 时合并。但 dev repo 跨机器要小心 git push/pull 顺序，避免 force-push。

@@ -78,7 +78,7 @@ N/A: cleanup-only        # 移除死代码/无用引用，无行为变化
 ### 适用（硬性强制）
 
 - ROUTER 升级到 PLANNER 的任何规划文档（full deliberation 路径）
-- 任何 `_meta/rfc/v<X.Y>-*.md` 中触及 agent 行为或 spec 语义的 RFC
+- 任何 `meta/rfc/v<X.Y>-*.md` 中触及 agent 行为或 spec 语义的 RFC
 - 任何新 agent（`pro/agents/<new>.md`）—— 至少需 1 个 fixture 验证 agent 主要行为
 - 任何引入 SKILL.md 或 pro/CLAUDE.md 的新 HARD RULE
 
@@ -194,7 +194,7 @@ TBD 条目有明确截止（v1.8.8）。Dispatcher 接受；reviewer-final flag 
 
 ## 引用
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
 - 模式来源：`tinyhumansai/openhuman` AGENTS.md:507-521（Feature design workflow + 规划规则）
 - 配套：`pro/agents/planner.md`（模板定义）、`pro/agents/dispatcher.md`（校验逻辑）
 - 相关：`references/agent-spec.md`（agent 定义也得益于此纪律）

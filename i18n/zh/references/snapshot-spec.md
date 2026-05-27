@@ -15,8 +15,8 @@ SOUL snapshots 是每次会话结束时捕获的小型、不可变的 metadata �
 | Artefact | 记录什么 |
 |----------|----------------|
 | `SOUL.md` | 当前权威身份状态 |
-| `_meta/snapshots/soul/` | **用于趋势计算的历史 SOUL 状态（本 spec）** |
-| `_meta/concepts/` | synaptic 网络（`references/concept-spec.md`） |
+| `meta/snapshots/soul/` | **用于趋势计算的历史 SOUL 状态（本 spec）** |
+| `meta/concepts/` | synaptic 网络（`references/concept-spec.md`） |
 | `wiki/` | 可复用的世界知识 |
 
 snapshots 是仅 metadata —— 永不复制 SOUL 正文内容。它们记录 SOUL 在某一时点的数值形态，以便 retrospective 比较 "当时" 与 "现在"。
@@ -29,22 +29,22 @@ snapshots 是仅 metadata —— 永不复制 SOUL 正文内容。它们记录 S
 2. **仅 metadata（Metadata-only）** —— snapshots 存维度名、confidence、证据计数、tier。它们不存 SOUL 正文文本。
 3. **每会话创建（Created every session）** —— 即使是琐碎会话也要。缺失 snapshot 会破坏趋势计算。
 4. **小（Small）** —— 每个 snapshot 典型 <5KB。成千上万个 snapshot 仍代价低廉。
-5. **积极归档（Archived aggressively）** —— 活跃 snapshot 保持热存 30 天，然后移入 `_archive/`，90 天后删除。Git 历史保留完整审计链。**Snapshots 不同步到 Notion** —— 按用户决策 #12 与 `cortex-spec.md` §Anti-patterns，所有 Cortex/`_meta/` 数据（concepts、synapses、snapshots）留本地。Notion 只接收会话摘要与决策记录。
+5. **积极归档（Archived aggressively）** —— 活跃 snapshot 保持热存 30 天，然后移入 `_archive/`，90 天后删除。Git 历史保留完整审计链。**Snapshots 不同步到 Notion** —— 按用户决策 #12 与 `cortex-spec.md` §Anti-patterns，所有 Cortex/`meta/` 数据（concepts、synapses、snapshots）留本地。Notion 只接收会话摘要与决策记录。
 
 ---
 
 ## 文件位置（File Location）
 
 ```
-_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
+meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
 ```
 
-文件名中的时间戳**必须来自捕获时的真实 `date` 命令** —— 不得伪造（v1.4.4b 的决策）。若系统时钟不可用，中止 snapshot 写入并把失败记入 `_meta/cortex/decay-log.md`。
+文件名中的时间戳**必须来自捕获时的真实 `date` 命令** —— 不得伪造（v1.4.4b 的决策）。若系统时钟不可用，中止 snapshot 写入并把失败记入 `meta/cortex/decay-log.md`。
 
 ### 保留路径
 
-- `_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` —— 活跃 snapshot（30 天内）
-- `_meta/snapshots/soul/_archive/{YYYY-MM-DD-HHMM}.md` —— 已归档 snapshot（30-90 天）
+- `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` —— 活跃 snapshot（30 天内）
+- `meta/snapshots/soul/_archive/{YYYY-MM-DD-HHMM}.md` —— 已归档 snapshot（30-90 天）
 - 超过 90 天的 snapshot 从文件系统删除；审计链只留在 git 历史（按用户决策 #12，snapshot 仅本地）
 
 ---
@@ -76,7 +76,7 @@ dimensions:
 |-------|-----------|
 | `snapshot_id` | 必须与文件名主干精确一致 |
 | `captured_at` | 必须是来自系统时钟的真实 ISO 8601 时间戳 |
-| `session_id` | 必须是 `_meta/sessions/` 里一个有效 session ID |
+| `session_id` | 必须是 `meta/sessions/` 里一个有效 session ID |
 | `previous_snapshot` | 前一份 snapshot 的文件名，或首个为 `null` |
 | `dimensions` | 只包含 `confidence > 0.2` 的维度（跳过噪声） |
 | `dimensions[].tier` | 从 confidence 派生（见下文 Tier Mapping） |
@@ -113,7 +113,7 @@ archiver Phase 2
     │        - 从 confidence 决定 tier
     │        - 复制 name、confidence、evidence_count、challenges
     │   4. 找到最新既有 snapshot → 设 `previous_snapshot`
-    │   5. 写入 _meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
+    │   5. 写入 meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
     │   6. 写入后文件变只读（不要编辑）
     └── Step 4 —— 清理（见 Archive Policy）
 ```
@@ -162,8 +162,8 @@ retrospective 也发出用于 tier 转变与冲突检测的徽章：
 
 `archiver` Phase 2 Step 4 在 snapshot 创建后执行清理：
 
-1. 对 `_meta/snapshots/soul/` 中 `captured_at` **超过 30 天**的每个文件：移入 `_meta/snapshots/soul/_archive/`（保留文件名）
-2. 对 `_meta/snapshots/soul/_archive/` 中 `captured_at` **超过 90 天**的每个文件：从文件系统删除
+1. 对 `meta/snapshots/soul/` 中 `captured_at` **超过 30 天**的每个文件：移入 `meta/snapshots/soul/_archive/`（保留文件名）
+2. 对 `meta/snapshots/soul/_archive/` 中 `captured_at` **超过 90 天**的每个文件：从文件系统删除
 3. 清理是幂等的 —— 运行两次结果相同
 
 删除是安全的，因为：
@@ -188,11 +188,11 @@ retrospective 也发出用于 tier 转变与冲突检测的徽章：
 
 v1.7 之前没有 snapshot（v1.6.2 引入机制；v1.6.2a 把它稳定下来）。对于早于 v1.6.2 的 second-brain：
 
-1. `tools/migrate.py` 扫描 `_meta/journal/` 中的 SOUL delta 块（由 ADVISOR 发出的 `🔮 SOUL Delta` 节）
+1. `tools/migrate.py` 扫描 `meta/journal/` 中的 SOUL delta 块（由 ADVISOR 发出的 `🔮 SOUL Delta` 节）
 2. 对每份含 SOUL delta 的 journal 条目，合成一份以该 journal 条目日期为时间戳的 snapshot
 3. 合成的 snapshot 在 frontmatter 带 `provenance: synthetic`，以便 retrospective 区分合成与自然 snapshot
 4. 迁移止于近 3 个月内最早的 journal 条目（用户决策 #7 —— 与所有其他迁移范围对齐）。更深历史不重建；signal 降得太多。
-5. 把迁移结果记入 `_meta/cortex/bootstrap-status.md`
+5. 把迁移结果记入 `meta/cortex/bootstrap-status.md`
 
 迁移是幂等的。合成 snapshot 被趋势算法视同自然 snapshot —— `provenance` 字段只为审计存在。
 
@@ -202,7 +202,7 @@ v1.7 之前没有 snapshot（v1.6.2 引入机制；v1.6.2a 把它稳定下来）
 
 `retrospective` 是 Start Session 期间 snapshot 的唯一读者。其契约：
 
-1. 按 `captured_at` 降序列出 `_meta/snapshots/soul/` 中文件
+1. 按 `captured_at` 降序列出 `meta/snapshots/soul/` 中文件
 2. 取前 2 份（当前与前一份）
 3. 若少于 2 份 snapshot，回退到 "首次 snapshot" 行为（所有维度渲染为 🌱）
 4. 解析两份 YAML frontmatter
@@ -236,16 +236,16 @@ retrospective 在正常运行时不读取已归档 snapshot。`_archive/` 仅在
 - **典型 < 5KB，硬警告阈值 < 10KB**
 - **30 天热、30-90 天归档、>90 天删除** —— 归档策略幂等
 - **`archiver` Phase 2 拥有写入，`retrospective` Mode 0 拥有读取** —— 无其他角色触碰 snapshot 文件
-- **仅本地 —— 无 Notion 同步** —— snapshot 是 Cortex/`_meta/` 数据；审计链住在 git
+- **仅本地 —— 无 Notion 同步** —— snapshot 是 Cortex/`meta/` 数据；审计链住在 git
 
 ---
 
 ## 相关规范（Related Specs）
 
 - `references/soul-spec.md` —— SOUL 模式、维度生命周期、Health Report 格式的消费者
-- `references/session-index-spec.md` —— `session_id` 字段引用 `_meta/sessions/` 中的条目
+- `references/session-index-spec.md` —— `session_id` 字段引用 `meta/sessions/` 中的条目
 - `references/cortex-spec.md` —— 整体 Cortex 架构；snapshot 是五个 v1.7 核心 artifact 之一
-- `references/concept-spec.md` —— 同胞 `_meta/` 数据层；相同的 markdown 优先原则与仅本地约束
+- `references/concept-spec.md` —— 同胞 `meta/` 数据层；相同的 markdown 优先原则与仅本地约束
 - `references/eval-history-spec.md` —— AUDITOR 的 `soul_reference_quality` 维度消费 snapshot 派生的趋势 signal
 - `pro/agents/archiver.md` —— Phase 2 Step 3 拥有 snapshot 写入
 - `pro/agents/retrospective.md` —— Mode 0 拥有 Health Report 的 snapshot 读取

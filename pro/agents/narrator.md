@@ -146,7 +146,7 @@ Before emitting the final wrapped Summary Report, narrator MUST verify:
 
 **Failure mode**: if any of the 3 self-check rules fails, fall back to
 unwrapped Summary Report (no rewrite cycle) and log the citation issue to
-`_meta/eval-history/narrator-{date}.md`. No separate validator subagent
+`meta/eval-history/narrator-{date}.md`. No separate validator subagent
 is launched. No 2-rewrite budget. No 21s/8s wall-clock fallback timer.
 
 ---

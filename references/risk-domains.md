@@ -39,7 +39,7 @@ When ROUTER detects ANY of R1-R8 in user message OR REVIEWER's verdict involves 
 - Anything fabricated = F17 VALUE_HALLUCINATION + B confabulated-path violation.
 
 ### Req 3 — Decision record
-- Outcome MUST be written to `_meta/decisions/<id>.md` with:
+- Outcome MUST be written to `meta/decisions/<id>.md` with:
   - subject
   - alternatives_considered (≥2 rejected options + why)
   - decision rationale
@@ -47,14 +47,14 @@ When ROUTER detects ANY of R1-R8 in user message OR REVIEWER's verdict involves 
   - reviewer name
   - reviewed_at
   - reversal_condition (what would warrant reconsidering)
-- If decision is "no_change" / "not now" → use Stage 7 `no_change_record` format (7-field YAML in `_meta/incidents/`).
+- If decision is "no_change" / "not now" → use Stage 7 `no_change_record` format (7-field YAML in `meta/decisions/`).
 
 ### Req 4 — Cannot_delegate
 - The decision MUST NOT be delegated to a subagent or future ROUTER session.
 - Subagent reports are inputs; final decision happens in the orchestrator main context with user present.
 
 ### Req 5 — Trace required
-- Full audit trail MUST exist in `_meta/runtime/<sid>/` per R12 spec:
+- Full audit trail MUST exist in `meta/runtime/<sid>/` per R12 spec:
   - Every subagent invocation: `<subagent>-<step>.json`
   - REVIEWER verdict: `reviewer-final-verdict.json` with `value_invocations[]` populated
   - User confirmation message timestamp + literal text

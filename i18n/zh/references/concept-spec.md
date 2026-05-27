@@ -18,7 +18,7 @@ Concept 文件是 Cortex 突触网络（synaptic network）中的节点。每个
 | `user-patterns.md` | 你做什么（行为模式） | "倾向于回避财务维度" |
 | `SOUL.md` | 你是谁（价值观、人格） | "风险偏好：中高" |
 | `wiki/` | 你知道什么（可复用的世界结论） | "NPO lending has no 貸金業法 exemption" |
-| `_meta/concepts/` | **什么连接什么（synaptic graph）** | "company-a-holding" 节点 + 通往其他概念的边 |
+| `meta/concepts/` | **什么连接什么（synaptic graph）** | "company-a-holding" 节点 + 通往其他概念的边 |
 
 SOUL 管理人。Wiki 管理知识。Concepts 管理让系统知道"如果 A 被激活，还应该点亮什么"的图。它们不得混用。
 
@@ -26,7 +26,7 @@ SOUL 管理人。Wiki 管理知识。Concepts 管理让系统知道"如果 A 被
 
 ## 原则（Principles）
 
-1. **从零生长**（Grows from zero）—— `_meta/concepts/` 起始为空。无需初始化。
+1. **从零生长**（Grows from zero）—— `meta/concepts/` 起始为空。无需初始化。
 2. **一个概念 = 一个文件（严格）**（One concept = one file, strict）—— 无多主题编纂。禁止把单一概念拆分到多个文件（反模式，参见 §10）。
 3. **边与节点同居**（Edges live with nodes）—— 出向 synapse 边保存在源概念的 YAML frontmatter 中。反向索引编译到 `SYNAPSES-INDEX.md`（从不手写）。
 4. **在严格标准下自动写入**（Auto-written under strict criteria）—— 当证据积累达到标准时，`archiver` Phase 2 自动创建概念。用户通过删除或说 "undo recent concept" 来干预。
@@ -38,12 +38,12 @@ SOUL 管理人。Wiki 管理知识。Concepts 管理让系统知道"如果 A 被
 ## 文件位置（File Location）
 
 ```
-_meta/concepts/{domain}/{concept_id}.md
+meta/concepts/{domain}/{concept_id}.md
 ```
 
 | 路径段 | 含义 |
 |--------------|---------|
-| `_meta/concepts/` | 概念网络的根 |
+| `meta/concepts/` | 概念网络的根 |
 | `{domain}/` | 主题分区（见下文） |
 | `{concept_id}.md` | 每个概念一个文件，按其 ID 命名 |
 
@@ -65,10 +65,10 @@ Domain 是概念的顶层主题槽。最小集合（与 `wiki-spec.md` 和 `meth
 
 ### 保留路径（Reserved paths）
 
-- `_meta/concepts/INDEX.md` —— 所有概念的已编译单行摘要（由 `retrospective` Mode 0 重新生成）
-- `_meta/concepts/SYNAPSES-INDEX.md` —— 已编译的反向边索引（由 `archiver` Phase 2 重新生成）
-- `_meta/concepts/_tentative/` —— 置信度阈值之下概念的暂存区
-- `_meta/concepts/_archive/` —— 已退役的概念（为审计而保留，在激活时被忽略）
+- `meta/concepts/INDEX.md` —— 所有概念的已编译单行摘要（由 `retrospective` Mode 0 重新生成）
+- `meta/concepts/SYNAPSES-INDEX.md` —— 已编译的反向边索引（由 `archiver` Phase 2 重新生成）
+- `meta/concepts/_tentative/` —— 置信度阈值之下概念的暂存区
+- `meta/concepts/_archive/` —— 已退役的概念（为审计而保留，在激活时被忽略）
 
 ---
 
@@ -133,7 +133,7 @@ Body content (markdown, optional but encouraged)...
 2. 📈 Reinforcement（强化） — 每次会话激活递增 activation_count，更新 last_activated，强化边
 3. ✅ Promotion（晋升） — tentative → confirmed（≥3 个独立会话）→ canonical（用户固定 或 ≥10 个独立会话）
 4. 📉 Decay（衰减） — archiver 在每次 Adjourn 运行衰减通道（用户决策 #10）
-5. 💤 Retirement — last_activated > 90 days + all outgoing edges weight < 1.0 + permanence ≠ identity → move to _meta/concepts/_archive/ (activation_count preserved, never decremented)
+5. 💤 Retirement — last_activated > 90 days + all outgoing edges weight < 1.0 + permanence ≠ identity → move to meta/concepts/_archive/ (activation_count preserved, never decremented)
 6. ↩️ Undo（撤销） — 用户说 "undo recent concept" 或手动删除文件
 ```
 
@@ -149,7 +149,7 @@ Body content (markdown, optional but encouraged)...
    4. **不是个人、价值、特质或流程** —— 人属于 SOUL / user-patterns；价值/特质属于 SOUL；流程属于方法库
    5. **隐私过滤器放行** —— 剥离姓名（公共人物除外）、具体金额/账户/ID、家人/朋友指代、可追溯的日期+地点组合。若剥离后候选变得无意义 → 丢弃（这是一条个人笔记，不是可复用概念）
    6. **Domain 路由成功** —— LLM 从 §File Location Domain partitions 列出的 domain 中选一个（或创建新 domain 目录）。无法路由到任何 domain 的候选还不是一个概念
-3. 全部 6 条通过 → 在 `_meta/concepts/_tentative/{domain}/{concept_id}.md` 创建文件
+3. 全部 6 条通过 → 在 `meta/concepts/_tentative/{domain}/{concept_id}.md` 创建文件
 4. 任一标准失败 → 丢弃，记录到 `decay-log.md` 以供日后审计
 
 > 实现现场：`pro/agents/archiver.md` §Phase 2 Mid-Step（Concept Extraction + Hebbian Update）与 `tools/migrate.py` 使用相同的 6 条标准枚举。本规范改动时，两者必须同步更新。
@@ -161,7 +161,7 @@ Body content (markdown, optional but encouraged)...
 | `tentative → confirmed` | 概念在 **≥3 个独立会话**中被激活，文件从 `_tentative/` 移到 `{domain}/` |
 | `confirmed → canonical` | 用户手动固定（frontmatter 中 `status: canonical`），或概念已在 **≥10 个独立会话**中被激活 |
 
-晋升记录在 `_meta/cortex/decay-log.md` 中，带时间戳和触发会话。
+晋升记录在 `meta/cortex/decay-log.md` 中，带时间戳和触发会话。
 
 ### Hotness 阈值理由（v1.8.7 显式化，按 RFC §2.7 A3）
 
@@ -173,7 +173,7 @@ Body content (markdown, optional but encouraged)...
 
 这些阈值原本隐式在 `archiver` Phase 2 和 `pro/agents/knowledge-extractor.md` 代码路径中。v1.8.7 **在本 spec 中显式化**，让它们可审计、可调、对未来读者可见无需读代码。**v1.8.6 行为不变** —— 仅文档表层提升。
 
-模式来源：tinyhumansai/openhuman "hotness-driven topic materialization"（实体出现越多，其 topic tree 构建越积极）。lifeos 通过这些阈值采纳 hotness *概念*但保持手动触发（knowledge-extractor 决定）—— lifeos 不自动物化既有概念文件之外的摘要。详见 `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.7 A3 关于保持手动而非自动晋升的理由。
+模式来源：tinyhumansai/openhuman "hotness-driven topic materialization"（实体出现越多，其 topic tree 构建越积极）。lifeos 通过这些阈值采纳 hotness *概念*但保持手动触发（knowledge-extractor 决定）—— lifeos 不自动物化既有概念文件之外的摘要。详见 `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.7 A3 关于保持手动而非自动晋升的理由。
 
 ### 强化（Reinforcement）
 
@@ -203,7 +203,7 @@ archiver Phase 2 在每次 Adjourn 运行衰减通道（decay pass）（用户�
 2. **边权重崩塌** —— 当前 Adjourn 衰减通道之后，`outgoing_edges` 中每条边的 `weight < 1.0`（即：该概念已与活跃图断连），**且**
 3. **Permanence 层级不是 `identity`** —— identity 层概念永不退役（见 §5 衰减表）
 
-当三项条件同时成立时，概念在下次 Adjourn 通道被移至 `_meta/concepts/_archive/{domain}/{concept_id}.md`。已归档概念：
+当三项条件同时成立时，概念在下次 Adjourn 通道被移至 `meta/concepts/_archive/{domain}/{concept_id}.md`。已归档概念：
 - 仍在 git 历史中（无数据丢失）
 - 激活时被 hippocampus 忽略
 - 在巡检期间对 AUDITOR 可见
@@ -339,16 +339,16 @@ Concept 文件存储**可跨会话复用的知识**，不是个人信息。
 
 v1.7 之前没有 concepts 目录。迁移到 v1.7 仅运行一次，由 `tools/migrate.py` 编排（用户决策 #7）：
 
-1. 扫描 `_meta/journal/` 条目的**最近 3 个月**（有界窗口 —— 更早的材料不触动）
+1. 扫描 `meta/journal/` 条目的**最近 3 个月**（有界窗口 —— 更早的材料不触动）
 2. 使用与 archiver Hebbian 通道相同的算法提取候选概念
 3. 对每个通过 6 条标准检查和隐私过滤器的候选：
-   - 在 `_meta/concepts/_tentative/{domain}/{concept_id}.md` 下创建文件
+   - 在 `meta/concepts/_tentative/{domain}/{concept_id}.md` 下创建文件
    - 初始 `activation_count` = 该概念出现的独立会话计数（上限 10）
 4. 从同一 journal 条目中的共现计算初始 synapse 权重（上限 10）
 5. `activation_count ≥ 3` 的概念从 `_tentative/` 移到 `{domain}/`，状态 `status: confirmed`
 6. `activation_count ≥ 10` 的概念得到 `status: canonical`
 7. 生成首个 `SYNAPSES-INDEX.md` 和 `INDEX.md`
-8. 把迁移结果记录到 `_meta/cortex/bootstrap-status.md`
+8. 把迁移结果记录到 `meta/cortex/bootstrap-status.md`
 
 迁移是幂等的 —— 对已迁移的树再次运行不会产生额外文件。
 
@@ -369,17 +369,17 @@ v1.7 之前没有 concepts 目录。迁移到 v1.7 仅运行一次，由 `tools/
 
 ## 每个角色如何使用 concepts（How Each Role Uses Concepts）
 
-所有角色在引用 `_meta/concepts/INDEX.md` 之前检查它是否存在。若不存在或为空，该角色在无概念输入的情况下正常运作。
+所有角色在引用 `meta/concepts/INDEX.md` 之前检查它是否存在。若不存在或为空，该角色在无概念输入的情况下正常运作。
 
 | 角色 | 读取什么 | 如何使用 |
 |------|---------------|-----------------|
-| **hippocampus** | `_meta/concepts/INDEX.md` + 扩散激活路径上的文件 | 为 GWT 仲裁生成 "warm concepts" 信号 |
+| **hippocampus** | `meta/concepts/INDEX.md` + 扩散激活路径上的文件 | 为 GWT 仲裁生成 "warm concepts" 信号 |
 | **gwt-arbitrator** | 由 hippocampus 产出的 concept-link 信号 | 将概念信号加权到 salience 标量 |
 | **ROUTER** | 包含 warm concepts 的带注释输入 | 更清晰的意图分类 —— 把 warm concepts 作为上下文，而非事实 |
 | **Six Domains (Pro)** | 在派遣上下文中传入的概念条目 | 从既有观念出发做分析，而非重新推导 |
-| **REVIEWER** | `_meta/concepts/INDEX.md` | 一致性检查 —— 标记新结论与 canonical 概念冲突的情形 |
-| **AUDITOR** | `_meta/concepts/` 目录（巡检期间） | 概念健康 —— 陈旧节点、孤立边、隐私违规 |
-| **DREAM** | `_meta/concepts/INDEX.md` + `SYNAPSES-INDEX.md` | N3 使用图做跨领域联想；REM 创造性连接 |
+| **REVIEWER** | `meta/concepts/INDEX.md` | 一致性检查 —— 标记新结论与 canonical 概念冲突的情形 |
+| **AUDITOR** | `meta/concepts/` 目录（巡检期间） | 概念健康 —— 陈旧节点、孤立边、隐私违规 |
+| **DREAM** | `meta/concepts/INDEX.md` + `SYNAPSES-INDEX.md` | N3 使用图做跨领域联想；REM 创造性连接 |
 | **archiver** | 会话 frames + 既有概念文件 | 在 Phase 2 运行 Hebbian 更新算法 + 衰减通道（写入 `outgoing_edges`、`SYNAPSES-INDEX.md`，并更新 `activation_count`/`last_activated`） |
 | **retrospective** | 所有概念文件（Mode 0 期间） | 重新生成 `INDEX.md`（只读；衰减是 archiver 的写入职责，参见 §Decay）。在简报中标记 dormant 概念。 |
 
@@ -393,9 +393,9 @@ v1.7 之前没有 concepts 目录。迁移到 v1.7 仅运行一次，由 `tools/
 - **边权重上限 100** —— 强化失控被限制
 - **扩散激活限制在 top 5-7** —— 防止认知洪水
 - **概念 ID ≤ 64 字符，小写 + 连字符，以字母起始**
-- **迁移只读取 `_meta/journal/` 最近 3 个月** —— 更早的材料不触动
+- **迁移只读取 `meta/journal/` 最近 3 个月** —— 更早的材料不触动
 - **SYNAPSES-INDEX.md 和 INDEX.md 是已编译产物** —— 绝不手写
-- **仅本地 —— 无 Notion sync** —— concepts 保留在 `_meta/` 内（用户决策 #12）
+- **仅本地 —— 无 Notion sync** —— concepts 保留在 `meta/` 内（用户决策 #12）
 
 ---
 
@@ -405,7 +405,7 @@ v1.7 之前没有 concepts 目录。迁移到 v1.7 仅运行一次，由 `tools/
 - `references/hippocampus-spec.md` —— 扩散激活输出的消费者（Wave 2/3 沿 `outgoing_edges` 前进）
 - `references/gwt-spec.md` —— arbitrator 消费来自 concept lookup 的 `canonical_concept`/`emerging_concept` 信号
 - `references/session-index-spec.md` —— 会话 frontmatter 跟踪回指概念文件的 `concepts_activated` / `concepts_discovered`
-- `references/snapshot-spec.md` —— 同级 `_meta/` 产物；共享 markdown 优先 + 仅本地约束
+- `references/snapshot-spec.md` —— 同级 `meta/` 产物；共享 markdown 优先 + 仅本地约束
 - `references/method-library-spec.md` —— 方法带 `related_concepts: [concept_id]` 指向此网络
 - `references/wiki-spec.md` —— wiki 条目可锚定概念证据；隐私过滤器在那里定义
 - `references/soul-spec.md` —— SOUL 边界（个人归那里，不归 concepts）

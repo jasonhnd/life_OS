@@ -210,7 +210,7 @@ INDEX.md 典型 20-100 行。加载成本极低。
 
 ### 自动写入
 
-经过 6 条标准 + 隐私过滤，archiver 写到 `_meta/outbox/{session_id}/wiki/{domain}/{topic}.md`。session 结束 git push 后，下次 Start Session RETROSPECTIVE 会把 outbox 的 wiki 文件移到正式的 `wiki/{domain}/`。
+经过 6 条标准 + 隐私过滤，archiver 写到 `meta/outbox/{session_id}/wiki/{domain}/{topic}.md`。session 结束 git push 后，下次 Start Session RETROSPECTIVE 会把 outbox 的 wiki 文件移到正式的 `wiki/{domain}/`。
 
 ### 强化
 

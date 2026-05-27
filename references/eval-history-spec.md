@@ -17,7 +17,7 @@ Eval history is the mechanism through which Life OS inspects itself over time.
 
 Individual AUDITOR reports already grade each session's agent performance, but they evaporate after the session ends. They are good for *this* deliberation; they do not tell the system anything about *the last ten deliberations*. That missing loop is what eval history closes.
 
-- **AUDITOR** is the writer. After every full deliberation or express workflow it serialises its judgement as structured YAML + markdown into `_meta/eval-history/`.
+- **AUDITOR** is the writer. After every full deliberation or express workflow it serialises its judgement as structured YAML + markdown into `meta/eval-history/`.
 - **RETROSPECTIVE Mode 0** is the primary reader. At each Start Session it reads the last 10 eval files and detects systemic patterns — repeated violations, declining scores, hallucinated citations, skipped phases.
 - **Tools** (stats, reconcile) read the history for monthly summaries and orphan detection.
 
@@ -30,7 +30,7 @@ This is also the direct answer to Hermes Lesson 5 in `devdocs/research/2026-04-1
 ## 2. File Location
 
 ```
-_meta/eval-history/
+meta/eval-history/
 └── {YYYY-MM-DD}-{project}.md
 ```
 
@@ -40,7 +40,7 @@ One file per session that went through AUDITOR.
 - `{project}` — slug of the bound project (kebab-case, lowercase).
 - Multi-session days on the same project append `-{HHMM}` to disambiguate: `2026-04-20-career-change-1430.md`.
 
-Eval files live next to other `_meta/` artifacts (STATUS.md, STRATEGIC-MAP.md, lint-state.md) and follow the same convention: compiled by agents, readable by humans, never hand-edited after the fact.
+Eval files live next to other `meta/` artifacts (STATUS.md, STRATEGIC-MAP.md, lint-state.md) and follow the same convention: compiled by agents, readable by humans, never hand-edited after the fact.
 
 ---
 
@@ -51,7 +51,7 @@ Every eval file begins with a YAML frontmatter block. Unknown fields are ignored
 ```yaml
 ---
 eval_id: {YYYY-MM-DD-HHMM}-{project}
-session_id: string                 # references _meta/sessions/{session_id}.md
+session_id: string                 # references meta/sessions/{session_id}.md
 evaluator: auditor | auditor-patrol
 evaluation_mode: decision-review | patrol-inspection
 date: ISO 8601 timestamp
@@ -274,7 +274,7 @@ If no systemic issues are detected, the block is omitted entirely (no placeholde
 ## 8. Archive Policy
 
 - Eval files are retained indefinitely. Each file is small (~5 KB), so 1000 sessions total ~5 MB.
-- Files older than 6 months may be compressed into a quarterly digest at `_meta/eval-history/_digest/{YYYY-Q}.md`, with the original files moved to `_meta/eval-history/_archive/`. The digest preserves headline scores and systemic patterns; individual sessions remain accessible.
+- Files older than 6 months may be compressed into a quarterly digest at `meta/eval-history/_digest/{YYYY-Q}.md`, with the original files moved to `meta/eval-history/_archive/`. The digest preserves headline scores and systemic patterns; individual sessions remain accessible.
 - The digest is written by `tools/stats.py` when run with `--compress-old`. It is never written automatically.
 
 ---
@@ -297,7 +297,7 @@ Readers must tolerate missing fields (different Life OS versions may have writte
 ## 10. Write Flow
 
 - Trigger: AUDITOR completes Decision Review in Step 8 of the full deliberation workflow (or the Brief-Report equivalent in express path, or Patrol Inspection).
-- Path: `_meta/eval-history/{YYYY-MM-DD}-{project}.md`.
+- Path: `meta/eval-history/{YYYY-MM-DD}-{project}.md`.
 - Conflict resolution: if the file already exists (same date, same project, second or later session of the day), AUDITOR appends `-{HHMM}` to the filename: `2026-04-20-career-change-1430.md`.
 - Failure handling: if the write fails (disk full, permission error, path missing), AUDITOR reports the failure in its regular Decision Review output. The session continues. The failure itself is logged as a process compliance violation for the next session's eval.
 - Immutability: eval files are never edited after creation. If the evaluation was wrong, a new file is written at the next session with a reversal note. Prior files remain as historical record.
@@ -308,9 +308,9 @@ Readers must tolerate missing fields (different Life OS versions may have writte
 
 No eval history existed before v1.7.
 
-- `tools/migrate.py` does **not** backfill historical AUDITOR reports from `_meta/journal/`. Those reports were unstructured prose and do not fit the schema; attempting to backfill would produce low-signal noise that contaminates systemic detection.
+- `tools/migrate.py` does **not** backfill historical AUDITOR reports from `meta/journal/`. Those reports were unstructured prose and do not fit the schema; attempting to backfill would produce low-signal noise that contaminates systemic detection.
 - Eval history starts fresh on v1.7 day one. The first Start Session on v1.7 shows no systemic warnings (no history to scan). Warnings begin appearing once at least 3 consecutive sessions are recorded.
-- Users who want historical analysis of pre-v1.7 sessions should use the pre-existing `_meta/journal/` reports directly; they are not migrated.
+- Users who want historical analysis of pre-v1.7 sessions should use the pre-existing `meta/journal/` reports directly; they are not migrated.
 
 ---
 

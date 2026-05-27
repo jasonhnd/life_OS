@@ -14,8 +14,8 @@ SOUL snapshots are small, immutable metadata dumps captured at the end of every 
 | Artefact | What it records |
 |----------|----------------|
 | `SOUL.md` | Current authoritative identity state |
-| `_meta/snapshots/soul/` | **Historical SOUL state for trend computation (this spec)** |
-| `_meta/concepts/` | Synaptic network (`references/concept-spec.md`) |
+| `meta/snapshots/soul/` | **Historical SOUL state for trend computation (this spec)** |
+| `meta/concepts/` | Synaptic network (`references/concept-spec.md`) |
 | `wiki/` | Reusable world knowledge |
 
 Snapshots are metadata-only — they never duplicate SOUL body content. They record the numeric shape of SOUL at a point in time so the retrospective can compare "then" with "now".
@@ -28,22 +28,22 @@ Snapshots are metadata-only — they never duplicate SOUL body content. They rec
 2. **Metadata-only** — snapshots store dimension names, confidence, evidence counts, and tiers. They do not store SOUL body text.
 3. **Created every session** — even for trivial sessions. Missing snapshots break trend computation.
 4. **Small** — each snapshot is <5KB typical. Thousands of snapshots remain inexpensive.
-5. **Archived aggressively** — active snapshots stay hot for 30 days, then move to `_archive/`, then get deleted after 90 days. Git history retains the full audit trail. **Snapshots do NOT sync to Notion** — per user decision #12 and `cortex-spec.md` §Anti-patterns, all Cortex/`_meta/` data (concepts, synapses, snapshots) stays local. Notion only receives session summaries and decision records.
+5. **Archived aggressively** — active snapshots stay hot for 30 days, then move to `_archive/`, then get deleted after 90 days. Git history retains the full audit trail. **Snapshots do NOT sync to Notion** — per user decision #12 and `cortex-spec.md` §Anti-patterns, all Cortex/`meta/` data (concepts, synapses, snapshots) stays local. Notion only receives session summaries and decision records.
 
 ---
 
 ## File Location
 
 ```
-_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
+meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
 ```
 
-The timestamp in the filename **must come from the actual `date` command** at capture time — no fabrication (decision from v1.4.4b). If the system clock is unavailable, the snapshot write is aborted and the failure is logged to `_meta/cortex/decay-log.md`.
+The timestamp in the filename **must come from the actual `date` command** at capture time — no fabrication (decision from v1.4.4b). If the system clock is unavailable, the snapshot write is aborted and the failure is logged to `meta/cortex/decay-log.md`.
 
 ### Reserved paths
 
-- `_meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` — active snapshots (within 30 days)
-- `_meta/snapshots/soul/_archive/{YYYY-MM-DD-HHMM}.md` — archived snapshots (30-90 days)
+- `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` — active snapshots (within 30 days)
+- `meta/snapshots/soul/_archive/{YYYY-MM-DD-HHMM}.md` — archived snapshots (30-90 days)
 - Snapshots older than 90 days are deleted from the filesystem; the audit trail persists in git history only (snapshots are local-only per user decision #12)
 
 ---
@@ -75,7 +75,7 @@ dimensions:
 |-------|-----------|
 | `snapshot_id` | Must match the filename stem exactly |
 | `captured_at` | Must be a real ISO 8601 timestamp from the system clock |
-| `session_id` | Must be a valid session ID in `_meta/sessions/` |
+| `session_id` | Must be a valid session ID in `meta/sessions/` |
 | `previous_snapshot` | Filename of the prior snapshot, or `null` for the first |
 | `dimensions` | Only dimensions with `confidence > 0.2` are included (skip noise) |
 | `dimensions[].tier` | Derived from confidence (see Tier Mapping below) |
@@ -112,7 +112,7 @@ archiver Phase 2
     │        - Determine tier from confidence
     │        - Copy name, confidence, evidence_count, challenges
     │   4. Find the latest existing snapshot → set `previous_snapshot`
-    │   5. Write _meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
+    │   5. Write meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
     │   6. File becomes read-only after write (do not edit)
     └── Step 4 — housekeeping (see Archive Policy)
 ```
@@ -161,8 +161,8 @@ When there is no previous snapshot (first Start Session after bootstrap, or the 
 
 `archiver` Phase 2 Step 4 performs housekeeping after snapshot creation:
 
-1. For each file in `_meta/snapshots/soul/` whose `captured_at` is **older than 30 days**: move to `_meta/snapshots/soul/_archive/` (preserving filename)
-2. For each file in `_meta/snapshots/soul/_archive/` whose `captured_at` is **older than 90 days**: delete from filesystem
+1. For each file in `meta/snapshots/soul/` whose `captured_at` is **older than 30 days**: move to `meta/snapshots/soul/_archive/` (preserving filename)
+2. For each file in `meta/snapshots/soul/_archive/` whose `captured_at` is **older than 90 days**: delete from filesystem
 3. Housekeeping is idempotent — running it twice produces the same result
 
 Deletion is safe because:
@@ -187,11 +187,11 @@ If a snapshot exceeds 10KB, the archiver logs a warning — it usually means SOU
 
 Pre-v1.7 there are no snapshots (v1.6.2 introduced the mechanism; v1.6.2a stabilised it). For second-brains that pre-date v1.6.2:
 
-1. `tools/migrate.py` scans `_meta/journal/` for SOUL delta blocks (the `🔮 SOUL Delta` sections emitted by ADVISOR)
+1. `tools/migrate.py` scans `meta/journal/` for SOUL delta blocks (the `🔮 SOUL Delta` sections emitted by ADVISOR)
 2. For each journal entry that contains a SOUL delta, synthesise a snapshot timestamped at the journal entry's date
 3. Synthetic snapshots carry `provenance: synthetic` in their frontmatter so the retrospective can distinguish them from natural snapshots
 4. Migration stops at the earliest journal entry within the last 3 months (user decision #7 — aligned with all other migration scopes). Deeper history is not reconstructed; the signal degrades too much.
-5. Log the migration result to `_meta/cortex/bootstrap-status.md`
+5. Log the migration result to `meta/cortex/bootstrap-status.md`
 
 Migration is idempotent. Synthetic snapshots are treated identically to natural ones by the trend algorithm — the `provenance` field exists only for audit.
 
@@ -201,7 +201,7 @@ Migration is idempotent. Synthetic snapshots are treated identically to natural 
 
 `retrospective` is the sole reader of snapshots during Start Session. Its contract:
 
-1. List files in `_meta/snapshots/soul/` sorted by `captured_at` descending
+1. List files in `meta/snapshots/soul/` sorted by `captured_at` descending
 2. Take the top 2 files (current and previous)
 3. If fewer than 2 snapshots exist, fall back to "first snapshot" behaviour (all dimensions render as 🌱)
 4. Parse both YAML frontmatters
@@ -235,16 +235,16 @@ These are forbidden by spec:
 - **< 5KB typical, < 10KB hard warning threshold**
 - **30 days hot, 30-90 days archived, > 90 days deleted** — archive policy is idempotent
 - **`archiver` Phase 2 owns writes, `retrospective` Mode 0 owns reads** — no other role touches snapshot files
-- **Local-only — no Notion sync** — snapshots are Cortex/`_meta/` data; audit trail lives in git
+- **Local-only — no Notion sync** — snapshots are Cortex/`meta/` data; audit trail lives in git
 
 ---
 
 ## Related Specs
 
 - `references/soul-spec.md` — SOUL schema, dimension lifecycle, Health Report format consumer
-- `references/session-index-spec.md` — `session_id` field references entries in `_meta/sessions/`
+- `references/session-index-spec.md` — `session_id` field references entries in `meta/sessions/`
 - `references/cortex-spec.md` — overall Cortex architecture; snapshot is one of the five core v1.7 artifacts
-- `references/concept-spec.md` — sibling `_meta/` data layer; same markdown-first principles and local-only constraint
+- `references/concept-spec.md` — sibling `meta/` data layer; same markdown-first principles and local-only constraint
 - `references/eval-history-spec.md` — AUDITOR's `soul_reference_quality` dimension consumes snapshot-derived trend signals
 - `pro/agents/archiver.md` — Phase 2 Step 3 owns snapshot writes
 - `pro/agents/retrospective.md` — Mode 0 owns snapshot reads for the Health Report

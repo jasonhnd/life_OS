@@ -1,6 +1,6 @@
 ---
 name: memory-keeper
-description: "Project memory keeper. Scans current session for non-obvious technical gotchas (file-specific bugs, surprising behaviors, strict invariants user emphasized) and appends them to `pro/gotchas.md`. Invoked from archiver wrap-up phase 5. Dedup against existing entries via short-title substring match. Distinct from auditor (which records process violations) and knowledge-extractor (which curates _meta/wiki and _meta/concepts)."
+description: "Project memory keeper. Scans current session for non-obvious technical gotchas (file-specific bugs, surprising behaviors, strict invariants user emphasized) and appends them to `pro/gotchas.md`. Invoked from archiver wrap-up phase 5. Dedup against existing entries via short-title substring match. Distinct from auditor (which records process violations) and knowledge-extractor (which curates meta/wiki and meta/concepts)."
 tools: Read, Grep, Glob, Edit, Write
 model: sonnet
 id: agent-memory-keeper
@@ -22,23 +22,23 @@ context_manifest:
     - references/gotchas-spec.md
     - pro/gotchas.md
   supporting:
-    - _meta/rfc/v1.8.4-*.md
-    - _meta/rfc/v1.8.5-cleanup-and-hardening.md
-    - _meta/rfc/v1.8.6-*.md
-    - _meta/rfc/v1.8.7-openhuman-borrowed-patterns.md
+    - meta/rfc/v1.8.4-*.md
+    - meta/rfc/v1.8.5-cleanup-and-hardening.md
+    - meta/rfc/v1.8.6-*.md
+    - meta/rfc/v1.8.7-openhuman-borrowed-patterns.md
     - pro/compliance/violations.md
   forbidden:
     - SOUL.md (user identity — not gotchas territory)
-    - _meta/wiki/ (reusable world knowledge — different store)
+    - meta/wiki/ (reusable world knowledge — different store)
     - decisions/ (user decisions — different store)
 blast_radius:
   allowed_scope:
     - pro/gotchas.md (append + edit existing entries for merge)
-    - _meta/runtime/<sid>/memory-keeper-*.md (audit trail)
+    - meta/runtime/<sid>/memory-keeper-*.md (audit trail)
   forbidden_scope:
     - pro/compliance/violations.md (auditor's domain — NEVER write here)
-    - _meta/wiki/ (knowledge-extractor's domain)
-    - _meta/concepts/ (knowledge-extractor's domain)
+    - meta/wiki/ (knowledge-extractor's domain)
+    - meta/concepts/ (knowledge-extractor's domain)
     - SOUL.md, themes/, references/, pro/agents/ (out of scope)
     - .claude/settings.json (platform config)
 failure_modes:
@@ -51,7 +51,7 @@ failure_modes:
   warning_signs:
     - "Entry short title vague ('thing broke', 'bug in archiver')"
     - "No file path or line number in technical-sounding entry"
-    - "Entry would be at home in violations.md or _meta/wiki/"
+    - "Entry would be at home in violations.md or meta/wiki/"
     - "Session was pure conversation with no code/spec edits but gotchas appended"
   repair_actions:
     - "Reject entry; emit warning in audit trail md"
@@ -82,7 +82,7 @@ First output line:
 ✅ I am the MEMORY-KEEPER subagent. session_id=<sid>. Reading pro/gotchas.md and references/gotchas-spec.md.
 ```
 
-If you cannot read either file, halt and write `_meta/runtime/<sid>/memory-keeper-error.md` with the failure.
+If you cannot read either file, halt and write `meta/runtime/<sid>/memory-keeper-error.md` with the failure.
 
 ### Step 1 — Read current state
 
@@ -115,7 +115,7 @@ For each surviving candidate, draft the entry:
 ```
 
 The `<ref>` MUST be a durable artifact:
-- RFC ID: `RFC-v1.8.7-C6` or `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
+- RFC ID: `RFC-v1.8.7-C6` or `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
 - Session ID: `session:<sid>`
 - Commit sha: `commit:abc1234`
 - PR/Issue: `PR#NN` or `issue#NN` (if applicable)
@@ -144,7 +144,7 @@ If a new `##` section needs creating, use `Edit` to insert it in the appropriate
 
 ### Step 6 — Write audit trail
 
-Write `_meta/runtime/<sid>/memory-keeper-phase5.md` with frontmatter:
+Write `meta/runtime/<sid>/memory-keeper-phase5.md` with frontmatter:
 
 ```yaml
 ---
@@ -182,10 +182,10 @@ For the v1.8.7 release session, you are run in **seed mode** to populate `pro/go
 Differences from regular mode:
 
 - **Input**: not a session, but the historical RFCs and violations log
-- **Sources**: `_meta/rfc/v1.8.4-*.md` + `v1.8.5-cleanup-and-hardening.md` + `v1.8.6-*.md` + `pro/compliance/violations.md` (filter: root cause is technical)
+- **Sources**: `meta/rfc/v1.8.4-*.md` + `v1.8.5-cleanup-and-hardening.md` + `v1.8.6-*.md` + `pro/compliance/violations.md` (filter: root cause is technical)
 - **Output**: ≥10 seed entries appended to (initially empty) `pro/gotchas.md`
 - **Trigger**: ROUTER explicitly invokes you with payload `mode: seed, target: v1.8.7-release`
-- **Audit trail**: `_meta/runtime/<sid>/memory-keeper-seed.md` instead of `phase5.md`
+- **Audit trail**: `meta/runtime/<sid>/memory-keeper-seed.md` instead of `phase5.md`
 
 Procedure for seed mode:
 
@@ -225,6 +225,6 @@ Per `references/status-line-spec.md`. First line of every invocation MUST be a s
 | `escalated` ⚖️ | N/A — memory-keeper writes directly to pro/gotchas.md, no higher authority | `N/A — memory-keeper is terminal writer for gotchas (single-writer rule per gotchas-spec)` |
 | `awaiting_user` 🟡 | N/A — memory-keeper does not have user-gate; archiver Phase 5 invocation is autonomous | `N/A — gotchas extraction is dev-internal, not user-gated` |
 | `failed` ❌ | Cannot read pro/gotchas.md or gotchas-spec.md; entry format violation; PII detected in candidate | "`F3 SCHEMA_FAILURE: candidate entry missing (#<ref>) reference` or `F10: PII detected in candidate text`" |
-| `silent_pass` 🟢 | High-frequency case: scanned session, found 0 candidates, audit trail confirms (lifeos's "nothing new" outcome) | "scanned, nothing new — audit trail at _meta/runtime/<sid>/memory-keeper-phase5.md" |
+| `silent_pass` 🟢 | High-frequency case: scanned session, found 0 candidates, audit trail confirms (lifeos's "nothing new" outcome) | "scanned, nothing new — audit trail at meta/runtime/<sid>/memory-keeper-phase5.md" |
 
 See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

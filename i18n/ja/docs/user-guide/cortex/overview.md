@@ -77,7 +77,7 @@ GWT 仲裁器(Global Workspace Theory arbitrator)は 4 次元でスコアリン�
 
 ### 5. Start Session 朝報に「システム性問題検出」ブロックが現れる可能性
 
-AUDITOR は session 終了時に自分で 10 次元のスコアをつけ、`_meta/eval-history/` に書き込みます。RETROSPECTIVE は毎回 Start Session で直近 10 件を読みます。「連続 3 回 adjourn 不完全」「narrator 引用失敗 >20%」などのパターンを検出すると、朝報 DREAM ブロックの後に警告を出します。
+AUDITOR は session 終了時に自分で 10 次元のスコアをつけ、`meta/eval-history/` に書き込みます。RETROSPECTIVE は毎回 Start Session で直近 10 件を読みます。「連続 3 回 adjourn 不完全」「narrator 引用失敗 >20%」などのパターンを検出すると、朝報 DREAM ブロックの後に警告を出します。
 
 → 詳細は [auditor-eval-history.md](./auditor-eval-history.md)
 
@@ -110,7 +110,7 @@ v1.6.2a からアップグレードしてきて、**初めて Cortex を聞い�
 - **ROUTER の分診ロジックは変更なし** —— Cortex は ROUTER により良い入力を与えるだけ、ROUTER は参考にも無視にもできます
 - **情報隔離は変更なし** —— PLANNER は依然として ROUTER の推論を見えず、REVIEWER は依然として計画文書のみを見ます、この安全モデル表は v1.7 で**3 行追加しただけ**(hippocampus、gwt-arbitrator、narrator-validator 各 1 行)、旧行は動かしません
 - **Markdown-first は変更なし** —— すべての新データは `.md + YAML frontmatter`。新データベースなし、Python runtime なし、cron なし、外部 API key なし
-- **Notion 同期範囲は変更なし** —— Cortex データ**は Notion に同期しません**。概念グラフ、session 要約、eval-history はすべてローカル `_meta/` 下の内省資産です
+- **Notion 同期範囲は変更なし** —— Cortex データ**は Notion に同期しません**。概念グラフ、session 要約、eval-history はすべてローカル `meta/` 下の内省資産です
 - **降級フォールバック** —— Cortex の任意の subagent が失敗(タイムアウト、ファイル読めない)、orchestrator は自動的に v1.6.2a 動作に退化(原始メッセージ直接 ROUTER へ)、session は通常通り進行
 
 **言い換えれば: Cortex は加算層であり、破壊的アップグレードではありません**。Cortex が全部壊れても、あなたの Life OS は依然として馴染みのある Life OS で、ただ履歴検索と引用が減るだけです。
@@ -127,12 +127,12 @@ uv run tools/migrate.py
 
 このスクリプトは:
 
-1. あなたの**最近 3 ヶ月**の `_meta/journal/*.md` をスキャン——より古い内容は**触れません**(古い journal には期限切れプロジェクトや降格価値観がよく含まれ、引き入れても概念グラフを汚染するだけ)
-2. 各履歴 session に対して要約を生成し `_meta/sessions/{session_id}.md` に書き込み
-3. 繰り返し現れる実体と手法を候補 concept として抽出、`_meta/concepts/_tentative/` に投入
+1. あなたの**最近 3 ヶ月**の `meta/journal/*.md` をスキャン——より古い内容は**触れません**(古い journal には期限切れプロジェクトや降格価値観がよく含まれ、引き入れても概念グラフを汚染するだけ)
+2. 各履歴 session に対して要約を生成し `meta/sessions/{session_id}.md` に書き込み
+3. 繰り返し現れる実体と手法を候補 concept として抽出、`meta/concepts/_tentative/` に投入
 4. `SYNAPSES-INDEX.md` と `INDEX.md` を再構築
 5. 一部の SOUL snapshot を補完
-6. プロセスを `_meta/cortex/bootstrap-status.md` に書き込み
+6. プロセスを `meta/cortex/bootstrap-status.md` に書き込み
 
 スクリプトは**冪等的**です——二度走らせても重複作成しません。migrate が失敗したら、orchestrator は v1.6.2a 動作に退化、後で再試行できます。
 
@@ -177,7 +177,7 @@ Step 0.5 の総予算は **< 7 秒**(hippocampus 5s ソフトタイムアウト 
 
 ### Cortex をオフにできますか?
 
-できます。`_meta/config.md` を編集し、`cortex_enabled: true` を `false` に変更、次の Start Session で v1.6.2a 動作に退化します。各サブ機能にも個別スイッチがあります: `hippocampus_enabled`、`gwt_arbitrator_enabled`、`narrator_validator_enabled`、`concept_extraction_enabled`。
+できます。`meta/config.md` を編集し、`cortex_enabled: true` を `false` に変更、次の Start Session で v1.6.2a 動作に退化します。各サブ機能にも個別スイッチがあります: `hippocampus_enabled`、`gwt_arbitrator_enabled`、`narrator_validator_enabled`、`concept_extraction_enabled`。
 
 ただし**長期間オフにすることは推奨しません**——数回上朝するうちに、システムが「以前どう決めたか」に対する敏感度が顕著に向上するのを発見し、オフにすると逆に AI が退化したと感じるでしょう。
 
@@ -186,7 +186,7 @@ Step 0.5 の総予算は **< 7 秒**(hippocampus 5s ソフトタイムアウト 
 二つのフォールバック:
 
 1. **Narrator 層の citation は真の signal を強制引用** ——narrator が「過去 5 回の意思決定はすべて保守的」と言うなら、5 個の真実の session ファイルを指さなければならず、さもなくば validator が直接差し戻して書き直します。角括弧引用付きの任意の断言に対して「この文を trace して」と言えば、システムが原文を見せてくれます。
-2. **Three-tier 取消機構** ——ある概念が誤って昇格された場合、「直近の concept を取り消し」と言うか `_meta/concepts/{domain}/{concept_id}.md` を直接削除すれば、archiver が次回 SYNAPSES-INDEX を再構築し宙ぶらりんエッジを剪定します。
+2. **Three-tier 取消機構** ——ある概念が誤って昇格された場合、「直近の concept を取り消し」と言うか `meta/concepts/{domain}/{concept_id}.md` を直接削除すれば、archiver が次回 SYNAPSES-INDEX を再構築し宙ぶらりんエッジを剪定します。
 
 より深刻な矛盾(例: SOUL 次元が誤って書き込まれた)は SOUL 自体の取消フローを通り、Cortex 層の事ではありません。
 

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.7-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.0-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -19,14 +19,22 @@
 
 ---
 
-> **Hermes Local** was the user-facing name for Life OS's local safeguards
-> when the project still shipped a Layer 4 Python tools/ package. As of
-> **v1.8.1 Wave 2 (zero-python pivot)**, Layer 4 is gone; the entire skill
-> is bash hooks + markdown prompts + agent definitions. The dangerous-
-> command pattern guard (~40 patterns) lives inline in
-> `scripts/hooks/pre-bash-approval.sh`. Pattern provenance preserved:
-> forked from [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+> **Architecture as of v1.9.0**: Life OS is 100% markdown — agent prompts,
+> slash commands, eval scenarios, RFC documents. No Python (`tools/` removed
+> in v1.8.1 Wave 2), no bash hooks (`scripts/hooks/*.sh` retired in v1.8.5),
+> no .yml schema files (v1.8.7 md-only ontological commit per DR-10).
+> Runtime enforcement happens via inline LLM procedures driven by spec.md
+> reading + grep matching. **Hermes Local** was the original name for the
+> v1.6-v1.8.0 bash hook + Python tools layer; that layer no longer exists.
+> Pattern provenance preserved: forked from
+> [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
 > under the MIT License.
+>
+> Historical sections below (v1.8.3 / v1.8.0 / v1.6.3a "What's New") may
+> reference `bash scripts/setup-hooks.sh` and similar — those steps are
+> **no-op since v1.8.5** (hook layer retired). For current setup, run
+> `/install-agents` in Claude Code (one slash command, replaces all
+> historical bash setup scripts).
 
 ## One engine. Nine worlds. Your call.
 
@@ -98,7 +106,7 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 - **🔄 ScheduleWakeup self-driven loops (B4)** — `/verify-release-and-watch` and `/notion-sync-and-watch` poll every 270s (Anthropic prompt cache window) for up to 12 ticks (60 min) until terminal state. Auto-fixes missing GitHub Release publish. lifeos goes from reactive tool to "can watch tasks" tool.
 - **📋 verify-release expanded to 11 checks** — new check 9 (i18n diff parity, WARN level) catches the recurring "EN spec updated but zh/ja drifted" violation class. New check 10 (diff-scoped forbidden extensions) catches forbidden-extension files introduced since last tag. Check 8 expanded to 9 forbidden extensions (added `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`).
 - **🛡️ AUDITOR Mode 7 (OpenHuman patterns compliance)** — 7 sub-checks verify v1.8.7 artifacts stay present + md-only constraint not bypassed at the design proposal level (catches drift before it hits the file-extension gate).
-- **📚 Spec hardening** — `evals_scenarios:` frontmatter field is now required in every planning document (dispatcher rejects without it). Hotness thresholds in `concept-spec.md` made explicit (≥3 sessions → confirmed, ≥10 → canonical). Five new `WHEN-NOT-TO-ADD.md` files set clear boundaries for pro/agents/, references/, _meta/, themes/, scripts/.
+- **📚 Spec hardening** — `evals_scenarios:` frontmatter field is now required in every planning document (dispatcher rejects without it). Hotness thresholds in `concept-spec.md` made explicit (≥3 sessions → confirmed, ≥10 → canonical). Five new `WHEN-NOT-TO-ADD.md` files set clear boundaries for pro/agents/, references/, meta/, themes/, scripts/.
 - **🌳 Memory tree cascade seal — v2.0 proposal** — `references/memory-tree-spec.md` defines L0 → L1 → L2 → L3 cascade architecture for sessions/wiki, borrowed from OpenHuman. Spec is frozen as proposal; archiver behavior unchanged in v1.8.7. Implementation deferred to v1.9/v2.0 pending real-data validation in Jason's second-brain.
 
 ### Upgrading from v1.8.6 (zero-friction)
@@ -112,17 +120,17 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 
 No migration command needed. archiver first run creates `pro/gotchas.md` automatically. Existing data layout unchanged.
 
-See [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) for the full RFC, DR-08 (cargo-cult cuts), DR-09 (decision standard: product quality not time), DR-10 (md-only ontological constraint), and the audit trail of design decisions.
+See [`meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) for the full RFC, DR-08 (cargo-cult cuts), DR-09 (decision standard: product quality not time), DR-10 (md-only ontological constraint), and the audit trail of design decisions.
 
 > **Previously**, v1.8.3 closed the outbound privacy gap (see CHANGELOG for the v1.8.3 detail).
 
 ## What's New in v1.8.3 — Outbound boundary gate for Notion writes
 
-**Closing the privacy gap on the way out.** v1.8.2 hardened what *enters* your vault (`pre-write-scan.sh` defends `SOUL.md`, `wiki/`, `_meta/concepts/`, `user-patterns.md` against secrets, prompt injection, invisible Unicode). But v1.8.2 said nothing about what *leaves* it. Decision/Task/Journal bodies — full of raw user prose, third-party names, specific amounts — were synced from `_meta/outbox/<sid>/` straight to Notion at Step 10a with **no privacy gate at all**. v1.8.3 adds the missing outbound counterpart.
+**Closing the privacy gap on the way out.** v1.8.2 hardened what *enters* your vault (`pre-write-scan.sh` defends `SOUL.md`, `wiki/`, `meta/concepts/`, `user-patterns.md` against secrets, prompt injection, invisible Unicode). But v1.8.2 said nothing about what *leaves* it. Decision/Task/Journal bodies — full of raw user prose, third-party names, specific amounts — were synced from `meta/outbox/<sid>/` straight to Notion at Step 10a with **no privacy gate at all**. v1.8.3 adds the missing outbound counterpart.
 
 ### Why your local outbox and Notion are not the same threat model
 
-What can safely live in `_meta/outbox/<sid>/decisions/` under your private git repo is not the same as what should travel to Notion:
+What can safely live in `meta/outbox/<sid>/decisions/` under your private git repo is not the same as what should travel to Notion:
 
 - Notion workspaces may be shared (team Notion, accidental public link)
 - Notion AI may index page content for org-wide assistants
@@ -144,7 +152,7 @@ Every Notion MCP write call is intercepted. The hook scans `tool_input` against 
 | **E** — URL trackers, JWT shape | `info` | quiet log only |
 | no hit | `pass` | proceeds normally |
 
-Audit trail at `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` records the matched pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time — if you keep triggering Group B in 40 % of adjourns, that's a behavioral signal worth reviewing.
+Audit trail at `meta/runtime/<sid>/notion-pii-scan-<ts>.json` records the matched pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time — if you keep triggering Group B in 40 % of adjourns, that's a behavioral signal worth reviewing.
 
 ### Why advisory `warn`, not hard-block, for B/C/D
 
@@ -175,7 +183,7 @@ v1.8.1 is the **largest reduction in Life OS history**. Two waves shipped May 1-
 
 ### Wave 1 · Plan B wiki + auto-bootstrap (May 1)
 
-- **`/inbox-process`** — drop any `.md` into `_meta/inbox/to-process/`, then say "处理 inbox" or `/inbox-process`. ROUTER scans, proposes per-item disposition (accept→wiki / update→wiki / archive / reject / defer / merge), waits for confirmation, executes, logs. v1.8.1 Wave 2 added LLM-based duplicate detection (no SHA256, no FTS5) + delta tracking via `_meta/inbox/manifest.json`.
+- **`/inbox-process`** — drop any `.md` into `meta/queue/to-process/`, then say "处理 inbox" or `/inbox-process`. ROUTER scans, proposes per-item disposition (accept→wiki / update→wiki / archive / reject / defer / merge), waits for confirmation, executes, logs. v1.8.1 Wave 2 added LLM-based duplicate detection (no SHA256, no FTS5) + delta tracking via `meta/queue/manifest.json`.
 - **`/research <topic>`** — spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent angles. Synthesizes a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section + automatic counter-bias check. v1.8.1 Wave 2 added decoupled CitationAgent (Phase 4, Anthropic pattern). Total wall time ≤ 9 min with citation verifier.
 - **`wiki/log.md` activity timeline convention** — every wiki Write/Edit/move appends one line with action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`). `/inbox-process` and `/research` write log entries automatically.
 - **Zero-setup vault bootstrap** — the first time you open a Claude Code session in a vault on v1.8.1, the SessionStart hook automatically detects missing scaffolding and creates it silently. You see one `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` line, then nothing. `.obsidian/graph.json` is auto-patched (with backup) if present.
@@ -202,7 +210,7 @@ User feedback driving Wave 2: "我想把这些东西全砍掉。我不理解为�
 | `review_by` field | ISO date — when `wiki-decay` should re-surface this entry |
 | Provenance tags on every fact | `^[extracted]` (paraphrased from a source), `^[inferred]` (your synthesis), `^[ambiguous]` (sources disagree). Required by `/research` agents and `/inbox-process` accept/update. |
 | LLM-based dedup in `/inbox-process` | Replaces SHA256 hashing — catches paraphrased near-duplicates, not just byte-identical. Pure LLM judgment using grep + Read. |
-| `_meta/inbox/manifest.json` delta tracking | Each `/inbox-process` run marks proposal-table rows as Δ-new vs carried-over. |
+| `meta/queue/manifest.json` delta tracking | Each `/inbox-process` run marks proposal-table rows as Δ-new vs carried-over. |
 | Decoupled CitationAgent in `/research` | Anthropic-pattern Phase 4: WebFetch-verifies every `^[extracted]` claim against `sources[]`. Auto-downgrades unverified claims. Confidence drops one bucket if 30%+ unverified. Opt-out with `--no-citations`. |
 
 ### How Life OS Wiki differs (counter-bias positioning)
@@ -226,7 +234,7 @@ This is not a critique of those projects — they solve different problems. But 
 - **macOS portability**: `pre-bash-approval.sh` had 5 bare `python -c` invocations. macOS 12+ removed bare `python` → hook fail-CLOSED → blocked every Bash command. R-1.8.0-020 commit title claimed this was fixed; it wasn't until Wave 1.
 - **Scanner false positive**: `pre-write-scan.sh` pattern #5 was blocking legitimate markdown inline code. Tightened to require shell metacharacters inside backticks.
 - **session-start-inbox UX**: 2 wrong task names; NEVER_RUN bucket compressed from 8+ lines to 1.
-- **Notion sync was hardcoded to 4 entities** — now config-driven; reads `_meta/config.md`.
+- **Notion sync was hardcoded to 4 entities** — now config-driven; reads `meta/config.md`.
 
 ### Migration
 
@@ -306,7 +314,7 @@ v1.7.1 is a hardening release for transparency and evidence handling. Token use 
 
 ## What's New in v1.7.0.1
 
-Patch update: final briefing contracts are now explicit, Mode 0 self-checks Claude Code hooks, and Cortex is OFF / opt-in via `_meta/config.md`. Hook auto-install closes the test-machine deployment gap.
+Patch update: final briefing contracts are now explicit, Mode 0 self-checks Claude Code hooks, and Cortex is OFF / opt-in via `meta/config.md`. Hook auto-install closes the test-machine deployment gap.
 Anti-confabulation hardening prevents fabricated failure explanations from reaching users.
 Source-grounded briefings now include PRIMARY-SOURCE measured-count markers, STATUS.md staleness suppression, automatic 30d-≥3 Compliance Watch banners, and ROUTER Bash fact-checks for numeric/version/path claims before user display.
 
@@ -338,7 +346,7 @@ See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain and the COURT-START
 4. **AUDITOR Compliance Patrol (Mode 3)** — 7-class violation taxonomy (A1 skip subagent, A2 skip directory check, A3 skip Pre-flight, B fabricate, C incomplete phase, D placeholder, E main-context phase) runs after every session start and archive
 5. **Eval regression** — `evals/scenarios/start-session-compliance.md` codifies all 6 COURT-START-001 failure modes
 
-**Dual-repo violations log** (md + git, per user's storage constraint): violations persist to `pro/compliance/violations.md` (dev repo, public) and `_meta/compliance/violations.md` (user second-brain, private). Escalation ladder: ≥3 same type in 30 days → stricter hook reminder; ≥5 → briefing `🚨 Compliance Watch`; ≥10 in 90 days → AUDITOR patrol every session.
+**Dual-repo violations log** (md + git, per user's storage constraint): violations persist to `pro/compliance/violations.md` (dev repo, public) and `meta/compliance/violations.md` (user second-brain, private). Escalation ladder: ≥3 same type in 30 days → stricter hook reminder; ≥5 → briefing `🚨 Compliance Watch`; ≥10 in 90 days → AUDITOR patrol every session.
 
 **Still current from v1.6.2**: Bulletproof adjourn · Wiki auto-writes · SOUL auto-writes · DREAM 10 auto-triggers · SOUL trend arrows · REVIEWER 3-tier SOUL strategy · SOUL Health Report in briefing.
 
@@ -482,7 +490,7 @@ second-brain/
 ├── SOUL.md                 # Who you are — values, identity, aspirations
 ├── user-patterns.md        # How you behave — the advisor's observations
 ├── inbox/                  # Quick captures from your phone
-├── _meta/
+├── meta/
 │   ├── STATUS.md           # Global status dashboard
 │   ├── STRATEGIC-MAP.md    # Relationships between projects
 │   ├── strategic-lines.md  # Strategic line definitions
@@ -687,18 +695,16 @@ On first start, you pick your theme. The system auto-detects your language and r
 **First run**: The system detects that no second-brain exists and walks you through setup — pick your storage backend(s), and the full directory structure is created automatically. On subsequent sessions, the system detects what kind of directory you are in: Life OS system repo (development), second-brain (normal use), or a project repo (connects to configured second-brain path).
 
 **Set up auto-updates** (Claude Code):
-```bash
-bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
-```
-This checks for updates once a day when you start a session.
+
+Run `/install-agents` in Claude Code (slash command — registers life_OS agents + sets up daily update check). Note: pre-v1.8.5 used `bash scripts/setup-hooks.sh`; that script was retired during the v1.8.5 hook layer退役 + md-only ontological commit.
 
 ### Task-spawnable subagents
 
-After `bash scripts/setup-hooks.sh`, life_OS auto-registers its Task-spawnable agents under `~/.claude/agents/lifeos-*.md`. Claude Code then recognizes calls such as `Task(lifeos-retrospective)` and `Task(lifeos-archiver)` as first-class targets instead of falling back to `general-purpose`.
+After running `/install-agents`, life_OS auto-registers its Task-spawnable agents under `~/.claude/agents/lifeos-*.md`. Claude Code then recognizes calls such as `Task(lifeos-retrospective)` and `Task(lifeos-archiver)` as first-class targets instead of falling back to `general-purpose`.
 
 The `lifeos-` prefix avoids collisions with other skills. Wrappers point at the canonical definitions under `pro/agents/*.md` in the skill, so updating the skill and rerunning setup refreshes agent behavior. There are multiple agents definition files; 21 are Task-spawnable wrappers, while `narrator.md` remains ROUTER-internal.
 
-Uninstall: `bash scripts/unregister-claude-agents.sh`.
+Uninstall: `/uninstall-agents` (slash command, replaces deleted `scripts/unregister-claude-agents.sh`).
 
 **Manual update**: Say "update" (or "更新" or "アップデート") in any session.
 
@@ -813,7 +819,7 @@ For detailed setup including storage backend configuration, see the **[full inst
        GitHub / Google Drive / Notion (pick 1-3)
        ├── SOUL.md          🔮 Personality archive (grows from zero)
        ├── user-patterns.md 📊 Behavioral patterns (ADVISOR observations)
-       ├── _meta/
+       ├── meta/
        │   ├── STATUS.md         📊 Global status dashboard
        │   ├── STRATEGIC-MAP.md  🗺️ Strategic relationship map
        │   ├── journal/          📝 Reports + DREAM logs

@@ -13,7 +13,7 @@ superseded_by: pro/CLAUDE.md
 
 ## 一文概説 / One-Line Overview
 
-**概念グラフ** (`_meta/concepts/`) は Cortex のニューロンネットワークです——各 concept は一つの `.md` ファイルであり、**辺 (synapse)** は concept 自身の YAML frontmatter に直接保存されます。**メソッドライブラリ** (`_meta/methods/`) は「あなたがどう働くか」の手続き的記憶です——再利用可能な多段階ワークフロー。両ディレクトリとも `tentative → confirmed → canonical` の成熟度ラダーに従い、archiver が候補を自動抽出し、ユーザーが確認して昇格させます。
+**概念グラフ** (`meta/concepts/`) は Cortex のニューロンネットワークです——各 concept は一つの `.md` ファイルであり、**辺 (synapse)** は concept 自身の YAML frontmatter に直接保存されます。**メソッドライブラリ** (`meta/methods/`) は「あなたがどう働くか」の手続き的記憶です——再利用可能な多段階ワークフロー。両ディレクトリとも `tentative → confirmed → canonical` の成熟度ラダーに従い、archiver が候補を自動抽出し、ユーザーが確認して昇格させます。
 
 ---
 
@@ -39,7 +39,7 @@ v1.6.2a のシステム: 覚えていない(あるいは wiki から「MVP Valid
 
 ### 概念グラフの約束 / Promise
 
-Cortex は対話をスキャンし、「MVP 検証」という概念が繰り返し出現 + 複数の独立した証拠があると判断 → `_meta/concepts/method/mvp-validation.md` に **tentative** ノードを自動作成。次回類似トピックについて話せば、hippocampus Wave 2 がこの concept の強い辺に沿って拡散 → 関連する過去 session も引き出されます。
+Cortex は対話をスキャンし、「MVP 検証」という概念が繰り返し出現 + 複数の独立した証拠があると判断 → `meta/concepts/method/mvp-validation.md` に **tentative** ノードを自動作成。次回類似トピックについて話せば、hippocampus Wave 2 がこの concept の強い辺に沿って拡散 → 関連する過去 session も引き出されます。
 
 **使用回数が増えるほど、activation_count +1、関連辺の weight +1**。10 回使用すると **canonical** に昇格。将来いつでも ROUTER の `[COGNITIVE CONTEXT]` で自動的に含まれます。
 
@@ -50,7 +50,7 @@ Cortex は対話をスキャンし、「MVP 検証」という概念が繰り返
 - **2+ の独立 session** で同じパターンが出現
 - 「approach / pattern / framework / 流れ / やり方 / 手順」という表現
 
-archiver Phase 2 が `_meta/methods/_tentative/{method_id}.md` に **tentative method** を自動書き込み、次回 Start Session で尋ねます:「新しいメソッド 'Iterative Document Refinement' を検出しました。確認しますか?」
+archiver Phase 2 が `meta/methods/_tentative/{method_id}.md` に **tentative method** を自動書き込み、次回 Start Session で尋ねます:「新しいメソッド 'Iterative Document Refinement' を検出しました。確認しますか?」
 
 あなたが確認すると、**DISPATCHER は今後の関連決定でこのメソッドの完全な body を 6 領域に自動注入**——6 領域はゼロからやり直すのではなく、あなたが磨き上げたメソッドを基に始めます。
 
@@ -75,7 +75,7 @@ archiver が session の Completion Checklist に記録:
 - Hebbian updates: 8 edges reinforced, 2 new edges
 ```
 
-その後 session は正常に終了し、Cortex artefacts は `_meta/concepts/_tentative/` および `_meta/methods/_tentative/` に残り、次回確認を待ちます。
+その後 session は正常に終了し、Cortex artefacts は `meta/concepts/_tentative/` および `meta/methods/_tentative/` に残り、次回確認を待ちます。
 
 ### シナリオ B: 次回 Start Session の候補確認ブロック
 
@@ -104,7 +104,7 @@ Concept candidates (tentative, silently promoted):
 あなたが応答:**"c"** または **"confirm Iterative Document Refinement"**。
 
 システム:
-- `_meta/methods/_tentative/iterative-document-refinement.md` を `_meta/methods/method/iterative-document-refinement.md` に移動
+- `meta/methods/_tentative/iterative-document-refinement.md` を `meta/methods/method/iterative-document-refinement.md` に移動
 - `status: tentative → confirmed` を反転、`confidence` は 0.3 から 0.5 に跳ね上がる(すでに 3+ の source_sessions があれば 0.6)
 - 次回 DISPATCHER は関連トピックの dispatch でこのメソッドを**自動注入**
 
@@ -179,7 +179,7 @@ decay_policy: skill               # permanence に対応、ミスマッチ不可
 **要点**:
 
 - **1 概念 1 ファイル**——同一ファイルに複数 concept を書くことは不可(anti-pattern、archiver は書き込みを拒否)
-- **outgoing_edges はこのノード自身の frontmatter に属する**——独立したグラフデータベースではありません。逆インデックスを見たい?`_meta/concepts/SYNAPSES-INDEX.md`(archiver が自動再構築、**手動編集不可**)
+- **outgoing_edges はこのノード自身の frontmatter に属する**——独立したグラフデータベースではありません。逆インデックスを見たい?`meta/concepts/SYNAPSES-INDEX.md`(archiver が自動再構築、**手動編集不可**)
 - **activation_count は単調増加**——活性化のたびに +1(アクティブなライフサイクル内)
 - **weight 上限 100**——runaway 強化を防止
 - **permanence と decay_policy は一致必須**——identity は不衰退、skill は対数衰退、fact は指数衰退、transient は cliff
@@ -188,7 +188,7 @@ decay_policy: skill               # permanence に対応、ミスマッチ不可
 
 ## メソッドファイルはどんな形か / What a Method File Looks Like
 
-メソッド (`_meta/methods/{domain}/{method_id}.md`) は**手続き的記憶**——再利用可能な意思決定ワークフローであり、wiki(事実的結論)と並列。
+メソッド (`meta/methods/{domain}/{method_id}.md`) は**手続き的記憶**——再利用可能な意思決定ワークフローであり、wiki(事実的結論)と並列。
 
 ```yaml
 ---
@@ -256,7 +256,7 @@ related_methods:
 
 - メソッドは **tentative から開始**、ユーザーが confirm しないと confirmed に進めない、canonical は自動(`times_used ≥ 5 AND confidence ≥ 0.7 AND 直近 3 回に challenge なし` で達成)
 - **evidence_count は「メソッドが使用され、効果があった」**、challenges は「使用されたが REVIEWER が却下、または AUDITOR が不一致と標記」
-- メソッドは **Notion 同期に入らない**——メソッドライブラリはローカル `_meta/` 下の内省資産
+- メソッドは **Notion 同期に入らない**——メソッドライブラリはローカル `meta/` 下の内省資産
 - メソッドは**具体的プロジェクト名、人名、金額を直接参照できない**——プライバシーフィルターが body から剥ぎ取る、さもなくば「メソッドは再利用可能ではなく、ただのメモ」
 
 ---
@@ -322,9 +322,9 @@ permanence 等級ごと:
 
 ### 2. 手動で概念/メソッドを新規作成
 
-`_meta/concepts/{domain}/{concept_id}.md` に直接ファイル作成、frontmatter に `status: canonical` + `permanence: identity`(または適切なもの)——archiver が次回実行時にグラフに取り込みます。
+`meta/concepts/{domain}/{concept_id}.md` に直接ファイル作成、frontmatter に `status: canonical` + `permanence: identity`(または適切なもの)——archiver が次回実行時にグラフに取り込みます。
 
-メソッドも同様:`_meta/methods/{domain}/{method_id}.md`。
+メソッドも同様:`meta/methods/{domain}/{method_id}.md`。
 
 ### 3. 手動で canonical に pin
 
@@ -356,7 +356,7 @@ frontmatter `permanence` フィールドを編集。注意:
 
 ### 7. グラフの健康状態を確認
 
-`_meta/concepts/INDEX.md` を開く——毎回 Start Session で RETROSPECTIVE がコンパイル、1 行 1 concept の summary + status + activation + confidence。
+`meta/concepts/INDEX.md` を開く——毎回 Start Session で RETROSPECTIVE がコンパイル、1 行 1 concept の summary + status + activation + confidence。
 
 健康的なシグナル:
 - Canonical 数が着実に増加(一回性の急増ではない)
@@ -419,7 +419,7 @@ archiver Phase 2 には専用の **routing decision tree** があります(`refe
 
 **30 日超非活性化** → RETROSPECTIVE が Start Session ブリーフィングで dormant (💤) フラグ。
 
-**canonical 概念の activation_count が長期 dormancy で 0 に下がる** → `_meta/concepts/_archive/{domain}/{concept_id}.md` にアーカイブ。アーカイブ後:
+**canonical 概念の activation_count が長期 dormancy で 0 に下がる** → `meta/concepts/_archive/{domain}/{concept_id}.md` にアーカイブ。アーカイブ後:
 - git 履歴に残る(データ損失なし)
 - hippocampus は活性化時に `_archive/` 下の concept を**無視**
 - AUDITOR は巡査時に依然として見える
@@ -434,7 +434,7 @@ archiver Phase 2 には専用の **routing decision tree** があります(`refe
 |------------|------|------|
 | ≤ 6 ヶ月 | Active | 無動作 |
 | 6–12 ヶ月 | Dormant | RETROSPECTIVE がブリーフィングで「メソッド 'X' は N ヶ月未使用」とフラグ |
-| ≥ 12 ヶ月 | Archived | archiver が自動で `_meta/methods/_archive/` に移動 |
+| ≥ 12 ヶ月 | Archived | archiver が自動で `meta/methods/_archive/` に移動 |
 | Archived + ユーザー削除 | Retired | ファイル削除、パターン再出現しても自動再構築なし |
 
 **メソッドは勝ち取るもの——アーカイブはシステムの最強の自動アクション。最終削除は常にユーザー**。
@@ -453,11 +453,11 @@ archiver Phase 2 には専用の **routing decision tree** があります(`refe
 
 ### 「候補メソッドが `_tentative/` に沈んだまま、確認を忘れた」
 
-連続 5 回 Start Session 無応答 → `_meta/methods/_archive/` に自動 archive。**失われない**、しかし自動的に確認キューに戻ることもない。
+連続 5 回 Start Session 無応答 → `meta/methods/_archive/` に自動 archive。**失われない**、しかし自動的に確認キューに戻ることもない。
 
 復旧フロー:
 ```bash
-mv _meta/methods/_archive/{method_id}.md _meta/methods/_tentative/{method_id}.md
+mv meta/methods/_archive/{method_id}.md meta/methods/_tentative/{method_id}.md
 ```
 次回 Start Session で確認ブロックに再出現します。
 
@@ -467,7 +467,7 @@ Hub 問題。診断:
 
 ```bash
 # ある concept の outgoing_edges 数を確認
-grep -c '^  - to:' _meta/concepts/method/{concept_id}.md
+grep -c '^  - to:' meta/concepts/method/{concept_id}.md
 ```
 
 20 本超の outgoing edges は hub の兆候。対処:

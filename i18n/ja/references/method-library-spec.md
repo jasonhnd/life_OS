@@ -8,7 +8,7 @@ superseded_by: pro/CLAUDE.md
 
 # Method Library 仕様書(Method Library Specification)
 
-Method Library は Life OS の procedural memory(手続き記憶)です — 「あなたが最もうまく働く方法」のレイヤーです。second-brain の `_meta/methods/` ディレクトリに存在し、セッションをまたいで再発する再利用可能なワークフローを格納します。
+Method Library は Life OS の procedural memory(手続き記憶)です — 「あなたが最もうまく働く方法」のレイヤーです。second-brain の `meta/methods/` ディレクトリに存在し、セッションをまたいで再発する再利用可能なワークフローを格納します。
 
 ## 1. 目的(Purpose)
 
@@ -49,7 +49,7 @@ Hermes Skills にインスパイアされています(`devdocs/research/2026-04-
 ユーザー決定 #11 に従う(v1.7 で method library が導入されました):
 
 ```
-_meta/methods/
+meta/methods/
 ├── INDEX.md                        # コンパイル済みサマリー(自動生成)
 ├── _tentative/                     # ユーザー確認待ちの候補 method
 │   └── {method_id}.md
@@ -167,7 +167,7 @@ Method の候補は `archiver` Phase 2(`pro/agents/archiver.md` 参照)で検出
    - `evidence_count: 1`
 2. 既存の methods と照合(`method_id` の完全一致、次に INDEX に対して description の類似度 ≥ 0.7)
 3. 重複の場合 → 既存 method の `evidence_count` をインクリメント、`last_used` を更新、evolution log に書き込み — 新規候補は作成しない
-4. 新規の場合 → `_meta/methods/_tentative/{method_id}.md` に書き込み
+4. 新規の場合 → `meta/methods/_tentative/{method_id}.md` に書き込み
 5. セッションの Completion Checklist に記録し、次の Start Session で RETROSPECTIVE が surface できるようにする
 
 archiver は独自の判断で候補を `tentative` から昇格させません。昇格にはユーザー入力(セクション 7)または証拠の蓄積(セクション 8)が必要です。
@@ -189,7 +189,7 @@ Method candidates detected:
 ```
 
 ユーザーの応答:
-- `c` または "confirm X" → ファイルを `_meta/methods/_tentative/` から `_meta/methods/{domain}/` へ移動、`status: tentative` → `confirmed` にフリップ、confidence を 0.5(すでに 3 つ以上の source_sessions がある場合は 0.6)まで引き上げる
+- `c` または "confirm X" → ファイルを `meta/methods/_tentative/` から `meta/methods/{domain}/` へ移動、`status: tentative` → `confirmed` にフリップ、confidence を 0.5(すでに 3 つ以上の source_sessions がある場合は 0.6)まで引き上げる
 - `r` または "reject X" → ファイルを削除
 - `e` または "edit X" → ファイルパスを表示、ユーザーが編集、状態変化なし
 - `s` または "skip" → `_tentative/` に残す、次の Start Session で再度 surface
@@ -223,7 +223,7 @@ Methods は 3 つの成熟度 tier を通過します。昇格は時間ではな
 Draft-Review-Execute ワークフローが Step 4(DISPATCHER Dispatch)に達すると、dispatcher は method ルックアップを実行します:
 
 ```
-1. _meta/methods/INDEX.md を読む
+1. meta/methods/INDEX.md を読む
 2. 各 confirmed/canonical method について、現在の subject に対して applicable_when 条件を評価
 3. method がマッチする場合 → 関連する domain の dispatch コンテキストに "Known Method" としてその完全な本文を含める
 4. 明確にラベル付け: "Known Method '{name}' applies — here is the established approach, use it unless the subject contradicts."
@@ -252,7 +252,7 @@ method を適用するすべてのセッションはその状態を更新しま�
 
 **マイナーな改訂**(文言の明確化、warning の追加)は archiver Phase 2 がユーザー確認なしで適用します。
 
-**メジャーな改訂**(step の追加、step の削除、条件変更)は次の Start Session でユーザー確認が必要です。archiver は提案された変更を `_meta/methods/_tentative/_revisions/{method_id}-{date}.md` に書き込み、新規候補と並べて surface します。
+**メジャーな改訂**(step の追加、step の削除、条件変更)は次の Start Session でユーザー確認が必要です。archiver は提案された変更を `meta/methods/_tentative/_revisions/{method_id}-{date}.md` に書き込み、新規候補と並べて surface します。
 
 ---
 
@@ -264,7 +264,7 @@ Methods は `permanence: skill` の decay を使います — フロアまでの
 |--------------------------|-------|--------|
 | ≤ 6 ヶ月 | Active | アクションなし |
 | 6–12 ヶ月 | Dormant | RETROSPECTIVE がブリーフィングでフラグ: "Method '{name}' has been dormant for N months." |
-| ≥ 12 ヶ月 | Archived | archiver がファイルを `_meta/methods/_archive/{method_id}.md` へ移動。 |
+| ≥ 12 ヶ月 | Archived | archiver がファイルを `meta/methods/_archive/{method_id}.md` へ移動。 |
 | Archived + ユーザーが明示的に削除 | Retired | ファイル消滅。パターンが再浮上しても自動再作成なし。 |
 
 Methods は決して自動削除されません。Methods は獲得されたもの; アーカイブはシステムが取る最も強力な自動アクションです。最終削除には常にユーザーが必要です。
@@ -289,7 +289,7 @@ Methods はローカルのみに保存されます。決して Notion に同期�
 
 ## 13. INDEX.md フォーマット(INDEX.md Format)
 
-`_meta/methods/INDEX.md` は RETROSPECTIVE が Start Session ごとに実際の method ファイルからコンパイルします。決して手動編集しないでください。
+`meta/methods/INDEX.md` は RETROSPECTIVE が Start Session ごとに実際の method ファイルからコンパイルします。決して手動編集しないでください。
 
 ```markdown
 # Method Library Index
@@ -335,9 +335,9 @@ method library は Hermes の YAML + markdown + evolution log パターンを借
 
 v1.6.2a には method library がありません。`tools/migrate.py` は既存のセッション履歴からバックフィルします:
 
-1. `_meta/journal/*.md` とバックフィルされた decision をスキャンし、approach を記述する言葉を探す: "approach"、"pattern"、"framework"、"process"、"流れ"、"やり方"、"手順"。
+1. `meta/journal/*.md` とバックフィルされた decision をスキャンし、approach を記述する言葉を探す: "approach"、"pattern"、"framework"、"process"、"流れ"、"やり方"、"手順"。
 2. (クロスセッション言及数で)最も参照されている上位 5 パターンを抽出。
-3. 各々を `status: tentative` かつ `confidence: 0.3` で `_meta/methods/_tentative/{method_id}.md` に候補として書き込む。
+3. 各々を `status: tentative` かつ `confidence: 0.3` で `meta/methods/_tentative/{method_id}.md` に候補として書き込む。
 4. 次の Start Session でユーザーレビュー用にフラグ。
 
 マイグレーションは一度限りです。さらなるパターン検出はライブセッションでの archiver Phase 2 を通じて発生します。
@@ -373,17 +373,17 @@ v1.7 で明示的に out of scope:
 
 ## 18. 各ロールが Method Library をどう使うか(How Each Role Uses the Method Library)
 
-すべてのロールは `_meta/methods/INDEX.md` が存在するかを参照前にチェックします。存在しないまたは空の場合、ロールは method 入力なしで動作します。
+すべてのロールは `meta/methods/INDEX.md` が存在するかを参照前にチェックします。存在しないまたは空の場合、ロールは method 入力なしで動作します。
 
 | ロール | 読むもの | 使い方 |
 |------|---------------|-----------------|
-| RETROSPECTIVE | `_meta/methods/INDEX.md` + `_tentative/` | Start Session で INDEX をコンパイル。候補を confirmation 用に surface。dormant method をフラグ。 |
+| RETROSPECTIVE | `meta/methods/INDEX.md` + `_tentative/` | Start Session で INDEX をコンパイル。候補を confirmation 用に surface。dormant method をフラグ。 |
 | ROUTER | INDEX(ヘッダー) | triage 中に domain 関連 method をスキャン。ユーザーに「you have a known approach for this」と伝えることもある。 |
 | PLANNER | INDEX(完全) | 計画文書を起草する前にどの methods が適用可能かをレビュー。名前で参照することもある。 |
 | DISPATCHER | 関連する method 本文 | "Known Method" として domain のブリーフに注入(セクション 9)。 |
 | Six Domains | dispatch コンテキストの method 本文 | ワークフローを再導出する代わりに既知の method を適用。準拠または逸脱を報告。 |
 | REVIEWER | INDEX | 一貫性チェック — 計画文書が適用可能な method を無視した場合、フラグ。 |
-| AUDITOR | `_meta/methods/` ディレクトリ | Patrol 点検 — 古い methods、矛盾、長く座っている候補。 |
+| AUDITOR | `meta/methods/` ディレクトリ | Patrol 点検 — 古い methods、矛盾、長く座っている候補。 |
 | ARCHIVER | INDEX + すべての method ファイル | Phase 2: 候補を検出、evolution log を更新、改訂を提案。 |
 | DREAM | INDEX | REM stage がクロスドメイン洞察のための結合組織として method パターンを使用。 |
 

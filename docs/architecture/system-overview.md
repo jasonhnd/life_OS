@@ -69,7 +69,7 @@ second-brain/
 ├── areas/{name}/               ← 持续领域（PARA-A）
 ├── archive/                    ← 已归档项目
 ├── inbox/                      ← 未处理原料
-└── _meta/                      ← 系统元数据
+└── meta/                      ← 系统元数据
     ├── STATUS.md               ← 全局状态仪表盘（编译产物）
     ├── STRATEGIC-MAP.md        ← 战略地图（编译产物）
     ├── config.md               ← 存储后端配置
@@ -83,7 +83,7 @@ second-brain/
 路径模板与 `references/cortex-spec.md` §Data Structures 和 §Cortex Runtime Files 对齐。session 按 `{platform}-{ts}` 单文件落，concept 按 domain 分片。
 
 ```
-_meta/
+meta/
 ├── concepts/                              ← 概念图节点（按 domain 分片）
 │   ├── INDEX.md                           ← 编译一行索引
 │   ├── SYNAPSES-INDEX.md                  ← 反向边索引（编译产物）
@@ -127,7 +127,7 @@ _meta/
 
 ### 存储后端适配器
 
-`references/adapter-github.md` / `adapter-gdrive.md` / `adapter-notion.md` 定义标准读写操作。用户在 `_meta/config.md` 选 1-3 个后端，多后端时写全部、读 primary。
+`references/adapter-github.md` / `adapter-gdrive.md` / `adapter-notion.md` 定义标准读写操作。用户在 `meta/config.md` 选 1-3 个后端，多后端时写全部、读 primary。
 
 ---
 
@@ -195,8 +195,8 @@ Cortex **不是新一层**。它是在 v1.6.2a 稳定核心之上叠加的 Layer
 User message
   ↓
 [Cortex Pre-Router · Step 0.5]  ← 三路并行信号源
-  - hippocampus 子 agent（扫描 _meta/sessions/INDEX.md，返回 top 5-7 记忆信号）
-  - concept lookup（扫描 _meta/concepts/，返回直接命中的 concept 节点 + 1-hop 邻居）
+  - hippocampus 子 agent（扫描 meta/sessions/INDEX.md，返回 top 5-7 记忆信号）
+  - concept lookup（扫描 meta/concepts/，返回直接命中的 concept 节点 + 1-hop 邻居）
   - SOUL dimension check（复用 RETROSPECTIVE SOUL Health Report，发出 identity_check 信号）
   ↓
 [GWT 仲裁]（salience 竞争 + top-K 广播）
@@ -209,10 +209,10 @@ Annotated input → ROUTER（原 multiple agents 流程不变）
   ↓
 [ARCHIVER Phase 2]
   - wiki / SOUL 自动写（既有）
-  - concept extraction（新）：候选分类 permanence tier，写入 _meta/concepts/{domain}/{concept_id}.md
+  - concept extraction（新）：候选分类 permanence tier，写入 meta/concepts/{domain}/{concept_id}.md
   - Hebbian update（新）：共激活 concept 对边权 +1，新边 weight=1，重建 SYNAPSES-INDEX.md
-  - 衰减 pass（新）：长期未用边按 permanence 衰减，追加 _meta/cortex/decay-log.md
-  - session summary 写入 _meta/sessions/{platform}-{ts}.md
+  - 衰减 pass（新）：长期未用边按 permanence 衰减，追加 meta/cortex/decay-log.md
+  - session summary 写入 meta/sessions/{platform}-{ts}.md
 ```
 
 从架构边界看，v1.6.2a 的 ROUTER / 16-agent 主干保持不变；v1.7 的增量把 ROUTER 输入升级为"带记忆标注 + signal citation 的输入"。concept extraction 和 Hebbian 不在 Pre-Router，属于 ARCHIVER Phase 2 在 adjourn 单次调用内完成的独立机制（spec §Step 10）。
@@ -271,7 +271,7 @@ Layer 3 是 Layer 2 的**兜底**。不是替代。
 
 ```
 tools/
-├── reindex.py              ← 重建 wiki/INDEX + _meta/STATUS.md + sessions/INDEX.md + SYNAPSES-INDEX.md(concept 反向索引,concept 层产物)
+├── reindex.py              ← 重建 wiki/INDEX + meta/STATUS.md + sessions/INDEX.md + SYNAPSES-INDEX.md(concept 反向索引,concept 层产物)
 ├── reconcile.py            ← 多后端一致性检查
 ├── stats.py                ← 使用统计（agent 调用次数 / 成本 / 决策数）
 ├── research.py             ← 后台研究（读 inbox 的 research 任务，抓网、生草稿）
@@ -385,7 +385,7 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 
 【8 · Layer 4（可选）】
   launchd 凌晨跑 reindex.py → 重建 wiki/INDEX.md + sessions/INDEX.md + SYNAPSES-INDEX.md（concept 反向索引，concept 层 reindex 产物）
-  launchd 早 8:00 跑 daily_briefing.py → 写入 `_meta/briefings/{date}.md`（不做独立 bot / 跨平台推送）
+  launchd 早 8:00 跑 daily_briefing.py → 写入 `meta/briefings/{date}.md`（不做独立 bot / 跨平台推送）
 ```
 
 每一步都**只读写本地文件**。网络可用是 enhancement，不是 requirement。
@@ -450,7 +450,7 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 | 新 Shell hook | `scripts/hooks/` 加脚本 + setup-hooks.sh 注册 | 加 `scripts/hooks/no-commit-secrets.sh` |
 | 新 Python 工具 | `tools/` 加脚本 | 加 `tools/weekly_review.py` |
 | 新存储后端 | `references/adapter-{name}.md` 加标准数据操作 | 加 `adapter-obsidian.md` |
-| 新 Cortex 模块（v1.7） | `pro/agents/` 加子 agent + `_meta/concepts/` 加新字段 | 加 `pro/agents/amygdala.md` |
+| 新 Cortex 模块（v1.7） | `pro/agents/` 加子 agent + `meta/concepts/` 加新字段 | 加 `pro/agents/amygdala.md` |
 
 **核心扩展哲学**：加东西不应该改其他层。加新主题不动 agent；加新 agent 不动主题；加新 hook 不动 Python 工具。
 

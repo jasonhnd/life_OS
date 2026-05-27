@@ -40,7 +40,7 @@ life_OS 例:
 ### 3. simulated → pilot
 
 必要な証拠:
-- ✅ シミュレーション run が記録（`_meta/runtime/<sid>/simulation-<artifact>.json`）
+- ✅ シミュレーション run が記録（`meta/runtime/<sid>/simulation-<artifact>.json`）
 - ✅ シミュレーションから critical findings（F1/F3/F6a/F10/F14/F15/F17）なし
 - ✅ シミュレーション結果に人類 reviewer の署名
 - ✅ すべての `open_questions` が解決済みまたは理由付きで明示的に延期
@@ -48,7 +48,7 @@ life_OS 例:
 ### 4. pilot → active
 
 必要な証拠:
-- ✅ `_meta/runtime/<sid>/` に trace 証拠を持つ少なくとも 1 つの成功した実世界呼び出し
+- ✅ `meta/runtime/<sid>/` に trace 証拠を持つ少なくとも 1 つの成功した実世界呼び出し
 - ✅ 監査合格: AUDITOR Mode 3 がこの artifact に対して PASS 判定
 - ✅ 回帰スイート合格（`/run-regression` がクリーン）
 - ✅ 命名された人類 owner の承認（`approval.approver` は "user" のような役割ラベルではなく実在の人物識別子）
@@ -79,7 +79,7 @@ life_OS 例:
 
 必要な証拠:
 - ✅ 既知のすべての消費者が移行済み（`/check-spec-drift` で検証 → broken-path 参照ゼロ）
-- ✅ 最終 trace がアーカイブ（`_meta/v1.8.4-snapshot/` または同等の場所）
+- ✅ 最終 trace がアーカイブ（`meta/v1.8.4-snapshot/` または同等の場所）
 - ✅ Frontmatter 更新済み `status: legacy` + 引退日
 
 ## 特別な遷移

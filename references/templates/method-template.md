@@ -52,7 +52,7 @@ Free-form notes.
 
 ---
 
-**Template usage**: copy to `_meta/methods/{domain}/{your-method-id}.md`, fill in real values. Method library is the procedural-memory layer (vs concepts = entity-memory, SOUL = identity-memory).
+**Template usage**: copy to `meta/methods/{domain}/{your-method-id}.md`, fill in real values. Method library is the procedural-memory layer (vs concepts = entity-memory, SOUL = identity-memory).
 
 Path conventions per `references/method-library-spec.md`:
 - `method_id`: lowercase, hyphenated, unique

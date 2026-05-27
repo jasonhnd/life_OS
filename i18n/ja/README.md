@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.8.7-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -19,7 +19,9 @@
 
 ---
 
-> **Hermes Local** は、Life OS が Layer 4 Python tools/ パッケージを出荷していた時代のユーザー向け名称でした。**v1.8.1 Wave 2（zero-python pivot）**以降、Layer 4 はなくなり、skill 全体が bash hook + markdown prompt + agent 定義のみとなりました。危険コマンド pattern guard（~40 個）は `scripts/hooks/pre-bash-approval.sh` 内にインライン埋め込み。Pattern 出処は保持：[NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）から fork。
+> **v1.9.0 アーキテクチャ**：Life OS は 100% markdown —— エージェントプロンプト、slash コマンド、eval シナリオ、RFC ドキュメント。Python なし（`tools/` は v1.8.1 Wave 2 で削除）、bash hook なし（`scripts/hooks/*.sh` は v1.8.5 で退役）、.yml スキーマファイルなし（v1.8.7 md-only 本体論的コミット DR-10）。ランタイム enforcement は inline LLM 手順（spec.md 読み取り + grep マッチング）。**Hermes Local** は v1.6-v1.8.0 時代の bash hook + Python tools 層の旧称；その層は存在しない。Pattern 出処は保持：[NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）から fork。
+>
+> 下記の歴史的セクション（v1.8.3 / v1.8.0 / v1.6.3a "What's New"）は `bash scripts/setup-hooks.sh` 等を参照する場合あり —— これらは **v1.8.5 以降 no-op**（hook layer 退役）。現在のセットアップは `/install-agents`（Claude Code slash コマンド、すべての歴史的 bash setup スクリプトを置き換え）を実行。
 
 ## ひとつのエンジン。九つの世界。選ぶのはあなた。
 
@@ -89,7 +91,7 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 - **🔄 ScheduleWakeup 自己駆動ループ（B4）** —— `/verify-release-and-watch` と `/notion-sync-and-watch` が 270s ごとにポーリング（Anthropic prompt cache ウィンドウ）、最大 12 ticks（60 分）終端状態まで。GitHub Release publish 欠落を自動修正。lifeos が reactive ツールから "タスクを見張れる" ツールへ。
 - **📋 verify-release が 11 個の check に拡張** —— 新 check 9（i18n diff parity、WARN レベル）が反復する "EN spec 更新したが zh/ja ドリフト" 違反クラスを捕捉。新 check 10（diff スコープの forbidden extensions）が前回 tag 以降に導入された禁止拡張子ファイルを捕捉。Check 8 が 9 つの禁止拡張子に拡張（`.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite` 追加）。
 - **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 sub-check が v1.8.7 アーティファクト維持 + md-only 制約が設計提案レベルで迂回されないことを検証（ファイル拡張子ゲート到達前にドリフトを捕捉）。
-- **📚 Spec 強化** —— `evals_scenarios:` frontmatter フィールドが各計画文書で必須（dispatcher は欠如すれば拒否）。`concept-spec.md` の hotness 閾値が明示化（≥3 sessions → confirmed、≥10 → canonical）。5 つの新 `WHEN-NOT-TO-ADD.md` が pro/agents/、references/、_meta/、themes/、scripts/ に明確な境界を設定。
+- **📚 Spec 強化** —— `evals_scenarios:` frontmatter フィールドが各計画文書で必須（dispatcher は欠如すれば拒否）。`concept-spec.md` の hotness 閾値が明示化（≥3 sessions → confirmed、≥10 → canonical）。5 つの新 `WHEN-NOT-TO-ADD.md` が pro/agents/、references/、meta/、themes/、scripts/ に明確な境界を設定。
 - **🌳 Memory tree cascade seal —— v2.0 提案** —— `references/memory-tree-spec.md` が sessions/wiki の L0 → L1 → L2 → L3 cascade アーキテクチャを定義、OpenHuman から借用。Spec は提案として凍結；v1.8.7 archiver 挙動変更なし。実装は v1.9/v2.0 に延期、Jason の second-brain 実データ検証待ち。
 
 ### v1.8.6 からのアップグレード（zero-friction）
@@ -103,17 +105,17 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 マイグレーションコマンド不要。archiver 初回実行で `pro/gotchas.md` を自動作成。既存データレイアウトは変わらない。
 
-完全な RFC、DR-08（cargo-cult カット）、DR-09（決定基準：時間ではなくプロダクト品質）、DR-10（md-only 本体論的制約）、設計決定の監査 trail は [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 参照。
+完全な RFC、DR-08（cargo-cult カット）、DR-09（決定基準：時間ではなくプロダクト品質）、DR-10（md-only 本体論的制約）、設計決定の監査 trail は [`meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 参照。
 
 > **以前**、v1.8.3 はアウトバウンドプライバシーギャップを閉じた（v1.8.3 の詳細は CHANGELOG 参照）。
 
 ## v1.8.3 の新機能 — Notion 書き込み前のアウトバウンド境界ゲート
 
-**「外向き」プライバシーの隙を塞ぐ。** v1.8.2 は vault に**入る**ものを守った（`pre-write-scan.sh` が SOUL.md / wiki / `_meta/concepts/` / user-patterns.md を secret・prompt injection・不可視 Unicode から守る）。だが v1.8.2 は vault を**出る**経路について何も言わなかった。Decision/Task/Journal の本文 —— ユーザーの生の言葉、第三者氏名、具体的金額を含む —— は `_meta/outbox/<sid>/` から Notion へと Step 10a で同期されるとき、**何のプライバシーゲートも通っていなかった**。v1.8.3 は対称的なアウトバウンド守衛を導入する。
+**「外向き」プライバシーの隙を塞ぐ。** v1.8.2 は vault に**入る**ものを守った（`pre-write-scan.sh` が SOUL.md / wiki / `meta/concepts/` / user-patterns.md を secret・prompt injection・不可視 Unicode から守る）。だが v1.8.2 は vault を**出る**経路について何も言わなかった。Decision/Task/Journal の本文 —— ユーザーの生の言葉、第三者氏名、具体的金額を含む —— は `meta/outbox/<sid>/` から Notion へと Step 10a で同期されるとき、**何のプライバシーゲートも通っていなかった**。v1.8.3 は対称的なアウトバウンド守衛を導入する。
 
 ### なぜローカル outbox と Notion が同じ脅威モデルではないか
 
-私的 git にある `_meta/outbox/<sid>/decisions/` の内容と、Notion に送ってよいものは、**同じ基準ではない**：
+私的 git にある `meta/outbox/<sid>/decisions/` の内容と、Notion に送ってよいものは、**同じ基準ではない**：
 
 - Notion workspace は共有の可能性（チーム Notion、誤操作で公開リンク）
 - Notion AI が組織レベルアシスタントのためにページコンテンツを索引
@@ -135,7 +137,7 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 | **E** — URL トラッカー、JWT 形状 | `info` | 静かに記録 |
 | 命中なし | `pass` | 通常進行 |
 
-監査記録は `_meta/runtime/<sid>/notion-pii-scan-<ts>.json` に書かれ、命中カテゴリ ID 含む（**生コンテンツは記録しない**）。AUDITOR Mode 3 巡検でアウトバウンドリスク頻度を追跡可能 —— もし adjourn の 40% で Group B が発火するなら、それは振り返るべき行動シグナル。
+監査記録は `meta/runtime/<sid>/notion-pii-scan-<ts>.json` に書かれ、命中カテゴリ ID 含む（**生コンテンツは記録しない**）。AUDITOR Mode 3 巡検でアウトバウンドリスク頻度を追跡可能 —— もし adjourn の 40% で Group B が発火するなら、それは振り返るべき行動シグナル。
 
 ### なぜ B/C/D は諮問型 `warn` で `block` 強制ブロックでないか
 
@@ -166,7 +168,7 @@ v1.8.1 は **Life OS 史上最大の「引き算」**。5 月 1-2 日に 2 つ�
 
 ### Wave 1 · Plan B wiki + auto-bootstrap（5 月 1 日）
 
-- **`/inbox-process`** — `_meta/inbox/to-process/` に任意の `.md` をドロップ、「処理 inbox」または `/inbox-process` と発話。ROUTER がスキャン、各項目の配置（accept→wiki / update→wiki / archive / reject / defer / merge）を提案、確認を待ち、実行、ログ記録。Wave 2 で LLM ベース重複検出（SHA256 なし、FTS5 なし）+ `_meta/inbox/manifest.json` デルタ追跡を追加。
+- **`/inbox-process`** — `meta/queue/to-process/` に任意の `.md` をドロップ、「処理 inbox」または `/inbox-process` と発話。ROUTER がスキャン、各項目の配置（accept→wiki / update→wiki / archive / reject / defer / merge）を提案、確認を待ち、実行、ログ記録。Wave 2 で LLM ベース重複検出（SHA256 なし、FTS5 なし）+ `meta/queue/manifest.json` デルタ追跡を追加。
 - **`/research <topic>`** — 並列で 5 つ（`--depth deep` で 8 つ）の `general-purpose` subagent を起動し academic / practitioner / contrarian / origin / adjacent 角度をカバー。SCHEMA 互換 wiki ドラフトに統合、強制 `Counterpoints` セクション + 自動反 confirmation bias チェック付き。Wave 2 で切り離された CitationAgent（Phase 4、Anthropic パターン）を追加。citation verifier 込みで総 wall time ≤ 9 min。
 - **`wiki/log.md` 活動タイムライン規約** — 各 wiki Write/Edit/移動操作で 1 行 append + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` と `/research` が自動でログを書く。
 - **コマンド不要の vault 自動 bootstrap** — v1.8.1 で初めて vault 内で Claude Code セッションを開くとき、SessionStart hook が欠落しているスキャフォールディングを自動検出してサイレントに作成。`✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` の 1 行のみ表示。`.obsidian/graph.json` も自動パッチ（先にバックアップ）。
@@ -193,7 +195,7 @@ Wave 2 を駆動したユーザーの原文：「我想把这些东西全砍掉�
 | `review_by` フィールド | ISO 日付 — `wiki-decay` がこのエントリを再表示すべき時点 |
 | 各事実の出処タグ | `^[extracted]`（ソースから言い換え）、`^[inferred]`（自分の合成）、`^[ambiguous]`（ソース不一致）。`/research` agent 出力で必須；`/inbox-process` accept/update で必須。 |
 | `/inbox-process` LLM ベース重複検出 | SHA256 ハッシュを置換 — バイト一致だけでなく言い換え近似重複も捕捉。grep + Read を使った純 LLM 判断。 |
-| `_meta/inbox/manifest.json` デルタ追跡 | 各 `/inbox-process` 実行が提案テーブルの行に Δ-new vs carried-over をマーク。 |
+| `meta/queue/manifest.json` デルタ追跡 | 各 `/inbox-process` 実行が提案テーブルの行に Δ-new vs carried-over をマーク。 |
 | `/research` 切り離された CitationAgent | Anthropic パターン Phase 4：WebFetch で各 `^[extracted]` claim が `sources[]` に対応するか検証。未検証は自動降格。30%+ 失敗で confidence が一段階下がる。`--no-citations` でオプトアウト可。 |
 
 ### Life OS Wiki が他とどう違うか（確証バイアス対抗ポジショニング）
@@ -217,7 +219,7 @@ Wave 2 を駆動したユーザーの原文：「我想把这些东西全砍掉�
 - **macOS 移植性**：`pre-bash-approval.sh` に裸 `python -c` 5 箇所。macOS 12+ は裸 `python` を削除 → hook fail-CLOSED → 全 Bash コマンドブロック。R-1.8.0-020 commit タイトルは修正済みと主張したが、Wave 1 まで未修正だった。
 - **Scanner 誤判定**：`pre-write-scan.sh` pattern #5 が正当な markdown インラインコードをブロック。backtick 内に shell メタ文字を要求するよう厳格化。
 - **session-start-inbox UX**：2 つのタスク名間違い；NEVER_RUN バケットを 8+ 行から 1 行に圧縮。
-- **Notion sync が 4 entity をハードコード** — 設定駆動に変更；`_meta/config.md` を読む。
+- **Notion sync が 4 entity をハードコード** — 設定駆動に変更；`meta/config.md` を読む。
 
 ### マイグレーション
 
@@ -270,8 +272,8 @@ Pivot で削除されたもの：
 v1.7.3 は Cortex を「宣言 always-on」から「強制 always-on」に変え、Hermes ツールにユーザーが見える・トリガーできる実際の入口を与えます。
 
 - **Cortex hook 強制注入** — `pre-prompt-guard` がユーザーメッセージに決定キーワードを含む、または 80 文字を超える場合、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制する system-reminder を出力します。v1.7.2 のサイレント degradation（17+ セッションで 0 audit trail）を修正。
-- **narrator-validator audit trail HARD RULE** — frontmatter `tools` に Bash + Write を追加、pro/CLAUDE.md §0.5 に従い `_meta/runtime/<sid>/narrator-validator.json` JSON audit trail 書き込みを必須化。
-- **4 つの slash command 接続** — `/compress`（インライン圧縮、`_meta/compression/` にアーカイブ）、`/search`（`tools.session_search` による FTS5 クロスセッション検索）、`/memory`（`tools.memory` による 24-48h 短期記憶）、`/method`（`tools.skill_manager` によるメソッドライブラリ管理）。`setup-hooks.sh` が `~/.claude/commands/` にインストール。
+- **narrator-validator audit trail HARD RULE** — frontmatter `tools` に Bash + Write を追加、pro/CLAUDE.md §0.5 に従い `meta/runtime/<sid>/narrator-validator.json` JSON audit trail 書き込みを必須化。
+- **4 つの slash command 接続** — `/compress`（インライン圧縮、`meta/compression/` にアーカイブ）、`/search`（`tools.session_search` による FTS5 クロスセッション検索）、`/memory`（`tools.memory` による 24-48h 短期記憶）、`/method`（`tools.skill_manager` によるメソッドライブラリ管理）。`setup-hooks.sh` が `~/.claude/commands/` にインストール。
 - **デッドコード削除** — `tools/prompt_cache.py`（118 行 0 caller、Claude Code サブスク環境では無意味）と `docs/architecture/prompt-cache-strategy.md` を削除。`docs/architecture/hermes-local.md` の関連参照を整理。
 
 マイグレーション：4 つの新しい slash command を `~/.claude/commands/` にインストールするため `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行してください。
@@ -306,7 +308,7 @@ v1.7.1 は、透明性と証拠の扱いを強化するリリースです。toke
 
 反コンファビュレーション強化により虚構の失敗説明がユーザーに届かなくなった。
 
-パッチ更新：最終 briefing contract を明文化し、Mode 0 が Claude Code hooks を自己チェックし、Cortex は `_meta/config.md` で OFF / opt-in になります。フック自動インストールがテスト機展開ギャップを解消。
+パッチ更新：最終 briefing contract を明文化し、Mode 0 が Claude Code hooks を自己チェックし、Cortex は `meta/config.md` で OFF / opt-in になります。フック自動インストールがテスト機展開ギャップを解消。
 ソース根拠を強めた briefing では、PRIMARY-SOURCE 実測カウントマーカー、STATUS.md の古さによる抑制、30d-≥3 Compliance Watch 自動バナー、そしてユーザー表示前に ROUTER が Bash で数値・バージョン・パス主張を確認する仕組みを追加しました。
 
 ---
@@ -337,7 +339,7 @@ v1.7 の全 commit チェーンと COURT-START-001 v1.6.3 incident アーカイ�
 4. **AUDITOR Compliance Patrol（Mode 3）** — 7 クラス違反分類（A1 サブエージェントスキップ、A2 ディレクトリチェックスキップ、A3 Pre-flight スキップ、B 事実捏造、C フェーズ未完了、D プレースホルダー値、E メインコンテキストフェーズ実行）、各セッション開始とアーカイブ後に実行
 5. **Eval 回帰** — `evals/scenarios/start-session-compliance.md` が COURT-START-001 の 6 つの失敗モードを固定化
 
-**デュアルリポ違反ログ**（md + git、ユーザーのストレージ制約に準拠）：違反は `pro/compliance/violations.md`（dev repo、公開）と `_meta/compliance/violations.md`（ユーザー second-brain、プライベート）に永続化。エスカレーションラダー：30 日以内に同種 ≥3 → hook リマインダー強化；≥5 → briefing 冒頭に `🚨 Compliance Watch`；90 日以内に ≥10 → AUDITOR が毎セッション巡検。
+**デュアルリポ違反ログ**（md + git、ユーザーのストレージ制約に準拠）：違反は `pro/compliance/violations.md`（dev repo、公開）と `meta/compliance/violations.md`（ユーザー second-brain、プライベート）に永続化。エスカレーションラダー：30 日以内に同種 ≥3 → hook リマインダー強化；≥5 → briefing 冒頭に `🚨 Compliance Watch`；90 日以内に ≥10 → AUDITOR が毎セッション巡検。
 
 **v1.6.2 の機能も引き続き利用可能**：退朝フロー部分スキップ不可 · Wiki 自動書き込み · SOUL 継続自動書き込み · DREAM 10 自動トリガー · SOUL トレンド矢印 · REVIEWER SOUL 3 層戦略 · ブリーフィング冒頭の SOUL ヘルスレポート。
 
@@ -454,7 +456,7 @@ second-brain/
 ├── SOUL.md                 # あなたが誰か——価値観、アイデンティティ、志
 ├── user-patterns.md        # あなたの行動パターン——内閣参与の観察
 ├── inbox/                  # スマホからの走り書き
-├── _meta/
+├── meta/
 │   ├── STATUS.md           # 全体ステータスダッシュボード
 │   ├── STRATEGIC-MAP.md    # プロジェクト間の戦略的関係
 │   ├── journal/            # セッションレポート、DREAM レポート
@@ -781,7 +783,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
        GitHub / Google Drive / Notion（1-3個を選択）
        ├── SOUL.md          🔮 パーソナリティアーカイブ（ゼロから育つ）
        ├── user-patterns.md 📊 行動パターン（内閣参与の観察）
-       ├── _meta/
+       ├── meta/
        │   ├── STATUS.md         📊 全体ステータスダッシュボード
        │   ├── STRATEGIC-MAP.md  🗺️ 戦略的関係マップ
        │   ├── journal/          📝 レポート + DREAM ログ

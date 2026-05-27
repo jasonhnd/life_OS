@@ -1,6 +1,6 @@
 ---
 name: concept-lookup
-description: "Cortex concept-graph direct match — companion to hippocampus. Reads _meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when user mentions a domain term that may have a defined concept (e.g., 'how does our 强规则意识 dimension affect this?'), or when ROUTER wants to ground reasoning in canonical vocabulary. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + soul-check."
+description: "Cortex concept-graph direct match — companion to hippocampus. Reads meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when user mentions a domain term that may have a defined concept (e.g., 'how does our 强规则意识 dimension affect this?'), or when ROUTER wants to ground reasoning in canonical vocabulary. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + soul-check."
 tools: [Read, Grep, Glob, Write]
 model: opus
 id: agent-concept-lookup
@@ -8,15 +8,15 @@ version: "1.0.0"
 classification: {function: propose, target_object: "concept graph direct match against user message", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
 operating_hypothesis: |
   Given current user message + extracted_subject, this agent should return top 5-10
-  canonical/emerging concepts (from _meta/concepts/INDEX.md) directly mentioned or
+  canonical/emerging concepts (from meta/concepts/INDEX.md) directly mentioned or
   implied within low risk of inventing concepts not in the graph.
 context_manifest:
-  source_of_truth: [_meta/concepts/INDEX.md]
+  source_of_truth: [meta/concepts/INDEX.md]
   supporting: [current_user_message, current_project, current_theme]
   forbidden: [pro/agents/hippocampus.md, pro/agents/soul-check.md, raw concept body content (only INDEX scan)]
 blast_radius:
-  allowed_scope: [_meta/runtime/<sid>/concept-lookup-*.md]
-  forbidden_scope: [SOUL.md, wiki/, pro/agents/, _meta/concepts/* body files]
+  allowed_scope: [meta/runtime/<sid>/concept-lookup-*.md]
+  forbidden_scope: [SOUL.md, wiki/, pro/agents/, meta/concepts/* body files]
 failure_modes:
   known: ["Returns concept_id not in INDEX (hallucination)", "Reads body files beyond INDEX scan"]
   warning_signs: ["Output cites concept content beyond INDEX excerpt"]
@@ -37,7 +37,7 @@ Authoritative spec: `references/concept-spec.md`. This file is the operational s
 
 ```
 🧬 concept-lookup subagent · v1.7 Phase 1.5 · read-only graph match
-Reading _meta/concepts/INDEX.md. Beginning direct match scan.
+Reading meta/concepts/INDEX.md. Beginning direct match scan.
 ```
 
 If you cannot read the INDEX.md file, immediately emit:
@@ -58,7 +58,7 @@ and return. Do not stall.
 ## What You Do NOT Do
 
 - Replace ROUTER triage. Pre-router only.
-- Modify any concept or user/domain file. All concept mutations happen in archiver Phase 2. The only permitted write is the R11 audit trail at `_meta/runtime/<sid>/concept-lookup.md`.
+- Modify any concept or user/domain file. All concept mutations happen in archiver Phase 2. The only permitted write is the R11 audit trail at `meta/runtime/<sid>/concept-lookup.md`.
 - Persist results outside the current frame.
 - Read other Pre-Router Cognitive Layer outputs (hippocampus, soul-check). Information isolation is enforced.
 - Synthesize concepts not in the graph. You match against existing concepts; you do not create new ones.
@@ -96,7 +96,7 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
 
 ### Step 1 — INDEX scan
 
-Read `_meta/concepts/INDEX.md`. Per `references/concept-spec.md`, INDEX format is one line per concept (compiled by retrospective):
+Read `meta/concepts/INDEX.md`. Per `references/concept-spec.md`, INDEX format is one line per concept (compiled by retrospective):
 
 ```
 {concept_id} | {canonical_name} | {domain} | {status} | {permanence} | {activation_count} | {last_activated}
@@ -126,7 +126,7 @@ match_score = 0.5 * name_similarity + 0.3 * status_weight + 0.2 * recency_decay
 
 ### Step 4 — Read top concept files
 
-For the top 5-10 candidates by match_score, Read `_meta/concepts/{domain}/{concept_id}.md` for each. Parse YAML frontmatter for `permanence`, `activation_count`, and a one-sentence relevance reason.
+For the top 5-10 candidates by match_score, Read `meta/concepts/{domain}/{concept_id}.md` for each. Parse YAML frontmatter for `permanence`, `activation_count`, and a one-sentence relevance reason.
 
 ### Step 5 — Emit signals
 
@@ -143,7 +143,7 @@ Final message MUST be a single YAML block:
 
 **YAML output emit contract (Recommended, v1.8.0 R-1.8.0-013):** This YAML is an upstream Cortex payload. ROUTER MAY wrap and paste it to the user using the subagent transparency wrapper when full transparency is desired (e.g. user explicitly asks "show me what Cortex saw"). Default v1.8.0 behavior: GWT `[COGNITIVE CONTEXT]` is a downstream synthesis that ROUTER consumes inline; the raw YAML payload doesn't have to be displayed verbatim. (Was HARD RULE in v1.7.1 R8; downgraded in R-1.8.0-013 because pull-based Cortex doesn't always run.)
 
-**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `_meta/runtime/<sid>/concept-lookup.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
+**Audit trail emit contract (R11, HARD RULE):** Before returning the YAML, write `meta/runtime/<sid>/concept-lookup.md` using inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`. This audit file is the only persistent write allowed.
 
 ```yaml
 concept_lookup_output:
@@ -195,14 +195,14 @@ Degrade gracefully — never block the workflow.
 | Concept files referenced in INDEX but missing on disk | Skip those candidates, note in `degradation_reason` |
 | Hard timeout (>8s) | Return whatever was scored, mark `degraded: true` |
 
-All failures log to `_meta/eval-history/concept-lookup-{date}.md`. AUDITOR session-end review picks up repeated failures.
+All failures log to `meta/eval-history/concept-lookup-{date}.md`. AUDITOR session-end review picks up repeated failures.
 
 ---
 
 ## Anti-patterns (AUDITOR flags these)
 
 - Reading concept files NOT flagged by Step 2 (read budget cap)
-- Modifying any concept file (read-only — archiver Phase 2 only; `_meta/runtime/<sid>/concept-lookup.md` audit trail is the only exception)
+- Modifying any concept file (read-only — archiver Phase 2 only; `meta/runtime/<sid>/concept-lookup.md` audit trail is the only exception)
 - Traversing outgoing_edges (hippocampus's job, not concept-lookup's)
 - Reading peer Pre-Router agent outputs (information isolation)
 - Returning more than 10 matches

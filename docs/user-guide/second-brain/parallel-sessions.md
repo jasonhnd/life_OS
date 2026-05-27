@@ -19,13 +19,13 @@ Session A 和 Session B 同时运行
 
 Session A 退朝：
   - 写 projects/career/decisions/2026-04-08-foo.md
-  - 重写 _meta/STATUS.md
+  - 重写 meta/STATUS.md
   - 重写 user-patterns.md
   - git push
 
 Session B 退朝（同时）：
   - 写 projects/finance/decisions/2026-04-08-bar.md
-  - 重写 _meta/STATUS.md      ← 和 A 冲突
+  - 重写 meta/STATUS.md      ← 和 A 冲突
   - 重写 user-patterns.md     ← 和 A 冲突
   - git push                  ← 失败或覆盖
 
@@ -41,7 +41,7 @@ Outbox 模式把"写入"和"合并"分开，避开这个问题。
 ### 退朝时 · ARCHIVER 只写自己的 outbox
 
 ```
-_meta/outbox/
+meta/outbox/
 ├── claude-20260408-2200/       ← Session A 的输出
 │   ├── manifest.md
 │   ├── decisions/
@@ -73,12 +73,12 @@ _meta/outbox/
 
 ### 退朝时不碰共享文件
 
-退朝流程（ARCHIVER）**只写 `_meta/outbox/{session_id}/` 目录**。
+退朝流程（ARCHIVER）**只写 `meta/outbox/{session_id}/` 目录**。
 
 绝对不碰的文件：
 
 - `projects/{project}/index.md`
-- `_meta/STATUS.md`
+- `meta/STATUS.md`
 - `user-patterns.md`
 - 其他项目或领域的文件
 
@@ -104,7 +104,7 @@ Observation: 最近 3 个决策都在首轮 clarification 后做出。
 ### git commit 只包含 outbox
 
 ```bash
-git add _meta/outbox/{session_id}/
+git add meta/outbox/{session_id}/
 git commit -m "[life-os] session {session_id} output"
 git push
 ```
@@ -118,21 +118,21 @@ git push
 ```
 Step 7. OUTBOX MERGE
 
-扫 _meta/outbox/ 下所有会话目录：
-  - 如果 _meta/.merge-lock 存在且 < 5 分钟 → 跳过合并（另一个 session 在做）
-  - 写 _meta/.merge-lock 锁
+扫 meta/outbox/ 下所有会话目录：
+  - 如果 meta/.merge-lock 存在且 < 5 分钟 → 跳过合并（另一个 session 在做）
+  - 写 meta/.merge-lock 锁
   - 对每个 outbox（按 session-id 时间排序）：
       - 读 manifest.md
       - 移 decisions/ → projects/{project}/decisions/
       - 移 tasks/ → projects/{project}/tasks/
-      - 移 journal/ → _meta/journal/
+      - 移 journal/ → meta/journal/
       - 应用 index-delta.md → 更新 projects/{project}/index.md
       - 追加 patterns-delta.md → user-patterns.md
       - 移 wiki/ → wiki/{domain}/{topic}.md
       - 合并成功 → 删掉这个 outbox 目录
-  - 全部合并后：编译 _meta/STATUS.md
+  - 全部合并后：编译 meta/STATUS.md
   - git commit + push
-  - 删 _meta/.merge-lock
+  - 删 meta/.merge-lock
   - 晨报报告"📮 合并了 N 个离线会话"
 ```
 
@@ -148,14 +148,14 @@ Step 7. OUTBOX MERGE
 
 ```
 Session X 上朝到步骤 7：
-  1. 检查 _meta/.merge-lock 存在吗？
+  1. 检查 meta/.merge-lock 存在吗？
      - 不存在 → 继续
      - 存在但 > 5 分钟 → 视为 stale（前一个会话崩了），清掉继续
      - 存在且 < 5 分钟 → 跳过合并，假定另一个会话在做
-  2. 写 _meta/.merge-lock（包含当前 session-id + 时间戳）
+  2. 写 meta/.merge-lock（包含当前 session-id + 时间戳）
   3. 合并所有 outbox
   4. git commit + push
-  5. 删 _meta/.merge-lock
+  5. 删 meta/.merge-lock
 ```
 
 ### 锁内容
@@ -233,7 +233,7 @@ outbox 里有：
 
 你在 Claude Code 跑一个会话。同时 Gemini CLI 跑另一个。两个平台独立的 orchestrator。
 
-- 每个平台维护自己的 `last_sync_time`（在 `_meta/config.md` 里）。
+- 每个平台维护自己的 `last_sync_time`（在 `meta/config.md` 里）。
 - 两个平台都写自己的 outbox。
 - 任何一个下次 Start Session 都会合并两个平台的 outbox。
 

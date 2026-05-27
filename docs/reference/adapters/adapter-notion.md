@@ -23,7 +23,7 @@ Notion 同时支持两种用法：作为完整存储后端（单独选 Notion �
 
 仅使用 3 个组件：
 - 📬 Inbox（数据库）：设备间消息队列
-- 🧠 Status Dashboard（页面）：`_meta/STATUS.md` 的镜像
+- 🧠 Status Dashboard（页面）：`meta/STATUS.md` 的镜像
 - 🗄️ Archive：只读归档访问
 
 **重要**：在传输模式下，Notion **没有** Task/Decision/Journal 数据库。若用户在 Notion 里直接编辑 inbox 之外的内容，这些变更对同步协议**不可见**。RETROSPECTIVE 应在首次设置时提醒用户："在传输模式下，所有移动端捕获都走 📬 Inbox。Inbox 之外的 Notion 页面直接编辑不会同步到 GitHub/GDrive。"

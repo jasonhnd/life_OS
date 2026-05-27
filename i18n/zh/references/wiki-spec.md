@@ -12,7 +12,7 @@ supersedes: wiki.v1 (v1.8.4 及更早；v1 entry 2027-05-23 自动标 deprecated
 
 Wiki 是系统的知识档案——关于世界的可复用结论的活集合。位于 second-brain 的 `wiki/` 目录下。
 
-> **v1.8.5 wiki v2 pivot —— 借鉴自 eou-foundry**: Wiki entry 不再是 free-form prose 加 confidence/evidence metadata。v2 entry 有结构化 frontmatter（6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against）。按 RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 5。
+> **v1.8.5 wiki v2 pivot —— 借鉴自 eou-foundry**: Wiki entry 不再是 free-form prose 加 confidence/evidence metadata。v2 entry 有结构化 frontmatter（6 facets classification + operating_hypothesis + context_manifest + reference_set + failure_modes + arguments_against）。按 RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 5。
 
 > **v2.0 未来方向（v1.8.7 A1 spec 提案）**：`references/memory-tree-spec.md`（status: proposal）定义 wiki + sessions 的 L0 → L1 → L2 → L3 cascade seal 架构，借鉴自 `tinyhumansai/openhuman` Memory Tree。v1.8.7 不实施 —— 详见该 spec 的未来方向与理由。
 
@@ -24,14 +24,14 @@ Wiki 是系统的知识档案——关于世界的可复用结论的活集合。
 | `user-patterns.md` | 你做什么（行为模式）| "倾向回避金融维度" |
 | `SOUL.md` | 你是谁（价值观、人格）—— **v2 schema 见 `references/soul-spec.md`** | "Truth over comfort"（priority 1）|
 | `wiki/` | 你知道什么 —— 陈述性知识 —— **v2 schema 本文档** | "日本 NPO 贷款无貸金業法豁免" |
-| `_meta/concepts/` | 突触图 —— 概念如何连接 | "company-a-holding" 节点带加权边 |
-| `_meta/methods/` | 程序性记忆 —— 可复用工作流 | "5 轮渐进质量文档优化" |
+| `meta/concepts/` | 突触图 —— 概念如何连接 | "company-a-holding" 节点带加权边 |
+| `meta/methods/` | 程序性记忆 —— 可复用工作流 | "5 轮渐进质量文档优化" |
 
 **非 wiki 材料**（去别处）：
 - 身份 / 价值 / 个人偏好 → `SOUL.md` v2
 - 行为模式 → `user-patterns.md`
-- 程序性工作流 → `_meta/methods/`
-- 概念级关联 → `_meta/concepts/`
+- 程序性工作流 → `meta/methods/`
+- 概念级关联 → `meta/concepts/`
 
 ## 原则（v1 保留）
 

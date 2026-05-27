@@ -8,7 +8,7 @@ introduced_in: v1.8.5
 
 # 失敗分類法 F1-F17
 
-> AI agent ガバナンスシステムのアーキテクチャレベル失敗カテゴリ。各カテゴリに definition + canonical repair。life_OS は eou-foundry からこの分類法を借用（Stage 3 Day 6 成果物、`_meta/rfc/v1.8.5-cleanup-and-hardening.md` 参照）。
+> AI agent ガバナンスシステムのアーキテクチャレベル失敗カテゴリ。各カテゴリに definition + canonical repair。life_OS は eou-foundry からこの分類法を借用（Stage 3 Day 6 成果物、`meta/rfc/v1.8.5-cleanup-and-hardening.md` 参照）。
 
 ## 既存 life_OS 分類法との関係
 
@@ -29,7 +29,7 @@ introduced_in: v1.8.5
 ### F2 — CONTEXT FAILURE
 - **定義**: 誤った context がロードされた、または正典ソースが省略された。
 - **修復**: `context_manifest` を修復。
-- **例**: REVIEWER が SOUL.md を読まずに決定; archiver Phase 4 が古い `_meta/config.md` を読む。
+- **例**: REVIEWER が SOUL.md を読まずに決定; archiver Phase 4 が古い `meta/config.md` を読む。
 
 ### F3 — SCHEMA FAILURE
 - **定義**: spec、入力、出力、validator schema が乖離。
@@ -70,7 +70,7 @@ introduced_in: v1.8.5
 
 ### F9 — TRACE FAILURE
 - **定義**: 実行を再構築できない; trace が欠落するか宣言されたステップと矛盾。
-- **修復**: trace キャプチャを改善; 各ステップを `_meta/runtime/<sid>/` に書き込む。
+- **修復**: trace キャプチャを改善; 各ステップを `meta/runtime/<sid>/` に書き込む。
 - **例**: archiver Phase 4 が完了したが `notion-sync-*.json` 監査 trail を書かない。
 
 ### F10 — RESPONSIBILITY FAILURE
@@ -117,8 +117,8 @@ introduced_in: v1.8.5
 
 すべての診断された失敗が変更になるわけではない。Stage 7 `no_change_record` プロトコルに従って決定を明示的に記録：
 
-- **change**: ECP（Edit-Change-Proposal）を開いた。`_meta/incidents/{id}.change.md` 参照。
-- **no_change**: 現在の動作を受け入れる決定。Stage 7 §1 schema に従って `_meta/incidents/{id}.no-change.yml` に記録（7 必須フィールド: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition）。**記録の欠落は未調査インシデントと区別がつかない。**
+- **change**: ECP（Edit-Change-Proposal）を開いた。`meta/decisions/{id}.change.md` 参照。
+- **no_change**: 現在の動作を受け入れる決定。Stage 7 §1 schema に従って `meta/decisions/{id}.no-change.yml` に記録（7 必須フィールド: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition）。**記録の欠落は未調査インシデントと区別がつかない。**
 
 ## 使用シーン
 

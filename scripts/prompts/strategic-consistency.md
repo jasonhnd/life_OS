@@ -27,9 +27,9 @@ This cron surfaces them for user review.
 ## Required actions
 
 Read these files:
-1. `_meta/STRATEGIC-MAP.md` (the strategic relationships layer)
+1. `meta/STRATEGIC-MAP.md` (the strategic relationships layer)
 2. `SOUL.md` (current dimensions and confidence)
-3. `_meta/sessions/INDEX.md` last 90 days (recent project activity)
+3. `meta/sessions/INDEX.md` last 90 days (recent project activity)
 4. `wiki/` entries tagged with project IDs
 
 Run cross-project analysis:
@@ -59,24 +59,24 @@ For each project:
 
 ## Output
 
-Write `_meta/eval-history/strategic-consistency-{YYYY-MM}.md` with sections: Active projects / Resource conflicts / Value conflicts / Sequencing conflicts / Identity drift / User action items / Audit trail.
+Write `meta/eval-history/strategic-consistency-{YYYY-MM}.md` with sections: Active projects / Resource conflicts / Value conflicts / Sequencing conflicts / Identity drift / User action items / Audit trail.
 
 ## Notification
 
 Notify if any critical flag:
-- Append to `_meta/inbox/notifications.md`: `[{ISO8601}] 🗺️ Strategic consistency: {N} conflicts need resolution · see _meta/eval-history/strategic-consistency-{date}.md`
+- Append to `meta/queue/notifications.md`: `[{ISO8601}] 🗺️ Strategic consistency: {N} conflicts need resolution · see meta/eval-history/strategic-consistency-{date}.md`
 
 If 0 critical flags: silent (file-only).
 
 ## HARD RULES
 
 - **Read-only on STRATEGIC-MAP, SOUL, wiki/, sessions/**.
-- **Audit trail**: `_meta/runtime/{sid}/strategic-consistency.json` (R11)
+- **Audit trail**: `meta/runtime/{sid}/strategic-consistency.json` (R11)
 - **Git push** report at end
 
 ## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)
 
-After writing the report, append a YAML item to `_meta/review-queue.md` under `## Open items` for EACH project conflict found. Spec: `references/review-queue-spec.md`.
+After writing the report, append a YAML item to `meta/review-queue.md` under `## Open items` for EACH project conflict found. Spec: `references/review-queue-spec.md`.
 
 Use Edit tool (NOT Write). Pattern per conflict:
 
@@ -87,7 +87,7 @@ Use Edit tool (NOT Write). Pattern per conflict:
   type: conflict
   priority: P0 | P1 | P2                # HIGH=P0 / MEDIUM=P1 / LOW=P2
   summary: <one line, max 100 chars>
-  detail_path: _meta/eval-history/strategic-consistency-{YYYY-MM}.md
+  detail_path: meta/eval-history/strategic-consistency-{YYYY-MM}.md
   related:
     - "[[<project-id-1>]]"
     - "[[<project-id-2>]]"

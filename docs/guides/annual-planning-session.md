@@ -56,7 +56,7 @@ review
 
 ### 4. Strategic Map 审视
 
-打开 `_meta/STRATEGIC-MAP.md`（最新编译）：
+打开 `meta/STRATEGIC-MAP.md`（最新编译）：
 - 每条战略线本年进展
 - 哪条线 archetype 是 🔴（stall / drift）？
 - 哪条线已完成 time_window？
@@ -332,7 +332,7 @@ Action Items:
 1. Kitchen Safe 购入 — 本周 — 工部
 2. 配偶谈 phone box — 本周 — 吏部
 3. 3 条 wiki 深度条目 — Q1 末 — 礼部
-4. 新机会 checklist 写到 _meta/ — 月末 — 兵部
+4. 新机会 checklist 写到 meta/ — 月末 — 兵部
 5. Q1-Q4 review 日期设日历 — 今天 — 自
 6. SOUL 完美主义 What SHOULD BE — 本月 — 自
 

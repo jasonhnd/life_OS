@@ -374,7 +374,7 @@ Operations Report:
 
 你说"退朝"。丞相立刻调起居郎，中间不插话。起居郎跑 4 阶段：
 
-- **Phase 1**：决策、tasks、报告写到 `_meta/outbox/`
+- **Phase 1**：决策、tasks、报告写到 `meta/outbox/`
 - **Phase 2 知识提取**：扫会话找 wiki / SOUL 候选
   - wiki 候选"分居 12 月关系损耗 15-25%"——个人推论非公开研究，证据 1 不够 2，**discard**
   - SOUL 候选"决策时家庭意见权重"——**自动写入** confidence 0.3，What SHOULD BE 留空
@@ -393,7 +393,7 @@ Operations Report:
 │   ├── decisions/2026-04-20-sv-offer.md  ← 奏折正文
 │   ├── tasks/2026-04-20-*.md             ← 4 个 action items
 │   └── journal/2026-04-20.md             ← 御史+谏官报告
-├── _meta/journal/2026-04-20-dream.md
+├── meta/journal/2026-04-20-dream.md
 └── SOUL.md                               ← 新维度 0.3
 ```
 

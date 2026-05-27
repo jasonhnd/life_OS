@@ -27,10 +27,10 @@ last_modified: "2026-04-08T15:30:00Z"
 | 数据类型 | 路径 | 文件名规则 |
 |---------|------|-----------|
 | Decision（项目） | `projects/{p}/decisions/` | `{date}-{slug}.md` |
-| Decision（跨领域） | `_meta/decisions/` | `{date}-{slug}.md` |
+| Decision（跨领域） | `meta/decisions/` | `{date}-{slug}.md` |
 | Task（项目） | `projects/{p}/tasks/` | `{slug}.md` |
 | Task（领域） | `areas/{a}/tasks/` | `{slug}.md` |
-| JournalEntry | `_meta/journal/` | `{date}-{type}.md` |
+| JournalEntry | `meta/journal/` | `{date}-{type}.md` |
 | WikiNote | `wiki/` | `{slug}.md` |
 | Project | `projects/{p}/index.md` | 固定名称 |
 | Area | `areas/{a}/index.md` | 固定名称 |
@@ -91,7 +91,7 @@ last_modified: "2026-04-08T15:30:00Z"
 ### 退朝时（写入 outbox）
 
 ```bash
-git add _meta/outbox/{session-id}/
+git add meta/outbox/{session-id}/
 git commit -m "[life-os] session {session-id} output"
 git push
 ```
@@ -102,8 +102,8 @@ git push
 
 ```bash
 # 将 outbox 内容合并到主目录后：
-git add projects/ areas/ _meta/journal/ _meta/STATUS.md user-patterns.md SOUL.md
-git rm -r _meta/outbox/{merged-session-ids}/
+git add projects/ areas/ meta/journal/ meta/STATUS.md user-patterns.md SOUL.md
+git rm -r meta/outbox/{merged-session-ids}/
 git commit -m "[life-os] merge {N} outbox sessions"
 git push
 ```

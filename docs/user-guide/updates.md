@@ -49,7 +49,7 @@ head -5 ~/.claude/skills/life_OS/SKILL.md
 
 ### 方法 3 · 每日自动检查
 
-如果装了 `setup-hooks.sh`（见下方），每天第一次 Session Start 会调用 `lifeos-version-check.sh`，自动 WebFetch 最新版本做对比。不用手动查。
+如果装了 `/install-agents`（v1.8.5+，替代旧 `setup-hooks.sh`），每天第一次 Session Start 自动调用 `/version-check` 流程做对比。不用手动查。
 
 ---
 
@@ -95,7 +95,7 @@ Gemini CLI 的 skills 机制不同 — 每个平台 orchestrator 文件（`pro/G
 
 不想用 git pull？直接去 GitHub repo 下载 zip，解压覆盖本地 skill 目录。
 
-保留你自己的 `_meta/` + `projects/` + `areas/` 不动（那是 second-brain，不是 skill 代码）。
+保留你自己的 `meta/` + `projects/` + `areas/` 不动（那是 second-brain，不是 skill 代码）。
 
 ---
 
@@ -141,23 +141,36 @@ SKILL.md 是 CC 在会话开始时加载的。会话运行中 CC 不会重读。
 
 ---
 
-## 每日自动检查 · setup-hooks.sh
+## 每日自动检查 · /install-agents（v1.8.5+ 替代 setup-hooks.sh）
 
-Claude Code 有 hooks 机制可以在 Session Start 时自动执行脚本。Life OS 附带一个每日版本检查的 hook。
+> ⚠️ **v1.8.5 更新**：原 `setup-hooks.sh` bash 脚本已退役（hook 层整体退役 + md-only 本体论提交）。替换为 `/install-agents` slash 命令。下方说明保留作为 v1.8.5 之前的历史参考。
 
-### 安装
+Claude Code 有 hooks 机制可以在 Session Start 时自动执行脚本。Life OS **v1.8.5 之前**附带一个每日版本检查的 bash hook；v1.8.5+ 改成 slash 命令。
 
-```bash
-bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+### 安装（v1.8.5+ 当前路径）
+
+在 Claude Code 中跑：
+
+```
+/install-agents
 ```
 
-做的事：
+做的事（v1.8.5+ md-only 流程）：
 
-1. Pre-flight：检查 jq 依赖 + settings.json 有效性。
-2. 把 `lifeos-version-check.sh` 复制到 `~/.claude/scripts/`。
-3. 给 `~/.claude/settings.json` 加一个 SessionStart hook，id = `session:lifeos-version-check`。
+1. 注册 `~/.claude/agents/lifeos-*.md` agent wrappers
+2. Session Start 时 retrospective Mode 0 inline 检查版本（不再需要 bash hook）
+3. 跑 `/version-check` 触发 WebFetch 远端最新版本对比
 
-安装是幂等的 — 可以重复跑不会重复加 hook。
+安装是幂等的 — 可以重复跑。
+
+### 历史安装（v1.8.5 之前，已退役）
+
+> ⚠️ 下方为 v1.8.5 之前的 bash hook 安装路径，**当前不再适用**。保留作历史参考。
+
+```bash
+# pre-v1.8.5 only — script no longer exists
+bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+```
 
 ### 效果
 
@@ -292,7 +305,7 @@ git checkout v1.6.1   # 或任何历史 tag
 
 **少见操作**：
 
-- 自动每日检查 → `bash scripts/setup-hooks.sh`（装一次）。
+- 自动每日检查 → `/install-agents`（slash 命令，装一次；v1.8.5+ 替代旧 `bash scripts/setup-hooks.sh`）。
 - 降级 → `git checkout {tag}`。
 - Major 升级 → 读 Migration + 先同步所有设备。
 

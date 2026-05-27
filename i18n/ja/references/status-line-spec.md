@@ -130,7 +130,7 @@ AUDITOR Mode 8（v1.8.7 新規）が検証：
 
 ## 参照
 
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.8 E9 + DR-11
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.8 E9 + DR-11
 - パターン源：`tinyhumansai/openhuman` `gitbooks/features/subconscious.md` 7-state アクティビティログ（In progress / Acted / Skipped / Awaiting approval / Failed / Cancelled / Dismissed）—— lifeos が 8 状態に適応してセマンティクス強化（`Skipped`/`Dismissed`/`Cancelled` → `skipped` 統合；`escalated` + `silent_pass` 追加で lifeos 議事 + 監査パターンに対応）
 - 連携：`references/conscious-patrol-spec.md`（E10 path D —— 各 patrol タスクが本 spec で status line 出力）
 - 連携：`pro/agents/auditor.md` §Mode 8（検証）

@@ -48,7 +48,7 @@ v1.7 以前、Life OS が長期記憶に触れるのはセッションの境界�
 
 ユーザーはこれを「AI はセッション内では慎重だが、セッション間では忘れてしまう」として感じ取りました。Cortex は、クロスセッションの記憶と概念グラフをあらゆるワークフローの first-class 入力とすることで、これを修正します。
 
-失敗モードはいずれかの単一のエージェントが弱いということではありません — 16 のエージェントそれぞれがよく仕事をしています。失敗モードは、エージェントたちが他のセッションで学ばれたことを決して見ることがないということです。セッション 412 で金融的な決定に直面した PLANNER は、セッション 198 ですでに同じエンティティについての結論に到達していることを知りません。なぜなら、その結論を引き継ぐものは、raw の `_meta/journal/*.md` ファイル以外には何もなく、それらはユーザーからの明示的なリクエストがない限り誰も読まないからです。Cortex はこの引き継ぎを自動にします。
+失敗モードはいずれかの単一のエージェントが弱いということではありません — 16 のエージェントそれぞれがよく仕事をしています。失敗モードは、エージェントたちが他のセッションで学ばれたことを決して見ることがないということです。セッション 412 で金融的な決定に直面した PLANNER は、セッション 198 ですでに同じエンティティについての結論に到達していることを知りません。なぜなら、その結論を引き継ぐものは、raw の `meta/journal/*.md` ファイル以外には何もなく、それらはユーザーからの明示的なリクエストがない限り誰も読まないからです。Cortex はこの引き継ぎを自動にします。
 
 ---
 
@@ -66,7 +66,7 @@ Cortex は 4 つのメカニズムから構成されます。それぞれに独�
 
 出力: 関連する過去セッションの上位 5-7 件を memory signal として GWT arbitrator に emit します。
 
-実装は 2 段階スキャンに依存します: ripgrep が `_meta/sessions/INDEX.md`(1 行要約のコンパイル済みフラットファイル)を候補セッションにミリ秒単位で絞り込み、サブエージェントは一致した要約(通常 15-20 行)のみを読み、最終的に上位 5-7 件を返します。1000 セッション × 1 要約 200 文字の規模では(UTF-8 エンコードで CJK 要約 1 件 ≈ 600 バイト、ASCII のみの要約 1 件 ≈ 200 バイト)、フルインデックスはコンテンツ言語に応じて 200KB–600KB 程度 — どちらの場合でもスキャンは自明な負荷です。
+実装は 2 段階スキャンに依存します: ripgrep が `meta/sessions/INDEX.md`(1 行要約のコンパイル済みフラットファイル)を候補セッションにミリ秒単位で絞り込み、サブエージェントは一致した要約(通常 15-20 行)のみを読み、最終的に上位 5-7 件を返します。1000 セッション × 1 要約 200 文字の規模では(UTF-8 エンコードで CJK 要約 1 件 ≈ 600 バイト、ASCII のみの要約 1 件 ≈ 200 バイト)、フルインデックスはコンテンツ言語に応じて 200KB–600KB 程度 — どちらの場合でもスキャンは自明な負荷です。
 
 完全な仕様: `references/hippocampus-spec.md`。
 
@@ -101,7 +101,7 @@ substantive と connective の分割はプラグマティックな判断であ�
 
 ### 4. Synapses + Hebbian — Use-it-or-lose-it 強化の概念グラフ
 
-各概念は `_meta/concepts/{domain}/{concept}.md` 配下の markdown ファイルです。エッジ(synapse)は概念自身の frontmatter に存在します。同時活性化でエッジ weight が +1(Hebbian ルール)、長期間使われないエッジは減衰します。
+各概念は `meta/concepts/{domain}/{concept}.md` 配下の markdown ファイルです。エッジ(synapse)は概念自身の frontmatter に存在します。同時活性化でエッジ weight が +1(Hebbian ルール)、長期間使われないエッジは減衰します。
 
 4 段の permanence tier — identity、skill、fact、transient — が減衰曲線の形を決定します。減衰は各 adjourn ごとに実行され、ARCHIVER Phase 2 が駆動します。
 
@@ -131,8 +131,8 @@ Step 11:   STRATEGIST (オプショナル) — 変更なし
 
 Pre-Session Preparation の直後、ROUTER Triage の前に spawn されます。3 つのサブエージェントが並列で動作します:
 
-1. **hippocampus** — `_meta/sessions/INDEX.md` をスキャンし、上位 5-7 件の memory signal を返す
-2. **concept lookup** — `_meta/concepts/` をスキャンし、直接マッチする概念ノードを返す
+1. **hippocampus** — `meta/sessions/INDEX.md` をスキャンし、上位 5-7 件の memory signal を返す
+2. **concept lookup** — `meta/concepts/` をスキャンし、直接マッチする概念ノードを返す
 3. **SOUL dimension check** — RETROSPECTIVE の SOUL Health Report を再利用し、identity_check signal を emit する
 
 3 つの出力ストリームが **gwt-arbitrator** に供給され、salience formula が適用され、シグナルがランク付けされ、ROUTER 向けに単一の annotated-input ブロックが生成されます:
@@ -159,11 +159,11 @@ Summary Report が表示される前に、narrator-validator(Sonnet ティアの
 
 ARCHIVER Phase 2 はすでに wiki と SOUL の自動書き込みを処理しています。v1.7 では、以下も実行します:
 
-- **Concept extraction** — セッション素材から新しい概念をスキャンし、permanence tier を分類し、`_meta/concepts/{domain}/{concept}.md` に書き込む
+- **Concept extraction** — セッション素材から新しい概念をスキャンし、permanence tier を分類し、`meta/concepts/{domain}/{concept}.md` に書き込む
 - **Hebbian update** — セッション内で co-activated されたペア (A, B) それぞれについて、A→B のエッジ weight を +1 する。エッジが存在しない場合は weight 1 で新規作成する
 - **SYNAPSES-INDEX.md regeneration** — weight 更新後に逆方向インデックスを再構築する
 - **SOUL snapshot dump** — 既存の v1.6.2 メカニズム、Cortex 下でも継続
-- **Session summary write** — subject、key decisions、activated concepts、および hippocampus が後の読み込みで消費する 1 行 YAML summary フィールドを持った `_meta/sessions/{session_id}.md` を emit する
+- **Session summary write** — subject、key decisions、activated concepts、および hippocampus が後の読み込みで消費する 1 行 YAML summary フィールドを持った `meta/sessions/{session_id}.md` を emit する
 
 すべての書き込みは単一の ARCHIVER 起動内で発生します。orchestrator はフェーズ間で書き込みをインターリーブしません。これにより、`pro/CLAUDE.md` で定義される Adjourn ステートマシンが保持されます — ARCHIVER は全フェーズ完了時に 1 つの Completion Checklist を emit し、セッションは終了します。
 
@@ -178,7 +178,7 @@ Pre-Session Preparation も STRATEGIST も変更されません。SOUL Health Re
 すべての Cortex データは markdown の中にあります。v1.7 で新規導入されるディレクトリ:
 
 ```
-_meta/
+meta/
 ├── concepts/
 │   ├── INDEX.md                         ← コンパイル済み 1 行インデックス
 │   ├── SYNAPSES-INDEX.md                ← コンパイル済み逆方向エッジインデックス
@@ -210,15 +210,15 @@ _meta/
 
 ### Cortex Runtime Files (schemas)
 
-4 つの markdown アーティファクトが Cortex ランタイム状態を追跡します。いずれも source of truth ではありません — config(ユーザー編集可)またはコンパイル/ログアーティファクト(archiver が書き込む)のいずれかです。すべて `_meta/cortex/` 配下(最初の 3 つ)、または `_meta/ambiguous_corrections/` 配下(4 つ目)にあります。
+4 つの markdown アーティファクトが Cortex ランタイム状態を追跡します。いずれも source of truth ではありません — config(ユーザー編集可)またはコンパイル/ログアーティファクト(archiver が書き込む)のいずれかです。すべて `meta/cortex/` 配下(最初の 3 つ)、または `meta/ambiguous_corrections/` 配下(4 つ目)にあります。
 
-#### `_meta/config.md`
+#### `meta/config.md`
 
 ユーザー編集可能なしきい値とスイッチ。hippocampus、gwt-arbitrator、narrator-validator、および減衰パスが読み取ります。欠落している場合、各 consumer はハードコードされたデフォルト(下記にインライン記載)にフォールバックします。
 
 ```yaml
 ---
-file: _meta/config.md
+file: meta/config.md
 version: 1.7
 ---
 
@@ -251,7 +251,7 @@ decay_curves:
 escalate_rate_limit: 5            # per rolling 7-day window
 ambiguous_correction_confidence_bands:
   high: 0.85                      # ≥ apply immediately
-  mid_low: 0.5                    # mid-band lower bound (write to _meta/ambiguous_corrections/)
+  mid_low: 0.5                    # mid-band lower bound (write to meta/ambiguous_corrections/)
   low_floor: 0.0                  # logged but not acted
 
 ## Performance budgets (seconds, soft/hard)
@@ -262,13 +262,13 @@ narrator_validator_timeout: [3, 10]
 
 このファイルを編集するユーザーは、クロスデバイスのドリフトを追跡するために git へコミットすることが推奨されます。変更は次のセッション開始時に有効になります(retrospective Mode 0 が config を読む)。
 
-#### `_meta/cortex/bootstrap-status.md`
+#### `meta/cortex/bootstrap-status.md`
 
 `tools/migrate.py` によって一度だけ書き込まれます。retrospective Mode 0 が Cortex の準備ができているかを判定するために読みます。
 
 ```yaml
 ---
-file: _meta/cortex/bootstrap-status.md
+file: meta/cortex/bootstrap-status.md
 ---
 
 # Cortex Bootstrap Status
@@ -295,13 +295,13 @@ warnings:
 
 このファイルが欠落している場合、retrospective Mode 0 は Start Session ブリーフィングの先頭で「Cortex not bootstrapped — run `uv run tools/migrate.py`」と警告します。Cortex は動作し続けますが、空のグラフでの動作(cold-start mode)になります。
 
-#### `_meta/cortex/decay-log.md`
+#### `meta/cortex/decay-log.md`
 
 各 adjourn の終わりに archiver Phase 2 が書き込む追記専用ログ。セッションごとに日付付きブロックを 1 つ追加します。
 
 ```yaml
 ---
-file: _meta/cortex/decay-log.md
+file: meta/cortex/decay-log.md
 rolling_window_days: 90
 ---
 
@@ -324,7 +324,7 @@ new_canonical: 0
 
 90 日より古いブロックは、次回 adjourn 書き込み時に末尾の `# Archive` セクションにコンパクト化されます。過去のアーカイブは git 履歴に存在します — 削除なし、Notion 同期なし。
 
-#### `_meta/ambiguous_corrections/{correction_id}.md`
+#### `meta/ambiguous_corrections/{correction_id}.md`
 
 保留中の mid-confidence ユーザー訂正ごとに 1 ファイル。three-tier undo メカニズム(§Design Principles → Three-tier undo)が 0.5–0.85 バンドの confidence を持つ訂正を検出したときに作成されます: 即座に適用するには不十分で、ログして無視するには高すぎる場合。
 
@@ -380,7 +380,7 @@ Narrator は新規のエージェントファイルではありません — nar
 既存エージェントへの拡張:
 
 - `pro/agents/archiver.md` Phase 2 — concept extraction、Hebbian update、method-candidate detection、decay pass、session summary write、index rebuild を追加
-- `pro/agents/retrospective.md` Mode 0 — `_meta/concepts/INDEX.md` と `_meta/sessions/INDEX.md` を再生成、dormant concept にフラグを立てる
+- `pro/agents/retrospective.md` Mode 0 — `meta/concepts/INDEX.md` と `meta/sessions/INDEX.md` を再生成、dormant concept にフラグを立てる
 - `pro/agents/router.md` — 入力に cognitive annotation を受け入れる、Step 7.5 における narrator composition を所有
 
 Claude Code は spawn 時に各エージェント定義を読みます。呼び出し間でランタイム状態は永続化されません。
@@ -391,7 +391,7 @@ Claude Code は spawn 時に各エージェント定義を読みます。呼び�
 
 | Role | 受け取るもの | 受け取らないもの |
 |------|----------|------------------|
-| hippocampus | ユーザーメッセージ + `_meta/sessions/INDEX.md` + 現在のセッションコンテキスト | 他のエージェントの思考プロセス、完全な概念グラフ |
+| hippocampus | ユーザーメッセージ + `meta/sessions/INDEX.md` + 現在のセッションコンテキスト | 他のエージェントの思考プロセス、完全な概念グラフ |
 | gwt-arbitrator | hippocampus / concept-lookup / soul-check からのシグナルファイル | ユーザーの raw message(シグナルのみで動作) |
 | narrator-validator | Summary Report ドラフト + signal store | エージェントの思考プロセス、ユーザーのプライベートデータ |
 
@@ -440,19 +440,19 @@ Wave 3 は pre-activation であり、検索ではありません。Sub-threshol
 
 1. **Passive decay** — 使われていない canonical concept は時間とともに降格します(90 日後に fact ティアへ)。ユーザーのアクションは不要です。
 2. **User correction** — 「これは間違いだった」が、影響を受ける synapse すべてにカスケードマーキングを伴う concept_demotion 修正をトリガーします。
-3. **Meta-cognitive audit** — 週次監査が、疑わしい drift(競合する salience、頻度低下、繰り返されるユーザー訂正)を `_meta/audit/suspicious.md` に浮上させます。ユーザーが降格前に確認します。
+3. **Meta-cognitive audit** — 週次監査が、疑わしい drift(競合する salience、頻度低下、繰り返されるユーザー訂正)を `meta/audit/suspicious.md` に浮上させます。ユーザーが降格前に確認します。
 
-ユーザー訂正の confidence は階層的です: 高 confidence(>0.85)訂正は即座に適用されます。中 confidence(0.5-0.85)訂正は `_meta/ambiguous_corrections/` に書き込まれ、次の関連 activation 時に明示的な確認のために浮上します。低 confidence(<0.5)訂正はログに記録されますが、実行されません。初期しきい値は意図的に保守的です — 偽陰性(訂正を見逃す)は、偽陽性(ユーザーが降格を望まなかったものを降格させる)よりコストが低いためです。
+ユーザー訂正の confidence は階層的です: 高 confidence(>0.85)訂正は即座に適用されます。中 confidence(0.5-0.85)訂正は `meta/ambiguous_corrections/` に書き込まれ、次の関連 activation 時に明示的な確認のために浮上します。低 confidence(<0.5)訂正はログに記録されますが、実行されません。初期しきい値は意図的に保守的です — 偽陰性(訂正を見逃す)は、偽陽性(ユーザーが降格を望まなかったものを降格させる)よりコストが低いためです。
 
 Meta-cognitive audit にはレート制限があります: ローリング 7 日ウィンドウで **5 回を超えるエスカレーション** があると、モジュール品質自体の二次監査がトリガーされます。前提は、正しく機能しているシステムはめったにユーザーに競合を浮上させる必要がないということです。頻繁なエスカレーションは、個別の訂正ニーズではなく、モジュールレベルの drift を示します。
 
-#### `_meta/audit/suspicious.md` 形式
+#### `meta/audit/suspicious.md` 形式
 
 Meta-cognitive audit は単一のローリング markdown ファイルに書き込みます。Archiver Phase 2 が候補を追記し、retrospective Mode 0 が未解決行を Start Session ブリーフィングで浮上させ、ユーザーが確認または却下します。形式:
 
 ```yaml
 ---
-file: _meta/audit/suspicious.md
+file: meta/audit/suspicious.md
 rolling_window_days: 30
 last_compacted: ISO 8601
 ---
@@ -477,7 +477,7 @@ Columns:
 
 #### Escalate rate limit(エスカレートレート制限)
 
-週 5 回のしきい値は、AUDITOR が patrol inspection 中に監視します(フックや Python ツールではなく、セッション内に留まります)。超過した場合、AUDITOR は `_meta/eval-history/{date}-{project}.md` に `violations[].type: escalate_rate_exceeded` 付きの高優先度エントリを書き、パターンを retrospective Mode 0 の次のブリーフィングで浮上させます。自動的にカットされるモジュールはありません(ユーザー判断 #4 — 事前に commit された kill criteria なし)。基盤となるメカニズムにチューニングが必要かはユーザーが判断します。
+週 5 回のしきい値は、AUDITOR が patrol inspection 中に監視します(フックや Python ツールではなく、セッション内に留まります)。超過した場合、AUDITOR は `meta/eval-history/{date}-{project}.md` に `violations[].type: escalate_rate_exceeded` 付きの高優先度エントリを書き、パターンを retrospective Mode 0 の次のブリーフィングで浮上させます。自動的にカットされるモジュールはありません(ユーザー判断 #4 — 事前に commit された kill criteria なし)。基盤となるメカニズムにチューニングが必要かはユーザーが判断します。
 
 ---
 
@@ -511,8 +511,8 @@ archiver Phase 2 がセッションコンテンツから候補を抽出すると
 |-------|---------|-------------------|------|
 | SOUL | あなたが誰か(アイデンティティ / 価値観 / 好み) | 「ユーザーは一貫してキャリア成長より家族を優先する」 | `SOUL.md`(1 ファイル、次元は内部) |
 | Wiki | 世界について何を知るか(declarative) | 「日本における NPO 貸付には 貸金業法 例外がない」 | `wiki/{domain}/{slug}.md` |
-| Concept | アイデアがどうつながるか(associative graph node) | 「Company-A」は、weighted edge を介して他の概念とつながるエンティティ | `_meta/concepts/{domain}/{concept_id}.md` |
-| Method | 最善の仕事の仕方(procedural memory) | 「5 段のエスカレーティング品質ラウンドで文書を洗練する」 | `_meta/methods/{domain}/{method_id}.md` |
+| Concept | アイデアがどうつながるか(associative graph node) | 「Company-A」は、weighted edge を介して他の概念とつながるエンティティ | `meta/concepts/{domain}/{concept_id}.md` |
+| Method | 最善の仕事の仕方(procedural memory) | 「5 段のエスカレーティング品質ラウンドで文書を洗練する」 | `meta/methods/{domain}/{method_id}.md` |
 | user-patterns | あなたが何をするか(観察された behavioral pattern、ADVISOR ドメイン) | 「最初の明確化ラウンド後に意思決定が速くなる」 | `user-patterns.md`(1 ファイル、エントリは内部) |
 
 ### Decision tree
@@ -533,12 +533,12 @@ Archiver Phase 2 は各候補をこの tree に通します。最初にマッチ
         ├── YES → Method
         │         (5 以上の sequential action、2 以上のセッションでの cross-session echo、
         │          ユーザー言語は「approach/pattern/framework/流れ/やり方/手順」;
-        │          _meta/methods/_tentative/ に status: tentative で着地)
+        │          meta/methods/_tentative/ に status: tentative で着地)
         │
         └── NO → それは他とつながる recurring ENTITY / CONCEPT か?
             ├── YES → Concept
             │         (2 回以上の activation + 2 つ以上の独立した証拠点;
-            │          _meta/concepts/_tentative/ に着地、promotion まで;
+            │          meta/concepts/_tentative/ に着地、promotion まで;
             │          個人 → skip、または SOUL にルーティング(privacy filter が判断))
             │
             └── NO → それは世界についての FACTUAL conclusion か?
@@ -568,7 +568,7 @@ Archiver Phase 2 は各候補をこの tree に通します。最初にマッチ
 
 **Fact with procedural edge**: 「rate increase を交渉するときは、データでアンカリング」は、method(手順)あるいは wiki conclusion(世界についての事実)として読み得ます。ルール: 候補が **ユーザーアクションのシーケンス** を記述している場合、それは method。**世界の特性** を記述している場合、それは wiki。真に曖昧な場合、**wiki** にデフォルトで倒します — method はより強い証拠(2 以上のセッションにわたる 5 以上の sequential step)を要求します。
 
-**Concept with SOUL overlap**: 関係的な次元としての「trust」は、SOUL(価値観)または concept(関係エンティティタイプ)になり得ます。ルール: concept は **世界の中の、他のものとつながる事物** に関するもの。SOUL は **ユーザーの、事物への志向** に関するもの。「ユーザーはビジネス関係における信頼を大切にする」 → SOUL。「信頼は、プロジェクト間を流れる関係資本のタイプ」 → concept(`_meta/concepts/relationship/` に入る)。
+**Concept with SOUL overlap**: 関係的な次元としての「trust」は、SOUL(価値観)または concept(関係エンティティタイプ)になり得ます。ルール: concept は **世界の中の、他のものとつながる事物** に関するもの。SOUL は **ユーザーの、事物への志向** に関するもの。「ユーザーはビジネス関係における信頼を大切にする」 → SOUL。「信頼は、プロジェクト間を流れる関係資本のタイプ」 → concept(`meta/concepts/relationship/` に入る)。
 
 **Wiki with method flavour**: 世界の事実的記述(ユーザーが選んだワークフローではない)であるステップバイステップレシピ → wiki。ユーザーが意識的にそれを自分の method として採用した場合 → method。ヒューリスティクス: archiver は「ユーザーはこのワークフローを所有しているか?」と問います — yes なら method、no(単なる既知の技法)なら wiki。
 
@@ -577,8 +577,8 @@ Archiver Phase 2 は各候補をこの tree に通します。最初にマッチ
 Archiver Phase 2 は各候補にルーティング信頼度を割り当てます:
 
 - **High (>0.85)** — ターゲットレイヤーに `status: tentative`(concepts/methods の場合)で進む、あるいは SOUL に信頼度 0.3 / wiki に信頼度 0.3-0.5 で自動書き込み
-- **Mid (0.5-0.85)** — `_meta/ambiguous_corrections/` に、次の関連 activation 時のユーザー確認待ちのルーティング決定訂正として書き込み
-- **Low (<0.5)** — 理由付きで「routing-rejected candidate」として `_meta/cortex/decay-log.md` にログ、どこにも書き込まれない
+- **Mid (0.5-0.85)** — `meta/ambiguous_corrections/` に、次の関連 activation 時のユーザー確認待ちのルーティング決定訂正として書き込み
+- **Low (<0.5)** — 理由付きで「routing-rejected candidate」として `meta/cortex/decay-log.md` にログ、どこにも書き込まれない
 
 これは three-tier undo メカニズム(§Design Principles → Three-tier undo)を反映しています — archiver は不確実な場合は慎重な側に倒します。False negative(見逃された候補)は、False positive(後で外科的な逆転が必要な wrong-layer 書き込み)よりコストが低いです。
 
@@ -614,7 +614,7 @@ v1.7 内部ステージ:
 
 | Stage | スコープ |
 |-------|-------|
-| A — Data structure | `_meta/concepts/`、`_meta/sessions/INDEX.md`、ARCHIVER Phase 2 が concept extraction を獲得(Hebbian off) |
+| A — Data structure | `meta/concepts/`、`meta/sessions/INDEX.md`、ARCHIVER Phase 2 が concept extraction を獲得(Hebbian off) |
 | B — Cognitive pre-router online | hippocampus + gwt-arbitrator サブエージェント稼働、Step 0.5 配線、Hebbian on |
 | C — Narrator + undo メカニズム | Step 7.5 アクティブ、three-tier undo 稼働、escalate rate limit |
 | D — 完全 cortex + Hermes 実行レイヤー | downgrade されたモジュールの backfill、完全な実行レイヤー |
@@ -627,16 +627,16 @@ AUDITOR は、`eval-history` エントリ(`references/eval-history-spec.md`)を�
 
 ### v1.6.2a からのマイグレーション
 
-Cortex は hippocampus が何かを取得できる前に、セッションインデックスの backfill を要求します。マイグレーションは直近 3 ヶ月の `_meta/journal/*.md` を引き、セッションごとの要約を生成します。
+Cortex は hippocampus が何かを取得できる前に、セッションインデックスの backfill を要求します。マイグレーションは直近 3 ヶ月の `meta/journal/*.md` を引き、セッションごとの要約を生成します。
 
 ```
 Script: tools/migrate.py
-Input:  _meta/journal/*.md           (existing session journals)
+Input:  meta/journal/*.md           (existing session journals)
 Output:
-  - _meta/sessions/{session_id}.md   (one file per historical session)
-  - _meta/sessions/INDEX.md          (compiled one-liner index)
-  - _meta/concepts/**/*.md           (seed concepts from journal entities)
-  - _meta/snapshots/soul/**          (backfilled SOUL snapshots when possible)
+  - meta/sessions/{session_id}.md   (one file per historical session)
+  - meta/sessions/INDEX.md          (compiled one-liner index)
+  - meta/concepts/**/*.md           (seed concepts from journal entities)
+  - meta/snapshots/soul/**          (backfilled SOUL snapshots when possible)
 ```
 
 マイグレーションスクリプトは Claude Code から Bash 経由で呼び出されます。冪等です — 再実行は、concept を重複させることなくコンパイル済みインデックスを上書きします。マイグレーション後、ユーザーは Cortex 有効で 1 セッションを実行します。注釈付き入力が正しく感じられれば、Cortex は定常状態に promote されます。

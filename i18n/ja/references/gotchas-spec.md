@@ -1,6 +1,6 @@
 ---
 spec_id: gotchas-spec.v1
-description: 「pro/gotchas.md」仕様 —— プロジェクトレベル技術 gotcha 知識ベース。各エントリは"踏んだ穴 + ファイルパス + 修正方法"を記録し、ROUTER と下流 agent が新タスク前に既知問題を short-circuit できるようにする。`pro/compliance/violations.md`（プロセス違反）と `_meta/sessions/`（セッション記録）と区別する。パターンは tinyhumansai/openhuman `.claude/memory.md` から借用；lifeos 実装は md-only、`memory-keeper` agent が書き込む。
+description: 「pro/gotchas.md」仕様 —— プロジェクトレベル技術 gotcha 知識ベース。各エントリは"踏んだ穴 + ファイルパス + 修正方法"を記録し、ROUTER と下流 agent が新タスク前に既知問題を short-circuit できるようにする。`pro/compliance/violations.md`（プロセス違反）と `meta/sessions/`（セッション記録）と区別する。パターンは tinyhumansai/openhuman `.claude/memory.md` から借用；lifeos 実装は md-only、`memory-keeper` agent が書き込む。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/memory.md (259 行フラット単一ファイル + トピック分組)
@@ -19,13 +19,13 @@ referenced_by:
 
 | ストア | 何を記録するか | ライフサイクル |
 |--------|---------------|---------------|
-| `_meta/sessions/<sid>.md` | セッションのタイムライン + 決定 | 1 セッション 1 ファイル、アーカイブ |
+| `meta/sessions/<sid>.md` | セッションのタイムライン + 決定 | 1 セッション 1 ファイル、アーカイブ |
 | `pro/compliance/violations.md` | プロセス違反（A1/A2/A3/B/C/D/E/F + F1-F17） | append-only 監査ログ |
-| `_meta/wiki/<topic>.md` | 再利用可能な世界知識（"NPO 貸付には貸金業法免除なし"） | 手動キュレーション |
-| `_meta/concepts/<concept>.md` | シナプスグラフノード（Cortex） | hippocampus がアクティベート |
+| `meta/wiki/<topic>.md` | 再利用可能な世界知識（"NPO 貸付には貸金業法免除なし"） | 手動キュレーション |
+| `meta/concepts/<concept>.md` | シナプスグラフノード（Cortex） | hippocampus がアクティベート |
 | **`pro/gotchas.md`** | **プロジェクト技術 gotcha + ファイルパス + 修正** | **memory-keeper が継続抽出** |
 
-Gotcha は違反**ではない**（それは `compliance/violations.md` 行き）。Gotcha は再利用可能な世界知識**ではない**（それは `_meta/wiki/` 行き）。Gotcha は **dev 内部 short-circuit メモリ**："次に X に触る時、まずここを見ろ"。
+Gotcha は違反**ではない**（それは `compliance/violations.md` 行き）。Gotcha は再利用可能な世界知識**ではない**（それは `meta/wiki/` 行き）。Gotcha は **dev 内部 short-circuit メモリ**："次に X に触る時、まずここを見ろ"。
 
 ## ファイル位置とスコープ
 
@@ -59,7 +59,7 @@ Gotcha は違反**ではない**（それは `compliance/violations.md` 行き�
 ```markdown
 ## archiver
 
-- **archiver Phase 2 候補スキャンが wiki 欠落でブロック** — `_meta/wiki/` ディレクトリが存在しないと Phase 2 がスキップせず固まる。修正：archiver が欠落時にディレクトリを先に作成する。(#v1.8.7-C6-task-2d)
+- **archiver Phase 2 候補スキャンが wiki 欠落でブロック** — `meta/wiki/` ディレクトリが存在しないと Phase 2 がスキップせず固まる。修正：archiver が欠落時にディレクトリを先に作成する。(#v1.8.7-C6-task-2d)
 
 - **archiver wrap-up phase 5（memory-keeper）v1.8.7 以降は必須** — phase 5 をスキップ = gotchas 抽出漏れ。修正：archiver Mode 0 が短セッションでも phase 5 を強制；gotchas 表は空でも phase は走る必要あり。(#RFC-v1.8.7)
 ```
@@ -76,7 +76,7 @@ Gotcha は違反**ではない**（それは `compliance/violations.md` 行き�
 捕捉**しない**：
 - ❌ 単発セッション内容（sessions/ を使う）
 - ❌ プロセス違反（compliance/violations.md を使う）
-- ❌ lifeos 自身と無関係な再利用可能な世界知識（_meta/wiki/ を使う）
+- ❌ lifeos 自身と無関係な再利用可能な世界知識（meta/wiki/ を使う）
 - ❌ ユーザ個人情報（アイデンティティレベルなら SOUL.md；瞬時なら sessions/）
 - ❌ pro/CLAUDE.md または他の権威ソースで既に文書化されている内容
 
@@ -99,9 +99,9 @@ memory-keeper agent は `pro/gotchas.md` の**唯一の書き込み者**。人�
 
 RFC §7 退出基準により、memory-keeper の v1.8.7 release セッションでの初回実行は以下のソースをスキャンして ≥10 件のシードエントリを生産する必要がある：
 
-- `_meta/rfc/v1.8.4-*.md`
-- `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
-- `_meta/rfc/v1.8.6-*.md`
+- `meta/rfc/v1.8.4-*.md`
+- `meta/rfc/v1.8.5-cleanup-and-hardening.md`
+- `meta/rfc/v1.8.6-*.md`
 - `pro/compliance/violations.md`（フィルタ：根本原因が技術的で、純プロセスでないエントリ）
 
 シードエントリも gotcha（技術的）であり、プロセス違反ではない。
@@ -125,4 +125,4 @@ RFC §7 退出基準により、memory-keeper の v1.8.7 release セッション
 
 - `pro/agents/memory-keeper.md` —— agent 定義
 - `references/compliance-spec.md` —— gotchas と violations の区別
-- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 —— 本 spec の起源
+- `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 —— 本 spec の起源

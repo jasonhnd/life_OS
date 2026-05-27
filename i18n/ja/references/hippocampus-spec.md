@@ -48,7 +48,7 @@ Hippocampus は以下を **しません**:
 
 **並列性**: 他の 2 つの Pre-Router Cognitive Layer コンポーネントと並列に動作:
 
-- Concept lookup(`_meta/concepts/INDEX.md` を読む)
+- Concept lookup(`meta/concepts/INDEX.md` を読む)
 - SOUL dimension ヘルスチェック(RETROSPECTIVE の SOUL Health Report を再利用)
 
 **実行予算**:
@@ -81,7 +81,7 @@ model: opus
 
 - `Read`: INDEX.md と個々のセッション markdown ファイルをロード
 - `Grep`: LLM 判断の前の INDEX.md の高速 pre-filter
-- `Glob`: Wave 2/3 のルックアップのために `_meta/concepts/{domain}/*.md` を列挙
+- `Glob`: Wave 2/3 のルックアップのために `meta/concepts/{domain}/*.md` を列挙
 - **Write / Edit なし**: read-only contract を強制する。concept ファイルへの変更は ARCHIVER Phase 2 でのみ発生する
 
 **Model**: `opus`。検索は多様な言い回しを横断する semantic matching を含みます。Haiku は Wave 1 の relevance scoring に十分な判断力を持ちません。v1.7 では Wave 1 パス全体を Opus で実行します。
@@ -99,8 +99,8 @@ hippocampus_input:
   current_project: string                # bound project scope, e.g. "passpay"
   current_theme: string                  # e.g. "zh-classical", "ja-kasumigaseki"
   session_context:
-    recent_inbox_items: [string]         # top 3-5 items from _meta/inbox/
-    current_strategic_lines: [string]    # line IDs from _meta/strategic-lines.md
+    recent_inbox_items: [string]         # top 3-5 items from meta/queue/
+    current_strategic_lines: [string]    # line IDs from meta/strategic-lines.md
   meta:
     invocation_id: string                # UUID for tracing
     timestamp: ISO 8601
@@ -126,11 +126,11 @@ hippocampus_input:
 
 ### Wave 1 — Direct Match(直接マッチ)
 
-1. **Read** `_meta/sessions/INDEX.md`(エディタ生成の 1 セッション 1 行インデックス;形式は `references/session-index-spec.md` を参照)。
+1. **Read** `meta/sessions/INDEX.md`(エディタ生成の 1 セッション 1 行インデックス;形式は `references/session-index-spec.md` を参照)。
 2. **Grep pre-filter**: `extracted_subject` が利用可能な場合、大文字小文字を区別しない regex パスを INDEX.md 全体にかけて、1000+ エントリを <50 候補に削減。不可能な場合、完全な INDEX で LLM ステップへスキップ。
 3. **LLM judgment**(ユーザー判断 #3 — embedding なし、vector DB なし): pre-filter されたインデックス行を以下のプロンプトで Opus に供給:
    > "Current subject: `{subject}`. Below are past session summaries. Return the top 3-5 whose subject is semantically related to the current one. Return JSON only."
-4. 各候補の **Read full content** を `_meta/sessions/{session_id}.md` から。
+4. 各候補の **Read full content** を `meta/sessions/{session_id}.md` から。
 5. **Score**: `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`。両サブスコアは Opus が 0-1 で判定。
 6. 上位 3-5 セッションを保持。
 
@@ -141,7 +141,7 @@ hippocampus_input:
 Wave 1 セッションから、**concept graph** に沿って展開し、表面キーワードを共有しないために Wave 1 が見逃した関連セッションを見つけます。
 
 1. 各 Wave 1 セッションについて、その YAML frontmatter から `concepts_activated` と `concepts_discovered` リストを抽出。
-2. 各 concept ID について、**Read** `_meta/concepts/{domain}/{concept}.md`。
+2. 各 concept ID について、**Read** `meta/concepts/{domain}/{concept}.md`。
 3. その concept の `outgoing_edges` リストから、**weight ≥ 3 のエッジをたどる**(strong synapse — weight セマンティクスは `references/concept-spec.md` を参照)。
 4. 各 neighbor concept について、その `provenance.source_sessions` フィールドをルックアップ — これにより neighbor concept が activate されたセッションが得られる。
 5. Wave 1 セットに対して **deduplicate**、composite スコアでランク付けした **上位 2-3 の新セッションを保持**:
@@ -270,15 +270,15 @@ Hippocampus は gracefully に degrade しなければなりません — 失敗
 
 | Failure | Behavior |
 |---------|----------|
-| `_meta/sessions/INDEX.md` が存在しない | 利用可能なら Bash 経由で `tools/reindex.py` を実行;それ以外なら `degraded: true, degradation_reason: "INDEX_MISSING"` で空の出力を返す |
+| `meta/sessions/INDEX.md` が存在しない | 利用可能なら Bash 経由で `tools/reindex.py` を実行;それ以外なら `degraded: true, degradation_reason: "INDEX_MISSING"` で空の出力を返す |
 | INDEX.md は存在するが空(新規 second-brain) | 空の `retrieved_sessions` を返し、「first session — no cross-session memory yet」を記す |
 | LLM judgment コールが失敗(API エラー、レート制限) | INDEX.md 上の純粋なキーワードマッチにフォールバック(semantic scoring なし)、`degraded: true` を設定 |
 | Wave 2 ターゲット用の concept ファイルが missing | その特定のブランチをスキップ、残りのブランチで Wave 2 を継続 |
 | concept グラフ全体が missing | Wave 2-3 をスキップ、Wave 1 結果を `waves_completed: [1]` で返す |
-| ハードタイムアウト(>15s) | 部分結果(完了した wave 何でも)を返す、インシデントを `_meta/eval-history/hippocampus-{date}.md` にログ |
+| ハードタイムアウト(>15s) | 部分結果(完了した wave 何でも)を返す、インシデントを `meta/eval-history/hippocampus-{date}.md` にログ |
 | セッションファイル上の Read エラー | そのセッションをスキップ、`degradation_reason` に記す |
 
-**すべての失敗は `_meta/eval-history/` にログされ**、AUDITOR がセッション終了パトロール中に読みます。同じ種類の失敗の繰り返しは「モジュール品質劣化」フラグをトリガーします — ブレインストーミング §6 の Escalate rate limit と同じメカニズムです。
+**すべての失敗は `meta/eval-history/` にログされ**、AUDITOR がセッション終了パトロール中に読みます。同じ種類の失敗の繰り返しは「モジュール品質劣化」フラグをトリガーします — ブレインストーミング §6 の Escalate rate limit と同じメカニズムです。
 
 ---
 
@@ -292,7 +292,7 @@ Hippocampus は gracefully に degrade しなければなりません — 失敗
 
 ## 11. 品質メトリクス(Quality Metrics)
 
-Hippocampus は 3 次元に沿って評価されます。各次元は session-end で AUDITOR が計算し、`_meta/eval-history/cognitive-annotation-{date}.md` に追記されます。
+Hippocampus は 3 次元に沿って評価されます。各次元は session-end で AUDITOR が計算し、`meta/eval-history/cognitive-annotation-{date}.md` に追記されます。
 
 ### 11.1 `retrieved_session_count`
 
@@ -335,7 +335,7 @@ ROUTER / 下流エージェントが、検索されたコンテンツを **実�
 
 - **`references/cortex-spec.md`** — 全体 Cortex アーキテクチャ、hippocampus がどうフィットするか
 - **`references/concept-spec.md`** — concept markdown スキーマ、エッジ weight、permanence tier
-- **`references/session-index-spec.md`** — `_meta/sessions/INDEX.md` 形式、1 行の規約
+- **`references/session-index-spec.md`** — `meta/sessions/INDEX.md` 形式、1 行の規約
 - **`references/gwt-spec.md`** — hippocampus 出力を消費する GWT arbitrator
 - **`devdocs/architecture/cortex-integration.md`** — Step 0.5 が 11 ステップワークフローにどう plug するか
 - **`devdocs/brainstorm/2026-04-19-cortex-architecture.md`** — オリジナルの設計議論、ユーザー判断、トレードオフ

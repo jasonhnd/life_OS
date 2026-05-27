@@ -10,7 +10,7 @@ superseded_by: pro/CLAUDE.md
 
 > 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)
 
-> Life OS 没法微调背后的 Claude 模型,但它可以**微调自己的规则**。AUDITOR 在每次 session 结束时给自己打 10 维度的分,把结果写到 `_meta/eval-history/{date}-{project}.md`。下次 Start Session,RETROSPECTIVE 扫最近 10 份,检测系统性模式——连续 3 次 adjourn 不完整?narrator 引用失败率 >20%?这些会以"系统性问题检测"块出现在简报里。你不仅是系统的用户,也是调优这些规则的人。
+> Life OS 没法微调背后的 Claude 模型,但它可以**微调自己的规则**。AUDITOR 在每次 session 结束时给自己打 10 维度的分,把结果写到 `meta/eval-history/{date}-{project}.md`。下次 Start Session,RETROSPECTIVE 扫最近 10 份,检测系统性模式——连续 3 次 adjourn 不完整?narrator 引用失败率 >20%?这些会以"系统性问题检测"块出现在简报里。你不仅是系统的用户,也是调优这些规则的人。
 
 ## 一句话概述
 
@@ -30,7 +30,7 @@ v1.6.2a 的 AUDITOR 已经在每次决策结束时给各 agent 打分——**PLA
 
 ### v1.7 的闭环
 
-Eval-history 把 AUDITOR 的评分**持久化到 `_meta/eval-history/`**——每份 session 一个 `.md` 文件,YAML frontmatter 有 10 维度分数,body 有优点 / 缺点 / 推荐。
+Eval-history 把 AUDITOR 的评分**持久化到 `meta/eval-history/`**——每份 session 一个 `.md` 文件,YAML frontmatter 有 10 维度分数,body 有优点 / 缺点 / 推荐。
 
 **关键二阶机制**: RETROSPECTIVE Mode 0 在每次 Start Session 读**最近 10 份**,用**5 条检测规则**找系统性模式。检测到的警告直接出现在简报里:
 
@@ -51,7 +51,7 @@ Eval-history 把 AUDITOR 的评分**持久化到 `_meta/eval-history/`**——�
 
 你刚做完一个全朝议决策。session 走到 Step 8 AUDITOR。
 
-AUDITOR 做本次评估的同时,**写入**一个 `_meta/eval-history/2026-04-20-passpay.md`(文件名格式:`{YYYY-MM-DD}-{project}.md`,多次同日同项目追加 `-{HHMM}`)。
+AUDITOR 做本次评估的同时,**写入**一个 `meta/eval-history/2026-04-20-passpay.md`(文件名格式:`{YYYY-MM-DD}-{project}.md`,多次同日同项目追加 `-{HHMM}`)。
 
 你直接看不到这份文件——但你可以任何时候打开它。内容结构:
 
@@ -138,7 +138,7 @@ agent_quality_notes:
   citation_groundedness <7
   建议: 本次 session 重点关注奏折中带 [S:] [C:] 引用的 claim,用 trace 验证
 
-(如果要查具体哪些 session,看 _meta/eval-history/)
+(如果要查具体哪些 session,看 meta/eval-history/)
 ```
 
 **这个块直接位于 DREAM Auto-Triggers 下方,Strategic Overview 之前**——固定位置,强制可见。没有系统性问题时,整块**省略**(不显示占位符)。
@@ -148,7 +148,7 @@ agent_quality_notes:
 你想知道"最近 adjourn_completeness 的趋势":
 
 ```bash
-grep -h "adjourn_completeness" _meta/eval-history/*.md | tail -10
+grep -h "adjourn_completeness" meta/eval-history/*.md | tail -10
 ```
 
 结果:
@@ -286,7 +286,7 @@ RETROSPECTIVE Mode 0 扫最近 10 份 eval-history,应用:
 | **1000 个 session 总占用** | ~5MB |
 | **保留策略** | **永久保留**,不自动删除 |
 | **归档触发** | 文件 >6 个月 + 显式 `tools/stats.py --compress-old` |
-| **归档目标** | `_meta/eval-history/_digest/{YYYY-Q}.md`(季度摘要),原文件 → `_meta/eval-history/_archive/` |
+| **归档目标** | `meta/eval-history/_digest/{YYYY-Q}.md`(季度摘要),原文件 → `meta/eval-history/_archive/` |
 | **digest 内容** | 头条分数 + 系统性模式,个别 session 仍可访问 |
 | **Notion 同步** | **不同步**(用户决策 #12——本地内省资产,pushing 到 Notion 让 mobile view 噪声大而无消费者) |
 
@@ -297,7 +297,7 @@ RETROSPECTIVE Mode 0 扫最近 10 份 eval-history,应用:
 ### 1. 查最近的趋势
 
 ```bash
-ls -t _meta/eval-history/*.md | head -10
+ls -t meta/eval-history/*.md | head -10
 ```
 
 打开一份,看 frontmatter 的 scores 块,对比自己的预期。
@@ -306,10 +306,10 @@ ls -t _meta/eval-history/*.md | head -10
 
 ```bash
 # 最近 10 份里 cognitive_annotation_quality 的值
-grep -h "cognitive_annotation_quality" _meta/eval-history/*.md | tail -10
+grep -h "cognitive_annotation_quality" meta/eval-history/*.md | tail -10
 
 # 最近 10 份里所有 violations
-grep -A 3 "violations:" _meta/eval-history/*.md | tail -40
+grep -A 3 "violations:" meta/eval-history/*.md | tail -40
 ```
 
 ### 3. 用 tools/stats.py 做月报
@@ -338,7 +338,7 @@ uv run tools/reconcile.py
 
 - **本次 session 针对性关注**——警告已经说了"本次重点关注 X",跟着做
 - **改 agent spec**——比如系统说 REVIEWER 反复漏 dormant 维度,就编辑 `pro/agents/reviewer.md` 加一项 checklist
-- **改 cortex config**——比如系统说 hippocampus retrieval 质量低,`_meta/config.md` 里考虑调整 `top_k_signals` 或 `per_signal_floor`
+- **改 cortex config**——比如系统说 hippocampus retrieval 质量低,`meta/config.md` 里考虑调整 `top_k_signals` 或 `per_signal_floor`
 - **手工反驳**——如果你不认同系统性模式检测(比如 narrator 失败率高但你觉得是暂时问题不是系统性的),在当前 session 里说"我认为这个检测是误报",AUDITOR 会记一笔,后续 pattern 仍会持续监控但降权
 
 ### 6. 清理被 pattern 升级到 user-patterns.md 的 behavior
@@ -407,7 +407,7 @@ Eval-history 的 anti-patterns 里明确写:
 
 理由: v1.6.2a 的 AUDITOR 报告是**非结构化散文**,fit 不进 v1.7 的 YAML schema。强行回填会产生低信号噪声,污染**系统性检测**——connection 3 次低分规则会误触发,导致真正的问题被淹没。
 
-**eval-history 从 v1.7 day 1 重新开始**。想查 v1.6.2a 的历史?直接读 `_meta/journal/` 里的 session 报告。
+**eval-history 从 v1.7 day 1 重新开始**。想查 v1.6.2a 的历史?直接读 `meta/journal/` 里的 session 报告。
 
 ### 我编辑 eval-history 里的分数会怎样?
 
@@ -451,10 +451,10 @@ Eval-history 的 anti-patterns 里明确写:
 
 ```bash
 # session 文件数
-ls _meta/sessions/*.md | wc -l
+ls meta/sessions/*.md | wc -l
 
 # eval 文件数
-ls _meta/eval-history/*.md | wc -l
+ls meta/eval-history/*.md | wc -l
 ```
 
 比例应该在 50–80%(因为 direct-handle / Express 短 / STRATEGIST 都不写)。如果比例 <30%,可能:
@@ -476,11 +476,11 @@ uv run tools/reconcile.py
 
 ```bash
 # 把老 eval 归档到 _archive/ (不删除)
-mkdir -p _meta/eval-history/_archive/
-mv _meta/eval-history/2026-03-*.md _meta/eval-history/_archive/
+mkdir -p meta/eval-history/_archive/
+mv meta/eval-history/2026-03-*.md meta/eval-history/_archive/
 ```
 
-RETROSPECTIVE 只读 `_meta/eval-history/*.md` 顶层,不读 `_archive/`。
+RETROSPECTIVE 只读 `meta/eval-history/*.md` 顶层,不读 `_archive/`。
 
 ### "warning block 一直不显示,但我看数据有明显下滑"
 
@@ -488,7 +488,7 @@ RETROSPECTIVE 只读 `_meta/eval-history/*.md` 顶层,不读 `_archive/`。
 
 1. **规则阈值未触发**——"下滑"和"连续低于阈值 N 次"不同。确认具体规则里 N 的值
 2. **RETROSPECTIVE Mode 0 的 eval-history 读取失败**——查 session 起始时的 briefing,如果有 "⚠️ 趋势对比不可用" 类似提示,说明读失败
-3. **`_meta/eval-history/` 是最近创建的,只有几份文件**——规则 1/2/3 都要求 5–10 份记录才能判断,少于 3 份不触发
+3. **`meta/eval-history/` 是最近创建的,只有几份文件**——规则 1/2/3 都要求 5–10 份记录才能判断,少于 3 份不触发
 
 ---
 

@@ -24,17 +24,17 @@ starts the session knowing what's active, what's pending, what changed.
 
 ```
 - SOUL.md                                    → core dimensions + recent updates
-- _meta/sessions/INDEX.md (last 5 rows)      → recent sessions
-- _meta/snapshots/soul/ (latest snapshot)    → SOUL trajectory
+- meta/sessions/INDEX.md (last 5 rows)      → recent sessions
+- meta/snapshots/soul/ (latest snapshot)    → SOUL trajectory
 - inbox/*.md                                  → unprocessed items
 - projects/*/index.md (status: active)        → active projects
 - areas/*/index.md                            → ongoing areas
-- _meta/eval-history/recovery/ (last 7 days)  → recent archiver activity
+- meta/eval-history/recovery/ (last 7 days)  → recent archiver activity
 ```
 
 ### 2. Compose briefing (v1.8.2 Obsidian-style)
 
-Write `_meta/eval-history/daily-briefing-{YYYY-MM-DD}.md` per `references/obsidian-style.md`:
+Write `meta/eval-history/daily-briefing-{YYYY-MM-DD}.md` per `references/obsidian-style.md`:
 
 ```markdown
 ---
@@ -83,13 +83,13 @@ created: {YYYY-MM-DD}
 ### 3. Report to user
 
 ```
-☀️ daily-briefing ready · _meta/eval-history/daily-briefing-{date}.md
+☀️ daily-briefing ready · meta/eval-history/daily-briefing-{date}.md
    ({N} active projects · {M} inbox items · {K} suggested actions)
 ```
 
 ## Output path
 
-- `_meta/eval-history/daily-briefing-{YYYY-MM-DD}.md`
+- `meta/eval-history/daily-briefing-{YYYY-MM-DD}.md`
 
 ## Notes
 

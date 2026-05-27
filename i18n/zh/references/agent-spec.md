@@ -11,7 +11,7 @@ introduced_in: v1.8.5
 
 每个 `pro/agents/*.md` subagent 定义文件**必须**有符合 v2 标准的 YAML frontmatter。v1.8.5 Stage 6 迁移全部 23 个现有 agent。
 
-> **为什么 v2**: v1 agent frontmatter 只有 `name + description + tools + model`（4 字段）。v2 加 6 个结构性字段（借鉴 eou-foundry），让 agent 边界 grep-able、blast radius 显式、failure modes 有文档。按 RFC `_meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6。
+> **为什么 v2**: v1 agent frontmatter 只有 `name + description + tools + model`（4 字段）。v2 加 6 个结构性字段（借鉴 eou-foundry），让 agent 边界 grep-able、blast radius 显式、failure modes 有文档。按 RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6。
 
 ## v2 标准 Frontmatter
 
@@ -53,7 +53,7 @@ context_manifest:
 # v2 新增: blast_radius（eou eou-contract.md §blast_radius）
 blast_radius:
   allowed_scope:       # 此 agent 可写的文件/路径
-    - _meta/runtime/<sid>/<name>-*.json
+    - meta/runtime/<sid>/<name>-*.json
     - <wiki/SOUL/specific-output-path>
   forbidden_scope:     # 此 agent 不可修改的文件
     - SOUL.md          # 仅 ARCHIVER Phase 2 写 SOUL candidate
@@ -91,7 +91,7 @@ failure_modes:
 Stage 6 Day 17 添加新 AUDITOR mode。检查:
 - **A1**: 每个 agent 有所有 v2 必需字段
 - **A2**: `tools` 列表与 agent 实际使用匹配（tools 无 `Read` 但 agent 做 Read 调用 = drift）
-- **A3**: `forbidden_scope` 未被绕过（agent `_meta/runtime/<sid>/` 输出 trail 显示无写到 forbidden 路径）
+- **A3**: `forbidden_scope` 未被绕过（agent `meta/runtime/<sid>/` 输出 trail 显示无写到 forbidden 路径）
 - **A4**: agent 的 `failure_modes.known` 包含 `pro/compliance/violations.md` 中涉及此 agent 的任何违规类
 
 发现按 `references/failure-taxonomy.md` 分类。
@@ -111,7 +111,7 @@ Stage 6 Day 17 添加新 AUDITOR mode。检查:
 通过率标准（D4）:
 - ≥ 95% baseline: 在剩余 20 agent 上批量更新
 - 90-95%: 精简 frontmatter（去掉最重字段，重试）
-- < 90%: 回滚该 agent 的 v2 frontmatter，在 `_meta/rfc/v1.8.5-stage6-rollback.md` 文档化原因
+- < 90%: 回滚该 agent 的 v2 frontmatter，在 `meta/rfc/v1.8.5-stage6-rollback.md` 文档化原因
 
 ## 每个 agent 的 authority_level 指南
 
@@ -134,7 +134,7 @@ Stage 6 Day 17 添加新 AUDITOR mode。检查:
 | soul-check | audit | suggest_only | low |
 | narrator | specify | suggest_only（ROUTER-internal，仅模板）| low |
 | narrator-validator | validate | suggest_only（v1.8.0 删除，作为 legacy 模板保留）| low |
-| knowledge-extractor | propose | write_candidate（写 `_meta/runtime/<sid>/extraction/`）| medium |
+| knowledge-extractor | propose | write_candidate（写 `meta/runtime/<sid>/extraction/`）| medium |
 | 6 domain agents（people/finance/growth/execution/governance/infra）| diagnose | write_candidate（写 domain report）| medium |
 
 risk_level 理由: 产出最终输出无 REVIEWER 门的 agent 风险更高（archiver publish、reviewer veto）。仅提议/读取的 agent 风险更低。

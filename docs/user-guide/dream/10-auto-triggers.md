@@ -5,7 +5,7 @@ DREAM 的 REM 阶段会机械地评估 10 个触发器。每个触发器有**硬
 - **Hard mode**：硬阈值达成 → 自动执行，不需要用户确认
 - **Soft mode**：硬阈值没达成，但 LLM 检测到定性信号 → 触发并标记 `auditor_review: true`，下次 AUDITOR 审核通过后才生效
 
-所有触发器都受 **24 小时反垃圾抑制**——同一触发器 24 小时内不重复触发（读取上一份 `_meta/journal/*-dream.md` 的 `triggered_actions` 确认）。
+所有触发器都受 **24 小时反垃圾抑制**——同一触发器 24 小时内不重复触发（读取上一份 `meta/journal/*-dream.md` 的 `triggered_actions` 确认）。
 
 所有触发器的结果写进 dream 报告的 `triggered_actions` YAML 块，下次 session start 时由 RETROSPECTIVE 在简报的"💤 DREAM Auto-Triggers"固定位置显示。
 
@@ -13,7 +13,7 @@ DREAM 的 REM 阶段会机械地评估 10 个触发器。每个触发器有**硬
 
 ## 1. new-project-relationship · 新项目关系
 
-**数据源**：`projects/*/index.md` 的 strategic 字段、`_meta/strategic-lines.md`
+**数据源**：`projects/*/index.md` 的 strategic 字段、`meta/strategic-lines.md`
 
 **硬阈值**：自上次 dream 报告以来，检测到新的跨项目依赖或瓶颈边
 
@@ -157,7 +157,7 @@ DREAM 的 REM 阶段会机械地评估 10 个触发器。每个触发器有**硬
 
 ## 10. repeated-decisions · 重复决策
 
-**数据源**：`_meta/decisions/*.md` + 项目 decisions 历史
+**数据源**：`meta/decisions/*.md` + 项目 decisions 历史
 
 **硬阈值**：同一问题/主题在中间没有执行的情况下被决策 ≥3 次
 
@@ -206,7 +206,7 @@ triggered_actions:
 
 ## 反垃圾抑制
 
-每个触发器都有**同类型 24 小时抑制**。检测方式：读取最新的 `_meta/journal/*-dream.md`，看 `triggered_actions` 里是否在过去 24 小时内已经触发过同一 `trigger_name`。
+每个触发器都有**同类型 24 小时抑制**。检测方式：读取最新的 `meta/journal/*-dream.md`，看 `triggered_actions` 里是否在过去 24 小时内已经触发过同一 `trigger_name`。
 
 这防止每天都重复提醒"你 SOUL 的 X 维度 30+ 天休眠"——提醒一次就够，过了 24 小时还没处理再提一次。
 
