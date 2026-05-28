@@ -42,17 +42,31 @@
 
 ### JournalEntry（日志条目）
 
+> ⚠️ **v1.9 schema 取代下表**（见 RFC §3.5 Opt #5 时间轴 + §3.8 Opt #8 交叉引用）。v1.9 日志是**每天一个文件** `meta/journal/<YYYY-MM-DD>.md`（时间轴为权威源；同一天的多条 entry 追加在当天文件内，已存在时按 `projects:` 合并）。下表 pre-v1.9 的 per-entry 字段为遗留。
+
+**v1.9 权威 schema**（`meta/journal/<YYYY-MM-DD>.md`）：
+
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | string | auto | |
-| title | string | 是 | 条目标题 |
-| date | date | 是 | 条目日期 |
-| type | enum | 是 | `morning-court` / `censorate` / `remonstrator` / `inspection` / `manual` |
-| mood | enum | 否 | `great` / `good` / `neutral` / `low` / `bad` |
-| energy | enum | 否 | `high` / `medium` / `low` |
-| tags | string[] | 否 | |
-| last_modified | datetime | auto | |
-| content | text | 是 | 报告全文（正文） |
+| date | date | 是 | 当天（也是文件名） |
+| projects | string[] | 是 | 当天提及的项目；`[]` = 无 |
+| session_ids | string[] | 否 | 当天贡献 entry 的 session id |
+| type_tags | string[] | 是 | 当天出现的 entry 种类：`briefing` / `dream` / `advisor` / `auditor` / `migration` / … |
+| referenced_decisions | string[] | 否 | 当天引用的 decision id（Opt #8） |
+| referenced_methods | string[] | 否 | 当天应用的 method 名（Opt #8） |
+| content | text | 是 | 当天的 entry（正文；多个 section 追加） |
+
+<details><summary>Pre-v1.9 字段（遗留 per-entry 模型，新日志勿用）</summary>
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id / title | string | 已废弃 —— 每日文件以 `date` 为键 |
+| type | enum | `morning-court` / `censorate` / `remonstrator` / `inspection` / `manual` —— 被 `type_tags`（列表）取代 |
+| mood / energy | enum | 在 v1.9 每日聚合模型中已删除 |
+| tags | string[] | 折叠进 `type_tags` |
+| last_modified | datetime | 已废弃 |
+
+</details>
 
 ### WikiNote（Wiki 笔记）
 
@@ -67,15 +81,24 @@
 
 ### Project（项目）
 
+`projects/{p}/index.md` frontmatter。**v1.9 新增 `lifecycle_stage`（+ `paused_until` / `archived_*` / `created_at`）**，用于 PARA 归档状态（见 RFC §3.4 Opt #4 + DR-1.9.20 —— 取代旧的 `archive/` 目录；归档项目仍留在 `projects/{p}/`，wikilink 因此得以保留）。这是与 workflow `status` **彼此独立的另一个轴**：`lifecycle_stage` 回答"在活跃的 PARA 集合中，还是已归档？"，而 `status` + `strategic.status_reason` 驱动 workflow 与战略图谱的停滞检测。两者并存。
+
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | string | auto | |
-| name | string | 是 | 项目名 |
-| status | enum | 是 | `planning` / `active` / `on-hold` / `done` / `dropped` |
+| project / name | string | 是 | 项目名（也是目录名） |
+| lifecycle_stage | enum | 是 | **v1.9** · 归档轴 —— `candidate` / `active` / `archived` / `superseded` |
+| paused_until | date \| null | 否 | **v1.9** · 有时限的暂停（替代 "dormant"）；`> today` = 暂停但仍活跃 |
+| created_at | date | 是 | **v1.9** · 创建日期 |
+| archived_at | date \| null | 条件 | **v1.9** · 当 `lifecycle_stage: archived` 时设置 |
+| archived_at_source | enum \| null | 条件 | **v1.9** · `git-log` / `migrated-unknown` / `manual` / `auto` |
+| archived_reason | text | 条件 | **v1.9** · 当 `lifecycle_stage: archived` 时必填 |
+| superseded_by | string | 条件 | **v1.9** · 当 `lifecycle_stage: superseded` 时必填 |
+| status | enum | 否 | Workflow 轴 —— `planning` / `active` / `on-hold` / `done` / `dropped`；战略图谱停滞检测读取此字段 + `strategic.status_reason` |
+| strategic | object | 否 | 战略图谱字段（`line` / `role` / `flows_to` / `flows_from` / `last_activity` / `status_reason`）—— 见 `references/strategic-map-spec.md` |
+| related_wiki | wikilink[] | 否 | **v1.9** · `[[wiki/<entry>]]` 链接 |
 | priority | enum | 否 | `p0` / `p1` / `p2` / `p3` |
 | deadline | date | 否 | |
 | area | string | 否 | 关联 area |
-| last_modified | datetime | auto | |
 | outcome | text | 否 | 结果描述 |
 
 ### Area（领域）

@@ -57,17 +57,31 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 
 ### JournalEntry
 
+> ⚠️ **v1.9 schema supersedes this table** (per RFC §3.5 Opt #5 time-axis + §3.8 Opt #8 cross-references). v1.9 journal is **one file per day** at `meta/journal/<YYYY-MM-DD>.md` (time-axis canonical; multiple entries appended under the day, merged by `projects:` when the day already exists). The pre-v1.9 per-entry fields below are legacy.
+
+**v1.9 canonical schema** (`meta/journal/<YYYY-MM-DD>.md`):
+
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| id | string | auto | |
-| title | string | yes | Entry title |
-| date | date | yes | Entry date |
-| type | enum | yes | `morning-court` / `censorate` / `remonstrator` / `inspection` / `manual` |
-| mood | enum | no | `great` / `good` / `neutral` / `low` / `bad` |
-| energy | enum | no | `high` / `medium` / `low` |
-| tags | string[] | no | |
-| last_modified | datetime | auto | |
-| content | text | yes | Report full text (body) |
+| date | date | yes | The day (also the filename) |
+| projects | string[] | yes | Projects mentioned this day; `[]` = none |
+| session_ids | string[] | no | Session ids contributing entries to this day |
+| type_tags | string[] | yes | Entry kinds present: `briefing` / `dream` / `advisor` / `auditor` / `migration` / … |
+| referenced_decisions | string[] | no | Decision ids referenced this day (Opt #8) |
+| referenced_methods | string[] | no | Method names applied this day (Opt #8) |
+| content | text | yes | Day's entries (body; multiple sections appended) |
+
+<details><summary>Pre-v1.9 fields (legacy per-entry model, do not use for new journal)</summary>
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id / title | string | superseded — daily file is keyed by `date` |
+| type | enum | `morning-court` / `censorate` / `remonstrator` / `inspection` / `manual` — superseded by `type_tags` (list) |
+| mood / energy | enum | dropped in the v1.9 daily-aggregate model |
+| tags | string[] | folded into `type_tags` |
+| last_modified | datetime | superseded |
+
+</details>
 
 ### WikiNote
 
@@ -82,15 +96,24 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 
 ### Project
 
+`projects/{p}/index.md` frontmatter. **v1.9 added `lifecycle_stage` (+ `paused_until` / `archived_*` / `created_at`)** for PARA-archival state (per RFC §3.4 Opt #4 + DR-1.9.20 — replaces the old `archive/` directory; archived projects stay in `projects/{p}/` so wikilinks survive). This is a **separate axis** from the workflow `status`: `lifecycle_stage` answers "active PARA set vs archived?", while `status` + `strategic.status_reason` drive workflow + strategic-map stall detection. Both coexist.
+
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| id | string | auto | |
-| name | string | yes | Project name |
-| status | enum | yes | `planning` / `active` / `on-hold` / `done` / `dropped` |
+| project / name | string | yes | Project name (also the directory) |
+| lifecycle_stage | enum | yes | **v1.9** · archival axis — `candidate` / `active` / `archived` / `superseded` |
+| paused_until | date \| null | no | **v1.9** · time-bounded pause (replaces "dormant"); `> today` = paused-active, hidden from STATUS warnings |
+| created_at | date | yes | **v1.9** · creation date |
+| archived_at | date \| null | cond | **v1.9** · set when `lifecycle_stage: archived` |
+| archived_at_source | enum \| null | cond | **v1.9** · `git-log` / `migrated-unknown` / `manual` / `auto` (when archived) |
+| archived_reason | text | cond | **v1.9** · mandatory when `lifecycle_stage: archived` |
+| superseded_by | string | cond | **v1.9** · mandatory when `lifecycle_stage: superseded` |
+| status | enum | no | Workflow axis — `planning` / `active` / `on-hold` / `done` / `dropped`; strategic-map stall detection reads this + `strategic.status_reason` |
+| strategic | object | no | Strategic-map fields (`line` / `role` / `flows_to` / `flows_from` / `last_activity` / `status_reason`) — see `references/strategic-map-spec.md` |
+| related_wiki | wikilink[] | no | **v1.9** · `[[wiki/<entry>]]` links |
 | priority | enum | no | `p0` / `p1` / `p2` / `p3` |
 | deadline | date | no | |
 | area | string | no | Associated area |
-| last_modified | datetime | auto | |
 | outcome | text | no | Result description |
 
 ### Area

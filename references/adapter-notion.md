@@ -64,11 +64,12 @@ Only 3 components used:
 
 | Standard Field | Notion Property | Notion Type |
 |---------------|----------------|-------------|
-| title | Title | Title |
-| date | Date | Date |
-| type | Tags | Multi-select |
-| mood | Mood | Select |
-| energy | Energy | Select |
+| date | Date | Date (also the title) |
+| projects | Projects | Relation → Projects |
+| session_ids | Session IDs | Multi-select |
+| type_tags | Type Tags | Multi-select: briefing / dream / advisor / auditor / migration / … |
+| referenced_decisions | Referenced Decisions | Relation → Decisions |
+| referenced_methods | Referenced Methods | Relation → Methods |
 | content | Page body | Page content |
 
 ### WikiNote → 📚 Wiki

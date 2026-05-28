@@ -42,17 +42,31 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 
 ### JournalEntry
 
+> ⚠️ **v1.9 schema が下表を置き換え**（RFC §3.5 Opt #5 タイムライン + §3.8 Opt #8 クロスリファレンス参照）。v1.9 のジャーナルは**1日1ファイル** `meta/journal/<YYYY-MM-DD>.md`（タイムラインが権威ソース；同じ日の複数エントリは当日ファイル内に追記し、既存時は `projects:` でマージ）。下表の pre-v1.9 の per-entry フィールドはレガシー。
+
+**v1.9 正規 schema**（`meta/journal/<YYYY-MM-DD>.md`）：
+
 | フィールド | 型 | 必須 | 説明 |
 |-------|------|----------|-------------|
-| id | string | 自動 | |
-| title | string | はい | エントリタイトル |
-| date | date | はい | エントリ日 |
-| type | enum | はい | `morning-court` / `censorate` / `remonstrator` / `inspection` / `manual` |
-| mood | enum | いいえ | `great` / `good` / `neutral` / `low` / `bad` |
-| energy | enum | いいえ | `high` / `medium` / `low` |
-| tags | string[] | いいえ | |
-| last_modified | datetime | 自動 | |
-| content | text | はい | レポート全文（本文） |
+| date | date | はい | その日（ファイル名でもある） |
+| projects | string[] | はい | その日に言及されたプロジェクト；`[]` = なし |
+| session_ids | string[] | いいえ | その日にエントリを貢献した session id |
+| type_tags | string[] | はい | その日に存在するエントリ種類：`briefing` / `dream` / `advisor` / `auditor` / `migration` / … |
+| referenced_decisions | string[] | いいえ | その日に参照された decision id（Opt #8） |
+| referenced_methods | string[] | いいえ | その日に適用された method 名（Opt #8） |
+| content | text | はい | その日のエントリ（本文；複数セクションを追記） |
+
+<details><summary>Pre-v1.9 フィールド（レガシー per-entry モデル、新規ジャーナルには使用しない）</summary>
+
+| フィールド | 型 | 説明 |
+|-------|------|-------------|
+| id / title | string | 廃止 —— 日次ファイルは `date` をキーとする |
+| type | enum | `morning-court` / `censorate` / `remonstrator` / `inspection` / `manual` —— `type_tags`（リスト）に置き換え |
+| mood / energy | enum | v1.9 の日次集約モデルで削除 |
+| tags | string[] | `type_tags` に統合 |
+| last_modified | datetime | 廃止 |
+
+</details>
 
 ### WikiNote
 
@@ -67,15 +81,24 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 
 ### Project
 
+`projects/{p}/index.md` frontmatter。**v1.9 で `lifecycle_stage`（+ `paused_until` / `archived_*` / `created_at`）を追加**、PARA アーカイブ状態のため（RFC §3.4 Opt #4 + DR-1.9.20 参照 —— 旧 `archive/` ディレクトリを置き換え；アーカイブされたプロジェクトは `projects/{p}/` に残るため wikilink が保持される）。これは workflow `status` とは**別の軸**である：`lifecycle_stage` は「アクティブな PARA 集合か、アーカイブ済みか？」に答え、`status` + `strategic.status_reason` が workflow と戦略マップの停滞検出を駆動する。両者は併存する。
+
 | フィールド | 型 | 必須 | 説明 |
 |-------|------|----------|-------------|
-| id | string | 自動 | |
-| name | string | はい | プロジェクト名 |
-| status | enum | はい | `planning` / `active` / `on-hold` / `done` / `dropped` |
+| project / name | string | はい | プロジェクト名（ディレクトリ名でもある） |
+| lifecycle_stage | enum | はい | **v1.9** · アーカイブ軸 —— `candidate` / `active` / `archived` / `superseded` |
+| paused_until | date \| null | いいえ | **v1.9** · 期限付きの一時停止（"dormant" を置き換え）；`> today` = 停止中だがアクティブ |
+| created_at | date | はい | **v1.9** · 作成日 |
+| archived_at | date \| null | 条件付き | **v1.9** · `lifecycle_stage: archived` のとき設定 |
+| archived_at_source | enum \| null | 条件付き | **v1.9** · `git-log` / `migrated-unknown` / `manual` / `auto` |
+| archived_reason | text | 条件付き | **v1.9** · `lifecycle_stage: archived` のとき必須 |
+| superseded_by | string | 条件付き | **v1.9** · `lifecycle_stage: superseded` のとき必須 |
+| status | enum | いいえ | Workflow 軸 —— `planning` / `active` / `on-hold` / `done` / `dropped`；戦略マップの停滞検出はこれ + `strategic.status_reason` を読む |
+| strategic | object | いいえ | 戦略マップフィールド（`line` / `role` / `flows_to` / `flows_from` / `last_activity` / `status_reason`）—— `references/strategic-map-spec.md` 参照 |
+| related_wiki | wikilink[] | いいえ | **v1.9** · `[[wiki/<entry>]]` リンク |
 | priority | enum | いいえ | `p0` / `p1` / `p2` / `p3` |
 | deadline | date | いいえ | |
 | area | string | いいえ | 関連エリア |
-| last_modified | datetime | 自動 | |
 | outcome | text | いいえ | 結果の説明 |
 
 ### Area

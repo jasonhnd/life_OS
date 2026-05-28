@@ -62,11 +62,12 @@ Notionは完全なストレージバックエンド（選択された場合）�
 
 | 標準フィールド | Notion プロパティ | Notion 型 |
 |---------------|----------------|-------------|
-| title | Title | Title |
-| date | Date | Date |
-| type | Tags | Multi-select |
-| mood | Mood | Select |
-| energy | Energy | Select |
+| date | Date | 日付（タイトルでもある） |
+| projects | Projects | リレーション → Projects |
+| session_ids | Session IDs | マルチ選択 |
+| type_tags | Type Tags | マルチ選択: briefing / dream / advisor / auditor / migration / … |
+| referenced_decisions | Referenced Decisions | リレーション → Decisions |
+| referenced_methods | Referenced Methods | リレーション → Methods |
 | content | Page body | Page content |
 
 ### WikiNote → 📚 Wiki

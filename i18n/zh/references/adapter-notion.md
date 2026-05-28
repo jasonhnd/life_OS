@@ -62,11 +62,12 @@ Notion 既可作为完整的存储后端（当被选择时），也可作为传�
 
 | 标准字段 | Notion 属性 | Notion 类型 |
 |---------------|----------------|-------------|
-| title | Title | Title |
-| date | Date | Date |
-| type | Tags | Multi-select |
-| mood | Mood | Select |
-| energy | Energy | Select |
+| date | Date | 日期（也是标题） |
+| projects | Projects | 关联 → Projects |
+| session_ids | Session IDs | 多选 |
+| type_tags | Type Tags | 多选: briefing / dream / advisor / auditor / migration / … |
+| referenced_decisions | Referenced Decisions | 关联 → Decisions |
+| referenced_methods | Referenced Methods | 关联 → Methods |
 | content | 页面正文 | Page content |
 
 ### WikiNote → 📚 Wiki
