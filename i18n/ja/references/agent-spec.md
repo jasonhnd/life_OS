@@ -53,7 +53,7 @@ context_manifest:
 # v2 新規: blast_radius（eou eou-contract.md §blast_radius）
 blast_radius:
   allowed_scope:       # この agent が書ける可能なファイル/パス
-    - meta/runtime/<sid>/<name>-*.json
+    - meta/runtime/<sid>/<name>-*.md
     - <wiki/SOUL/specific-output-path>
   forbidden_scope:     # この agent が修正してはいけないファイル
     - SOUL.md          # ARCHIVER Phase 2 のみが SOUL candidate を書く

@@ -26,19 +26,21 @@ last_modified: "2026-04-08T15:30:00Z"
 
 | Data Type | Path | Filename Pattern |
 |-----------|------|-----------------|
-| Decision (project) | `projects/{project}/decisions/` | `{date}-{slug}.md` |
-| Decision (cross-domain) | `meta/decisions/` | `{date}-{slug}.md` |
+| Decision (all — v1.9 consolidated) | `meta/decisions/{YYYY-MM}/` | `dec-{YYYY-MM-DD}-{NNN}.md` |
 | Task (project) | `projects/{project}/tasks/` | `{slug}.md` |
 | Task (area) | `areas/{area}/tasks/` | `{slug}.md` |
-| JournalEntry | `meta/journal/` | `{date}-{type}.md` |
+| JournalEntry (v1.9 time-axis) | `meta/journal/` | `{YYYY-MM-DD}.md` (one daily file; multiple entries appended) |
 | WikiNote | `wiki/{domain}/` | `{slug}.md` |
-| Project | `projects/{project}/index.md` | Fixed name |
+| Project | `projects/{project}/index.md` | Fixed name (含 lifecycle_stage frontmatter; archived projects stay here) |
 | Area | `areas/{area}/index.md` | Fixed name |
 | SessionSummary (v1.7) | `meta/sessions/` | `{session_id}.md` |
 | Concept (v1.7) | `meta/concepts/{domain}/` | `{concept_id}.md` |
 | SoulSnapshot (v1.7) | `meta/snapshots/soul/` | `{YYYY-MM-DD-HHMM}.md` |
 | EvalEntry (v1.7) | `meta/eval-history/` | `{YYYY-MM-DD}-{project}.md` |
 | Method (v1.7) | `meta/methods/{domain}/` | `{method_id}.md` |
+| UserPatterns (v1.9) | `meta/user-patterns.md` | Fixed name (moved from root in v1.9 Opt #7) |
+
+> **v1.9 changes** (per RFC §3.3/§3.5/§3.4/§3.7): Decisions consolidated to `meta/decisions/{YYYY-MM}/` (no more `projects/*/decisions/` split). Journal is time-axis canonical at `meta/journal/{YYYY-MM-DD}.md` (no more `projects/*/journal/`). Projects with `lifecycle_stage: archived` stay in `projects/` (no `archive/` dir). `user-patterns.md` moved to `meta/`.
 
 ## Operations
 
@@ -55,8 +57,10 @@ last_modified: "2026-04-08T15:30:00Z"
 5. `git add` the file
 
 ### Archive(type, id)
-1. Move file to `archive/{original-path}/`
-2. `git add` both old and new paths
+
+**v1.9 semantics split** (per DR-1.9.4):
+- **Project**: do NOT move. Set `lifecycle_stage: archived` + `archived_at` + `archived_at_source` in `projects/{id}/index.md` frontmatter. Project stays in `projects/` to preserve wikilinks. `git add projects/{id}/index.md`.
+- **Other types** (sessions, eval entries, etc.): legacy sub-archive within their own tree (e.g. `meta/eval-history/_archive/`, `meta/concepts/_archive/`) — these are NOT the project archive and remain valid.
 
 ### Read(type, id)
 1. Read the .md file
@@ -77,8 +81,8 @@ last_modified: "2026-04-08T15:30:00Z"
 ### ReadProjectContext(project_id)
 1. Read `projects/{project}/index.md`
 2. Glob `projects/{project}/tasks/*.md`
-3. Glob `projects/{project}/decisions/*.md`
-4. Glob `projects/{project}/journal/*.md`
+3. (v1.9) Decisions: Glob `meta/decisions/*/*.md`, filter `contains(projects, "{project}")` (decisions consolidated out of projects/ in v1.9)
+4. (v1.9) Journal: Glob `meta/journal/*.md`, filter frontmatter `contains(projects, "{project}")` (journal time-axis canonical in v1.9)
 5. Return all parsed
 
 ## Change Detection
@@ -101,13 +105,13 @@ git commit -m "[life-os] session {session_id} output"
 git push
 ```
 
-Only stage the outbox directory. Never touch main files (projects/, STATUS.md, user-patterns.md) during adjourn.
+Only stage the outbox directory. Never touch main files (projects/, STATUS.md, meta/user-patterns.md) during adjourn.
 
 ### On Start Court (merge outboxes)
 
 ```bash
-# After merging outbox contents into main directories:
-git add projects/ areas/ meta/journal/ meta/STATUS.md user-patterns.md SOUL.md
+# After merging outbox contents into main directories (v1.9 paths):
+git add projects/ areas/ meta/decisions/ meta/journal/ meta/methods/ meta/STATUS.md meta/user-patterns.md SOUL.md
 git rm -r meta/outbox/{merged-session-ids}/
 git commit -m "[life-os] merge {N} outbox sessions"
 git push

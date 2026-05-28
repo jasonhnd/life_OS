@@ -21,7 +21,7 @@ Wiki 是系统的知识档案——关于世界的可复用结论的活集合。
 | 存储 | 记录 | 示例 |
 |------|------|------|
 | `decisions/` | 你决定了什么（具体、有时间戳）| "2026-04-01: 决定用信托结构" |
-| `user-patterns.md` | 你做什么（行为模式）| "倾向回避金融维度" |
+| `meta/user-patterns.md` | 你做什么（行为模式）| "倾向回避金融维度" |
 | `SOUL.md` | 你是谁（价值观、人格）—— **v2 schema 见 `references/soul-spec.md`** | "Truth over comfort"（priority 1）|
 | `wiki/` | 你知道什么 —— 陈述性知识 —— **v2 schema 本文档** | "日本 NPO 贷款无貸金業法豁免" |
 | `meta/concepts/` | 突触图 —— 概念如何连接 | "company-a-holding" 节点带加权边 |
@@ -29,7 +29,7 @@ Wiki 是系统的知识档案——关于世界的可复用结论的活集合。
 
 **非 wiki 材料**（去别处）：
 - 身份 / 价值 / 个人偏好 → `SOUL.md` v2
-- 行为模式 → `user-patterns.md`
+- 行为模式 → `meta/user-patterns.md`
 - 程序性工作流 → `meta/methods/`
 - 概念级关联 → `meta/concepts/`
 

@@ -40,7 +40,7 @@ Required evidence:
 ### 3. simulated → pilot
 
 Required evidence:
-- ✅ Simulation run recorded (`meta/runtime/<sid>/simulation-<artifact>.json`)
+- ✅ Simulation run recorded (`meta/runtime/<sid>/simulation-<artifact>.md`)
 - ✅ No critical findings (F1/F3/F6a/F10/F14/F15/F17) from simulation
 - ✅ Human reviewer sign-off on simulation results
 - ✅ All `open_questions` resolved or explicitly deferred with rationale

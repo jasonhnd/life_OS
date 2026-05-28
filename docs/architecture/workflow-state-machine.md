@@ -85,7 +85,7 @@ REVIEWER 的 Veto 不是状态跳跃, 而是在 PLANNER ↔ REVIEWER 之间循�
 
 **AUDITOR 在会话结束后立即运行**。检测到任何非法转换:
 1. 写入本次流程审计报告
-2. 记录到 `user-patterns.md`
+2. 记录到 `meta/user-patterns.md`
 3. 下次会话开始时 ADVISOR 会把它作为 behavioral pattern 标记
 4. 「累犯」行为会累加, 被用户看到
 
@@ -143,7 +143,7 @@ Life OS 没有「状态机引擎」这种东西。状态转换靠的是:
 
 - LLM 可能**连续**跳步 (例如连续 3 次会话都跳 REVIEWER)
 - 如果用户没注意 AUDITOR 的标记, 违规不会被纠正
-- 应对: ADVISOR 把违规记入 `user-patterns.md`, 会在下次会话开始时被 RETROSPECTIVE 读出来并在晨报展示
+- 应对: ADVISOR 把违规记入 `meta/user-patterns.md`, 会在下次会话开始时被 RETROSPECTIVE 读出来并在晨报展示
 
 ---
 
@@ -154,7 +154,7 @@ Life OS 没有「状态机引擎」这种东西。状态转换靠的是:
 1. 看 Summary Report 的 Audit Log 块 — 记录各阶段是否跑了
 2. 看 AUDITOR 报告 — 有没有标记 Process Issues
 3. 看 `meta/outbox/{session_id}/manifest.md` — 记录了本次 session 的产出计数
-4. 看 `user-patterns.md` — 有没有累积的违规模式
+4. 看 `meta/user-patterns.md` — 有没有累积的违规模式
 5. 对照本文件的合法转换表, 看当前状态跳到的下一状态是不是合法的
 
 **如果是退朝相关 bug**:

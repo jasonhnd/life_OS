@@ -136,7 +136,7 @@ Citation IDs use a fixed prefix to indicate the source type:
 | `SOUL:` | SOUL dimension                | `SOUL:risk-tolerance-v3`                   |
 | `C:`    | concept                       | `C:method:iterative-document-refinement`   |
 | `W:`    | wiki entry                    | `W:finance/compound-interest`              |
-| `P:`    | pattern in user-patterns.md   | `P:avoids-family-topic-on-weekends`        |
+| `P:`    | pattern in meta/user-patterns.md   | `P:avoids-family-topic-on-weekends`        |
 
 Prefixes are **fixed**. Narrator must not invent new prefixes. If a source type does not map to one of the above, the narrator must not cite it (and therefore must not make the substantive claim in the first place).
 

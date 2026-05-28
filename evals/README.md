@@ -10,26 +10,22 @@ After installing the life-os skill in Claude Code, directly input the user messa
 
 ### Automated Testing
 
-```bash
-# Run all scenarios
-./evals/run-eval.sh
+Run the `/run-eval` slash command in Claude Code (replaces the retired `evals/run-eval.sh` — part of the v1.8.5 hook-layer retirement under the md-only ontological constraint):
 
-# Run a single scenario
-./evals/run-eval.sh resign-startup
+```
+/run-eval                 # run all scenarios
+/run-eval resign-startup  # run a single scenario by name glob
 ```
 
-The script uses `claude -p` to run scenarios one by one, saving outputs to the `evals/outputs/` directory.
+`/run-eval` invokes the `claude` CLI in batch mode (`claude -p`) to run scenarios one by one, saving outputs to `evals/outputs/`. See `.claude/commands/run-eval.md` for the full procedure.
 
 ## Directory Structure
 
 ```
 evals/
 ├── README.md              # This file
-├── run-eval.sh            # Automated test script
-├── scenarios/             # Fixed test scenarios
-│   ├── resign-startup.md  # Resign to start a business (all Six Domains)
-│   ├── large-purchase.md  # Large purchase (FINANCE + EXECUTION + GOVERNANCE)
-│   └── relationship.md    # Interpersonal relationship (PEOPLE + INFRA + GOVERNANCE + GROWTH)
+├── scenarios/             # Fixed test scenarios (*.md — routing, compliance, version-specific)
+├── regression-fixtures/   # Regression case fixtures (*.md)
 ├── rubrics/               # Scoring criteria
 │   ├── agent-output-quality.md    # Agent output quality
 │   └── orchestrator-compliance.md # Workflow compliance

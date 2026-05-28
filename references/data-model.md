@@ -6,22 +6,39 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 
 ### Decision
 
+> ⚠️ **v1.9 schema supersedes this table** (per RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records"). v1.9 is the canonical decision-record frontmatter; the pre-v1.9 fields below are retained for historical reference / legacy file parsing. **Field-name collision note**: v1.9 reuses `type` for the decision-record kind (`change` / `no_change` / `escalation` / `superseded`), NOT the pre-v1.9 workflow kind (`simple` / `3d6m`). When writing a new decision, use the v1.9 schema.
+
+**v1.9 canonical schema** (`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`):
+
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| id | string | auto | Unique identifier (filename or database ID) |
-| title | string | yes | Subject (≤20 chars) |
-| type | enum | yes | `simple` / `3d6m` (Draft-Review-Execute and Six Domains) |
-| domains | string[] | no | Activated domains |
-| score | number | no | Composite score (1-10) |
-| veto_count | number | no | Number of REVIEWER vetoes |
-| status | enum | yes | `considering` / `decided` / `reversed` |
-| category | enum | no | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
-| outcome | enum | no | `good` / `neutral` / `bad` / `tbd` |
-| date | date | yes | Decision date |
-| project | string | no | Associated project |
-| area | string | no | Associated area |
-| last_modified | datetime | auto | Last modification timestamp |
+| id | string | yes | `dec-<YYYY-MM-DD>-<NNN>` (per-day sequence) |
+| title | string | yes | Short title |
+| type | enum | yes | `change` / `no_change` / `escalation` / `superseded` |
+| projects | string[] | yes | Owning project(s); `[]` = cross-project |
+| domains | string[] | yes | Subset of 6 functional IDs: governance/execution/finance/infra/people/growth |
+| reviewed_by | string | yes | agent or human |
+| reviewed_at | date | yes | ISO date |
+| decision | text | yes | One-line decision |
+| rationale | text | yes | Why |
+| reopen_condition | text | cond | Mandatory when `type: no_change` |
+| supersedes / superseded_by | string[] / string | no | Decision lineage |
+| applied_methods | string[] | no | Methods applied (list; Opt #8) |
+| journal_date | date | no | Day's journal file (Opt #8) |
 | content | text | yes | Summary report full text (body) |
+
+<details><summary>Pre-v1.9 fields (legacy, do not use for new decisions)</summary>
+
+| Field | Type | Description |
+|-------|------|-------------|
+| type | enum | `simple` / `3d6m` (workflow — superseded by v1.9 `type`) |
+| status | enum | `considering` / `decided` / `reversed` |
+| category | enum | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
+| outcome | enum | `good` / `neutral` / `bad` / `tbd` |
+| score / veto_count | number | composite score / veto events |
+| date / project / area | — | superseded by `reviewed_at` / `projects` / (area via project) |
+
+</details>
 
 ### Task
 
@@ -429,7 +446,7 @@ No second-brain → config stored in session context, ROUTER asks each new sessi
 
 ## Constraints
 
-- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`meta/outbox/{session_id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
+- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`meta/outbox/{session_id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, meta/user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
 - **Session-id format**: `{platform}-{YYYYMMDD}-{HHMM}`, generated at adjourn time (not session start). Example: `claude-20260412-1700`, `gemini-20260412-1900`.
 - **Outbox merge lock**: During merge, write `meta/.merge-lock`. If it exists and is < 5 minutes old, skip merge and proceed normally. Delete after merge completes.
 - **Empty sessions**: If a session has no output (no decisions, tasks, or journal entries), do not create an outbox.
@@ -473,10 +490,10 @@ outputs:
 
 ### Patterns Delta Format
 
-`patterns-delta.md` records content to append to `user-patterns.md`:
+`patterns-delta.md` records content to append to `meta/user-patterns.md`:
 
 ```markdown
-# Patterns Delta — append to user-patterns.md
+# Patterns Delta — append to meta/user-patterns.md
 
 ### [2026-04-12] New pattern: decision speed increasing
 Source: ADVISOR

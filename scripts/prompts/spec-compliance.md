@@ -13,7 +13,7 @@
 
 - `检查合规` / `spec compliance` / `承诺核对`
 - `spec 上写的真的在跑吗`
-- session-start-inbox hook reports `spec-compliance Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `spec-compliance Nd` overdue and user says "跑一下"
 
 ## Goal
 
@@ -48,7 +48,7 @@ meta/eval-history/maintenance/*     (current v1.8.0 path; user-invoked maintenan
 meta/eval-history/recovery/*        (archiver recovery runs)
 meta/eval-history/auditor-patrol/*  (auditor patrol runs)
 meta/eval-history/*-{YYYY-MM}.md    (monthly reports)
-meta/runtime/*/X.json               (per-session audit trails)
+meta/runtime/*/X.md                 (per-session audit trails, R13 markdown)
 ```
 
 For each promise, look for evidence file matching the topic + within the

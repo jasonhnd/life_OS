@@ -1,6 +1,13 @@
-# Shell Hooks Contract Specification (v1.7)
+---
+status: legacy
+authoritative: false
+superseded_by: SKILL.md + pro/CLAUDE.md (inline LLM procedures)
+note: "Describes the bash hook layer (five shell hooks) RETIRED in v1.8.5 Stage 2 under the md-only ontological constraint (DR-10). The runtime-enforcement behaviors documented here are now inline LLM procedures performed by ROUTER and the subagents — see SKILL.md 'Pre-flight Compliance Check', pro/CLAUDE.md, and pro/agents/retrospective.md. Read for historical context only."
+---
 
-> Authoritative contract for the five shell hooks that enforce Life OS HARD RULE compliance at runtime. Each hook is a self-contained bash script that communicates with the Claude Code host via stdin JSON, stdout text, and exit codes. Bash + jq only — no Python runtime, no non-stdlib dependencies.
+# Shell Hooks Contract Specification (v1.7) — LEGACY
+
+> **⚠️ LEGACY (retired v1.8.5 Stage 2).** This spec documents the five shell hooks that enforced Life OS HARD RULE compliance at runtime in v1.7. The entire bash hook layer was **retired in v1.8.5 Stage 2** under the md-only ontological constraint (DR-10) — lifeos ships no `.sh` files. Every behavior described below is now an **inline LLM procedure** the orchestrator or a subagent performs itself (Pre-flight Compliance Check in SKILL.md, the inline outbound PII scan in pro/CLAUDE.md Step 10a, the Conscious Patrol maintenance scan in pro/agents/retrospective.md). This file is preserved for historical context and to document the original contract; it is **not authoritative** for current behavior.
 
 ---
 
@@ -138,7 +145,7 @@ Precedent: COURT-START-001 (2026-04-19).
 - **Purpose:** Fast regex scan of content destined for SOUL / wiki / concepts / user-patterns.
 - **Solves:** LLM-generated content containing injection payloads (malicious or accidental) reaching long-term knowledge files.
 
-**Contract:** Parse `file_path` + `content` (or `new_string` for Edit). If `file_path` is outside the scoped set (`SOUL.md`, `wiki/**`, `meta/concepts/**`, `user-patterns.md`), exit 0 pass-through. Inside the set, run the 15-pattern regex scan + the invisible-Unicode scan. On any match, log violation, exit 2 with the pattern flag.
+**Contract:** Parse `file_path` + `content` (or `new_string` for Edit). If `file_path` is outside the scoped set (`SOUL.md`, `wiki/**`, `meta/concepts/**`, `meta/user-patterns.md`), exit 0 pass-through. Inside the set, run the 15-pattern regex scan + the invisible-Unicode scan. On any match, log violation, exit 2 with the pattern flag.
 
 This regex scan is the cheap first-pass. The LLM-based privacy check (user decision #5) runs later in archiver's knowledge extraction — the regex is the fast first line of defense.
 
@@ -190,7 +197,7 @@ This regex scan is the cheap first-pass. The LLM-based privacy check (user decis
 - **Purpose:** Outbound boundary scan — every Notion MCP write call is intercepted; `tool_input` is scanned against `references/outbound-pii-patterns.md` Groups A through E.
 - **Solves:** Decision body contents written by archiver Phase 1 (raw user prose, names, amounts) being mirrored to Notion (a third-party storage layer that may be shared, AI-indexed, or breach-prone) without any privacy gate. The pre-existing `pre-write-scan.sh` defends inbound knowledge files; this hook defends the outbound mirror path.
 
-**Contract:** Parse `tool_name` + `tool_input` from stdin. If `tool_name` is not a Notion write, exit 0 (defense-in-depth — settings.json matcher already filters, but the hook double-checks). Otherwise serialize `tool_input` (with structural-ID fields stripped via `jq` walk: `page_id`, `database_id`, `parent_id`, `id`, `ids`, `page_ids`, `icon`, `cover`) and run the Group A → D → A8 → B → C → E scan order from `references/outbound-pii-patterns.md`. Always write `meta/runtime/<sid>/notion-pii-scan-<ts>.json` with the `matched_patterns` block (category IDs only, never raw content). Then dispatch action by verdict.
+**Contract:** Parse `tool_name` + `tool_input` from stdin. If `tool_name` is not a Notion write, exit 0 (defense-in-depth — settings.json matcher already filters, but the hook double-checks). Otherwise serialize `tool_input` (with structural-ID fields stripped via `jq` walk: `page_id`, `database_id`, `parent_id`, `id`, `ids`, `page_ids`, `icon`, `cover`) and run the Group A → D → A8 → B → C → E scan order from `references/outbound-pii-patterns.md`. Always write `meta/runtime/<sid>/notion-pii-scan-<ts>.md` with the `matched_patterns` block (category IDs only, never raw content). Then dispatch action by verdict.
 
 **Three-tier action model:**
 

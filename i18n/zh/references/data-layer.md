@@ -53,7 +53,7 @@
 second-brain/
 │
 ├── SOUL.md                            # 🔮 用户人格档案（价值观、信念、身份认同——从零成长）
-├── user-patterns.md                   # 📊 行为模式（你的行为——ADVISOR维护）
+├── meta/user-patterns.md                   # 📊 行为模式（你的行为——ADVISOR维护）
 │
 ├── inbox/                             # 📥 未处理（移动端捕获、材料、读书笔记、原始研究）
 │
@@ -246,7 +246,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 6. 读取 meta/STATUS.md（全局状态）
 7. 读取 meta/lint-state.md（检查是否需要巡查：距上次运行 >4h）
 8. ReadProjectContext（绑定项目）—— 任务、决策、日志
-9. 读取 user-patterns.md
+9. 读取 meta/user-patterns.md
 10. 全局概览：列出项目 + 列出领域（仅标题 + 状态）
 11. 战略地图编译：若 `meta/strategic-lines.md` 存在 → 编译 `meta/STRATEGIC-MAP.md`。参见 `references/strategic-map-spec.md`。
 12. 若 lint-state.md 显示 >4h → 触发AUDITOR轻量巡查
@@ -260,14 +260,14 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 2. 创建 meta/outbox/{session-id}/
 3. Save Decision / Save Task / Save JournalEntry → 写入 meta/outbox/{session-id}/（不写入主目录）
 4. 写入 index-delta.md（projects/{p}/index.md 的变更）
-5. 写入 patterns-delta.md（若ADVISOR有建议，追加 user-patterns.md 内容）
+5. 写入 patterns-delta.md（若ADVISOR有建议，追加 meta/user-patterns.md 内容）
 6. 写入 manifest.md（session 元数据）
 7. git add meta/outbox/{session-id}/ → commit → push（仅 outbox 目录）
 8. 同步 outbox 至 Notion（如已配置）
 9. 在 meta/config.md 中更新本平台的 last_sync_time
 10. 任何后端失败 → 记录至 meta/sync-log.md，不阻塞流程
 
-注意：不得直接写入 projects/、STATUS.md 或 user-patterns.md。合并在下次上朝时进行。
+注意：不得直接写入 projects/、STATUS.md 或 meta/user-patterns.md。合并在下次上朝时进行。
 ```
 
 ### 复盘模式
@@ -283,7 +283,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 ## ADVISOR数据获取
 
 ```
-1. 读取 user-patterns.md
+1. 读取 meta/user-patterns.md
 2. List JournalEntry（type: remonstrator，limit: 3）→ 最近 3 份报告
 3. List Decision（limit: 5）→ 近期决策
 4. List Task → 计算完成率
@@ -298,7 +298,7 @@ Life OS 支持三种存储后端。用户可选 1 个、2 个或全部 3 个。
 | 项目版本 / 阶段 / 状态 | `projects/{p}/index.md` | `meta/STATUS.md` |
 | 领域目标 / 状态 | `areas/{a}/index.md` | `meta/STATUS.md` |
 | 任务完成情况 | `projects/{p}/tasks/*.md` | 指标仪表板 |
-| 行为模式 | `user-patterns.md` | ADVISOR报告 |
+| 行为模式 | `meta/user-patterns.md` | ADVISOR报告 |
 | 战略关系 | `projects/{p}/index.md` strategic 字段 + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **写入顺序强制执行**：始终先更新权威来源，再编译仪表板。不得直接向 STATUS.md 写入项目级信息。

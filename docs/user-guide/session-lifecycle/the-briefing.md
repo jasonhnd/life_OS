@@ -48,7 +48,7 @@
 - **Sync**：这次上朝拉了几条变更。"no changes" 是正常的，不是失败。
 - **Platform**：Claude Code / Gemini / Codex。影响 update 命令。
 - **Life OS version**：本地 vs 远程。如果远程大于本地 → 提示 update。
-- **Behavior Profile**：`user-patterns.md` 是否存在且已加载。
+- **Behavior Profile**：`meta/user-patterns.md` 是否存在且已加载。
 
 ---
 

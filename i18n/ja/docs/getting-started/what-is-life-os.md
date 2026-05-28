@@ -86,20 +86,25 @@ AI に何かをしてもらうには、タイプして聞かなければなり�
 #### ディレクトリ構造
 
 ```
-second-brain/
-├── SOUL.md                 # あなたは誰か(アイデンティティ・プロファイル)
-├── user-patterns.md        # あなたの行動様式(行動パターン)
+second-brain/                    # v1.9 layout
+├── SOUL.md                 # あなたは誰か(アイデンティティ、root に保持)
 ├── wiki/                   # あなたの知っていること(再利用可能な知識)
-├── projects/{name}/        # 手がけていること(アクティブプロジェクト)
-├── areas/{name}/           # 継続的に関心を持つこと(領域)
+├── projects/{name}/        # 手がけていること(アクティブ + archived、lifecycle_stage frontmatter で区別)
+├── areas/                  # 継続的に関心を持つこと(領域；README.md 推奨シード、命名強制なし)
 ├── meta/
+│   ├── user-patterns.md    # あなたの行動様式(行動パターン；v1.9 で root から移動)
 │   ├── STRATEGIC-MAP.md    # プロジェクト間の関連
-│   ├── journal/            # 各セッションレポート、DREAM ログ
+│   ├── decisions/<YYYY-MM>/ # 決定(v1.9 月サブディレクトリ)
+│   ├── journal/<date>.md   # 各セッションレポート、DREAM ログ(時間軸 canonical)
+│   ├── methods/            # メソッドライブラリ
+│   ├── queue/              # システム処理キュー + 通知(v1.9 で inbox から改名)
 │   ├── outbox/             # 並行セッション一時保管
 │   └── snapshots/soul/     # SOUL スナップショット(トレンド計算用)
-├── inbox/                  # 携帯で随時メモ
-└── archive/                # 完了済み
+├── inbox/                  # 携帯で随時メモ(ユーザー投函エリア)
+└── templates/              # テンプレート
 ```
+
+> v1.9 変更：独立 `archive/` なし(frontmatter `lifecycle_stage: archived` で代替)；`meta/user-patterns.md` は `meta/` に移動；`meta/` はアンダースコアなし。詳細は `docs/second-brain.md`。
 
 #### 同期とバックアップ
 
@@ -384,7 +389,7 @@ ARCHIVER が Completion Checklist を返す。Orchestrator がメイン context 
 
 Adjourn 後、オーケストレーション層が月末に `scripts/prompts/advisor-monthly.md` フローをトリガー(v1.7 cron 時代の `scripts/monthly-review-check.py` は R-1.8.0-011 で削除済み、user-invoked prompt に置換)——`meta/self-review-2026-04.md` を生成:
 - 今月の AUDITOR 再現率、REVIEWER 否決率、COUNCIL トリガー率、Express 命中率を統計
-- evals/ で走らせたスコアと AUDITOR がつけたスコアを比較。AUDITOR は 8+ をつけているが eval で 3 つ fail → 「互いに庇う」パターンを user-patterns.md に書き込み
+- evals/ で走らせたスコアと AUDITOR がつけたスコアを比較。AUDITOR は 8+ をつけているが eval で 3 つ fail → 「互いに庇う」パターンを meta/user-patterns.md に書き込み
 - 次回 ADVISOR 起動時に自動でこの pattern を読み、Summary Report で赤字警告
 
 *(Layer 4 Python ツール層、クラウド非依存、launchd ローカル実行で OK)*

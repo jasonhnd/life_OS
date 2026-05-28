@@ -53,7 +53,7 @@
 second-brain/
 │
 ├── SOUL.md                            # 🔮 用户人格档案（价值观、信念、身份——从零生长）
-├── user-patterns.md                   # 📊 行为模式（你做什么——ADVISOR 维护）
+├── meta/user-patterns.md                   # 📊 行为模式（你做什么——ADVISOR 维护）
 │
 ├── inbox/                             # 📥 未处理（手机捕获、素材、读书笔记、原始研究）
 │
@@ -246,7 +246,7 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 6. 读 meta/STATUS.md（全局状态）
 7. 读 meta/lint-state.md（检查是否需要巡检：>4h 未运行）
 8. ReadProjectContext（绑定项目）——tasks、decisions、journal
-9. 读 user-patterns.md
+9. 读 meta/user-patterns.md
 10. 全局概览：List Project + List Area（只有标题和状态）
 11. 战略地图编译：若 `meta/strategic-lines.md` 存在 → 编译 `meta/STRATEGIC-MAP.md`。见 `references/strategic-map-spec.md`
 12. 若 lint-state.md 显示 >4h → 触发轻量 AUDITOR 巡检
@@ -260,14 +260,14 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 2. 创建 meta/outbox/{session_id}/
 3. Save Decision / Save Task / Save JournalEntry → 到 meta/outbox/{session_id}/（不是主目录）
 4. 写 index-delta.md（对 projects/{project}/index.md 的变更）
-5. 写 patterns-delta.md（若 ADVISOR 有建议，追加到 user-patterns.md 的内容）
+5. 写 patterns-delta.md（若 ADVISOR 有建议，追加到 meta/user-patterns.md 的内容）
 6. 写 manifest.md（会话元数据）
 7. git add meta/outbox/{session_id}/ → commit → push（仅 outbox 目录）
 8. 同步 outbox 到 Notion（若配置）
 9. 更新本平台的 last_sync_time 在 meta/config.md
 10. 任何后端失败 → 记录到 meta/sync-log.md，不阻塞
 
-注意：不要直接写入 projects/、STATUS.md 或 user-patterns.md。合并发生在下次 Start Court。
+注意：不要直接写入 projects/、STATUS.md 或 meta/user-patterns.md。合并发生在下次 Start Court。
 ```
 
 ### 复盘模式
@@ -283,7 +283,7 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 ## ADVISOR 数据获取
 
 ```
-1. 读 user-patterns.md
+1. 读 meta/user-patterns.md
 2. List JournalEntry（type: remonstrator, limit: 3）→ 最近 3 份报告
 3. List Decision（limit: 5）→ 近期决策
 4. List Task → 计算完成率
@@ -298,7 +298,7 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 | 项目 version / phase / status | `projects/{project}/index.md` | `meta/STATUS.md` |
 | Area goals / status | `areas/{area}/index.md` | `meta/STATUS.md` |
 | Task 完成 | `projects/{project}/tasks/*.md` | 指标仪表盘 |
-| 行为模式 | `user-patterns.md` | ADVISOR 报告 |
+| 行为模式 | `meta/user-patterns.md` | ADVISOR 报告 |
 | 战略关系 | `projects/{project}/index.md` 战略字段 + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **写入顺序是强制的**：先更新权威源，再编译仪表盘。**不要直接写 STATUS.md 的项目级信息**。

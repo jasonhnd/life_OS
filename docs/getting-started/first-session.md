@@ -74,7 +74,7 @@ Claude Code / Gemini CLI / Codex CLI。系统自己检测环境变量和工具�
 所有活跃项目的 high-level 状态：数量、上次活动时间、哪个有 pending 决策。从各项目的 `index.md` 和 STATUS.md 读出来。
 
 ### Behavior Profile
-ADVISOR 最近从 user-patterns.md 读到的行为模式摘要。典型：「最近 5 次决策平均分递减 —— 检查决策疲劳」「过去 30 天连续 4 次 override veto —— 标记」。
+ADVISOR 最近从 meta/user-patterns.md 读到的行为模式摘要。典型：「最近 5 次决策平均分递减 —— 检查决策疲劳」「过去 30 天连续 4 次 override veto —— 标记」。
 
 ---
 

@@ -313,7 +313,7 @@ Life OS 里散落在 SKILL.md、pro/CLAUDE.md、pro/GLOBAL.md、pro/agents/*.md 
 
 ---
 
-### ST2. 不直接写 projects/ / STATUS.md / user-patterns.md
+### ST2. 不直接写 projects/ / STATUS.md / meta/user-patterns.md
 
 **内容**: archiver 只能写 `meta/outbox/{session_id}/`, 不能直接写主目录的项目/状态/用户模式文件。合并由下次 RETROSPECTIVE 做。
 
@@ -373,7 +373,7 @@ Life OS 没有「规则引擎」。HARD RULE 的执行靠:
 2. **agent 文件里的反模式清单** — 每个 agent 自我审视
 3. **AUDITOR Decision Review** — 事后审计 agent 工作质量
 4. **AUDITOR Patrol Inspection** — 周期性扫 second-brain 数据一致性
-5. **ADVISOR 行为追踪** — 把累犯违规记入 `user-patterns.md`, 下次会话晨报展示
+5. **ADVISOR 行为追踪** — 把累犯违规记入 `meta/user-patterns.md`, 下次会话晨报展示
 6. **用户看到并纠正** — 开放透明的流程让用户能抓到违规
 
 任何单一环节可能漏网, 但多层设计让长期累犯会被看到。

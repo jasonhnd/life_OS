@@ -28,7 +28,7 @@ DISPATCHER 在派遣令中分配了 infra 领域时触发。PLANNER 如果认定
 
 **可请求读取**：
 - `~/second-brain/areas/health/` — 健康数据
-- `~/second-brain/projects/*/journal/` — 项目日志
+- `~/second-brain/meta/journal/` — 项目日志
 - 用户本地文件（体检报告、运动记录等）
 - Bash 用于检查本地数字基建状态
 

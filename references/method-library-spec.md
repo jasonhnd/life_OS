@@ -58,7 +58,7 @@ Inspired by Hermes Skills (see `devdocs/research/2026-04-19-hermes-analysis.md`)
 - Specific facts → `wiki/`
 - Personal preferences or values → `SOUL.md`
 - Project-specific plans → `projects/{name}/`
-- One-off tips → `inbox/` or `user-patterns.md`
+- One-off tips → `inbox/` or `meta/user-patterns.md`
 
 **Criterion**: a method is a reusable workflow that can be applied across different decisions in different projects. If the pattern only makes sense inside one project, it belongs under that project, not in the method library.
 

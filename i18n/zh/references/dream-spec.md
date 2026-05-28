@@ -14,6 +14,9 @@ ARCHIVER：Phase 1 归档 → Phase 2 知识提取
 ARCHIVER：Phase 3 DREAM（运行下方三个阶段）
     ↓
 梦境报告写入 meta/journal/{date}-dream.md
+    （v1.9 注：DREAM 报告是单日单文件规则的明确例外 —— 保持独立 typed
+     `<date>-<slug>-dream.md` 文件，仍 date-前缀在 meta/journal/ 下。见 v1.9
+     RFC §3.5.2.1 / Bug #11 决策 B。当天 meta/journal/<date>.md 可标 dream + wikilink 指向此文件。）
     ↓
 ARCHIVER：Phase 4 同步（git + Notion）→ 会话结束
 ```
@@ -43,7 +46,7 @@ ARCHIVER：Phase 4 同步（git + Notion）→ 会话结束
 
 扫描最近 3 天的未完成事项：
 - `inbox/` 中尚未分类的条目 → 建议目标项目/领域/wiki
-- `meta/journal/` 中可提取洞见的条目 → 建议更新 `user-patterns.md`
+- `meta/journal/` 中可提取洞见的条目 → 建议更新 `meta/user-patterns.md`
 - `projects/*/tasks/` 中已过期或重复的任务 → 标记清理
 - 孤立文件（已创建但未从任何 index.md 链接） → 标记
 
@@ -63,7 +66,7 @@ N3 提出两个问题：
 - 决策中的可复用结论 → 提出 wiki 候选（见下方 Wiki 候选格式）
   **去重**：检查最近的 outbox manifest——如果 `wiki: N`（N > 0），该 session 的散朝流程已提取了 wiki 候选。只关注散朝流程可能遗漏的结论。不要重复提议。
 - 扫描 wiki/INDEX.md（若存在）：新证据支持已有条目 → 提出 evidence_count 更新；新证据反驳已有条目 → 提出 challenges 更新
-- 需根据新证据更新的 `user-patterns.md` 条目 → 提议变更
+- 需根据新证据更新的 `meta/user-patterns.md` 条目 → 提议变更
 - **SOUL.md 候选条目** → 提议新条目或更新现有条目（见下方 SOUL 候选格式）
 
 ### Stage REM：创意连接
@@ -315,7 +318,7 @@ triggered_actions:
 - **3 天范围是硬性限制** — 不扫描更早的文件，即使它们看起来相关
 - **不直接修改 SOUL.md** — 只提议候选条目（SOUL 自动写入属于 archiver Phase 2，不属于 DREAM）
 - **Wiki 在严格标准下自动写入** — 全部 6 项自动写入标准通过时直接写入（见 wiki-spec.md）；否则丢弃
-- **不直接修改 user-patterns.md** — 只提议更新
+- **不直接修改 meta/user-patterns.md** — 只提议更新
 - **简洁** — 梦境报告应为 20-50 行，而非 500 行
 - **诚实** — "无重大发现"是一个有效的梦境。不要捏造洞见
 - **不阻塞** — 如果 DREAM 失败，会话仍正常结束

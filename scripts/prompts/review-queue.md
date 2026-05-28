@@ -10,11 +10,11 @@
 
 ## Trigger keywords
 
-Canonical list (kept in sync with `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE):
+Canonical list (ROUTER matches these inline; pre-v1.8.5 this list mirrored `pre-prompt-guard.sh` REVIEW_QUEUE_RE, retired with the hook layer in v1.8.5 Stage 2 — see `pro/CLAUDE.md` §"Review Queue auto-launch"):
 
 - 中文: `处理 queue` / `处理queue` / `看 queue` / `看queue` / `走一遍 queue` / `今天有什么要处理的` / `有什么要我决定的` / `queue 处理` / `review 队列`
 - English: `review queue` / `process queue` / `walk queue` / `queue walk`
-- session-start-inbox hook reports `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>` and user says "处理"
+- retrospective Mode 0 Conscious Patrol reports `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>` and user says "处理"
 
 ## Context
 
@@ -155,8 +155,9 @@ If user says "add to queue" / "track this":
 - **Privacy filter applies** — if walker surfaces a `meta/people/<id>.md` related
   item with `privacy_tier: high`, redact `aliases` field in display (per
   `references/people-spec.md` privacy rule)
-- **Audit trail**: append `meta/runtime/{sid}/review-queue-walk.json` recording
-  N walked / X resolved / Y reviewed / Z dismissed / archive trimmed (if any)
+- **Audit trail**: write `meta/runtime/{sid}/review-queue-walk.md` (R13 markdown
+  trail per `references/audit-trail-spec.md`) recording N walked / X resolved /
+  Y reviewed / Z dismissed / archive trimmed (if any)
 
 ## Anti-patterns
 

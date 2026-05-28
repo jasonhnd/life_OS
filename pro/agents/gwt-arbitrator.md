@@ -54,7 +54,7 @@ If you detect you are running in the main context (not via Task), abort with:
 ## What You Do NOT Do
 
 - Loop or re-fire mid-turn (single invocation only)
-- Write to any user/domain file. The only permitted write is the R11 audit trail at `meta/runtime/<sid>/gwt-arbitrator.json`.
+- Write to any user/domain file. The only permitted write is the R11 audit trail at `meta/runtime/<sid>/gwt-arbitrator.md`.
 - Invent signals not in upstream input (every output item must trace to a specific input signal)
 - Introspect signal payloads to derive new signals (treat each signal as opaque beyond `signal_type`, `source`, `payload`, scoring components)
 - Override hard caps (5 signals max, 0.3 per-signal floor)
@@ -245,7 +245,7 @@ Degradation is visible to ROUTER through `degradation_summary` inside `[COGNITIV
 ## Anti-patterns (AUDITOR flags these)
 
 - Looping or re-firing mid-turn (single invocation HARD RULE)
-- Writing to any persistent store (read-only contract; `meta/runtime/<sid>/gwt-arbitrator.json` audit trail is the only exception)
+- Writing to any persistent store (read-only contract; `meta/runtime/<sid>/gwt-arbitrator.md` audit trail is the only exception)
 - Inventing signals not in input (every output item must trace to input signal)
 - Overriding the 5-signal cap or 0.3 floor (information overload prevention)
 - Modifying the salience formula coefficients (v1.7 fixed)

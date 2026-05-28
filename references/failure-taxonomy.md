@@ -71,7 +71,7 @@ introduced_in: v1.8.5
 ### F9 — TRACE FAILURE
 - **Definition**: Run cannot be reconstructed; trace missing or contradicts declared steps.
 - **Repair**: Improve trace capture; every step writes to `meta/runtime/<sid>/`.
-- **Example**: archiver Phase 4 completes but writes no `notion-sync-*.json` audit trail.
+- **Example**: archiver Phase 4 completes but writes no `notion-sync-*.md` audit trail.
 
 ### F10 — RESPONSIBILITY FAILURE
 - **Definition**: No clear owner, approval gate, or escalation path; OR same party executes and approves.
@@ -117,8 +117,8 @@ introduced_in: v1.8.5
 
 Not every diagnosed failure becomes a change. Record decisions explicitly per Stage 7 `no_change_record` protocol:
 
-- **change**: An ECP (Edit-Change-Proposal) was opened. See `meta/decisions/{id}.change.md`.
-- **no_change**: Decision made to accept current behavior. Record in `meta/decisions/{id}.no-change.yml` per Stage 7 §1 schema (7 required fields: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition). **A missing record looks identical to an uninvestigated incident.**
+- **change**: A decision to change behavior. Record at `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` with `type: change` (v1.9 schema).
+- **no_change**: Decision made to accept current behavior. Record at `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` with `type: no_change` (v1.9 schema — .md not .yml per DR-1.9.2; see `pro/CLAUDE.md` §"Decision Records" for full frontmatter). `reopen_condition` is mandatory. **A missing record looks identical to an uninvestigated incident.**
 
 ## Use cases
 

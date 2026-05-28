@@ -6,11 +6,13 @@
 
 ### Decision（决策）
 
+> ⚠️ **v1.9 schema 取代下表**（见 RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records"）。v1.9 写入 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`；`type` 复用为决策记录种类 `change`/`no_change`/`escalation`/`superseded`（**不是**下表的 `simple`/`3d6m`）+ `projects` / `domains`（6 functional IDs）/ `reopen_condition`（no_change 必填）/ `applied_methods`（列表）/ `journal_date`。下表为 pre-v1.9 字段，仅供历史。
+
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | id | string | 自动 | 唯一标识符（文件名或数据库 ID） |
 | title | string | 是 | 主题（≤20 字） |
-| type | enum | 是 | `simple` / `3d6m`（Draft-Review-Execute） |
+| type | enum | 是 | （pre-v1.9）`simple` / `3d6m`（Draft-Review-Execute）—— v1.9 已改为 change/no_change/escalation/superseded |
 | ministries | string[] | 否 | 已激活的部门 |
 | score | number | 否 | 综合评分（1-10） |
 | veto_count | number | 否 | REVIEWER封驳次数 |
@@ -268,7 +270,7 @@ storage:
 
 ## 约束条件
 
-- **多个 session 可同时操作 second-brain**，使用 outbox 模式。每个 session 写入各自的 outbox 目录（`meta/outbox/{session-id}/`）。下一个上朝的 session 将所有 outbox 合并到主结构中。直接写入共享文件（STATUS.md、user-patterns.md、index.md）只在上朝时的 Outbox 合并步骤中发生。
+- **多个 session 可同时操作 second-brain**，使用 outbox 模式。每个 session 写入各自的 outbox 目录（`meta/outbox/{session-id}/`）。下一个上朝的 session 将所有 outbox 合并到主结构中。直接写入共享文件（STATUS.md、meta/user-patterns.md、index.md）只在上朝时的 Outbox 合并步骤中发生。
 - **session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在退朝时生成（非 session 开始时）。时间戳必须通过 date 命令从系统时钟获取，禁止编造。示例：`claude-20260412-1700`、`gemini-20260412-1900`。
 - **Outbox merge lock**：合并期间写入 `meta/.merge-lock`。若该文件存在且时间 < 5 分钟，跳过合并正常进行。合并完成后删除。
 - **空 session**：若 session 无任何产出（无决策、任务或日志），不创建 outbox。
@@ -311,10 +313,10 @@ outputs:
 
 ### Patterns Delta 格式
 
-`patterns-delta.md` 记录需追加到 `user-patterns.md` 的内容：
+`patterns-delta.md` 记录需追加到 `meta/user-patterns.md` 的内容：
 
 ```markdown
-# Patterns Delta — 追加到 user-patterns.md
+# Patterns Delta — 追加到 meta/user-patterns.md
 
 ### [2026-04-12] 新模式：决策速度加快
 来源：ADVISOR

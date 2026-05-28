@@ -21,7 +21,7 @@ Wiki はシステムのナレッジアーカイブ —— 世界に関する再�
 | 保存場所 | 記録 | 例 |
 |---------|------|-----|
 | `decisions/` | 何を決めたか（具体的、タイムスタンプ）| "2026-04-01: 信託構造を使うと決定" |
-| `user-patterns.md` | 何をするか（行動パターン）| "金融次元を回避する傾向" |
+| `meta/user-patterns.md` | 何をするか（行動パターン）| "金融次元を回避する傾向" |
 | `SOUL.md` | 誰であるか（価値観、人格）—— **v2 schema は `references/soul-spec.md` 参照** | "Truth over comfort"（priority 1）|
 | `wiki/` | 何を知っているか —— 宣言的知識 —— **v2 schema 本ドキュメント** | "日本の NPO 融資には貸金業法の免除なし" |
 | `meta/concepts/` | シナプスグラフ —— アイデアがどう繋がるか | "company-a-holding" ノードに重み付きエッジ |
@@ -29,7 +29,7 @@ Wiki はシステムのナレッジアーカイブ —— 世界に関する再�
 
 **wiki マテリアルでない**（別の場所へ）：
 - アイデンティティ / 価値 / 個人的好み → `SOUL.md` v2
-- 行動パターン → `user-patterns.md`
+- 行動パターン → `meta/user-patterns.md`
 - 手続き的ワークフロー → `meta/methods/`
 - 概念レベル関連 → `meta/concepts/`
 

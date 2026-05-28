@@ -15,7 +15,7 @@ Concept 文件是 Cortex 突触网络（synaptic network）中的节点。每个
 | 存储 | 记录什么 | 示例 |
 |---------|----------------|---------|
 | `decisions/` | 你决定了什么（具体、带时间戳） | "2026-04-01: 选择了信托结构" |
-| `user-patterns.md` | 你做什么（行为模式） | "倾向于回避财务维度" |
+| `meta/user-patterns.md` | 你做什么（行为模式） | "倾向于回避财务维度" |
 | `SOUL.md` | 你是谁（价值观、人格） | "风险偏好：中高" |
 | `wiki/` | 你知道什么（可复用的世界结论） | "NPO lending has no 貸金業法 exemption" |
 | `meta/concepts/` | **什么连接什么（synaptic graph）** | "company-a-holding" 节点 + 通往其他概念的边 |

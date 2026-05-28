@@ -88,11 +88,11 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
    - 写 `meta/.merge-lock` 记录 {platform, timestamp}
    - 对每个 outbox 目录（按时间排序）：
      a. 读 manifest.md → session 信息和输出计数
-     b. 移动 decisions/ → `projects/{project}/decisions/`
+     b. 移动 decisions/ → `meta/decisions/{YYYY-MM}/`
      c. 移动 tasks/ → `projects/{project}/tasks/`
      d. 移动 journal/ → `meta/journal/`
      e. 应用 index-delta.md → 更新 `projects/{project}/index.md`
-     f. 追加 patterns-delta.md → `user-patterns.md`
+     f. 追加 patterns-delta.md → `meta/user-patterns.md`
      g. 移动 wiki/ → `wiki/{domain}/{topic}.md`
      h. 合并成功后删除 outbox 目录
    - 全部合并后：编译 `meta/STATUS.md`，git commit + push
@@ -112,7 +112,7 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
 
 #### Phase D · 上下文加载
 
-**10.** 读 `user-patterns.md`（若存在）
+**10.** 读 `meta/user-patterns.md`（若存在）
 
 **11. SOUL 状态 + 趋势**（用于 SOUL Health Report）
    - 11.1 读当前 `SOUL.md`。不存在则标 "uninitialized" 跳到 11.6
@@ -256,7 +256,7 @@ v1.6.2 原则 "make SOUL and DREAM visible"：**SOUL Health Report** 和 **DREAM
 3. 多后端同步（若多后端，同 Mode 0 步骤 6）
 4. Outbox 合并（若有未合并的，同 Mode 0 步骤 7）
 5. 项目绑定：确认当前关联的项目或 area
-6. 读 user-patterns.md（若存在）
+6. 读 meta/user-patterns.md（若存在）
 7. 读 wiki/INDEX.md（若存在）→ 作为已知知识摘要传给 ROUTER
 8. 读 meta/STRATEGIC-MAP.md（若存在）→ 作为战略上下文传给 ROUTER
 9. 读 meta/STATUS.md
@@ -294,13 +294,13 @@ v1.6.2 原则 "make SOUL and DREAM visible"：**SOUL Health Report** 和 **DREAM
 2. 遍历 projects/*/tasks/ 计算完成率
 3. areas/*/goals.md（目标进度）
 4. meta/journal/（近期日志）
-5. projects/*/journal/（项目专属日志）
+5. meta/journal/（项目专属日志）
 6. meta/STRATEGIC-MAP.md（战略线健康趋势，若存在）
 ```
 
 ### 决策追踪
 
-检查 `projects/*/decisions/` 中 front matter status 仍为 "pending" 且创建超过 30 天的决策。
+检查 `meta/decisions/` 中 front matter status 仍为 "pending" 且创建超过 30 天的决策。
 
 ### 指标仪表盘
 

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.0-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -141,7 +141,9 @@ The same sentence ("我老婆觉得 X 公司给的 ¥850 万 …") can be accept
 
 ### The new `pre-notion-write.sh` hook
 
-Every Notion MCP write call is intercepted. The hook scans `tool_input` against [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) and applies a three-tier action model:
+> *v1.8.5 update: the `pre-notion-write.sh` hook was retired with the bash hook layer (md-only / DR-10). The scan below is unchanged — same pattern table, same three verdicts — but the orchestrator now runs it as an **inline LLM procedure** before each Notion write, not as a PreToolUse hook. See `pro/CLAUDE.md` Step 10a for current behavior.*
+
+Every Notion MCP write call is checked. The scan matches the payload against [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) and applies a three-tier action model:
 
 | Group hit | Verdict | Action |
 |---|---|---|

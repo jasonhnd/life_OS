@@ -87,20 +87,25 @@ Life OS 当前状态：第二大脑和决策引擎已稳定跑通(v1.6.2a),智�
 #### 目录结构
 
 ```
-second-brain/
-├── SOUL.md                 # 你是谁(身份档案)
-├── user-patterns.md        # 你怎么做事(行为模式)
+second-brain/                    # v1.9 layout
+├── SOUL.md                 # 你是谁(身份档案，保留在 root)
 ├── wiki/                   # 你知道什么(可复用知识)
-├── projects/{name}/        # 你在做什么(活跃项目)
-├── areas/{name}/           # 你持续关注什么(领域)
+├── projects/{name}/        # 你在做什么(活跃 + archived，靠 lifecycle_stage frontmatter 区分)
+├── areas/                  # 你持续关注什么(领域；README.md 推荐种子，不强制命名)
 ├── meta/
+│   ├── user-patterns.md    # 你怎么做事(行为模式；v1.9 从 root 移入)
 │   ├── STRATEGIC-MAP.md    # 项目之间怎么关联
-│   ├── journal/            # 每次会话报告、DREAM 日志
+│   ├── decisions/<YYYY-MM>/ # 决策(v1.9 月子目录)
+│   ├── journal/<date>.md   # 每次会话报告、DREAM 日志(时间轴 canonical)
+│   ├── methods/            # 方法库
+│   ├── queue/              # 系统处理队列 + 通知(v1.9 从 inbox 重命名)
 │   ├── outbox/             # 并发会话暂存
 │   └── snapshots/soul/     # SOUL 快照(用于趋势计算)
-├── inbox/                  # 手机随手记
-└── archive/                # 已完结
+├── inbox/                  # 手机随手记(用户投递区)
+└── templates/              # 模板
 ```
+
+> v1.9 变化：无独立 `archive/`(归档用 frontmatter `lifecycle_stage: archived`)；`meta/user-patterns.md` 移入 `meta/`；`meta/` 不带下划线。详见 `docs/second-brain.md`。
 
 #### 同步与备份
 
@@ -385,7 +390,7 @@ ARCHIVER 返回 Completion Checklist。Orchestrator 在主 context 执行 Notion
 
 Adjourn 后,编排层在月末触发 `scripts/prompts/advisor-monthly.md` 流程(v1.7 cron 时代的 `scripts/monthly-review-check.py` 已在 R-1.8.0-011 删除,改为 user-invoked prompt)——生成 `meta/self-review-2026-04.md`：
 - 统计本月 AUDITOR 召回率、REVIEWER 否决率、COUNCIL 触发率、Express 命中率
-- 比对 evals/ 跑出的分数和 AUDITOR 打的分数。如果 AUDITOR 都在打 8+ 但 eval 跑出 3 个 fail → 标记"互相护短"模式写进 user-patterns.md
+- 比对 evals/ 跑出的分数和 AUDITOR 打的分数。如果 AUDITOR 都在打 8+ 但 eval 跑出 3 个 fail → 标记"互相护短"模式写进 meta/user-patterns.md
 - 下次 ADVISOR 启动时自动读到这个 pattern,在 Summary Report 里标红提醒
 
 *(Layer 4 Python 工具层,不绑云服务,launchd 本地跑就行)*

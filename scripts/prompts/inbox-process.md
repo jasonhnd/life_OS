@@ -21,9 +21,9 @@
    re-run /inbox-process when ready", and exit.
 3. Read `wiki/SCHEMA.md` to confirm frontmatter contract for any wiki write
    later in this flow.
-4. Read `meta/queue/manifest.json` if it exists (create empty
-   `{"seen": [], "last_run": null}` if not). The manifest tracks which
-   items were processed in prior runs so we know which are *new* this run.
+4. Read `meta/queue/manifest.md` if it exists (create one with empty
+   `seen: []` / `last_run: null` YAML frontmatter if not). The manifest tracks
+   which items were processed in prior runs so we know which are *new* this run.
 5. List wiki domains (`ls wiki/` excluding `INDEX.md`, `SCHEMA.md`,
    `log.md`, `OBSIDIAN-SETUP.md`, `.templates/`). Cache this list — every
    `accept` proposal must place the new entry under one of these existing
@@ -39,8 +39,8 @@ For each file, capture:
 - filename + size + mtime
 - first 30 lines (read via Read tool with limit=30)
 - existing frontmatter `defer_until:` (skip if defer date is in future)
-- whether filename appears in `manifest.json#/seen` (mark as **delta=new**
-  vs **delta=carried-over**)
+- whether filename appears in the manifest's `seen` frontmatter list (mark as
+  **delta=new** vs **delta=carried-over**)
 
 If zero files: tell user "Inbox empty — nothing to process" and exit
 clean. Do NOT invent items.
@@ -239,29 +239,31 @@ For each confirmed row, in order:
 
 ## Step 6 · Update manifest
 
-After all rows processed, rewrite `meta/queue/manifest.json`:
+After all rows processed, rewrite `meta/queue/manifest.md` (markdown with YAML
+frontmatter — no `.json`, per the md-only ontological constraint):
 
-```json
-{
-  "seen": [
-    "2026-05-01_stablecoin-b2b.md",
-    "2026-04-29_random-link.md",
-    "2026-04-28_methodology-update.md",
-    "2026-04-27_pdf-notes.md",
-    "2026-04-15_half-baked-idea.md"
-  ],
-  "last_run": "2026-05-02T14:23:00+09:00",
-  "counts_by_run": {
-    "2026-05-02T14:23:00+09:00": {
-      "accepted": 1,
-      "updated": 1,
-      "merged": 0,
-      "archived": 1,
-      "rejected": 1,
-      "deferred": 1
-    }
-  }
-}
+```markdown
+---
+seen:
+  - 2026-05-01_stablecoin-b2b.md
+  - 2026-04-29_random-link.md
+  - 2026-04-28_methodology-update.md
+  - 2026-04-27_pdf-notes.md
+  - 2026-04-15_half-baked-idea.md
+last_run: 2026-05-02T14:23:00+09:00
+counts_by_run:
+  "2026-05-02T14:23:00+09:00":
+    accepted: 1
+    updated: 1
+    merged: 0
+    archived: 1
+    rejected: 1
+    deferred: 1
+---
+
+# Inbox manifest (system-managed)
+
+Tracks which `meta/queue/to-process/` items have been seen across runs. Do not edit by hand.
 ```
 
 The manifest is what makes Δ-tracking possible across runs. Every item
@@ -304,20 +306,24 @@ Inbox state:
   etc.) and tell user.
 - **source frontmatter unparseable** for a defer: skip defer attempt,
   ask user to inspect manually.
-- **manifest.json malformed**: back it up to
-  `meta/queue/manifest.json.broken-<timestamp>` and start fresh with
-  `{"seen": [], "last_run": null}`. Tell user.
+- **manifest.md malformed** (unparseable YAML frontmatter): back it up to
+  `meta/queue/manifest.broken-<timestamp>.md` and start fresh with empty
+  `seen: []` / `last_run: null` frontmatter. Tell user.
 
 ## Templates (write these only when missing)
 
-### `meta/queue/manifest.json`
+### `meta/queue/manifest.md`
 
-```json
-{
-  "seen": [],
-  "last_run": null,
-  "counts_by_run": {}
-}
+```markdown
+---
+seen: []
+last_run: null
+counts_by_run: {}
+---
+
+# Inbox manifest (system-managed)
+
+Tracks which `meta/queue/to-process/` items have been seen across runs. Do not edit by hand.
 ```
 
 ### `meta/queue/README.md`
@@ -349,7 +355,7 @@ the way in.
 
 - `to-process/`   — fresh drops + items deferred to a future date
 - `archive/`      — everything that's been triaged; never deleted
-- `manifest.json` — system-managed, tracks which items have been seen
+- `manifest.md` — system-managed, tracks which items have been seen
 - `notifications.md` — system-written; don't put your own drops there
 
 See `wiki/SCHEMA.md` for the wiki frontmatter contract that accepted

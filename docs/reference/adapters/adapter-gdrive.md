@@ -37,7 +37,7 @@ second-brain/          ← Google Drive 中的根文件夹
 4. 上传覆盖
 
 ### Archive(type, id)
-1. 通过 Google Drive MCP 把文件移到 `archive/{original-path}/`
+（v1.9 语义 DR-1.9.4）—— **项目**：不移动；在 `projects/{id}/index.md` frontmatter 设 `lifecycle_stage: archived` 并重新上传（留在 `projects/` 保护 wikilinks）。**其他类型**：各自树内 legacy 子归档（如 `meta/eval-history/_archive/`）经 Google Drive MCP。
 
 ### Read(type, id)
 1. 通过 Google Drive MCP 下载文件

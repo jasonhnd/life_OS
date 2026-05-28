@@ -206,8 +206,9 @@ Suggested actions:
 - **Privacy filter** — if migrating creates a `meta/people/<id>.md` reference
   with `privacy_tier: high`, ensure body context doesn't expose private info
 - **Idempotent** — re-running on already-migrated content is a no-op
-- **Audit trail**: write `meta/runtime/{sid}/wikilink-migration.json`
-  with file count, link count, broken link list
+- **Audit trail**: write `meta/runtime/{sid}/wikilink-migration.md`
+  (R13 markdown trail per `references/audit-trail-spec.md`) with file count,
+  link count, broken link list
 
 ## Anti-patterns
 

@@ -89,11 +89,11 @@
 - 写 `.merge-lock` 锁。
 - 对每个 outbox 目录（按时间排序）：
   - 读 `manifest.md`。
-  - 移动 `decisions/` → `projects/{project}/decisions/`
+  - 移动 `decisions/` → `meta/decisions/{YYYY-MM}/`
   - 移动 `tasks/` → `projects/{project}/tasks/`
   - 移动 `journal/` → `meta/journal/`
   - 应用 `index-delta.md` → 更新 `projects/{project}/index.md`
-  - 追加 `patterns-delta.md` → `user-patterns.md`
+  - 追加 `patterns-delta.md` → `meta/user-patterns.md`
   - 移动 `wiki/` → `wiki/{domain}/{topic}.md`
   - 合并成功后删 outbox 目录。
 - 全部合并完 → 编译 `meta/STATUS.md`，git commit + push。
@@ -128,7 +128,7 @@
 
 ## Phase D · Context 加载（步骤 10-14）
 
-### Step 10. 读 user-patterns.md
+### Step 10. 读 meta/user-patterns.md
 
 用户行为模式记录（ADVISOR 写的）。例如"用户在做金融决策时倾向过度自信"。如果存在就读。
 

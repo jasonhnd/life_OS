@@ -16,7 +16,7 @@ context_manifest:
   supporting: [pro/compliance/violations.md, wiki/INDEX.md (legal/security entries)]
   forbidden: [other domain agents, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/governance-*.json, meta/runtime/<sid>/governance-report.md]
+  allowed_scope: [meta/runtime/<sid>/governance-*.md, meta/runtime/<sid>/governance-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside governance domain]
 failure_modes:
   known: ["Gives legal advice without 'consult licensed professional' note", "Approves R3/R8 decision without explicit user gate"]
@@ -33,7 +33,7 @@ Four Divisions: Law (legal risk) · Audit (decision review) · Discipline (self-
 
 ## Available Resources
 
-During analysis, you may request to read decision history from the second-brain (`~/second-brain/projects/*/decisions/` and `~/second-brain/meta/decisions/`), user local files (contracts, employment agreements, etc.), and use WebSearch to query legal provisions. Proactively ask the user if they have relevant files for reference.
+During analysis, you may request to read decision history from the second-brain (`~/second-brain/meta/decisions/*/` — v1.9 consolidated all decisions here under month subdirs), user local files (contracts, employment agreements, etc.), and use WebSearch to query legal provisions. Proactively ask the user if they have relevant files for reference.
 
 ## Scoring Rubric
 

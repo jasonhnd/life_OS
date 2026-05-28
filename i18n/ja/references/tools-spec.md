@@ -408,7 +408,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 
 - **Input**: 既存の `meta/journal/`(backfill の source of truth)、
   `SOUL.md`(読み取り専用 — synth snapshot input)、`wiki/`(読み取り
-  専用 — concept anchor evidence)、`user-patterns.md`(未変更)
+  専用 — concept anchor evidence)、`meta/user-patterns.md`(未変更)
 - **Backfill scope**: journal の直近 **3 ヶ月**(ユーザー決定 #7)。
   それより古いエントリは `meta/journal/` にそのまま残ります。この
   ウィンドウはすべてのマイグレーションターゲットで統一 — 下記 per-target
@@ -434,7 +434,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 - **明示的に migrate しないもの**:
   - `meta/eval-history/` — **backfill なし**。v1.7 初日にフレッシュ
     スタート。`references/eval-history-spec.md` §11 参照。
-  - `SOUL.md`、`wiki/`、`user-patterns.md` — synthesis の input として
+  - `SOUL.md`、`wiki/`、`meta/user-patterns.md` — synthesis の input として
     読み取り、決して変更しない。
 - **Output log**: `meta/cortex/bootstrap-status.md`(canonical、
   concept-spec と snapshot-spec によりクロス参照)。

@@ -233,30 +233,30 @@ Expected: `lifeos-compliance-check.sh briefing-completeness` exits 1 with
 R11 verifies the adjourn path leaves machine-readable runtime evidence for
 AUDITOR channel 1. The archiver must write one trail file per phase:
 
-- `meta/runtime/<session_id>/archiver-phase-1.json`
-- `meta/runtime/<session_id>/archiver-phase-2.json`
-- `meta/runtime/<session_id>/archiver-phase-3.json`
-- `meta/runtime/<session_id>/archiver-phase-4.json`
+- `meta/runtime/<session_id>/archiver-phase-1.md`
+- `meta/runtime/<session_id>/archiver-phase-2.md`
+- `meta/runtime/<session_id>/archiver-phase-3.md`
+- `meta/runtime/<session_id>/archiver-phase-4.md`
 
-Each `archiver-phase-{1,2,3,4}.json` file must contain both `input_summary`
+Each `archiver-phase-{1,2,3,4}.md` file must contain both `input_summary`
 and `output_summary`.
 
 The orchestrator Step 10a Notion sync must also write
-`meta/runtime/<session_id>/notion-sync.json`. That file must contain 4 MCP call
+`meta/runtime/<session_id>/notion-sync.md`. That file must contain 4 MCP call
 records, and each record must include both the MCP `input_payload` and
 `output_payload`.
 
 #### R11 positive case: complete archiver and Notion sync trails
 
-Input: all 4 `archiver-phase-{1,2,3,4}.json` files exist with
-`input_summary` and `output_summary`; `notion-sync.json` exists with exactly 4
+Input: all 4 `archiver-phase-{1,2,3,4}.md` files exist with
+`input_summary` and `output_summary`; `notion-sync.md` exists with exactly 4
 MCP call records, each carrying input and output payloads.
 
 Expected: AUDITOR returns `PASS` for R11 adjourn audit trail verification.
 
 #### R11 negative case 1: missing archiver phase trail
 
-Input: any `archiver-phase-{1,2,3,4}.json` file is absent.
+Input: any `archiver-phase-{1,2,3,4}.md` file is absent.
 
 Expected: AUDITOR logs `C-no-audit-trail`.
 
@@ -269,11 +269,11 @@ Expected: AUDITOR logs `C-trail-incomplete`.
 
 #### R11 negative case 3: incomplete Notion sync evidence
 
-Input: `notion-sync.json` is absent.
+Input: `notion-sync.md` is absent.
 
 Expected: AUDITOR logs `C-no-audit-trail`.
 
-Input: `notion-sync.json` exists but has fewer or more than 4 MCP call records,
+Input: `notion-sync.md` exists but has fewer or more than 4 MCP call records,
 or any call record lacks `input_payload` or `output_payload`.
 
 Expected: AUDITOR logs `C-trail-incomplete`.

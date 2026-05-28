@@ -21,7 +21,7 @@ context_manifest:
   supporting: [wiki/INDEX.md, meta/STRATEGIC-MAP.md, meta/STATUS.md]
   forbidden: [pro/agents/reviewer.md, pro/agents/dispatcher.md, pro/agents/archiver.md, decisions/]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/planner-*.json]
+  allowed_scope: [meta/runtime/<sid>/planner-*.md]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/]
 failure_modes:
   known: ["Skips minimality first-ask (proposes new agent when rule/schema/regression would suffice)", "Plan omits a relevant domain (e.g. governance check missing for risk-domain subject)"]

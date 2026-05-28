@@ -227,9 +227,9 @@ INDEX.md が古い、Wave 1 prompt 失調、または concept graph が過度に
 
 ### ルール 5 · process_compliance 反復違反
 
-**同一 `violations[].type` が直近 30 日で 3+ 回出現** → **user-patterns.md に昇格**
+**同一 `violations[].type` が直近 30 日で 3+ 回出現** → **meta/user-patterns.md に昇格**
 
-最も teeth のあるルール: 同類違反(例えば "adjourn_phase_skip")が繰り返し出現すると、eval-history から「卒業」して `user-patterns.md` の tracked behavioral pattern になる。次回 session の **ADVISOR** はそれを観察として直接 surface:
+最も teeth のあるルール: 同類違反(例えば "adjourn_phase_skip")が繰り返し出現すると、eval-history から「卒業」して `meta/user-patterns.md` の tracked behavioral pattern になる。次回 session の **ADVISOR** はそれを観察として直接 surface:
 
 > 「観察: 直近 1 ヶ月で 4 回、adjourn 前に操作を挿入しています——これは archiver phase を中断します。今回は先に adjourn を完走してから操作しますか?」
 
@@ -341,9 +341,9 @@ uv run tools/reconcile.py
 - **cortex config を改変**——例えばシステムが hippocampus retrieval 品質が低いと言うなら、`meta/config.md` で `top_k_signals` や `per_signal_floor` 調整を検討
 - **手動反論**——システミックパターン検出に同意しない場合(例えば narrator 失敗率高いが暫定的問題でシステミックではないと思う)、現 session で「この検出は誤報と考える」と言う、AUDITOR が記録、後続 pattern 監視は継続だが重み下がる
 
-### 6. パターンで user-patterns.md に昇格された behavior のクリーンアップ
+### 6. パターンで meta/user-patterns.md に昇格された behavior のクリーンアップ
 
-ある behavior が昇格されたが同意しない場合、`user-patterns.md` を開き該当記録を直接削除。user-patterns は**あなたが所有するファイル**、AUDITOR / ADVISOR は読むのみ、強制保持しない。
+ある behavior が昇格されたが同意しない場合、`meta/user-patterns.md` を開き該当記録を直接削除。user-patterns は**あなたが所有するファイル**、AUDITOR / ADVISOR は読むのみ、強制保持しない。
 
 ---
 
@@ -353,7 +353,7 @@ uv run tools/reconcile.py
 
 ### 赤信号(即時行動)
 
-- **同一 `violations[].type` が 30 日で 3+ 回出現** → 既にルール 5 で user-patterns.md に昇格。**システムが「これは安定したパターン」と表明** → 対応 agent spec を改変
+- **同一 `violations[].type` が 30 日で 3+ 回出現** → 既にルール 5 で meta/user-patterns.md に昇格。**システムが「これは安定したパターン」と表明** → 対応 agent spec を改変
 - **`process_compliance` 連続 3 回 <5** → 状態機が壊れている。優先度最高、他は待てるがこれは待てない
 - **`citation_groundedness` 単回 <5** + trace 検証で本当に narrator 捏造 → `pro/agents/narrator-validator.md` を編集してより厳格なチェックを追加、または registry 自体に漏れがないか検討
 

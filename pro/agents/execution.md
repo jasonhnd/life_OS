@@ -16,7 +16,7 @@ context_manifest:
   supporting: [wiki/INDEX.md (execution entries), meta/methods/]
   forbidden: [other domain agents, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/execution-*.json, meta/runtime/<sid>/execution-report.md]
+  allowed_scope: [meta/runtime/<sid>/execution-*.md, meta/runtime/<sid>/execution-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside execution domain]
 failure_modes:
   known: ["Proposes new tool/agent when rule/schema/regression case would suffice (minimality fail)", "Skips energy/cost estimate"]

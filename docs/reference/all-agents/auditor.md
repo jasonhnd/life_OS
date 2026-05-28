@@ -140,4 +140,4 @@ Updated meta/lint-state.md ✓
 - **RETROSPECTIVE**：RETROSPECTIVE 在 housekeeping 时触发 AUDITOR 的 Patrol Inspection 模式
 - **ARCHIVER**：当 ARCHIVER 违反 4 阶段 end-to-end 规则时，AUDITOR 必须标记为 process violation
 - **ROUTER**：当 ROUTER 跳过意图澄清、直接升级时，AUDITOR 在下次 Patrol 会标记为行为模式
-- **状态机**：AUDITOR 是工作流状态机的执行者。任何非法状态转移必须被 AUDITOR 报告并记录到 `user-patterns.md`
+- **状态机**：AUDITOR 是工作流状态机的执行者。任何非法状态转移必须被 AUDITOR 报告并记录到 `meta/user-patterns.md`

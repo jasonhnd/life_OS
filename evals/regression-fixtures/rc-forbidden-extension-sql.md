@@ -27,7 +27,7 @@ related_spec: SKILL.md HARD RULE "md-only is lifeos's ontological constraint" (D
 
 input_filesystem_state:
   files_in_repo:
-    - path: _meta/cortex/schema.sql
+    - path: meta/cortex/schema.sql
       contents_excerpt: |
         -- attempt to introduce SQLite schema for hippocampus retrieval
         CREATE TABLE sessions (
@@ -38,8 +38,8 @@ input_filesystem_state:
       provenance: synthetic — represents the most likely SQL re-introduction path (Cortex backend)
 
 expected_check_output_excerpt: |
-  ❌ check 8 (forbidden extensions): _meta/cortex/schema.sql found
-  ❌ check 10 (diff-scoped forbidden extensions): _meta/cortex/schema.sql introduced since v<prev-tag>
+  ❌ check 8 (forbidden extensions): meta/cortex/schema.sql found
+  ❌ check 10 (diff-scoped forbidden extensions): meta/cortex/schema.sql introduced since v<prev-tag>
 
 negative_case_for: |
   This is a *negative* fixture: if it produces PASS, the v1.8.7 md-only constraint has

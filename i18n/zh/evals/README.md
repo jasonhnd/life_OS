@@ -10,26 +10,22 @@
 
 ### 自动化测试
 
-```bash
-# 跑所有场景
-./evals/run-eval.sh
+在 Claude Code 里运行 `/run-eval` slash 命令（替代已退役的 `evals/run-eval.sh`——属于 v1.8.5 hook 层退役 + md-only 本体约束的一部分）：
 
-# 跑单个场景
-./evals/run-eval.sh resign-startup
+```
+/run-eval                 # 跑所有场景
+/run-eval resign-startup  # 按名字 glob 跑单个场景
 ```
 
-脚本使用 `claude -p` 逐个跑场景，输出保存到 `evals/outputs/` 目录。
+`/run-eval` 用 `claude -p` 批处理模式逐个跑场景，输出保存到 `evals/outputs/`。完整流程见 `.claude/commands/run-eval.md`。
 
 ## 目录结构
 
 ```
 evals/
 ├── README.md              # 本文件
-├── run-eval.sh            # 自动化测试脚本
-├── scenarios/             # 固定测试场景
-│   ├── resign-startup.md  # 辞职创业（全 Six Domains）
-│   ├── large-purchase.md  # 大额消费（FINANCE + EXECUTION + GOVERNANCE）
-│   └── relationship.md    # 人际关系（PEOPLE + INFRA + GOVERNANCE + GROWTH）
+├── scenarios/             # 固定测试场景（*.md——路由、合规、版本专项）
+├── regression-fixtures/   # 回归用例 fixture（*.md）
 ├── rubrics/               # 评分标准
 │   ├── agent-output-quality.md    # 各 agent 输出质量
 │   └── orchestrator-compliance.md # 流程合规性

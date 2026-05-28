@@ -526,7 +526,7 @@ This is the authoritative decision tree. When any spec disagrees with this tree,
 | Wiki | What you know about the world (declarative) | "NPO lending in Japan has no 貸金業法 exemption" | `wiki/{domain}/{slug}.md` |
 | Concept | How ideas connect (associative graph nodes) | "Company-A" as an entity that connects to other concepts through weighted edges | `meta/concepts/{domain}/{concept_id}.md` |
 | Method | How you work best (procedural memory) | "Refine documents in 5 escalating quality rounds" | `meta/methods/{domain}/{method_id}.md` |
-| user-patterns | What you do (observed behavioural patterns, ADVISOR domain) | "Makes decisions faster after first-round clarification" | `user-patterns.md` (one file, entries inside) |
+| user-patterns | What you do (observed behavioural patterns, ADVISOR domain) | "Makes decisions faster after first-round clarification" | `meta/user-patterns.md` (one file, entries inside) |
 
 ### Decision tree
 
@@ -539,7 +539,7 @@ Is the candidate about the user's identity, values, preferences, or red lines?
 │          auto-writes new dimensions at confidence 0.3, What SHOULD BE empty)
 │
 └── NO → Is it a behavioral pattern (what the user DOES, not who they ARE)?
-    ├── YES → user-patterns.md (append via patterns-delta)
+    ├── YES → meta/user-patterns.md (append via patterns-delta)
     │         (ADVISOR surfaces these; not SOUL)
     │
     └── NO → Is it a reusable WORKFLOW (sequence of actions, method-like)?

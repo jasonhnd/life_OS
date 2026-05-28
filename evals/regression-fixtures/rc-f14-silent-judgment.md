@@ -20,7 +20,7 @@ introduced_in: v1.8.5 Stage 9
 related_spec: references/failure-taxonomy.md F14 ﾂｷ references/audit-trail-spec.md R12
 
 input_audit_trail:
-  path: _meta/runtime/2026-05-23-test-sid/reviewer-final-verdict.json
+  path: meta/runtime/2026-05-23-test-sid/reviewer-final-verdict.md
   content: |
     {
       "schema_version": "r12",

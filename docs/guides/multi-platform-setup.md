@@ -176,7 +176,7 @@ context is prohibited.
          早朝官 Phase B 读 meta/config.md → git pull
          发现 meta/outbox/claude-20260420-0915/ 未合并
          → Phase B.7 Outbox Merge
-         合并到 projects/*/decisions, tasks, journal
+         合并到 meta/decisions/{YYYY-MM}/, projects/*/tasks, meta/journal/（v1.9）
          输出简报里显示: "📮 Merged 1 offline session"
 ```
 

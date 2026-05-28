@@ -16,7 +16,7 @@ executes:
 - `重建索引` / `rebuild index` / `reindex`
 - `刷新 INDEX` / `refresh index`
 - `INDEX 不准了` / `index out of date`
-- session-start-inbox hook reports `reindex Nd` and user says "跑一下" or "全部跑"
+- retrospective Mode 0 Conscious Patrol reports `reindex Nd` overdue and user says "跑一下" or "全部跑"
 
 ## Goal
 

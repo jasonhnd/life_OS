@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.9.0"
+version: "1.9.1"
 commit_sha: "PLACEHOLDER"
 install_date: "PLACEHOLDER"
 description: "A personal decision engine with multiple independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
@@ -264,7 +264,7 @@ When a wrapper helps clarity, ROUTER MAY use a concise form such as:
 
 ```text
 ## Subagent Output · {subagent_name}
-audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.md} (if available)
 usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
 duration: {duration_seconds}s (if available)
 cost: ${estimated_cost_usd} (if available or already estimated)
@@ -278,19 +278,19 @@ Token, duration, and cost metadata are displayed only when the host/tool provide
 
 ### Subagent Audit Trail Contract (HARD RULE · v1.7.1 R11)
 
-Every launched subagent MUST write a structured audit trail file before returning to ROUTER:
+Every launched subagent MUST write a structured audit trail file before returning to ROUTER — a **markdown file with YAML frontmatter** (R13 schema per `references/audit-trail-spec.md`; `.json` is forbidden in `meta/runtime/` since v1.8.6 / DR-10):
 
 ```text
-meta/runtime/<session_id>/<subagent>-<step_or_phase>.json
+meta/runtime/<session_id>/<subagent>-<step_or_phase>.md
 ```
 
-Required fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls[]`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
+Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls[]`, `llm_reasoning`, `output_summary`, `tokens`, `fresh_invocation`, `trigger_count_in_session`, and `audit_trail_version`.
 
 The audit trail is Channel 1 (file system evidence). It deliberately breaks the Channel 2 bottleneck where ROUTER's LLM-visible subagent output can be compressed, omitted, or constrained by information isolation. ROUTER may show the host's natural transcript output, an optional clarity wrapper, and/or the audit trail link when available.
 
 AUDITOR must use the Channel 1 files as independent ground truth.
 
-AUDITOR reads `meta/runtime/<session_id>/*.json` during Compliance Patrol / Mode 3 and verifies existence, schema completeness, and consistency with the visible workflow record. Violation mapping:
+AUDITOR reads `meta/runtime/<session_id>/*.md` during Compliance Patrol / Mode 3 and verifies existence, frontmatter schema completeness, and consistency with the visible workflow record. Violation mapping:
 - Missing audit trail file -> `C-no-audit-trail`
 - Required field missing, empty, wrong type, or invalid timestamp -> `C-trail-incomplete`
 - Trail content contradicts ROUTER visible output, wrapper, launch reason, file writes, or handoff status -> `B-trail-mismatch`

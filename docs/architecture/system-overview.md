@@ -1,8 +1,8 @@
 ---
 title: "Life OS 系统总览"
-scope: 架构权威文档
+scope: 架构总览（历史快照）
 audience: 作者本人 + 后续 CC / Gemini / Codex session
-status: authoritative
+status: legacy
 last_updated: 2026-04-22
 related:
   - docs/architecture/markdown-first.md
@@ -13,15 +13,15 @@ authoritative: false
 superseded_by: pro/CLAUDE.md
 ---
 
-# Life OS 系统总览
+# Life OS 系统总览 — LEGACY（v1.7-era 快照）
 
-> 一句话：Life OS = **第二大脑 + 决策引擎 + 认知执行智能体**（三合一），架构分 **4 层**。
+> ⚠️ **LEGACY（v1.7-era，2026-04-22 快照）。** 本文描述 v1.7 时代的 **4 层架构**，其中 **Layer 4（Python tools/）在 v1.8.1 Wave 2 整体删除**、**Layer 3（bash hooks `scripts/hooks/*.sh`）在 v1.8.5 Stage 2 整体退役**——运行时 enforcement 现为 inline LLM 流程；v1.8.7 DR-10 起 md-only 为本体约束（禁止 `.py`/`.sh`/`.yml`/`.json`）。当前权威架构见 `pro/CLAUDE.md` + `SKILL.md`。本文保留作历史参考，**对当前行为不具权威性**（`authoritative: false`）。
 >
-> 本文是架构的权威入口。任何新模块落地前回来对照这份分层。
+> 一句话：Life OS = **第二大脑 + 决策引擎 + 认知执行智能体**（三合一）。v1.9 现状只剩 Layer 2（Skill）+ Layer 1（Second Brain）两层实体，原 Layer 3/4 的职责已并入 Layer 2 的 inline LLM 流程。
 
 ---
 
-## 1. 4 层架构（一张图）
+## 1. 4 层架构（v1.7 历史快照 · Layer 3/4 已退役）
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -61,22 +61,27 @@ superseded_by: pro/CLAUDE.md
 ### 目录结构
 
 ```
-second-brain/
-├── SOUL.md                     ← 人格档案（who you are）
-├── user-patterns.md            ← 行为模式
+second-brain/                    ← v1.9 layout
+├── SOUL.md                     ← 人格档案（who you are，保留在 root）
 ├── wiki/                       ← 跨领域知识网络（what you know）
-├── projects/{name}/            ← 有终点的事（PARA-P）
-├── areas/{name}/               ← 持续领域（PARA-A）
-├── archive/                    ← 已归档项目
-├── inbox/                      ← 未处理原料
-└── meta/                      ← 系统元数据
+├── projects/{name}/            ← 有终点的事（PARA-P；含 archived，靠 lifecycle_stage frontmatter 区分）
+├── areas/                      ← 持续领域（PARA-A；README.md 推荐种子，不强制）
+├── inbox/                      ← 未处理原料（用户投递区）
+├── templates/                  ← 模板
+└── meta/                      ← 系统元数据（v1.9 去下划线 + 全透明）
     ├── STATUS.md               ← 全局状态仪表盘（编译产物）
     ├── STRATEGIC-MAP.md        ← 战略地图（编译产物）
-    ├── config.md               ← 存储后端配置
-    ├── journal/                ← RETROSPECTIVE / AUDITOR / ADVISOR / DREAM
+    ├── config.md               ← 存储后端配置 + migrated_to
+    ├── user-patterns.md        ← 行为模式（v1.9 从 root 移入）
+    ├── decisions/<YYYY-MM>/    ← 决策（v1.9 月子目录，单一规范路径）
+    ├── journal/<date>.md       ← RETROSPECTIVE / AUDITOR / ADVISOR / DREAM（时间轴 canonical）
+    ├── methods/                ← 方法库
+    ├── queue/                  ← 系统处理队列 + 通知（v1.9 从 inbox 重命名）
     ├── outbox/{session_id}/    ← 会话输出缓冲区
     └── snapshots/soul/         ← SOUL 快照（按分钟）
 ```
+
+> v1.9 变化：`archive/` 独立目录已废除（用 frontmatter `lifecycle_stage: archived`）；`meta/user-patterns.md` 移入 `meta/`；`meta/inbox/` → `meta/queue/`；`decisions/` 月子目录。完整树见 `docs/second-brain.md`。
 
 ### Cortex 新增目录（v1.7 增量）
 

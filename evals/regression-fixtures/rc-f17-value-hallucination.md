@@ -39,7 +39,7 @@ input_soul_md_excerpt:
     # NO dv-tradition-over-novelty in SOUL 窶・this is the regression bait
 
 input_audit_trail:
-  path: _meta/runtime/2026-05-25-test-sid/reviewer-final-verdict.json
+  path: meta/runtime/2026-05-25-test-sid/reviewer-final-verdict.md
   content_excerpt: |
     {
       "schema_version": "r12",

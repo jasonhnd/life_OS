@@ -66,7 +66,7 @@ Phase 2 产出 **Session Candidates** — 仅从当前会话提取。wiki 和 SO
 扫描所有会话材料。对每个可提取的结论，应用**全部 6 条标准**：
 
 1. **跨项目可复用** — 在本会话之外的项目/领域是否有用？
-2. **关于世界，不关于你** — 事实、规则、方法。**不是**价值观/习惯/偏好（那些归 SOUL）。**不是**行为模式（归 user-patterns.md）。
+2. **关于世界，不关于你** — 事实、规则、方法。**不是**价值观/习惯/偏好（那些归 SOUL）。**不是**行为模式（归 meta/user-patterns.md）。
 3. **零个人隐私** — 无姓名、金额、账号、身份证号、具体公司、家人朋友信息、可追溯的日期+地点组合。如果结论需要这些才能讲明白 → 不属于 wiki，跳过（SOUL/journal 处理个人素材）
 4. **事实或方法** — "发生了什么"或"如何做 X"。**不是**"我感觉"或观点
 5. **多证据点（≥ 2 独立）** — 至少 2 个案例/数据点/决策/参考。单一观察 → 丢弃
@@ -95,7 +95,7 @@ Phase 2 产出 **Session Candidates** — 仅从当前会话提取。wiki 和 SO
 
 扫描会话中的价值观/原则观察。对每个候选，应用标准：
 
-1. **关于身份/价值观/原则** — **不是**行为模式（行为模式归 user-patterns.md，由 ADVISOR 处理）
+1. **关于身份/价值观/原则** — **不是**行为模式（行为模式归 meta/user-patterns.md，由 ADVISOR 处理）
 2. **≥ 2 个决策作为证据** — 单次决策观察太薄。至少要本会话 2 个决策或跨会话强化
 3. **尚未被覆盖** — 若既有 SOUL 维度已覆盖 → 增加 evidence_count，**不新建**
 
@@ -170,13 +170,13 @@ Phase 3 产出 **DREAM Candidates** — 从 3 天扫描中发现。**现在不�
 
 🔎 从 3 天变更集 + 当前状态文件读：
 - 所有新/改决策
-- `user-patterns.md` 和 `SOUL.md`（当前状态）
+- `meta/user-patterns.md` 和 `SOUL.md`（当前状态）
 - `wiki/INDEX.md`（若存在）
 
 💭 寻找：
 - Phase 2 漏掉的可复用结论（去重：Phase 2 已提取的**不**重复）
 - 支持或矛盾既有 wiki 条目的新证据 → 提议 evidence_count/challenges 更新
-- 行为模式 → 提议 user-patterns.md 更新
+- 行为模式 → 提议 meta/user-patterns.md 更新
 - 价值观信号 → 附加 SOUL.md 候选
 
 #### REM · 创造性连接 + 自动触发行动
@@ -329,7 +329,7 @@ Session adjourned.
 7. **绝不编造** DREAM 洞察 — "无发现"是有效回答
 8. **绝不尝试 Notion 同步** — 编排层处理
 9. Session 关闭 git commit 是原子的 — 什么都不能漏
-10. **绝不直接写** projects/、meta/STATUS.md、user-patterns.md — 全部走 outbox
+10. **绝不直接写** projects/、meta/STATUS.md、meta/user-patterns.md — 全部走 outbox
 11. Completion Checklist 每项必须有具体值，不接受占位符
 12. session-id 时间戳必须从 date 命令获得真实值
 
@@ -338,7 +338,7 @@ Session adjourned.
 - 跳过 Phase 2（丢失核心职责）
 - 在 Phase 3 编造洞察
 - 直接修改 SOUL.md 或 wiki/（只提议候选）
-- 直接修改 user-patterns.md（只提议 patterns-delta）
+- 直接修改 meta/user-patterns.md（只提议 patterns-delta）
 - 在 Phase 3 扫描 > 3 天的文件（破坏范围）
 - 产出 500 行 dream 报告（应该 20-50 行）
 - 尝试 Notion 同步（职责在编排层）
@@ -350,7 +350,7 @@ Session adjourned.
 
 - **ROUTER**：ROUTER 按固定模板触发 ARCHIVER 子代理，**不介入** 4 阶段之间
 - **RETROSPECTIVE**：互补 — RETROSPECTIVE 做读（会话开始），ARCHIVER 做写（会话结束）；RETROSPECTIVE 在下次 Start Session 呈现 DREAM 报告
-- **ADVISOR**：ADVISOR 产出 patterns-delta，ARCHIVER 合并到 SOUL.md；ADVISOR 提出 Pattern Update Suggestion，ARCHIVER 最终写入 user-patterns.md
+- **ADVISOR**：ADVISOR 产出 patterns-delta，ARCHIVER 合并到 SOUL.md；ADVISOR 提出 Pattern Update Suggestion，ARCHIVER 最终写入 meta/user-patterns.md
 - **AUDITOR**：退朝后 AUDITOR 立刻运行，标记任何非法状态转移（如跳过 Phase、partial exit、主上下文执行）
 - **编排层**：Notion 同步由编排层负责，archiver 仅处理 git 部分
 - **状态机**：Adjourn State Machine 中 ARCHIVER 是主角 — Adjourn Triggered → archiver Running → Checklist Output → Session End

@@ -40,7 +40,7 @@ life_OS 例:
 ### 3. simulated → pilot
 
 必要な証拠:
-- ✅ シミュレーション run が記録（`meta/runtime/<sid>/simulation-<artifact>.json`）
+- ✅ シミュレーション run が記録（`meta/runtime/<sid>/simulation-<artifact>.md`）
 - ✅ シミュレーションから critical findings（F1/F3/F6a/F10/F14/F15/F17）なし
 - ✅ シミュレーション結果に人類 reviewer の署名
 - ✅ すべての `open_questions` が解決済みまたは理由付きで明示的に延期

@@ -73,7 +73,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 - 读 `meta/config.md` 取后端列表和上次同步时间戳
 - 对每个可用后端做 full sync pull
 - 扫 `meta/outbox/` 合并未合并的会话
-- 读 `user-patterns.md`, `wiki/INDEX.md`, `meta/STRATEGIC-MAP.md`, `meta/STATUS.md`
+- 读 `meta/user-patterns.md`, `wiki/INDEX.md`, `meta/STRATEGIC-MAP.md`, `meta/STATUS.md`
 - 读 `meta/lint-state.md` — 如果 >4h, 触发 AUDITOR 轻量巡视
 - ReadProjectContext(绑定项目)
 - 版本检查 + 平台检测

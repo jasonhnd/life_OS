@@ -14,12 +14,12 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ deleted v1.8.1 Wa
 >
 > 本文档描述的 12 个核心 Python 工具 + 11 个 bash hook **均已不存在**。文件保留作历史参考。当前 enforcement 见 pro/CLAUDE.md + pro/agents/auditor.md Mode 3。
 >
-> **v1.8.1 当前架构（取代本文）：**
-> - **Layer 3 = bash hooks** — 仍在 `scripts/hooks/*.sh`（`pre-bash-approval.sh` 现含内联的 ~40 危险命令 pattern bash 数组，前身是已删的 `tools/approval.py`）
-> - **Layer 4 = LLM-driven prompts** — 不再是 Python；改为 `scripts/prompts/*.md`，ROUTER 读 prompt 用 Read/Write/Glob/Grep 直接做事
-> - **Slash commands** — `scripts/commands/*.md` + `scripts/prompts/*.md` 配对：`/inbox-process` `/research` `/wiki-decay` `/migrate-confidence` `/wiki-link-audit` `/method` `/search` `/memory` `/compress` 等
+> **v1.8.1 过渡架构快照（本身已被 v1.8.5 取代——bash hooks 已全部退役）：**
+> - ~~**Layer 3 = bash hooks**（`scripts/hooks/*.sh`）~~ — **v1.8.5 Stage 2 整体退役**，运行时 enforcement 转为 inline LLM 流程（auditor Mode 3 等）。v1.8.7 DR-10 起 md-only 为本体约束，永久禁止 `.sh`。
+> - **Layer 4 = LLM-driven prompts** — 不再是 Python；改为 `scripts/prompts/*.md`，ROUTER 读 prompt 用 Read/Write/Glob/Grep 直接做事（这部分 v1.9 仍然成立）
+> - **Slash commands** — `.claude/commands/*.md` + `scripts/prompts/*.md` 配对：`/inbox-process` `/research` `/wiki-decay` `/migrate-confidence` `/wiki-link-audit` 等（v1.8.5 起所有 `setup-hooks.sh` 安装动作由 `/install-agents` 取代）
 >
-> 详见：`pro/CLAUDE.md`（编排合同）+ `SKILL.md`（系统定义）+ `CHANGELOG.md` v1.8.1 Wave 2 段。
+> 详见：`pro/CLAUDE.md`（编排合同）+ `SKILL.md`（系统定义，含 md-only 本体约束）+ `CHANGELOG.md` v1.8.5 段。
 
 > 本文档（保留作历史参考）说明的是 v1.7 时代的执行层设计：如何让 HARD RULE 真正"hard"、如何让决策引擎不只在用户打字时才动起来。
 >

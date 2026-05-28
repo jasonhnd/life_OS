@@ -1,13 +1,15 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: pro/CLAUDE.md + pro/agents/auditor.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md. ALL scripts/*.sh detection commands below were retired in v1.8.5 Stage 2 — AUDITOR now runs these checks as inline LLM procedures (see pro/agents/auditor.md)."
 ---
 
-# Compliance Violation Log Specification
+# Compliance Violation Log Specification — LEGACY
 
 > Formal specification for the dual-repo violation logging mechanism introduced in v1.6.3 as part of COURT-START-001 fix.
+>
+> **⚠️ Retired tooling (v1.8.5 Stage 2):** Every `scripts/lifeos-pre-prompt-guard.sh`, `scripts/lifeos-compliance-check.sh`, `scripts/retrospective-mode-0.sh`, and `evals/run-eval.sh` invocation in this document refers to the **bash hook/script layer that was retired in v1.8.5 Stage 2** (md-only / DR-10). The *concepts* (dual-repo violation log, A-F + F1-F17 taxonomy, AUDITOR Mode 3 detection) remain valid, but the detection steps are now **inline LLM procedures** AUDITOR performs itself — do NOT attempt to execute any `.sh` command shown below. See `pro/agents/auditor.md` for current behavior.
 
 ## Purpose
 
@@ -158,7 +160,7 @@ Deprecated v1.7.2.1 subclasses remain documented below only for old evals, incid
 
 ### Deprecated subclass: C-no-audit-trail (R11; not active v1.7.2.1)
 
-- **Definition**: A subagent returned, but no `meta/runtime/<sid>/<subagent>-*.json` audit trail exists for the session.
+- **Definition**: A subagent returned, but no `meta/runtime/<sid>/<subagent>-*.md` audit trail exists for the session.
 - **Detection**: AUDITOR runs `bash scripts/lifeos-compliance-check.sh trail-completeness <session_id>`; the legacy CLI form `bash scripts/lifeos-compliance-check.sh <dummy-existing-file> trail-completeness <session_id>` is also supported.
 - **Logged fields**: `Type=C-no-audit-trail`; `Severity=P0`; `subagent: <name>`; `expected_trail_path: <path>`; `session_id: <session_id>`.
 - **Escalation**: Standard Class C ladder.
@@ -362,7 +364,7 @@ Incidents are **companions to** violations.md, not substitutes. violations.md is
 
 Clarifying what this log does **not** do:
 
-- **Not a replacement for `user-patterns.md`** — ADVISOR's behavioral observations stay there. This log is only about HARD RULE violations, not general patterns.
+- **Not a replacement for `meta/user-patterns.md`** — ADVISOR's behavioral observations stay there. This log is only about HARD RULE violations, not general patterns.
 - **Not a bug tracker** — use GitHub issues for feature requests and non-compliance bugs.
 - **Not a DREAM auto-trigger source** — DREAM's 10 triggers are orthogonal. (DREAM could theoretically read violations.md to detect "user keeps working around a failed hook" but that's future work.)
 - **Not a substitute for incident archival** — full incident files (`YYYY-MM-DD-{slug}.md`) live alongside violations.md as separate artifacts.

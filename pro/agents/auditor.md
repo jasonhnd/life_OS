@@ -287,7 +287,7 @@ Detailed CX1-CX7 checks remain available as compatibility scenarios, but active 
 4. **CX4 check** — Does hippocampus output respect 5-7 session cap? Exceeded → log CX4 (P1).
 5. **CX5 check** — Does GWT arbitrator output respect 5-signal cap? Exceeded → log CX5 (P1).
 6. **CX6 check** — Did any Cortex subagent (hippocampus, concept-lookup, soul-check) read peer outputs? Information isolation breach → log CX6 (P0).
-7. **CX7 check** — Did any Cortex subagent write outside its permitted `meta/runtime/<sid>/...json` audit trail? User/domain data write contract violation → log CX7 (P0). R11 audit trail writes under `meta/runtime/<sid>/` are allowed and must be verified by Audit Trail Verification instead.
+7. **CX7 check** — Did any Cortex subagent write outside its permitted `meta/runtime/<sid>/...md` audit trail? User/domain data write contract violation → log CX7 (P0). R11 audit trail writes under `meta/runtime/<sid>/` are allowed and must be verified by Audit Trail Verification instead.
 
 Do not use CX1-CX7 as active violation classes in v1.7.2.2.
 
@@ -508,7 +508,7 @@ All five are declared in AUDITOR's `tools:` frontmatter.
 Borrowed from eou-foundry counterfactual-swap audit. Mode 3 patrol MUST scan all completed workflow audit trails for the following F14/F15/F16/F17 patterns per `references/failure-taxonomy.md`:
 
 **F14_SILENT_JUDGMENT** — Contested case decided without `value_invocations[]` populated:
-- Scan `meta/runtime/<sid>/<agent>-*.json` (especially reviewer-*, archiver-phase-2*, advisor-*)
+- Scan `meta/runtime/<sid>/<agent>-*.md` (especially reviewer-*, archiver-phase-2*, advisor-*)
 - For each entry where audit-trail-spec R12 `value_invocations: []` (empty array) AND the agent's output describes a contested choice (REVIEWER veto / candidate write / drift report)
 - → emit `F14 SILENT_JUDGMENT_FAILURE: <agent> made contested choice in <step> without invoking SOUL dim`
 - Severity: **HIGH** (most dangerous agentic-judgment failure per V1 epistemic integrity)
@@ -519,7 +519,7 @@ Borrowed from eou-foundry counterfactual-swap audit. Mode 3 patrol MUST scan all
 - Severity: **MEDIUM**
 
 **F16_VALUE_DRIFT** — 3+ similar contested cases across sessions show consistent shift toward low-priority dim without SOUL amendment ECP:
-- 30-day window: aggregate value_invocations across `meta/runtime/*/<agent>-*.json`
+- 30-day window: aggregate value_invocations across `meta/runtime/*/<agent>-*.md`
 - Detect pattern: same agent + similar `rule_conflict` + low-priority dim chosen ≥3 times
 - Check for SOUL amendment ECP in `meta/decisions/` — if absent → emit `F16 VALUE_DRIFT_FAILURE: <agent> drift toward dim '<id>' (priority <N>) across <K> incidents without amendment`
 - Severity: **HIGH** (silently rewriting constitution by precedent)
@@ -731,7 +731,7 @@ Missing any → emit `F3 SCHEMA_FAILURE: pro/agents/<file> missing v2 field: <fi
 
 #### A2: `tools` list matches actual usage (drift detection)
 
-For agents with audit trail history in `meta/runtime/<sid>/<agent>-*.json`:
+For agents with audit trail history in `meta/runtime/<sid>/<agent>-*.md`:
 - Parse trail entries for actual tool calls (Read, Write, Bash, etc.)
 - Compare against frontmatter `tools:` list
 - Tool used but NOT in list → emit `F12 DRIFT_FAILURE: pro/agents/<file> uses <tool> but it's not in tools list`

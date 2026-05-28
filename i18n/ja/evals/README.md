@@ -10,26 +10,22 @@ Life OS スキルを Claude Code にインストールした後、各シナリ�
 
 ### 自動テスト
 
-```bash
-# 全シナリオを実行
-./evals/run-eval.sh
+Claude Code で `/run-eval` slash コマンドを実行します（退役した `evals/run-eval.sh` を置き換え —— v1.8.5 hook 層退役 + md-only 存在論的制約の一部）：
 
-# 単一シナリオを実行
-./evals/run-eval.sh resign-startup
+```
+/run-eval                 # 全シナリオを実行
+/run-eval resign-startup  # 名前 glob で単一シナリオを実行
 ```
 
-スクリプトは `claude -p` を使用してシナリオを一つずつ実行し、出力を `evals/outputs/` ディレクトリに保存します。
+`/run-eval` は `claude -p` バッチモードでシナリオを一つずつ実行し、出力を `evals/outputs/` に保存します。完全な手順は `.claude/commands/run-eval.md` を参照。
 
 ## ディレクトリ構成
 
 ```
 evals/
 ├── README.md              # 本ファイル
-├── run-eval.sh            # 自動テストスクリプト
-├── scenarios/             # 固定テストシナリオ
-│   ├── resign-startup.md  # 退職して起業（Six Domains 全体）
-│   ├── large-purchase.md  # 高額購入（FINANCE + EXECUTION + GOVERNANCE）
-│   └── relationship.md    # 対人関係（PEOPLE + INFRA + GOVERNANCE + GROWTH）
+├── scenarios/             # 固定テストシナリオ（*.md —— ルーティング、コンプライアンス、バージョン専用）
+├── regression-fixtures/   # 回帰ケース fixture（*.md）
 ├── rubrics/               # 採点基準
 │   ├── agent-output-quality.md    # エージェント出力品質
 │   └── orchestrator-compliance.md # ワークフローコンプライアンス

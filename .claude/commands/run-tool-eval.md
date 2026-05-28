@@ -82,4 +82,4 @@ Exit codes:
 
 ## v1.8.5 NEW: integrates with regression-fixtures
 
-Per Stage 9, `evals/regression-fixtures/*.yml` (28 cases) are negative cases — they MUST FAIL when run through validators. `/run-regression` slash command (separate) handles those. `/run-tool-eval` covers POSITIVE tool scenarios only.
+Per Stage 9, `evals/regression-fixtures/*.md` (28 cases; markdown with YAML frontmatter — converted from `.yml` in v1.8.5 Stage 9 / v1.8.6 per the md-only constraint) are negative cases — they MUST FAIL when run through validators. `/run-regression` slash command (separate) handles those. `/run-tool-eval` covers POSITIVE tool scenarios only.

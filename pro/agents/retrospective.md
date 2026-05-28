@@ -306,11 +306,11 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 
 For every LLM judgment / LLM assembly step in Mode 0 (steps 1, 6, 9, 16, and 18), RETROSPECTIVE MUST write an audit trail JSON file before moving past that step; Step 18 MUST write before returning the final briefing.
 
-Required path: `meta/runtime/<sid>/retrospective-step-N.json`, where `<sid>` is the orchestrator-provided current session id. Do not fabricate `<sid>`; if the host did not provide one, write under `meta/runtime/unknown/` and set `session_id_source: "missing"`.
+Required path: `meta/runtime/<sid>/retrospective-step-N.md`, where `<sid>` is the orchestrator-provided current session id. Do not fabricate `<sid>`; if the host did not provide one, write under `meta/runtime/unknown/` and set `session_id_source: "missing"`.
 
 Use inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). Required frontmatter fields: `subagent`, `step_or_phase`, `step_name`, `started_at`, `ended_at`, `input_summary`, `tool_calls`, `llm_reasoning`, `output_summary`, `tokens`, and `audit_trail_version`.
 
-R12 fresh invocation fields: every `meta/runtime/<sid>/retrospective-step-N.json` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current Mode 0 trigger count within this session. Do not infer completion from previous Mode 0 transcript output; every fresh invocation executes all 18 steps from scratch before writing Step 18.
+R12 fresh invocation fields: every `meta/runtime/<sid>/retrospective-step-N.md` audit trail MUST also include `fresh_invocation: true` and `trigger_count_in_session: N`, where `N` is the current Mode 0 trigger count within this session. Do not infer completion from previous Mode 0 transcript output; every fresh invocation executes all 18 steps from scratch before writing Step 18.
 
 R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-0.sh` deleted): RETROSPECTIVE Mode 0 / Mode 2 runs all 18 steps from scratch each invocation. No ROUTER pre-fetch. Each step does its own Read/Grep/Glob work directly. Audit trail still required per step (R11). Cost: Mode 0 from ~1-2s pre-fetched + LLM filling → ~30-60s full LLM execution. Accepted in Option A pivot for architecture simplification.
 
@@ -361,24 +361,33 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
 3. DATA LAYER CHECK [v1.8.0 R-1.8.0-011 · retrospective executes inline]
    - Check: does meta/config.md exist?
    - If YES → proceed to step 4
-   - If NO → FIRST-RUN mode:
+   - If NO → FIRST-RUN mode (v1.9 layout — per RFC §11.1):
      a. Report: "📦 First session — no second-brain detected."
      b. Ask: "Where should I store your data?
         a) GitHub (version-controlled, works with Obsidian)
         b) Google Drive (zero setup)
         c) Notion (mobile-friendly)
         You can pick multiple."
-     c. User answers → create directory structure at target path:
-        meta/ (config.md, STATUS.md, journal/, outbox/)
-        projects/
+     c. User answers → create v1.9 directory structure at target path:
+        meta/
+          config.md           (含 migrated_to: v1.9 — 见步骤 d)
+          STATUS.md
+          journal/            (time-axis canonical; <YYYY-MM-DD>.md written on demand)
+          queue/              (to-process/.gitkeep + notifications.md + README.md — Opt #2)
+          outbox/
+          (decisions/<YYYY-MM>/ + methods/ + sessions/ + snapshots/ + runtime/ + eval-history/ + compliance/ created on demand at first write)
+        projects/             (empty; archived projects stay here via lifecycle_stage frontmatter — NO archive/ dir per Opt #4)
         areas/
-        wiki/
-        inbox/
-        archive/
+          README.md           (推荐种子说明 — Opt #6; do NOT pre-create 10 category dirs)
+        wiki/                 (INDEX.md + log.md + OBSIDIAN-SETUP.md + .templates/ — invoke /setup-secondbrain to scaffold)
+        inbox/                (vault-root user drop-zone)
         templates/
-     d. Write meta/config.md with chosen backends
-     e. Skip steps 4-7 (no data to sync), jump to step 8
-     f. Briefing: "✅ Second-brain created. No projects yet. Tell me what you're working on."
+        ⚠️ Do NOT create `archive/` (v1.9 Opt #4 / DR-1.9.4 — archive is frontmatter, not a directory).
+        ⚠️ Do NOT place `meta/user-patterns.md` at vault root (v1.9 Opt #7 — it lives at `meta/user-patterns.md`, written by ADVISOR on demand).
+     d. Write meta/config.md with chosen backends + **`migrated_to: v1.9`** stamp (so a fresh v1.9 vault is NOT mistaken for a pre-v1.9 vault by `/migrate-v1.9` Stage 0b — per Bug-fix v1.9).
+     e. Invoke `/setup-secondbrain` (cd into vault first) to scaffold wiki/ (log.md, OBSIDIAN-SETUP.md, .templates/) + queue/ files. Idempotent — skips anything already created in step c.
+     f. Skip steps 4-7 (no data to sync), jump to step 8
+     g. Briefing: "✅ Second-brain created (v1.9 layout). No projects yet. Tell me what you're working on."
 
 --- Phase B: Sync ---
 
@@ -492,7 +501,7 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
     - If the directory is missing or empty, record `Eval-history loop: no prior entries`.
     - Read-only: RETROSPECTIVE must not modify `meta/eval-history/`.
 
-10. Read user-patterns.md (if exists) [v1.8.0 R-1.8.0-011 · retrospective executes inline]
+10. Read meta/user-patterns.md (if exists) [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
 11. SOUL state + trend (for SOUL Health Report) [v1.8.0 R-1.8.0-011 · retrospective executes inline]
 
@@ -705,7 +714,7 @@ The session briefing is ready. What would you like to focus on?
 3. Multi-backend sync (if multiple backends configured, same logic as Mode 0 step 6)
 4. Outbox merge (if unmerged sessions found, same logic as Mode 0 step 7)
 5. Project binding: confirm the current associated project or area
-6. Read user-patterns.md (if exists)
+6. Read meta/user-patterns.md (if exists)
 7. Read wiki/INDEX.md (if exists) → pass to router as known knowledge summary
 8. Read meta/STRATEGIC-MAP.md (if exists) → pass to router as strategic context
 9. Read meta/STATUS.md (global status)
@@ -747,15 +756,14 @@ Prepare with whatever data you can access. Note what you cannot:
 1. Read ~/second-brain/meta/STATUS.md for global state
 2. Traverse ~/second-brain/projects/*/tasks/ to calculate completion rates
 3. Read ~/second-brain/areas/*/goals.md for goal progress
-4. Read ~/second-brain/meta/journal/ for recent logs
-5. Read ~/second-brain/projects/*/journal/ for project-specific logs
-6. Read meta/STRATEGIC-MAP.md for strategic line health trends (if exists)
+4. Read ~/second-brain/meta/journal/*.md for recent logs (v1.9 time-axis canonical; filter frontmatter `projects:` for project-specific logs — no more projects/*/journal/)
+5. Read meta/STRATEGIC-MAP.md for strategic line health trends (if exists)
 7. Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5+ procedure): compute the `## Overdue maintenance` block inline per Step 0.5 procedure (read 10 maintenance job last-run timestamps + compute days-overdue per each SLA). Include in Review briefing as `[Maintenance overdue: <verbatim block> · source=subagent-recompute@<ISO8601>]`. Same source-of-truth contract as Mode 0 Step 0.5: do NOT byte-copy transcript stale values, do NOT re-estimate day count. Mode 2 reviews tend to span longer time windows than Mode 0 and are more vulnerable to drift, so the marker contract is mandatory here too. (Pre-v1.8.5 used `bash scripts/hooks/session-start-inbox.sh`; .sh retired with hook layer.)
 ```
 
 ### Decision Tracking
 
-Check `projects/*/decisions/` for decisions with front matter status still "pending" and created more than 30 days ago.
+Check `meta/decisions/*/*.md` (v1.9: all decisions consolidated under month subdirs) for decisions with frontmatter `type` still indicating open/pending status and `reviewed_at` more than 30 days ago.
 
 ### Metrics Dashboard
 

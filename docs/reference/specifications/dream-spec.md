@@ -43,7 +43,7 @@ ARCHIVER: Phase 4 同步（git + Notion） → 会话结束
 
 扫描最近 3 天的松散末尾：
 - `inbox/` 未分类项 → 建议目标 project / area / wiki
-- `meta/journal/` 有可提取洞察的条目 → 建议 `user-patterns.md` 更新
+- `meta/journal/` 有可提取洞察的条目 → 建议 `meta/user-patterns.md` 更新
 - `projects/*/tasks/` 过期或重复 → 标记清理
 - 孤儿文件（已创建但未被任何 index.md 链接）→ 标记
 
@@ -63,7 +63,7 @@ N3 问两个问题：
 - 从决策中提取可复用结论 → 提议 wiki 候选（见下方 Wiki Candidate 格式）
   **去重**：查看最近一次 outbox 的 manifest——若 `wiki: N`（N > 0），该会话的 adjourn 流程已提取过 wiki 候选。只关注 adjourn 漏掉的结论，不要重复提议
 - 扫描 wiki/INDEX.md（若存在）：支持既有条目的新证据 → 提议 `evidence_count +1`；反对既有条目的新证据 → 提议 `challenges +1`
-- 需要基于新证据更新的 `user-patterns.md` 条目 → 提议修改
+- 需要基于新证据更新的 `meta/user-patterns.md` 条目 → 提议修改
 - **SOUL.md 候选条目** → 提议新条目或对既有条目的更新（见下方 SOUL Candidate 格式）
 
 ### Stage REM：创造性连接
@@ -311,7 +311,7 @@ triggered_actions:
 - **3 天范围是硬性**——不扫描更早的文件，即使看起来相关
 - **不直接修改 SOUL.md**——只提议候选（SOUL 自动写入限定在 archiver Phase 2，不在 DREAM）
 - **Wiki 在严格条件下自动写入**——6 条标准全通过才直接写入（见 wiki-spec.md）；否则丢弃
-- **不直接修改 user-patterns.md**——只提议更新
+- **不直接修改 meta/user-patterns.md**——只提议更新
 - **简洁**——dream 报告应为 20-50 行，而不是 500 行
 - **诚实**——"无重大发现"是有效的梦。**不要捏造洞察**
 - **不阻塞**——若 DREAM 失败，会话仍正常结束

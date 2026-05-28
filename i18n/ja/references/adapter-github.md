@@ -26,14 +26,16 @@ last_modified: "2026-04-08T15:30:00Z"
 
 | データ型 | パス | ファイル名パターン |
 |-----------|------|-----------------|
-| Decision（プロジェクト） | `projects/{p}/decisions/` | `{date}-{slug}.md` |
-| Decision（横断） | `meta/decisions/` | `{date}-{slug}.md` |
+| Decision（v1.9 統合） | `meta/decisions/{YYYY-MM}/` | `dec-{YYYY-MM-DD}-{NNN}.md` |
 | Task（プロジェクト） | `projects/{p}/tasks/` | `{slug}.md` |
 | Task（エリア） | `areas/{a}/tasks/` | `{slug}.md` |
-| JournalEntry | `meta/journal/` | `{date}-{type}.md` |
+| JournalEntry（v1.9 時間軸） | `meta/journal/` | `{YYYY-MM-DD}.md`（日次単一ファイル、複数エントリ追記） |
 | WikiNote | `wiki/` | `{slug}.md` |
-| Project | `projects/{p}/index.md` | 固定名 |
+| Project | `projects/{p}/index.md` | 固定名（lifecycle_stage frontmatter 含む；archived も `projects/` に残る） |
 | Area | `areas/{a}/index.md` | 固定名 |
+| UserPatterns（v1.9） | `meta/user-patterns.md` | 固定名（v1.9 で root から移動） |
+
+> **v1.9 変更**：決定は `meta/decisions/{YYYY-MM}/` に統合（`projects/*/decisions/` 分割なし）；journal は時間軸 canonical（`projects/*/journal/` なし）；archived プロジェクトは frontmatter で `projects/` に残る（`archive/` なし）；`user-patterns.md` は `meta/` に移動。
 
 ## オペレーション
 
@@ -50,8 +52,10 @@ last_modified: "2026-04-08T15:30:00Z"
 5. `git add` でファイルを追加
 
 ### Archive(type, id)
-1. ファイルを `archive/{original-path}/` に移動
-2. `git add` で旧パスと新パスの両方を追加
+
+**v1.9 セマンティクス分割**（DR-1.9.4）：
+- **プロジェクト**：移動しない。`projects/{id}/index.md` frontmatter に `lifecycle_stage: archived` + `archived_at` + `archived_at_source` を設定。wikilinks 保護のため `projects/` に残す。`git add projects/{id}/index.md`。
+- **その他の型**（sessions、eval など）：各ツリー内の legacy サブアーカイブ（例 `meta/eval-history/_archive/`）。プロジェクト archive ではなく、有効なまま。
 
 ### Read(type, id)
 1. .md ファイルを読み取る
@@ -72,8 +76,8 @@ last_modified: "2026-04-08T15:30:00Z"
 ### ReadProjectContext(project_id)
 1. `projects/{p}/index.md` を読み取る
 2. `projects/{p}/tasks/*.md` をglobで検索
-3. `projects/{p}/decisions/*.md` をglobで検索
-4. `projects/{p}/journal/*.md` をglobで検索
+3. `meta/decisions/*/*.md`（v1.9、projects frontmatter でフィルタ） をglobで検索
+4. `meta/journal/*.md`（v1.9、projects frontmatter でフィルタ） をglobで検索
 5. すべてをパースして返す
 
 ## 変更検出
@@ -96,13 +100,13 @@ git commit -m "[life-os] session {session-id} output"
 git push
 ```
 
-outbox ディレクトリのみをステージングする。退朝時はメインファイル（projects/、STATUS.md、user-patterns.md）には絶対に触れない。
+outbox ディレクトリのみをステージングする。退朝時はメインファイル（projects/、STATUS.md、meta/user-patterns.md）には絶対に触れない。
 
 ### 上朝時（outbox のマージ）
 
 ```bash
-# outbox の内容をメインディレクトリにマージした後:
-git add projects/ areas/ meta/journal/ meta/STATUS.md user-patterns.md SOUL.md
+# outbox の内容をメインディレクトリにマージした後（v1.9 パス）:
+git add projects/ areas/ meta/decisions/ meta/journal/ meta/methods/ meta/STATUS.md meta/user-patterns.md SOUL.md
 git rm -r meta/outbox/{merged-session-ids}/
 git commit -m "[life-os] merge {N} outbox sessions"
 git push

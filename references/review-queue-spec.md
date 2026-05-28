@@ -187,7 +187,7 @@ reviewed → dismissed
 - `reviewed → open` is INVALID — same reasoning
 
 A walker prompt that detects an attempted back-transition MUST refuse and
-log to `meta/runtime/{sid}/review-queue-walk.json`. Out-of-band YAML edits
+log to `meta/runtime/{sid}/review-queue-walk.md`. Out-of-band YAML edits
 (user manually edits `meta/review-queue.md` to re-open) are tolerated but
 flagged at next walker run.
 
@@ -202,12 +202,12 @@ When status changes from `open`:
 have both non-null. A validator (planned, not yet implemented) MUST flag
 items violating this.
 
-## Hook integration
+## Session-start integration
 
-`scripts/hooks/session-start-inbox.sh`:
+The retrospective Mode 0 Conscious Patrol (task `lifeos-002`) surfaces the queue count inline at session start. (Pre-v1.8.5 this was the `session-start-inbox.sh` hook; the bash hook layer was retired in v1.8.5 Stage 2 / DR-10, and the count is now computed inline by the retrospective subagent.)
 - Reads first 50 lines under `## Open items`
 - Counts by priority
-- Outputs `<system-reminder>` like:
+- Surfaces a one-line summary like:
   ```
   📋 Review queue: 3 P0 / 5 P1 / 2 P2 open. Latest: <summary of newest>.
      Say "看 queue" / "处理 queue" to walk through.

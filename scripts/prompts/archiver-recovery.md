@@ -13,7 +13,7 @@
 
 - `补救退朝` / `漏 adjourn` / `forgot to adjourn`
 - `昨天没退朝` / `archiver 没跑`
-- session-start-inbox hook reports `archiver missed {date}` and user says "补一下"
+- retrospective Mode 0 Conscious Patrol reports `archiver missed {date}` and user says "补一下"
 
 ## Context
 
@@ -27,7 +27,7 @@ The user may have:
 ## Required actions (in order)
 
 1. **Detect today's adjourn state**:
-   - Find archiver-phase-4.json files modified today across `meta/runtime/`
+   - Find archiver-phase-4.md files modified today across `meta/runtime/` (pre-v1.8.6 legacy sessions may use `archiver-phase-4.json`)
    - Check today's CLASS_C archiver violations in `pro/compliance/violations.md`
 
 2. **Decision matrix**:
@@ -35,7 +35,7 @@ The user may have:
    - No successful adjourn today OR CLASS_C violation present → **proceed to recovery**.
 
 3. **Recovery execution**:
-   - Find the most recent session that has `archiver-phase-1.json` but missing 2/3/4: this is the incomplete adjourn to recover.
+   - Find the most recent session that has `archiver-phase-1.md` but missing 2/3/4 (pre-v1.8.6 legacy: `archiver-phase-1.json`): this is the incomplete adjourn to recover.
    - If no incomplete session exists, create a new SID: `cron-recovery-{YYYYMMDD-HHMM}`.
    - Reconstruct context: read latest entries in `meta/sessions/INDEX.md`, `SOUL.md`, `meta/journal/`.
    - Launch `knowledge-extractor` subagent (Phase 2 carve-out per pro/agents/knowledge-extractor.md).

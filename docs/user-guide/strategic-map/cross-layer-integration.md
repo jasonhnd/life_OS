@@ -111,7 +111,7 @@ DREAM REM 有了**脚手架**。扫描时除了 open-ended 提问，还机械检
    - 哪个 SOUL 维度在所有战略线里都没被 driving_force 覆盖？
 
 3. **Patterns × strategy 检查**
-   - `user-patterns.md` 里的行为模式和战略优先级匹配吗？
+   - `meta/user-patterns.md` 里的行为模式和战略优先级匹配吗？
    - 你在回避某条 critical-path 项目吗？（比如每次轮到它做，就跳去做别的）
 
 4. **Wiki × flows 检查**
@@ -138,7 +138,7 @@ DREAM REM 发现的新关系会变成：
 ```
       USER 做决策
          │
-         │ (decision 写入 projects/{project}/decisions/)
+         │ (decision 写入 meta/decisions/{YYYY-MM}/)
          ↓
       REVIEWER ─── 检查 SOUL × driving_force 一致性
          │         检查 wiki 一致性（发现矛盾 → challenges +1）

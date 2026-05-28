@@ -256,7 +256,7 @@ RETROSPECTIVE Mode 0 は Start Session 時に直近 10 件の eval ファイル�
 
 ### 7.5 process_compliance 再発
 
-同じ `violations[].type` が直近 30 日以内に 3 回以上出現 → compliance log のアップグレードをトリガー: 違反は eval history から `user-patterns.md` に卒業し、tracked な behavioural pattern となります。次セッションの ADVISOR がそれを直接観測として浮上させます。
+同じ `violations[].type` が直近 30 日以内に 3 回以上出現 → compliance log のアップグレードをトリガー: 違反は eval history から `meta/user-patterns.md` に卒業し、tracked な behavioural pattern となります。次セッションの ADVISOR がそれを直接観測として浮上させます。
 
 ### 7.6 Briefing フォーマット
 

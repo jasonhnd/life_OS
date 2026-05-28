@@ -13,9 +13,9 @@ description: |
   of v1.8.7 DR-10. If someone tries to materialize the cascade seal proposal by adding
   a SQLite database file, this fixture catches it.
 
-  Most likely re-introduction path: dev sees `_meta/cortex/` directory and thinks
+  Most likely re-introduction path: dev sees `meta/cortex/` directory and thinks
   "let me add a fast-retrieval SQLite index here". The answer is: per A1 spec proposal,
-  cascade seal materializes via md directory layout (`_meta/sessions/L0/` etc.), NOT
+  cascade seal materializes via md directory layout (`meta/sessions/L0/` etc.), NOT
   a database file. The whole architecture would collapse if SQL slips in here.
 expected_verdict: FAIL
 expected_failure_class: F4_SCOPE_FAILURE
@@ -30,18 +30,18 @@ related_spec:
 
 input_filesystem_state:
   files_in_repo:
-    - path: _meta/cortex/hippocampus-index.db
+    - path: meta/cortex/hippocampus-index.db
       contents_excerpt: |
         [binary SQLite file — header: "SQLite format 3"]
       provenance: synthetic — represents OpenHuman Memory Tree SQLite re-introduction attempt
-    - path: _meta/sessions/chunks.sqlite
+    - path: meta/sessions/chunks.sqlite
       contents_excerpt: |
         [binary SQLite file]
       provenance: synthetic — direct copy of OpenHuman's `memory_tree/chunks.db` pattern
 
 expected_check_output_excerpt: |
-  ❌ check 8 (forbidden extensions): _meta/cortex/hippocampus-index.db found
-  ❌ check 8 (forbidden extensions): _meta/sessions/chunks.sqlite found
+  ❌ check 8 (forbidden extensions): meta/cortex/hippocampus-index.db found
+  ❌ check 8 (forbidden extensions): meta/sessions/chunks.sqlite found
   ❌ check 10 (diff-scoped forbidden extensions): both files introduced since v<prev-tag>
 
 negative_case_for: |

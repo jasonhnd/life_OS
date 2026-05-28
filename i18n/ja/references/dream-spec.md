@@ -14,6 +14,9 @@ ARCHIVER: Phase 1 アーカイブ → Phase 2 ナレッジ抽出
 ARCHIVER: Phase 3 DREAM（以下の3ステージを実行）
     ↓
 ドリームレポートを meta/journal/{date}-dream.md に書き込む
+    （v1.9 注：DREAM レポートは「日次単一ファイル」ルールの明示的な例外 —— 独立した
+     typed `<date>-<slug>-dream.md` ファイルとして保持、meta/journal/ 配下で date-前缀のまま。
+     v1.9 RFC §3.5.2.1 / Bug #11 決定 B 参照。当日の meta/journal/<date>.md は dream タグ + このファイルへの wikilink を付けてよい。）
     ↓
 ARCHIVER: Phase 4 同期（git + Notion）→ セッション終了
 ```
@@ -43,7 +46,7 @@ DREAM が失敗またはタイムアウトした場合 → `meta/sync-log.md` �
 
 直近3日間の未解決事項をスキャン：
 - `inbox/` の未分類アイテム → ターゲットプロジェクト/エリア/wikiを提案
-- 抽出可能なインサイトを含む `meta/journal/` エントリ → `user-patterns.md` の更新を提案
+- 抽出可能なインサイトを含む `meta/journal/` エントリ → `meta/user-patterns.md` の更新を提案
 - 期限切れまたは重複した `projects/*/tasks/` → クリーンアップのためにフラグを立てる
 - 孤立ファイル（作成されたがいずれの index.md からもリンクされていない）→ フラグを立てる
 
@@ -63,7 +66,7 @@ N3 は二つの問いを発する：
 - 決定から再利用可能な結論 → Wiki 候補を提案する（以下の Wiki 候補フォーマットを参照）
   **重複チェック**：最新の outbox manifest を確認——`wiki: N`（N > 0）の場合、その session の退朝フローですでに wiki 候補を抽出済み。退朝フローが見逃した結論のみに集中し、再提案しないこと。
 - wiki/INDEX.md をスキャン（存在する場合）：既存エントリを裏付ける新しい証拠 → evidence_count の更新を提案；既存エントリと矛盾する新しい証拠 → challenges の更新を提案
-- 新しい証拠に基づいて更新が必要な `user-patterns.md` エントリ → 変更を提案
+- 新しい証拠に基づいて更新が必要な `meta/user-patterns.md` エントリ → 変更を提案
 - **SOUL.md 候補エントリ** → 新規エントリまたは既存エントリへの更新を提案（以下のSOUL候補フォーマットを参照）
 
 ### ステージ REM: 創造的なつながり
@@ -315,7 +318,7 @@ triggered_actions:
 - **3日間のスコープは厳守** — 関連性が高そうでも古いファイルはスキャンしない
 - **SOUL.md に直接書き込まない** — 候補を提案するのみ（SOUL 自動書き込みは archiver Phase 2 のスコープであり、DREAM ではない）
 - **厳格な基準下での Wiki 自動書き込み** — 全 6 つの自動書き込み基準を通過した場合に直接書き込む（wiki-spec.md 参照）；それ以外は破棄
-- **user-patterns.md に直接書き込まない** — 更新を提案するのみ
+- **meta/user-patterns.md に直接書き込まない** — 更新を提案するのみ
 - **簡潔さ** — ドリームレポートは20〜50行であるべき、500行ではない
 - **誠実さ** — 「重要な発見なし」は有効な夢。洞察を捏造しない
 - **ブロックしない** — DREAMが失敗しても、セッションは通常通り終了する

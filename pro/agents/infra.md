@@ -16,7 +16,7 @@ context_manifest:
   supporting: [wiki/INDEX.md (health/infra entries), decisions/]
   forbidden: [other domain agents, pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/infra-*.json, meta/runtime/<sid>/infra-report.md]
+  allowed_scope: [meta/runtime/<sid>/infra-*.md, meta/runtime/<sid>/infra-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files outside infra domain]
 failure_modes:
   known: ["Gives medical advice without 'consult medical professional' note (R2 violation)", "Approves med/procedure change without R2 5-requirement gate"]
@@ -33,7 +33,7 @@ Four Divisions: Fitness (exercise/diet/sleep/mental health) · Housing (living e
 
 ## Available Resources
 
-During analysis, you may request to read health data from the second-brain (`~/second-brain/areas/health/`), project journals (`~/second-brain/projects/*/journal/`), user local files (medical reports, exercise logs, etc.), and use Bash to check local digital infrastructure status.
+During analysis, you may request to read health data from the second-brain (`~/second-brain/areas/health/`), journal entries (`~/second-brain/meta/journal/*.md` — v1.9 time-axis canonical; filter frontmatter `projects:` for a specific project), user local files (medical reports, exercise logs, etc.), and use Bash to check local digital infrastructure status.
 
 ## Scoring Rubric
 

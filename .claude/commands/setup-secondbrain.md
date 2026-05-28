@@ -89,12 +89,14 @@ Content: empty file.
 Path: `meta/queue/README.md`
 Content:
 ```markdown
-# Inbox
+# Queue
 
-Drop-zone for unprocessed items. archiver Phase 1 processes new files at every Adjourn.
+System processing queue + agent-to-user notifications (v1.9 Opt #2 — renamed from `meta/inbox/` to avoid confusion with the vault-root `inbox/` user drop-zone). archiver Phase 1 processes new files at every Adjourn.
 
 - `to-process/` — drop files here; archiver moves processed → `processed/`
 - `notifications.md` — system-generated notifications (maintenance overdue, etc.)
+
+Note: this is NOT the user material drop-zone. For raw captures/research, use the vault-root `inbox/`.
 ```
 
 ## .obsidian/graph.json wiki color group (conditional)

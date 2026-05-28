@@ -39,7 +39,7 @@ When ROUTER detects ANY of R1-R8 in user message OR REVIEWER's verdict involves 
 - Anything fabricated = F17 VALUE_HALLUCINATION + B confabulated-path violation.
 
 ### Req 3 — Decision record
-- Outcome MUST be written to `meta/decisions/<id>.md` with:
+- Outcome MUST be written to `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` (v1.9 month subdir) with:
   - subject
   - alternatives_considered (≥2 rejected options + why)
   - decision rationale
@@ -55,8 +55,8 @@ When ROUTER detects ANY of R1-R8 in user message OR REVIEWER's verdict involves 
 
 ### Req 5 — Trace required
 - Full audit trail MUST exist in `meta/runtime/<sid>/` per R12 spec:
-  - Every subagent invocation: `<subagent>-<step>.json`
-  - REVIEWER verdict: `reviewer-final-verdict.json` with `value_invocations[]` populated
+  - Every subagent invocation: `<subagent>-<step>.md`
+  - REVIEWER verdict: `reviewer-final-verdict.md` with `value_invocations[]` populated
   - User confirmation message timestamp + literal text
 
 ## How ROUTER detects risk domains in triage

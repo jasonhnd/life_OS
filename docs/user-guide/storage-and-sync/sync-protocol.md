@@ -139,7 +139,7 @@ meta/outbox/claude-20260408-2200/
 ├── journal/            ← 本会话的日志
 ├── wiki/               ← 本会话抽出的 wiki 条目
 ├── index-delta.md      ← projects/{project}/index.md 要改的字段
-└── patterns-delta.md   ← user-patterns.md 要追加的内容
+└── patterns-delta.md   ← meta/user-patterns.md 要追加的内容
 ```
 
 为什么：`parallel-sessions.md` 讲得更细。核心是 — 多个会话同时写共享文件会互相踩，outbox 让每个会话只写自己的一份，合并动作原子化由下一次 Start Session 独占执行。

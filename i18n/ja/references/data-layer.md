@@ -53,7 +53,7 @@
 second-brain/
 │
 ├── SOUL.md                            # 🔮 ユーザーパーソナリティアーカイブ（価値観、信念、アイデンティティ — ゼロから成長）
-├── user-patterns.md                   # 📊 行動パターン（あなたが「すること」— ADVISORが維持）
+├── meta/user-patterns.md                   # 📊 行動パターン（あなたが「すること」— ADVISORが維持）
 │
 ├── inbox/                             # 📥 未処理（モバイルキャプチャ、資料、読書メモ、生のリサーチ）
 │
@@ -246,7 +246,7 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 6. meta/STATUS.md（グローバルステータス）を読取
 7. meta/lint-state.md を読取（巡検が必要か確認: 最終実行から4時間以上）
 8. ReadProjectContext(バインドされたプロジェクト) — タスク、決定、ジャーナル
-9. user-patterns.md を読取
+9. meta/user-patterns.md を読取
 10. グローバル概観: List Project + List Area（タイトル + ステータスのみ）
 11. 戦略マップのコンパイル: `meta/strategic-lines.md` が存在する場合 → `meta/STRATEGIC-MAP.md` をコンパイル。`references/strategic-map-spec.md` を参照。
 12. lint-state.md が4時間以上を示す場合 → 軽量AUDITOR巡検をトリガー
@@ -260,14 +260,14 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 2. meta/outbox/{session-id}/ を作成
 3. Save Decision / Save Task / Save JournalEntry → meta/outbox/{session-id}/ へ（メインディレクトリには書き込まない）
 4. index-delta.md を書く（projects/{p}/index.md への変更）
-5. patterns-delta.md を書く（ADVISORが提案を持つ場合、user-patterns.md に追記する内容）
+5. patterns-delta.md を書く（ADVISORが提案を持つ場合、meta/user-patterns.md に追記する内容）
 6. manifest.md を書く（session メタデータ）
 7. git add meta/outbox/{session-id}/ → commit → push（outbox ディレクトリのみ）
 8. Notion に outbox を同期（設定されている場合）
 9. meta/config.md のこのプラットフォームの last_sync_time を更新
 10. バックエンド障害 → meta/sync-log.md にログ、ブロックしない
 
-注意: projects/、STATUS.md、user-patterns.md には直接書き込まないこと。マージは次の上朝時に行う。
+注意: projects/、STATUS.md、meta/user-patterns.md には直接書き込まないこと。マージは次の上朝時に行う。
 ```
 
 ### レビューモード
@@ -283,7 +283,7 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 ## ADVISORのデータ取得
 
 ```
-1. user-patterns.md を読取
+1. meta/user-patterns.md を読取
 2. List JournalEntry (type: remonstrator, limit: 3) → 直近3件のレポート
 3. List Decision (limit: 5) → 最近の決定
 4. List Task → 完了率を計算
@@ -298,7 +298,7 @@ Life OS は3つのストレージバックエンドをサポートしていま�
 | プロジェクトのバージョン/フェーズ/ステータス | `projects/{p}/index.md` | `meta/STATUS.md` |
 | エリアの目標/ステータス | `areas/{a}/index.md` | `meta/STATUS.md` |
 | タスク完了度 | `projects/{p}/tasks/*.md` | メトリクスダッシュボード |
-| 行動パターン | `user-patterns.md` | ADVISORレポート |
+| 行動パターン | `meta/user-patterns.md` | ADVISORレポート |
 | 戦略的関係 | `projects/{p}/index.md` 戦略フィールド + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **書込順序の強制**：常に権威ある情報源を先に更新し、次にダッシュボードをコンパイルする。STATUS.md にプロジェクトレベルの情報を直接書き込んではならない。

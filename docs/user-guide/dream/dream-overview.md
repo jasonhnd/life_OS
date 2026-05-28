@@ -59,7 +59,7 @@ Session 结束
 
 扫描最近 3 天：
 - `inbox/` 里还没分类的东西 → 建议归到哪个项目/领域
-- `meta/journal/` 里有可提取洞察的条目 → 建议更新 `user-patterns.md`
+- `meta/journal/` 里有可提取洞察的条目 → 建议更新 `meta/user-patterns.md`
 - `projects/*/tasks/` 里过期或重复的任务 → 标记清理
 - 创建了但没被任何 index.md 引用的孤立文件 → 标记
 
@@ -147,7 +147,7 @@ triggered_actions:
 - **3 天范围是硬规则**——不扫描更老的文件
 - **不直接修改 SOUL.md**——只提议候选（SOUL 自动写入属于 archiver Phase 2，不是 DREAM）
 - **Wiki 在严格 6 条标准下才自动写入**（详见 `references/wiki-spec.md`）
-- **不直接修改 user-patterns.md**——只提议更新
+- **不直接修改 meta/user-patterns.md**——只提议更新
 - **简洁性**：20-50 行，不是 500 行
 - **诚实性**："没有重大发现"是合法的 dream。**不编造。**
 - **不阻断**：DREAM 失败 ≠ session 失败

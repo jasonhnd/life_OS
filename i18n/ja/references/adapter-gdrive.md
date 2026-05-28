@@ -37,7 +37,7 @@ second-brain/          ← Google Drive のルートフォルダ
 4. 更新されたファイルをアップロード（上書き）
 
 ### Archive(type, id)
-1. Google Drive MCP 経由でファイルを `archive/{original-path}/` に移動
+（v1.9 セマンティクス DR-1.9.4）—— **プロジェクト**：移動しない；`projects/{id}/index.md` frontmatter に `lifecycle_stage: archived` を設定して再アップロード（wikilinks 保護のため `projects/` に残す）。**その他の型**：各ツリー内の legacy サブアーカイブ（例 `meta/eval-history/_archive/`）を Google Drive MCP 経由で。
 
 ### Read(type, id)
 1. Google Drive MCP 経由でファイルをダウンロード

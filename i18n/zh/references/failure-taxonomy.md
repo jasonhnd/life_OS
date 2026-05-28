@@ -71,7 +71,7 @@ introduced_in: v1.8.5
 ### F9 — TRACE FAILURE
 - **定义**: 运行无法重建；trace 缺失或与声明步骤矛盾。
 - **修复**: 改进 trace 捕获；每步写入 `meta/runtime/<sid>/`。
-- **示例**: archiver Phase 4 完成但未写 `notion-sync-*.json` 审计 trail。
+- **示例**: archiver Phase 4 完成但未写 `notion-sync-*.md` 审计 trail。
 
 ### F10 — RESPONSIBILITY FAILURE
 - **定义**: 无明确 owner、审批门或升级路径；或同一方既执行又审批。
@@ -117,8 +117,8 @@ introduced_in: v1.8.5
 
 并非每个诊断失败都变成改动。按 Stage 7 `no_change_record` 协议显式记录决策：
 
-- **change**: 已开 ECP（Edit-Change-Proposal）。详见 `meta/decisions/{id}.change.md`。
-- **no_change**: 决定接受当前行为。按 Stage 7 §1 schema 记录到 `meta/decisions/{id}.no-change.yml`（7 必填字段：incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition）。**缺记录看上去与未调查事件无异。**
+- **change**: 改变行为的决策。记录到 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`，`type: change`（v1.9 schema）。
+- **no_change**: 决定接受当前行为。记录到 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`，`type: no_change`（v1.9 schema —— .md 非 .yml，DR-1.9.2；完整 frontmatter 见 `pro/CLAUDE.md` §"Decision Records"）。`reopen_condition` 必填。**缺记录看上去与未调查事件无异。**
 
 ## 使用场景
 

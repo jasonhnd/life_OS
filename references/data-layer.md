@@ -62,18 +62,19 @@ Mobile handles perception and capture only (occasionally lightweight association
 ```
 second-brain/
 │
-├── SOUL.md                            # 🔮 User personality archive (values, beliefs, identity — grows from zero)
-├── user-patterns.md                   # 📊 Behavioral patterns (what you DO — ADVISOR-maintained)
+├── SOUL.md                            # 🔮 User personality archive (values, beliefs, identity — grows from zero; stays at root)
 │
 ├── inbox/                             # 📥 Unprocessed (mobile captures, materials, book notes, raw research)
 │
-├── meta/                             # 🔧 System metadata
+├── meta/                             # 🔧 System metadata (v1.9: no underscore, fully transparent)
+│   ├── user-patterns.md               # 📊 Behavioral patterns (what you DO — ADVISOR-maintained; v1.9 moved from root)
 │   ├── STATUS.md                      # Global status dashboard (compiled from index.md files)
 │   ├── STRATEGIC-MAP.md               # Strategic map (compiled from project strategic fields)
 │   ├── strategic-lines.md             # Strategic line definitions (user-defined)
 │   ├── MAP.md                         # Knowledge map (all area entry points)
-│   ├── decisions/                     # Cross-domain major decisions
-│   ├── journal/                       # RETROSPECTIVE briefings, AUDITOR/ADVISOR reports, DREAM reports
+│   ├── decisions/{YYYY-MM}/           # 🗳️ All decisions (v1.9 consolidated: month subdir, dec-{YYYY-MM-DD}-{NNN}.md)
+│   ├── journal/{YYYY-MM-DD}.md        # RETROSPECTIVE briefings, AUDITOR/ADVISOR reports, DREAM (v1.9 time-axis canonical)
+│   ├── queue/                         # 📬 System processing queue + notifications (v1.9 renamed from inbox)
 │   ├── outbox/                        # 📮 Session output staging area (one subdirectory per session)
 │   │   └── {session_id}/              # Each session writes here on adjourn, merged at next start court
 │   ├── snapshots/                     # 📸 State snapshots for trend computation
@@ -117,15 +118,15 @@ second-brain/
 │       ├── historian.md               # Historian (optional: auto-records daily work)
 │       └── reviewer.md               # REVIEWER on-duty (optional: reviews content quality on write)
 │
-├── projects/                          # 🎯 Things with endpoints (PARA-P)
+├── projects/                          # 🎯 Things with endpoints (PARA-P; archived projects stay here via lifecycle_stage frontmatter)
 │   └── {name}/
-│       ├── index.md
+│       ├── index.md                   # frontmatter: lifecycle_stage + (## Journal / ## Decisions sections via Dataview + Recent 5)
 │       ├── tasks/
-│       ├── decisions/
-│       ├── research/
-│       └── journal/
+│       └── research/
+│       #  v1.9: decisions/ → meta/decisions/{YYYY-MM}/  ·  journal/ → meta/journal/{YYYY-MM-DD}.md
 │
 ├── areas/                             # 🌊 Ongoing life areas (PARA-A)
+│   ├── README.md                      # v1.9: recommended seeds (not enforced)
 │   └── {name}/
 │       ├── index.md
 │       ├── goals.md
@@ -134,10 +135,10 @@ second-brain/
 │
 ├── wiki/                              # 📚 Cross-domain knowledge network (Zettelkasten + wikilinks)
 │
-├── archive/                           # 🗄️ Completed project archives (PARA-Archive)
-│
 └── templates/
 ```
+
+> **v1.9 layout note**: No top-level `archive/` directory (PARA-Archive replaced by `lifecycle_stage: archived` frontmatter per DR-1.9.4 — projects stay in `projects/` to preserve wikilinks). `decisions/` and `journal/` moved out of `projects/{name}/` into `meta/`. `user-patterns.md` moved from root into `meta/`. See `docs/second-brain.md` for full v1.9 tree.
 
 ## Knowledge Classification (7 Types)
 
@@ -286,7 +287,7 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 6. Read meta/STATUS.md (global status)
 7. Read meta/lint-state.md (check if inspection needed: >4h since last run)
 8. ReadProjectContext(bound project) — tasks, decisions, journal
-9. Read user-patterns.md
+9. Read meta/user-patterns.md
 10. Global overview: List Project + List Area (titles + status only)
 11. Strategic Map compilation: If `meta/strategic-lines.md` exists → compile `meta/STRATEGIC-MAP.md`. See `references/strategic-map-spec.md`.
 12. If lint-state.md shows >4h → trigger lightweight AUDITOR inspection
@@ -300,14 +301,14 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 2. Create meta/outbox/{session_id}/
 3. Save Decision / Save Task / Save JournalEntry → to meta/outbox/{session_id}/ (NOT to main directories)
 4. Write index-delta.md (changes for projects/{project}/index.md)
-5. Write patterns-delta.md (append content for user-patterns.md, if ADVISOR has suggestions)
+5. Write patterns-delta.md (append content for meta/user-patterns.md, if ADVISOR has suggestions)
 6. Write manifest.md (session metadata)
 7. git add meta/outbox/{session_id}/ → commit → push (ONLY the outbox directory)
 8. Sync outbox to Notion (if configured)
 9. Update this platform's last_sync_time in meta/config.md
 10. Any backend failure → log to meta/sync-log.md, don't block
 
-NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Merging happens at next Start Court.
+NOTE: Do NOT write to projects/, STATUS.md, or meta/user-patterns.md directly. Merging happens at next Start Court.
 ```
 
 ### Review Mode
@@ -323,7 +324,7 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 ## ADVISOR Data Retrieval
 
 ```
-1. Read user-patterns.md
+1. Read meta/user-patterns.md
 2. List JournalEntry (type: remonstrator, limit: 3) → last 3 reports
 3. List Decision (limit: 5) → recent decisions
 4. List Task → compute completion rates
@@ -338,7 +339,7 @@ NOTE: Do NOT write to projects/, STATUS.md, or user-patterns.md directly. Mergin
 | Project version / phase / status | `projects/{project}/index.md` | `meta/STATUS.md` |
 | Area goals / status | `areas/{area}/index.md` | `meta/STATUS.md` |
 | Task completion | `projects/{project}/tasks/*.md` | Metrics dashboard |
-| Behavior patterns | `user-patterns.md` | ADVISOR reports |
+| Behavior patterns | `meta/user-patterns.md` | ADVISOR reports |
 | Strategic relationships | `projects/{project}/index.md` strategic fields + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **Write order is enforced**: Always update the authoritative source first, then compile the dashboard. Never write to STATUS.md directly for project-level information.

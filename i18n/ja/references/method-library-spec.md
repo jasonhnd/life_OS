@@ -38,7 +38,7 @@ Hermes Skills にインスパイアされています(`devdocs/research/2026-04-
 - 特定の事実 → `wiki/`
 - 個人的な好みや価値観 → `SOUL.md`
 - プロジェクト固有の計画 → `projects/{name}/`
-- 一度限りのヒント → `inbox/` または `user-patterns.md`
+- 一度限りのヒント → `inbox/` または `meta/user-patterns.md`
 
 **基準**: method は、異なるプロジェクトの異なる意思決定をまたいで適用できる再利用可能なワークフローです。パターンが 1 つのプロジェクトの中でのみ意味をなす場合、それはそのプロジェクトの下に属し、method library には属しません。
 

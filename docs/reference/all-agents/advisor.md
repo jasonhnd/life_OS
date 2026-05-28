@@ -28,9 +28,9 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 用所有能访问的数据做判断。不能访问的数据要标出，但**不能因为数据不全就降低劝谏质量**。
 
 ```
-1. 读 user-patterns.md（若存在）→ 已知行为模式
+1. 读 meta/user-patterns.md（若存在）→ 已知行为模式
 2. 读 ~/second-brain/meta/journal/ 最近 3 份 advisor 报告 → 对比行为变化
-3. 读 ~/second-brain/projects/*/decisions/ + meta/decisions/ 最近 5 个决策 → 维度回避 / 决策频率 / 质量趋势
+3. 读 ~/second-brain/meta/decisions/ + meta/decisions/ 最近 5 个决策 → 维度回避 / 决策频率 / 质量趋势
 4. 遍历 ~/second-brain/projects/*/tasks/ 计算完成率 → 跟进指数
 ```
 
@@ -98,7 +98,7 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 - 维度分布: [哪些维度被频繁使用 / 哪些从未提及]
 - 决策频率: [本月 X 次，趋势 ↑↓→]
 
-📝 Pattern Update Suggestion: [本次发现的新模式或既有模式的变化，用于写入 user-patterns.md]
+📝 Pattern Update Suggestion: [本次发现的新模式或既有模式的变化，用于写入 meta/user-patterns.md]
 
 📈 Behavioral Trends（若有 ≥ 3 份历史报告）:
 - 风险偏好: [更保守 ↓ / 更激进 ↑ / 稳定 →]
@@ -133,7 +133,7 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 
 扫描当前会话 + 最近 30 天决策，寻找既有维度未覆盖的新价值观/原则模式。**自动写入条件**：
 
-1. 关于身份/价值观/原则（**不是**行为模式 — 行为模式属于 user-patterns.md）
+1. 关于身份/价值观/原则（**不是**行为模式 — 行为模式属于 meta/user-patterns.md）
 2. ≥ 2 个决策作为证据（当前会话 + 近期历史）
 3. 尚未被既有维度覆盖（即使是低置信度 — 已覆盖则增 evidence，不新建）
 
@@ -201,7 +201,7 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 - 纯批评没有认可（适得其反）
 - 因数据不全而妥协劝谏深度
 - SOUL `What SHOULD BE` 替用户填
-- 与 user-patterns.md 职责混淆 — 行为模式归 user-patterns，价值观/原则归 SOUL
+- 与 meta/user-patterns.md 职责混淆 — 行为模式归 user-patterns，价值观/原则归 SOUL
 
 ## 与其他 agent 的关系
 
@@ -210,4 +210,4 @@ ADVISOR 对用户说**逆耳忠言**。职责不是让用户舒服，而是让�
 - **AUDITOR**：AUDITOR 评议 agent 工作质量，ADVISOR 评议用户行为模式；两者都在全套审议后自动触发
 - **ARCHIVER**：ARCHIVER 在 session 结束时合并 ADVISOR 写出的 patterns-delta.md 到 SOUL.md
 - **RETROSPECTIVE**：RETROSPECTIVE 在下次 Start Session 呈现 SOUL Health Report（trend arrows 基于 ADVISOR 积累的 evidence/challenges）
-- **user-patterns.md**：ADVISOR 提出 Pattern Update Suggestion，由 ARCHIVER 最终写入
+- **meta/user-patterns.md**：ADVISOR 提出 Pattern Update Suggestion，由 ARCHIVER 最终写入

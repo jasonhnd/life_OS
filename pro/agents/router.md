@@ -20,7 +20,7 @@ context_manifest:
   supporting: [references/scene-configs.md, themes/*.md, meta/queue/notifications.md, meta/STATUS.md]
   forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, pro/agents/archiver.md, pro/agents/retrospective.md]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/router-*.json, ~/.claude/lifeos-memory/<key>.json]
+  allowed_scope: [meta/runtime/<sid>/router-*.md, ~/.claude/lifeos-memory/<key>.md]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, .claude/settings.json, decisions/]
 failure_modes:
   known: ["Mis-classifies high-risk-domain subject as 'handle directly'", "Skips Cortex when message references prior session", "Confabulates agent path when delegating Task()"]
@@ -113,7 +113,7 @@ If `meta/STRATEGIC-MAP.md` exists and was loaded by the retrospective agent:
 - Include affected downstream projects in the escalation context
 
 **Behavior × strategy misalignment**:
-- If user-patterns.md shows the user consistently avoids a critical-path project
+- If meta/user-patterns.md shows the user consistently avoids a critical-path project
 - Gently flag: "I notice [project] hasn't had attention in N sessions despite being critical-path for [line]. Is this intentional?"
 
 ## Intent Clarification (HARD RULE, cannot be skipped for complex requests)
@@ -196,7 +196,7 @@ If grouping improves readability, ROUTER MAY use a lightweight wrapper:
 
 ```text
 ## Subagent Output · {subagent_name}
-audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.md} (if available)
 usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
 duration: {duration_seconds}s (if available)
 cost: ${estimated_cost_usd} (if available or already estimated)

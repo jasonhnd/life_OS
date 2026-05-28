@@ -4,12 +4,12 @@
 
 ## Wiki 是什么
 
-Wiki 位于你的 second-brain 的 `wiki/` 目录下。它和 `SOUL.md`、`user-patterns.md`、`decisions/` 是完全不同的东西：
+Wiki 位于你的 second-brain 的 `wiki/` 目录下。它和 `SOUL.md`、`meta/user-patterns.md`、`decisions/` 是完全不同的东西：
 
 | 存储 | 记录什么 | 例子 |
 |------|---------|------|
 | `decisions/` | 你做了什么决策（具体、带时间戳） | "2026-04-01 决定使用信托结构" |
-| `user-patterns.md` | 你做什么（行为模式） | "倾向避开财务维度" |
+| `meta/user-patterns.md` | 你做什么（行为模式） | "倾向避开财务维度" |
 | `SOUL.md` | 你是谁（价值观、个性） | "风险偏好：中偏高" |
 | **`wiki/`** | **你知道什么（可复用的结论）** | **"日本 NPO 贷款无贷金业法豁免"** |
 
@@ -25,7 +25,7 @@ Wiki 位于你的 second-brain 的 `wiki/` 目录下。它和 `SOUL.md`、`user-
 
 | 混淆 | 实际属于 |
 |------|---------|
-| "我喜欢早上做决策" | user-patterns.md（行为） |
+| "我喜欢早上做决策" | meta/user-patterns.md（行为） |
 | "我坚信家庭优先" | SOUL.md（价值观） |
 | "2026-04-01 我决定用信托" | decisions/（具体决策） |
 | "我感觉 X" | 一般是 SOUL 或 journal，不是 wiki |

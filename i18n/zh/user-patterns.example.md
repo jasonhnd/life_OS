@@ -2,7 +2,7 @@
 
 本文件由谏官自动维护（通过 orchestrator 代写）。记录跨会话积累的用户行为模式，供谏官和丞相在后续决策中参考。
 
-文件位置：`~/.claude/user-patterns.md`（本地，不上传 GitHub）
+文件位置：`~/.claude/meta/user-patterns.md`（本地，不上传 GitHub）
 
 ---
 

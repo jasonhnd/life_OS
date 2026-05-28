@@ -52,7 +52,7 @@ GOVERNANCE/Discipline 最锋利的武器是**翻旧账**。
 
 ### 机制
 
-每次用户立一个 flag，ADVISOR 会记录进 `user-patterns.md`。GOVERNANCE 可以在新决策时调出历史：
+每次用户立一个 flag，ADVISOR 会记录进 `meta/user-patterns.md`。GOVERNANCE 可以在新决策时调出历史：
 
 **用户问**："这次我要认真执行每周 3 次健身，这次肯定能坚持。"
 
@@ -109,7 +109,7 @@ GOVERNANCE/Audit 管"事后复盘"。和 EXECUTION 的"事前规划"形成闭环
 
 **用户问**："上个季度做了哪些决策，效果怎样？"
 
-GOVERNANCE/Audit 会读取 `meta/decisions/` 和 `projects/*/decisions/`：
+GOVERNANCE/Audit 会读取 `meta/decisions/` 和 `meta/decisions/`：
 - 本季度有效决策：7 个
 - 事后评估：
   - 决策 A（换工作 offer）→ 评估 9/10（预期达成）
@@ -156,7 +156,7 @@ GOVERNANCE/Discipline 会帮用户设计外部约束：
 
 ## 可读取的资源
 
-- 决策历史：`~/second-brain/projects/*/decisions/` 和 `~/second-brain/meta/decisions/`
+- 决策历史：`~/second-brain/meta/decisions/` 和 `~/second-brain/meta/decisions/`
 - 用户本地合同、雇佣协议
 - WebSearch 查询法律条文、诈骗模式
 - 主动问用户："有没有相关合同可以提供？"

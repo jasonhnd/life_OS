@@ -82,7 +82,7 @@ Finance 和 Execution 分差 4 分 [D:finance-score-6][D:execution-score-2],
 | `SOUL:` | SOUL 维度 | `SOUL:risk-tolerance-v3` |
 | `C:` | 概念节点 | `C:method:iterative-document-refinement` |
 | `W:` | Wiki 条目 | `W:finance/compound-interest` |
-| `P:` | user-patterns.md 模式 | `P:avoids-family-topic-on-weekends` |
+| `P:` | meta/user-patterns.md 模式 | `P:avoids-family-topic-on-weekends` |
 
 **前缀是固定的**——Narrator 不允许发明新前缀。如果某个信号源没法映射到这 6 个之一,它**就不能被引用**,因此这个 substantive claim **也不能说出来**。
 

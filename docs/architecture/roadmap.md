@@ -1,15 +1,17 @@
 ---
 title: Life OS · v1.7 推进计划
 date: 2026-04-20
-status: active
+status: legacy
 owner: Jason
 tags: [roadmap, versioning, cortex, execution-layer]
 authoritative: false
 superseded_by: pro/CLAUDE.md
 ---
 
-# Life OS · v1.7 推进计划
+# Life OS · v1.7 推进计划（LEGACY）
 
+> ⚠️ **LEGACY（v1.7-era 推进计划，2026-04-20）。** 本文是 v1.7 内部推进计划。其中"Hermes 风格执行层"的 5 个 bash hook 已在 **v1.8.5 Stage 2 整体退役**（md-only / DR-10），运行时 enforcement 转 inline LLM 流程。保留作历史参考；当前架构见 `pro/CLAUDE.md` + `SKILL.md`。
+>
 > v1.7 是一个大版本 — 把 Cortex 认知架构和 Hermes 风格的执行层，在同一个版本里全部交付完毕。本文档是 v1.7 内部推进计划，不分切到后续版本。
 
 ---

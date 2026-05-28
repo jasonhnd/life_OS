@@ -255,7 +255,7 @@ If `cognitive_annotation_quality < 5` across the last 5 sessions → warn: "hipp
 
 ### 7.5 process_compliance recurrence
 
-If the same `violations[].type` appears 3 or more times within the last 30 days → trigger compliance log upgrade: the violation graduates from eval history to `user-patterns.md` as a tracked behavioural pattern, and next session's ADVISOR surfaces it as a direct observation.
+If the same `violations[].type` appears 3 or more times within the last 30 days → trigger compliance log upgrade: the violation graduates from eval history to `meta/user-patterns.md` as a tracked behavioural pattern, and next session's ADVISOR surfaces it as a direct observation.
 
 ### 7.6 Briefing format
 

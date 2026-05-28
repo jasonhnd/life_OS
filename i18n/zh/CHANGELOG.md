@@ -6,6 +6,48 @@
 
 ---
 
+## [1.9.1] - 2026-05-28 - 迁移欠债清理：在镜像层补完 v1.8.5 hook 退役 + v1.8.6 .json→.md 迁移
+
+```yaml
+---
+version: 1.9.1
+date: 2026-05-28
+type: patch
+breaking_changes: []
+new_features: []
+fixes:
+  - "v1.8.6 R12→R13 审计轨迹迁移未做完：约 60 处违禁 `meta/runtime/<sid>/*.json` 路径残留在全部 16 个 agent 的 `allowed_scope`、SKILL.md、pro/CLAUDE.md rule #8 + 可选 wrapper 模板、8 个 scripts/prompts 维护任务、/notion-sync 命令、以及 active eval 场景/fixtures 中——每一处都会让 agent 写出 F4 SCOPE_FAILURE 文件。全部改为 `.md`（markdown + YAML frontmatter）。"
+  - "`meta/queue/manifest.json` → `meta/queue/manifest.md`（inbox-process 的系统 manifest 是违禁的独立 .json 数据文件；改为 YAML frontmatter，6 处读写引用全部更新）"
+  - "/regression-from-violation 命令仍在生成 `rc-*.yml` fixture（违禁 .yml）；现改为生成带 YAML frontmatter 的 `rc-*.md`，与已发布的 fixture 一致。run-tool-eval.md 的 fixture 扩展名引用也已修正。"
+  - "v1.8.5 hook 退役残留：把对已退役 bash hook（`pre-notion-write.sh`、`session-start-inbox.sh`、`pre-prompt-guard.sh`）的'当前生效'式引用，改写为 inline LLM 流程——涉及 pro/CLAUDE.md（Step 10a 出站 PII 扫描 + 监控/队列关键词匹配 + session-start 扫描）、根 AGENTS.md host 可用性表、references/review-queue-spec.md、archiver Phase 0、以及 11 个维护 prompt 的触发行"
+  - "LEGACY 标注补齐/修正：hooks-spec.md、compliance-spec.md、system-overview.md、roadmap.md 的 banner；obsidian-spec.md 的 `superseded_by` 指针从已退役的 `setup-secondbrain.sh` 更新为 `/setup-secondbrain` slash 命令；execution-layer.md 内部'当前架构'子块修正"
+  - "evals/README.md（+ zh/ja）：已退役的 `./evals/run-eval.sh` → `/run-eval` slash 命令"
+alternatives_considered:
+  - option: "把这些修复作为 v1.9.0 within-release 提交到 main，不升版本"
+    rejected_because: "v1.9.0 的 tag 已冻结且已作为 Latest 发布；约 165 个文件的 spec 正确性修复（阻止 agent 写违禁文件）值得一个可发现、可打 tag 的 patch，而非静默的 main 分支后续提交"
+  - option: "保留这些 .json/.yml 审计轨迹引用，靠 /check-spec-drift 在运行时抓"
+    rejected_because: "是 spec 本身在指示违禁行为——agent 按自己的 spec 执行，所以每次跑都会复发；drift-checker 是兜底，不能替代正确的 spec"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+---
+```
+
+> 补完 v1.9.0 及更早只改了"权威文件"、没改"镜像层"的三次迁移：v1.8.5 bash hook 退役、v1.8.6 R12→R13 审计轨迹格式变更（`.json`→`.md`）、v1.8.6 `.yml`→`.md` fixture/数据文件变更。"每次复查都冒出新 bug"的根因就是镜像脱节——权威 spec 改了，但三平台（CLAUDE/AGENTS/GEMINI）、references↔i18n、spec↔prompt↔command↔agent 的镜像没跟上。
+
+### 亮点
+
+- 行为层（prompts、commands、agents、reference specs）对 `meta/` 下 `.json` / `.yml` / `.yaml` 数据路径的 active 引用 = **0 处**，穷举 grep 验证。
+- 所有已退役 hook 的引用，要么改写为 inline LLM 流程，要么明确标为 LEGACY / 历史。
+- 平台例外（`.claude/settings.json`、`.obsidian/*.json`）原封未动。
+
+### 迁移
+
+- **无需用户操作**。这是 spec 正确性 patch——无 vault 数据迁移。v1.9.0 vault 不受影响；已有的 `.md` 审计轨迹本就合规。今后的审计轨迹 / manifest / fixture 写入将正确遵循 spec。
+
+---
+
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化
 
 ```yaml

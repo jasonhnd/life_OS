@@ -124,7 +124,7 @@ Finance and Execution disagreed by 4 points [D:finance-score-6][D:execution-scor
 | `SOUL:` | SOUL dimension                | `SOUL:risk-tolerance-v3`                   |
 | `C:`    | concept                       | `C:method:iterative-document-refinement`   |
 | `W:`    | wiki entry                    | `W:finance/compound-interest`              |
-| `P:`    | user-patterns.md 内のパターン | `P:avoids-family-topic-on-weekends`        |
+| `P:`    | meta/user-patterns.md 内のパターン | `P:avoids-family-topic-on-weekends`        |
 
 prefix は **固定** です。narrator は新しい prefix を発明してはなりません。ソース型が上記のいずれにもマップされない場合、narrator はそれを引用してはなりません(そしてしたがって、そもそも実質的な主張を行ってはなりません)。
 

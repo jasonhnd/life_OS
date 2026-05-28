@@ -1,11 +1,15 @@
 ---
 translated_from: references/hooks-spec.md
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
+status: legacy
+authoritative: false
+superseded_by: SKILL.md + pro/CLAUDE.md（インライン LLM 手順）
+note: "v1.8.5 Stage 2 で md-only 存在論的制約（DR-10）に基づき退役した bash hook 層（5 つの shell hook）を記述する。以下に記録されたランタイム強制の挙動は、現在すべて ROUTER と各サブエージェントが自ら実行するインライン LLM 手順である。歴史的参照のみ。"
 ---
 
-# Shell Hooks 契約仕様書(Shell Hooks Contract Specification)(v1.7)
+# Shell Hooks 契約仕様書(Shell Hooks Contract Specification)(v1.7) — レガシー(LEGACY)
 
-> ランタイムで Life OS HARD RULE 遵守を強制する 5 つの shell hook に対する権威的契約です。各 hook は自己完結型の bash スクリプトで、Claude Code ホストと stdin JSON、stdout テキスト、exit code を介して通信します。Bash + jq のみ — Python ランタイムなし、stdlib 以外の依存なし。
+> **⚠️ レガシー(v1.8.5 Stage 2 で退役)。** 本仕様は、v1.7 時代にランタイムで Life OS HARD RULE 遵守を強制していた 5 つの shell hook を記述します。bash hook 層全体は **v1.8.5 Stage 2 で md-only 存在論的制約（DR-10）に基づき退役** —— lifeos は `.sh` ファイルを一切配布しません。以下に記述する各挙動は、現在ではオーケストレーターまたはサブエージェントが自ら実行する**インライン LLM 手順**です（SKILL.md の Pre-flight Compliance Check、pro/CLAUDE.md Step 10a のインライン送信 PII スキャン、pro/agents/retrospective.md の Conscious Patrol メンテナンススキャン）。本ファイルは歴史的参照および元の契約記録としてのみ保持され、現在の挙動に対して**権威を持ちません**。
 
 ---
 
@@ -143,7 +147,7 @@ Precedent: COURT-START-001 (2026-04-19).
 - **Purpose:** SOUL / wiki / concepts / user-patterns に向かうコンテンツの高速 regex スキャン
 - **Solves:** LLM 生成コンテンツに含まれる injection payload(悪意または事故)が長期知識ファイルに到達する
 
-**契約:** `file_path` + `content`(Edit なら `new_string`)をパース。`file_path` がスコープセット(`SOUL.md`、`wiki/**`、`meta/concepts/**`、`user-patterns.md`)外なら exit 0 パススルー。セット内なら 15-pattern regex スキャン + invisible-Unicode スキャンを実行。いずれかにマッチすれば違反をログし、pattern flag 付きで exit 2。
+**契約:** `file_path` + `content`(Edit なら `new_string`)をパース。`file_path` がスコープセット(`SOUL.md`、`wiki/**`、`meta/concepts/**`、`meta/user-patterns.md`)外なら exit 0 パススルー。セット内なら 15-pattern regex スキャン + invisible-Unicode スキャンを実行。いずれかにマッチすれば違反をログし、pattern flag 付きで exit 2。
 
 この regex スキャンは安価な一次パス。LLM ベースのプライバシーチェック(ユーザー決定 #5)は archiver の knowledge extraction で後で走る — regex は高速一次防衛線。
 

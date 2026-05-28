@@ -39,7 +39,7 @@ introduced_in: v1.8.5
 - 任何虚构 = F17 VALUE_HALLUCINATION + B confabulated-path 违规。
 
 ### Req 3 — 决策记录
-- 结果**必须**写入 `meta/decisions/<id>.md`，含：
+- 结果**必须**写入 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`（v1.9 月子目录），含：
   - subject
   - alternatives_considered（≥2 个被拒选项 + 拒因）
   - 决策理由
@@ -55,8 +55,8 @@ introduced_in: v1.8.5
 
 ### Req 5 — Trace 必需
 - 按 R12 spec 必须有完整审计 trail 在 `meta/runtime/<sid>/`：
-  - 每次 subagent 调用：`<subagent>-<step>.json`
-  - REVIEWER verdict：`reviewer-final-verdict.json`，含填好的 `value_invocations[]`
+  - 每次 subagent 调用：`<subagent>-<step>.md`
+  - REVIEWER verdict：`reviewer-final-verdict.md`，含填好的 `value_invocations[]`
   - 用户确认消息时间戳 + 原文
 
 ## ROUTER 如何在 triage 检测高风险领域

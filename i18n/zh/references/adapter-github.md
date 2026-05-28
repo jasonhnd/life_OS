@@ -26,14 +26,16 @@ last_modified: "2026-04-08T15:30:00Z"
 
 | 数据类型 | 路径 | 文件名规则 |
 |---------|------|-----------|
-| Decision（项目） | `projects/{p}/decisions/` | `{date}-{slug}.md` |
-| Decision（跨领域） | `meta/decisions/` | `{date}-{slug}.md` |
+| Decision（v1.9 统一） | `meta/decisions/{YYYY-MM}/` | `dec-{YYYY-MM-DD}-{NNN}.md` |
 | Task（项目） | `projects/{p}/tasks/` | `{slug}.md` |
 | Task（领域） | `areas/{a}/tasks/` | `{slug}.md` |
-| JournalEntry | `meta/journal/` | `{date}-{type}.md` |
+| JournalEntry（v1.9 时间轴） | `meta/journal/` | `{YYYY-MM-DD}.md`（每日单文件，多条追加） |
 | WikiNote | `wiki/` | `{slug}.md` |
-| Project | `projects/{p}/index.md` | 固定名称 |
+| Project | `projects/{p}/index.md` | 固定名称（含 lifecycle_stage frontmatter；archived 项目留此处） |
 | Area | `areas/{a}/index.md` | 固定名称 |
+| UserPatterns（v1.9） | `meta/user-patterns.md` | 固定名称（v1.9 从 root 移入） |
+
+> **v1.9 变化**：决策统一到 `meta/decisions/{YYYY-MM}/`（不再 `projects/*/decisions/` 分裂）；journal 时间轴 canonical（不再 `projects/*/journal/`）；archived 项目靠 frontmatter 留在 `projects/`（无 `archive/` 目录）；`user-patterns.md` 移入 `meta/`。
 
 ## 操作
 
@@ -50,8 +52,10 @@ last_modified: "2026-04-08T15:30:00Z"
 5. `git add` 该文件
 
 ### Archive(type, id)
-1. 将文件移动至 `archive/{original-path}/`
-2. `git add` 旧路径和新路径
+
+**v1.9 语义拆分**（DR-1.9.4）：
+- **项目**：不移动。在 `projects/{id}/index.md` frontmatter 设 `lifecycle_stage: archived` + `archived_at` + `archived_at_source`，项目留在 `projects/` 保护 wikilinks。`git add projects/{id}/index.md`。
+- **其他类型**（sessions、eval 等）：在各自树内 legacy 子归档（如 `meta/eval-history/_archive/`），非项目 archive，仍有效。
 
 ### Read(type, id)
 1. 读取 .md 文件
@@ -72,8 +76,8 @@ last_modified: "2026-04-08T15:30:00Z"
 ### ReadProjectContext(project_id)
 1. 读取 `projects/{p}/index.md`
 2. Glob `projects/{p}/tasks/*.md`
-3. Glob `projects/{p}/decisions/*.md`
-4. Glob `projects/{p}/journal/*.md`
+3. Glob `meta/decisions/*/*.md`（v1.9，按 projects frontmatter 过滤）
+4. Glob `meta/journal/*.md`（v1.9，按 projects frontmatter 过滤）
 5. 返回所有已解析内容
 
 ## 变更检测
@@ -96,13 +100,13 @@ git commit -m "[life-os] session {session-id} output"
 git push
 ```
 
-只暂存 outbox 目录。退朝时不修改主文件（projects/、STATUS.md、user-patterns.md）。
+只暂存 outbox 目录。退朝时不修改主文件（projects/、STATUS.md、meta/user-patterns.md）。
 
 ### 上朝时（合并 outbox）
 
 ```bash
-# 将 outbox 内容合并到主目录后：
-git add projects/ areas/ meta/journal/ meta/STATUS.md user-patterns.md SOUL.md
+# 将 outbox 内容合并到主目录后（v1.9 路径）：
+git add projects/ areas/ meta/decisions/ meta/journal/ meta/methods/ meta/STATUS.md meta/user-patterns.md SOUL.md
 git rm -r meta/outbox/{merged-session-ids}/
 git commit -m "[life-os] merge {N} outbox sessions"
 git push

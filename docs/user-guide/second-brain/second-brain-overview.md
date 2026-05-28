@@ -16,7 +16,7 @@ second-brain/
 ├── inbox/                    # 📥 未处理（捕获、材料、笔记、原始研究）
 │
 ├── SOUL.md                   # 🧬 身份 — 价值观、原则、行为倾向
-├── user-patterns.md          # 📊 跨会话观察到的行为模式
+├── meta/user-patterns.md          # 📊 跨会话观察到的行为模式
 │
 ├── meta/                    # 🔧 系统元数据
 │   ├── STATUS.md             # 全局状态快照（编译）
@@ -75,7 +75,7 @@ social/     learning/   ops/        creation/  spirit/
 
 ### projects/ vs areas/
 
-**Projects 有终点**。"发布 v2"、"搬家到东京"、"拿到创业签证"。完成之后整个文件夹移到 `archive/`，在 wiki 里留下浓缩的知识。
+**Projects 有终点**。"发布 v2"、"搬家到东京"、"拿到创业签证"。完成之后在 `index.md` frontmatter 标 `lifecycle_stage: archived`（v1.9：项目留在 `projects/`，不物理移动，保护 wikilinks），在 wiki 里留下浓缩的知识。
 
 **Areas 没终点**。"金融健康"、"家庭关系"、"创作"。一直在。只有 `active` / `inactive` 两种状态。
 
@@ -100,7 +100,7 @@ social/     learning/   ops/        creation/  spirit/
 
 权威源：`references/soul-spec.md`。
 
-### user-patterns.md — 行为模式
+### meta/user-patterns.md — 行为模式
 
 例如："用户在金融决策上倾向过度自信"、"用户讨厌长篇战略文档，偏好一句话总结"。ADVISOR 跨会话累计观察后写进来。下次会话 RETROSPECTIVE 读它，让整个会话带着这些模式意识运行。
 
@@ -178,7 +178,7 @@ Second-brain 在 GitHub / Google Drive 上时，Notion 可以作为轻量记忆�
 | 项目版本 / 状态 | `projects/{project}/index.md` | `meta/STATUS.md` |
 | 领域目标 / 状态 | `areas/{area}/index.md` | `meta/STATUS.md` |
 | 任务完成率 | `projects/{project}/tasks/*.md` | Metrics dashboard |
-| 行为模式 | `user-patterns.md` | ADVISOR 报告 |
+| 行为模式 | `meta/user-patterns.md` | ADVISOR 报告 |
 | 战略关系 | `projects/{project}/index.md` strategic 字段 + `meta/strategic-lines.md` | `meta/STRATEGIC-MAP.md` |
 
 **写入顺序强制**：先改权威源，再让系统编译视图。永远不要直接写 STATUS.md。AUDITOR 巡查时如果发现 STATUS.md 和 index.md 矛盾，会标🔴并以 index.md 为准。

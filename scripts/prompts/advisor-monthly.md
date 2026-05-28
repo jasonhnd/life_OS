@@ -13,7 +13,7 @@
 
 - `月度自审` / `monthly review` / `SOUL 漂移`
 - `做一次 advisor 月度` / `自我审视`
-- session-start-inbox hook reports `advisor-monthly Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `advisor-monthly Nd` overdue and user says "跑一下"
 
 ## Context
 
@@ -66,7 +66,7 @@ Always notify (monthly is significant):
 ## HARD RULES
 
 - **Read-only on SOUL.md and wiki/**. Never modify.
-- **Audit trail**: `meta/runtime/{sid}/advisor-monthly.json` (R11)
+- **Audit trail**: `meta/runtime/{sid}/advisor-monthly.md` (R13 markdown trail per `references/audit-trail-spec.md`)
 - **Git push** report at end
 - **Respect session lock** (5 min retry, max 3)
 

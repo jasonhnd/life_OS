@@ -513,7 +513,7 @@ Cortex 不替代任何现有 Life OS 组件 —— 它增强它们。下表总�
 | Wiki | 你对世界的知识（陈述性） | "日本 NPO 借贷无貸金業法豁免" | `wiki/{domain}/{slug}.md` |
 | Concept | 想法如何连接（联想图节点） | "Company-A" 作为通过加权边连接到其他概念的实体 | `meta/concepts/{domain}/{concept_id}.md` |
 | Method | 你如何最佳工作（程序性记忆） | "用 5 轮递进质量润色文档" | `meta/methods/{domain}/{method_id}.md` |
-| user-patterns | 你做什么（观察到的行为模式，ADVISOR 领域） | "在首轮澄清后决策变快" | `user-patterns.md`（单文件，内含条目） |
+| user-patterns | 你做什么（观察到的行为模式，ADVISOR 领域） | "在首轮澄清后决策变快" | `meta/user-patterns.md`（单文件，内含条目） |
 
 ### 决策树（Decision tree）
 
@@ -526,7 +526,7 @@ Archiver Phase 2 让每个候选走一遍此树。第一个匹配分支胜出 �
 │          新维度以 confidence 0.3 自动写入，What SHOULD BE 留空)
 │
 └── 否 → 它是行为模式吗（用户做什么，而非他们是谁）?
-    ├── 是 → user-patterns.md (通过 patterns-delta 追加)
+    ├── 是 → meta/user-patterns.md (通过 patterns-delta 追加)
     │         (ADVISOR 浮现这些；不是 SOUL)
     │
     └── 否 → 它是可复用的 WORKFLOW（动作序列、类似方法）吗?

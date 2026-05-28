@@ -15,7 +15,7 @@ Concept ファイルは、Cortex の synaptic network におけるノードで�
 | ストレージ | 何を記録するか | 例 |
 |---------|----------------|---------|
 | `decisions/` | 何を決定したか(特定、タイムスタンプ付き) | "2026-04-01: chose trust structure" |
-| `user-patterns.md` | 何を行うか(行動パターン) | "Tends to avoid financial dimensions" |
+| `meta/user-patterns.md` | 何を行うか(行動パターン) | "Tends to avoid financial dimensions" |
 | `SOUL.md` | あなたが誰であるか(価値観、人格) | "Risk appetite: medium-high" |
 | `wiki/` | あなたが知っていること(再利用可能な世界結論) | "NPO lending has no 貸金業法 exemption" |
 | `meta/concepts/` | **何と何が接続するか(synaptic graph)** | "company-a-holding" ノード + 他の概念へのエッジ |

@@ -4,7 +4,7 @@
 
 ## SOUL 是什么
 
-SOUL.md 位于你的 second-brain 根目录，和 `user-patterns.md`、`wiki/` 并列。它不记录你做过什么决策（那是 `decisions/` 的事），不记录你的行为模式（那是 `user-patterns.md` 的事），它只回答一个问题：
+SOUL.md 位于你的 second-brain 根目录，和 `meta/user-patterns.md`、`wiki/` 并列。它不记录你做过什么决策（那是 `decisions/` 的事），不记录你的行为模式（那是 `meta/user-patterns.md` 的事），它只回答一个问题：
 
 **你是谁？**
 
@@ -113,11 +113,11 @@ confidence = evidence_count / (evidence_count + challenges × 2)
 | 文件 | 记录什么 | 举例 |
 |------|---------|------|
 | `decisions/` | 具体决策 | "2026-04-01 决定用信托结构" |
-| `user-patterns.md` | 行为模式 | "倾向避开财务维度" |
+| `meta/user-patterns.md` | 行为模式 | "倾向避开财务维度" |
 | **`SOUL.md`** | **你是谁** | **"风险偏好：中偏高"** |
 | `wiki/` | 世界的知识 | "日本 NPO 贷款无豁免" |
 
-- `user-patterns.md` 记录"你做什么"——描述性的
+- `meta/user-patterns.md` 记录"你做什么"——描述性的
 - `SOUL.md` 记录"你是谁"——身份性的
 - 两者互相喂养：模式揭示价值观，价值观解释模式
 

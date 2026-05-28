@@ -124,7 +124,7 @@ SOUL.md 参考：如果存在高置信度维度（≥0.6）且与本次 Subject 
 
 ### 8. AUDITOR 审计
 
-**存在理由**：自动触发，不能跳过。AUDITOR 审整个流程记录：有没有违反状态机？有没有跳步骤？有没有偷懒（比如 REVIEWER 应该封驳但没封）？违规会记录进 user-patterns.md。
+**存在理由**：自动触发，不能跳过。AUDITOR 审整个流程记录：有没有违反状态机？有没有跳步骤？有没有偷懒（比如 REVIEWER 应该封驳但没封）？违规会记录进 meta/user-patterns.md。
 
 AUDITOR 还有另一个模式：Patrol Inspection，由 RETROSPECTIVE 在 housekeeping 时触发，巡查 wiki / SOUL / 决策历史的健康度。
 

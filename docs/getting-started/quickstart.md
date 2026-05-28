@@ -66,7 +66,7 @@
 - Platform：Claude Code
 - Life OS version：1.6.2a（已是最新）
 - Project Status：3 个活跃项目，1 个待检视
-- Behavior Profile：user-patterns.md 最近观察到 2 次决策疲劳
+- Behavior Profile：meta/user-patterns.md 最近观察到 2 次决策疲劳
 
 🔮 SOUL Health Report
 - 核心档案（confidence ≥ 0.7）：追求自主 → ↗、深度思考 ↗、家人优先 →

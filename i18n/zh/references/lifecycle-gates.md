@@ -40,7 +40,7 @@ life_OS 示例：
 ### 3. simulated → pilot
 
 所需证据：
-- ✅ 仿真 run 已记录（`meta/runtime/<sid>/simulation-<artifact>.json`）
+- ✅ 仿真 run 已记录（`meta/runtime/<sid>/simulation-<artifact>.md`）
 - ✅ 仿真无 critical findings（F1/F3/F6a/F10/F14/F15/F17）
 - ✅ 人类 reviewer 在仿真结果上签字
 - ✅ 所有 `open_questions` 已解决或显式延期带理由

@@ -327,7 +327,7 @@ Audit Log: 澄清 3 轮, 议程变形 1 次, 封驳 0 次, 议政 1 次 (共识�
 ```
 💬 谏官 · 行为审查
 
-📊 Data: 历史决策 + user-patterns.md + SOUL.md
+📊 Data: 历史决策 + meta/user-patterns.md + SOUL.md
 
 观察:
 

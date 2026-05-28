@@ -227,9 +227,9 @@ RETROSPECTIVE Mode 0 扫最近 10 份 eval-history,应用:
 
 ### 规则 5 · process_compliance 重复违规
 
-**相同 `violations[].type` 在最近 30 天内出现 3+ 次** → **升级到 user-patterns.md**
+**相同 `violations[].type` 在最近 30 天内出现 3+ 次** → **升级到 meta/user-patterns.md**
 
-这是最有 teeth 的规则: 同一类违规(比如"adjourn_phase_skip")反复出现,从 eval-history "毕业"成一条 `user-patterns.md` 里的 tracked behavioral pattern。下次 session 的 **ADVISOR** 会把它直接 surface 为观察:
+这是最有 teeth 的规则: 同一类违规(比如"adjourn_phase_skip")反复出现,从 eval-history "毕业"成一条 `meta/user-patterns.md` 里的 tracked behavioral pattern。下次 session 的 **ADVISOR** 会把它直接 surface 为观察:
 
 > "观察: 最近一个月你有 4 次 session 在 adjourn 之前插入操作——这会把 archiver phase 打断。本次要不要先跑完 adjourn 再操作?"
 
@@ -341,9 +341,9 @@ uv run tools/reconcile.py
 - **改 cortex config**——比如系统说 hippocampus retrieval 质量低,`meta/config.md` 里考虑调整 `top_k_signals` 或 `per_signal_floor`
 - **手工反驳**——如果你不认同系统性模式检测(比如 narrator 失败率高但你觉得是暂时问题不是系统性的),在当前 session 里说"我认为这个检测是误报",AUDITOR 会记一笔,后续 pattern 仍会持续监控但降权
 
-### 6. 清理被 pattern 升级到 user-patterns.md 的 behavior
+### 6. 清理被 pattern 升级到 meta/user-patterns.md 的 behavior
 
-如果某个 behavior 被升级了但你不认同,打开 `user-patterns.md` 直接删除那条记录。user-patterns 是**你拥有的文件**,AUDITOR / ADVISOR 只会读,不会强制保留。
+如果某个 behavior 被升级了但你不认同,打开 `meta/user-patterns.md` 直接删除那条记录。user-patterns 是**你拥有的文件**,AUDITOR / ADVISOR 只会读,不会强制保留。
 
 ---
 
@@ -353,7 +353,7 @@ uv run tools/reconcile.py
 
 ### 红色信号(立即行动)
 
-- **同一 `violations[].type` 在 30 天内出现 3+ 次** → 已被规则 5 升级到 user-patterns.md。**这是系统已经表态"这是一个稳定模式"** → 改对应 agent spec
+- **同一 `violations[].type` 在 30 天内出现 3+ 次** → 已被规则 5 升级到 meta/user-patterns.md。**这是系统已经表态"这是一个稳定模式"** → 改对应 agent spec
 - **`process_compliance` 连续 3 次 <5** → 状态机在崩。优先级最高,其他都可以等,这个不能
 - **`citation_groundedness` 单次 <5** + trace 验证确实是 narrator 编造 → 编辑 `pro/agents/narrator-validator.md` 加更严的检查,或考虑是否 registry 本身有漏
 

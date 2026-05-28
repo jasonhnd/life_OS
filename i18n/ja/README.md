@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.0-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -111,7 +111,7 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 ## v1.8.3 の新機能 — Notion 書き込み前のアウトバウンド境界ゲート
 
-**「外向き」プライバシーの隙を塞ぐ。** v1.8.2 は vault に**入る**ものを守った（`pre-write-scan.sh` が SOUL.md / wiki / `meta/concepts/` / user-patterns.md を secret・prompt injection・不可視 Unicode から守る）。だが v1.8.2 は vault を**出る**経路について何も言わなかった。Decision/Task/Journal の本文 —— ユーザーの生の言葉、第三者氏名、具体的金額を含む —— は `meta/outbox/<sid>/` から Notion へと Step 10a で同期されるとき、**何のプライバシーゲートも通っていなかった**。v1.8.3 は対称的なアウトバウンド守衛を導入する。
+**「外向き」プライバシーの隙を塞ぐ。** v1.8.2 は vault に**入る**ものを守った（`pre-write-scan.sh` が SOUL.md / wiki / `meta/concepts/` / meta/user-patterns.md を secret・prompt injection・不可視 Unicode から守る）。だが v1.8.2 は vault を**出る**経路について何も言わなかった。Decision/Task/Journal の本文 —— ユーザーの生の言葉、第三者氏名、具体的金額を含む —— は `meta/outbox/<sid>/` から Notion へと Step 10a で同期されるとき、**何のプライバシーゲートも通っていなかった**。v1.8.3 は対称的なアウトバウンド守衛を導入する。
 
 ### なぜローカル outbox と Notion が同じ脅威モデルではないか
 
@@ -126,7 +126,9 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 ### 新 hook：`pre-notion-write.sh`
 
-すべての Notion MCP 書き込み呼び出しが傍受される。Hook は `tool_input` を [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) の 5 グループパターンに対してスキャンし、3 段階アクションモデルで処理：
+> *v1.8.5 更新：`pre-notion-write.sh` hook は bash hook 層とともに退役しました（md-only / DR-10）。下記のスキャンロジックは不変です——同じパターン表、同じ 3 段階 verdict——が、オーケストレーターは現在、各 Notion 書き込みの前に PreToolUse hook ではなく**インライン LLM 手順**として実行します。現在の挙動は `pro/CLAUDE.md` Step 10a を参照。*
+
+すべての Notion MCP 書き込み呼び出しがチェックされる。スキャンは送信予定の内容を [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) の 5 グループパターンに対して照合し、3 段階アクションモデルで処理：
 
 | 命中グループ | Verdict | 動作 |
 |---|---|---|
@@ -454,7 +456,7 @@ Life OS は五つの柱で構成される。**意思決定エンジン**が中�
 ```
 second-brain/
 ├── SOUL.md                 # あなたが誰か——価値観、アイデンティティ、志
-├── user-patterns.md        # あなたの行動パターン——内閣参与の観察
+├── meta/user-patterns.md        # あなたの行動パターン——内閣参与の観察
 ├── inbox/                  # スマホからの走り書き
 ├── meta/
 │   ├── STATUS.md           # 全体ステータスダッシュボード
@@ -782,7 +784,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
  └─ 💾 ストレージレイヤー
        GitHub / Google Drive / Notion（1-3個を選択）
        ├── SOUL.md          🔮 パーソナリティアーカイブ（ゼロから育つ）
-       ├── user-patterns.md 📊 行動パターン（内閣参与の観察）
+       ├── meta/user-patterns.md 📊 行動パターン（内閣参与の観察）
        ├── meta/
        │   ├── STATUS.md         📊 全体ステータスダッシュボード
        │   ├── STRATEGIC-MAP.md  🗺️ 戦略的関係マップ

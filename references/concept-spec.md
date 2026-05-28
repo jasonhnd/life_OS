@@ -14,7 +14,7 @@ Concept files are the nodes in Cortex's synaptic network. Each file represents o
 | Storage | What it records | Example |
 |---------|----------------|---------|
 | `decisions/` | What you decided (specific, timestamped) | "2026-04-01: chose trust structure" |
-| `user-patterns.md` | What you do (behavioral patterns) | "Tends to avoid financial dimensions" |
+| `meta/user-patterns.md` | What you do (behavioral patterns) | "Tends to avoid financial dimensions" |
 | `SOUL.md` | Who you are (values, personality) | "Risk appetite: medium-high" |
 | `wiki/` | What you know (reusable world conclusions) | "NPO lending has no 貸金業法 exemption" |
 | `meta/concepts/` | **What connects to what (synaptic graph)** | "company-a-holding" node + edges to other concepts |

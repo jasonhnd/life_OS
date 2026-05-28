@@ -76,7 +76,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 - 完整决策 → 全链路 Judge (PLANNER → REVIEWER → DISPATCHER → 六部 → REVIEWER 终审 → Summary Report → AUDITOR → ADVISOR)
 
 **载体**: 决策过程在对话里, 产出落盘在:
-- `projects/{project}/decisions/{YYYYMMDD-slug}.md`
+- `meta/decisions/{YYYY-MM}/{YYYYMMDD-slug}.md`
 - `projects/{project}/tasks/`
 - `meta/journal/`
 
@@ -97,7 +97,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 **载体**:
 - `SOUL.md` — 单文件, 人格档案
 - `wiki/{domain}/{topic}.md` — 按领域分类的知识点
-- `user-patterns.md` — 行为模式 (ADVISOR 维护)
+- `meta/user-patterns.md` — 行为模式 (ADVISOR 维护)
 
 **Auto-write 门槛**:
 - Wiki: 6 criteria + 隐私过滤 (见 `docs/architecture/hard-rules-catalog.md` WK1)

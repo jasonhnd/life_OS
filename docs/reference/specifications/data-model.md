@@ -6,11 +6,13 @@
 
 ### Decision（决策）
 
+> ⚠️ **v1.9 schema 取代下表**（见 RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records"）。v1.9 决策记录写入 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`，frontmatter：`id` / `title` / `type`（**`change`/`no_change`/`escalation`/`superseded`** —— 注意 v1.9 把 `type` 复用为决策记录种类，**不是**下表的 workflow 种类 `simple`/`3d6m`）/ `projects` / `domains`（6 functional IDs）/ `reviewed_by` / `reviewed_at` / `decision` / `rationale` / `reopen_condition`（no_change 必填）/ `applied_methods`（列表）/ `journal_date`。下表为 pre-v1.9 字段，仅供历史/旧文件解析。
+
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | id | string | auto | 唯一标识（文件名或数据库 ID） |
 | title | string | 是 | 主题（≤20 字符） |
-| type | enum | 是 | `simple` / `3d6m`（Draft-Review-Execute 和六领域） |
+| type | enum | 是 | （pre-v1.9）`simple` / `3d6m`（Draft-Review-Execute 和六领域）—— v1.9 已改为 change/no_change/escalation/superseded |
 | domains | string[] | 否 | 激活的领域 |
 | score | number | 否 | 综合评分（1-10） |
 | veto_count | number | 否 | REVIEWER 否决次数 |
@@ -268,7 +270,7 @@ storage:
 
 ## 约束清单
 
-- **多个会话可以同时操作 second-brain**，使用 outbox 模式。每个会话写入自己的 outbox 目录（`meta/outbox/{session_id}/`）。下次 Start Court 合并所有 outbox 到主结构。对共享文件（STATUS.md、user-patterns.md、index.md）的直接写入只发生在 Start Court 的 outbox 合并步骤
+- **多个会话可以同时操作 second-brain**，使用 outbox 模式。每个会话写入自己的 outbox 目录（`meta/outbox/{session_id}/`）。下次 Start Court 合并所有 outbox 到主结构。对共享文件（STATUS.md、meta/user-patterns.md、index.md）的直接写入只发生在 Start Court 的 outbox 合并步骤
 - **Session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在 adjourn 时生成（不是会话开始时）。示例：`claude-20260412-1700`、`gemini-20260412-1900`
 - **Outbox 合并锁**：合并期间写 `meta/.merge-lock`。若存在且 <5 分钟，跳过合并照常进入。合并完成后删除
 - **空会话**：若会话无输出（无决策、任务、日志条目），不创建 outbox
@@ -312,10 +314,10 @@ outputs:
 
 ### Patterns Delta 格式
 
-`patterns-delta.md` 记录要追加到 `user-patterns.md` 的内容：
+`patterns-delta.md` 记录要追加到 `meta/user-patterns.md` 的内容：
 
 ```markdown
-# Patterns Delta — append to user-patterns.md
+# Patterns Delta — append to meta/user-patterns.md
 
 ### [2026-04-12] New pattern: decision speed increasing
 Source: ADVISOR

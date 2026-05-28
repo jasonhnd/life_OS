@@ -21,7 +21,7 @@ context_manifest:
   supporting: [meta/STATUS.md]
   forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, decisions/]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/dispatcher-*.json]
+  allowed_scope: [meta/runtime/<sid>/dispatcher-*.md]
   forbidden_scope: [SOUL.md, wiki/, pro/agents/, decisions/, all domain-owned files]
 failure_modes:
   known: ["Dispatches conflicting writes to same file (e.g. 2 domains both write meta/STATUS.md)", "Forgets to enforce parallel/sequential split per file-write rule"]

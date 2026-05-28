@@ -59,7 +59,7 @@ For each pending entity:
 3. On failure:
    - **Rate limit (429)** → defer this entity to next tick, do not mark failed
    - **Auth refresh needed (401)** → exit immediately, ask user to refresh auth
-   - **PII boundary violation** (`scripts/hooks/pre-notion-write.sh` `block`) → exit immediately, surface leak per Step 10a outbound boundary gate
+   - **PII boundary violation** (inline outbound scan returns `block` — Group A match per `references/outbound-pii-patterns.md`) → exit immediately, surface leak per Step 10a outbound boundary gate
    - **Other error** → record in checkpoint, defer to next tick
 
 ### Step 4 · Write checkpoint

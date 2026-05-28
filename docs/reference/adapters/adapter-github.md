@@ -26,7 +26,7 @@ last_modified: "2026-04-08T15:30:00Z"
 
 | 数据类型 | 路径 | 文件名模式 |
 |---------|------|-----------|
-| Decision（项目） | `projects/{project}/decisions/` | `{date}-{slug}.md` |
+| Decision（项目） | `meta/decisions/{YYYY-MM}/` | `{date}-{slug}.md` |
 | Decision（跨域） | `meta/decisions/` | `{date}-{slug}.md` |
 | Task（项目） | `projects/{project}/tasks/` | `{slug}.md` |
 | Task（area） | `areas/{area}/tasks/` | `{slug}.md` |
@@ -50,8 +50,10 @@ last_modified: "2026-04-08T15:30:00Z"
 5. `git add` 该文件
 
 ### Archive(type, id)
-1. 文件移到 `archive/{original-path}/`
-2. `git add` 两端路径
+
+**v1.9 语义拆分**（DR-1.9.4）：
+- **项目**：不移动。在 `projects/{id}/index.md` frontmatter 设 `lifecycle_stage: archived` + `archived_at` + `archived_at_source`，留在 `projects/` 保护 wikilinks。
+- **其他类型**：各自树内 legacy 子归档（如 `meta/eval-history/_archive/`），非项目 archive。
 
 ### Read(type, id)
 1. 读取 `.md` 文件
@@ -72,8 +74,8 @@ last_modified: "2026-04-08T15:30:00Z"
 ### ReadProjectContext(project_id)
 1. 读 `projects/{project}/index.md`
 2. Glob `projects/{project}/tasks/*.md`
-3. Glob `projects/{project}/decisions/*.md`
-4. Glob `projects/{project}/journal/*.md`
+3. Glob `meta/decisions/{YYYY-MM}/*.md`
+4. Glob `meta/journal/*.md`
 5. 全部解析后返回
 
 ## 变更检测
@@ -96,13 +98,13 @@ git commit -m "[life-os] session {session_id} output"
 git push
 ```
 
-**只** stage outbox 目录。Adjourn 期间绝不碰主文件（projects/、STATUS.md、user-patterns.md）。
+**只** stage outbox 目录。Adjourn 期间绝不碰主文件（projects/、STATUS.md、meta/user-patterns.md）。
 
 ### Start Court 时（合并 outbox）
 
 ```bash
-# 把 outbox 内容合并到主目录之后：
-git add projects/ areas/ meta/journal/ meta/STATUS.md user-patterns.md SOUL.md
+# 把 outbox 内容合并到主目录之后（v1.9 路径）：
+git add projects/ areas/ meta/decisions/ meta/journal/ meta/methods/ meta/STATUS.md meta/user-patterns.md SOUL.md
 git rm -r meta/outbox/{merged-session-ids}/
 git commit -m "[life-os] merge {N} outbox sessions"
 git push

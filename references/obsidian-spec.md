@@ -1,19 +1,20 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: scripts/wiki/setup-secondbrain.sh
-note: "v1.8.0 R-1.8.0-013-era spec. tools/seed.py was deleted in v1.8.1 zero-python pivot. Current Obsidian compatibility is auto-applied by scripts/wiki/setup-secondbrain.sh (auto-invoked by SessionStart hook); see wiki/OBSIDIAN-SETUP.md template inside that script for the live config."
+superseded_by: .claude/commands/setup-secondbrain.md
+note: "v1.8.0 R-1.8.0-013-era spec. tools/seed.py was deleted in v1.8.1 zero-python pivot; scripts/wiki/setup-secondbrain.sh was retired in v1.8.5 hook-layer retirement. Current Obsidian compatibility is applied by the /setup-secondbrain slash command (.claude/commands/setup-secondbrain.md), which retrospective Mode 0 may invoke on the first session in a vault; see wiki/OBSIDIAN-SETUP.md template for the live config."
 ---
 
 # Obsidian Vault Compatibility Spec (v1.8.0 R-1.8.0-013) — LEGACY
 
-> ⚠️ **LEGACY (pre-v1.8.1 pivot)**. `tools/seed.py` was deleted in v1.8.1
-> zero-python pivot. Obsidian-compatible vault scaffolding is now
-> auto-applied by `scripts/wiki/setup-secondbrain.sh` (auto-invoked on
-> first SessionStart in any vault). The `.obsidian/graph.json` patch is
-> automatic too. See `scripts/wiki/setup-secondbrain.sh` for the
-> currently-shipping config; this file is preserved for historical
-> context only.
+> ⚠️ **LEGACY (pre-v1.8.1 pivot)**. `tools/seed.py` was deleted in the v1.8.1
+> zero-python pivot, and `scripts/wiki/setup-secondbrain.sh` was retired in the
+> v1.8.5 hook-layer retirement (md-only / DR-10). Obsidian-compatible vault
+> scaffolding is now applied by the **`/setup-secondbrain` slash command**
+> (`.claude/commands/setup-secondbrain.md`), which retrospective Mode 0 may
+> invoke on the first session in a vault. The `.obsidian/graph.json` patch is
+> applied there too. See `.claude/commands/setup-secondbrain.md` for the
+> currently-shipping config; this file is preserved for historical context only.
 
 > Borrowed from llm_wiki — make every second-brain seeded by `tools/seed.py`
 > simultaneously a valid Obsidian vault. User can navigate / search / graph

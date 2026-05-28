@@ -125,7 +125,7 @@ SOUL.md 不存在时：
 
 1. 系统正常运行——所有角色跳过 SOUL 引用
 2. 首次 Adjourn Court 时，DREAM 的 N3 阶段扫描可用数据：
-   a. `user-patterns.md`（如存在）——行为模式 → 提议为 SOUL 候选
+   a. `meta/user-patterns.md`（如存在）——行为模式 → 提议为 SOUL 候选
    b. 近期决策——价值信号 → 提议为 SOUL 候选
 3. 下一次 Start Court 呈现候选："🌱 SOUL.md 尚未存在。基于你的模式，以下是建议条目："
 4. 用户确认 → 用确认的条目创建 SOUL.md
@@ -133,9 +133,9 @@ SOUL.md 不存在时：
 
 **SOUL.md 永远不会用假设预填充，只从观察到的证据生长。**
 
-### 从 user-patterns.md 引导
+### 从 meta/user-patterns.md 引导
 
-如果 `user-patterns.md` 存在但 SOUL.md 不存在，DREAM 可以通过读取模式来提议初始 SOUL 条目：
+如果 `meta/user-patterns.md` 存在但 SOUL.md 不存在，DREAM 可以通过读取模式来提议初始 SOUL 条目：
 - 行为模式 → 提议为 "What IS"（实然）
 - "What SHOULD BE" 留空由用户填写
 - 初始置信度低（evidence_count: 1, challenges: 0 → confidence: 1.0，但标记为 🌱 单来源）
@@ -283,15 +283,15 @@ SOUL.md 位于 second-brain 根目录：
 ```
 second-brain/
 ├── SOUL.md              ← 人格档案
-├── user-patterns.md     ← 行为模式（不同：你做什么）
+├── meta/user-patterns.md     ← 行为模式（不同：你做什么）
 ├── meta/
 ├── projects/
 ├── areas/
 └── ...
 ```
 
-**SOUL.md vs user-patterns.md**：
-- `user-patterns.md` 记录**你做什么**——由 ADVISOR 观察到的行为模式
+**SOUL.md vs meta/user-patterns.md**：
+- `meta/user-patterns.md` 记录**你做什么**——由 ADVISOR 观察到的行为模式
 - `SOUL.md` 记录**你是谁**——由你确认的价值观、信念和理想
 - 一个描述性（模式），另一个是身份（灵魂）
 - 两者互相喂养：模式揭示价值观，价值观为模式提供语境

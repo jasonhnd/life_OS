@@ -38,7 +38,7 @@ context_manifest:
     - pro/agents/auditor.md           # peer (AUDITOR audits REVIEWER, not vice-versa)
 blast_radius:
   allowed_scope:
-    - meta/runtime/<sid>/reviewer-*.json         # verdict trail with value_invocations[]
+    - meta/runtime/<sid>/reviewer-*.md         # verdict trail with value_invocations[]
     - (no file writes — tools: Read only; verdict returned via Task output)
   forbidden_scope:
     - SOUL.md                         # REVIEWER reads SOUL but ARCHIVER writes

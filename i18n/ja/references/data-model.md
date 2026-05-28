@@ -6,11 +6,13 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 
 ### Decision
 
+> ⚠️ **v1.9 schema が下表を置き換え**（RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records" 参照）。v1.9 は `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` に書き込む；`type` は決定記録の種類 `change`/`no_change`/`escalation`/`superseded` に再利用（下表の `simple`/`3d6m` **ではない**）+ `projects` / `domains`（6 functional IDs）/ `reopen_condition`（no_change で必須）/ `applied_methods`（リスト）/ `journal_date`。下表は pre-v1.9 フィールド、歴史参照用。
+
 | フィールド | 型 | 必須 | 説明 |
 |-------|------|----------|-------------|
 | id | string | 自動 | 一意識別子（ファイル名またはデータベースID） |
 | title | string | はい | 件名（20文字以内） |
-| type | enum | はい | `simple` / `3d6m`（Draft-Review-Execute） |
+| type | enum | はい | （pre-v1.9）`simple` / `3d6m`（Draft-Review-Execute）—— v1.9 は change/no_change/escalation/superseded に変更 |
 | ministries | string[] | いいえ | 起動された部門 |
 | score | number | いいえ | 総合スコア（1-10） |
 | veto_count | number | いいえ | REVIEWERの封駁回数 |
@@ -268,7 +270,7 @@ storage:
 
 ## 制約事項
 
-- **複数の session が同時にセカンドブレインを操作できる** outbox パターンを使用。各 session は自身の outbox ディレクトリ（`meta/outbox/{session-id}/`）に書き込む。次に上朝する session が全 outbox をメイン構造にマージする。共有ファイル（STATUS.md、user-patterns.md、index.md）への直接書き込みは、上朝時の Outbox マージステップでのみ行われる。
+- **複数の session が同時にセカンドブレインを操作できる** outbox パターンを使用。各 session は自身の outbox ディレクトリ（`meta/outbox/{session-id}/`）に書き込む。次に上朝する session が全 outbox をメイン構造にマージする。共有ファイル（STATUS.md、meta/user-patterns.md、index.md）への直接書き込みは、上朝時の Outbox マージステップでのみ行われる。
 - **session-id フォーマット**：`{platform}-{YYYYMMDD}-{HHMM}`、退朝時に生成（session 開始時ではない）。タイムスタンプは date コマンドでシステムクロックから取得すること、捏造禁止。例：`claude-20260412-1700`、`gemini-20260412-1900`。
 - **Outbox マージロック**：マージ中は `meta/.merge-lock` を書き込む。存在し5分未満の場合はマージをスキップして通常通り続行する。マージ完了後に削除する。
 - **空の session**：session に出力がない場合（意思決定、タスク、ジャーナルエントリがない）、outbox を作成しない。
@@ -311,10 +313,10 @@ outputs:
 
 ### Patterns Delta フォーマット
 
-`patterns-delta.md` は `user-patterns.md` に追記する内容を記録する：
+`patterns-delta.md` は `meta/user-patterns.md` に追記する内容を記録する：
 
 ```markdown
-# Patterns Delta — append to user-patterns.md
+# Patterns Delta — append to meta/user-patterns.md
 
 ### [2026-04-12] New pattern: decision speed increasing
 Source: Remonstrator

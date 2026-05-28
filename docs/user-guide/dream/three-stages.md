@@ -22,7 +22,7 @@ DREAM 的三个阶段对应人类睡眠的三个阶段。每一段都有明确�
 2. **`meta/journal/` 里有提取价值的条目**
    - 你或 ADVISOR 写过的反思、观察
    - N1-N2 问：里面有没有可以抽出来的行为模式？
-   - 输出：建议 `user-patterns.md` 更新（**只是建议，不直接改**）
+   - 输出：建议 `meta/user-patterns.md` 更新（**只是建议，不直接改**）
 
 3. **`projects/*/tasks/` 里过期或重复的任务**
    - 过了 due date 的任务
@@ -46,7 +46,7 @@ DREAM 的三个阶段对应人类睡眠的三个阶段。每一段都有明确�
 
 - 不提取 wiki 候选（那是 N3 的活）
 - 不做跨项目联想（那是 REM 的活）
-- 不直接动 `user-patterns.md`、`SOUL.md`（只提议）
+- 不直接动 `meta/user-patterns.md`、`SOUL.md`（只提议）
 
 ---
 
@@ -64,7 +64,7 @@ DREAM 的三个阶段对应人类睡眠的三个阶段。每一段都有明确�
 ### 读取
 
 - 最近 3 天所有新/改的 decisions
-- 当前的 `user-patterns.md` 和 `SOUL.md`
+- 当前的 `meta/user-patterns.md` 和 `SOUL.md`
 - `wiki/INDEX.md`（如果存在）
 
 ### N3 的两个问题
@@ -121,7 +121,7 @@ Wiki 候选走 `references/wiki-spec.md` 的 6 条自动写入标准：
 扫描 `wiki/INDEX.md`：
 - 新证据支持现有条目 → `evidence_count +1`
 - 新证据挑战现有条目 → `challenges +1`
-- `user-patterns.md` 里的条目有新证据 → 提议更新
+- `meta/user-patterns.md` 里的条目有新证据 → 提议更新
 
 ### 不做的事情
 

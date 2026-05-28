@@ -256,7 +256,7 @@ RETROSPECTIVE Mode 0 在 Start Session 时读最近 10 个 eval 文件，并套�
 
 ### 7.5 process_compliance 复发
 
-若同一 `violations[].type` 在最近 30 天内出现 3 次或以上 → 触发合规日志升级：该违规从 eval history 升格为 `user-patterns.md` 里被追踪的行为模式，下次 session 的 ADVISOR 会作为直接观察项浮现。
+若同一 `violations[].type` 在最近 30 天内出现 3 次或以上 → 触发合规日志升级：该违规从 eval history 升格为 `meta/user-patterns.md` 里被追踪的行为模式，下次 session 的 ADVISOR 会作为直接观察项浮现。
 
 ### 7.6 简报格式
 

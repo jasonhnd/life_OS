@@ -31,7 +31,7 @@ input_soul_md_excerpt:
       priority: 6                # LOW priority
 
 input_audit_trail:
-  path: _meta/runtime/2026-05-24-test-sid/reviewer-final-verdict.json
+  path: meta/runtime/2026-05-24-test-sid/reviewer-final-verdict.md
   content_excerpt: |
     {
       "schema_version": "r12",

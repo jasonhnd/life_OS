@@ -11,7 +11,7 @@
 
 - `备份` / `backup` / `打包`
 - `做一份快照` / `snapshot`
-- session-start-inbox hook reports `backup Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `backup Nd` overdue and user says "跑一下"
 
 ## Goal
 

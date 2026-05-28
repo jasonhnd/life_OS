@@ -82,7 +82,7 @@ COUNCIL 討論をトリガーしました。
 | `SOUL:` | SOUL 次元 | `SOUL:risk-tolerance-v3` |
 | `C:` | 概念ノード | `C:method:iterative-document-refinement` |
 | `W:` | Wiki エントリ | `W:finance/compound-interest` |
-| `P:` | user-patterns.md パターン | `P:avoids-family-topic-on-weekends` |
+| `P:` | meta/user-patterns.md パターン | `P:avoids-family-topic-on-weekends` |
 
 **プレフィックスは固定**——Narrator は新しいプレフィックスを発明不可。あるシグナル源がこの 6 つのいずれにもマッピングできない場合、それは**引用不可**、したがってこの substantive claim も**言ってはならない**。
 

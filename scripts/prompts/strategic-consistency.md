@@ -12,7 +12,7 @@
 
 - `检查项目冲突` / `strategic consistency` / `战略一致性`
 - `项目矛盾` / `跨项目检查`
-- session-start-inbox hook reports `strategic-consistency Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `strategic-consistency Nd` overdue and user says "跑一下"
 
 ## Context
 
@@ -71,7 +71,7 @@ If 0 critical flags: silent (file-only).
 ## HARD RULES
 
 - **Read-only on STRATEGIC-MAP, SOUL, wiki/, sessions/**.
-- **Audit trail**: `meta/runtime/{sid}/strategic-consistency.json` (R11)
+- **Audit trail**: `meta/runtime/{sid}/strategic-consistency.md` (R13 markdown trail per `references/audit-trail-spec.md`)
 - **Git push** report at end
 
 ## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)

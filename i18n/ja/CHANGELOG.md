@@ -6,6 +6,48 @@
 
 ---
 
+## [1.9.1] - 2026-05-28 - 移行債務クリーンアップ：v1.8.5 hook 退役 + v1.8.6 .json→.md 移行をミラー層で完了
+
+```yaml
+---
+version: 1.9.1
+date: 2026-05-28
+type: patch
+breaking_changes: []
+new_features: []
+fixes:
+  - "v1.8.6 R12→R13 監査トレイル移行が未完了：禁止された `meta/runtime/<sid>/*.json` パスへの参照が約 60 箇所、全 16 エージェントの `allowed_scope`、SKILL.md、pro/CLAUDE.md rule #8 + オプションの wrapper テンプレート、8 個の scripts/prompts メンテナンスジョブ、/notion-sync コマンド、active な eval シナリオ/fixtures に残存——いずれもエージェントに F4 SCOPE_FAILURE ファイルを書かせる。すべて `.md`（markdown + YAML frontmatter）に修正。"
+  - "`meta/queue/manifest.json` → `meta/queue/manifest.md`（inbox-process のシステム manifest は禁止された単独 .json データファイルだった；YAML frontmatter に変換、6 箇所の読み書き参照をすべて更新）"
+  - "/regression-from-violation コマンドが依然 `rc-*.yml` fixture（禁止 .yml）を生成していた；現在は YAML frontmatter 付きの `rc-*.md` を生成し、出荷済み fixture と一致。run-tool-eval.md の fixture 拡張子参照も修正。"
+  - "v1.8.5 hook 退役の残滓：退役した bash hook（`pre-notion-write.sh`、`session-start-inbox.sh`、`pre-prompt-guard.sh`）への「現在有効」式の参照を inline LLM 手順に書き換え——pro/CLAUDE.md（Step 10a 送信 PII スキャン + monitor/queue キーワードマッチ + session-start スキャン）、ルート AGENTS.md の host 可用性テーブル、references/review-queue-spec.md、archiver Phase 0、11 個のメンテナンス prompt のトリガー行が対象"
+  - "LEGACY 表記の追加/修正：hooks-spec.md、compliance-spec.md、system-overview.md、roadmap.md の banner；obsidian-spec.md の `superseded_by` ポインタを退役した `setup-secondbrain.sh` から `/setup-secondbrain` slash コマンドへ更新；execution-layer.md 内部の「現在のアーキテクチャ」サブブロックを修正"
+  - "evals/README.md（+ zh/ja）：退役した `./evals/run-eval.sh` → `/run-eval` slash コマンド"
+alternatives_considered:
+  - option: "これらの修正をバージョンを上げず v1.9.0 within-release コミットとして main に投入"
+    rejected_because: "v1.9.0 の tag は凍結済みで既に Latest として公開済み；エージェントが禁止ファイルを書くのを止める約 165 ファイルの spec 正確性修正は、静かな main 分岐の後続コミットではなく、発見可能でタグ付け可能な patch に値する"
+  - option: "これらの .json/.yml 監査トレイル参照を残し、/check-spec-drift にランタイムで捕捉させる"
+    rejected_because: "spec 自体が禁止された振る舞いを指示している——エージェントは自分の spec に従うので、毎回再発する；drift-checker はバックストップであり、正しい spec の代替ではない"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+---
+```
+
+> v1.9.0 以前が「正規ファイル」だけ修正し「ミラー層」を修正しなかった 3 つの移行を完了：v1.8.5 bash hook 退役、v1.8.6 R12→R13 監査トレイル形式変更（`.json`→`.md`）、v1.8.6 `.yml`→`.md` fixture/データファイル変更。「再チェックのたびに新しいバグが出る」根本原因はミラーの非同期——正規 spec は更新されたが、3 プラットフォーム（CLAUDE/AGENTS/GEMINI）、references↔i18n、spec↔prompt↔command↔agent のミラーが遅れていた。
+
+### ハイライト
+
+- 行動層（prompts、commands、agents、reference specs）における `meta/` 配下の `.json` / `.yml` / `.yaml` データパスへの active 参照 = **0 箇所**、網羅的 grep で検証。
+- 退役した全 hook 参照は、inline LLM 手順への書き換え、または LEGACY / 歴史的への明示のいずれか。
+- プラットフォーム例外（`.claude/settings.json`、`.obsidian/*.json`）は一切触れずに保持。
+
+### 移行
+
+- **ユーザー操作不要**。これは spec 正確性 patch——vault データ移行なし。v1.9.0 vault は影響なし；既存の `.md` 監査トレイルは既に準拠。今後の監査トレイル / manifest / fixture 書き込みは spec に正しく従う。
+
+---
+
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性
 
 ```yaml

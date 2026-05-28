@@ -71,7 +71,7 @@ introduced_in: v1.8.5
 ### F9 — TRACE FAILURE
 - **定義**: 実行を再構築できない; trace が欠落するか宣言されたステップと矛盾。
 - **修復**: trace キャプチャを改善; 各ステップを `meta/runtime/<sid>/` に書き込む。
-- **例**: archiver Phase 4 が完了したが `notion-sync-*.json` 監査 trail を書かない。
+- **例**: archiver Phase 4 が完了したが `notion-sync-*.md` 監査 trail を書かない。
 
 ### F10 — RESPONSIBILITY FAILURE
 - **定義**: 明確な owner、承認ゲート、エスカレーションパスなし; または同一者が実行と承認の両方を行う。
@@ -117,8 +117,8 @@ introduced_in: v1.8.5
 
 すべての診断された失敗が変更になるわけではない。Stage 7 `no_change_record` プロトコルに従って決定を明示的に記録：
 
-- **change**: ECP（Edit-Change-Proposal）を開いた。`meta/decisions/{id}.change.md` 参照。
-- **no_change**: 現在の動作を受け入れる決定。Stage 7 §1 schema に従って `meta/decisions/{id}.no-change.yml` に記録（7 必須フィールド: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition）。**記録の欠落は未調査インシデントと区別がつかない。**
+- **change**: 動作を変更する決定。`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` に `type: change` で記録（v1.9 schema）。
+- **no_change**: 現在の動作を受け入れる決定。`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` に `type: no_change` で記録（v1.9 schema — .yml ではなく .md、DR-1.9.2；完全な frontmatter は `pro/CLAUDE.md` §"Decision Records" 参照）。`reopen_condition` は必須。**記録の欠落は未調査インシデントと区別がつかない。**
 
 ## 使用シーン
 

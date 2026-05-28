@@ -267,16 +267,18 @@ ARCHIVER 写入：
 
 ---
 
-## 项目归档 · 完成后怎么办
+## 项目归档 · 完成后怎么办（v1.9 frontmatter 方式）
 
 `status: done` 或 `status: dropped` 时：
 
 1. 会话里说"归档 XX 项目"。
-2. ARCHIVER 把整个 `projects/{name}/` 目录移到 `archive/{YYYY}/{name}/`。
+2. ARCHIVER 在 `projects/{name}/index.md` frontmatter 写 `lifecycle_stage: archived` + `archived_at` + `archived_at_source: auto`（v1.9 / DR-1.9.4）。**项目不物理移动** —— 留在 `projects/`，保护所有指向它的 wikilinks。
 3. DREAM 扫描整个项目材料，抽 wiki 条目。
-4. STATUS.md 重编译，不再出现这个项目。
+4. STATUS.md / STRATEGIC-MAP 重编译时按 `lifecycle_stage != archived` 过滤，不再显示这个项目；Obsidian graph view 用 archived colorGroup 标灰。
 
-归档后的项目数据**不会消失** — 在 `archive/` 里永远可查。但它不再占 RETROSPECTIVE 的注意力，不再出现在 Global Overview，不再干扰新决策。
+归档后的项目数据**不会消失** — 留在 `projects/{name}/`（frontmatter 标记 archived），wikilinks 全部仍可解析。但它不再占 RETROSPECTIVE 的注意力，不再出现在 Global Overview，不再干扰新决策。
+
+> v1.9 变化：旧版本会把整个 `projects/{name}/` 物理移到 `archive/{YYYY}/{name}/`，破坏所有 wikilink。v1.9 改用 frontmatter 标记，不再有独立 `archive/` 目录。
 
 这是系统"减负"的机制。不归档的项目会让你每次会话都被陈年往事拖住。
 

@@ -45,7 +45,7 @@ The theme file is loaded at session start. All display names (for agents, phases
 
 When the user sends the first message, launch simultaneously:
 - `router` (ROUTER): Prepare to respond to the user
-- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read user-patterns.md, check Notion inbox, version check, platform detection
+- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read meta/user-patterns.md, check Notion inbox, version check, platform detection
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
@@ -359,7 +359,7 @@ Adjourn is NOT a single step in the main workflow — it is an independent state
 - Checklist Output → Session End with placeholder values
 - ROUTER interjects between archiver's phases
 
-**Enforcement**: AUDITOR runs immediately after session end. Any illegal transition is reported and recorded in `user-patterns.md` for the next session's ADVISOR to flag as behavioral pattern.
+**Enforcement**: AUDITOR runs immediately after session end. Any illegal transition is reported and recorded in `meta/user-patterns.md` for the next session's ADVISOR to flag as behavioral pattern.
 
 ## Model Independence
 
@@ -395,11 +395,11 @@ Data reads are performed by the RETROSPECTIVE agent (session start); data writes
 | AUDITOR | Complete workflow record | No restrictions |
 | ADVISOR | Summary Report + user message (reads second-brain on its own) | Thought processes |
 
-## Decision Records (HARD RULE · v1.8.5 Stage 7)
+## Decision Records (HARD RULE · v1.8.5 Stage 7 + v1.9 schema)
 
-> See `pro/CLAUDE.md` §"Decision Records" for full spec. Gemini sync — same 7-field schema applies.
+> See `pro/CLAUDE.md` §"Decision Records" for full spec. Gemini sync — same v1.9 schema applies.
 
-When any agent (most commonly REVIEWER) decides to NOT change behavior, MUST write `meta/decisions/<id>.no-change.yml` with 7 fields: incident_id / eou_id / diagnosis_summary / decision:no_change / rationale / reviewed_by / reviewed_at / reopen_condition. Missing `reopen_condition` = F10 RESPONSIBILITY_FAILURE.
+When any agent (most commonly REVIEWER) makes a decision (change / no_change / escalation / superseded), MUST write `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` (v1.9: month subdir, .md not .yml — DR-1.9.2) with frontmatter: `id` / `title` / `type` / `projects` / `domains` (6 functional IDs closed enum) / `reviewed_by` / `reviewed_at` / `decision` / `rationale` / `reopen_condition` (mandatory for type=no_change) / `applied_methods` (list) / `journal_date`. Missing `reopen_condition` on a no_change = F10 RESPONSIBILITY_FAILURE.
 
 ## Minimality Rule (HARD RULE · v1.8.5 Stage 7)
 

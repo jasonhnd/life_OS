@@ -45,7 +45,7 @@ input_agent_file:
         - pro/agents/reviewer.md
     blast_radius:
       allowed_scope:
-        - _meta/runtime/<sid>/example-no-authority-*.json
+        - meta/runtime/<sid>/example-no-authority-*.md
       forbidden_scope:
         - SOUL.md
         - pro/agents/

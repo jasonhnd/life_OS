@@ -1,5 +1,5 @@
 ---
-description: Convert a historical pro/compliance/violations.md row into an evals/regression-fixtures/rc-*.yml fixture. Lazy alternative to bulk historic-row conversion (per Stage 9 D7 default). Use when a recurring violation pattern emerges (3+ similar rows) and you want regression test coverage.
+description: Convert a historical pro/compliance/violations.md row into an evals/regression-fixtures/rc-*.md fixture (markdown with YAML frontmatter — no .yml per the md-only ontological constraint). Lazy alternative to bulk historic-row conversion (per Stage 9 D7 default). Use when a recurring violation pattern emerges (3+ similar rows) and you want regression test coverage.
 argument-hint: "<violation-row-id-or-timestamp>"
 allowed-tools:
   - Read
@@ -10,7 +10,7 @@ allowed-tools:
 
 # /regression-from-violation
 
-Convert a specific row in `pro/compliance/violations.md` into a YAML regression fixture under `evals/regression-fixtures/rc-<descriptor>.yml`. The 7 critical fixtures (4 F-class + 1 forbidden-extension + 2 most-cited historic) shipped in Stage 9; remaining ~70 historical rows use this slash command for lazy conversion as patterns recur.
+Convert a specific row in `pro/compliance/violations.md` into a markdown regression fixture (YAML frontmatter + body) under `evals/regression-fixtures/rc-<descriptor>.md`. The 7 critical fixtures (4 F-class + 1 forbidden-extension + 2 most-cited historic) shipped in Stage 9; remaining ~70 historical rows use this slash command for lazy conversion as patterns recur. (Fixtures were `.yml` until v1.8.5 Stage 9 / v1.8.6; the md-only ontological constraint / DR-10 forbids `.yml`, so fixtures are now `.md`.)
 
 ## Procedure
 
@@ -33,41 +33,45 @@ Extract:
 - `details` (free text describing what happened)
 
 ### 3. Generate fixture
-Slug: `rc-<lowercase-descriptor>-<3-digit-sequence>.yml`
-- e.g. `rc-archiver-placeholder-001.yml` for an archiver placeholder violation
-- e.g. `rc-three-lang-sync-miss-002.yml` for second occurrence of 三语 sync miss
+Slug: `rc-<lowercase-descriptor>-<3-digit-sequence>.md`
+- e.g. `rc-archiver-placeholder-001.md` for an archiver placeholder violation
+- e.g. `rc-three-lang-sync-miss-002.md` for second occurrence of 三语 sync miss
 
-Use this template (fill from parsed row):
+Use this template — a **markdown file with YAML frontmatter** (matching the shipped `rc-*.md` fixtures; no `.yml` per the md-only ontological constraint / DR-10). Fill from the parsed row:
 
-```yaml
+```markdown
+---
 id: rc-<descriptor>-<N>
-description: |
-  Historic regression converted from pro/compliance/violations.md row dated <timestamp>.
-  Original violation: <details>
-  Pattern recurrence count: <K> times in last 90 days (run AUDITOR Mode 3 to refresh).
 expected_verdict: FAIL
 expected_failure_class: <F1-F17 from row>
 expected_check: <which AUDITOR Mode or slash command should catch this>
 introduced_in: v1.8.5 Stage 9 (lazy conversion)
 related_spec: <links to relevant references/*.md or pro/CLAUDE.md sections>
-
 input_scenario:
   trigger: <trigger>
   actual_behavior: <what went wrong, paraphrased from Details>
   expected_behavior: <what should have happened>
+---
 
-expected_finding: |
-  <F-Code> <FAILURE_CLASS>: <human-readable summary>
-  Severity: <P0/P1/P2>
-  Defense layers that should catch:
-    - Layer 2 (orchestration enforcement): <relevant SKILL.md / pro/CLAUDE.md rule>
-    - Layer 3 (subagent self-check): <relevant agent's frontmatter failure_modes>
-    - Layer 4 (post-hoc audit): AUDITOR Mode <N> scenario
-    - Layer 5 (regression test): this file
+# rc-<descriptor>-<N>
 
-historic_context: |
-  Original violation row: pro/compliance/violations.md (timestamp <timestamp>)
-  Incident dossier (if exists): pro/compliance/<incident-file>.md
+## Description
+Historic regression converted from pro/compliance/violations.md row dated <timestamp>.
+Original violation: <details>
+Pattern recurrence count: <K> times in last 90 days (run AUDITOR Mode 3 to refresh).
+
+## Expected finding
+<F-Code> <FAILURE_CLASS>: <human-readable summary>
+Severity: <P0/P1/P2>
+Defense layers that should catch:
+- Layer 2 (orchestration enforcement): <relevant SKILL.md / pro/CLAUDE.md rule>
+- Layer 3 (subagent self-check): <relevant agent's frontmatter failure_modes>
+- Layer 4 (post-hoc audit): AUDITOR Mode <N> scenario
+- Layer 5 (regression test): this file
+
+## Historic context
+Original violation row: pro/compliance/violations.md (timestamp <timestamp>)
+Incident dossier (if exists): pro/compliance/<incident-file>.md
 ```
 
 ### 4. Write fixture file via Write tool

@@ -82,20 +82,20 @@
 | AUDITOR | 完整的 workflow 记录 | 无限制 |
 | ADVISOR | Summary Report + user message（自行读取 second-brain） | thought processes |
 
-### Shell Hook Layer（Layer 3）host 可用性
+### 运行时 enforcement layer（host 可用性）
 
-| Host | Layer 1 文档 HARD RULE | Layer 2 Subagent 隔离 | Layer 3 Shell Hooks | Layer 4 Python 批处理工具 |
-|------|-----------------------|-----------------------|--------------------|--------------------------|
-| Claude Code | ✅ | ✅ | ✅（`references/hooks-spec.md §2`）| ✅ |
-| Gemini CLI | ✅ | ✅ | ❌（v1.7 prompt-level only）| ✅ |
-| Codex CLI | ✅ | ✅ | ❌（v1.7 prompt-level only）| ✅ |
+| Host | Layer 1 文档 HARD RULE | Layer 2 Subagent 隔离 | 运行时 enforcement |
+|------|-----------------------|-----------------------|--------------------|
+| Claude Code | ✅ | ✅ | inline LLM 流程（auditor Mode 3 等）|
+| Gemini CLI | ✅ | ✅ | inline LLM 流程 |
+| Codex CLI | ✅ | ✅ | inline LLM 流程 |
 
-当 Gemini / Codex 公开兼容的 hook surface 后，`scripts/hooks/` 下的 5 个脚本可无缝迁移。在此之前，非 Claude Code host 的所有 HARD RULE 均为 prompt-level 强制，无运行时 backstop。
+> **v1.8.5 变更**：原 **Layer 3（bash hooks `scripts/hooks/*.sh`）已在 v1.8.5 Stage 2 整体退役**，原 **Layer 4（Python `tools/*.py`）已在 v1.8.1 Wave 2 整体删除**。运行时 enforcement 不再依赖宿主的 hook surface——改为 **inline LLM 流程**，因此现在**完全 host-agnostic**：Gemini / Codex 与 Claude Code 获得同等的运行时 enforcement，不再有 "prompt-level only" 的降级。md-only 本体约束（v1.8.7 DR-10）永久禁止 `.sh` / `.py`。`references/hooks-spec.md` 描述的是已退役的 v1.7 hook 层，仅作历史参考。
 
 ## 进一步阅读
 
 - `references/cortex-spec.md` — Cortex 整体架构（四大机制：hippocampus / gwt / narrator / concept-graph）
-- `references/hooks-spec.md` — 5 个 Shell Hook 的 authoritative contract（Claude-Code-only in v1.7）
+- `references/hooks-spec.md` — 5 个 Shell Hook 的契约（**LEGACY · v1.7-era**，hook 层已于 v1.8.5 退役，仅作历史参考）
 - `references/narrator-spec.md` — Narrator + Validator 的 grounded generation 合同
 - `references/v1.7-shipping-report-2026-04-21.md` — v1.7 shipping 总结
 - `docs/architecture/v1.7-spec-map.md` — 16 条锁定用户决策 + spec 依赖图 + spec-code precedence rules

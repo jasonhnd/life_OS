@@ -38,7 +38,7 @@ Methods 是**可复用的工作流（reusable workflows）**—— 适用于跨�
 - 具体事实 → `wiki/`
 - 个人偏好或价值观 → `SOUL.md`
 - 项目特定的计划 → `projects/{name}/`
-- 一次性小贴士 → `inbox/` 或 `user-patterns.md`
+- 一次性小贴士 → `inbox/` 或 `meta/user-patterns.md`
 
 **标准**：method 是一个可复用工作流，能跨不同项目的不同决策应用。如果该模式只在一个项目里才说得通，它应属于该项目，而不是 method library。
 

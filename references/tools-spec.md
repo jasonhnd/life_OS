@@ -420,7 +420,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 
 - **Input**: existing `meta/journal/` (source of truth for backfill),
   `SOUL.md` (read-only — synth snapshot input), `wiki/` (read-only —
-  concept anchor evidence), `user-patterns.md` (untouched)
+  concept anchor evidence), `meta/user-patterns.md` (untouched)
 - **Backfill scope**: last **3 months** of journal (user decision #7).
   Older entries remain in `meta/journal/` untouched. This window is
   uniform across all migration targets — see the per-target rules below.
@@ -444,7 +444,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 - **Explicitly NOT migrated**:
   - `meta/eval-history/` — **no backfill**. Starts fresh at v1.7 day one.
     See `references/eval-history-spec.md` §11.
-  - `SOUL.md`, `wiki/`, `user-patterns.md` — read as inputs for synthesis,
+  - `SOUL.md`, `wiki/`, `meta/user-patterns.md` — read as inputs for synthesis,
     never modified.
 - **Output log**: `meta/cortex/bootstrap-status.md` (canonical; cross-
   referenced by concept-spec and snapshot-spec).

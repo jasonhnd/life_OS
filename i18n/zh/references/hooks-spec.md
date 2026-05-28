@@ -1,11 +1,15 @@
 ---
 translated_from: references/hooks-spec.md
 translator_note: auto-translated 2026-04-22, 待人工校对
+status: legacy
+authoritative: false
+superseded_by: SKILL.md + pro/CLAUDE.md（内联 LLM 流程）
+note: "描述在 v1.8.5 Stage 2 依据 md-only 本体约束（DR-10）被退役的 bash hook 层（五个 shell hook）。下文记录的运行时强制行为现在均为内联 LLM 流程，由 ROUTER 与各子代理自行执行。仅供历史参考。"
 ---
 
-# Shell Hooks 契约规范(Shell Hooks Contract Specification · v1.7)
+# Shell Hooks 契约规范(Shell Hooks Contract Specification · v1.7) — 遗留(LEGACY)
 
-> 五个 shell hook 的权威契约,在运行时强制 Life OS HARD RULE 合规。每个 hook 都是自包含的 bash 脚本,通过 stdin JSON、stdout 文本、退出码与 Claude Code host 通信。仅 Bash + jq —— 不要 Python 运行时,不要非 stdlib 依赖。
+> **⚠️ 遗留(v1.8.5 Stage 2 退役）。** 本规范记录 v1.7 时代在运行时强制 Life OS HARD RULE 合规的五个 shell hook。整个 bash hook 层已在 **v1.8.5 Stage 2 依据 md-only 本体约束（DR-10）退役** —— lifeos 不再发布任何 `.sh` 文件。下文描述的每一个行为现在都是编排器或子代理自行执行的**内联 LLM 流程**（SKILL.md 的 Pre-flight Compliance Check、pro/CLAUDE.md Step 10a 的内联出站 PII 扫描、pro/agents/retrospective.md 的 Conscious Patrol 维护扫描）。本文件仅作历史参考与原始契约记录，**对当前行为不具权威性**。
 
 ---
 
@@ -143,7 +147,7 @@ Precedent: COURT-START-001 (2026-04-19).
 - **用途:** 对即将写到 SOUL / wiki / concepts / user-patterns 的内容做快速正则扫描。
 - **解决:** LLM 生成的内容含注入 payload(恶意或误伤)流到长期知识文件。
 
-**契约:** 解析 `file_path` + `content`(Edit 时为 `new_string`)。若 `file_path` 在作用域集(`SOUL.md`、`wiki/**`、`meta/concepts/**`、`user-patterns.md`)之外,exit 0 放行。在作用域内,跑 15-pattern 正则扫描 + 不可见 Unicode 扫描。匹配任一则记录违规,带 pattern flag 以 exit 2 退出。
+**契约:** 解析 `file_path` + `content`(Edit 时为 `new_string`)。若 `file_path` 在作用域集(`SOUL.md`、`wiki/**`、`meta/concepts/**`、`meta/user-patterns.md`)之外,exit 0 放行。在作用域内,跑 15-pattern 正则扫描 + 不可见 Unicode 扫描。匹配任一则记录违规,带 pattern flag 以 exit 2 退出。
 
 此正则扫描是廉价的第一关。基于 LLM 的隐私检查(用户决策 #5)在 archiver 知识萃取里后面跑 —— 正则是快速第一道防线。
 

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.0-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -109,7 +109,7 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 ## v1.8.3 新特性 — Notion 写入前的出境闸门
 
-**补上「外发」的隐私缺口。** v1.8.2 守住了「进入」vault 的内容（`pre-write-scan.sh` 防 SOUL.md / wiki / `meta/concepts/` / user-patterns.md 被 secret、prompt injection、隐藏 Unicode 污染）。但 v1.8.2 对**离开** vault 的路径只字未提。Decision/Task/Journal 这些含用户原话、第三人姓名、具体金额的内容，从 `meta/outbox/<sid>/` 直接同步到 Notion 的 Step 10a 阶段——**完全没有任何隐私闸门**。v1.8.3 补上这块对称的出境守卫。
+**补上「外发」的隐私缺口。** v1.8.2 守住了「进入」vault 的内容（`pre-write-scan.sh` 防 SOUL.md / wiki / `meta/concepts/` / meta/user-patterns.md 被 secret、prompt injection、隐藏 Unicode 污染）。但 v1.8.2 对**离开** vault 的路径只字未提。Decision/Task/Journal 这些含用户原话、第三人姓名、具体金额的内容，从 `meta/outbox/<sid>/` 直接同步到 Notion 的 Step 10a 阶段——**完全没有任何隐私闸门**。v1.8.3 补上这块对称的出境守卫。
 
 ### 为什么本地 outbox 和 Notion 不是同一个威胁模型
 
@@ -124,7 +124,9 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 ### 新 hook：`pre-notion-write.sh`
 
-每次 Notion MCP 写调用都会被拦截。Hook 把 `tool_input` 按 [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) 的 5 组模式扫描，按三档行动模型处理：
+> *v1.8.5 更新：`pre-notion-write.sh` hook 随 bash hook 层一起退役（md-only / DR-10）。下面的扫描逻辑不变——同一张模式表、同样三档 verdict——但编排器现在在每次 Notion 写之前以**内联 LLM 流程**执行它，而非 PreToolUse hook。当前行为见 `pro/CLAUDE.md` Step 10a。*
+
+每次 Notion MCP 写调用都会被检查。扫描把待发送内容按 [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) 的 5 组模式匹配，按三档行动模型处理：
 
 | 命中组 | Verdict | 行动 |
 |---|---|---|
@@ -453,7 +455,7 @@ Life OS 由五根支柱撑起来。**决策引擎**是核心——其余一切�
 ```
 second-brain/
 ├── SOUL.md                 # 你是谁——价值观、身份、志向
-├── user-patterns.md        # 你的行为模式——谏官的观察
+├── meta/user-patterns.md        # 你的行为模式——谏官的观察
 ├── inbox/                  # 手机上随手记的东西
 ├── meta/
 │   ├── STATUS.md           # 全局状态总览
@@ -780,7 +782,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
  └─ 💾 存储层
        GitHub / Google Drive / Notion（选 1-3 个）
        ├── SOUL.md          🔮 人格档案（从零生长）
-       ├── user-patterns.md 📊 行为模式（谏官观察）
+       ├── meta/user-patterns.md 📊 行为模式（谏官观察）
        ├── meta/
        │   ├── STATUS.md         📊 全局状态
        │   ├── STRATEGIC-MAP.md  🗺️ 战略关系图

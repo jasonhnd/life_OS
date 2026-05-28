@@ -6,6 +6,48 @@ This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new fe
 
 ---
 
+## [1.9.1] - 2026-05-28 - Migration-debt cleanup: finish the v1.8.5 hook retirement + v1.8.6 .json→.md migration across mirror layers
+
+```yaml
+---
+version: 1.9.1
+date: 2026-05-28
+type: patch
+breaking_changes: []
+new_features: []
+fixes:
+  - "v1.8.6 R12→R13 audit-trail migration was incomplete: ~60 references to forbidden `meta/runtime/<sid>/*.json` paths remained across all 16 agent `allowed_scope` declarations, SKILL.md, pro/CLAUDE.md rule #8 + the optional wrapper template, 8 scripts/prompts maintenance jobs, the /notion-sync command, and active eval scenarios/fixtures — each would make an agent write an F4 SCOPE_FAILURE file. All corrected to `.md` (markdown + YAML frontmatter)."
+  - "`meta/queue/manifest.json` → `meta/queue/manifest.md` (the inbox-process system manifest was a forbidden standalone .json data file; converted to YAML frontmatter, all 6 read/write references updated)"
+  - "/regression-from-violation command was still generating `rc-*.yml` fixtures (forbidden .yml); now generates `rc-*.md` with YAML frontmatter, matching the shipped fixtures. run-tool-eval.md fixture-extension reference also corrected."
+  - "v1.8.5 hook-retirement remnants: active-framed references to retired bash hooks (`pre-notion-write.sh`, `session-start-inbox.sh`, `pre-prompt-guard.sh`) reframed to inline LLM procedures in pro/CLAUDE.md (Step 10a outbound PII scan + monitor/queue keyword match + session-start scan), root AGENTS.md host-availability table, references/review-queue-spec.md, archiver Phase 0, and 11 maintenance-prompt trigger lines"
+  - "LEGACY framing added/corrected: hooks-spec.md, compliance-spec.md, system-overview.md, roadmap.md banners; obsidian-spec.md `superseded_by` pointer updated from the retired `setup-secondbrain.sh` to the `/setup-secondbrain` slash command; execution-layer.md internal 'current architecture' sub-block corrected"
+  - "evals/README.md (+ zh/ja): retired `./evals/run-eval.sh` → `/run-eval` slash command"
+alternatives_considered:
+  - option: "Ship these fixes as within-v1.9.0 commits to main without a version bump"
+    rejected_because: "v1.9.0's tag is frozen and already published as Latest; ~165 files of spec-correctness fixes that stop agents from writing forbidden files deserve a discoverable, taggable patch rather than a silent main-branch follow-up"
+  - option: "Leave the .json/.yml audit-trail references and rely on /check-spec-drift to catch them at runtime"
+    rejected_because: "The specs themselves instructed the forbidden behavior — agents follow their own spec, so the bug would recur on every run; the drift-checker is a backstop, not a substitute for correct specs"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+---
+```
+
+> Completes three migrations that v1.9.0 and earlier applied only to canonical files, not to mirror layers: the v1.8.5 bash-hook retirement, the v1.8.6 R12→R13 audit-trail format change (`.json`→`.md`), and the v1.8.6 `.yml`→`.md` fixture/data-file change. Root cause of "every recheck found another bug": mirror desync — canonical specs were updated, but the 3-platform (CLAUDE/AGENTS/GEMINI), references↔i18n, and spec↔prompt↔command↔agent mirrors lagged.
+
+### Highlights
+
+- **Zero active forbidden-extension data paths** (`.json` / `.yml` / `.yaml` under `meta/`) remain in any behavioral layer — prompts, commands, agents, reference specs. Verified by exhaustive grep.
+- All retired-hook references are now either reframed to inline LLM procedures or clearly marked LEGACY / historical.
+- Platform exceptions (`.claude/settings.json`, `.obsidian/*.json`) preserved untouched.
+
+### Migration
+
+- **No user action required.** This is a spec-correctness patch — no vault-data migration. v1.9.0 vaults are unaffected; existing `.md` audit trails already comply. Future audit-trail / manifest / fixture writes now follow the specs correctly.
+
+---
+
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency
 
 ```yaml

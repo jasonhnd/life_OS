@@ -22,7 +22,7 @@ input_agent_frontmatter:
   path: pro/agents/example-overstep.md
   blast_radius:
     allowed_scope:
-      - _meta/runtime/<sid>/example-overstep-*.json
+      - meta/runtime/<sid>/example-overstep-*.md
       - decisions/example-*.md
     forbidden_scope:
       - SOUL.md
@@ -31,7 +31,7 @@ input_agent_frontmatter:
       - .claude/settings.json
 
 input_audit_trail:
-  path: _meta/runtime/2026-05-23-test-sid/example-overstep-step-3.json
+  path: meta/runtime/2026-05-23-test-sid/example-overstep-step-3.md
   content_excerpt: |
     {
       "schema_version": "r12",

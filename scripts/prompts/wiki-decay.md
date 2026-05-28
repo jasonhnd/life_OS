@@ -7,7 +7,7 @@
 
 - `扫一下 wiki` / `wiki decay` / `查 wiki 过期`
 - `wiki 哪些过时了`
-- session-start-inbox hook reports `wiki-decay Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `wiki-decay Nd` overdue and user says "跑一下"
 
 ## Goal
 

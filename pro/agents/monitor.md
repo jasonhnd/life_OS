@@ -15,7 +15,7 @@ context_manifest:
   supporting: [meta/queue/notifications.md, meta/eval-history/]
   forbidden: [pro/agents/planner.md, pro/agents/reviewer.md, pro/agents/archiver.md (monitor is OPS, not business)]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/monitor-*.json, outputs from invoked job prompts]
+  allowed_scope: [meta/runtime/<sid>/monitor-*.md, outputs from invoked job prompts]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/]
 failure_modes:
   known: ["Engages in business deliberation while in monitor mode (scope creep)", "Tries to run retired cron jobs"]
@@ -94,7 +94,7 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
 
 ## Audit Trail (R11, HARD RULE)
 
-Before returning, write `meta/runtime/<sid>/monitor.json` with:
+Before returning, write `meta/runtime/<sid>/monitor.md` with:
 - `subagent: monitor`
 - `step_or_phase: monitor_session`
 - `started_at` / `ended_at`

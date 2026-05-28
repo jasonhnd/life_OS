@@ -15,7 +15,7 @@ context_manifest:
   supporting: [wiki/INDEX.md (people-domain entries), decisions/ (relationship history)]
   forbidden: [other domain agents (finance/growth/execution/governance/infra), pro/agents/reviewer.md]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/people-*.json, meta/runtime/<sid>/people-report.md]
+  allowed_scope: [meta/runtime/<sid>/people-*.md, meta/runtime/<sid>/people-report.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/, files owned by other domains]
 failure_modes:
   known: ["Cross-domain leakage (recommends financial action without finance domain consultation)", "Generic advice not grounded in SOUL dim"]

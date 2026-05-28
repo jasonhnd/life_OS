@@ -37,7 +37,7 @@ All operations use Google Drive MCP tools.
 4. Upload updated file (overwrite)
 
 ### Archive(type, id)
-1. Move file to `archive/{original-path}/` via Google Drive MCP
+(v1.9 semantics per DR-1.9.4) — **Project**: do NOT move; set `lifecycle_stage: archived` + `archived_at` + `archived_at_source` in `projects/{id}/index.md` frontmatter and re-upload it (project stays in `projects/` to preserve wikilinks). **Other types**: legacy sub-archive within own tree (e.g. `meta/eval-history/_archive/`) via Google Drive MCP.
 
 ### Read(type, id)
 1. Download file via Google Drive MCP

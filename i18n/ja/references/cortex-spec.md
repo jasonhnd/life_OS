@@ -513,7 +513,7 @@ archiver Phase 2 がセッションコンテンツから候補を抽出すると
 | Wiki | 世界について何を知るか(declarative) | 「日本における NPO 貸付には 貸金業法 例外がない」 | `wiki/{domain}/{slug}.md` |
 | Concept | アイデアがどうつながるか(associative graph node) | 「Company-A」は、weighted edge を介して他の概念とつながるエンティティ | `meta/concepts/{domain}/{concept_id}.md` |
 | Method | 最善の仕事の仕方(procedural memory) | 「5 段のエスカレーティング品質ラウンドで文書を洗練する」 | `meta/methods/{domain}/{method_id}.md` |
-| user-patterns | あなたが何をするか(観察された behavioral pattern、ADVISOR ドメイン) | 「最初の明確化ラウンド後に意思決定が速くなる」 | `user-patterns.md`(1 ファイル、エントリは内部) |
+| user-patterns | あなたが何をするか(観察された behavioral pattern、ADVISOR ドメイン) | 「最初の明確化ラウンド後に意思決定が速くなる」 | `meta/user-patterns.md`(1 ファイル、エントリは内部) |
 
 ### Decision tree
 
@@ -526,7 +526,7 @@ Archiver Phase 2 は各候補をこの tree に通します。最初にマッチ
 │          新しい次元は信頼度 0.3 で自動書き込み、What SHOULD BE は空)
 │
 └── NO → それは behavioral pattern か(ユーザーが「何をする」か、「誰であるか」ではない)?
-    ├── YES → user-patterns.md (patterns-delta 経由で追記)
+    ├── YES → meta/user-patterns.md (patterns-delta 経由で追記)
     │         (ADVISOR がこれを浮上させる;SOUL ではない)
     │
     └── NO → それは再利用可能な WORKFLOW か(一連のアクション、method 的)?

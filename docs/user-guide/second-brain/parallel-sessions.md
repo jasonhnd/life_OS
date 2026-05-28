@@ -20,13 +20,13 @@ Session A 和 Session B 同时运行
 Session A 退朝：
   - 写 projects/career/decisions/2026-04-08-foo.md
   - 重写 meta/STATUS.md
-  - 重写 user-patterns.md
+  - 重写 meta/user-patterns.md
   - git push
 
 Session B 退朝（同时）：
   - 写 projects/finance/decisions/2026-04-08-bar.md
   - 重写 meta/STATUS.md      ← 和 A 冲突
-  - 重写 user-patterns.md     ← 和 A 冲突
+  - 重写 meta/user-patterns.md     ← 和 A 冲突
   - git push                  ← 失败或覆盖
 
 结果：A 的 STATUS.md 更新丢了，或者 git push 失败让用户困惑。
@@ -53,7 +53,7 @@ meta/outbox/
 │   ├── wiki/
 │   │   └── tech-notes.md
 │   ├── index-delta.md          ← 要给 projects/career/index.md 改什么
-│   └── patterns-delta.md       ← 要追加到 user-patterns.md 的东西
+│   └── patterns-delta.md       ← 要追加到 meta/user-patterns.md 的东西
 │
 ├── claude-20260408-2210/       ← Session B 的输出（同时存在）
 │   ├── manifest.md
@@ -79,7 +79,7 @@ meta/outbox/
 
 - `projects/{project}/index.md`
 - `meta/STATUS.md`
-- `user-patterns.md`
+- `meta/user-patterns.md`
 - 其他项目或领域的文件
 
 这些文件的变更以 **delta** 形式记在 outbox：
@@ -94,7 +94,7 @@ meta/outbox/
 ```
 
 ```markdown
-# patterns-delta.md — append to user-patterns.md
+# patterns-delta.md — append to meta/user-patterns.md
 
 ### [2026-04-08] New pattern: decision speed increasing
 Source: ADVISOR
@@ -123,11 +123,11 @@ Step 7. OUTBOX MERGE
   - 写 meta/.merge-lock 锁
   - 对每个 outbox（按 session-id 时间排序）：
       - 读 manifest.md
-      - 移 decisions/ → projects/{project}/decisions/
+      - 移 decisions/ → meta/decisions/{YYYY-MM}/
       - 移 tasks/ → projects/{project}/tasks/
       - 移 journal/ → meta/journal/
       - 应用 index-delta.md → 更新 projects/{project}/index.md
-      - 追加 patterns-delta.md → user-patterns.md
+      - 追加 patterns-delta.md → meta/user-patterns.md
       - 移 wiki/ → wiki/{domain}/{topic}.md
       - 合并成功 → 删掉这个 outbox 目录
   - 全部合并后：编译 meta/STATUS.md

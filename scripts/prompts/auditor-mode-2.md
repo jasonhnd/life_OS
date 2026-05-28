@@ -12,7 +12,7 @@
 
 - `巡检` / `patrol` / `auditor 巡检`
 - `检查 jurisdiction` / `健康检查 wiki/SOUL/methods`
-- session-start-inbox hook reports `auditor-patrol Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `auditor-patrol Nd` overdue and user says "跑一下"
 
 ## Context
 
@@ -87,7 +87,7 @@ Write `meta/eval-history/auditor-patrol/{YYYY-MM-DD}.md`:
 3. Promote {method candidates} → /method update --status confirmed
 
 ## Audit trail
-- meta/runtime/{sid}/auditor-mode-2.json (R11 HARD RULE)
+- meta/runtime/{sid}/auditor-mode-2.md (R13 markdown trail, R11 HARD RULE)
 ```
 
 ## Notification
@@ -101,7 +101,7 @@ If `Critical == 0`: silent (write report file, no notification).
 ## HARD RULES
 
 - **Read-only on jurisdiction targets**. Auditor never modifies wiki/, SOUL.md, methods, concepts.
-- **Audit trail**: write `meta/runtime/{sid}/auditor-mode-2.json` (R11 HARD RULE).
+- **Audit trail**: write `meta/runtime/{sid}/auditor-mode-2.md` (R13 markdown trail per `references/audit-trail-spec.md`, R11 HARD RULE).
 - **Git push** the patrol report at end.
 - **Respect session lock** (5 min retry, max 3).
 

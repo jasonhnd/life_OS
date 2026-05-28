@@ -15,6 +15,10 @@ ARCHIVER: Phase 3 DREAM (runs three stages below)
     ↓
 Dream report written to meta/journal/{YYYY-MM-DD}-{slug}-dream.md
     ↓
+    (v1.9 note: DREAM reports are an explicit EXCEPTION to the single-daily-file
+     rule — they stay as separate typed `<date>-<slug>-dream.md` files, still
+     date-prefixed under meta/journal/. Per v1.9 RFC §3.5.2.1 / Bug #11 decision B.
+     The daily meta/journal/<date>.md may tag `dream` + wikilink to this file.)
 ARCHIVER: Phase 4 Sync (git + Notion) → Session ends
 ```
 
@@ -43,7 +47,7 @@ Inspired by human sleep architecture:
 
 Scan recent 3 days for loose ends:
 - `inbox/` items not yet classified → suggest target project/area/wiki
-- `meta/journal/` entries with extractable insights → suggest `user-patterns.md` update
+- `meta/journal/` entries with extractable insights → suggest `meta/user-patterns.md` update
 - `projects/*/tasks/` with expired due dates or duplicates → flag for cleanup
 - Orphan files (created but not linked from any index.md) → flag
 
@@ -63,7 +67,7 @@ From the recent 3 days, extract deeper patterns:
 - Reusable conclusions from decisions → propose wiki candidates (see Wiki Candidate format below)
   **Dedup**: Check the most recent outbox manifest — if `wiki: N` (N > 0), that session's adjourn flow already extracted wiki candidates. Focus only on conclusions the adjourn flow missed. Don't re-propose.
 - Scan wiki/INDEX.md (if exists): new evidence supporting existing entries → propose evidence_count update; new evidence contradicting existing entries → propose challenges update
-- `user-patterns.md` entries that need updating based on new evidence → propose changes
+- `meta/user-patterns.md` entries that need updating based on new evidence → propose changes
 - **SOUL.md candidate entries** → propose new entries or updates to existing ones (see SOUL Candidate format below)
 
 ### Stage REM: Creative Connections
@@ -320,7 +324,7 @@ After presenting, mark the dream report as "presented" so it is not shown again.
 - **3-day scope is hard** — do not scan older files, even if they seem relevant
 - **Do not modify SOUL.md directly** — only propose candidates (SOUL auto-write is scoped to archiver Phase 2, not DREAM)
 - **Wiki auto-write under strict criteria** — write directly when all 6 Auto-Write Criteria pass (see wiki-spec.md); discard otherwise
-- **Do not modify user-patterns.md directly** — only propose updates
+- **Do not modify meta/user-patterns.md directly** — only propose updates
 - **No secondary compression** — paste the DREAM report verbatim to the user and write the same content to the journal; no line-count cap applies
 - **Honesty** — "no significant findings" is a valid dream. Do not fabricate insights.
 - **No blocking** — if DREAM fails, the session still ends normally

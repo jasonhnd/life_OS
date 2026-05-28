@@ -14,7 +14,7 @@
 
 - `统计这个月` / `monthly summary` / `月度统计`
 - `eval history` / `系统表现总结`
-- session-start-inbox hook reports `eval-history-monthly Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `eval-history-monthly Nd` overdue and user says "跑一下"
 
 ## Context
 
@@ -78,7 +78,7 @@ Otherwise silent (file-only).
 
 - **Pure aggregation**. No subjective interpretation; that's ADVISOR's job (advisor-monthly already ran at 06:00).
 - **Read-only on session and journal data**.
-- **Audit trail**: `meta/runtime/{sid}/eval-history-monthly.json` (R11)
+- **Audit trail**: `meta/runtime/{sid}/eval-history-monthly.md` (R13 markdown trail per `references/audit-trail-spec.md`)
 - **Git push** summary at end
 
 ## v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)

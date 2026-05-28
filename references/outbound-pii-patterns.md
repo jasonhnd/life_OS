@@ -1,21 +1,31 @@
 ---
 status: active
 authoritative: true
-related_hook: scripts/hooks/pre-notion-write.sh
+used_by: pro/CLAUDE.md Step 10a (inline outbound PII scan)
+formerly_hook: scripts/hooks/pre-notion-write.sh (retired v1.8.5 Stage 2)
 introduced: v1.8.3
 ---
 
 # Outbound PII Pattern Table
 
-> Pattern catalogue for `pre-notion-write.sh` — the outbound boundary scanner.
-> This is the **outbound** counterpart to the inbound `pre-write-scan.sh`
-> 15-pattern set in `references/hooks-spec.md` §5.3.
+> Pattern catalogue for the **inline outbound boundary scan** the orchestrator
+> runs before each Notion MCP write (see `pro/CLAUDE.md` Step 10a).
+> This is the **outbound** counterpart to the inbound knowledge-layer write scan
+> (15-pattern set, formerly `pre-write-scan.sh`, documented in the legacy
+> `references/hooks-spec.md` §5.3).
+>
+> **Note (v1.8.5):** This table is still active and authoritative. Prior to
+> v1.8.5 it was applied by the `pre-notion-write.sh` PreToolUse hook; the bash
+> hook layer was retired in v1.8.5 Stage 2 (md-only / DR-10), and the orchestrator
+> now applies these patterns itself as an inline LLM procedure — same patterns,
+> same three verdicts.
 
 ## 1 · Why a Separate Pattern Set
 
-`pre-write-scan.sh` (in-scope: `SOUL.md`, `wiki/**`, `meta/concepts/**`,
-`user-patterns.md`) defends **the second-brain knowledge layer** against
-secrets, prompt injection, and invisible Unicode. It does **not** scan
+The inbound knowledge-layer write scan (in-scope: `SOUL.md`, `wiki/**`,
+`meta/concepts/**`, `meta/user-patterns.md`; formerly the `pre-write-scan.sh`
+hook, now an inline procedure) defends **the second-brain knowledge layer**
+against secrets, prompt injection, and invisible Unicode. It does **not** scan
 `meta/outbox/<sid>/decisions/`, `meta/outbox/<sid>/journal/`,
 `meta/outbox/<sid>/tasks/` — those files contain the user's raw
 deliberation, by design (a journal needs to remember names, amounts,
@@ -41,18 +51,18 @@ unacceptable on Notion's servers (out of user's control).
 
 Each pattern carries a `mode`:
 
-| mode | Hook behavior | When to use |
-|------|---------------|-------------|
-| **block** | exit 2, hard cancel the Notion MCP call | Catastrophic leaks (private keys, full credit-card numbers). User MUST rewrite or skip. |
-| **warn** | exit 0, emit `<system-reminder>` asking ROUTER to confirm with user before retrying | Sensitive but legitimate content (third-party names, family references). Default-deny posture, but user can override. |
-| **info** | exit 0, emit a quieter notice; ROUTER MAY proceed | Pattern matched but ambiguous (e.g., a single email could be the user's own). Logged for audit only. |
+| mode | Orchestrator behavior | When to use |
+|------|-----------------------|-------------|
+| **block** | hard-cancel the Notion MCP call; do not send | Catastrophic leaks (private keys, full credit-card numbers). User MUST rewrite or skip. |
+| **warn** | pause exactly once and ask the user to confirm before sending | Sensitive but legitimate content (third-party names, family references). Default-deny posture, but user can override. |
+| **info** | surface a quieter notice; orchestrator MAY proceed | Pattern matched but ambiguous (e.g., a single email could be the user's own). Logged for audit only. |
 
-**Why no `strip` mode**: PreToolUse hooks in Claude Code cannot rewrite
-`tool_input`. They can only pass, block, or inject a reminder. Sanitizing
-content must therefore happen one level up — see `pro/CLAUDE.md` Step 10a
-sanitize handoff (the orchestrator reads the hook's reminder, generates a
-sanitized version, then re-issues the Notion MCP call). The hook is the
-detector, not the rewriter.
+**Why no `strip` mode**: the inline scan is a **detector, not a rewriter** — it
+does not silently mutate the payload it is about to send. Sanitizing content is
+a deliberate, separate step — see `pro/CLAUDE.md` Step 10a sanitize handoff (on a
+`warn` the orchestrator generates a sanitized version, shows the user, then
+re-issues the Notion MCP call). Keeping detection and rewriting separate means a
+leak is always surfaced rather than quietly edited away.
 
 ---
 
@@ -125,7 +135,7 @@ can see frequency trends but no user-facing reminder.
 
 ## 4 · Pattern Order Contract
 
-The hook applies patterns in this order, first-match-wins per group, but
+The orchestrator applies patterns in this order, first-match-wins per group, but
 **all groups are evaluated** so the audit log captures every category hit:
 
 1. Group A (block) — if any A pattern hits, set `block_reason`
@@ -145,7 +155,7 @@ Final action:
 
 ## 5 · Audit Trail Contract
 
-Every invocation writes `meta/runtime/<sid>/notion-pii-scan-<ts>.json`
+Every invocation writes `meta/runtime/<sid>/notion-pii-scan-<ts>.md`
 with this schema (no raw content, only category counts + first-match
 pattern IDs per group):
 
@@ -199,7 +209,7 @@ shouldn't be on Notion at all").
 ## 7 · Out of Scope (v1.8.3)
 
 - LLM-based privacy classification (slower, async — stays in archiver
-  Phase 2 for wiki/SOUL writes, not in the synchronous hook path).
+  Phase 2 for wiki/SOUL writes, not in the synchronous inline Step 10a scan path).
 - Cross-tool outbound scanning (Slack MCP, Email MCP, etc) — same
   pattern table will apply when those gates are added; v1.8.3 only
   wires the Notion gate.

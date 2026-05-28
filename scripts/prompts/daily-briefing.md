@@ -11,7 +11,7 @@
 
 - `早朝` / `daily briefing` / `今天的简报`
 - `给我看今天的状态` / `morning status`
-- session-start-inbox hook reports `daily-briefing Nd` and user says "跑一下"
+- retrospective Mode 0 Conscious Patrol reports `daily-briefing Nd` overdue and user says "跑一下"
 
 ## Goal
 

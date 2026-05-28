@@ -53,7 +53,7 @@ Line 2: Launch(retrospective) as subagent in Mode 2
 2. 遍历 ~/second-brain/projects/*/tasks/ — 算完成率
 3. 读 ~/second-brain/areas/*/goals.md — 目标进度
 4. 读 ~/second-brain/meta/journal/ — 最近 log
-5. 读 ~/second-brain/projects/*/journal/ — 项目级 log
+5. 读 ~/second-brain/meta/journal/ — 项目级 log
 6. 读 meta/STRATEGIC-MAP.md — 战略线健康趋势（如存在）
 ```
 
@@ -63,7 +63,7 @@ Line 2: Launch(retrospective) as subagent in Mode 2
 
 ## Decision Tracking
 
-Mode 2 要检查 `projects/*/decisions/`，找 front matter `status: pending` 且创建时间 >30 天的决策。这些是"pending backfill"——需要用户回填"后来怎样了"。
+Mode 2 要检查 `meta/decisions/`，找 front matter `status: pending` 且创建时间 >30 天的决策。这些是"pending backfill"——需要用户回填"后来怎样了"。
 
 ---
 

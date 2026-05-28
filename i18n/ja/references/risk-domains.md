@@ -39,7 +39,7 @@ ROUTER がユーザーメッセージで R1-R8 のいずれかを検出した場
 - 捏造されたものはすべて = F17 VALUE_HALLUCINATION + B 捏造パス違反。
 
 ### Req 3 — 決定記録
-- 結果は `meta/decisions/<id>.md` に書かなければならない、以下を含む：
+- 結果は `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`（v1.9 月サブディレクトリ）に書かなければならない、以下を含む：
   - subject
   - alternatives_considered（≥2 拒否されたオプション + 理由）
   - 決定の根拠
@@ -55,8 +55,8 @@ ROUTER がユーザーメッセージで R1-R8 のいずれかを検出した場
 
 ### Req 5 — Trace 必須
 - 完全な監査 trail が R12 spec に従って `meta/runtime/<sid>/` に存在しなければならない：
-  - 各 subagent 呼び出し: `<subagent>-<step>.json`
-  - REVIEWER 判定: `reviewer-final-verdict.json`、`value_invocations[]` 入力済み
+  - 各 subagent 呼び出し: `<subagent>-<step>.md`
+  - REVIEWER 判定: `reviewer-final-verdict.md`、`value_invocations[]` 入力済み
   - ユーザー確認メッセージのタイムスタンプ + リテラルテキスト
 
 ## ROUTER が triage で高リスク領域を検出する方法

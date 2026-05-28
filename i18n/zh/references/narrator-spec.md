@@ -124,7 +124,7 @@ Finance and Execution disagreed by 4 points [D:finance-score-6][D:execution-scor
 | `SOUL:` | SOUL 维度                     | `SOUL:risk-tolerance-v3`                   |
 | `C:`    | 概念                          | `C:method:iterative-document-refinement`   |
 | `W:`    | wiki 条目                     | `W:finance/compound-interest`              |
-| `P:`    | user-patterns.md 中的模式     | `P:avoids-family-topic-on-weekends`        |
+| `P:`    | meta/user-patterns.md 中的模式     | `P:avoids-family-topic-on-weekends`        |
 
 前缀是**固定的**（fixed）。narrator 不得发明新前缀。若某类来源不能映射到上述之一，narrator 不得引用它（因此必须从一开始就不做该实质性声明）。
 

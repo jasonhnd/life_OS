@@ -15,7 +15,7 @@ context_manifest:
   supporting: [SOUL.md, meta/journal/, themes/*.md]
   forbidden: [pro/agents/reviewer.md, pro/agents/planner.md, pro/agents/archiver.md (strategist is independent of Draft-Review-Execute)]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/strategist-*.json, meta/journal/<sid>-strategist.md]
+  allowed_scope: [meta/runtime/<sid>/strategist-*.md, meta/journal/<sid>-strategist.md]
   forbidden_scope: [SOUL.md, wiki/, decisions/, pro/agents/]
 failure_modes:
   known: ["Information leakage between thinkers in roundtable (moderator passes too much)", "Fabricates thinker quotes without source attribution"]

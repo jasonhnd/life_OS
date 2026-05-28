@@ -375,7 +375,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 
 - **输入**：已有 `meta/journal/`（回填的事实来源）、`SOUL.md`
   （只读——synth snapshot 输入）、`wiki/`（只读——concept 锚点证据）、
-  `user-patterns.md`（不动）
+  `meta/user-patterns.md`（不动）
 - **回填范围**：最近 **3 个月** 的 journal（用户决策 #7）。更旧的条目
   留在 `meta/journal/` 不动。这个窗口对所有迁移目标统一——见下面
   逐目标规则。
@@ -398,7 +398,7 @@ uv run tools/migrate.py --from v1.6.2a --to v1.7 [--dry-run]
 - **明确不迁移**：
   - `meta/eval-history/` —— **不回填**。v1.7 第一天清零起步。
     见 `references/eval-history-spec.md` §11。
-  - `SOUL.md`、`wiki/`、`user-patterns.md` —— 作为合成输入被读，永不修改。
+  - `SOUL.md`、`wiki/`、`meta/user-patterns.md` —— 作为合成输入被读，永不修改。
 - **输出日志**：`meta/cortex/bootstrap-status.md`（canonical；被
   concept-spec 与 snapshot-spec 交叉引用）。
 - **副作用**：写新文件；不删旧文件；`--with-backup` 可选触发 `backup.py`

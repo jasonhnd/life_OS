@@ -330,7 +330,7 @@ the subagent transparency wrappers.
 ```text
 cortex_enabled: true
 ## subagent output - hippocampus
-audit_trail: meta/runtime/sid/hippocampus.json
+audit_trail: meta/runtime/sid/hippocampus.md
 paste_mode: compressed
 compression_source: tools/context_compressor.py
 retrieved_sessions: [s1, s2]

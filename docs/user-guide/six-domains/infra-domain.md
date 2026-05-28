@@ -147,7 +147,7 @@ INFRA/Routines 不会说"建议早点睡"。会问：
 ## 可读取的资源
 
 - 健康数据：`~/second-brain/areas/health/`
-- 项目日志：`~/second-brain/projects/*/journal/`
+- 项目日志：`~/second-brain/meta/journal/`
 - 用户本地文件（体检报告、运动记录、睡眠数据）
 - Bash 检查本地数字基础设施状态（磁盘空间、备份状态、服务器状态等）
 

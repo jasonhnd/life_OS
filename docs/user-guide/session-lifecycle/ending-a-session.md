@@ -27,7 +27,7 @@ ROUTER **禁止** 做以下任何事（HARD RULE）：
 - 执行 Phase 1/2/3/4 里的任何内容
 - 在 archiver 的 phase 之间插话
 
-违反 = 流程违规。AUDITOR 会标记，写进 `user-patterns.md`，下次会话 ADVISOR 会 flag 为行为模式。
+违反 = 流程违规。AUDITOR 会标记，写进 `meta/user-patterns.md`，下次会话 ADVISOR 会 flag 为行为模式。
 
 ---
 
@@ -48,7 +48,7 @@ ROUTER **禁止** 做以下任何事（HARD RULE）：
 ### HARD RULE
 
 - **session-id 必须用真实时间戳**。`date` 命令的真实输出。不能编。编造时间戳是 HARD RULE 违反。
-- **所有写入必须到 outbox**，不能直接写 `projects/`、`meta/STATUS.md`、`user-patterns.md`。原子性：全部进 outbox，合并时一起合。
+- **所有写入必须到 outbox**，不能直接写 `projects/`、`meta/STATUS.md`、`meta/user-patterns.md`。原子性：全部进 outbox，合并时一起合。
 
 ### 每个 decision 文件
 
@@ -69,7 +69,7 @@ Phase 2 产出 **Session Candidates** — 仅从本次会话提取。基于严�
 对每个可提取结论，全部 6 条必须过：
 
 1. **跨项目可复用** — 在其他项目/域也有用。
-2. **关于世界，不关于你** — 事实、规则、方法。不是价值观/习惯/偏好（这些属于 SOUL）。不是行为模式（这些属于 user-patterns.md）。
+2. **关于世界，不关于你** — 事实、规则、方法。不是价值观/习惯/偏好（这些属于 SOUL）。不是行为模式（这些属于 meta/user-patterns.md）。
 3. **零个人隐私** — 无姓名、金额、账号、ID、具体公司、亲友信息、可追溯的日期+地点组合。如果剥光这些后结论没意义 → 不是 wiki 材料，扔掉。
 4. **事实性或方法论** — "发生了什么"或"怎么做 X"。不是"我觉得"或观点。
 5. **多证据（≥2 独立）** — 至少 2 个案例/数据点/决策/引用。单次观察 → 扔掉。
@@ -176,13 +176,13 @@ FILES=$(git log --since="3 days ago" --name-only --format="" | sort -u)
 
 读 3 天变更集 + 当前状态：
 - 新增/修改的 decisions
-- `user-patterns.md` + `SOUL.md`
+- `meta/user-patterns.md` + `SOUL.md`
 - `wiki/INDEX.md`
 
 找：
 - Phase 2 **遗漏** 的可复用结论（去重 — 不要重复提 Phase 2 已提的）
 - 支持/反驳现有 wiki 的新证据 → 提 evidence_count/challenges 更新
-- 行为模式 → 提 user-patterns.md 更新
+- 行为模式 → 提 meta/user-patterns.md 更新
 - 价值信号 → 额外 SOUL 候选
 
 ### REM · Creative Connections + Auto-Triggered Actions
@@ -327,7 +327,7 @@ f. 单项失败 → 报告哪一项，其他继续
 
 ### 执行
 
-AUDITOR 在 session end 后立即运行。任何非法转换都报告、记到 `user-patterns.md`，下次会话 ADVISOR 会 flag 为行为模式。
+AUDITOR 在 session end 后立即运行。任何非法转换都报告、记到 `meta/user-patterns.md`，下次会话 ADVISOR 会 flag 为行为模式。
 
 ---
 

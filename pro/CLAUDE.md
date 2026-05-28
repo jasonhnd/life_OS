@@ -14,7 +14,7 @@ The theme file is loaded at session start. All display names (for agents, phases
 
 When the user sends the first message, launch simultaneously:
 - `router` (ROUTER): Prepare to respond to the user
-- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read user-patterns.md, check Notion inbox, version check, platform detection
+- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read meta/user-patterns.md, check Notion inbox, version check, platform detection
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
@@ -52,11 +52,11 @@ After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" resul
 **Output handling when launched**:
 - Each subagent emits a YAML payload visible in the transcript.
 - If GWT arbitrator runs, its `[COGNITIVE CONTEXT]` block is the consolidated signal. ROUTER reads it and may use it to inform the response. ROUTER may discard if the user says "ignore history" or similar.
-- No audit trail enforcement (R11 was relaxed for Cortex in v1.8.0 pivot — see post-task-audit-trail.sh).
+- No audit trail enforcement (R11 was relaxed for Cortex in the v1.8.0 pivot; the enforcement that previously lived in the `post-task-audit-trail.sh` hook was retired with the bash hook layer in v1.8.5 Stage 2).
 
 **Removed in v1.8.0**:
 - `narrator-validator` subagent (file deleted) — citation discipline validator was tied to the always-on flow
-- `pre-prompt-guard.sh` Cortex enforcement block — no longer auto-injects "MUST run Step 0.5" reminder
+- `pre-prompt-guard.sh` Cortex enforcement block — stopped auto-injecting the "MUST run Step 0.5" reminder (the whole `pre-prompt-guard.sh` hook was later retired with the bash hook layer in v1.8.5 Stage 2)
 - "Always-on" cost framing — Cortex is now opt-in per message, cost only when ROUTER judges it useful
 
 ### 1. ROUTER Triage
@@ -192,21 +192,21 @@ The archiver subagent cannot access Notion MCP tools (they are environment-speci
 
 **Step 10a no ask (HARD RULE):** The orchestrator MUST automatically execute Notion sync immediately after the archiver subagent returns. It MUST NOT ask the user for permission, pause for confirmation, defer sync to a later prompt, or stop between archiver return and Notion sync. Pausing or asking before executing Step 10a is a process violation.
 
-**Step 10a outbound boundary gate (HARD RULE · v1.8.3):** Every Notion MCP write call (`notion-create-pages`, `notion-update-page`, `notion-move-pages`) is intercepted by `scripts/hooks/pre-notion-write.sh` (PreToolUse). This hook scans `tool_input` against `references/outbound-pii-patterns.md` and emits one of three verdicts:
+**Step 10a outbound boundary gate (HARD RULE · v1.8.3, inline since v1.8.5):** Before EACH Notion MCP write call (`notion-create-pages`, `notion-update-page`, `notion-move-pages`), the orchestrator MUST run the outbound PII scan inline — read the payload it is about to send, match it against `references/outbound-pii-patterns.md`, and resolve to one of three verdicts. (Prior to v1.8.5 this gate was the `pre-notion-write.sh` PreToolUse hook; the hook layer was retired in v1.8.5 and the scan is now an inline LLM procedure the orchestrator performs itself — same pattern library, same three verdicts.)
 
-- **pass** — orchestrator proceeds with the Notion call uninterrupted (the no-ask default applies).
-- **warn** — hook emits a `<system-reminder>` listing matched Group B/C/D categories. Orchestrator MUST pause exactly once to ask the user `(a) sanitize / (b) skip / (c) override`. This override of the no-ask default is REQUIRED by the hook's reminder; ignoring the reminder and silently retrying is a process violation. The local outbox is unaffected regardless of choice — only the Notion mirror changes.
-- **block** — hook returns exit 2 (Group A hard secret detected). The Notion MCP call is cancelled by Claude Code. Orchestrator MUST NOT bypass the block via a different MCP tool, MUST NOT proxy the same content through a non-blocked path, and MUST surface the leak so the user can rotate the credential and rewrite. Logged as `CLASS_F` violation.
+- **pass** — no Group A/B/C/D match. Orchestrator proceeds with the Notion call uninterrupted (the no-ask default applies).
+- **warn** — a Group B/C/D category matched. Orchestrator MUST pause exactly once to ask the user `(a) sanitize / (b) skip / (c) override`. This is a REQUIRED override of the no-ask default; silently proceeding without asking is a process violation. The local outbox is unaffected regardless of choice — only the Notion mirror changes.
+- **block** — a Group A hard secret matched. Orchestrator MUST NOT send the Notion call, MUST NOT proxy the same content through a different MCP tool or path, and MUST surface the leak so the user can rotate the credential and rewrite. Logged as `CLASS_F` violation.
 
-The hook always writes `meta/runtime/<sid>/notion-pii-scan-<ts>.json` with the matched-pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time. See `references/outbound-pii-patterns.md` §5 for the audit schema.
+The orchestrator always writes `meta/runtime/<sid>/notion-pii-scan-<ts>.md` recording the matched-pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time. See `references/outbound-pii-patterns.md` §5 for the audit schema.
 
 The orchestrator MUST write the Step 10a audit trail to:
 
 ```text
-meta/runtime/<sid>/notion-sync.json
+meta/runtime/<sid>/notion-sync.md
 ```
 
-This file records Notion sync attempt start/end times, tool availability, per-operation results, failures, and final checklist status using the audit trail schema in `references/audit-trail-spec.md`.
+This file records Notion sync attempt start/end times, tool availability, per-operation results, failures, and final checklist status using the markdown audit trail schema in `references/audit-trail-spec.md`.
 
 **Sync targets are CONFIG-DRIVEN, not hardcoded.** The orchestrator MUST read `meta/config.md` and only sync the Notion entities the user has actually configured. Previous v1.8.0 spec (pre R-1.8.0-022) hardcoded a 4-page list (`Status / Todo Board / Working Memory / Inbox`); real users often have a different layout (e.g. `status_page_id` + `mirror_page_id` + `inbox_database_id` only — no `Todo Board` or `Working Memory`). Hardcoding caused the orchestrator to report "Working Memory: failed" for entities that never existed.
 
@@ -307,18 +307,18 @@ When the user message matches any of the following patterns, ROUTER MUST automat
 
 Once monitor subagent is active, ROUTER stays out of business deliberation until user says "退出 monitor" / "exit monitor" / "回到普通模式". See `pro/agents/monitor.md` for the operational console behavior.
 
-The pre-prompt-guard hook injects a `<system-reminder>` (`trigger=monitor`) when these keywords match, so ROUTER cannot accidentally redirect to slash command.
+ROUTER matches these keywords inline and switches to monitor mode rather than redirecting to a slash command. (Pre-v1.8.5 the `pre-prompt-guard.sh` hook injected a `<system-reminder>` with `trigger=monitor`; the hook layer was retired in v1.8.5 Stage 2 and ROUTER now performs this keyword match itself.)
 
 ### Review Queue auto-launch (v1.8.0 R-1.8.0-013)
 
 When the user message matches any of the following patterns, ROUTER MUST read `scripts/prompts/review-queue.md` and execute the walker — do NOT ignore or treat as info-only:
 
-Canonical keyword list (must match `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE; if you change one, change both):
+Canonical keyword list (ROUTER matches these inline; pre-v1.8.5 this list mirrored `pre-prompt-guard.sh` REVIEW_QUEUE_RE, retired with the hook layer in v1.8.5 Stage 2):
 
 - **中文**: 处理 queue / 处理queue / 看 queue / 看queue / 走一遍 queue / 今天有什么要处理的 / 有什么要我决定的 / queue 处理 / review 队列
 - **English**: review queue / process queue / walk queue / queue walk
 
-The session-start-inbox hook surfaces queue counts as `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>` in `<system-reminder>`. ROUTER mentions this in one short sentence in the first response — but does NOT auto-walk; user explicitly invokes via the keywords above.
+The retrospective Mode 0 session-start scan surfaces queue counts as `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>` (pre-v1.8.5 the `session-start-inbox.sh` hook produced this `<system-reminder>`; retired with the hook layer in v1.8.5 Stage 2, the count is now part of retrospective's session-start briefing). ROUTER mentions this in one short sentence in the first response — but does NOT auto-walk; user explicitly invokes via the keywords above.
 
 When user says "add to queue" / "track this" / "把这个加到 queue", ROUTER triggers the same prompt's "Add item" sub-flow.
 
@@ -428,9 +428,9 @@ When in monitor mode, treat any business question as out-of-scope and politely r
 | review-queue (R-1.8.0-013) | `scripts/prompts/review-queue.md` | "处理 queue" / "看 queue" / "review queue" / "今天有什么要处理的" |
 | migrate-to-wikilinks (R-1.8.0-013) | `scripts/prompts/migrate-to-wikilinks.md` | "迁移 wikilinks" / "migrate to wikilinks" / "把老内容都改成 wikilinks" |
 
-### session-start status hook (only auto-fired thing)
+### session-start status scan (retrospective Mode 0, Conscious Patrol lifeos-001)
 
-`scripts/hooks/session-start-inbox.sh` runs at every session start. It scans the 10 maintenance jobs' last-run timestamps, finds overdue ones, and injects a `<system-reminder>` summarizing what's overdue. ROUTER mentions this in one short sentence in the first response. **No automatic execution** — user decides what to invoke.
+At every session start, the retrospective Mode 0 subagent computes the status scan inline as Conscious Patrol task `lifeos-001`: it scans the 10 maintenance jobs' last-run timestamps, finds overdue ones, and surfaces a summary of what's overdue in its briefing. ROUTER mentions this in one short sentence in the first response. **No automatic execution** — user decides what to invoke. (Pre-v1.8.5 this was the auto-fired `session-start-inbox.sh` hook; the entire bash hook layer was retired in v1.8.5 Stage 2 and the scan is now part of retrospective's session-start briefing — see `pro/agents/retrospective.md` §"Conscious Patrol".)
 
 ### Daily cycle (上朝/退朝) — soft triggers, not enforced
 
@@ -492,7 +492,7 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and launch it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
 7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b; v1.7.2.2 default silent) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). The Mode 3 spec exists in `pro/agents/auditor.md` since v1.6.3 but no caller was wired — this rule fixes that gap. Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E), runs exactly the five active Bash checks defined in `pro/agents/auditor.md`, and writes detected violations to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). Default briefing output is silent except for the required one-line signals: all-pass after retrospective Mode 0 writes only `🔱 御史台 · 静默通过` into retrospective `## 5`; P0 writes violations and emits only `🚨 御史台 · P0 违规 N 条,详 violations.md`; P1+ writes violations with no briefing output. Detailed 30-day tracking is surfaced only by explicit `/audit`, never by an auto-prepended Compliance Watch banner. Cannot be skipped. HARD RULE.
 
-8. **Subagent Audit Trail mandatory (rule #8)** — every launched subagent MUST write `meta/runtime/<session_id>/<subagent>-<step_or_phase>.json` before returning. AUDITOR Mode 3 verifies audit trail existence and schema against `references/audit-trail-spec.md`; missing, incomplete, or contradictory trails are violations. HARD RULE.
+8. **Subagent Audit Trail mandatory (rule #8)** — every launched subagent MUST write `meta/runtime/<session_id>/<subagent>-<step_or_phase>.md` (markdown with YAML frontmatter, R13 schema — `.json` forbidden in `meta/runtime/` since v1.8.6 / DR-10) before returning. AUDITOR Mode 3 verifies audit trail existence and frontmatter schema against `references/audit-trail-spec.md`; missing, incomplete, or contradictory trails are violations. HARD RULE.
 
 9. **Fresh Invocation HARD RULE (R12, rule #9)** · every Start Session / Adjourn trigger MUST launch fresh full execution of retrospective Mode 0 (18 steps) or archiver (4 phases). No reuse, no 省步骤, no previous briefing references, and no phrases like "as last time" / "unchanged" / "see above". AUDITOR greps the transcript and audit trail for freshness violations; any violation is `C-fresh-skip` P0. HARD RULE.
 
@@ -517,7 +517,7 @@ When a wrapper helps clarity, ROUTER MAY use:
 
 ```text
 ## Subagent Output · {subagent_name}
-audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.json} (if available)
+audit_trail: {meta/runtime/<session_id>/<subagent>-<step_or_phase>.md} (if available)
 usage: input={input_tokens} output={output_tokens} total={total_tokens} (if available)
 duration: {duration_seconds}s (if available)
 cost: ${estimated_cost_usd} (if available or already estimated)
@@ -568,7 +568,7 @@ Adjourn is NOT a single step in the main workflow — it is an independent state
 - Checklist Output → Session End with placeholder values
 - ROUTER interjects between archiver's phases
 
-**Enforcement**: AUDITOR runs immediately after session end. Any illegal transition is reported and recorded in `user-patterns.md` for the next session's ADVISOR to flag as behavioral pattern.
+**Enforcement**: AUDITOR runs immediately after session end. Any illegal transition is reported and recorded in `meta/user-patterns.md` for the next session's ADVISOR to flag as behavioral pattern.
 
 ## Model Independence
 

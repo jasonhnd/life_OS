@@ -21,7 +21,7 @@ Wiki is the system's knowledge archive — a living collection of reusable concl
 | Storage | Records | Example |
 |---------|---------|---------|
 | `decisions/` | What you decided (specific, timestamped) | "2026-04-01: decided to use trust structure" |
-| `user-patterns.md` | What you do (behavioral patterns) | "Tends to avoid financial dimensions" |
+| `meta/user-patterns.md` | What you do (behavioral patterns) | "Tends to avoid financial dimensions" |
 | `SOUL.md` | Who you are (values, personality) — **v2 schema per `references/soul-spec.md`** | "Truth over comfort" (priority 1) |
 | `wiki/` | What you know — declarative knowledge — **v2 schema this doc** | "NPO lending in Japan has no 貸金業法 exemption" |
 | `meta/concepts/` | Synaptic graph — how ideas connect | "company-a-holding" node with weighted edges |
@@ -29,7 +29,7 @@ Wiki is the system's knowledge archive — a living collection of reusable concl
 
 **Not wiki material** (goes elsewhere):
 - Identity / values / personal preferences → `SOUL.md` v2
-- Behavioral patterns → `user-patterns.md`
+- Behavioral patterns → `meta/user-patterns.md`
 - Procedural workflows → `meta/methods/`
 - Concept-level associations → `meta/concepts/`
 

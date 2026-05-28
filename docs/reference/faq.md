@@ -170,9 +170,9 @@ git config --unset extensions.worktreeConfig
 
 ## SOUL / Wiki / DREAM 问题
 
-### Q：SOUL.md 和 user-patterns.md 有什么区别？
+### Q：SOUL.md 和 meta/user-patterns.md 有什么区别？
 
-- **user-patterns.md** 记录**你做什么**——由 ADVISOR 观察到的行为模式（"倾向于回避财务维度"）
+- **meta/user-patterns.md** 记录**你做什么**——由 ADVISOR 观察到的行为模式（"倾向于回避财务维度"）
 - **SOUL.md** 记录**你是谁**——价值观、信念、身份（"风险偏好：中高"）
 
 一个是描述性（patterns），另一个是身份（soul）。两者互相喂养：模式揭示价值观，价值观为模式提供语境。
