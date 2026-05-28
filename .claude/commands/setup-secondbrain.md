@@ -91,10 +91,10 @@ Content:
 ```markdown
 # Queue
 
-System processing queue + agent-to-user notifications (v1.9 Opt #2 — renamed from `meta/inbox/` to avoid confusion with the vault-root `inbox/` user drop-zone). archiver Phase 1 processes new files at every Adjourn.
+System processing queue + agent-to-user notifications (v1.9 Opt #2 — renamed from `meta/inbox/` to avoid confusion with the vault-root `inbox/` user drop-zone).
 
-- `to-process/` — drop files here; archiver moves processed → `processed/`
-- `notifications.md` — system-generated notifications (maintenance overdue, etc.)
+- `to-process/` — drop files here; run `/inbox-process` (or say "处理 inbox") to triage each item → wiki / archive / reject / defer. Triaged-but-not-wikified items move to `archive/` (never deleted).
+- `notifications.md` — system-generated notifications (maintenance overdue, review-queue counts, etc.)
 
 Note: this is NOT the user material drop-zone. For raw captures/research, use the vault-root `inbox/`.
 ```

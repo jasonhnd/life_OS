@@ -34,16 +34,17 @@ Only 3 components used:
 
 | Standard Field | Notion Property | Notion Type |
 |---------------|----------------|-------------|
+| id | ID | Text |
 | title | Title | Title |
-| type | 流程类型 | Select: 简单决策 / 三省六部 |
-| ministries | 启用部门 | Multi-select |
-| score | 综合评分 | Number |
-| veto_count | 封驳次数 | Number |
-| status | Status | Select: Considering / Decided / Reversed |
-| category | Category | Select |
-| outcome | Outcome | Select: Good / Neutral / Bad / TBD |
-| date | Date | Date |
-| area | Area | Relation → Areas |
+| type | Type | Select: change / no_change / escalation / superseded |
+| projects | Projects | Relation → Projects |
+| domains | Domains | Multi-select: governance / execution / finance / infra / people / growth |
+| reviewed_by | Reviewed By | Text |
+| reviewed_at | Date | Date |
+| decision | Decision | Text |
+| rationale | Rationale | Text |
+| applied_methods | Applied Methods | Relation → Methods |
+| journal_date | Journal Date | Date |
 | content | Page body | Page content |
 
 ### Task → ✅ Tasks

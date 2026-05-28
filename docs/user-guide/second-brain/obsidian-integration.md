@@ -177,7 +177,7 @@ Obsidian 只用来**浏览**，不用来编辑。所有写入走 CC 会话。
 
 左边栏展示日历。点某天看那天的所有 journal / decisions / tasks。
 
-Life OS 的文件名约定 `{date}-{slug}.md` 和 Calendar 插件天然配合。
+Life OS 的 journal 文件名约定 `{YYYY-MM-DD}.md`（decisions 为 `dec-{YYYY-MM-DD}-{NNN}.md`，v1.9）和 Calendar 插件天然配合。
 
 ### Dataview
 

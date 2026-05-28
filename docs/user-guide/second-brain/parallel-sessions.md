@@ -18,13 +18,13 @@ Life OS 支持这种 **多会话并行**。核心机制：outbox 模式 + .merge
 Session A 和 Session B 同时运行
 
 Session A 退朝：
-  - 写 projects/career/decisions/2026-04-08-foo.md
+  - 写 meta/decisions/2026-04/dec-2026-04-08-001.md（projects: [career]）
   - 重写 meta/STATUS.md
   - 重写 meta/user-patterns.md
   - git push
 
 Session B 退朝（同时）：
-  - 写 projects/finance/decisions/2026-04-08-bar.md
+  - 写 meta/decisions/2026-04/dec-2026-04-08-002.md（projects: [finance]）
   - 重写 meta/STATUS.md      ← 和 A 冲突
   - 重写 meta/user-patterns.md     ← 和 A 冲突
   - git push                  ← 失败或覆盖

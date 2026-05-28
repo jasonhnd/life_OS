@@ -2,7 +2,7 @@
 title: "Markdown-First 架构"
 scope: 本地参考文档
 audience: 作者本人
-status: authoritative
+status: legacy
 last_updated: 2026-04-20
 related:
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md

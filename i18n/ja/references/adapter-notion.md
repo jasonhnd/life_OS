@@ -32,16 +32,17 @@ Notionは完全なストレージバックエンド（選択された場合）�
 
 | 標準フィールド | Notion プロパティ | Notion 型 |
 |---------------|----------------|-------------|
+| id | ID | テキスト |
 | title | Title | Title |
-| type | 流程類型 | Select: 簡単決裁 / Draft-Review-Execute |
-| ministries | 啓用部門 | Multi-select |
-| score | 総合評分 | Number |
-| veto_count | 封駁回数 | Number |
-| status | Status | Select: Considering / Decided / Reversed |
-| category | Category | Select |
-| outcome | Outcome | Select: Good / Neutral / Bad / TBD |
-| date | Date | Date |
-| area | Area | Relation → Areas |
+| type | Type | 単一選択: change / no_change / escalation / superseded |
+| projects | Projects | リレーション → Projects |
+| domains | Domains | マルチ選択: governance / execution / finance / infra / people / growth |
+| reviewed_by | Reviewed By | テキスト |
+| reviewed_at | Date | 日付 |
+| decision | Decision | テキスト |
+| rationale | Rationale | テキスト |
+| applied_methods | Applied Methods | リレーション → Methods |
+| journal_date | Journal Date | 日付 |
 | content | Page body | Page content |
 
 ### Task → ✅ Tasks

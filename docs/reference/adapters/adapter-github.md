@@ -10,13 +10,17 @@
 
 ```yaml
 ---
-type: decision
+id: dec-2026-04-08-001
 title: "Career change feasibility"
-status: decided
-score: 6.8
-date: 2026-04-08
-project: career-transition
-last_modified: "2026-04-08T15:30:00Z"
+type: change
+projects: [career-transition]
+domains: [governance]
+reviewed_by: REVIEWER
+reviewed_at: 2026-04-08
+decision: "<one-line decision>"
+rationale: "<why>"
+applied_methods: []
+journal_date: 2026-04-08
 ---
 
 [奏折全文写在这里]
@@ -26,8 +30,7 @@ last_modified: "2026-04-08T15:30:00Z"
 
 | 数据类型 | 路径 | 文件名模式 |
 |---------|------|-----------|
-| Decision（项目） | `meta/decisions/{YYYY-MM}/` | `{date}-{slug}.md` |
-| Decision（跨域） | `meta/decisions/` | `{date}-{slug}.md` |
+| Decision（v1.9 统一） | `meta/decisions/{YYYY-MM}/` | `dec-{YYYY-MM-DD}-{NNN}.md` |
 | Task（项目） | `projects/{project}/tasks/` | `{slug}.md` |
 | Task（area） | `areas/{area}/tasks/` | `{slug}.md` |
 | JournalEntry | `meta/journal/` | `{date}-{type}.md` |

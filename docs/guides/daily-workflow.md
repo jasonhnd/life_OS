@@ -153,7 +153,7 @@ Follow-through 指数这周到 80%（上周 62%）。
 【1/3】"考虑加 Telegram bot 支持"
 这条涉及功能决策，建议不在 inbox 流程里处理，
 需要开议程（涉及开发优先级）。
-→ 转到 projects/life-os/decisions/ 待议 (✓/✗)
+→ 转到 meta/decisions/ 待议（frontmatter projects: [life-os]）(✓/✗)
 
 【2/3】"某用户反馈 SOUL 写入太激进"
 这是用户反馈信号。建议：
@@ -170,7 +170,7 @@ Follow-through 指数这周到 80%（上周 62%）。
 🏛️ 丞相
 
 ✅ 完成:
-- 1 → projects/life-os/decisions/pending/telegram-bot.md
+- 1 → meta/decisions/2026-04/dec-2026-04-08-001.md（projects: [life-os]）
 - 2 → areas/product/tasks/soul-feedback-collect.md
 - 3 → areas/family/tasks/mother-day-gift.md（提前 2 周）
 Inbox 清空。

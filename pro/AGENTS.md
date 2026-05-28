@@ -53,7 +53,7 @@ The theme file is loaded at session start. All display names (for agents, phases
 
 When the user sends the first message, spawn simultaneously:
 - `router` (ROUTER): Prepare to respond to the user
-- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas/decisions), read meta/user-patterns.md, check Notion inbox, version check, platform detection
+- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas + meta/decisions/journal), read meta/user-patterns.md, check Notion inbox, version check, platform detection
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 

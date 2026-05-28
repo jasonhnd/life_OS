@@ -43,7 +43,7 @@ Boundary cases (exactly 0.6, 0.3, etc.) round UP to the higher bucket.
 
 ## Pre-flight
 
-1. Verify cwd is a second-brain repo (`_meta/` + `wiki/` exist). If not,
+1. Verify cwd is a second-brain repo (`meta/` + `wiki/` exist). If not,
    refuse and tell user `/migrate-confidence` only runs in a second-brain
    vault.
 2. Glob `wiki/**/*.md` (exclude `INDEX.md`, `SCHEMA.md`,

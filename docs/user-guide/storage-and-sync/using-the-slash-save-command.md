@@ -30,7 +30,7 @@ Life OS 典型配置：
 
 你在 `~/my-app` 里开 CC 会话写代码。突然聊到"要不要把 auth 换成 Cognito"。走完 3D6M 决策流程，产出一份纪要。
 
-这份纪要不应该写进 `~/my-app`，应该写进 `~/life-os-data/second-brain/projects/my-app/decisions/`。
+这份纪要不应该写进 `~/my-app`，应该写进 second-brain 的 `meta/decisions/<YYYY-MM>/`（v1.9：decisions 统一存放在 `meta/decisions/`，用 frontmatter `projects: [my-app]` 关联项目，不再放 `projects/my-app/decisions/`）。
 
 问题：
 
@@ -53,8 +53,8 @@ Life OS 典型配置：
 
 ROUTER：
   1. 识别当前讨论的决策 / 任务 / 研究。
-  2. 根据 session binding 确定目标路径（projects/{project}/ 或 areas/{area}/）。
-  3. 生成 .md 文件名（{date}-{slug}.md）+ YAML front matter + 正文。
+  2. 根据内容类型确定目标路径：决策 → `meta/decisions/<YYYY-MM>/`（frontmatter 标 `projects:` / `domains:` 关联）；知识笔记 → `wiki/`；任务 → 对应 `projects/{project}/`。
+  3. 生成 .md 文件名（决策用 `dec-<YYYY-MM-DD>-<NNN>.md`）+ YAML front matter + 正文。
   
   4. cd 到 second-brain 目录。
   5. 写入文件。
@@ -65,7 +65,7 @@ ROUTER：
   10. cd 回原项目目录。
   
   11. 输出确认：
-      ✅ Saved to second-brain/projects/my-app/decisions/2026-04-08-switch-to-cognito.md
+      ✅ Saved to second-brain/meta/decisions/2026-04/dec-2026-04-08-001.md
       ✅ git push 成功
       📍 回到 ~/my-app
 ```
@@ -139,7 +139,7 @@ ROUTER：要保存什么？
 
 ROUTER：
   绑定项目: my-app
-  目标路径: projects/my-app/decisions/2026-04-08-switch-to-cognito.md
+  目标路径: meta/decisions/2026-04/dec-2026-04-08-001.md（frontmatter projects: [my-app]）
   
   执行...
   ✅ 写入完成
@@ -181,7 +181,7 @@ ROUTER：
 你：/save
 
 ROUTER：
-  目标: projects/my-app/decisions/...
+  目标: meta/decisions/2026-04/dec-...
   
   执行...
   ✅ 写入完成
@@ -217,13 +217,13 @@ CC 的 Bash 工具在每次调用之间**cwd 不持久化**（见 agent 系统�
 
 ```bash
 cd ~/life-os-data/second-brain && \
-  mkdir -p projects/my-app/decisions && \
-  cat > projects/my-app/decisions/{date}-{slug}.md <<EOF
+  mkdir -p meta/decisions/{YYYY-MM} && \
+  cat > meta/decisions/{YYYY-MM}/dec-{date}-{NNN}.md <<EOF
 {file contents}
 EOF
 
 cd ~/life-os-data/second-brain && \
-  git add projects/my-app/decisions/{date}-{slug}.md && \
+  git add meta/decisions/{YYYY-MM}/dec-{date}-{NNN}.md && \
   git commit -m "[life-os] {msg}" && \
   git push
 ```

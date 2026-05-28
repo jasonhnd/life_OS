@@ -10,13 +10,17 @@ Every data record is a `.md` file:
 
 ```yaml
 ---
-type: decision
+id: dec-2026-04-08-001
 title: "Career change feasibility"
-status: decided
-score: 6.8
-date: 2026-04-08
-project: career-transition
-last_modified: "2026-04-08T15:30:00Z"
+type: change
+projects: [career-transition]
+domains: [governance]
+reviewed_by: REVIEWER
+reviewed_at: 2026-04-08
+decision: "<one-line decision>"
+rationale: "<why>"
+applied_methods: []
+journal_date: 2026-04-08
 ---
 
 [Memorial full text here]

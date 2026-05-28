@@ -32,16 +32,17 @@ Notion 既可作为完整的存储后端（当被选择时），也可作为传�
 
 | 标准字段 | Notion 属性 | Notion 类型 |
 |---------------|----------------|-------------|
+| id | ID | 文本 |
 | title | Title | Title |
-| type | 流程类型 | Select: 简单决策 / Draft-Review-Execute |
-| ministries | 启用部门 | Multi-select |
-| score | 综合评分 | Number |
-| veto_count | 封驳次数 | Number |
-| status | Status | Select: Considering / Decided / Reversed |
-| category | Category | Select |
-| outcome | Outcome | Select: Good / Neutral / Bad / TBD |
-| date | Date | Date |
-| area | Area | Relation → Areas |
+| type | Type | 单选: change / no_change / escalation / superseded |
+| projects | Projects | 关联 → Projects |
+| domains | Domains | 多选: governance / execution / finance / infra / people / growth |
+| reviewed_by | Reviewed By | 文本 |
+| reviewed_at | Date | 日期 |
+| decision | Decision | 文本 |
+| rationale | Rationale | 文本 |
+| applied_methods | Applied Methods | 关联 → Methods |
+| journal_date | Journal Date | 日期 |
 | content | 页面正文 | Page content |
 
 ### Task → ✅ Tasks

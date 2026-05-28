@@ -188,20 +188,23 @@ Second-brain 在 GitHub / Google Drive 上时，Notion 可以作为轻量记忆�
 ## 一个真实的文件例子
 
 ```
-second-brain/projects/career-transition/decisions/2026-04-08-japan-visa.md
+second-brain/meta/decisions/2026-04/dec-2026-04-08-001.md
 ```
 
 文件内容：
 
 ```yaml
 ---
-type: decision
+id: dec-2026-04-08-001
 title: "日本创业签证可行性"
-status: decided
-score: 6.8
-date: 2026-04-08
-project: career-transition
-last_modified: "2026-04-08T15:30:00+09:00"
+type: change
+projects: [career-transition]
+domains: [governance, finance]
+reviewed_by: REVIEWER
+reviewed_at: 2026-04-08
+decision: "先走创业签证路径，6 个月内提交申请"
+applied_methods: []
+journal_date: 2026-04-08
 ---
 
 [纪要全文 — REVIEWER 总结 + 各部打分 + 封驳记录]
