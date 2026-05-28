@@ -416,6 +416,56 @@ v1.7 以前には concepts ディレクトリがありません。v1.7 へのマ
 
 ---
 
+## Wikilink 規約（v1.8.0 R-1.8.0-013）
+
+concept ファイルは本文中のクロスリファレンスに Obsidian `[[]]` 構文を使う。これにより Obsidian graph view、クリックスルーナビゲーションが有効になり、`references/hippocampus-spec.md` の 4 シグナル関連性モデル（`direct_link_count` シグナル）を駆動する。
+
+### 本文
+
+他の concept への平文参照 → wikilink：
+
+```markdown
+## Discussion
+The 强规则意识 dimension correlates strongly with [[loss-aversion]] and
+inversely with [[risk-tolerance]]. See [[2026-04-15T0900Z]] for the
+session where this pattern emerged.
+```
+
+### Frontmatter
+
+`outgoing_edges` 配列は wikilink target フィールドを使う（上記の正規 schema）：
+
+```yaml
+outgoing_edges:
+  - target: "[[loss-aversion]]"
+    weight: 5
+    last_co_activated: 2026-04-29T10:00:00+09:00
+  - target: "[[risk-tolerance]]"
+    weight: 3
+    last_co_activated: 2026-04-15T09:00:00+09:00
+```
+
+R-1.8.0-013 以前の frontmatter は `to: concept_id`（平文文字列）とフィールド名 `last_reinforced` を使っていた。移行 prompt `scripts/prompts/migrate-to-wikilinks.md` が Phase 3 で両方を書き換える。重みは常に非負（「逆相関」の負の重みは検討後に却下 —— 稀すぎて spec の複雑さに見合わない；必要なら別の inhibitory-edge concept ページを使う）。
+
+`aliases:` は平文文字列配列のまま（ファイル名マッチング、wikilink ではない）。`provenance.source_sessions:` は wikilink 配列になる：
+
+```yaml
+provenance:
+  source_sessions:
+    - "[[2026-04-15T0900Z]]"
+    - "[[2026-04-29T1430Z]]"
+```
+
+### 人を concept として
+
+ある人物がグラフ関連になったとき（`references/people-spec.md` 参照）、人物ページ（`meta/people/<id>.md`）は同じ wikilink ネットワークに参加する。concept の `outgoing_edges` は人物ページを指せる：`target: "[[john-doe]]"`。4 シグナルスコアリングの型親和性は concept-to-concept（1.0）と concept-to-person（0.5）を区別する。
+
+### 移行
+
+平文参照を持つ既存の concept ファイルは `scripts/prompts/migrate-to-wikilinks.md` で移行する。R-1.8.0-013 以降に作成された concept は初日から wikilink 規約を使わなければならない。
+
+---
+
 > ℹ️ **2026-04-22 補完**:Lifecycle コードブロックの Step 1/2/3/4/6 + §Creation 6-criteria 括注の翻訳漏れを補完
 >
 > ℹ️ **2026-04-22 更新**:EN R3.2 §Creation 6-criteria / §Retirement / §Conflict の修正を同期

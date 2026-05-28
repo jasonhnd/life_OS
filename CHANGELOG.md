@@ -46,6 +46,14 @@ regression_cases_added: []
 
 - **No user action required.** This is a spec-correctness patch — no vault-data migration. v1.9.0 vaults are unaffected; existing `.md` audit trails already comply. Future audit-trail / manifest / fixture writes now follow the specs correctly.
 
+### fix1 (2026-05-29) — v1.9.0-origin drift, round 1
+
+Post-publish corrections folded into the v1.9.1 tag. All three were v1.9.0-introduced drift the initial v1.9.1 pass did not reach:
+
+- **Shipped the v1.9 RFC.** `_meta/rfc/v1.9-second-brain-structure-optimization.md` is cited as spec authority by ~20 tracked files (`/migrate-v1.9`, `/verify-v1.9`, docs, evals, CHANGELOG) but was untracked (caught by the `.gitignore` `_meta/` rule). Force-added, matching the v1.8.7 RFC precedent.
+- **Corrected impossible CHANGELOG dates.** v1.8.5 / v1.8.6 were dated `2026-07-15` / `2026-07-16` (months *after* v1.8.7's 05-25 and v1.9.x); fixed to the authoritative tag/release date `2026-05-23` across CHANGELOG + changelog-spec (EN/zh/ja).
+- **Finished the references↔i18n mirror sync** (`##` section-count parity restored): `data-model.md` zh/ja were missing the entire `## v1.7 Cortex Data Types` section + `### v1.9 archive semantics` + the v1.9 Standard-Operations updates (177-line gap); `concept-spec.md` zh/ja missing `## Wikilink Convention`; `dream-spec.md` zh/ja missing `## DREAM × Cortex Integration` (and a stale "20-50 line" DREAM constraint that contradicted EN's "no line-count cap" was corrected).
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency
@@ -168,12 +176,12 @@ See `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` for full RFC + DR-01 throu
 
 ---
 
-## [1.8.6] - 2026-07-16 - md-only enforcement (No .py/.sh/.yml/.json in repo)
+## [1.8.6] - 2026-05-23 - md-only enforcement (No .py/.sh/.yml/.json in repo)
 
 ```yaml
 ---
 version: 1.8.6
-date: 2026-07-16
+date: 2026-05-23
 type: patch
 breaking_changes:
   - "Audit trail format R12 -> R13: _meta/runtime/<sid>/*.json -> *.md (markdown with YAML frontmatter)"
@@ -211,12 +219,12 @@ regression_cases_added: []
 
 ---
 
-## [1.8.5] - 2026-07-15 - Hook Retirement + EOU-Hardening (largest single release in life_OS history)
+## [1.8.5] - 2026-05-23 - Hook Retirement + EOU-Hardening (largest single release in life_OS history)
 
 ```yaml
 ---
 version: 1.8.5
-date: 2026-07-15
+date: 2026-05-23
 type: patch
 breaking_changes:
   - "SOUL.md schema v1 → v2: priority {1..N} total order, X-over-Y formulation required, inclusion test 6Q gate, outlier role slot mandatory, 3-8 dim cap"

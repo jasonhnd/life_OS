@@ -26,7 +26,7 @@ v1.8.5+ schema がこれらを修正。
 ```markdown
 ---
 version: 1.8.5
-date: 2026-07-15
+date: 2026-05-23
 type: major | minor | patch
 breaking_changes:                          # 箇条書きリスト
   - "SOUL.md schema v1 → v2（X-over-Y formulation 必須）"
@@ -62,7 +62,7 @@ regression_cases_added:
   - rc-agent-blast-radius-violation
 ---
 
-## v1.8.5 — Hook Retirement + EOU Hardening · 2026-07-15
+## v1.8.5 — Hook Retirement + EOU Hardening · 2026-05-23
 
 > 1 段落の release 概要。
 

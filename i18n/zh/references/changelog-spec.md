@@ -26,7 +26,7 @@ v1.8.5+ schema 修复这些。
 ```markdown
 ---
 version: 1.8.5
-date: 2026-07-15
+date: 2026-05-23
 type: major | minor | patch
 breaking_changes:                          # 项目列表
   - "SOUL.md schema v1 → v2（X-over-Y formulation 必填）"
@@ -65,7 +65,7 @@ regression_cases_added:
   - rc-agent-blast-radius-violation
 ---
 
-## v1.8.5 — Hook Retirement + EOU Hardening · 2026-07-15
+## v1.8.5 — Hook Retirement + EOU Hardening · 2026-05-23
 
 > 1 段 release 总结。
 

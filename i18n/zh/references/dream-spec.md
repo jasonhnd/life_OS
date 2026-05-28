@@ -319,6 +319,44 @@ triggered_actions:
 - **不直接修改 SOUL.md** — 只提议候选条目（SOUL 自动写入属于 archiver Phase 2，不属于 DREAM）
 - **Wiki 在严格标准下自动写入** — 全部 6 项自动写入标准通过时直接写入（见 wiki-spec.md）；否则丢弃
 - **不直接修改 meta/user-patterns.md** — 只提议更新
-- **简洁** — 梦境报告应为 20-50 行，而非 500 行
+- **无二次压缩** — 把 DREAM 报告原样粘贴给用户，并把同样内容写入 journal；不适用行数上限
 - **诚实** — "无重大发现"是一个有效的梦境。不要捏造洞见
 - **不阻塞** — 如果 DREAM 失败，会话仍正常结束
+
+---
+
+## DREAM × Cortex 集成（v1.7）
+
+DREAM 早于 Cortex 存在。有了 v1.7 的概念图、hippocampus 和 session index，DREAM 获得新素材，它与 Cortex 的边界必须明确。
+
+### DREAM 从 Cortex 消费什么
+
+- **`meta/concepts/INDEX.md`** —— REM 阶段用概念图作为跨域联想的脚手架。v1.6.2 的 REM 从原始决策历史里找"意外联系"，而 v1.7 的 REM 可以遍历 weight ≥ 2 的 `outgoing_edges`，浮现 3 天范围在表面错过的邻居概念。
+- **`meta/concepts/SYNAPSES-INDEX.md`** —— REM 用反向索引回答"哪些过去的决策触及了这个新激活的概念？"，无需重读 session 文件。
+- **`meta/sessions/INDEX.md`** —— DREAM 的 3 天范围交叉引用 session 摘要，比 `git log + 读文件` 查得更快。
+- **`meta/snapshots/soul/`** —— 最近 3 个快照给 `value-drift` 触发器（§7）提供比 v1.6.2 纯文本检测更强的信号（见下方 "SOUL + Cortex 信号"）。
+
+### DREAM 向 Cortex 写什么
+
+- **DREAM 可以写概念候选。** `concept-spec.md §YAML Frontmatter Schema` 允许 `provenance.extracted_by: dream`。REM 检测到的、通过 6 项标准检查的跨域联想，会像 archiver 检测的概念一样落到 `meta/concepts/_tentative/{concept_id}.md`。DREAM 用同样的隐私过滤器和初始 `status: tentative` —— 提升到 `confirmed` 需 ≥3 个独立 session，是 archiver 在后续退朝流程中的职责。
+- **DREAM 禁止直接写 `meta/concepts/{domain}/`。** 无论哪个检测器，所有新概念都落到 `_tentative/`。提升路径集中在 archiver Phase 2。
+- **DREAM 禁止修改 `outgoing_edges` 或 `SYNAPSES-INDEX.md`。** Hebbian 更新仍是 archiver 的独占写入范围 —— DREAM 是模式检测器，不是图写入器。如果 REM 浮现"这两个概念应该相连"的洞见，它写成一个**概念候选**加文字说明，而非一条边。archiver Phase 2 会在下次运行时、若两概念共激活，决定是否真的创建该边。
+
+### 与 hippocampus 去重
+
+`cross-project-cognition-unused` 触发器（#5）在语义上与 hippocampus 的逐条消息检索重叠（v1.7 **每条消息**都跑 hippocampus，不只在 DREAM 时）。在触发 #5 之前，DREAM 检查当前 session 记录的 hippocampus 信号（来自 `meta/sessions/{session_id}.md` frontmatter 的 `concepts_activated`）：
+
+- 若 hippocampus 在当前 session 已浮现该 wiki 条目 → DREAM **跳过**该触发器（不重复标记）
+- 若 hippocampus 未浮现 → DREAM 像 v1.6.2 一样**触发**
+
+这保留 DREAM 作为 hippocampus **实时、当前消息**检索的**离线、跨 session** 补充角色。
+
+### value-drift 检测的 SOUL + Cortex 信号
+
+v1.7 中 `value-drift` 触发器（#7）除 30 天决策历史外，还读取 `meta/snapshots/soul/` 的最近 3 个 SOUL 快照。若某维度的 `confidence` 在三个快照间下降 ≥ 0.2 **且**净（evidence − challenges）趋势为负，DREAM 以比 v1.6.2 纯文本检测更高的置信度触发。快照趋势给 DREAM 一个可信的数值底座，无需重读决策文本。
+
+### REM 安全不变量
+
+- REM 每次运行绝不超过 1-3 个真正的洞见。概念图遍历限定在最近 3 天激活的概念集的 2 跳邻居内。无穷举遍历。
+- REM 提议的概念候选必须通过与 archiver 检测候选相同的 6 项标准 + 隐私过滤器。REM 的"创造性"许可是关于**哪些联系值得提议**，而非绕过验证。
+- REM 的概念候选带 `provenance.extracted_by: dream`，以便后续审计能区分 dream 来源与 archiver 来源的概念。

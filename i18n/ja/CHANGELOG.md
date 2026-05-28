@@ -46,6 +46,14 @@ regression_cases_added: []
 
 - **ユーザー操作不要**。これは spec 正確性 patch——vault データ移行なし。v1.9.0 vault は影響なし；既存の `.md` 監査トレイルは既に準拠。今後の監査トレイル / manifest / fixture 書き込みは spec に正しく従う。
 
+### fix1（2026-05-29）—— v1.9.0 由来のドリフト、第 1 ラウンド
+
+v1.9.1 タグに統合された公開後の修正。3 つとも v1.9.0 が導入し初版 v1.9.1 が到達しなかったドリフト：
+
+- **v1.9 RFC を出荷。** `_meta/rfc/v1.9-second-brain-structure-optimization.md` は約 20 の追跡ファイル（`/migrate-v1.9`、`/verify-v1.9`、docs、evals、CHANGELOG）から spec 権威ソースとして参照されるが、`.gitignore` の `_meta/` ルールで未追跡だった。v1.8.7 RFC の前例に倣い `git add -f` で追加。
+- **不可能な CHANGELOG 日付を修正。** v1.8.5 / v1.8.6 が `2026-07-15` / `2026-07-16`（v1.8.7 の 05-25 や v1.9.x より数ヶ月後）だった；権威の tag/release 日付 `2026-05-23` に修正（CHANGELOG + changelog-spec の 3 言語）。
+- **references↔i18n ミラー同期を完了**（`##` セクション数の整合を回復）：`data-model.md` の zh/ja は `## v1.7 Cortex Data Types` セクション全体 + `### v1.9 archive semantics` + v1.9 標準オペレーション更新が欠落（177 行のギャップ）；`concept-spec.md` の zh/ja は `## Wikilink Convention` が欠落；`dream-spec.md` の zh/ja は `## DREAM × Cortex Integration` が欠落（さらに EN の「行数上限なし」と矛盾する古い「20-50 行」DREAM 制約を修正）。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性
@@ -159,12 +167,12 @@ upgrade_mode: zero-friction
 
 ---
 
-## [1.8.6] - 2026-07-16 - md-only 強制（repo 内に .py/.sh/.yml/.json 禁止）
+## [1.8.6] - 2026-05-23 - md-only 強制（repo 内に .py/.sh/.yml/.json 禁止）
 
 ```yaml
 ---
 version: 1.8.6
-date: 2026-07-16
+date: 2026-05-23
 type: patch
 breaking_changes:
   - "監査 trail format R12 -> R13：_meta/runtime/<sid>/*.json -> *.md（markdown + YAML frontmatter）"
@@ -202,12 +210,12 @@ regression_cases_added: []
 
 ---
 
-## [1.8.5] - 2026-07-15 - Hook 引退 + EOU-Hardening（life_OS 史上最大の単一 release）
+## [1.8.5] - 2026-05-23 - Hook 引退 + EOU-Hardening（life_OS 史上最大の単一 release）
 
 ```yaml
 ---
 version: 1.8.5
-date: 2026-07-15
+date: 2026-05-23
 type: patch
 breaking_changes:
   - "SOUL.md schema v1 → v2：優先順位 {1..N} 総順、X-over-Y formulation 必須、inclusion test 6Q gate、outlier role slot 必須、3-8 dim 上限"

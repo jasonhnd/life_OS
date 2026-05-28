@@ -6,24 +6,39 @@
 
 ### Decision（决策）
 
-> ⚠️ **v1.9 schema 取代下表**（见 RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records"）。v1.9 写入 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`；`type` 复用为决策记录种类 `change`/`no_change`/`escalation`/`superseded`（**不是**下表的 `simple`/`3d6m`）+ `projects` / `domains`（6 functional IDs）/ `reopen_condition`（no_change 必填）/ `applied_methods`（列表）/ `journal_date`。下表为 pre-v1.9 字段，仅供历史。
+> ⚠️ **v1.9 schema 取代下表**（见 RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records"）。v1.9 是决策记录 frontmatter 的权威源；下方 pre-v1.9 字段保留用于历史参考 / 遗留文件解析。**字段名冲突提示**：v1.9 把 `type` 复用为决策记录种类（`change` / `no_change` / `escalation` / `superseded`），**不是** pre-v1.9 的 workflow 种类（`simple` / `3d6m`）。写新决策时用 v1.9 schema。
+
+**v1.9 权威 schema**（`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`）：
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | string | 自动 | 唯一标识符（文件名或数据库 ID） |
-| title | string | 是 | 主题（≤20 字） |
-| type | enum | 是 | （pre-v1.9）`simple` / `3d6m`（Draft-Review-Execute）—— v1.9 已改为 change/no_change/escalation/superseded |
-| ministries | string[] | 否 | 已激活的部门 |
-| score | number | 否 | 综合评分（1-10） |
-| veto_count | number | 否 | REVIEWER封驳次数 |
-| status | enum | 是 | `considering` / `decided` / `reversed` |
-| category | enum | 否 | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
-| outcome | enum | 否 | `good` / `neutral` / `bad` / `tbd` |
-| date | date | 是 | 决策日期 |
-| project | string | 否 | 关联项目 |
-| area | string | 否 | 关联领域 |
-| last_modified | datetime | 自动 | 最后修改时间戳 |
-| content | text | 是 | 报告正文（正文内容） |
+| id | string | 是 | `dec-<YYYY-MM-DD>-<NNN>`（按天序号） |
+| title | string | 是 | 短标题 |
+| type | enum | 是 | `change` / `no_change` / `escalation` / `superseded` |
+| projects | string[] | 是 | 所属项目；`[]` = 跨项目 |
+| domains | string[] | 是 | 6 functional IDs 的子集：governance/execution/finance/infra/people/growth |
+| reviewed_by | string | 是 | agent 或 human |
+| reviewed_at | date | 是 | ISO 日期 |
+| decision | text | 是 | 一句话决策 |
+| rationale | text | 是 | 理由 |
+| reopen_condition | text | 条件 | 当 `type: no_change` 时必填 |
+| supersedes / superseded_by | string[] / string | 否 | 决策谱系 |
+| applied_methods | string[] | 否 | 应用的方法（列表；Opt #8） |
+| journal_date | date | 否 | 当天的 journal 文件（Opt #8） |
+| content | text | 是 | Summary report 全文（正文） |
+
+<details><summary>Pre-v1.9 字段（遗留，新决策勿用）</summary>
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| type | enum | `simple` / `3d6m`（workflow —— 被 v1.9 `type` 取代） |
+| status | enum | `considering` / `decided` / `reversed` |
+| category | enum | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
+| outcome | enum | `good` / `neutral` / `bad` / `tbd` |
+| score / veto_count | number | 综合评分 / 封驳事件 |
+| date / project / area | — | 被 `reviewed_at` / `projects` /（area 经由 project）取代 |
+
+</details>
 
 ### Task（任务）
 
@@ -145,6 +160,153 @@
 
 ---
 
+## v1.7 Cortex 数据类型
+
+以下类型在 v1.7 为 Cortex 认知层引入。每个都有自己的权威 spec 文件；下表是 `tools/lib/second_brain.py` dataclass 消费的简表形式。
+
+### SessionSummary
+
+权威 spec：`references/session-index-spec.md` §3。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| session_id | string | 是 | 格式 `{platform}-{YYYYMMDD}-{HHMM}` |
+| date | date | 是 | ISO 8601 日期 |
+| started_at | datetime | 是 | 带时区的时间戳 |
+| ended_at | datetime | 是 | 带时区的时间戳 |
+| duration_minutes | integer | 是 | |
+| platform | enum | 是 | `claude` / `gemini` / `codex` |
+| theme | enum | 是 | 主题 ID（如 `zh-classical`、`ja-kasumigaseki`） |
+| project | string | 是 | 绑定的项目（强制 session-binding HARD RULE） |
+| workflow | enum | 是 | `full_deliberation` / `express_analysis` / `direct_handle` / `strategist` / `review` |
+| subject | string | 是 | 提取的主题（≤200 字符） |
+| domains_activated | string[] | 否 | PEOPLE/FINANCE/GROWTH/EXECUTION/GOVERNANCE/INFRA 的子集 |
+| overall_score | number | 否 | 来自 Summary Report 的 0-10 |
+| domain_scores | map | 否 | 各领域 0-10 分 |
+| veto_count | integer | 否 | REVIEWER 封驳事件 |
+| council_triggered | boolean | 否 | 是否触发 COUNCIL 辩论？ |
+| soul_dimensions_touched | string[] | 否 | 引用的 SOUL 维度 ID |
+| wiki_written | string[] | 否 | 本 session 自动写入的 wiki 条目 ID |
+| methods_used | string[] | 否 | 应用的 Method ID |
+| methods_discovered | string[] | 否 | 新归档的 Method ID |
+| concepts_activated | string[] | 否 | 引用的 Concept ID |
+| concepts_discovered | string[] | 否 | archiver Phase 2 写入的新 Concept ID |
+| dream_triggers | string[] | 否 | 触发的 DREAM REM trigger 名 |
+| keywords | string[] | 否 | 最多 10 个，供 hippocampus Wave 1 扫描 |
+| action_items | array | 否 | `[{text, deadline, status}]` |
+| compliance_violations | integer | 否 | AUDITOR 标记的违规 |
+
+存储：`meta/sessions/{session_id}.md`。archiver 写入后不可变。
+
+### Concept
+
+权威 spec：`references/concept-spec.md` §YAML Frontmatter Schema。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| concept_id | string | 是 | 小写 + 连字符，≤64 字符，唯一 |
+| canonical_name | string | 是 | 人类可读的显示名 |
+| aliases | string[] | 否 | 其他表面形式 |
+| domain | enum | 是 | `finance` / `startup` / `personal` / `technical` / `method` / `relationship` / `health` / `legal` / 用户可扩展 |
+| status | enum | 是 | `tentative` / `confirmed` / `canonical` |
+| permanence | enum | 是 | `identity` / `skill` / `fact` / `transient` |
+| activation_count | integer | 是 | 活跃期内单调递增 |
+| last_activated | datetime | 是 | 供 decay pass 使用 |
+| created | datetime | 是 | 创建时间戳 |
+| outgoing_edges | array | 否 | `[{to: concept_id, weight: 1-100, via: [tag], last_reinforced: ISO}]` |
+| provenance.source_sessions | string[] | 否 | 证据出现的 session ID |
+| provenance.extracted_by | enum | 否 | `archiver` / `manual` / `dream` |
+| decay_policy | enum | 是 | 匹配 `permanence` 层级 |
+
+存储：`meta/concepts/{domain}/{concept_id}.md`（confirmed/canonical）或 `meta/concepts/_tentative/{concept_id}.md`（tentative）。
+
+### SoulSnapshot
+
+权威 spec：`references/snapshot-spec.md` §YAML Frontmatter Schema。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| snapshot_id | string | 是 | `{YYYY-MM-DD-HHMM}`，与文件名一致 |
+| captured_at | datetime | 是 | 来自系统时钟的真实 ISO 8601 时间戳 |
+| session_id | string | 是 | 引用 `meta/sessions/{session_id}.md` |
+| previous_snapshot | string \| null | 是 | 上一个文件名，首个快照为 null |
+| dimensions | array | 是 | `[{name, confidence: 0-1, evidence_count, challenges, tier}]`，其中 tier ∈ `core`/`secondary`/`emerging` |
+
+存储：`meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`。仅本地（不同步 Notion）。仅元数据 —— 无 SOUL 正文内容。不可变。
+
+### EvalEntry
+
+权威 spec：`references/eval-history-spec.md` §3。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| eval_id | string | 是 | `{YYYY-MM-DD-HHMM}-{project}` |
+| session_id | string | 是 | 引用 `meta/sessions/` 条目 |
+| evaluator | enum | 是 | `auditor` / `auditor-patrol` |
+| evaluation_mode | enum | 是 | `decision-review` / `patrol-inspection` |
+| date | datetime | 是 | |
+| scores | map | 是 | 10 个维度，每个 0-10 整数（见 eval-history-spec §5） |
+| violations | array | 否 | `[{type, agent, severity, detail}]` |
+| agent_quality_notes | map | 否 | 各 agent 一行观察 |
+
+存储：`meta/eval-history/{YYYY-MM-DD}-{project}.md`。仅本地。创建后不可变。无迁移回填。
+
+### Soul
+
+权威 spec：`references/soul-spec.md`。与其他 v1.7 类型不同，`Soul` 是**实时 `SOUL.md` 文件的内存视图**，不是 per-record 文件。工具读取整个 SOUL.md，解析为此结构，并（对 archiver 侧自动写入）写回。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| path | Path | 是 | `SOUL.md` 的绝对路径 |
+| dimensions | `List[SoulDimension]` | 是 | 所有解析出的维度（新用户可能为空） |
+| raw_body | str | 是 | 完整 markdown 正文（供基于 diff 的写入） |
+
+`SoulDimension` 子记录：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| name | str | 是 | 维度名（如 "risk-tolerance"） |
+| confidence | float | 是 | 0-1，经 `evidence_count / (evidence_count + challenges × 2)` 自动计算 |
+| evidence_count | int | 是 | |
+| challenges | int | 是 | |
+| source | enum | 是 | `dream` / `advisor` / `strategist` / `user` |
+| created | date | 是 | YYYY-MM-DD |
+| last_validated | date | 是 | YYYY-MM-DD |
+| tier | enum | 自动 | `core`（≥0.7）/ `secondary`（0.3-0.7）/ `emerging`（0.2-0.3）/ `dormant`（<0.2）—— 读取时派生 |
+| what_is | str | 否 | 正文段落 "What IS (实然)" |
+| what_should_be | str | 否 | 正文段落 "What SHOULD BE (应然)" |
+| gap | str | 否 | 正文段落 "Gap (差距)" |
+| evidence | `List[str]` | 否 | 正文 "Evidence" 项 |
+| challenges_list | `List[str]` | 否 | 正文 "Challenges" 项 |
+
+存储：second-brain 根目录的单一文件 `SOUL.md`。被每个主要角色读取；由 ARCHIVER Phase 2（soul-spec 中的自动写入标准）和用户直接写入。
+
+### Method
+
+权威 spec：`references/method-library-spec.md` §4。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| method_id | string | 是 | 小写 + 连字符，唯一 |
+| name | string | 是 | 显示名 |
+| description | string | 是 | INDEX.md 用的一句话 |
+| domain | enum | 是 | 与 Concept 相同的 domain 词汇 |
+| status | enum | 是 | `tentative` / `confirmed` / `canonical` |
+| confidence | number | 是 | 0-1，公式 `evidence_count / (evidence_count + challenges × 2)` |
+| times_used | integer | 是 | 每次应用该方法的 session 递增 |
+| last_used | datetime | 否 | ISO 8601 |
+| applicable_when | array | 否 | `[{condition, signal}]` |
+| not_applicable_when | array | 否 | `[{condition}]` |
+| source_sessions | string[] | 否 | 贡献的 session_id |
+| evidence_count | integer | 是 | 方法生效的 session 数 |
+| challenges | integer | 是 | 方法失败的 session 数 |
+| related_concepts | string[] | 否 | concept_id |
+| related_methods | string[] | 否 | method_id（软组合） |
+
+存储：`meta/methods/{domain}/{method_id}.md` 或 `meta/methods/_tentative/{method_id}.md`。仅本地。
+
+---
+
 ## 标准操作
 
 所有代理使用这些操作。适配器将它们翻译为平台特定的调用。
@@ -153,11 +315,25 @@
 |------|------|------|
 | **Save** | `Save(type, data)` | 创建新记录 |
 | **Update** | `Update(type, id, data)` | 修改现有记录 |
-| **Archive** | `Archive(type, id)` | 移至归档 |
+| **Archive** | `Archive(type, id)` | **v1.9 语义变更**（DR-1.9.4）：对项目，在 frontmatter 设置 `lifecycle_stage: archived` + `archived_at` + `archived_at_source`；**不**物理移动目录（保留 wikilink）。对其他类型（decisions/sessions），仍沿用旧的归档语义。 |
 | **Read** | `Read(type, id)` | 获取单条记录 |
-| **List** | `List(type, filters)` | 获取符合过滤条件的记录 |
+| **List** | `List(type, filters)` | 获取符合过滤条件的记录。**v1.9**：`List(Project, ...)` 默认过滤 `lifecycle_stage != archived`；传 `include_archived: true` 可覆盖。 |
 | **Search** | `Search(keyword)` | 跨所有类型全文搜索 |
-| **ReadProjectContext** | `ReadProjectContext(project_id)` | 批量读取：项目 index + 任务 + 决策 + 日志 |
+| **ReadProjectContext** | `ReadProjectContext(project_id)` | 批量读取：项目 index + 任务 +（v1.9 更新）经 projects 字段从 `meta/decisions/<YYYY-MM>/` 交叉引用的决策 + 经 projects 字段从 `meta/journal/` 的日志 |
+
+### v1.9 archive 语义（见 RFC §3.4 + DR-1.9.4）
+
+Pre-v1.9：`Archive(Project, id)` = `mv projects/{id}/ archive/{id}/` —— 破坏所有指向 `[[projects/{id}/...]]` 的 wikilink。
+
+v1.9：`Archive(Project, id)` = `Update(Project, id, {lifecycle_stage: archived, archived_at: <today>, archived_at_source: auto, archived_reason: <description>})`。项目仍留在 `projects/{id}/`。所有 wikilink 保持可解析。
+
+Index 编译器（retrospective Mode 0 → STATUS.md / STRATEGIC-MAP.md，archiver Phase 1 → STATUS 更新）默认过滤 `lifecycle_stage: archived`。Obsidian graph view 用 colorGroup 把归档项目显示为灰暗色。wiki/INDEX **不**过滤（历史知识保持可见）。
+
+`archived_at_source` enum（4 值，见 DR-1.9.26）：
+- `git-log` —— `/migrate-v1.9` Stage 3 从 git log 时间戳推导
+- `migrated-unknown` —— `/migrate-v1.9` 当 git log 无返回时的兜底
+- `manual` —— 用户手改 frontmatter
+- `auto` —— archiver/REVIEWER 在正常 session 流程中自动归档
 
 ---
 

@@ -319,6 +319,44 @@ triggered_actions:
 - **SOUL.md に直接書き込まない** — 候補を提案するのみ（SOUL 自動書き込みは archiver Phase 2 のスコープであり、DREAM ではない）
 - **厳格な基準下での Wiki 自動書き込み** — 全 6 つの自動書き込み基準を通過した場合に直接書き込む（wiki-spec.md 参照）；それ以外は破棄
 - **meta/user-patterns.md に直接書き込まない** — 更新を提案するのみ
-- **簡潔さ** — ドリームレポートは20〜50行であるべき、500行ではない
+- **二次圧縮なし** — DREAM レポートをそのままユーザーに貼り付け、同じ内容を journal に書く；行数上限は適用されない
 - **誠実さ** — 「重要な発見なし」は有効な夢。洞察を捏造しない
 - **ブロックしない** — DREAMが失敗しても、セッションは通常通り終了する
+
+---
+
+## DREAM × Cortex 統合（v1.7）
+
+DREAM は Cortex より前から存在する。v1.7 の concept グラフ、hippocampus、session index により、DREAM は新しい素材を得て、Cortex との境界を明確にする必要がある。
+
+### DREAM が Cortex から消費するもの
+
+- **`meta/concepts/INDEX.md`** —— REM ステージは concept グラフをクロスドメイン連想の足場として使う。v1.6.2 の REM が生の決定履歴から「予期せぬ接続」を探したのに対し、v1.7 の REM は weight ≥ 2 の `outgoing_edges` をたどり、3 日スコープが表面で見逃した近傍 concept を浮上させられる。
+- **`meta/concepts/SYNAPSES-INDEX.md`** —— REM は逆引きインデックスを使い、session ファイルを読み直さずに「どの過去の決定がこの新たにアクティブな concept に触れたか？」に答える。
+- **`meta/sessions/INDEX.md`** —— DREAM の 3 日スコープは `git log + ファイル読取` より速く検索するため session サマリーをクロスリファレンスする。
+- **`meta/snapshots/soul/`** —— 直近 3 つのスナップショットが `value-drift` トリガー（§7）に v1.6.2 の平文のみの検出より強いシグナルを供給する（下記「SOUL + Cortex シグナル」参照）。
+
+### DREAM が Cortex に書くもの
+
+- **DREAM は concept 候補を書いてよい。** `concept-spec.md §YAML Frontmatter Schema` は `provenance.extracted_by: dream` を許可する。REM が検出し 6 基準チェックを満たしたクロスドメイン連想は、archiver 検出の concept と同様に `meta/concepts/_tentative/{concept_id}.md` に着地する。DREAM は同じプライバシーフィルタと初期 `status: tentative` を使う —— `confirmed` への昇格には ≥3 の独立した session が必要で、後続の退朝フローでの archiver の責務。
+- **DREAM は `meta/concepts/{domain}/` に直接書いてはならない。** 検出器に関わらず、すべての新規 concept は `_tentative/` に着地する。昇格経路は archiver Phase 2 に集約される。
+- **DREAM は `outgoing_edges` や `SYNAPSES-INDEX.md` を変更してはならない。** Hebbian 更新は archiver の排他的書込スコープのまま —— DREAM はパターン検出器であり、グラフ書込器ではない。REM が「この 2 つの concept は接続されるべき」という洞察を浮上させた場合、それをエッジではなく**concept 候補**としてテキスト注記付きで書く。archiver Phase 2 が次回実行時、2 つの concept が共活性化すれば実際にエッジを作るか決める。
+
+### hippocampus との重複排除
+
+`cross-project-cognition-unused` トリガー（#5）は意味的に hippocampus の per-message 検索と重複する（v1.7 は DREAM 時だけでなく**毎メッセージ** hippocampus を実行）。トリガー #5 を発火する前に、DREAM は現在の session に記録された hippocampus シグナル（`meta/sessions/{session_id}.md` frontmatter の `concepts_activated` から）をチェックする：
+
+- hippocampus が現在の session で既に該当 wiki エントリを浮上させていた → DREAM はトリガーを**スキップ**（二重フラグなし）
+- hippocampus が浮上させていなかった → DREAM は v1.6.2 と同様に**発火**
+
+これは DREAM を hippocampus の**リアルタイム・現在メッセージ**検索に対する**オフライン・クロス session** 補完としての役割を保つ。
+
+### value-drift 検出のための SOUL + Cortex シグナル
+
+v1.7 では `value-drift` トリガー（#7）は 30 日の決定履歴に加えて `meta/snapshots/soul/` の直近 3 つの SOUL スナップショットを読む。ある次元の `confidence` が 3 スナップショット間で ≥ 0.2 低下し**かつ**正味（evidence − challenges）トレンドが負なら、DREAM は v1.6.2 の平文のみ検出より高い確信度で発火する。スナップショットトレンドは決定テキストの再読を必要としない信頼できる数値基盤を DREAM に与える。
+
+### REM 安全不変条件
+
+- REM は 1 回の実行で 1〜3 個の本物の洞察を超えない。concept グラフの走査は直近 3 日でアクティブ化された concept 集合からの 2-hop 近傍に限定される。網羅的走査はしない。
+- REM が提案する concept 候補は archiver 検出候補と同じ 6 基準 + プライバシーフィルタを通過しなければならない。REM の「創造的」ライセンスは**どの接続が提案に値するか**についてであり、検証をバイパスすることではない。
+- REM の concept 候補は `provenance.extracted_by: dream` を携帯し、後の監査が dream 由来の concept を archiver 由来の concept と区別できるようにする。

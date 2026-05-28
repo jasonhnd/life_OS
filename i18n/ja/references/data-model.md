@@ -6,24 +6,39 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 
 ### Decision
 
-> ⚠️ **v1.9 schema が下表を置き換え**（RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records" 参照）。v1.9 は `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` に書き込む；`type` は決定記録の種類 `change`/`no_change`/`escalation`/`superseded` に再利用（下表の `simple`/`3d6m` **ではない**）+ `projects` / `domains`（6 functional IDs）/ `reopen_condition`（no_change で必須）/ `applied_methods`（リスト）/ `journal_date`。下表は pre-v1.9 フィールド、歴史参照用。
+> ⚠️ **v1.9 schema が下表を置き換え**（RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records" 参照）。v1.9 は決定記録 frontmatter の権威ソース；下方の pre-v1.9 フィールドは歴史参照 / レガシーファイル解析用に保持。**フィールド名衝突の注意**：v1.9 は `type` を決定記録の種類（`change` / `no_change` / `escalation` / `superseded`）に再利用し、pre-v1.9 の workflow 種類（`simple` / `3d6m`）**ではない**。新規決定を書く際は v1.9 schema を使う。
+
+**v1.9 正規 schema**（`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`）：
 
 | フィールド | 型 | 必須 | 説明 |
 |-------|------|----------|-------------|
-| id | string | 自動 | 一意識別子（ファイル名またはデータベースID） |
-| title | string | はい | 件名（20文字以内） |
-| type | enum | はい | （pre-v1.9）`simple` / `3d6m`（Draft-Review-Execute）—— v1.9 は change/no_change/escalation/superseded に変更 |
-| ministries | string[] | いいえ | 起動された部門 |
-| score | number | いいえ | 総合スコア（1-10） |
-| veto_count | number | いいえ | REVIEWERの封駁回数 |
-| status | enum | はい | `considering` / `decided` / `reversed` |
-| category | enum | いいえ | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
-| outcome | enum | いいえ | `good` / `neutral` / `bad` / `tbd` |
-| date | date | はい | 決定日 |
-| project | string | いいえ | 関連プロジェクト |
-| area | string | いいえ | 関連エリア |
-| last_modified | datetime | 自動 | 最終更新タイムスタンプ |
-| content | text | はい | レポート全文（本文） |
+| id | string | はい | `dec-<YYYY-MM-DD>-<NNN>`（日次連番） |
+| title | string | はい | 短いタイトル |
+| type | enum | はい | `change` / `no_change` / `escalation` / `superseded` |
+| projects | string[] | はい | 所属プロジェクト；`[]` = クロスプロジェクト |
+| domains | string[] | はい | 6 functional IDs のサブセット：governance/execution/finance/infra/people/growth |
+| reviewed_by | string | はい | agent または human |
+| reviewed_at | date | はい | ISO 日付 |
+| decision | text | はい | 一文の決定 |
+| rationale | text | はい | 理由 |
+| reopen_condition | text | 条件付き | `type: no_change` のとき必須 |
+| supersedes / superseded_by | string[] / string | いいえ | 決定の系譜 |
+| applied_methods | string[] | いいえ | 適用された method（リスト；Opt #8） |
+| journal_date | date | いいえ | その日の journal ファイル（Opt #8） |
+| content | text | はい | Summary report 全文（本文） |
+
+<details><summary>Pre-v1.9 フィールド（レガシー、新規決定には使用しない）</summary>
+
+| フィールド | 型 | 説明 |
+|-------|------|-------------|
+| type | enum | `simple` / `3d6m`（workflow —— v1.9 `type` に置き換え） |
+| status | enum | `considering` / `decided` / `reversed` |
+| category | enum | `career` / `finance` / `product` / `tech` / `family` / `life` / `health` |
+| outcome | enum | `good` / `neutral` / `bad` / `tbd` |
+| score / veto_count | number | 総合スコア / 封駁イベント |
+| date / project / area | — | `reviewed_at` / `projects` /（area は project 経由）に置き換え |
+
+</details>
 
 ### Task
 
@@ -145,6 +160,153 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 
 ---
 
+## v1.7 Cortex データ型
+
+以下の型は v1.7 で Cortex 認知層のために導入された。各々が独自の権威 spec ファイルを持つ；下表は `tools/lib/second_brain.py` の dataclass が消費する短縮形。
+
+### SessionSummary
+
+権威 spec：`references/session-index-spec.md` §3。
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| session_id | string | はい | フォーマット `{platform}-{YYYYMMDD}-{HHMM}` |
+| date | date | はい | ISO 8601 日付 |
+| started_at | datetime | はい | タイムゾーン付きタイムスタンプ |
+| ended_at | datetime | はい | タイムゾーン付きタイムスタンプ |
+| duration_minutes | integer | はい | |
+| platform | enum | はい | `claude` / `gemini` / `codex` |
+| theme | enum | はい | テーマ ID（例 `zh-classical`、`ja-kasumigaseki`） |
+| project | string | はい | バインドされたプロジェクト（session-binding HARD RULE を強制） |
+| workflow | enum | はい | `full_deliberation` / `express_analysis` / `direct_handle` / `strategist` / `review` |
+| subject | string | はい | 抽出された主題（200文字以内） |
+| domains_activated | string[] | いいえ | PEOPLE/FINANCE/GROWTH/EXECUTION/GOVERNANCE/INFRA のサブセット |
+| overall_score | number | いいえ | Summary Report からの 0-10 |
+| domain_scores | map | いいえ | 領域別 0-10 スコア |
+| veto_count | integer | いいえ | REVIEWER 封駁イベント |
+| council_triggered | boolean | いいえ | COUNCIL 討論が発火したか？ |
+| soul_dimensions_touched | string[] | いいえ | 参照された SOUL 次元 ID |
+| wiki_written | string[] | いいえ | 本 session で自動書込された wiki エントリ ID |
+| methods_used | string[] | いいえ | 適用された Method ID |
+| methods_discovered | string[] | いいえ | 新規アーカイブされた Method ID |
+| concepts_activated | string[] | いいえ | 参照された Concept ID |
+| concepts_discovered | string[] | いいえ | archiver Phase 2 が書込した新規 Concept ID |
+| dream_triggers | string[] | いいえ | 発火した DREAM REM trigger 名 |
+| keywords | string[] | いいえ | 最大 10 個、hippocampus Wave 1 スキャン用 |
+| action_items | array | いいえ | `[{text, deadline, status}]` |
+| compliance_violations | integer | いいえ | AUDITOR が標記した違反 |
+
+ストレージ：`meta/sessions/{session_id}.md`。archiver 書込後は不変。
+
+### Concept
+
+権威 spec：`references/concept-spec.md` §YAML Frontmatter Schema。
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| concept_id | string | はい | 小文字 + ハイフン、64文字以内、一意 |
+| canonical_name | string | はい | 人間可読の表示名 |
+| aliases | string[] | いいえ | 代替の表層形 |
+| domain | enum | はい | `finance` / `startup` / `personal` / `technical` / `method` / `relationship` / `health` / `legal` / ユーザー拡張可能 |
+| status | enum | はい | `tentative` / `confirmed` / `canonical` |
+| permanence | enum | はい | `identity` / `skill` / `fact` / `transient` |
+| activation_count | integer | はい | 活動期間中は単調増加 |
+| last_activated | datetime | はい | decay pass で使用 |
+| created | datetime | はい | 作成タイムスタンプ |
+| outgoing_edges | array | いいえ | `[{to: concept_id, weight: 1-100, via: [tag], last_reinforced: ISO}]` |
+| provenance.source_sessions | string[] | いいえ | 証拠が出現した session ID |
+| provenance.extracted_by | enum | いいえ | `archiver` / `manual` / `dream` |
+| decay_policy | enum | はい | `permanence` 層に一致 |
+
+ストレージ：`meta/concepts/{domain}/{concept_id}.md`（confirmed/canonical）または `meta/concepts/_tentative/{concept_id}.md`（tentative）。
+
+### SoulSnapshot
+
+権威 spec：`references/snapshot-spec.md` §YAML Frontmatter Schema。
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| snapshot_id | string | はい | `{YYYY-MM-DD-HHMM}`、ファイル名と一致 |
+| captured_at | datetime | はい | システムクロックからの実 ISO 8601 タイムスタンプ |
+| session_id | string | はい | `meta/sessions/{session_id}.md` を参照 |
+| previous_snapshot | string \| null | はい | 前のファイル名、最初のスナップショットは null |
+| dimensions | array | はい | `[{name, confidence: 0-1, evidence_count, challenges, tier}]`、tier ∈ `core`/`secondary`/`emerging` |
+
+ストレージ：`meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`。ローカルのみ（Notion 非同期）。メタデータのみ —— SOUL 本文内容なし。不変。
+
+### EvalEntry
+
+権威 spec：`references/eval-history-spec.md` §3。
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| eval_id | string | はい | `{YYYY-MM-DD-HHMM}-{project}` |
+| session_id | string | はい | `meta/sessions/` エントリを参照 |
+| evaluator | enum | はい | `auditor` / `auditor-patrol` |
+| evaluation_mode | enum | はい | `decision-review` / `patrol-inspection` |
+| date | datetime | はい | |
+| scores | map | はい | 10 次元、各 0-10 整数（eval-history-spec §5 参照） |
+| violations | array | いいえ | `[{type, agent, severity, detail}]` |
+| agent_quality_notes | map | いいえ | agent 別の一行観察 |
+
+ストレージ：`meta/eval-history/{YYYY-MM-DD}-{project}.md`。ローカルのみ。作成後は不変。移行バックフィルなし。
+
+### Soul
+
+権威 spec：`references/soul-spec.md`。他の v1.7 型と異なり、`Soul` は**実時の `SOUL.md` ファイルのインメモリビュー**であり、per-record ファイルではない。ツールは SOUL.md 全体を読み、この構造に解析し、（archiver 側の自動書込では）書き戻す。
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| path | Path | はい | `SOUL.md` の絶対パス |
+| dimensions | `List[SoulDimension]` | はい | 解析されたすべての次元（新規ユーザーは空の場合がある） |
+| raw_body | str | はい | 完全な markdown 本文（diff ベース書込用） |
+
+`SoulDimension` サブレコード：
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| name | str | はい | 次元名（例 "risk-tolerance"） |
+| confidence | float | はい | 0-1、`evidence_count / (evidence_count + challenges × 2)` で自動計算 |
+| evidence_count | int | はい | |
+| challenges | int | はい | |
+| source | enum | はい | `dream` / `advisor` / `strategist` / `user` |
+| created | date | はい | YYYY-MM-DD |
+| last_validated | date | はい | YYYY-MM-DD |
+| tier | enum | 自動 | `core`（≥0.7）/ `secondary`（0.3-0.7）/ `emerging`（0.2-0.3）/ `dormant`（<0.2）—— 読取時に派生 |
+| what_is | str | いいえ | 本文セクション "What IS (实然)" |
+| what_should_be | str | いいえ | 本文セクション "What SHOULD BE (应然)" |
+| gap | str | いいえ | 本文セクション "Gap (差距)" |
+| evidence | `List[str]` | いいえ | 本文 "Evidence" の項目 |
+| challenges_list | `List[str]` | いいえ | 本文 "Challenges" の項目 |
+
+ストレージ：second-brain ルートの単一ファイル `SOUL.md`。すべての主要ロールが読む；ARCHIVER Phase 2（soul-spec の自動書込基準）とユーザーが直接書込。
+
+### Method
+
+権威 spec：`references/method-library-spec.md` §4。
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| method_id | string | はい | 小文字 + ハイフン、一意 |
+| name | string | はい | 表示名 |
+| description | string | はい | INDEX.md 用の一文 |
+| domain | enum | はい | Concept と同じ domain 語彙 |
+| status | enum | はい | `tentative` / `confirmed` / `canonical` |
+| confidence | number | はい | 0-1、式 `evidence_count / (evidence_count + challenges × 2)` |
+| times_used | integer | はい | 方法を適用するたびに session ごとに増加 |
+| last_used | datetime | いいえ | ISO 8601 |
+| applicable_when | array | いいえ | `[{condition, signal}]` |
+| not_applicable_when | array | いいえ | `[{condition}]` |
+| source_sessions | string[] | いいえ | 貢献した session_id |
+| evidence_count | integer | はい | 方法が機能した session 数 |
+| challenges | integer | はい | 方法が失敗した session 数 |
+| related_concepts | string[] | いいえ | concept_id |
+| related_methods | string[] | いいえ | method_id（ソフト合成） |
+
+ストレージ：`meta/methods/{domain}/{method_id}.md` または `meta/methods/_tentative/{method_id}.md`。ローカルのみ。
+
+---
+
 ## 標準オペレーション
 
 すべてのエージェントがこれらのオペレーションを使用します。アダプターがプラットフォーム固有の呼び出しに変換します。
@@ -153,11 +315,25 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 |-----------|-----------|-------------|
 | **Save** | `Save(type, data)` | 新規レコードの作成 |
 | **Update** | `Update(type, id, data)` | 既存レコードの変更 |
-| **Archive** | `Archive(type, id)` | アーカイブへ移動 |
+| **Archive** | `Archive(type, id)` | **v1.9 セマンティクス変更**（DR-1.9.4）：プロジェクトの場合、frontmatter に `lifecycle_stage: archived` + `archived_at` + `archived_at_source` を設定；ディレクトリを物理的に移動**しない**（wikilink を保持）。他の型（decisions/sessions）はレガシーのアーカイブセマンティクスが引き続き適用。 |
 | **Read** | `Read(type, id)` | 単一レコードの取得 |
-| **List** | `List(type, filters)` | フィルタに一致するレコードの取得 |
+| **List** | `List(type, filters)` | フィルタに一致するレコードの取得。**v1.9**：`List(Project, ...)` はデフォルトで `lifecycle_stage != archived` をフィルタ；`include_archived: true` を渡すと上書き。 |
 | **Search** | `Search(keyword)` | 全型にわたる全文検索 |
-| **ReadProjectContext** | `ReadProjectContext(project_id)` | バッチ読取: プロジェクトインデックス + タスク + 決定 + ジャーナル |
+| **ReadProjectContext** | `ReadProjectContext(project_id)` | バッチ読取: プロジェクトインデックス + タスク +（v1.9 更新）projects フィールド経由で `meta/decisions/<YYYY-MM>/` からクロスリファレンスされた決定 + projects フィールド経由で `meta/journal/` からのジャーナル |
+
+### v1.9 archive セマンティクス（RFC §3.4 + DR-1.9.4 参照）
+
+Pre-v1.9：`Archive(Project, id)` = `mv projects/{id}/ archive/{id}/` —— `[[projects/{id}/...]]` を指すすべての wikilink を破壊した。
+
+v1.9：`Archive(Project, id)` = `Update(Project, id, {lifecycle_stage: archived, archived_at: <today>, archived_at_source: auto, archived_reason: <description>})`。プロジェクトは `projects/{id}/` に残る。すべての wikilink は解決可能なまま。
+
+Index コンパイラ（retrospective Mode 0 → STATUS.md / STRATEGIC-MAP.md、archiver Phase 1 → STATUS 更新）はデフォルトで `lifecycle_stage: archived` をフィルタする。Obsidian graph view は colorGroup でアーカイブ済みプロジェクトをくすんだグレーで表示する。wiki/INDEX は**フィルタしない**（歴史的知識は可視のまま）。
+
+`archived_at_source` enum（4 値、DR-1.9.26 参照）：
+- `git-log` —— `/migrate-v1.9` Stage 3 が git log タイムスタンプから導出
+- `migrated-unknown` —— `/migrate-v1.9` が git log から何も返らなかった場合のフォールバック
+- `manual` —— ユーザーが frontmatter を手動編集
+- `auto` —— archiver/REVIEWER が通常の session フローで自動アーカイブ
 
 ---
 

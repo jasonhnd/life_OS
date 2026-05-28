@@ -46,6 +46,14 @@ regression_cases_added: []
 
 - **无需用户操作**。这是 spec 正确性 patch——无 vault 数据迁移。v1.9.0 vault 不受影响；已有的 `.md` 审计轨迹本就合规。今后的审计轨迹 / manifest / fixture 写入将正确遵循 spec。
 
+### fix1（2026-05-29）—— v1.9.0 遗留漂移，第一轮
+
+并入 v1.9.1 tag 的发布后修正。三项都是 v1.9.0 引入、初版 v1.9.1 没补到的漂移：
+
+- **发布 v1.9 RFC。** `_meta/rfc/v1.9-second-brain-structure-optimization.md` 被约 20 个已追踪文件引用为 spec 权威源（`/migrate-v1.9`、`/verify-v1.9`、docs、evals、CHANGELOG），却因 `.gitignore` 的 `_meta/` 规则未被追踪。强制 `git add -f` 纳入，沿用 v1.8.7 RFC 惯例。
+- **修正不可能的 CHANGELOG 日期。** v1.8.5 / v1.8.6 写成 `2026-07-15` / `2026-07-16`（晚于 v1.8.7 的 05-25 和 v1.9.x 数月）；按权威 tag/release 日期改为 `2026-05-23`（CHANGELOG + changelog-spec 三语）。
+- **补完 references↔i18n 镜像同步**（恢复 `##` 章节计数对齐）：`data-model.md` 中日版缺整个 `## v1.7 Cortex Data Types` 节 + `### v1.9 archive semantics` + v1.9 标准操作更新（177 行缺口）；`concept-spec.md` 中日版缺 `## Wikilink Convention`；`dream-spec.md` 中日版缺 `## DREAM × Cortex Integration`（并修正一条与 EN「无行数上限」矛盾的过时「20-50 行」DREAM 约束）。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化
@@ -159,12 +167,12 @@ upgrade_mode: zero-friction
 
 ---
 
-## [1.8.6] - 2026-07-16 - md-only 强制（repo 内禁 .py/.sh/.yml/.json）
+## [1.8.6] - 2026-05-23 - md-only 强制（repo 内禁 .py/.sh/.yml/.json）
 
 ```yaml
 ---
 version: 1.8.6
-date: 2026-07-16
+date: 2026-05-23
 type: patch
 breaking_changes:
   - "审计 trail format R12 -> R13：_meta/runtime/<sid>/*.json -> *.md（markdown + YAML frontmatter）"
@@ -202,12 +210,12 @@ regression_cases_added: []
 
 ---
 
-## [1.8.5] - 2026-07-15 - Hook 退役 + EOU-Hardening（life_OS 历史上最大单次 release）
+## [1.8.5] - 2026-05-23 - Hook 退役 + EOU-Hardening（life_OS 历史上最大单次 release）
 
 ```yaml
 ---
 version: 1.8.5
-date: 2026-07-15
+date: 2026-05-23
 type: patch
 breaking_changes:
   - "SOUL.md schema v1 → v2：优先级 {1..N} 总序、X-over-Y formulation 必填、inclusion test 6Q gate、outlier role slot 必填、3-8 dim 上限"

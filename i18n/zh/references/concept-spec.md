@@ -416,6 +416,56 @@ v1.7 之前没有 concepts 目录。迁移到 v1.7 仅运行一次，由 `tools/
 
 ---
 
+## Wikilink 约定（v1.8.0 R-1.8.0-013）
+
+concept 文件在正文中用 Obsidian `[[]]` 语法做交叉引用。这启用 Obsidian graph view、点击跳转，并驱动 `references/hippocampus-spec.md` 中的 4 信号相关性模型（`direct_link_count` 信号）。
+
+### 正文
+
+对其他概念的纯文本引用 → wikilink：
+
+```markdown
+## Discussion
+The 强规则意识 dimension correlates strongly with [[loss-aversion]] and
+inversely with [[risk-tolerance]]. See [[2026-04-15T0900Z]] for the
+session where this pattern emerged.
+```
+
+### Frontmatter
+
+`outgoing_edges` 数组使用 wikilink target 字段（见上方权威 schema）：
+
+```yaml
+outgoing_edges:
+  - target: "[[loss-aversion]]"
+    weight: 5
+    last_co_activated: 2026-04-29T10:00:00+09:00
+  - target: "[[risk-tolerance]]"
+    weight: 3
+    last_co_activated: 2026-04-15T09:00:00+09:00
+```
+
+R-1.8.0-013 之前的 frontmatter 用 `to: concept_id`（纯字符串）和字段名 `last_reinforced`。迁移 prompt `scripts/prompts/migrate-to-wikilinks.md` 在 Phase 3 重写两者。权重始终非负（"反向相关"的负权重曾被考虑后否决 —— 太罕见，不值得增加 spec 复杂度；如需可用单独的 inhibitory-edge 概念页）。
+
+`aliases:` 保持纯字符串数组（文件名匹配，非 wikilink）。`provenance.source_sessions:` 变为 wikilink 数组：
+
+```yaml
+provenance:
+  source_sessions:
+    - "[[2026-04-15T0900Z]]"
+    - "[[2026-04-29T1430Z]]"
+```
+
+### 人作为概念
+
+当某人变得图谱相关（见 `references/people-spec.md`），人物页（`meta/people/<id>.md`）参与同一 wikilink 网络。概念的 `outgoing_edges` 可指向人物页：`target: "[[john-doe]]"`。4 信号打分中的类型亲和度区分 concept-to-concept（1.0）与 concept-to-person（0.5）。
+
+### 迁移
+
+现有带纯文本引用的 concept 文件经 `scripts/prompts/migrate-to-wikilinks.md` 迁移。R-1.8.0-013 之后创建的概念必须从第一天起用 wikilink 约定。
+
+---
+
 > ℹ️ **2026-04-22 更新**：同步 EN R3.2 修复 §Creation 6-criteria / §Retirement / §Conflict
 >
 > ℹ️ **2026-04-22 补齐**：Lifecycle 代码块 Step 1/2/3/4/6 + §Creation 6-criteria 括注的历史遗漏翻译
