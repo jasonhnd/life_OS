@@ -1,6 +1,6 @@
 # 版本历史（Version History）
 
-完整变更日志见根目录 [CHANGELOG.md](/CHANGELOG.md)（三语版本：[中文](/i18n/zh/CHANGELOG.md) · [日本語](/i18n/ja/CHANGELOG.md)）。
+完整变更日志见根目录 [CHANGELOG.md](../../CHANGELOG.md)（三语版本：[中文](../../i18n/zh/CHANGELOG.md) · [日本語](../../i18n/ja/CHANGELOG.md)）。
 
 本文件提供版本命名约定、主要版本汇总和破坏性变更迁移说明。
 
@@ -260,8 +260,8 @@ git show v1.6.2a      # 查看某版本的提交
 
 本文件是版本**汇总**。详细的每次变更说明（包含受影响文件、迁移说明、设计细节）请看完整 CHANGELOG.md：
 
-- **英文**：[CHANGELOG.md](/CHANGELOG.md)
-- **中文**：[i18n/zh/CHANGELOG.md](/i18n/zh/CHANGELOG.md)
-- **日本語**：[i18n/ja/CHANGELOG.md](/i18n/ja/CHANGELOG.md)
+- **英文**：[CHANGELOG.md](../../CHANGELOG.md)
+- **中文**：[i18n/zh/CHANGELOG.md](../../i18n/zh/CHANGELOG.md)
+- **日本語**：[i18n/ja/CHANGELOG.md](../../i18n/ja/CHANGELOG.md)
 
 三个 CHANGELOG 的版本标题对齐，内容三语一致。

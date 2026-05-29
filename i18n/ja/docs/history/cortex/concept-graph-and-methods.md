@@ -7,7 +7,7 @@ superseded_by: pro/CLAUDE.md
 
 # 概念グラフ + メソッドライブラリ · システムはどう「知恵を蓄える」か / Concept Graph & Method Library
 
-> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../index.md)
+> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../README.md)
 
 > adjourn のたびに、システムは session をアーカイブするだけではありません——今回の対話をスキャンし、**候補概念 (concept candidates)** と**候補メソッド (method candidates)** を抽出します。次回 Start Session では、retrospective がブリーフィング内で尋ねます:「この 2 つの候補は妥当に見えますか?確認、却下、それとも編集?」使えば使うほど、これらのノードの**辺の重み (edge weight) が強化されます**(ヘブ型強化);長期間使用されなければ、permanence 等級に従って徐々に減衰します。これが Cortex の「長期記憶」次元です。
 
@@ -489,7 +489,7 @@ Orphan edge = `outgoing_edges` の `to:` が存在しない concept ファイル
 プロダクト入口:
 
 - [What is Life OS](../../getting-started/what-is-life-os.md) — Life OS 全体の位置付け
-- [Quickstart](../../getting-started/quickstart.md) — 初回上朝フロー
+- [Quickstart](../../../../../docs/getting-started/quickstart.md) — 初回上朝フロー
 
 同ディレクトリ ユーザードキュメント:
 

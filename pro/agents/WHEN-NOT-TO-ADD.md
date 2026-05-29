@@ -15,7 +15,7 @@
 
 A subagent definition that is:
 - Task-spawnable (Claude Code can launch via `Task(<name>)`)
-- Has a unique, non-overlapping responsibility (check against existing 22 agents in this directory)
+- Has a unique, non-overlapping responsibility (check against the existing agents in this directory)
 - Has v2 agent-spec frontmatter complete
 - Has clear blast radius (declares what files it may and may NOT write)
 - Has documented failure modes + recovery actions

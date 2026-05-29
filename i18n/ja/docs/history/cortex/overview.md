@@ -7,7 +7,7 @@ superseded_by: pro/CLAUDE.md
 
 # Cortex 総覧 · v1.7 認知層概要(Cortex Overview)
 
-> パンくず: [← 製品入口:ユーザーガイド索引](../index.md)
+> パンくず: [← 製品入口:ユーザーガイド索引](../README.md)
 
 > v1.7 は Life OS に「認知基盤」を一枚追加しました—— Cortex。これは新しい役割でも、新しいコマンドでもありません。あなたが発言するたびに、システムが自動的に履歴を見返し、関連概念を活性化させ、SOUL と照合するようにするものです。本文は Cortex の 6 篇のユーザーガイドの入口です。
 
@@ -210,7 +210,7 @@ Step 0.5 の総予算は **< 7 秒**(hippocampus 5s ソフトタイムアウト 
 製品入口:
 
 - [What is Life OS](../../getting-started/what-is-life-os.md) — Life OS とは何か、その中での Cortex の位置付け
-- [Quickstart](../../getting-started/quickstart.md) — 初回上朝フロー
+- [Quickstart](../../../../../docs/getting-started/quickstart.md) — 初回上朝フロー
 
 ユーザー文書(本ディレクトリ 5 兄弟):
 

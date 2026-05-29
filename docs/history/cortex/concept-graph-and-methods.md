@@ -7,7 +7,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 # 概念图谱 + 方法库 · 系统怎么"攒智慧"
 
-> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)
+> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../README.md)
 
 > 每次 adjourn 之后,系统不只是把 session 归档——它还会扫一遍本次对话,抽出**候选概念**和**候选方法**。下次 Start Session,retrospective 会在简报里问你:"这两个候选看起来合理吗?确认、拒绝、还是编辑?"你用得越多,这些节点的**边权越强**(赫布式强化);长时间不用,按 permanence 分级慢慢衰退。这就是 Cortex 的"长期记忆"维度。
 

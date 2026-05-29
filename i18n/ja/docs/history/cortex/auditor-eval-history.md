@@ -7,7 +7,7 @@ superseded_by: pro/CLAUDE.md
 
 # AUDITOR Eval-History · システムの自己フィードバックループ / AUDITOR Eval-History
 
-> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../index.md)
+> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../README.md)
 
 > Life OS は背後の Claude モデルをファインチューニングできませんが、**自身のルールをファインチューニング**できます。AUDITOR は session 終了時に 10 次元で自己採点し、結果を `meta/eval-history/{date}-{project}.md` に書き込みます。次回 Start Session で RETROSPECTIVE が直近 10 件をスキャンし、システミックなパターンを検出します——連続 3 回 adjourn 不完全?narrator 引用失敗率 >20%?これらは「システミックな問題検出」ブロックとしてブリーフィングに出現します。あなたはシステムのユーザーであるだけでなく、これらのルールを調整する人でもあります。
 

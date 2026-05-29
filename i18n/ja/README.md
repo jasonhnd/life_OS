@@ -105,7 +105,7 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 マイグレーションコマンド不要。archiver 初回実行で `pro/gotchas.md` を自動作成。既存データレイアウトは変わらない。
 
-完全な RFC、DR-08（cargo-cult カット）、DR-09（決定基準：時間ではなくプロダクト品質）、DR-10（md-only 本体論的制約）、設計決定の監査 trail は [`meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 参照。
+完全な RFC、DR-08（cargo-cult カット）、DR-09（決定基準：時間ではなくプロダクト品質）、DR-10（md-only 本体論的制約）、設計決定の監査 trail は [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 参照。
 
 > **以前**、v1.8.3 はアウトバウンドプライバシーギャップを閉じた（v1.8.3 の詳細は CHANGELOG 参照）。
 
@@ -128,7 +128,7 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 > *v1.8.5 更新：`pre-notion-write.sh` hook は bash hook 層とともに退役しました（md-only / DR-10）。下記のスキャンロジックは不変です——同じパターン表、同じ 3 段階 verdict——が、オーケストレーターは現在、各 Notion 書き込みの前に PreToolUse hook ではなく**インライン LLM 手順**として実行します。現在の挙動は `pro/CLAUDE.md` Step 10a を参照。*
 
-すべての Notion MCP 書き込み呼び出しがチェックされる。スキャンは送信予定の内容を [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) の 5 グループパターンに対して照合し、3 段階アクションモデルで処理：
+すべての Notion MCP 書き込み呼び出しがチェックされる。スキャンは送信予定の内容を [`references/outbound-pii-patterns.md`](../../references/outbound-pii-patterns.md) の 5 グループパターンに対して照合し、3 段階アクションモデルで処理：
 
 | 命中グループ | Verdict | 動作 |
 |---|---|---|
@@ -147,7 +147,7 @@ Group A パターンは曖昧性なし、強制ブロックは正解。Group B/C
 
 ### なぜ `strip` モードがないか
 
-Claude Code の PreToolUse hook は `tool_input` を書き換えられない。サニタイズは一段上で行う：オーケストレーターが warn reminder を読み、サニタイズ版を生成し、Notion 呼び出しを再発行。Hook は**検出器**であって書き換え器ではない。この handoff のオーケストレーション契約は [`pro/CLAUDE.md` Step 10a](pro/CLAUDE.md) に。
+Claude Code の PreToolUse hook は `tool_input` を書き換えられない。サニタイズは一段上で行う：オーケストレーターが warn reminder を読み、サニタイズ版を生成し、Notion 呼び出しを再発行。Hook は**検出器**であって書き換え器ではない。この handoff のオーケストレーション契約は [`pro/CLAUDE.md` Step 10a](../../pro/CLAUDE.md) に。
 
 ### マイグレーション
 
@@ -325,7 +325,7 @@ v1.7.1 は、透明性と証拠の扱いを強化するリリースです。toke
 - 6 つの Cortex ユーザーガイド + v1.7-migration UX 章
 - cortex-spec + hippocampus-spec の中国語・日本語訳
 
-アップグレード（v1.6 → v1.7）：詳細は [docs/history/v1.7-migration.md](docs/history/v1.7-migration.md)。以前の `uv run life-os-tool migrate` コマンドは R-1.8.0-011 で `life-os-tool` dispatcher と共に削除されました；現在は LLM 駆動の `scripts/prompts/migrate-from-v1.6.md` を使用、詳細は `pro/CLAUDE.md` §0.5。
+アップグレード（v1.6 → v1.7）：詳細は [docs/history/v1.7-migration.md](../../docs/history/v1.7-migration.md)。以前の `uv run life-os-tool migrate` コマンドは R-1.8.0-011 で `life-os-tool` dispatcher と共に削除されました；現在は LLM 駆動の `scripts/prompts/migrate-from-v1.6.md` を使用、詳細は `pro/CLAUDE.md` §0.5。
 
 v1.7 の全 commit チェーンと COURT-START-001 v1.6.3 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
 
@@ -695,7 +695,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
  │     English: Roman Republic · US Government · C-Suite
  │     複数の機能 ID → 表示名、語調、トリガーワードをマッピング
  │
- ├─ ⚙️ 意思決定エンジン（16エージェント、文化中立）
+ ├─ ⚙️ 意思決定エンジン（複数のエージェント、文化中立）
  │  │
  │  ├─ 🏛️ 内閣官房長官（ROUTER）— 日常の入口
  │  │     日常会話、感情サポート、簡単な質問を直接処理

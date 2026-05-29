@@ -7,7 +7,7 @@ superseded_by: pro/CLAUDE.md
 
 # Hippocampus · クロスセッション記憶検索(Hippocampus · Cross-Session Memory Recall)
 
-> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../index.md)
+> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../README.md)
 
 > 新しい session を開いて発言するたびに、Hippocampus はバックグラウンドで自動的に過去の session を見返し、「あなたが今聞いていること」に関連する数条を探し出します——違う言い回しでも、どれだけ時間が経っていても構いません。ROUTER があなたのメッセージを受け取るとき、既にこれらの「関連記憶」が参考として添付されています。上朝の体感が変わります: システムが**覚えている**ようになります。
 
@@ -302,7 +302,7 @@ GWT 仲裁器は**単一源の失敗**を許容できます——初回 session�
 製品入口:
 
 - [What is Life OS](../../getting-started/what-is-life-os.md) — Life OS 全体の位置付け
-- [Quickstart](../../getting-started/quickstart.md) — 初回上朝フロー
+- [Quickstart](../../../../../docs/getting-started/quickstart.md) — 初回上朝フロー
 
 同ディレクトリのユーザー文書:
 

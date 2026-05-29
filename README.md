@@ -120,7 +120,7 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 
 No migration command needed. archiver first run creates `pro/gotchas.md` automatically. Existing data layout unchanged.
 
-See [`meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) for the full RFC, DR-08 (cargo-cult cuts), DR-09 (decision standard: product quality not time), DR-10 (md-only ontological constraint), and the audit trail of design decisions.
+See [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) for the full RFC, DR-08 (cargo-cult cuts), DR-09 (decision standard: product quality not time), DR-10 (md-only ontological constraint), and the audit trail of design decisions.
 
 > **Previously**, v1.8.3 closed the outbound privacy gap (see CHANGELOG for the v1.8.3 detail).
 

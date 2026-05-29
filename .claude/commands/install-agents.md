@@ -65,7 +65,7 @@ The `@` import lets Claude Code load the full source content at Task() launch ti
 
 ## v1.8.5 v2 frontmatter compatibility
 
-Per Stage 6 (21 subagent standardization), each `pro/agents/*.md` source file gets a v2 standard frontmatter with `authority_level`, `automation_mode`, `blast_radius`, `failure_modes`, etc. This slash command MUST preserve those fields when generating wrappers (just copy frontmatter verbatim, then add the `@import` line). Do NOT strip v2 fields.
+Per Stage 6 (subagent frontmatter standardization), each `pro/agents/*.md` source file gets a v2 standard frontmatter with `authority_level`, `automation_mode`, `blast_radius`, `failure_modes`, etc. This slash command MUST preserve those fields when generating wrappers (just copy frontmatter verbatim, then add the `@import` line). Do NOT strip v2 fields.
 
 ## v1.8.5 changes vs v1.8.4 scripts/register-claude-agents.sh
 

@@ -7,7 +7,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 # GWT 仲裁 · 多源信号的显著性竞争
 
-> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)
+> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../README.md)
 
 > 每次你发消息,Cortex 会并行跑三条信号源:hippocampus(历史 session)、concept lookup(概念图谱)、SOUL check(人格维度检查)。这三条源可能产生**十几条甚至几十条**的候选信号。都塞给 ROUTER 会变成信息洪水。GWT Arbitrator 的工作就是在这堆信号里做**显著性竞争**——按 4 个维度打分,挑 top-5 播报给 ROUTER,其中 SOUL 核心冲突优先升格为警告头部。这一层受 Stanislas Dehaene 的 **Global Neuronal Workspace** 理论启发,中文常译作"全局神经元工作空间"。
 

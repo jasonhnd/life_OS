@@ -7,7 +7,7 @@ superseded_by: pro/CLAUDE.md
 
 # GWT 仲裁 · 多源シグナルの顕著性競争 / GWT Arbitration
 
-> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../index.md)
+> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../README.md)
 
 > メッセージを送るたびに、Cortex は 3 つのシグナル源を並列実行します:hippocampus(歴史 session)、concept lookup(概念グラフ)、SOUL check(人格次元チェック)。これら 3 源は**十数〜数十の**候補シグナルを生む可能性があります。すべてを ROUTER に流すと情報洪水になります。GWT Arbitrator の仕事は、このシグナルの山で**顕著性競争**を行うことです——4 次元で採点し、top-5 を選び ROUTER に届ける、SOUL コア衝突は警告ヘッダーに昇格。この層は Stanislas Dehaene の **Global Neuronal Workspace** 理論から着想を得ています(中国語では「全局神经元工作空间」、日本語では「グローバル・ニューロナル・ワークスペース」と呼ばれます)。
 

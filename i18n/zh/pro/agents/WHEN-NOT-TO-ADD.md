@@ -15,7 +15,7 @@
 
 满足以下全部的 subagent 定义：
 - Task 可启动（Claude Code 能 `Task(<name>)`）
-- 责任唯一且不重叠（对照本目录现有 22 个 agent 检查）
+- 责任唯一且不重叠（对照本目录现有 agent 检查）
 - v2 agent-spec frontmatter 完整
 - blast radius 清楚（声明可写 / 不可写文件）
 - 失败模式 + 恢复动作有文档

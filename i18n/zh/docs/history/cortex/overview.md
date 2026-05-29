@@ -8,7 +8,7 @@ superseded_by: pro/CLAUDE.md
 
 # Cortex 总览 · v1.7 认知层总览(Cortex Overview · v1.7 Cognitive Layer)
 
-> 面包屑: [← 产品入口:用户指南首页](../index.md)
+> 面包屑: [← 产品入口:用户指南首页](../README.md)
 
 > v1.7 给 Life OS 加了一层"认知基底"——Cortex。它不是一个新角色,也不是一个新命令。它让系统在你每次开口之前,就自动去翻历史、激活相关概念、比对你的 SOUL。本文是 Cortex 六篇用户指南的入口。
 
@@ -211,7 +211,7 @@ Step 0.5 的总预算是 **< 7 秒**(hippocampus 5s 软超时 + concept lookup �
 产品入口:
 
 - [What is Life OS](../../getting-started/what-is-life-os.md) — Life OS 是什么,Cortex 在其中的定位
-- [Quickstart](../../getting-started/quickstart.md) — 首次上朝流程
+- [Quickstart](../../../../../docs/getting-started/quickstart.md) — 首次上朝流程
 
 用户文档(本目录 5 个 siblings):
 

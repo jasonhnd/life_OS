@@ -7,7 +7,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 # Hippocampus · 跨 Session 记忆检索
 
-> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)
+> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../README.md)
 
 > 每次你打开新 session 说话,Hippocampus 都会在后台自动翻你过去的 session,找出几条和"你现在在问的"相关的——不管用了什么不同的字眼、不管过了多久。ROUTER 拿到你消息的时候,已经附带这些"相关记忆"作为参考。你上朝的体感会变:系统**记得**了。
 

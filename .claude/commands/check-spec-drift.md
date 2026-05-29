@@ -21,6 +21,7 @@ You are scanning the repository for spec drift — references to files/tokens th
 
 Scan all `.md`, `.yml`, `.yaml`, `.json` under repo root, **excluding**:
 - `CHANGELOG.md` and `i18n/*/CHANGELOG.md`
+- `docs/reference/version-history.md` (version log — historical agent counts + illustrative example paths, same rationale as CHANGELOG)
 - `backup/` (gitignored clone)
 - `pro/compliance/` (violation logs are historical)
 - `MIGRATION.md`

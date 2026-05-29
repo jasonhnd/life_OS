@@ -15,7 +15,7 @@
 
 以下を満たす subagent 定義：
 - Task で起動可能（Claude Code が `Task(<name>)` で起動できる）
-- 責任が一意で重複しない（本ディレクトリの既存 22 agent と照合）
+- 責任が一意で重複しない（本ディレクトリの既存 agent と照合）
 - v2 agent-spec frontmatter 完備
 - blast radius 明示（書き込み許可 / 禁止ファイル宣言）
 - 失敗モード + 復旧アクションが文書化されている

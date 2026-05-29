@@ -105,6 +105,19 @@ The fix5 link-update `sed` (`docs/architecture/` → `docs/history/architecture/
 
 Caught pre-ship by a full-repo broken-path + frontmatter + version + conflict-marker sweep. Note: the references/*-spec.md describing live features (snapshot/concept/hippocampus/…) were briefly relabeled `active` then reverted to `legacy` — verification showed their bodies still document removed v1.7 tooling (`tools/migrate.py` etc.), so `status: legacy` is correct; the current schema authority is `data-model.md` (active).
 
+### fix7 (2026-05-29) — repo-wide link + count hygiene sweep
+
+A full re-scan of every tracked `.md` (EN + zh/ja mirrors) for broken intra-repo links, frontmatter closure, code-fence balance, trilingual section parity, and hardcoded agent counts. Findings, all fixed in one pass:
+
+- **README RFC links broken (all 3 langs)** — linked `meta/rfc/...` but the file is tracked at `_meta/rfc/...` (underscore). The repo's own `/check-spec-drift` Scanner-1 regex never catches this (its prefix list omits `meta/`), so it had gone undetected.
+- **zh/ja README relative-path links** — `pro/CLAUDE.md`, `references/outbound-pii-patterns.md`, `docs/history/v1.7-migration.md` were linked bare (resolving inside `i18n/{zh,ja}/`) instead of `../../` to repo root.
+- **docs/reference leading-slash links** — `faq.md` + `version-history.md` used root-absolute `](/...)` links that resolve to neither GitHub nor local file root; converted to relative.
+- **cortex breadcrumb regression (introduced by fix5 move)** — the 18 archived cortex docs (EN + zh + ja) linked `../index.md`, which stopped existing after the move to `docs/history/cortex/`; repointed to `../README.md`. Created `i18n/{zh,ja}/docs/history/README.md` archive indexes (parity with EN) and repointed the broken zh/ja "Quickstart" links to the EN canonical.
+- **hardcoded agent counts de-hardcoded** — `WHEN-NOT-TO-ADD.md` (×3 langs), `install-agents.md`, `auditor.md` (×3), and the e9/e10 eval scenarios stated stale counts (20/21/22/23; actual ~24); replaced with non-numeric phrasing per the "多个 agent" rule. The ja README architecture diagram still said "16エージェント" while EN/zh already said "multiple agents" — fixed.
+- **drift-checker precision** — `docs/reference/version-history.md` added to `/check-spec-drift` exclusions (version log carrying historical counts + illustrative example paths, same rationale as the existing `CHANGELOG.md` exclusion).
+
+Post-fix scan evidence: **0 real broken links** (43 intentional placeholders / frozen CHANGELOG history / gitignored devdocs excluded), **0 unclosed frontmatter**, **0 odd code-fences**, **0 active-file count drift** (only the historical `version-history.md` "15→16 roles" transition remains, now formally checker-excluded), full trilingual section parity.
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency

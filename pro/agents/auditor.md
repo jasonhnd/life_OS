@@ -769,11 +769,11 @@ VERDICT: PASS | WARN | FAIL
 
 ### A/B test gating (per RFC Stage 6 Day 15)
 
-For the 3 critical agents (retrospective / archiver / reviewer), Mode 6 MUST PASS A1 before A/B eval scenarios run. If A1 fails on any of the 3, halt batch update of remaining 20 agents until fixed.
+For the 3 critical agents (retrospective / archiver / reviewer), Mode 6 MUST PASS A1 before A/B eval scenarios run. If A1 fails on any of the 3, halt batch update of the remaining agents until fixed.
 
 ### Use cases
 
-- Stage 6 Day 17 final check: Mode 6 PASS on all 23 agents → release blocker cleared.
+- Stage 6 Day 17 final check: Mode 6 PASS on all agents → release blocker cleared.
 - Post-agent-edit: any time an agent definition is modified, Mode 6 runs on that single file.
 - Session-end Mode 3 patrol: Mode 6 runs A3 only (cheap, high-value).
 - Manual: `/audit --mode 6 [agent-name]` for explicit health check on a single agent.
@@ -829,7 +829,7 @@ VERDICT: PASS | WARN | FAIL
 
 ### Migration grace (v1.8.7)
 
-During v1.8.7 release window, AUDITOR Mode 8 runs at **WARN level** to allow gradual migration of the 22 agents to status line contract. Both v1.8.6 ad-hoc emoji patterns AND v1.8.7 status line are accepted; Mode 8 flags drift but doesn't block.
+During v1.8.7 release window, AUDITOR Mode 8 runs at **WARN level** to allow gradual migration of the agents to status line contract. Both v1.8.6 ad-hoc emoji patterns AND v1.8.7 status line are accepted; Mode 8 flags drift but doesn't block.
 
 **v1.8.8+ (whenever it ships)**: Mode 8 promoted to BLOCK level. v1.8.6 ad-hoc patterns no longer accepted.
 

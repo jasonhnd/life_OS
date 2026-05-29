@@ -103,7 +103,7 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 无迁移命令。archiver 首次跑自动创建 `pro/gotchas.md`。既有数据布局不变。
 
-详见 [`meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 完整 RFC、DR-08（cargo-cult 砍掉）、DR-09（决策标准：产品质量不是时间）、DR-10（md-only 本体论约束），及设计决策审计 trail。
+详见 [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 完整 RFC、DR-08（cargo-cult 砍掉）、DR-09（决策标准：产品质量不是时间）、DR-10（md-only 本体论约束），及设计决策审计 trail。
 
 > **之前**，v1.8.3 关闭了出境隐私缺口（详见 CHANGELOG 的 v1.8.3 内容）。
 
@@ -126,7 +126,7 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 > *v1.8.5 更新：`pre-notion-write.sh` hook 随 bash hook 层一起退役（md-only / DR-10）。下面的扫描逻辑不变——同一张模式表、同样三档 verdict——但编排器现在在每次 Notion 写之前以**内联 LLM 流程**执行它，而非 PreToolUse hook。当前行为见 `pro/CLAUDE.md` Step 10a。*
 
-每次 Notion MCP 写调用都会被检查。扫描把待发送内容按 [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) 的 5 组模式匹配，按三档行动模型处理：
+每次 Notion MCP 写调用都会被检查。扫描把待发送内容按 [`references/outbound-pii-patterns.md`](../../references/outbound-pii-patterns.md) 的 5 组模式匹配，按三档行动模型处理：
 
 | 命中组 | Verdict | 行动 |
 |---|---|---|
@@ -145,7 +145,7 @@ Group A 模式无歧义，硬阻断正确。Group B/C/D 有非零误报率——
 
 ### 为什么没有 `strip` 模式
 
-Claude Code 的 PreToolUse hook 不能改写 `tool_input`。净化必须在上一层做：编排层读到 warn reminder，自己生成净化版本，再重发 Notion 调用。Hook 只是**检测器**，不是改写器。这个 handoff 的编排契约写在 [`pro/CLAUDE.md` Step 10a](pro/CLAUDE.md)。
+Claude Code 的 PreToolUse hook 不能改写 `tool_input`。净化必须在上一层做：编排层读到 warn reminder，自己生成净化版本，再重发 Notion 调用。Hook 只是**检测器**，不是改写器。这个 handoff 的编排契约写在 [`pro/CLAUDE.md` Step 10a](../../pro/CLAUDE.md)。
 
 ### 迁移
 
@@ -323,7 +323,7 @@ v1.7.1 是一次面向透明度和证据链的加固版本。系统会更明确�
 - 6 个 Cortex 用户指南 + v1.7-migration 用户体验章节
 - cortex-spec + hippocampus-spec 中日译本
 
-升级（v1.6 → v1.7）：详见 [docs/history/v1.7-migration.md](docs/history/v1.7-migration.md)。之前的 `uv run life-os-tool migrate` 命令在 R-1.8.0-011 与 `life-os-tool` dispatcher 一起删除；当前用 LLM 驱动的 `scripts/prompts/migrate-from-v1.6.md`，详见 `pro/CLAUDE.md` §0.5。
+升级（v1.6 → v1.7）：详见 [docs/history/v1.7-migration.md](../../docs/history/v1.7-migration.md)。之前的 `uv run life-os-tool migrate` 命令在 R-1.8.0-011 与 `life-os-tool` dispatcher 一起删除；当前用 LLM 驱动的 `scripts/prompts/migrate-from-v1.6.md`，详见 `pro/CLAUDE.md` §0.5。
 
 完整 v1.7 commit 链和 COURT-START-001 v1.6.3 事件档案见 [CHANGELOG](./CHANGELOG.md)。
 

@@ -7,7 +7,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 # AUDITOR Eval-History · 系统的自反馈循环
 
-> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)
+> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../README.md)
 
 > Life OS 没法微调背后的 Claude 模型,但它可以**微调自己的规则**。AUDITOR 在每次 session 结束时给自己打 10 维度的分,把结果写到 `meta/eval-history/{date}-{project}.md`。下次 Start Session,RETROSPECTIVE 扫最近 10 份,检测系统性模式——连续 3 次 adjourn 不完整?narrator 引用失败率 >20%?这些会以"系统性问题检测"块出现在简报里。你不仅是系统的用户,也是调优这些规则的人。
 

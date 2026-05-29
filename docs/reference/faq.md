@@ -391,9 +391,9 @@ Pro 模式使用 Opus：
 
 ## 找不到答案？
 
-- **完整文档**：[docs/](/docs/)
+- **完整文档**：[docs/](../index.md)
 - **安装指南**：[docs/installation.md](../installation.md)
-- **系统概览**：[docs/history/architecture/](/docs/history/architecture/)
+- **系统概览**：[docs/history/architecture/](../history/architecture/)
 - **规范细节**：[docs/reference/specifications/](specifications/)
-- **完整变更日志**：[CHANGELOG.md](/CHANGELOG.md)
+- **完整变更日志**：[CHANGELOG.md](../../CHANGELOG.md)
 - **提 Issue**：[GitHub Issues](https://github.com/jasonhnd/life_OS/issues)

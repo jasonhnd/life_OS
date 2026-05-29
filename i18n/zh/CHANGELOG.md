@@ -105,6 +105,19 @@ fix5 的链接更新 `sed`（`docs/architecture/` → `docs/history/architecture
 
 由全库断链 + frontmatter + 版本 + 冲突标记扫描在 ship 前抓住。注：描述现行功能的 references/*-spec.md（snapshot/concept/hippocampus 等）曾被短暂改为 `active` 又还原为 `legacy`——验证发现它们正文仍记录已移除的 v1.7 工具（`tools/migrate.py` 等），所以 `status: legacy` 是对的；当前 schema 权威是 `data-model.md`（active）。
 
+### fix7（2026-05-29）—— 全库链接 + 计数卫生扫描
+
+对每个 tracked `.md`（EN + zh/ja 镜像）做了一次全量重扫：断裂的库内链接、frontmatter 闭合、代码围栏配平、三语章节对齐、硬编码 agent 计数。一次性修复：
+
+- **README RFC 链接断裂（3 语言）** —— 都链到 `meta/rfc/...`，但文件 tracked 在 `_meta/rfc/...`（带下划线）。仓库自带的 `/check-spec-drift` Scanner-1 正则抓不到（前缀列表不含 `meta/`），所以一直没被发现。
+- **zh/ja README 相对路径链接** —— `pro/CLAUDE.md`、`references/outbound-pii-patterns.md`、`docs/history/v1.7-migration.md` 之前是裸链（解析到 `i18n/{zh,ja}/` 内），应为 `../../` 指向仓库根。
+- **docs/reference 前导斜杠链接** —— `faq.md` + `version-history.md` 用了根绝对 `](/...)` 链接，在 GitHub 和本地文件根都不解析；改为相对路径。
+- **cortex 面包屑回归（fix5 移动引入）** —— 18 个归档 cortex 文档（EN + zh + ja）链 `../index.md`，移到 `docs/history/cortex/` 后该文件不存在；改指 `../README.md`。新建 `i18n/{zh,ja}/docs/history/README.md` 存档索引（与 EN 对齐），zh/ja 断裂的 Quickstart 链接改指 EN 正本。
+- **去硬编码 agent 计数** —— `WHEN-NOT-TO-ADD.md`（×3 语言）、`install-agents.md`、`auditor.md`（×3）、e9/e10 eval 场景写了过期计数（20/21/22/23；实际约 24）；按「多个 agent」规则改为非数字表述。ja README 架构图还写着「16エージェント」而 EN/zh 已是「多个 agent」—— 已修。
+- **drift-checker 精度** —— `docs/reference/version-history.md` 加入 `/check-spec-drift` 排除列表（版本日志含历史计数 + 示例路径，与现有 `CHANGELOG.md` 排除同理）。
+
+修复后扫描证据：**0 真实断链**（43 个有意占位符 / 冻结 CHANGELOG 历史 / gitignored devdocs 排除），**0 未闭合 frontmatter**，**0 围栏奇偶错**，**0 活跃文件计数漂移**（仅剩 `version-history.md` 的「15→16 角色」历史转换，现已正式从 checker 排除），三语章节完全对齐。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化

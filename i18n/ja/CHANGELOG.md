@@ -105,6 +105,19 @@ fix5 のリンク更新 `sed`（`docs/architecture/` → `docs/history/architect
 
 全リポジトリの broken-path + frontmatter + version + コンフリクトマーカー スイープで ship 前に捕捉。注：現行機能を記述する references/*-spec.md（snapshot/concept/hippocampus 等）は一時 `active` に変更後 `legacy` に戻した——本文に削除済み v1.7 ツール（`tools/migrate.py` 等）が残るため `status: legacy` が正しい；現行スキーマ権威は `data-model.md`（active）。
 
+### fix7（2026-05-29）—— リポジトリ全体のリンク + カウント衛生スイープ
+
+tracked な全 `.md`（EN + zh/ja ミラー）を再スキャン：壊れたリポジトリ内リンク、frontmatter 閉じ、コードフェンス均衡、3 言語セクション整合、ハードコードされた agent 数。一括で修正：
+
+- **README の RFC リンク切れ（3 言語）** —— `meta/rfc/...` をリンクしていたが、ファイルは `_meta/rfc/...`（アンダースコア付き）で tracked。リポジトリ自身の `/check-spec-drift` Scanner-1 正規表現は捕捉しない（プレフィックスリストに `meta/` がない）ため、未検出のままだった。
+- **zh/ja README の相対パスリンク** —— `pro/CLAUDE.md`、`references/outbound-pii-patterns.md`、`docs/history/v1.7-migration.md` が裸リンク（`i18n/{zh,ja}/` 内に解決）だった；`../../` でリポジトリルートを指すよう修正。
+- **docs/reference の先頭スラッシュリンク** —— `faq.md` + `version-history.md` がルート絶対 `](/...)` リンクを使い、GitHub でもローカルファイルルートでも解決しない；相対パスに変換。
+- **cortex パンくず回帰（fix5 の移動で発生）** —— 18 のアーカイブ cortex ドキュメント（EN + zh + ja）が `../index.md` をリンク、`docs/history/cortex/` への移動後に存在しなくなった；`../README.md` に再ポイント。`i18n/{zh,ja}/docs/history/README.md` アーカイブ索引を作成（EN と整合）、zh/ja の壊れた Quickstart リンクは EN 正本に再ポイント。
+- **agent 数のハードコード解除** —— `WHEN-NOT-TO-ADD.md`（×3 言語）、`install-agents.md`、`auditor.md`（×3）、e9/e10 eval シナリオが古い数（20/21/22/23；実際は約 24）を記載；「複数の agent」ルールに従い非数値表現に置換。ja README のアーキテクチャ図はまだ「16エージェント」だったが EN/zh はすでに「複数の agent」—— 修正。
+- **drift-checker の精度** —— `docs/reference/version-history.md` を `/check-spec-drift` の除外に追加（歴史的カウント + 例示パスを含むバージョンログ、既存の `CHANGELOG.md` 除外と同じ理由）。
+
+修正後スキャンの証拠：**実リンク切れ 0**（意図的なプレースホルダ / 凍結 CHANGELOG 履歴 / gitignored devdocs 43 件を除外）、**未閉じ frontmatter 0**、**フェンス奇数 0**、**アクティブファイルのカウントドリフト 0**（`version-history.md` の「15→16 役割」歴史的遷移のみ残存、現在は正式に checker 除外）、3 言語セクション完全整合。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性

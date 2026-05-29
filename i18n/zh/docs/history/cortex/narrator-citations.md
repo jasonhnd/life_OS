@@ -8,7 +8,7 @@ superseded_by: pro/CLAUDE.md
 
 # Narrator 引用与 Trace · 防编造机制（Narrator Citations & Trace）
 
-> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)
+> 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../README.md)
 
 > 升级到 v1.7 之后,奏折里会出现 `[S:claude-20260419-1238]` 或 `[SOUL:risk-tolerance-v3]` 这样的方括号标注。这不是装饰,也不是强制要求你阅读。它是系统对自己的**诚实承诺**:每一个实质性的断言都指向一个可追溯的 signal,而不是凭空编出来。你随时可以说"trace 这句话",系统会把原始 session / SOUL 维度 / concept 文件的具体内容给你看。这一层叫 **Narrator**。
 
@@ -455,7 +455,7 @@ grep -r "regeneration_count" meta/eval-history/ | tail -20
 产品入口:
 
 - [What is Life OS](../../getting-started/what-is-life-os.md) — Life OS 整体定位
-- [Quickstart](../../getting-started/quickstart.md) — 首次上朝流程
+- [Quickstart](../../../../../docs/getting-started/quickstart.md) — 首次上朝流程
 
 同目录用户文档:
 

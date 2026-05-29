@@ -7,7 +7,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 # Cortex 总览 · v1.7 认知层总览
 
-> 面包屑: [← 产品入口:用户指南首页](../index.md)
+> 面包屑: [← 产品入口:用户指南首页](../README.md)
 
 > v1.7 给 Life OS 加了一层"认知基底"——Cortex。它不是一个新角色,也不是一个新命令。它让系统在你每次开口之前,就自动去翻历史、激活相关概念、比对你的 SOUL。本文是 Cortex 六篇用户指南的入口。
 

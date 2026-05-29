@@ -7,7 +7,7 @@ superseded_by: pro/CLAUDE.md
 
 # Narrator 引用と Trace · 捏造防止メカニズム / Narrator Citations & Trace
 
-> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../index.md)
+> パンくず: [← Cortex 総覧](./overview.md) · [← 製品入口:ユーザーガイド索引](../README.md)
 
 > v1.7 へのアップグレード後、奏折には `[S:claude-20260419-1238]` や `[SOUL:risk-tolerance-v3]` のような角括弧注記が出現します。これは装飾でも、読むことの強制でもありません。システムが自身に課した**誠実さの約束**です:すべての実質的な主張は追跡可能なシグナルを指し示し、空から捏造するのではない。いつでも「この文を trace して」と言えば、システムは元の session / SOUL 次元 / concept ファイルの具体的内容を見せます。この層を **Narrator** と呼びます。
 
