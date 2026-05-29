@@ -76,6 +76,16 @@ Closes the remaining low-severity drift from the round-2 audit:
 
 references↔i18n parity preserved (zh/ja synced).
 
+### fix4 (2026-05-29) — perfect-state closure (the 3 deferred "non-bug" items)
+
+Closed the items fix3 had judged acceptable-to-leave, per user request for a zero-drift state:
+
+- **`_meta/rfc/v1.8.7` seed-source plan** corrected to the existing `_meta/rfc/` RFCs (it carried the same non-existent `v1.8.4` / `v1.8.6` reference, inside the historical RFC).
+- **`changelog-spec.md` (EN/zh/ja)** worked-example dropped the hardcoded "21 agent frontmatter" → "agent frontmatter" (no count).
+- **`/exit-monitor` + `/audit`** reframed from bare slash-command syntax (which implied backing command files that don't exist) to the natural-language / inline-recognized triggers they actually are (`monitor.md` + `pro/CLAUDE.md`); also a leftover "cron activity" line in the monitor dashboard → "recent maintenance runs".
+
+Genuinely-frozen legacy files (`status: legacy` / `authoritative: false`, e.g. `cortex-spec.md`'s v1.7.2-era "16 agents") are left as-is by design.
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency

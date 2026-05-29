@@ -76,6 +76,16 @@ legacy 标记文件（`status: legacy` / `authoritative: false`）正确跳过 �
 
 references↔i18n 对齐保持（中日已同步）。
 
+### fix4（2026-05-29）—— 完美状态收尾（fix3 判定可保留的 3 项）
+
+按用户「零漂移」要求，把 fix3 判定可接受保留的项也全部关闭：
+
+- **`_meta/rfc/v1.8.7` 种子源计划**改为存在的 `_meta/rfc/` RFC（原同样引用不存在的 `v1.8.4` / `v1.8.6`，位于历史 RFC 内）。
+- **`changelog-spec.md`（三语）**示例条目去掉硬编码的「21 agent frontmatter」→「agent frontmatter」（无数字）。
+- **`/exit-monitor` + `/audit`** 从裸 slash 命令语法（暗示存在对应命令文件，实则没有）改为它们实际的自然语言 / 内联识别触发（`monitor.md` + `pro/CLAUDE.md`）；并修 monitor 仪表盘里残留的「cron activity」→「recent maintenance runs」。
+
+真正冻结的 legacy 文件（`status: legacy` / `authoritative: false`，如 `cortex-spec.md` v1.7.2 时代的「16 agents」）按设计保留原样。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化

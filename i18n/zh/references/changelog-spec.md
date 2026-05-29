@@ -31,7 +31,7 @@ type: major | minor | patch | prerelease
 breaking_changes:                          # 项目列表
   - "SOUL.md schema v1 → v2（X-over-Y formulation 必填）"
   - "wiki entry schema v1 → v2（active+ entry outlier slot 必填）"
-  - "21 agent frontmatter v1 → v2（authority_level / blast_radius 必填）"
+  - "agent frontmatter v1 → v2（authority_level / blast_radius 必填）"
 new_features:                              # 项目列表
   - "F1-F17 失败分类法（references/failure-taxonomy.md）"
   - "..."

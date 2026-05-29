@@ -31,7 +31,7 @@ type: major | minor | patch | prerelease
 breaking_changes:                          # bullet list
   - "SOUL.md schema v1 → v2 (X-over-Y formulation required)"
   - "wiki entry schema v1 → v2 (outlier slot required for active+)"
-  - "21 agent frontmatter v1 → v2 (authority_level / blast_radius required)"
+  - "agent frontmatter v1 → v2 (authority_level / blast_radius required)"
 new_features:                              # bullet list
   - "F1-F17 failure taxonomy added (references/failure-taxonomy.md)"
   - "..."

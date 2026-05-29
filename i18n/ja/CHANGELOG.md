@@ -76,6 +76,16 @@ legacy マークファイル（`status: legacy` / `authoritative: false`）は�
 
 references↔i18n 整合を維持（zh/ja 同期済）。
 
+### fix4（2026-05-29）—— 完璧な状態への仕上げ（fix3 が保留と判断した 3 項目）
+
+ユーザーの「ゼロドリフト」要求に従い、fix3 が許容可能として保留した項目もすべてクローズ：
+
+- **`_meta/rfc/v1.8.7` のシードソース計画**を存在する `_meta/rfc/` RFC に修正（同じく存在しない `v1.8.4` / `v1.8.6` 参照、歴史的 RFC 内）。
+- **`changelog-spec.md`（3 言語）**のワークサンプルからハードコードの「21 agent frontmatter」→「agent frontmatter」（数値なし）。
+- **`/exit-monitor` + `/audit`** を裸の slash コマンド構文（対応コマンドファイルの存在を示唆するが実在しない）から、実際の自然言語 / インライン認識トリガーに再フレーム（`monitor.md` + `pro/CLAUDE.md`）；monitor ダッシュボードに残っていた「cron activity」→「recent maintenance runs」も修正。
+
+真に凍結された legacy ファイル（`status: legacy` / `authoritative: false`、例：`cortex-spec.md` の v1.7.2 時代の「16 agents」）は設計通り維持。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性
