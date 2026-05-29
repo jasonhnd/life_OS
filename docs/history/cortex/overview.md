@@ -222,7 +222,7 @@ Step 0.5 的总预算是 **< 7 秒**(hippocampus 5s 软超时 + concept lookup �
 
 架构层(给想看 Cortex 是怎么搭出来的读者):
 
-- `devdocs/history/architecture/cortex-integration.md` — 11 步 workflow 里 Step 0.5 / Step 7.5 的插入点
+- `devdocs/architecture/cortex-integration.md` — 11 步 workflow 里 Step 0.5 / Step 7.5 的插入点
 - `docs/history/architecture/markdown-first.md` — 为什么坚持 `.md + YAML`,不引入数据库
 
 Spec 层(最权威,但是英文、技术向):

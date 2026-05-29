@@ -676,7 +676,7 @@ The following specifications are deliberately left to be resolved during impleme
 ## References
 
 - Overall architecture discussion → `devdocs/brainstorm/2026-04-19-cortex-architecture.md`
-- Integration bridge document → `devdocs/history/architecture/cortex-integration.md`
+- Integration bridge document → `devdocs/architecture/cortex-integration.md`
 - Markdown-first ADR → `docs/history/architecture/markdown-first.md`
 - Hippocampus mechanism → `references/hippocampus-spec.md`
 - GWT arbitrator mechanism → `references/gwt-spec.md`

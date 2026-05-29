@@ -278,7 +278,7 @@ Removed in pivot:
 - Cron infrastructure: `scripts/setup-cron.sh`, `scripts/run-cron-now.sh`, `scripts/commands/run-cron.md`, `tools/missed_cron_check.py`, `tools/cron_health_report.py`, all launchd plists.
 - Python middleware: `tools/memory.py` (now Write/Read directly to `~/.claude/lifeos-memory/`), `tools/session_search.py` (now Grep directly), `tools/cli.py` (no longer needed), 5 maintenance python tools (replaced by user-invoked prompts above).
 - Cortex artifacts: `pro/agents/narrator-validator.md` (validator was tied to always-on flow).
-- Spec docs: `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/history/architecture/hermes-local.md` (cron-era specs).
+- Spec docs: `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/architecture/hermes-local.md` (cron-era specs).
 
 Migration: re-pull the repo, then re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` (re-registers the simplified hook set). On macOS, `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` to remove the dead cron jobs. No second-brain data migration required. v1.7.x sessions / wiki / SOUL fully compatible.
 

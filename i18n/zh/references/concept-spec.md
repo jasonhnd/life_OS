@@ -252,7 +252,7 @@ Hebbian 更新在单一会话内是幂等的 —— 重新运行通道产生相�
 
 ## 扩散激活规则（Spreading Activation Rules）
 
-由 `hippocampus` 子 agent 在 Pre-Router Cognitive Layer（Step 0.5，见 `devdocs/history/architecture/cortex-integration.md` §4）使用。扩散激活产出系统认为对当前消息"温热"（warm）的概念列表。
+由 `hippocampus` 子 agent 在 Pre-Router Cognitive Layer（Step 0.5，见 `devdocs/architecture/cortex-integration.md` §4）使用。扩散激活产出系统认为对当前消息"温热"（warm）的概念列表。
 
 ```
 Wave 1 — Direct match
@@ -412,7 +412,7 @@ v1.7 之前没有 concepts 目录。迁移到 v1.7 仅运行一次，由 `tools/
 - `references/eval-history-spec.md` —— AUDITOR 的 `cognitive_annotation_quality` 消费概念图信号
 - `pro/agents/archiver.md` —— Phase 2 拥有 Hebbian 更新、衰减通道、SYNAPSES-INDEX 重新生成、tentative 写入
 - `pro/agents/retrospective.md` —— Mode 0 重新生成 `INDEX.md` 并标记 dormant 概念
-- `devdocs/history/architecture/cortex-integration.md` —— Step 0.5 Pre-Router Cognitive Layer 上下文
+- `devdocs/architecture/cortex-integration.md` —— Step 0.5 Pre-Router Cognitive Layer 上下文
 
 ---
 

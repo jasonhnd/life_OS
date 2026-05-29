@@ -663,7 +663,7 @@ Output:
 ## 引用（References）
 
 - 总体架构讨论 → `devdocs/brainstorm/2026-04-19-cortex-architecture.md`
-- 集成桥接文档 → `devdocs/history/architecture/cortex-integration.md`
+- 集成桥接文档 → `devdocs/architecture/cortex-integration.md`
 - Markdown-first ADR → `docs/history/architecture/markdown-first.md`
 - Hippocampus 机制 → `references/hippocampus-spec.md`
 - GWT arbitrator 机制 → `references/gwt-spec.md`

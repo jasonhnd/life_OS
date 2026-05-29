@@ -263,7 +263,7 @@ Pivot で削除されたもの：
 - Cron インフラ：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、全 launchd plist。
 - Python ミドルウェア：`tools/memory.py`（現在は直接 Write/Read で `~/.claude/lifeos-memory/`）、`tools/session_search.py`（現在は直接 Grep）、`tools/cli.py`（不要）、5 つのメンテナンス python ツール（上記 user-invoked prompts に置換）。
 - Cortex artifact：`pro/agents/narrator-validator.md`（validator は always-on フローに紐付いていた）。
-- Spec ドキュメント：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/history/architecture/hermes-local.md`（cron 時代の spec）。
+- Spec ドキュメント：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`（cron 時代の spec）。
 
 マイグレーション：repo を再 pull、`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行（簡略化された hook セットを再登録）。macOS では `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` で死んだ cron job を削除。第二の脳のデータマイグレーションは不要。v1.7.x sessions / wiki / SOUL は完全互換。
 
@@ -276,7 +276,7 @@ v1.7.3 は Cortex を「宣言 always-on」から「強制 always-on」に変え
 - **Cortex hook 強制注入** — `pre-prompt-guard` がユーザーメッセージに決定キーワードを含む、または 80 文字を超える場合、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制する system-reminder を出力します。v1.7.2 のサイレント degradation（17+ セッションで 0 audit trail）を修正。
 - **narrator-validator audit trail HARD RULE** — frontmatter `tools` に Bash + Write を追加、pro/CLAUDE.md §0.5 に従い `meta/runtime/<sid>/narrator-validator.json` JSON audit trail 書き込みを必須化。
 - **4 つの slash command 接続** — `/compress`（インライン圧縮、`meta/compression/` にアーカイブ）、`/search`（`tools.session_search` による FTS5 クロスセッション検索）、`/memory`（`tools.memory` による 24-48h 短期記憶）、`/method`（`tools.skill_manager` によるメソッドライブラリ管理）。`setup-hooks.sh` が `~/.claude/commands/` にインストール。
-- **デッドコード削除** — `tools/prompt_cache.py`（118 行 0 caller、Claude Code サブスク環境では無意味）と `docs/history/architecture/prompt-cache-strategy.md` を削除。`docs/history/architecture/hermes-local.md` の関連参照を整理。
+- **デッドコード削除** — `tools/prompt_cache.py`（118 行 0 caller、Claude Code サブスク環境では無意味）と `docs/architecture/prompt-cache-strategy.md` を削除。`docs/architecture/hermes-local.md` の関連参照を整理。
 
 マイグレーション：4 つの新しい slash command を `~/.claude/commands/` にインストールするため `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行してください。
 

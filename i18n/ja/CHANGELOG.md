@@ -95,6 +95,16 @@ references↔i18n 整合を維持（zh/ja 同期済）。
 - **意図的に保持**：凍結記録（CHANGELOG、`pro/compliance/*`、`_meta/rfc/*`）は移動前の元パス参照を保持（歴史的正確性）；負荷を担う機能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）は `references/` に残留——現行機能を記述しアクティブ agent から参照されるため**アーカイブしない**（`status: legacy` ラベルは別の誤ラベルで、今回は未対応）。
 - アーカイブ説明用に `docs/history/README.md` を追加。
 
+### fix6（2026-05-29）—— fix5 の過剰マッチなパス置換を修正
+
+fix5 のリンク更新 `sed`（`docs/architecture/` → `docs/history/architecture/`）が 2 ケースを過剰マッチしていた、修正済み：
+
+- **`devdocs/architecture/`** も `devdocs/history/architecture/` に書き換えていた（gitignore された内部ドキュメントディレクトリ、移動していない；`docs/architecture` は `devdocs/architecture` の部分文字列）。全箇所を復元。
+- 既に**削除済み**の `docs/architecture/hermes-local.md` / `prompt-cache-strategy.md` の歴史的言及を `docs/history/` にリダイレクトしていた（削除であり移動ではない）。元のパスに復元。
+- あわせて `narrator-spec.md` の frontmatter status（EN `draft` → `legacy`）を zh/ja ミラーに整合。
+
+全リポジトリの broken-path + frontmatter + version + コンフリクトマーカー スイープで ship 前に捕捉。注：現行機能を記述する references/*-spec.md（snapshot/concept/hippocampus 等）は一時 `active` に変更後 `legacy` に戻した——本文に削除済み v1.7 ツール（`tools/migrate.py` 等）が残るため `status: legacy` が正しい；現行スキーマ権威は `data-model.md`（active）。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性

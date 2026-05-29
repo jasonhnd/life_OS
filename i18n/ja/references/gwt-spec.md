@@ -12,7 +12,7 @@ related:
   - references/concept-spec.md
   - references/soul-spec.md
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/history/architecture/cortex-integration.md
+  - devdocs/architecture/cortex-integration.md
 ---
 
 # GWT Arbitrator Spec
@@ -319,7 +319,7 @@ AUDITOR は低スコアのセッションをレビューのために surface し
 - `references/concept-spec.md` — シグナルソース: concept store と synapse graph
 - `references/soul-spec.md` — SOUL ティア定義と confidence バンド
 - `devdocs/brainstorm/2026-04-19-cortex-architecture.md` — 設計根拠(§3 schema、§4 salience debate)
-- `devdocs/history/architecture/cortex-integration.md` — arbitrator が 11 ステップワークフローの Step 0.5 にどう接続するか
+- `devdocs/architecture/cortex-integration.md` — arbitrator が 11 ステップワークフローの Step 0.5 にどう接続するか
 
 ---
 

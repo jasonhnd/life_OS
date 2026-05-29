@@ -10,7 +10,7 @@ related:
   - references/concept-spec.md
   - references/soul-spec.md
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/history/architecture/cortex-integration.md
+  - devdocs/architecture/cortex-integration.md
 ---
 
 # GWT Arbitrator Spec
@@ -323,7 +323,7 @@ AUDITOR surfaces low-scoring sessions for review. If annotation quality trends d
 - `references/concept-spec.md` — signal source: concept store and synapse graph
 - `references/soul-spec.md` — SOUL tier definitions and confidence bands
 - `devdocs/brainstorm/2026-04-19-cortex-architecture.md` — design rationale (§3 schema, §4 salience debate)
-- `devdocs/history/architecture/cortex-integration.md` — how the arbitrator plugs into the 11-step workflow at Step 0.5
+- `devdocs/architecture/cortex-integration.md` — how the arbitrator plugs into the 11-step workflow at Step 0.5
 
 ---
 

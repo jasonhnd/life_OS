@@ -1,7 +1,7 @@
 ---
 title: "Narrator Spec — Grounded Generation Layer for Cortex"
 version: v1.7
-status: draft
+status: legacy
 scope: references
 audience: Life OS maintainers + orchestration implementers
 last_updated: 2026-04-20
@@ -11,7 +11,7 @@ related:
   - references/gwt-spec.md
   - references/eval-history-spec.md
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/history/architecture/cortex-integration.md
+  - devdocs/architecture/cortex-integration.md
   - pro/agents/router.md
   - pro/CLAUDE.md
 authoritative: false

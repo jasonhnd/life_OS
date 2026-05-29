@@ -475,7 +475,7 @@ Spec 层(英文):
 其他:
 
 - `pro/agents/router.md` — Narrator 行为就住在 ROUTER 里(不是独立 agent)
-- `devdocs/history/architecture/cortex-integration.md` — Step 7.5 插入的位置
+- `devdocs/architecture/cortex-integration.md` — Step 7.5 插入的位置
 
 ---
 

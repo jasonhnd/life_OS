@@ -469,7 +469,7 @@ Spec 層(英語):
 その他:
 
 - `pro/agents/router.md` — Narrator の挙動は ROUTER に住む(独立 agent ではない)
-- `devdocs/history/architecture/cortex-integration.md` — Step 7.5 挿入の位置
+- `devdocs/architecture/cortex-integration.md` — Step 7.5 挿入の位置
 
 ---
 

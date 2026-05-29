@@ -663,7 +663,7 @@ Output:
 ## References
 
 - 全体アーキテクチャ議論 → `devdocs/brainstorm/2026-04-19-cortex-architecture.md`
-- 統合ブリッジドキュメント → `devdocs/history/architecture/cortex-integration.md`
+- 統合ブリッジドキュメント → `devdocs/architecture/cortex-integration.md`
 - Markdown-first ADR → `docs/history/architecture/markdown-first.md`
 - Hippocampus メカニズム → `references/hippocampus-spec.md`
 - GWT arbitrator メカニズム → `references/gwt-spec.md`

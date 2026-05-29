@@ -7,7 +7,7 @@ version: v1.7
 layer: Cortex Phase 1 (cognitive retrieval)
 related:
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/history/architecture/cortex-integration.md
+  - devdocs/architecture/cortex-integration.md
   - references/cortex-spec.md
   - references/concept-spec.md
   - references/session-index-spec.md
@@ -337,7 +337,7 @@ ROUTER / 下游 agent 是否**真的引用**了检索到的内容？AUDITOR 扫�
 - **`references/concept-spec.md`** —— 概念 markdown schema、边权重、永久性层级
 - **`references/session-index-spec.md`** —— `meta/sessions/INDEX.md` 格式、单行约定
 - **`references/gwt-spec.md`** —— 消费 hippocampus 输出的 GWT arbitrator
-- **`devdocs/history/architecture/cortex-integration.md`** —— Step 0.5 如何接入 11 步工作流
+- **`devdocs/architecture/cortex-integration.md`** —— Step 0.5 如何接入 11 步工作流
 - **`devdocs/brainstorm/2026-04-19-cortex-architecture.md`** —— 原始设计讨论、用户决策、权衡
 
 ---

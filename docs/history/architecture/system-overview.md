@@ -437,7 +437,7 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 | 文档 | 内容 | 状态 |
 |------|------|------|
 | `docs/history/architecture/markdown-first.md` | markdown 作为真理源的哲学详解、frontmatter 规范、派生物重建规则、Hermes 对照 | ✅ 已写 |
-| `devdocs/history/architecture/cortex-integration.md` | Cortex 认知升级如何融入 Layer 2 | ✅ 已写 |
+| `devdocs/architecture/cortex-integration.md` | Cortex 认知升级如何融入 Layer 2 | ✅ 已写 |
 | `docs/history/architecture/execution-layer.md` | Layer 3 Shell Hook + Layer 4 Python 工具的完整规格 | ✅ 已写 |
 | `docs/history/architecture/roadmap.md` | v1.6.2a → v1.7 的版本推进计划 | ✅ 已写 |
 | `devdocs/research/2026-04-20-storage-decision.md` | 存储决策的完整 ADR（为什么选 markdown、哪些方案被否决） | ✅ 已写 |

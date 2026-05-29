@@ -505,7 +505,7 @@ Spec 层(英文):
 - `references/hippocampus-spec.md` — hippocampus 输出格式(GWT 的输入源之一)
 - `references/concept-spec.md` — concept 输出格式
 - `references/soul-spec.md` §Tiered Reference by Confidence — tier 定义
-- `devdocs/history/architecture/cortex-integration.md` §4 — Step 0.5 三源并行流程
+- `devdocs/architecture/cortex-integration.md` §4 — Step 0.5 三源并行流程
 
 Agent 定义(深度用户):
 

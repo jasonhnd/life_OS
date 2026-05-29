@@ -7,7 +7,7 @@ version: v1.7
 layer: Cortex Phase 1 (cognitive retrieval)
 related:
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/history/architecture/cortex-integration.md
+  - devdocs/architecture/cortex-integration.md
   - references/cortex-spec.md
   - references/concept-spec.md
   - references/session-index-spec.md
@@ -345,7 +345,7 @@ Explicit don'ts — violations are process errors, AUDITOR flags them.
 - **`references/concept-spec.md`** — concept markdown schema, edge weights, permanence tiers
 - **`references/session-index-spec.md`** — `meta/sessions/INDEX.md` format, one-liner conventions
 - **`references/gwt-spec.md`** — GWT arbitrator that consumes hippocampus output
-- **`devdocs/history/architecture/cortex-integration.md`** — how Step 0.5 plugs into the 11-step workflow
+- **`devdocs/architecture/cortex-integration.md`** — how Step 0.5 plugs into the 11-step workflow
 - **`devdocs/brainstorm/2026-04-19-cortex-architecture.md`** — original design discussion, user decisions, tradeoffs
 
 ---

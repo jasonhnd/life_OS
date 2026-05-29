@@ -95,6 +95,16 @@ references↔i18n 对齐保持（中日已同步）。
 - **有意保留**：冻结记录（CHANGELOG、`pro/compliance/*`、`_meta/rfc/*`）保留搬迁前的原路径引用（历史准确性）；载荷型功能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）留在 `references/`——它们描述现行功能、被活跃 agent 引用，**不归档**（其 `status: legacy` 标签是另一处误标，本次未动）。
 - 新增 `docs/history/README.md` 说明档案。
 
+### fix6（2026-05-29）—— 修正 fix5 过度匹配的路径替换
+
+fix5 的链接更新 `sed`（`docs/architecture/` → `docs/history/architecture/`）误伤了两类，现已修正：
+
+- 它把 **`devdocs/architecture/`** 也改成了 `devdocs/history/architecture/`（gitignore 的内部文档目录，根本没搬；`docs/architecture` 是 `devdocs/architecture` 的子串）。全部还原。
+- 它把已**删除**的 `docs/architecture/hermes-local.md` / `prompt-cache-strategy.md` 的历史提及重定向进了 `docs/history/`（它们是删了、不是搬了）。还原为原路径。
+- 同时把 `narrator-spec.md` 的 frontmatter status（EN `draft` → `legacy`）对齐到中日镜像。
+
+由全库断链 + frontmatter + 版本 + 冲突标记扫描在 ship 前抓住。注：描述现行功能的 references/*-spec.md（snapshot/concept/hippocampus 等）曾被短暂改为 `active` 又还原为 `legacy`——验证发现它们正文仍记录已移除的 v1.7 工具（`tools/migrate.py` 等），所以 `status: legacy` 是对的；当前 schema 权威是 `data-model.md`（active）。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化

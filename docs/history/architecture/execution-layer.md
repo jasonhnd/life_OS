@@ -33,7 +33,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ deleted v1.8.1 Wa
 
 `Hermes Local` 是本地执行面的用户可见名称。内部术语保持为 `execution layer`、`Layer 3`、`Layer 4`，以保证规格、agent contract 和合规检查不漂移。
 
-Hermes Local 由 `Layer 3` 运行时 backstop 与 `Layer 4` Python 工具组成。它借鉴并 fork 了 `NousResearch/hermes-agent`（MIT License）的若干本地 agent 设计与工具实现；Life OS 只吸收这些模式并改造成 markdown-first 的本地 second-brain 工作流，不嵌入完整 Hermes gateway/runtime。简明归因表见 `docs/history/architecture/hermes-local.md`。
+Hermes Local 由 `Layer 3` 运行时 backstop 与 `Layer 4` Python 工具组成。它借鉴并 fork 了 `NousResearch/hermes-agent`（MIT License）的若干本地 agent 设计与工具实现；Life OS 只吸收这些模式并改造成 markdown-first 的本地 second-brain 工作流，不嵌入完整 Hermes gateway/runtime。简明归因表见 `docs/architecture/hermes-local.md`。
 
 ## 1 · 为什么需要执行层
 

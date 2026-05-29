@@ -504,7 +504,7 @@ Spec 層(英語):
 - `references/hippocampus-spec.md` — hippocampus 出力形式(GWT の入力源の一つ)
 - `references/concept-spec.md` — concept 出力形式
 - `references/soul-spec.md` §Tiered Reference by Confidence — tier 定義
-- `devdocs/history/architecture/cortex-integration.md` §4 — Step 0.5 3 源並列フロー
+- `devdocs/architecture/cortex-integration.md` §4 — Step 0.5 3 源並列フロー
 
 Agent 定義(深度ユーザー):
 

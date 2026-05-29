@@ -25,7 +25,7 @@
 |------|-------|
 | `devdocs/brainstorm/` | 头脑风暴记录，时间戳命名 |
 | `devdocs/research/` | 调研报告，时间戳命名 |
-| `devdocs/history/architecture/` | 已 deprecated 的架构文档、内部规则 |
+| `devdocs/architecture/` | 已 deprecated 的架构文档、内部规则 |
 
 `docs/installation.md` 是公开入口，不要和 `getting-started/` 重复。安装流程只写在 installation.md 里；`getting-started/` 讲的是装完之后该做什么。
 
@@ -141,7 +141,7 @@ v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow
 评估脚本与场景，长期跑的。
 
 ### devdocs/ (不在 docs/ 下)
-`devdocs/brainstorm/`、`devdocs/research/`、`devdocs/history/architecture/` 里的文件是时间戳命名的内部记录（如 `2026-04-19-hermes-analysis.md`）。一次性文档 —— 写完就放那。不要回去改 —— 历史视角的价值就在于它是当时的想法。想更新就新写一篇。这些不 push 到 GitHub。
+`devdocs/brainstorm/`、`devdocs/research/`、`devdocs/architecture/` 里的文件是时间戳命名的内部记录（如 `2026-04-19-hermes-analysis.md`）。一次性文档 —— 写完就放那。不要回去改 —— 历史视角的价值就在于它是当时的想法。想更新就新写一篇。这些不 push 到 GitHub。
 
 ---
 

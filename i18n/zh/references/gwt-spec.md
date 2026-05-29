@@ -10,7 +10,7 @@ related:
   - references/concept-spec.md
   - references/soul-spec.md
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/history/architecture/cortex-integration.md
+  - devdocs/architecture/cortex-integration.md
 translated_from: references/gwt-spec.md
 translator_note: auto-translated 2026-04-22, 待人工校对
 ---
@@ -319,7 +319,7 @@ AUDITOR 将低分会话浮现供审查。若注释质量在 30 天内趋势下�
 - `references/concept-spec.md` —— 信号来源：concept store 与 synapse graph
 - `references/soul-spec.md` —— SOUL 层级定义与置信度带
 - `devdocs/brainstorm/2026-04-19-cortex-architecture.md` —— 设计原理（§3 schema、§4 salience 辩论）
-- `devdocs/history/architecture/cortex-integration.md` —— arbitrator 如何在 Step 0.5 插入 11 步工作流
+- `devdocs/architecture/cortex-integration.md` —— arbitrator 如何在 Step 0.5 插入 11 步工作流
 
 ---
 

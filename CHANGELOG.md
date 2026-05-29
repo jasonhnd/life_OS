@@ -95,6 +95,16 @@ Per user request to declutter the active tree: the genuinely-frozen v1.7-era doc
 - **Left intentionally**: frozen records (CHANGELOG, `pro/compliance/*`, `_meta/rfc/*`) keep their original pre-move path references (historical accuracy); load-bearing feature specs (`snapshot-spec`, `concept-spec`, `hippocampus-spec`, etc.) stay in `references/` — they describe current features and are referenced by active agents, so they were NOT archived (their `status: legacy` label is a separate mislabel, not addressed here).
 - Added `docs/history/README.md` explaining the archive.
 
+### fix6 (2026-05-29) — correct fix5's over-broad path substitution
+
+The fix5 link-update `sed` (`docs/architecture/` → `docs/history/architecture/`) over-matched two cases, now corrected:
+
+- It also rewrote **`devdocs/architecture/`** → `devdocs/history/architecture/` (the gitignored internal-docs dir — never moved; `docs/architecture` is a substring of `devdocs/architecture`). Reverted everywhere.
+- It redirected historical mentions of the already-**deleted** `docs/architecture/hermes-local.md` / `prompt-cache-strategy.md` into `docs/history/` (they were deleted, not moved). Reverted to their original paths.
+- Also aligned `narrator-spec.md` frontmatter status (EN `draft` → `legacy`) to match its zh/ja mirrors.
+
+Caught pre-ship by a full-repo broken-path + frontmatter + version + conflict-marker sweep. Note: the references/*-spec.md describing live features (snapshot/concept/hippocampus/…) were briefly relabeled `active` then reverted to `legacy` — verification showed their bodies still document removed v1.7 tooling (`tools/migrate.py` etc.), so `status: legacy` is correct; the current schema authority is `data-model.md` (active).
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency

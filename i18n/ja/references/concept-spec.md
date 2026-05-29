@@ -252,7 +252,7 @@ Hebbian 更新は単一セッション内で idempotent(べき等) — pass を�
 
 ## 活性化拡散ルール(Spreading Activation Rules)
 
-Pre-Router Cognitive Layer(Step 0.5、`devdocs/history/architecture/cortex-integration.md` §4 参照)で `hippocampus` サブエージェントによって使用されます。活性化拡散は、現在のメッセージに対してシステムが「warm」と見なす concept のリストを生成します。
+Pre-Router Cognitive Layer(Step 0.5、`devdocs/architecture/cortex-integration.md` §4 参照)で `hippocampus` サブエージェントによって使用されます。活性化拡散は、現在のメッセージに対してシステムが「warm」と見なす concept のリストを生成します。
 
 ```
 Wave 1 — Direct match
@@ -412,7 +412,7 @@ v1.7 以前には concepts ディレクトリがありません。v1.7 へのマ
 - `references/eval-history-spec.md` — AUDITOR の `cognitive_annotation_quality` は concept-graph シグナルを消費
 - `pro/agents/archiver.md` — Phase 2 が Hebbian 更新、decay pass、SYNAPSES-INDEX 再生成、tentative 書き込みを所有
 - `pro/agents/retrospective.md` — Mode 0 が `INDEX.md` を再生成し dormant concept をフラグ
-- `devdocs/history/architecture/cortex-integration.md` — Step 0.5 Pre-Router Cognitive Layer コンテキスト
+- `devdocs/architecture/cortex-integration.md` — Step 0.5 Pre-Router Cognitive Layer コンテキスト
 
 ---
 
