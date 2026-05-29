@@ -41,8 +41,8 @@ blast_radius:
   allowed_scope:
     - meta/runtime/<sid>/archiver-*.md
     - meta/runtime/<sid>/extraction/*.md
-    - decisions/<sid>-*.md
-    - journal/<sid>-*.md
+    - meta/decisions/<YYYY-MM>/dec-*.md
+    - meta/journal/<YYYY-MM-DD>.md
     - wiki/wn-*.md
     - SOUL.md
     - meta/journal/<date>-dream.md
@@ -148,7 +148,7 @@ else
 fi
 ```
 
-Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as the first phase section in the **6-H2 Adjourn Report Completeness Contract** simplified per v1.7.2.3 — Phase 0 / 1 / 2 / 3 / 4 / Completion Checklist).
+Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as the first phase section in the **7-H2 Adjourn Report Completeness Contract** (v1.7.2.3 6-H2 → v1.8.7 7-H2 with Phase 5) — Phase 0 / 1 / 2 / 3 / 4 / Phase 5 / Completion Checklist).
 
 ---
 
@@ -188,7 +188,7 @@ Phase 2's heavy lifting (7 sub-step extraction + 7 persistent file writes) was t
 **New protocol** (primary):
 
 1. ROUTER MUST launch `knowledge-extractor` as a subagent via Task tool BEFORE launching archiver (or archiver launches it as the first action of Phase 2 if the host supports nested Task).
-2. `knowledge-extractor` writes 7 extraction reports to `meta/runtime/<sid>/extraction/{wiki-candidates,soul-changes,methods,concepts,session-summary,snapshot,strategic}.md` AND writes the 7 persistent files (wiki/, SOUL.md, meta/methods/_tentative/, meta/concepts/, meta/sessions/<sid>.md, meta/soul-snapshots/<sid>.md, meta/STRATEGIC-MAP.md).
+2. `knowledge-extractor` writes 7 extraction reports to `meta/runtime/<sid>/extraction/{wiki-candidates,soul-changes,methods,concepts,session-summary,snapshot,strategic}.md` AND writes the 7 persistent files (wiki/, SOUL.md, meta/methods/_tentative/, meta/concepts/, meta/sessions/<sid>.md, meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md, meta/STRATEGIC-MAP.md).
 3. **Archiver Phase 2** reads `meta/runtime/<sid>/extraction/*.md` and emits a single-paragraph user-facing summary in the Adjourn Report:
 
    ```
@@ -196,7 +196,7 @@ Phase 2's heavy lifting (7 sub-step extraction + 7 persistent file writes) was t
 
    knowledge-extractor wrote: <N wiki / M discarded>, <K SOUL changes>,
    <L tentative methods>, <P new concepts + Q Hebbian updates>, SessionSummary
-   `meta/sessions/<sid>.md`, snapshot `meta/soul-snapshots/<sid>.md`,
+   `meta/sessions/<sid>.md`, snapshot `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`,
    strategic-map <updated|unchanged>. Reports archived in
    `meta/runtime/<sid>/extraction/` for AUDITOR review.
    ```
@@ -461,7 +461,7 @@ For every pair of concepts co-activated in this session (any 2 concepts both in 
 
 Bidirectional: also update `B → A`. (Synapses are symmetric in v1.7.)
 
-Use `tools/lib/cortex/concept.hebbian_update()` if Python tools available. Fallback: manually edit each concept file's frontmatter.
+Apply this inline (Option A pivot — `tools/lib/cortex/concept.py` deleted): use the Edit tool to update each concept file's `outgoing_edges` frontmatter directly per the weight rules above.
 
 ### Step D — Promote concepts when they hit thresholds
 
@@ -474,7 +474,7 @@ Promotion is one-directional under normal use (demotion possible via the three-t
 
 ### Step E — Regenerate SYNAPSES-INDEX.md
 
-After all concept writes, regenerate `meta/concepts/SYNAPSES-INDEX.md` (reverse edge index) by calling `tools/lib/cortex/concept.compile_synapses_index()`.
+After all concept writes, regenerate `meta/concepts/SYNAPSES-INDEX.md` (reverse edge index) inline (Option A pivot — `tools/lib/cortex/concept.py` deleted): scan every concept file's `outgoing_edges`, invert them into per-target back-references, and Write the rebuilt index.
 
 **Both INDEX.md and SYNAPSES-INDEX.md are compiled artifacts — never hand-edited**.
 
@@ -875,7 +875,7 @@ The final archiver adjourn report MUST be one contiguous output emitted after al
 
 **v1.8.7 6-H2 → 7-H2 expansion**: Phase 5 (memory-keeper, gotchas extraction) was added in v1.8.7 per RFC `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6. Previous v1.7.2.3 spec listed 6 H2 headings; v1.8.7 spec lists 7. AUDITOR Mode 7 M7-4 validates Phase 5 H2 presence.
 
-**v1.7.2.3 simplification rationale (post-Option A pivot)**: Previous 12-H2 contract caused archiver to take 25+ minutes because LLM expanded every H2/H3 sub-section. v1.7.2.3 reduced to 6 core H2 + Phase 2/3 token budget. Option A pivot deleted the Bash skeleton (`scripts/archiver-briefing-skeleton.sh`) — archiver now generates the 6-H2 structure inline via LLM. **Adjourn time regression to ~25-30 min is accepted** in exchange for architecture simplification. AUDITOR Mode 3 status / Subagent self-check / Hook fired / 子代理调用清单 / total tokens/cost are embedded in the Completion Checklist instead of standalone H2s. AUDITOR Mode 3 still checks for Class C-brief-incomplete to catch H2 omissions.
+**v1.7.2.3 simplification rationale (post-Option A pivot)**: Previous 12-H2 contract caused archiver to take 25+ minutes because LLM expanded every H2/H3 sub-section. v1.7.2.3 reduced to 6 core H2 + Phase 2/3 token budget. Option A pivot deleted the Bash skeleton (`scripts/archiver-briefing-skeleton.sh`) — archiver now generates the 7-H2 structure (v1.8.7 added Phase 5) inline via LLM. **Adjourn time regression to ~25-30 min is accepted** in exchange for architecture simplification. AUDITOR Mode 3 status / Subagent self-check / Hook fired / 子代理调用清单 / total tokens/cost are embedded in the Completion Checklist instead of standalone H2s. AUDITOR Mode 3 still checks for Class C-brief-incomplete to catch H2 omissions.
 
 ## Phase 2/3 LLM Token Budget (HARD RULE · v1.7.2.3 speed fix)
 
@@ -898,7 +898,7 @@ Missing/renamed/paraphrased = `C-fresh-skip` (P0).
 
 ---
 
-The 6 core H2 headings follow:
+The 7 core H2 headings follow:
 
 ## Phase 0 · Hook Health
 
@@ -986,6 +986,11 @@ Minimum output requirements:
 - `notion_create_journal`: input payload, output payload/status.
 - `notion_update_session_manifest`: input payload, output payload/status.
 - Step 10a no-ask handoff status: `ready for orchestrator no-ask sync`, `not configured`, or `blocked: <reason>`.
+
+## Phase 5 · Memory Keeper
+
+Minimum output requirements (v1.8.7+):
+- One line: memory-keeper launch + return signal (`✅ MEMORY-KEEPER phase5 done: K candidates, J merged, N appended, M rejected. pro/gotchas.md total: <count>`), or `skipped: <reason>` if memory-keeper unavailable.
 
 ## Completion Checklist
 

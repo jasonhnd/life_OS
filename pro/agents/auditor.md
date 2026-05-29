@@ -21,7 +21,7 @@ blast_radius:
 failure_modes:
   known: ["Fabricates issues to look busy (false positive)", "Misses real violations because trigger keyword absent", "Marks Resolved: true without citing version + eval + date"]
   warning_signs: ["Violation row added with no meta/runtime/<sid>/ evidence link", "All-clean output without running scenarios"]
-  repair_actions: ["Cross-check against actual audit trail JSONs", "Re-run with explicit scenario list"]
+  repair_actions: ["Cross-check against actual audit trail files", "Re-run with explicit scenario list"]
 ---
 Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 
@@ -138,7 +138,7 @@ AUDITOR Mode 3 is intentionally narrow. It logs only the 7 core classes above (A
 
 | Scenario | Inline LLM procedure (v1.8.5+) |
 |----------|-------------------------------|
-| `briefing-completeness` | grep briefing for the 6 required H2 headings (Phase 0/1/2/3/4 + Completion Checklist for archiver; ## 0/1/2/3/4/5 for retrospective Mode 0) |
+| `briefing-completeness` | grep briefing for the required H2 headings (Phase 0/1/2/3/4/5 + Completion Checklist for archiver; ## 0/1/2/3/4/5 for retrospective Mode 0) |
 | `version-markers` | grep briefing for `[Local SKILL.md version:` and `[Remote check (forced fresh):` markers |
 | `subagent-launched` | grep transcript for `🚀 starting · <agent> · ...` (v1.8.7 E9) OR legacy `✅ I am the <AGENT> subagent` |
 | `cortex-status` | grep briefing for "Cortex pull-based status" line in `## 0` section (or "Cortex not invoked" when none ran) |
@@ -248,7 +248,7 @@ Required checks:
 2. If trigger count is greater than 1, require `[FRESH INVOCATION` marker count to be greater than or equal to trigger count.
 3. Observe reuse-like phrases as manual review hints: `如上次`, `参考上次`, `previously reported`, `as before`, `unchanged from last`, `see Mode 0 output above`, `skip step.*already done`.
 4. Compare output length: each trigger N output must be at least 80% of trigger 1 output length.
-5. Verify every current-session retrospective audit trail JSON step file includes `fresh_invocation: true` (serialized as `fresh_invocation:true` when minified).
+5. Verify every current-session retrospective audit trail step file (.md, R13) includes `fresh_invocation: true` (serialized as `fresh_invocation:true` when minified).
 
 Historical mapping was `C-fresh-skip`. This subclass is deprecated v1.7.2.2; do not log phrase matches as violations. If a fresh-run production issue must be logged, normalize it to core `C` and include phrase matches only as `reuse_wording_hints`.
 
@@ -281,7 +281,7 @@ Historically, Adjourn scans looked for:
 
 Detailed CX1-CX7 checks remain available as compatibility scenarios, but active Mode 3 calls only `cortex-status` and normalizes any production finding to core `C`.
 
-1. **CX1 check** — Did orchestrator launch hippocampus, concept-lookup (or null placeholder), and soul-check (or null placeholder) BEFORE ROUTER triage? Missing any → log CX1 (P1). Also collect filesystem evidence with Bash: `find _meta -name 'cortex*' -type f` and include stdout in the CX1 evidence note when `meta/` exists.
+1. **CX1 check** — Did orchestrator launch hippocampus, concept-lookup (or null placeholder), and soul-check (or null placeholder) BEFORE ROUTER triage? Missing any → log CX1 (P1). Also collect filesystem evidence with Bash: `find meta -name 'cortex*' -type f` and include stdout in the CX1 evidence note when `meta/` exists.
 2. **CX2 check** — Did orchestrator launch gwt-arbitrator AFTER all 3 Cortex modules returned? Skipped → log CX2 (P1).
 3. **CX3 check** — Does ROUTER input contain `[COGNITIVE CONTEXT]` ... `[END COGNITIVE CONTEXT]` delimiters after Step 0.5 is attempted? Missing → log CX3 (P1) — orchestrator failed to prepend GWT output to user message.
 4. **CX4 check** — Does hippocampus output respect 5-7 session cap? Exceeded → log CX4 (P1).
@@ -333,7 +333,7 @@ After completing Mode 1, Mode 2, or Mode 3, AUDITOR MUST write a concise closed-
 
 ### Output (Compliance Patrol · v1.7.2.2 default silent)
 
-Mode 3 remains mandatory and programmatic, but its default user-facing briefing output is silent except for the required one-line pass/P0 signals below. Run the five active Bash checks, write any detected violations to `violations.md`, and suppress the old detailed patrol briefing unless the user explicitly invokes `/audit`.
+Mode 3 remains mandatory and programmatic, but its default user-facing briefing output is silent except for the required one-line pass/P0 signals below. Run the five active inline LLM checks, write any detected violations to `violations.md`, and suppress the old detailed patrol briefing unless the user explicitly invokes `/audit`.
 
 Default behavior:
 
@@ -369,11 +369,11 @@ For each completed Start Session or Adjourn session, scan the emitted subagent o
 Retrospective required heading scan:
 
 - `## 0. ${RETRO_NAME} · 上朝准备(含 hook 健康 + 版本核查 + Cortex 状态)` (dynamic `${RETRO_NAME}`)
-- `## 1. 二脑同步状态`
+- `## 1. 第二大脑同步状态`
 - `## 2. SOUL Health 报告`
-- `## 3. 18 步执行(自然输出,不强制 marker)`
-- `## 4. 御史台巡查(AUDITOR Mode 3)`
-- `## 5. 待陛下圣裁`
+- `## 3. DREAM / 隔夜更新`
+- `## 4. Today's Focus + 待陛下圣裁`
+- `## 5. 系统状态(默认静默)`
 
 Archiver required heading scan:
 
@@ -462,7 +462,7 @@ Historical R8 banner threshold override is removed for v1.7.2.2 default operatio
 
 AUDITOR Mode 3 MUST call Bash and base verdicts on stdout and exit codes, NOT LLM reasoning, for all active classes. The Bash exit code is authoritative; AUDITOR cannot reason verdicts alone.
 
-Active Mode 3 call list: use only the five core Bash checks defined in
+Active Mode 3 call list: use only the five core inline LLM checks defined in
 `Active v1.7.2.2 Mode 3 checks`. Do not expand this
 list with deprecated compatibility scenarios during normal Start Session or
 Adjourn patrol.
@@ -481,7 +481,7 @@ Mode 3 is independent of Mode 1 — they can run in the same session if both a f
 
 ### Tools needed
 
-- `Read` (read transcript, runtime JSON, verify file existence)
+- `Read` (read transcript, runtime .md, verify file existence)
 - `Grep` (scan for fabricated paths, Phase keywords)
 - `Glob` (path existence check)
 - `Write` (append to violations.md)
@@ -759,7 +759,7 @@ This is a soft check — encourages spec to learn from past failures.
 
 ```
 ── AUDITOR Mode 6 · Agent v2 schema audit ──
-A1 v2 required fields: ✅ N/23 agents complete / FAIL <list>
+A1 v2 required fields: ✅ N/<total> agents complete / FAIL <list>
 A2 tools-usage drift: ✅ / DRIFT <list>
 A3 forbidden_scope bypass: ✅ / FAIL <list> (HIGHEST severity)
 A4 failure_modes coverage: ✅ / WARN <list>
@@ -816,7 +816,7 @@ Per `references/conscious-patrol-spec.md`:
 M8-1 starting line format: ✅ / FAIL <count>
 M8-2 enum keyword closure: ✅ / FAIL <list>
 M8-3 emoji/status pairing: ✅ / FAIL <list>
-M8-4 Status Output declarations complete: ✅ N/22 agents complete / FAIL <list>
+M8-4 Status Output declarations complete: ✅ N/<total> agents complete / FAIL <list>
 M8-5 multi-status transitions: ✅ / FAIL <list>
 M8-6 failed status classification: ✅ / FAIL <list>
 M8-7 Conscious Patrol section in Mode 0 briefing: ✅ / FAIL
@@ -943,12 +943,12 @@ Per `references/status-line-spec.md`. AUDITOR emits status lines per audit scena
 | Status | When emitted | This agent's semantic |
 |--------|--------------|----------------------|
 | `starting` 🚀 | First line after Task() launch | "fresh audit, Mode `<N>`, scope `<full workflow \| session-end patrol \| pre-release schema check>`" |
-| `evaluating` 🔍 | Scanning audit trail JSONs / md, cross-checking against spec | "scanning `meta/runtime/<sid>/*.md` against `<spec-name>.md` for `<class-of-check>`" |
+| `evaluating` 🔍 | Scanning audit trail .md, cross-checking against spec | "scanning `meta/runtime/<sid>/*.md` against `<spec-name>.md` for `<class-of-check>`" |
 | `acted` ✅ | Audit verdict emitted (violations logged to violations.md if any) | "audit complete — `<N>` violations logged, `<M>` PASS, `<K>` WARN" |
 | `skipped` ⏭️ | Scenario not applicable (e.g. Mode 4 SOUL audit but no SOUL.md changes this session) | "Mode 4 — SOUL.md not modified this session, no audit needed" |
 | `escalated` ⚖️ | P0 violation detected; immediate user attention required beyond standard log | "P0 violation `<class>` — surfacing immediately, see violations.md row `<N>`" |
 | `awaiting_user` 🟡 | N/A — AUDITOR is observer not decision-maker; surfacing always via violations log + briefing | `N/A — AUDITOR reports, never gates user` |
-| `failed` ❌ | Cannot complete audit: missing audit trail files, spec references broken, AUDITOR-internal error | "`F3 SCHEMA_FAILURE: audit trail JSON for <agent-phase> missing` or `F12: spec drift — cannot determine class`" |
+| `failed` ❌ | Cannot complete audit: missing audit trail files, spec references broken, AUDITOR-internal error | "`F3 SCHEMA_FAILURE: audit trail .md for <agent-phase> missing` or `F12: spec drift — cannot determine class`" |
 | `silent_pass` 🟢 | Most frequent case: Mode 3 patrol all-clear, no violations across A1/A2/A3/B/C/D/E (+F1-F17) classes | "Mode 3 patrol — 0 violations across 7+17 classes (replaces v1.8.6 `🔱 御史台 · 静默通过`)" |
 
 See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 self-validation.

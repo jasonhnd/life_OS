@@ -54,6 +54,18 @@ Post-publish corrections folded into the v1.9.1 tag. All three were v1.9.0-intro
 - **Corrected impossible CHANGELOG dates.** v1.8.5 / v1.8.6 were dated `2026-07-15` / `2026-07-16` (months *after* v1.8.7's 05-25 and v1.9.x); fixed to the authoritative tag/release date `2026-05-23` across CHANGELOG + changelog-spec (EN/zh/ja).
 - **Finished the references↔i18n mirror sync** (`##` section-count parity restored): `data-model.md` zh/ja were missing the entire `## v1.7 Cortex Data Types` section + `### v1.9 archive semantics` + the v1.9 Standard-Operations updates (177-line gap); `concept-spec.md` zh/ja missing `## Wikilink Convention`; `dream-spec.md` zh/ja missing `## DREAM × Cortex Integration` (and a stale "20-50 line" DREAM constraint that contradicted EN's "no line-count cap" was corrected).
 
+### fix2 (2026-05-29) — line-by-line deep audit, round 2
+
+A 5-agent parallel deep audit of every behavioral file (orchestration core, 24 subagents, reference specs, prompts/commands, themes/docs) surfaced and fixed cross-file contradictions, most pre-dating v1.9:
+
+- **SOUL snapshot writer/reader path split** — knowledge-extractor (v1.7.3 primary writer) wrote `meta/soul-snapshots/<sid>.md` while every reader + `snapshot-spec.md` use `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`; snapshots landed where nothing read them → SOUL trend arrows silently broke. Writer + archiver carve-out summary corrected.
+- **archiver Adjourn Report Phase 5 omission** — the runtime H2 enumeration said "6 core H2" and omitted `## Phase 5`, contradicting the 7-H2 contract → AUDITOR would flag every adjourn. Enumeration + AUDITOR briefing-completeness check fixed to 7.
+- **AUDITOR ↔ retrospective briefing-heading mismatch** — AUDITOR's expected headings (`## 3 18步执行 / ## 4 御史台巡查 / ## 5 待陛下圣裁`) no longer matched retrospective's actual output (`## 3 DREAM / ## 4 Today's Focus / ## 5 系统状态`) → false-flag on every compliant briefing. AUDITOR realigned to the producer.
+- **pro/AGENTS.md + pro/GEMINI.md resynced to pro/CLAUDE.md** — Step 10a still hardcoded the 4-page Notion list (Status/Todo Board/Working Memory/Inbox) that CLAUDE.md made config-driven (R-1.8.0-022) → false "Working Memory: failed" on hosts without those entities; the line-5 host note still claimed `scripts/hooks/` registration + prompt-level-only enforcement (retired v1.8.5, now host-agnostic inline); stale NARRATOR-VALIDATOR info-isolation row. All three ported.
+- **Retired-token / stale-path cleanup across active files** — archiver called deleted `tools/lib/cortex/*.py`; pro/CLAUDE.md + auditor "Bash checks" → inline LLM; data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + active getting-started docs carried references to deleted python tools, retired bash hooks, the deleted narrator-validator, or pre-v1.9 paths (`_meta/`, `meta/decisions/*.md`) presented as current. Corrected or reframed as historical. references↔i18n parity preserved (zh/ja synced).
+
+Legacy-marked files (`status: legacy` / `authoritative: false`) were correctly skipped — the repo's legacy-framing discipline held up.
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency

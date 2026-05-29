@@ -475,7 +475,7 @@ Multiple status transitions during one invocation MUST each emit a new status li
 
 **Full spec**: `references/status-line-spec.md` (three-language). **Pattern source**: `tinyhumansai/openhuman` `gitbooks/features/subconscious.md` 7-state activity log, adapted to 8 states with stronger semantics.
 
-**Why this is mandatory**: lifeos previously had 5+ ad-hoc emoji status patterns (`✅ I am the X subagent` / `🔱 御史台 · 静默通过` / `🔄 tick N/12` / etc.). v1.8.7 unifies them so AUDITOR uses single grep pattern and users see consistent agent state across 22 subagents.
+**Why this is mandatory**: lifeos previously had 5+ ad-hoc emoji status patterns (`✅ I am the X subagent` / `🔱 御史台 · 静默通过` / `🔄 tick N/12` / etc.). v1.8.7 unifies them so AUDITOR uses single grep pattern and users see consistent agent state across all subagents.
 
 **Migration window**: v1.8.7 accepts both v1.8.6 ad-hoc and v1.8.7 status line (AUDITOR Mode 8 WARN level). Old patterns removed in v1.8.8+ (Mode 8 BLOCK).
 

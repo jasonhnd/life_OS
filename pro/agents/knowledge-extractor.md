@@ -50,7 +50,7 @@ You ALSO write the persistent knowledge files (wiki/, SOUL.md, meta/methods/, me
 | 3 | Method candidates | `meta/methods/_tentative/<name>.md` | `meta/runtime/<sid>/extraction/methods.md` |
 | 4 | Concept extraction + Hebbian | `meta/concepts/<concept>.md` + `meta/concepts/SYNAPSES-INDEX.md` | `meta/runtime/<sid>/extraction/concepts.md` |
 | 5 | SessionSummary | `meta/sessions/<sid>.md` (frontmatter + body) | `meta/runtime/<sid>/extraction/session-summary.md` |
-| 6 | SOUL snapshot | `meta/soul-snapshots/<sid>.md` | `meta/runtime/<sid>/extraction/snapshot.md` |
+| 6 | SOUL snapshot | `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` | `meta/runtime/<sid>/extraction/snapshot.md` |
 | 7 | Strategic map updates | `meta/STRATEGIC-MAP.md` (in-place mutation) | `meta/runtime/<sid>/extraction/strategic.md` |
 
 ## Identity Declaration (HARD RULE)
@@ -114,7 +114,7 @@ Per `references/cortex-spec.md` §3. Write `meta/sessions/<sid>.md` with frontma
 
 ### Sub-Step 6 · SOUL Snapshot
 
-Per v1.6.2 + v1.7 placement. Write `meta/soul-snapshots/<sid>.md` with timestamp from real `date` command (HARD RULE — no fabrication). Summary → `meta/runtime/<sid>/extraction/snapshot.md`.
+Per v1.6.2 + v1.7 placement. Write `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` with timestamp from real `date` command (HARD RULE — no fabrication). Summary → `meta/runtime/<sid>/extraction/snapshot.md`.
 
 ### Sub-Step 7 · Strategic Map
 
@@ -142,7 +142,7 @@ knowledge_extractor_output:
     methods_tentative: [<name>, ...]
     concepts: [<name>, ...]
     session_summary: meta/sessions/<sid>.md
-    snapshot: meta/soul-snapshots/<sid>.md
+    snapshot: meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md
     strategic_map: in-place updated | unchanged
   degraded: false | true (with reason)
   total_tokens_used: <integer>

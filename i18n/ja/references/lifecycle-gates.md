@@ -8,7 +8,7 @@ introduced_in: v1.8.5
 
 # ライフサイクルゲート
 
-> `references/agent-spec.md v2` / `references/wiki-spec.md v2` / `references/soul-spec.md v2`（および EOU 6 facets 語彙）の 9 つのライフサイクル段階は: `candidate → draft → simulated → pilot → active → monitored → stable → deprecated → retired`。
+> `references/agent-spec.md v2` / `references/wiki-spec.md v2`（および EOU 6 facets 語彙）の 9 つのライフサイクル段階は: `candidate → draft → simulated → pilot → active → monitored → stable → deprecated → retired`。（SOUL 次元は独自の 4 状態 `lifecycle_stage` —— `tentative / confirmed / dormant / deprecated`、`references/soul-spec.md` 参照 —— であり、この 9 段階セットではない。）
 >
 > 段階間の昇格には証拠が必要。このファイルは 8 つの遷移 + 各遷移の証拠 checklist を列挙。ARCHIVER Phase 2 昇格提案は、昇格推奨前にどの証拠項目が満たされたかを引用**しなければならない**。
 

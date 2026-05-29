@@ -8,7 +8,7 @@ introduced_in: v1.8.5
 
 # Lifecycle Gates
 
-> The 9 lifecycle stages from `references/agent-spec.md v2` / `references/wiki-spec.md v2` / `references/soul-spec.md v2` (and EOU 6 facets vocabulary) are: `candidate → draft → simulated → pilot → active → monitored → stable → deprecated → retired`.
+> The 9 lifecycle stages from `references/agent-spec.md v2` / `references/wiki-spec.md v2` (and EOU 6 facets vocabulary) are: `candidate → draft → simulated → pilot → active → monitored → stable → deprecated → retired`. (SOUL dimensions use their own 4-state `lifecycle_stage` — `tentative / confirmed / dormant / deprecated` per `references/soul-spec.md` — NOT this 9-stage set.)
 >
 > Promotion between stages requires evidence. This file lists the 8 transitions + the evidence checklist for each. ARCHIVER Phase 2 promotion proposals MUST cite which evidence items are satisfied before recommending promotion.
 

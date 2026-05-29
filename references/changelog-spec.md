@@ -27,7 +27,7 @@ v1.8.5+ schema fixes these.
 ---
 version: 1.8.5
 date: 2026-05-23
-type: major | minor | patch
+type: major | minor | patch | prerelease
 breaking_changes:                          # bullet list
   - "SOUL.md schema v1 → v2 (X-over-Y formulation required)"
   - "wiki entry schema v1 → v2 (outlier slot required for active+)"

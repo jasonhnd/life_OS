@@ -8,7 +8,7 @@ introduced_in: v1.8.5
 
 # 生命周期门
 
-> `references/agent-spec.md v2` / `references/wiki-spec.md v2` / `references/soul-spec.md v2`（以及 EOU 6 facets 词汇）的 9 个生命周期阶段是：`candidate → draft → simulated → pilot → active → monitored → stable → deprecated → retired`。
+> `references/agent-spec.md v2` / `references/wiki-spec.md v2`（以及 EOU 6 facets 词汇）的 9 个生命周期阶段是：`candidate → draft → simulated → pilot → active → monitored → stable → deprecated → retired`。（SOUL 维度用自己的 4 态 `lifecycle_stage` —— `tentative / confirmed / dormant / deprecated`，见 `references/soul-spec.md` —— 不是这套 9 阶段。）
 >
 > 阶段之间晋升需要证据。本文件列出 8 个转换 + 每个转换的证据 checklist。ARCHIVER Phase 2 晋升提议**必须**引用推荐晋升前已满足的证据项。
 

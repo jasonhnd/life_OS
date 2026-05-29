@@ -54,6 +54,18 @@ v1.9.1 タグに統合された公開後の修正。3 つとも v1.9.0 が導入
 - **不可能な CHANGELOG 日付を修正。** v1.8.5 / v1.8.6 が `2026-07-15` / `2026-07-16`（v1.8.7 の 05-25 や v1.9.x より数ヶ月後）だった；権威の tag/release 日付 `2026-05-23` に修正（CHANGELOG + changelog-spec の 3 言語）。
 - **references↔i18n ミラー同期を完了**（`##` セクション数の整合を回復）：`data-model.md` の zh/ja は `## v1.7 Cortex Data Types` セクション全体 + `### v1.9 archive semantics` + v1.9 標準オペレーション更新が欠落（177 行のギャップ）；`concept-spec.md` の zh/ja は `## Wikilink Convention` が欠落；`dream-spec.md` の zh/ja は `## DREAM × Cortex Integration` が欠落（さらに EN の「行数上限なし」と矛盾する古い「20-50 行」DREAM 制約を修正）。
 
+### fix2（2026-05-29）—— 行単位の深層監査、第 2 ラウンド
+
+5 つの並列サブエージェントが全行動ファイル（編成コア、24 subagent、参照仕様、prompts/commands、themes/docs）を監査し、複数のクロスファイル矛盾（多くは v1.9 以前）を発見・修正：
+
+- **SOUL スナップショット writer/reader パス分裂** —— knowledge-extractor（v1.7.3 主 writer）が `meta/soul-snapshots/<sid>.md` に書く一方、全 reader + `snapshot-spec.md` は `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` を使う；誰も読まない場所に着地 → SOUL トレンド矢印が静かに壊れていた。writer + archiver carve-out サマリを修正。
+- **archiver 退朝レポート Phase 5 欠落** —— ランタイム H2 列挙が「6 core H2」で `## Phase 5` を欠落、7-H2 契約と矛盾 → AUDITOR が毎回の退朝をフラグ。列挙 + AUDITOR briefing 完全性チェックを 7 に修正。
+- **AUDITOR ↔ retrospective briefing 見出し不一致** —— AUDITOR 期待見出し（`## 3 18步执行 / ## 4 御史台巡查 / ## 5 待陛下圣裁`）が retrospective 実出力（`## 3 DREAM / ## 4 Today's Focus / ## 5 系统状态`）と不一致 → 全準拠 briefing を誤フラグ。AUDITOR を出力側に整合。
+- **pro/AGENTS.md + pro/GEMINI.md を pro/CLAUDE.md に再同期** —— Step 10a が依然 4-page Notion をハードコード（CLAUDE.md は config-driven 化 R-1.8.0-022）→ 未設定エンティティに「failed」誤報；line 5 が `scripts/hooks/` 登録 + prompt-level enforcement と主張（v1.8.5 退役、現 host-agnostic inline）；stale NARRATOR-VALIDATOR 情報隔離行。3 つすべて移植。
+- **アクティブファイルの退役 token / 旧パス整理** —— archiver が削除済み `tools/lib/cortex/*.py` を呼ぶ；pro/CLAUDE.md + auditor の「Bash checks」→ inline LLM；data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + アクティブ getting-started ドキュメントが削除済み python ツール、退役 bash hook、削除済み narrator-validator、pre-v1.9 パス（`_meta/`、`meta/decisions/*.md`）を現行として参照。修正または歴史的に再フレーム。references↔i18n 整合を維持。
+
+legacy マークファイル（`status: legacy` / `authoritative: false`）は正しくスキップ。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性

@@ -162,7 +162,7 @@ Flow types: `cognition` / `resource` / `decision` / `trust`. Role and flow defin
 
 ## v1.7 Cortex Data Types
 
-The following types are introduced in v1.7 for the Cortex cognitive layer. Each has its own authoritative spec file; this table is the short form that `tools/lib/second_brain.py` dataclasses consume.
+The following types are introduced in v1.7 for the Cortex cognitive layer. Each has its own authoritative spec file; this table is the short form.
 
 ### SessionSummary
 

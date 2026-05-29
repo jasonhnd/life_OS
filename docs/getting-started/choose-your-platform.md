@@ -29,7 +29,7 @@ Life OS 的核心机制是 多个 subagent **互相看不见对方的思考过�
 | Notion MCP | 支持（在主上下文执行 Step 10a） | 支持（同上） | 支持（同上） |
 | 成本 | Claude 订阅 / Max 计划 / API 量 | Google AI Studio 免费额度大 / Gemini Advanced | ChatGPT Plus / Pro |
 | 安装命令 | `/install-skill https://github.com/jasonhnd/life_OS` | `npx skills add jasonhnd/life_OS` | `npx skills add jasonhnd/life_OS` |
-| 自动更新 hook | 支持（`scripts/setup-hooks.sh`） | 需手动 `npx skills add` 重装 | 需手动重装 |
+| 自动更新 hook | 支持（`/install-agents`，v1.8.5 起取代已退役的 setup-hooks.sh） | 需手动 `npx skills add` 重装 | 需手动重装 |
 | IDE 集成 | VS Code / Terminal | Antigravity workspace / Gemini CLI | Terminal |
 | 主要限制 | opus 额度用光后降级到下一级 | `.claude/worktrees/` 会撑爆 context，必须加 .gitignore | 最强推理模型调用较慢；ratelimit 偏严 |
 
@@ -40,7 +40,7 @@ Life OS 的核心机制是 多个 subagent **互相看不见对方的思考过�
 1. **Claude 的 opus 级模型在 PLANNER / REVIEWER / COUNCIL 上的判断力明显好**。这三个角色是引擎的瓶颈 —— 计划质量、否决敏锐度、辩论深度都决定了 Summary Report 的含金量。当前版本的 Claude opus 在这三件事上的信号比 Gemini 和 Codex 的最强版本都更稳定（作者主观评估，截至 2026-04）。
 2. **Task tool 原生支持并行 subagent**。六部并行执行是编排协议的 HARD RULE（Step 5，one-by-one reporting）。Claude Code 的 Task tool 直接支持；Gemini / Codex 需要通过 skill 文件模拟，稍复杂。
 3. **`pro/CLAUDE.md` 是母版**。GEMINI.md 和 AGENTS.md 是从它同步过来的 —— 有新功能时 CLAUDE.md 先改，另外两个后跟。首选平台意味着拿到最新逻辑的时差最短。
-4. **auto-update hook** 可以做到「每天第一次上朝自动检查更新」，跑一次 `scripts/setup-hooks.sh` 就行。Gemini / Codex 要手动重装。
+4. **auto-update hook** 可以做到「每天第一次上朝自动检查更新」，跑一次 `/install-agents` 就行（v1.8.5 起取代已退役的 setup-hooks.sh）。Gemini / Codex 要手动重装。
 5. **Notion MCP 成熟度**。Step 10a 需要在 orchestrator 的主上下文里调用 Notion MCP 工具。Claude Code 的 MCP 体系最成熟，`~/.claude.json` 里配好 MCP server 就能用；另外两个平台 MCP 支持度和稳定性还在追赶。
 
 Gemini 和 Codex 都是完整支持的一等公民 —— 功能同构，只是 Claude Code 在以上几点上稍稳。如果你的工作流已经在 Gemini 或 Codex 上，直接用，不需要切。

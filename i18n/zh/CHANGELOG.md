@@ -54,6 +54,18 @@ regression_cases_added: []
 - **修正不可能的 CHANGELOG 日期。** v1.8.5 / v1.8.6 写成 `2026-07-15` / `2026-07-16`（晚于 v1.8.7 的 05-25 和 v1.9.x 数月）；按权威 tag/release 日期改为 `2026-05-23`（CHANGELOG + changelog-spec 三语）。
 - **补完 references↔i18n 镜像同步**（恢复 `##` 章节计数对齐）：`data-model.md` 中日版缺整个 `## v1.7 Cortex Data Types` 节 + `### v1.9 archive semantics` + v1.9 标准操作更新（177 行缺口）；`concept-spec.md` 中日版缺 `## Wikilink Convention`；`dream-spec.md` 中日版缺 `## DREAM × Cortex Integration`（并修正一条与 EN「无行数上限」矛盾的过时「20-50 行」DREAM 约束）。
 
+### fix2（2026-05-29）—— 逐行深度审计，第二轮
+
+5 个并行子代理审计了每个行为文件（编排核心、24 个 subagent、参考规范、prompts/commands、themes/docs），发现并修复多处跨文件矛盾（多数早于 v1.9）：
+
+- **SOUL 快照 writer/reader 路径分裂** —— knowledge-extractor（v1.7.3 主写入方）写到 `meta/soul-snapshots/<sid>.md`，但所有读取方 + `snapshot-spec.md` 用 `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`；快照写到没人读的地方 → SOUL 趋势箭头静默失效。已修 writer + archiver carve-out 摘要。
+- **archiver 退朝报告漏 Phase 5** —— 运行时 H2 枚举写「6 个核心 H2」漏了 `## Phase 5`，与 7-H2 契约矛盾 → AUDITOR 会判每次退朝不完整。已把枚举 + AUDITOR briefing 完整性检查修为 7。
+- **AUDITOR ↔ retrospective briefing 标题不匹配** —— AUDITOR 期望标题（`## 3 18步执行 / ## 4 御史台巡查 / ## 5 待陛下圣裁`）与 retrospective 实际产出（`## 3 DREAM / ## 4 Today's Focus / ## 5 系统状态`）不符 → 每个合规简报被误判。AUDITOR 已对齐产出方。
+- **pro/AGENTS.md + pro/GEMINI.md 重新同步到 pro/CLAUDE.md** —— Step 10a 仍硬编码 4-page Notion（CLAUDE.md 已改 config-driven R-1.8.0-022）→ 对未配置实体误报「failed」；line 5 还说 `scripts/hooks/` 可注册 + prompt-level enforcement（已退役 v1.8.5，现 host-agnostic inline）；stale NARRATOR-VALIDATOR 信息隔离行。三处全部移植。
+- **活跃文件的退役 token / 旧路径清理** —— archiver 调用已删 `tools/lib/cortex/*.py`；pro/CLAUDE.md + auditor 的「Bash checks」→ inline LLM；data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + 活跃 getting-started 文档引用了已删 python 工具、已退役 bash hook、已删 narrator-validator 或 pre-v1.9 路径（`_meta/`、`meta/decisions/*.md`）当现行。已修正或标为历史。references↔i18n 对齐保持（中日已同步）。
+
+legacy 标记文件（`status: legacy` / `authoritative: false`）正确跳过 —— 仓库的 legacy 框注纪律经受住了检验。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化

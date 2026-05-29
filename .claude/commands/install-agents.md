@@ -9,7 +9,7 @@ allowed-tools:
 
 # /install-agents
 
-Generate wrapper agent files in `~/.claude/agents/` so Claude Code's native Task() tool can discover and launch Life OS subagents (router, retrospective, archiver, planner, reviewer, dispatcher, advisor, auditor, strategist, monitor, council, hippocampus, gwt-arbitrator, concept-lookup, soul-check, narrator-validator + 6 domain agents).
+Generate wrapper agent files in `~/.claude/agents/` so Claude Code's native Task() tool can discover and launch Life OS subagents (router, retrospective, archiver, planner, reviewer, dispatcher, advisor, auditor, strategist, monitor, council, hippocampus, gwt-arbitrator, concept-lookup, soul-check + 6 domain agents). (narrator-validator was removed in v1.8.0 R-1.8.0-011 — citation discipline is now inline in narrator; the `ls pro/agents/*.md` glob below never emits it.)
 
 ## Procedure
 

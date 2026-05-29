@@ -162,7 +162,7 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 
 ## v1.7 Cortex データ型
 
-以下の型は v1.7 で Cortex 認知層のために導入された。各々が独自の権威 spec ファイルを持つ；下表は `tools/lib/second_brain.py` の dataclass が消費する短縮形。
+以下の型は v1.7 で Cortex 認知層のために導入された。各々が独自の権威 spec ファイルを持つ；下表はその短縮形。
 
 ### SessionSummary
 

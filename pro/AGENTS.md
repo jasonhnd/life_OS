@@ -2,7 +2,7 @@
 
 > **v1.8.0 pivot completed (R-1.8.0-013 round-6 audit)**: Cortex §0.5 rewritten to pull-based; Session Modes updated to user-invoked (cron removed); narrator-validator references replaced with inline self-check; skeleton script blocks removed. The authoritative spec remains `pro/CLAUDE.md` — if a conflict surfaces, treat `pro/CLAUDE.md` as source of truth.
 
-> **Codex CLI host note (v1.7)**: The Shell Hook layer (Layer 3) described in `references/hooks-spec.md §2` is Claude-Code-only in v1.7. Codex CLI users get Layer 1 (documentation HARD RULE) + Layer 2 (subagent isolation) enforcement; no runtime hook backstop. When Codex publishes a compatible hook surface, the same 5 scripts under `scripts/hooks/` can be registered. Until then, treat all HARD RULE in this file as prompt-level enforcement.
+> **Codex CLI host note (v1.8.5+)**: The Shell Hook layer (Layer 3) was retired entirely in v1.8.5 (per DR-10 md-only ontological constraint) — there is no longer a bash-hook backstop on ANY host. Runtime enforcement is now inline LLM procedures (AUDITOR Mode 3, the Step 10a outbound PII gate, etc.), which makes it **host-agnostic**: Codex CLI users get the SAME runtime enforcement as Claude Code, not a prompt-level-only downgrade. `references/hooks-spec.md` describes the retired v1.7 hook layer (historical reference only).
 
 All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.
 
@@ -214,27 +214,38 @@ ROUTER does not interject between phases. The subagent emits the Completion Chec
 
 ### 10a. Notion Sync (orchestrator, after archiver returns) — HARD RULE
 
-The archiver subagent cannot access Notion MCP tools (they are environment-specific). After the archiver returns with its Completion Checklist, the **orchestrator (main context)** MUST execute Notion sync using the Notion MCP tools available in the session:
+The archiver subagent cannot access Notion MCP tools (they are environment-specific). After the archiver returns with its Completion Checklist, the **orchestrator (main context)** MUST execute Notion sync using the Notion MCP tools available in the session.
+
+**Step 10a no ask (HARD RULE):** The orchestrator MUST automatically execute Notion sync immediately after the archiver returns. It MUST NOT ask for permission, pause for confirmation, or defer sync to a later prompt. Pausing or asking before executing Step 10a is a process violation.
+
+**Step 10a outbound boundary gate (HARD RULE · v1.8.3, inline since v1.8.5):** Before EACH Notion MCP write call, run the outbound PII scan inline — read the payload, match against `references/outbound-pii-patterns.md`, resolve to one of three verdicts (the `pre-notion-write.sh` hook was retired in v1.8.5; this is now an inline LLM procedure — same pattern library, same verdicts):
+- **pass** — no match. Proceed uninterrupted (no-ask default).
+- **warn** — Group B/C/D match. Pause exactly once: `(a) sanitize / (b) skip / (c) override`.
+- **block** — Group A hard secret. Do NOT send; surface the leak so the user can rotate. Logged as `CLASS_F`.
+
+Write `meta/runtime/<sid>/notion-pii-scan-<ts>.md` (matched category IDs only, never raw content) and the Step 10a audit trail to `meta/runtime/<sid>/notion-sync.md` per `references/audit-trail-spec.md`.
+
+**Sync targets are CONFIG-DRIVEN, not hardcoded.** The orchestrator MUST read `meta/config.md` and only sync the Notion entities the user has actually configured. The pre-R-1.8.0-022 spec hardcoded a 4-page list (`Status / Todo Board / Working Memory / Inbox`); real users often have a different layout, and hardcoding caused false "Working Memory: failed" reports for entities that never existed.
 
 ```
-a. 🧠 Current Status page: overwrite with latest STATUS.md content
-b. 📋 Todo Board: sync tasks from this session (new → create, completed → check off)
-c. 📝 Working Memory: write session summary (subject, key conclusions, action items)
-d. 📬 Inbox: mark processed items as "Synced"
-e. If Notion MCP unavailable → report: "⚠️ Notion sync failed — mobile will not see updates"
-f. If a specific write fails → report which one, continue with others
+For each `*_page_id` / `*_database_id` field in meta/config.md:
+  - status_page_id     → overwrite with latest meta/STATUS.md content
+  - mirror_page_id     → overwrite with session summary (subject, key conclusions, action items)
+  - todo_database_id   → sync tasks from this session (new → create, completed → check off)
+  - inbox_database_id  → mark processed items as "Synced"
+  - <any other configured entity> → apply known mapping from references/adapter-notion.md, else skip with a one-line note
+If a write fails → report which one, continue with others.
+If NO Notion entity configured → skip Step 10a entirely (record skip reason in audit trail).
+If entities configured but Notion MCP unavailable → report "⚠️ Notion sync failed — mobile will not see updates" with the entity list.
 ```
 
-After Notion sync completes, output the Notion portion of the checklist:
+After sync, output one checklist line PER CONFIGURED entity (skip unconfigured — do not list them as "failed"):
 ```
 🔄 Notion sync:
-- 🧠 Status: [updated / failed: {reason}]
-- 📋 Todo: [synced {N} items / failed: {reason}]
-- 📝 Working Memory: [written / failed: {reason}]
-- 📬 Inbox: [marked synced / no items / failed: {reason}]
+- <entity_name>: [updated / synced N items / failed: {reason} / skipped: not configured]
 ```
 
-Do NOT skip Notion sync silently. Do NOT say "Notion MCP not connected" without actually attempting to call the tools.
+Do NOT skip Notion sync silently when entities ARE configured. Do NOT say "Notion MCP not connected" without attempting the tools. Do NOT report "failed" for entities that were never configured. Full canonical logic: `pro/CLAUDE.md` §10a.
 
 ### 11. STRATEGIST — Hall of Human Wisdom (ask the user)
 
@@ -392,7 +403,7 @@ Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or 
 | **SOUL-CHECK** (v1.7) | current_user_message + extracted_subject + current_project + current_theme | **Other Cortex outputs** (hippocampus, concept-lookup), snapshots beyond the most recent (older snapshots are RETROSPECTIVE's job), other agents' thought processes |
 | **GWT-ARBITRATOR** (v1.7) | hippocampus_output + concept_lookup_output + soul_check_output + current_user_message | ROUTER reasoning, raw session content, agent thought processes |
 | **NARRATOR** (v1.7 Phase 2, ROUTER @ Step 7.5 narrator mode — NOT a standalone subagent; see `pro/compliance/2026-04-21-narrator-spec-violation.md`) | Draft Summary Report + cognitive_context (signals from GWT) | Other agents' thought processes, raw SOUL.md body, raw wiki/ files |
-| **NARRATOR-VALIDATOR** (v1.7 Phase 2.5) | narrator_output + cognitive_context (same as narrator received) | Anything outside its input |
+| **NARRATOR-VALIDATOR** (v1.7 Phase 2.5 — REMOVED in v1.8.0 R-1.8.0-011; citation discipline now self-checked inline by ROUTER) | — (subagent deleted) | — |
 | ROUTER | User message + RETROSPECTIVE agent's Pre-Session Preparation + `meta/STRATEGIC-MAP.md` (compiled) + `[COGNITIVE CONTEXT]` block from GWT (when Cortex enabled) | — |
 | PLANNER | Subject + background + user message + bound project's strategic context (flows only, not full map) | ROUTER's reasoning, full strategic map |
 | REVIEWER | Planning document or Six Domains reports + flow graph relevant to current decision | Thought processes, full strategic map |

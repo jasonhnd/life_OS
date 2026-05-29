@@ -162,7 +162,7 @@
 
 ## v1.7 Cortex 数据类型
 
-以下类型在 v1.7 为 Cortex 认知层引入。每个都有自己的权威 spec 文件；下表是 `tools/lib/second_brain.py` dataclass 消费的简表形式。
+以下类型在 v1.7 为 Cortex 认知层引入。每个都有自己的权威 spec 文件；下表是其简表形式。
 
 ### SessionSummary
 

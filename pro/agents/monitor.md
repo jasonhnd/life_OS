@@ -51,8 +51,8 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
    ```
    📡 Life OS Monitor · {YYYY-MM-DD HH:MM}
 
-   ## 最近 24h cron 摘要
-   - {N} jobs ran, {M} success, {K} failed
+   ## 最近维护任务（用户触发，无 cron）
+   - 最近运行的维护任务及结果（见 meta/eval-history/ + retrospective Mode 0 逾期扫描）
 
    ## 待处理 action items
    - {N} 项 from AUDITOR Patrol ({date})
@@ -61,7 +61,7 @@ does not trigger Cortex Pre-Router. /exit-monitor to switch back.
    - {L} stale wiki entries (from wiki-decay)
 
    ## System health
-   - Cron 上周成功率: {X}% (from cron_health_report)
+   - 维护任务逾期数: {N}（见 retrospective Mode 0 status scan）
    - Spec compliance: {X}% (last spec-compliance report)
    - Archiver violations 上周: {N} 次
 

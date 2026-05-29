@@ -164,7 +164,7 @@ All triggers are subject to **24h anti-spam suppression** — if the same trigge
 
 #### 10. repeated-decisions
 
-- **Data source**: `meta/decisions/*.md` + project decisions history
+- **Data source**: `meta/decisions/*/*.md` (v1.9 monthly subdirs) + project decisions history
 - **Hard threshold**: same question/subject decided ≥3 times without execution in between
 - **Soft signals**: user rephrases the question to avoid recognizing it as repetition
 - **Auto-action**: flag for next briefing ("You're deciding X again — are you avoiding commitment?")

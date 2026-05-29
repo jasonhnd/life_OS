@@ -27,7 +27,7 @@ v1.8.5+ schema がこれらを修正。
 ---
 version: 1.8.5
 date: 2026-05-23
-type: major | minor | patch
+type: major | minor | patch | prerelease
 breaking_changes:                          # 箇条書きリスト
   - "SOUL.md schema v1 → v2（X-over-Y formulation 必須）"
   - "wiki entry schema v1 → v2（active+ エントリで outlier slot 必須）"

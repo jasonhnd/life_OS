@@ -309,8 +309,8 @@ Hermes 没有这些。方向是**吸收 Hermes 的执行模式，不抛弃 Life 
 |---|------|-------------|---------|
 | Layer 1 · 数据层 | 所有长期记忆的物理存储，纯 markdown，三后端同步 | **第二大脑** | 稳定 |
 | Layer 2 · Skill 层 | 多个 agent 编排 + Cortex 认知前置 + 9 主题 | **决策引擎** + **认知执行 · Cortex** | 决策引擎稳定；Cortex 在 Layer 2 内部加一层前置模块（不是独立的 Layer 5），v1.7 已加入 cross-session 记忆、概念图谱、eval-history 自反馈 |
-| Layer 3 · Shell Hook 层 | trigger 词强制、输出验证、安全扫描、git hook | **认知执行 · Hermes 执行力**（强制约束） | v1.7 GA |
-| Layer 4 · Python 工具层 | 批量索引、自动化维护、self-review journal、定时任务 | **认知执行 · Hermes 执行力**（主动执行） | v1.7 GA |
+| Layer 3 · Shell Hook 层 | trigger 词强制、输出验证、安全扫描、git hook | **认知执行 · Hermes 执行力**（强制约束） | ⚠️ 已退役 v1.8.5 —— bash hook 层整体移除，强制约束改为 inline LLM 流程（AUDITOR Mode 3 等），host-agnostic |
+| Layer 4 · Python 工具层 | 批量索引、自动化维护、self-review journal、定时任务 | **认知执行 · Hermes 执行力**（主动执行） | ⚠️ 已退役 v1.8.1 —— python 工具移除，改 inline LLM + 用户触发 prompt |
 
 **重要澄清**：
 
@@ -388,11 +388,11 @@ Adjourn 后，编排层在月末触发 `scripts/prompts/advisor-monthly.md` 流�
 - 比对 evals/ 跑出的分数和 AUDITOR 打的分数。如果 AUDITOR 都在打 8+ 但 eval 跑出 3 个 fail → 标记"互相护短"模式写进 meta/user-patterns.md
 - 下次 ADVISOR 启动时自动读到这个 pattern，在 Summary Report 里标红提醒
 
-*（Layer 4 Python 工具层，不绑云服务，launchd 本地跑就行）*
+*（曾为 Layer 4 Python 工具层；v1.8.1 起 python 移除，定时/维护改为用户触发的 inline LLM prompt，不绑云服务）*
 
-**9:46 · Shell hook 审计**
+**9:46 · 合规审计**（v1.8.5 起 inline LLM；曾为 git pre-commit hook）
 
-git pre-commit hook 扫描 session 产物：
+合规检查扫描 session 产物：
 - 检查 wiki 新文件是否过了 privacy filter（具体 regex 列表：姓名 / 金额 / 账户 ID / 具体公司名白名单）
 - 检查 SOUL 更新是否引用了 evidence signals（没引用的更新直接拒绝）
 - 检查 Adjourn Completion Checklist 是否完整（4 phases 每个都有返回值，无 TBD 无空值）
@@ -400,7 +400,7 @@ git pre-commit hook 扫描 session 产物：
 
 如果任何一项 fail → 阻止 commit，要求人工确认。不是"提醒你注意"，是**硬拒绝**。
 
-*（Layer 3 Shell Hook 层强制执行，code-level 约束 LLM 不偷懒）*
+*（v1.8.5 前为 Layer 3 git pre-commit hook；现由 AUDITOR Mode 3 inline LLM 流程执行，host-agnostic，约束 LLM 不偷懒）*
 
 **整个流程**：
 - **三个方向都参与**：第二大脑（读写）+ 决策引擎（分析）+ 认知执行（Cortex 前置 + Hermes 级 hook 和脚本）

@@ -168,7 +168,7 @@ cp -r wiki/ meta/concepts/ meta/sessions/ meta/methods/ \
        SOUL.md meta/STRATEGIC-MAP.md \
        meta/migration-backup/{ISO-DATE}/  2>/dev/null || true
 # Windows PowerShell equivalent:
-# Copy-Item -Path wiki,_meta\concepts,_meta\sessions,_meta\methods,SOUL.md,_meta\STRATEGIC-MAP.md -Destination _meta\migration-backup\{ISO-DATE}\ -Recurse
+# Copy-Item -Path wiki,meta\concepts,meta\sessions,meta\methods,meta\people,meta\comparisons,SOUL.md,meta\STRATEGIC-MAP.md -Destination meta\migration-backup\{ISO-DATE}\ -Recurse
 ```
 
 Verify backup directory non-empty + has same file count as source dirs
