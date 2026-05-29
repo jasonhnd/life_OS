@@ -66,6 +66,16 @@ A 5-agent parallel deep audit of every behavioral file (orchestration core, 24 s
 
 Legacy-marked files (`status: legacy` / `authoritative: false`) were correctly skipped — the repo's legacy-framing discipline held up.
 
+### fix3 (2026-05-29) — deep-audit cleanup, round 3 (all remaining LOW items)
+
+Closes the remaining low-severity drift from the round-2 audit:
+
+- **De-hardcoded subagent counts** — `agent-spec.md` ("all 23 subagents", "all 22 lifeos subagents") and `status-line-spec.md` ("22 subagents") disagreed on the count (actual: 24) and violated the "don't hardcode agent count" rule; all replaced with non-numeric phrasing (EN/zh/ja). `agent-spec.md`'s subagent list also still named the deleted `narrator-validator` and omitted `memory-keeper` — corrected.
+- **Fixed broken RFC scan-source paths** — `memory-keeper.md`, `gotchas-spec.md`, `pro/gotchas.md`, and the memory-keeper eval scenario listed `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md` (never existed) at the wrong `meta/` path; corrected to the existing `_meta/rfc/` RFCs (v1.8.5 / v1.8.7 / v1.9).
+- **Misc**: `retrospective.md` mojibake in a retired hook block + a stale "audit trail JSON" → `.md` (DR-10); `run-tool-eval.md` presented the unimplemented `/run-regression` as existing → marked planned; `migrate-wiki-v2.md` `/audit --mode 5` given an inline fallback.
+
+references↔i18n parity preserved (zh/ja synced).
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency

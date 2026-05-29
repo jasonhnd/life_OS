@@ -1,6 +1,6 @@
 ---
 spec_id: status-line-spec.v1
-description: 8 enum status line 输出契约，统一 lifeos 既有 5+ 处 ad-hoc emoji status 模式（Pre-flight Compliance Check / Subagent self-check / AUDITOR 静默通过 / self-driven loop tick / Adjourn Confirmation）。每个 subagent 第一行输出必须是 status line。22 个 subagent 各自在自己 agent 文件中声明 enum 语义。模式来源 —— OpenHuman gitbooks/features/subconscious.md 活动日志彩色状态指示器，lifeos 适配为纯 emoji + enum 关键字（md-only 约束）。
+description: 8 enum status line 输出契约，统一 lifeos 既有 5+ 处 ad-hoc emoji status 模式（Pre-flight Compliance Check / Subagent self-check / AUDITOR 静默通过 / self-driven loop tick / Adjourn Confirmation）。每个 subagent 第一行输出必须是 status line。每个 subagent 各自在自己 agent 文件中声明 enum 语义。模式来源 —— OpenHuman gitbooks/features/subconscious.md 活动日志彩色状态指示器，lifeos 适配为纯 emoji + enum 关键字（md-only 约束）。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, gitbooks/features/subconscious.md（活动日志 7 种彩色状态指示器）
@@ -8,7 +8,7 @@ introduced_in: v1.8.7（2026-05-26 加入，按 DR-11 反转 DR-01）
 referenced_by:
   - SKILL.md (E9 HARD RULE)
   - pro/agents/auditor.md (Mode 8 status line 验证)
-  - 所有 22 个 pro/agents/*.md（每 agent Status Output 章节）
+  - 所有 pro/agents/*.md（每 agent Status Output 章节）
 ---
 
 # Status Line 规范 v1
@@ -110,7 +110,7 @@ AUDITOR Mode 8（v1.8.7 新增）验证：
 
 ## 迁移计划（v1.8.7 release 内）
 
-22 个 subagent 分批迁移。对每个 agent：
+subagent 分批迁移。对每个 agent：
 
 1. 加 `## Status Output (E9 · v1.8.7)` 章节声明 8 enum 语义
 2. 既有 `✅ I am the X subagent` 行变 `🚀 starting · <name> · ...`

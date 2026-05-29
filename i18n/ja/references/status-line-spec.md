@@ -1,6 +1,6 @@
 ---
 spec_id: status-line-spec.v1
-description: 8 enum status line 出力契約。lifeos の 5+ 個の ad-hoc emoji status パターン（Pre-flight Compliance Check / Subagent self-check / AUDITOR silent-pass / self-driven loop tick / Adjourn Confirmation）を統一する。各 subagent の最初の出力行は status line でなければならない。22 個の subagent それぞれが自分の agent ファイルで enum セマンティクスを宣言する。パターン源 —— OpenHuman gitbooks/features/subconscious.md アクティビティログの色付きステータスインジケータ、md-only 制約下で純粋な emoji + enum キーワードに適応。
+description: 8 enum status line 出力契約。lifeos の 5+ 個の ad-hoc emoji status パターン（Pre-flight Compliance Check / Subagent self-check / AUDITOR silent-pass / self-driven loop tick / Adjourn Confirmation）を統一する。各 subagent の最初の出力行は status line でなければならない。各 subagent が自分の agent ファイルで enum セマンティクスを宣言する。パターン源 —— OpenHuman gitbooks/features/subconscious.md アクティビティログの色付きステータスインジケータ、md-only 制約下で純粋な emoji + enum キーワードに適応。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, gitbooks/features/subconscious.md（アクティビティログ 7 色付きステータスインジケータ）
@@ -8,7 +8,7 @@ introduced_in: v1.8.7（2026-05-26 追加、DR-11 が DR-01 を反転）
 referenced_by:
   - SKILL.md (E9 HARD RULE)
   - pro/agents/auditor.md (Mode 8 status line 検証)
-  - すべての 22 pro/agents/*.md（agent ごとの Status Output セクション）
+  - すべての pro/agents/*.md（agent ごとの Status Output セクション）
 ---
 
 # Status Line 仕様 v1
@@ -110,7 +110,7 @@ AUDITOR Mode 8（v1.8.7 新規）が検証：
 
 ## マイグレーション計画（v1.8.7 リリース内）
 
-22 subagent がバッチ移行。各 agent について：
+subagent がバッチ移行。各 agent について：
 
 1. `## Status Output (E9 · v1.8.7)` セクションを追加して 8 enum セマンティクスを宣言
 2. 既存 `✅ I am the X subagent` 行が `🚀 starting · <name> · ...` になる

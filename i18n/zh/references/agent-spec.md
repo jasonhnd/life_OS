@@ -1,6 +1,6 @@
 ---
 spec_id: agent-spec.v2
-description: 所有 pro/agents/*.md subagent 定义文件的标准 frontmatter schema。从 eou-foundry 借鉴 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes。适用所有 23 个 subagent（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、narrator-validator、knowledge-extractor + 6 个 domain agent）。
+description: 所有 pro/agents/*.md subagent 定义文件的标准 frontmatter schema。从 eou-foundry 借鉴 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes。适用所有 pro/agents/*.md subagent 定义文件（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、knowledge-extractor、memory-keeper + 6 个 domain agent）。
 status: active
 authoritative: true
 source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + engine/eou-contract.md
@@ -9,7 +9,7 @@ introduced_in: v1.8.5
 
 # Agent 规范 v2
 
-每个 `pro/agents/*.md` subagent 定义文件**必须**有符合 v2 标准的 YAML frontmatter。v1.8.5 Stage 6 迁移全部 23 个现有 agent。
+每个 `pro/agents/*.md` subagent 定义文件**必须**有符合 v2 标准的 YAML frontmatter。v1.8.5 Stage 6 迁移全部现有 agent。
 
 > **为什么 v2**: v1 agent frontmatter 只有 `name + description + tools + model`（4 字段）。v2 加 6 个结构性字段（借鉴 eou-foundry），让 agent 边界 grep-able、blast radius 显式、failure modes 有文档。按 RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6。
 
@@ -98,7 +98,7 @@ Stage 6 Day 17 添加新 AUDITOR mode。检查:
 
 ## A/B Test Day 15（按 RFC Stage 6 Day 15）
 
-按 D4，批量更新 20 个 agent 前，在 3 个关键 agent 上测试:
+按 D4，批量更新其余 agent 前，在 3 个关键 agent 上测试:
 - `retrospective.md`（最重的 agent，18 步）
 - `archiver.md`（4 phases，breaking changes 易发）
 - `reviewer.md`（否决权，judgment 重）
@@ -109,7 +109,7 @@ Stage 6 Day 17 添加新 AUDITOR mode。检查:
 - `evals/scenarios/reviewer-veto.md`（reviewer judgment 质量）
 
 通过率标准（D4）:
-- ≥ 95% baseline: 在剩余 20 agent 上批量更新
+- ≥ 95% baseline: 在其余 agent 上批量更新
 - 90-95%: 精简 frontmatter（去掉最重字段，重试）
 - < 90%: 回滚该 agent 的 v2 frontmatter，在 `meta/rfc/v1.8.5-stage6-rollback.md` 文档化原因
 
@@ -141,7 +141,7 @@ risk_level 理由: 产出最终输出无 REVIEWER 门的 agent 风险更高（ar
 
 ## 每个 agent 的 `lifecycle_stage`（v1.8.5 初始）
 
-所有 23 个 agent 在 v1.8.5 release 默认为 `active`。例外:
+所有 agent 在 v1.8.5 release 默认为 `active`。例外:
 - `narrator.md` 和 `narrator-validator.md` 按 v1.8.0 R-1.8.0-011 pivot 是 `deprecated`（citation discipline 已内联到 ROUTER）；保留为模板
 
 ## 迁移
@@ -159,7 +159,7 @@ risk_level 理由: 产出最终输出无 REVIEWER 门的 agent 风险更高（ar
 > **Tradeoff:** 本章节让 agent 偏向保守编辑而非热心清理。明确做清理工作的 agent（如 wiki-decay / archiver Phase 5 memory-keeper / 假想的 refactor-cleaner），通过显式 `allowed_scope` 声明覆盖这些默认。
 > **The test:** *如果我打算删除用户未让我碰的代码/注释/文件，删除是否在我的 agent `blast_radius.allowed_scope` 内？不确定就 mention 但不删。*
 
-以下行为默认适用 **所有 22 个 lifeos subagent**，除非 agent 角色 spec 显式覆盖。借鉴自 `multica-ai/andrej-karpathy-skills`（MIT）准则 3 "Surgical Changes" + lifeos 适配到 v2 frontmatter `blast_radius` 系统。
+以下行为默认适用 **所有 lifeos subagent**，除非 agent 角色 spec 显式覆盖。借鉴自 `multica-ai/andrej-karpathy-skills`（MIT）准则 3 "Surgical Changes" + lifeos 适配到 v2 frontmatter `blast_radius` 系统。
 
 ### DA-1 · 注意但不删除无关 dead code
 

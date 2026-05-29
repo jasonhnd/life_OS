@@ -66,6 +66,16 @@ regression_cases_added: []
 
 legacy 标记文件（`status: legacy` / `authoritative: false`）正确跳过 —— 仓库的 legacy 框注纪律经受住了检验。
 
+### fix3（2026-05-29）—— 深度审计清理，第三轮（剩余全部 LOW 项）
+
+收尾第二轮审计的剩余低优先级漂移：
+
+- **去硬编码 subagent 计数** —— `agent-spec.md`（「all 23 subagents」「all 22 lifeos subagents」）与 `status-line-spec.md`（「22 subagents」）计数不一致（实际 24）且违反「不硬编码 agent 数量」规则；全部改为非数字表述（三语）。`agent-spec.md` 的 subagent 列表还含已删的 `narrator-validator`、漏了 `memory-keeper` —— 已修正。
+- **修复断裂的 RFC 扫描源路径** —— `memory-keeper.md`、`gotchas-spec.md`、`pro/gotchas.md` 及 memory-keeper eval 场景列了 `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md`（从未存在）且路径 `meta/` 错误；改为存在的 `_meta/rfc/` RFC（v1.8.5 / v1.8.7 / v1.9）。
+- **杂项**：`retrospective.md` 退役 hook 块里的 mojibake + 过时的「audit trail JSON」→ `.md`（DR-10）；`run-tool-eval.md` 把未实现的 `/run-regression` 当现行 → 标为 planned；`migrate-wiki-v2.md` 的 `/audit --mode 5` 加内联 fallback。
+
+references↔i18n 对齐保持（中日已同步）。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化

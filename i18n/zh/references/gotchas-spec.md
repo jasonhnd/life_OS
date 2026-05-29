@@ -99,9 +99,9 @@ memory-keeper agent 是 `pro/gotchas.md` 的**唯一写入者**。人工直接�
 
 按 RFC §7 退出标准，memory-keeper 在 v1.8.7 release session 首次跑必须扫描以下来源产出 ≥10 条种子：
 
-- `meta/rfc/v1.8.4-*.md`
-- `meta/rfc/v1.8.5-cleanup-and-hardening.md`
-- `meta/rfc/v1.8.6-*.md`
+- `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
+- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
+- `_meta/rfc/v1.9-second-brain-structure-optimization.md`
 - `pro/compliance/violations.md`（过滤：根因是技术性的而非纯流程的条目）
 
 种子条目仍是 gotcha（技术性），不是流程违规。

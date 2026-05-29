@@ -99,9 +99,9 @@ Update flow (memory-keeper invoked from archiver wrap-up phase 5):
 
 Per RFC §7 退出标准, memory-keeper's first run on v1.8.7 release session must produce ≥10 seed entries by scanning:
 
-- `meta/rfc/v1.8.4-*.md`
-- `meta/rfc/v1.8.5-cleanup-and-hardening.md`
-- `meta/rfc/v1.8.6-*.md`
+- `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
+- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
+- `_meta/rfc/v1.9-second-brain-structure-optimization.md`
 - `pro/compliance/violations.md` (filter: entries where root cause is technical, not pure process)
 
 Seed entries are still gotchas (technical), not process violations.

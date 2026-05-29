@@ -1,6 +1,6 @@
 ---
 spec_id: agent-spec.v2
-description: すべての pro/agents/*.md subagent 定義ファイルの標準 frontmatter schema。eou-foundry から 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes を借用。すべての 23 subagent に適用（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、narrator-validator、knowledge-extractor + 6 domain agent）。
+description: すべての pro/agents/*.md subagent 定義ファイルの標準 frontmatter schema。eou-foundry から 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes を借用。すべての pro/agents/*.md subagent 定義ファイルに適用（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、knowledge-extractor、memory-keeper + 6 domain agent）。
 status: active
 authoritative: true
 source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + engine/eou-contract.md
@@ -9,7 +9,7 @@ introduced_in: v1.8.5
 
 # Agent 仕様 v2
 
-すべての `pro/agents/*.md` subagent 定義ファイルは v2 標準に準拠する YAML frontmatter を**必ず持たなければならない**。v1.8.5 Stage 6 は既存の 23 agent すべてを移行する。
+すべての `pro/agents/*.md` subagent 定義ファイルは v2 標準に準拠する YAML frontmatter を**必ず持たなければならない**。v1.8.5 Stage 6 は既存の agent すべてを移行する。
 
 > **なぜ v2**: v1 agent frontmatter には `name + description + tools + model`（4 フィールド）のみ。v2 は eou-foundry から借用した 6 つの構造化フィールドを追加 —— agent 境界が grep 可能、blast radius が明示的、failure modes が文書化される。RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6 に従う。
 
@@ -98,7 +98,7 @@ Stage 6 Day 17 で新 AUDITOR mode を追加。チェック:
 
 ## A/B Test Day 15（RFC Stage 6 Day 15 に従う）
 
-D4 に従い、20 agent の一括更新前に 3 つの重要 agent でテスト:
+D4 に従い、残りの agent の一括更新前に 3 つの重要 agent でテスト:
 - `retrospective.md`（最重 agent、18 ステップ）
 - `archiver.md`（4 phases、breaking changes が起きやすい）
 - `reviewer.md`（否決権、judgment が重い）
@@ -109,7 +109,7 @@ eval scenarios を実行:
 - `evals/scenarios/reviewer-veto.md`（reviewer judgment 品質）
 
 合格率基準（D4）:
-- ≥ 95% baseline: 残り 20 agent の一括更新を続行
+- ≥ 95% baseline: 残りの agent の一括更新を続行
 - 90-95%: frontmatter を簡略化（最重フィールドを削除、再試行）
 - < 90%: その agent の v2 frontmatter をロールバック、理由を `meta/rfc/v1.8.5-stage6-rollback.md` に文書化
 
@@ -141,7 +141,7 @@ risk_level の根拠: REVIEWER ゲートなしで最終出力を生成する age
 
 ## 各 agent の `lifecycle_stage`（v1.8.5 初期）
 
-すべての 23 agent は v1.8.5 リリースでデフォルト `active`。例外:
+すべての agent は v1.8.5 リリースでデフォルト `active`。例外:
 - `narrator.md` と `narrator-validator.md` は v1.8.0 R-1.8.0-011 ピボットに従い `deprecated`（citation discipline は ROUTER にインライン化済）；テンプレートとして保持
 
 ## 移行

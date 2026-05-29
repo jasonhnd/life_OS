@@ -8,8 +8,8 @@ Sole writer: pro/agents/memory-keeper.md (do NOT hand-edit; bypasses dedup)
 Invoked from: pro/agents/archiver.md wrap-up phase 5
 
 Initial seed populated by memory-keeper in seed mode during v1.8.7 release session.
-Sources scanned: meta/rfc/v1.8.4-*.md / v1.8.5-cleanup-and-hardening.md /
-v1.8.6-*.md / v1.8.7-openhuman-borrowed-patterns.md / pro/compliance/violations.md
+Sources scanned: _meta/rfc/v1.8.5-cleanup-and-hardening.md /
+v1.8.7-openhuman-borrowed-patterns.md / v1.9-second-brain-structure-optimization.md / pro/compliance/violations.md
 (technical-root-cause subset).
 
 Subsequent updates: archiver Phase 5 invokes memory-keeper after every Adjourn.

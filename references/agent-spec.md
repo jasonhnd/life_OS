@@ -1,6 +1,6 @@
 ---
 spec_id: agent-spec.v2
-description: Standard frontmatter schema for all pro/agents/*.md subagent definition files. Borrows EOU 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes from eou-foundry. Applies to all 23 subagents (router, retrospective, archiver, planner, reviewer, dispatcher, advisor, auditor, strategist, monitor, council, hippocampus, gwt-arbitrator, concept-lookup, soul-check, narrator, narrator-validator, knowledge-extractor + 6 domain agents).
+description: Standard frontmatter schema for all pro/agents/*.md subagent definition files. Borrows EOU 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes from eou-foundry. Applies to all pro/agents/*.md subagent definition files (router, retrospective, archiver, planner, reviewer, dispatcher, advisor, auditor, strategist, monitor, council, hippocampus, gwt-arbitrator, concept-lookup, soul-check, narrator, knowledge-extractor, memory-keeper + 6 domain agents).
 status: active
 authoritative: true
 source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + engine/eou-contract.md
@@ -9,7 +9,7 @@ introduced_in: v1.8.5
 
 # Agent Specification v2
 
-Every `pro/agents/*.md` subagent definition file MUST have YAML frontmatter conforming to the v2 standard. v1.8.5 Stage 6 migrates all 23 existing agents.
+Every `pro/agents/*.md` subagent definition file MUST have YAML frontmatter conforming to the v2 standard. v1.8.5 Stage 6 migrates all existing agents.
 
 > **Why v2**: v1 agent frontmatter only had `name + description + tools + model` (4 fields). v2 adds 6 structural fields borrowed from eou-foundry that make agent boundaries grep-able, blast radius explicit, and failure modes documented. Per RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6.
 
@@ -98,7 +98,7 @@ Findings classified per `references/failure-taxonomy.md`.
 
 ## A/B Test Day 15 (per RFC Stage 6 Day 15)
 
-Per D4, before batch-updating 20 agents, test on 3 critical:
+Per D4, before batch-updating the remaining agents, test on 3 critical:
 - `retrospective.md` (heaviest agent, 18 steps)
 - `archiver.md` (4 phases, breaking changes prone)
 - `reviewer.md` (veto power, judgment-heavy)
@@ -109,7 +109,7 @@ Run eval scenarios:
 - `evals/scenarios/reviewer-veto.md` (reviewer judgment quality)
 
 Pass rate criteria (D4):
-- ≥ 95% baseline: proceed with batch update on remaining 20 agents
+- ≥ 95% baseline: proceed with batch update on the remaining agents
 - 90-95%: simplify frontmatter (drop heaviest field, retry)
 - < 90%: rollback that agent's v2 frontmatter, document why in `meta/rfc/v1.8.5-stage6-rollback.md`
 
@@ -141,7 +141,7 @@ risk_level rationale: agents that produce final outputs without REVIEWER gate ar
 
 ## Per-agent `lifecycle_stage` (v1.8.5 initial)
 
-All 23 agents default to `active` for v1.8.5 release. Exception:
+All agents default to `active` for v1.8.5 release. Exception:
 - `narrator.md` and `narrator-validator.md` are `deprecated` per v1.8.0 R-1.8.0-011 pivot (citation discipline inlined to ROUTER); retained as templates only
 
 ## Migration
@@ -159,7 +159,7 @@ Template for each agent:
 > **Tradeoff:** This section biases agents toward conservative editing over enthusiastic cleanup. For agents whose explicit job IS cleanup (e.g. wiki-decay / archiver Phase 5 memory-keeper / a hypothetical refactor-cleaner), specific role spec overrides these defaults via explicit `allowed_scope` declaration.
 > **The test:** *If I'm about to delete code/comments/files that the user didn't ask me to touch, is the deletion within my agent's `blast_radius.allowed_scope`? If unclear, mention but don't delete.*
 
-These behavioral defaults apply to **all 22 lifeos subagents** unless the agent's role spec explicitly overrides. Borrowed from `multica-ai/andrej-karpathy-skills` (MIT) Principle 3 "Surgical Changes" + lifeos-adapted to the v2 frontmatter `blast_radius` system.
+These behavioral defaults apply to **all lifeos subagents** unless the agent's role spec explicitly overrides. Borrowed from `multica-ai/andrej-karpathy-skills` (MIT) Principle 3 "Surgical Changes" + lifeos-adapted to the v2 frontmatter `blast_radius` system.
 
 ### DA-1 · Notice unrelated dead code, mention but don't delete
 

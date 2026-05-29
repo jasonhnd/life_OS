@@ -99,9 +99,9 @@ memory-keeper agent は `pro/gotchas.md` の**唯一の書き込み者**。人�
 
 RFC §7 退出基準により、memory-keeper の v1.8.7 release セッションでの初回実行は以下のソースをスキャンして ≥10 件のシードエントリを生産する必要がある：
 
-- `meta/rfc/v1.8.4-*.md`
-- `meta/rfc/v1.8.5-cleanup-and-hardening.md`
-- `meta/rfc/v1.8.6-*.md`
+- `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
+- `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
+- `_meta/rfc/v1.9-second-brain-structure-optimization.md`
 - `pro/compliance/violations.md`（フィルタ：根本原因が技術的で、純プロセスでないエントリ）
 
 シードエントリも gotcha（技術的）であり、プロセス違反ではない。

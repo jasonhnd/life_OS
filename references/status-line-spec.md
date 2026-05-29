@@ -1,6 +1,6 @@
 ---
 spec_id: status-line-spec.v1
-description: 8-enum status line output contract unifying lifeos's 5+ ad-hoc emoji status patterns (Pre-flight Compliance Check / Subagent self-check / AUDITOR silent-pass / self-driven loop tick / Adjourn Confirmation). Every subagent's first output line MUST be a status line. Each of 22 subagents declares its own enum semantics in its agent file. Pattern source — OpenHuman gitbooks/features/subconscious.md activity-log colored status indicators, adapted to lifeos as plain emoji + enum keyword (md-only constraint).
+description: 8-enum status line output contract unifying lifeos's 5+ ad-hoc emoji status patterns (Pre-flight Compliance Check / Subagent self-check / AUDITOR silent-pass / self-driven loop tick / Adjourn Confirmation). Every subagent's first output line MUST be a status line. Each subagent declares its own enum semantics in its agent file. Pattern source — OpenHuman gitbooks/features/subconscious.md activity-log colored status indicators, adapted to lifeos as plain emoji + enum keyword (md-only constraint).
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, gitbooks/features/subconscious.md (7 colored status indicators in activity log)
@@ -8,7 +8,7 @@ introduced_in: v1.8.7 (added 2026-05-26 per DR-11 reversal of DR-01)
 referenced_by:
   - SKILL.md (E9 HARD RULE)
   - pro/agents/auditor.md (Mode 8 status line verification)
-  - all 22 pro/agents/*.md (Status Output section per agent)
+  - all pro/agents/*.md (Status Output section per agent)
 ---
 
 # Status Line Specification v1
@@ -110,7 +110,7 @@ AUDITOR Mode 8 (new in v1.8.7) validates:
 
 ## Migration plan (v1.8.7 within-release)
 
-22 subagents migrate in batches. For each agent:
+Subagents migrate in batches. For each agent:
 
 1. Add `## Status Output (E9 · v1.8.7)` section declaring 8 enum semantics
 2. Existing `✅ I am the X subagent` line becomes `🚀 starting · <name> · ...`

@@ -22,10 +22,9 @@ context_manifest:
     - references/gotchas-spec.md
     - pro/gotchas.md
   supporting:
-    - meta/rfc/v1.8.4-*.md
-    - meta/rfc/v1.8.5-cleanup-and-hardening.md
-    - meta/rfc/v1.8.6-*.md
-    - meta/rfc/v1.8.7-openhuman-borrowed-patterns.md
+    - _meta/rfc/v1.8.5-cleanup-and-hardening.md
+    - _meta/rfc/v1.8.7-openhuman-borrowed-patterns.md
+    - _meta/rfc/v1.9-second-brain-structure-optimization.md
     - pro/compliance/violations.md
   forbidden:
     - SOUL.md (user identity — not gotchas territory)
@@ -182,7 +181,7 @@ For the v1.8.7 release session, you are run in **seed mode** to populate `pro/go
 Differences from regular mode:
 
 - **Input**: not a session, but the historical RFCs and violations log
-- **Sources**: `meta/rfc/v1.8.4-*.md` + `v1.8.5-cleanup-and-hardening.md` + `v1.8.6-*.md` + `pro/compliance/violations.md` (filter: root cause is technical)
+- **Sources**: `_meta/rfc/v1.8.5-cleanup-and-hardening.md` + `v1.8.7-openhuman-borrowed-patterns.md` + `v1.9-second-brain-structure-optimization.md` + `pro/compliance/violations.md` (filter: root cause is technical)
 - **Output**: ≥10 seed entries appended to (initially empty) `pro/gotchas.md`
 - **Trigger**: ROUTER explicitly invokes you with payload `mode: seed, target: v1.8.7-release`
 - **Audit trail**: `meta/runtime/<sid>/memory-keeper-seed.md` instead of `phase5.md`

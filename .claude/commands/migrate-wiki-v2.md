@@ -187,7 +187,7 @@ If `wiki/INDEX.md` exists, rebuild it with v2 metadata visible:
 
 ### Final validation
 
-Invoke `/audit --mode 5` (AUDITOR Mode 5 wiki schema audit). Validates:
+Invoke `/audit --mode 5`, or launch AUDITOR Mode 5 inline if the slash trigger is unavailable (AUDITOR Mode 5 wiki schema audit). Validates:
 - W1: every entry has 7 v2 required field groups
 - W2: every `active+` entry has non-empty outlier
 - W3: arguments_against non-trivial

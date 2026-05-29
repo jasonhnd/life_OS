@@ -66,6 +66,16 @@ v1.9.1 タグに統合された公開後の修正。3 つとも v1.9.0 が導入
 
 legacy マークファイル（`status: legacy` / `authoritative: false`）は正しくスキップ。
 
+### fix3（2026-05-29）—— 深層監査クリーンアップ、第 3 ラウンド（残り全 LOW 項目）
+
+第 2 ラウンド監査の残り低重要度ドリフトを処理：
+
+- **subagent 数のハードコード解除** —— `agent-spec.md`（「all 23 subagents」「all 22 lifeos subagents」）と `status-line-spec.md`（「22 subagents」）が数で不一致（実際 24）かつ「agent 数をハードコードしない」ルールに違反；すべて非数値表現に置換（3 言語）。`agent-spec.md` の subagent リストは削除済み `narrator-validator` を含み `memory-keeper` を欠落 —— 修正。
+- **壊れた RFC スキャンソースパスの修正** —— `memory-keeper.md`、`gotchas-spec.md`、`pro/gotchas.md`、memory-keeper eval シナリオが `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md`（存在しない）を誤った `meta/` パスで列挙；存在する `_meta/rfc/` RFC（v1.8.5 / v1.8.7 / v1.9）に修正。
+- **その他**：`retrospective.md` の退役 hook ブロック内 mojibake + 古い「audit trail JSON」→ `.md`（DR-10）；`run-tool-eval.md` が未実装の `/run-regression` を現行扱い → planned に；`migrate-wiki-v2.md` の `/audit --mode 5` にインライン fallback 追加。
+
+references↔i18n 整合を維持（zh/ja 同期済）。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性

@@ -200,9 +200,9 @@ for hook_id in $REQUIRED_HOOKS; do
   fi
 done
 if [ -z "$MISSING_HOOKS" ]; then
-  echo "笨・Layer 1 hooks installed 5/5: $ALL_HOOK_IDS"
+  echo "✅ Layer 1 hooks installed 5/5: $ALL_HOOK_IDS"
 else
-  echo "笞・・Layer 1 hooks incomplete. Missing:${MISSING_HOOKS}"
+  echo "⚠️ Layer 1 hooks incomplete. Missing:${MISSING_HOOKS}"
 fi
 HOOK_ACTIVITY_LOG="$HOME/.cache/lifeos/hook-activity-$(date +%F).log"
 echo "Hook activity log: $HOOK_ACTIVITY_LOG"
@@ -304,7 +304,7 @@ If `git`, `find`, or shell execution is unavailable in the current environment, 
 
 ### LLM Judgment Audit Trail (R11, HARD RULE)
 
-For every LLM judgment / LLM assembly step in Mode 0 (steps 1, 6, 9, 16, and 18), RETROSPECTIVE MUST write an audit trail JSON file before moving past that step; Step 18 MUST write before returning the final briefing.
+For every LLM judgment / LLM assembly step in Mode 0 (steps 1, 6, 9, 16, and 18), RETROSPECTIVE MUST write an audit trail .md file (R13 markdown + YAML frontmatter; .json forbidden since v1.8.6/DR-10) before moving past that step; Step 18 MUST write before returning the final briefing.
 
 Required path: `meta/runtime/<sid>/retrospective-step-N.md`, where `<sid>` is the orchestrator-provided current session id. Do not fabricate `<sid>`; if the host did not provide one, write under `meta/runtime/unknown/` and set `session_id_source: "missing"`.
 
