@@ -361,7 +361,7 @@ landed in the mid-band rather than the high band. Max 30 lines.}
 すべての Cortex コンポーネントは `pro/agents/*.md` で定義される Claude Code サブエージェントです。実行ルールは既存の 16 サブエージェントと同じです。
 
 - **外部 API コールなし** — すべての LLM 処理は現在の Claude Code セッション内で発生します。Anthropic API key なし、Claude API プロキシなし、OpenAI SDK なし。
-- **データベースなし** — ストレージ判断 ADR(`docs/architecture/markdown-first.md`)が authoritative です。Markdown が source of truth です。SQLite およびその他のデータベースはスコープ外です。
+- **データベースなし** — ストレージ判断 ADR(`docs/history/architecture/markdown-first.md`)が authoritative です。Markdown が source of truth です。SQLite およびその他のデータベースはスコープ外です。
 - **独立したバックグラウンドジョブなし** — cron なし、デーモンなし、scheduled worker なし。データ更新は ARCHIVER Phase 2 書き込み内で発生します。
 - **外部秘密情報なし** — Claude Code がすでに提供しているもの以外の環境変数なし。Vercel なし、GitHub Actions なし、CI/CD パイプラインなし。
 - **Concept decay はすべての adjourn ごとに実行される** — タイマーではなく。Adjourn フローが正規のメンテナンスウィンドウです。
@@ -663,8 +663,8 @@ Output:
 ## References
 
 - 全体アーキテクチャ議論 → `devdocs/brainstorm/2026-04-19-cortex-architecture.md`
-- 統合ブリッジドキュメント → `devdocs/architecture/cortex-integration.md`
-- Markdown-first ADR → `docs/architecture/markdown-first.md`
+- 統合ブリッジドキュメント → `devdocs/history/architecture/cortex-integration.md`
+- Markdown-first ADR → `docs/history/architecture/markdown-first.md`
 - Hippocampus メカニズム → `references/hippocampus-spec.md`
 - GWT arbitrator メカニズム → `references/gwt-spec.md`
 - Narrator layer メカニズム → `references/narrator-spec.md`

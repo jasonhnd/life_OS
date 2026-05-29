@@ -86,6 +86,15 @@ references↔i18n 整合を維持（zh/ja 同期済）。
 
 真に凍結された legacy ファイル（`status: legacy` / `authoritative: false`、例：`cortex-spec.md` の v1.7.2 時代の「16 agents」）は設計通り維持。
 
+### fix5（2026-05-29）—— legacy ドキュメントを docs/history/ に集約
+
+ユーザー要求によりアクティブツリーを整理：真に凍結された v1.7 時代のドキュメントを `docs/history/`（`i18n/{zh,ja}/docs/history/` ミラー含む）に集約し、ライブ `docs/` ツリーに散在させない。
+
+- **移動**（`git mv`、履歴保持）：`docs/architecture/` → `docs/history/architecture/`（13 の v1.7 アーキテクチャスナップショット）；`docs/user-guide/cortex/` → `docs/history/cortex/`（+ zh/ja ミラー、6 の v1.7 Cortex ユーザーガイド）；`docs/guides/v1.7-migration.md` と `references/v1.7-shipping-report-2026-04-21.md` → `docs/history/`。
+- アクティブ docs/spec 内の全インバウンドリンク（README、docs/index、user-guide/index、faq、MIGRATION、references/*-spec 等）を新 `docs/history/...` パスに**再指定**；docs/index + user-guide/index を書き換え、現行アーキテクチャ権威は `pro/CLAUDE.md` + `pro/agents/`、`docs/history/` はアーカイブと明示。
+- **意図的に保持**：凍結記録（CHANGELOG、`pro/compliance/*`、`_meta/rfc/*`）は移動前の元パス参照を保持（歴史的正確性）；負荷を担う機能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）は `references/` に残留——現行機能を記述しアクティブ agent から参照されるため**アーカイブしない**（`status: legacy` ラベルは別の誤ラベルで、今回は未対応）。
+- アーカイブ説明用に `docs/history/README.md` を追加。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性

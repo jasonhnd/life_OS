@@ -97,5 +97,5 @@
 - `references/cortex-spec.md` — Cortex 整体架构（四大机制：hippocampus / gwt / narrator / concept-graph）
 - `references/hooks-spec.md` — 5 个 Shell Hook 的契约（**LEGACY · v1.7-era**，hook 层已于 v1.8.5 退役，仅作历史参考）
 - `references/narrator-spec.md` — Narrator + Validator 的 grounded generation 合同
-- `references/v1.7-shipping-report-2026-04-21.md` — v1.7 shipping 总结
-- `docs/architecture/v1.7-spec-map.md` — 16 条锁定用户决策 + spec 依赖图 + spec-code precedence rules
+- `docs/history/v1.7-shipping-report-2026-04-21.md` — v1.7 shipping 总结
+- `docs/history/architecture/v1.7-spec-map.md` — 16 条锁定用户决策 + spec 依赖图 + spec-code precedence rules

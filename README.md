@@ -278,7 +278,7 @@ Removed in pivot:
 - Cron infrastructure: `scripts/setup-cron.sh`, `scripts/run-cron-now.sh`, `scripts/commands/run-cron.md`, `tools/missed_cron_check.py`, `tools/cron_health_report.py`, all launchd plists.
 - Python middleware: `tools/memory.py` (now Write/Read directly to `~/.claude/lifeos-memory/`), `tools/session_search.py` (now Grep directly), `tools/cli.py` (no longer needed), 5 maintenance python tools (replaced by user-invoked prompts above).
 - Cortex artifacts: `pro/agents/narrator-validator.md` (validator was tied to always-on flow).
-- Spec docs: `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/architecture/hermes-local.md` (cron-era specs).
+- Spec docs: `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/history/architecture/hermes-local.md` (cron-era specs).
 
 Migration: re-pull the repo, then re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` (re-registers the simplified hook set). On macOS, `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` to remove the dead cron jobs. No second-brain data migration required. v1.7.x sessions / wiki / SOUL fully compatible.
 
@@ -332,7 +332,7 @@ Source-grounded briefings now include PRIMARY-SOURCE measured-count markers, STA
 - 6 Cortex user-guides + v1.7-migration UX chapter
 - cortex-spec + hippocampus-spec translated to Chinese and Japanese
 
-Upgrade (v1.6 → v1.7): see [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md). The previous `uv run life-os-tool migrate` command was removed in R-1.8.0-011 along with the `life-os-tool` dispatcher; current invocation uses `scripts/prompts/migrate-from-v1.6.md` (LLM-driven) per `pro/CLAUDE.md` §0.5.
+Upgrade (v1.6 → v1.7): see [docs/history/v1.7-migration.md](docs/history/v1.7-migration.md). The previous `uv run life-os-tool migrate` command was removed in R-1.8.0-011 along with the `life-os-tool` dispatcher; current invocation uses `scripts/prompts/migrate-from-v1.6.md` (LLM-driven) per `pro/CLAUDE.md` §0.5.
 
 See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain and the COURT-START-001 v1.6.3 incident archive.
 

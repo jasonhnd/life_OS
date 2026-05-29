@@ -87,7 +87,7 @@ v1.9 迁移要求 vault 至少是 v1.8.0。请按顺序跑：
   2. （若有其他中间代迁移工具，按顺序跑）
   3. 完成后再跑 /migrate-v1.9
 
-参考 docs/guides/v1.7-migration.md 和 docs/guides/cross-version-migration.md（v1.9 新增）。
+参考 docs/history/v1.7-migration.md 和 docs/guides/cross-version-migration.md（v1.9 新增）。
 ```
 
 ### 0c. Archive non-project content check (DR-1.9.22)

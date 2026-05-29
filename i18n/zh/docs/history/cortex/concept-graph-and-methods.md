@@ -1,5 +1,5 @@
 ---
-translated_from: docs/user-guide/cortex/concept-graph-and-methods.md
+translated_from: docs/history/cortex/concept-graph-and-methods.md
 translator_note: auto-translated 2026-04-22, 待人工校对
 status: legacy
 authoritative: false

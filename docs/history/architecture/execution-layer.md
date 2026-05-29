@@ -33,7 +33,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ deleted v1.8.1 Wa
 
 `Hermes Local` 是本地执行面的用户可见名称。内部术语保持为 `execution layer`、`Layer 3`、`Layer 4`，以保证规格、agent contract 和合规检查不漂移。
 
-Hermes Local 由 `Layer 3` 运行时 backstop 与 `Layer 4` Python 工具组成。它借鉴并 fork 了 `NousResearch/hermes-agent`（MIT License）的若干本地 agent 设计与工具实现；Life OS 只吸收这些模式并改造成 markdown-first 的本地 second-brain 工作流，不嵌入完整 Hermes gateway/runtime。简明归因表见 `docs/architecture/hermes-local.md`。
+Hermes Local 由 `Layer 3` 运行时 backstop 与 `Layer 4` Python 工具组成。它借鉴并 fork 了 `NousResearch/hermes-agent`（MIT License）的若干本地 agent 设计与工具实现；Life OS 只吸收这些模式并改造成 markdown-first 的本地 second-brain 工作流，不嵌入完整 Hermes gateway/runtime。简明归因表见 `docs/history/architecture/hermes-local.md`。
 
 ## 1 · 为什么需要执行层
 
@@ -743,9 +743,9 @@ Layer 3 负责**不让 LLM 糊弄**；Layer 4 负责**让系统自己动起来**
 
 - `pro/compliance/2026-04-19-court-start-violation.md` — COURT-START-001 完整事件档案
 - `devdocs/research/2026-04-19-hermes-analysis.md` — Hermes Agent 深度调研
-- `docs/architecture/16-agents.md` — Layer 2 的 16 个 subagent 定义
-- `docs/architecture/hard-rules-catalog.md` — Layer 1 的全部 HARD RULE 清单
-- `docs/architecture/markdown-first.md` — 为什么所有状态必须 md + git
+- `docs/history/architecture/16-agents.md` — Layer 2 的 16 个 subagent 定义
+- `docs/history/architecture/hard-rules-catalog.md` — Layer 1 的全部 HARD RULE 清单
+- `docs/history/architecture/markdown-first.md` — 为什么所有状态必须 md + git
 - `scripts/setup-hooks.sh` — 当前 v1.6.2a 的 hook 安装脚本（模板）
 - `scripts/lifeos-version-check.sh` — 当前唯一在线的 hook 实现（参考）
 - `pro/GLOBAL.md` — 所有 agent 共享的安全边界

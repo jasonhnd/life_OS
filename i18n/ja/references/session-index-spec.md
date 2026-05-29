@@ -14,7 +14,7 @@ Session index は Cortex の hippocampus(クロスセッション検索)のデ�
 
 ## 1. 目的(Purpose)
 
-session index は、hippocampus サブエージェントがベクトルデータベース、SQLite、またはいかなる非 markdown ランタイムなしに、メッセージごとのクロスセッション検索を実行できるようにするために存在します。`devdocs/architecture/cortex-integration.md` §3.1 に従い、検索はコンパイルされたプレーンテキストインデックス上の LLM 駆動です — スキャンが速く、再生成が安く、完全に markdown-first です。
+session index は、hippocampus サブエージェントがベクトルデータベース、SQLite、またはいかなる非 markdown ランタイムなしに、メッセージごとのクロスセッション検索を実行できるようにするために存在します。`devdocs/history/architecture/cortex-integration.md` §3.1 に従い、検索はコンパイルされたプレーンテキストインデックス上の LLM 駆動です — スキャンが速く、再生成が安く、完全に markdown-first です。
 
 2 つのアーティファクトが役割を担います:
 
@@ -231,7 +231,7 @@ retrospective はコンパイルします — セッションごとのファイ�
 
 ## 6. 読み取りフロー(Hippocampus)(Read Flow)
 
-hippocampus サブエージェントは session index を消費します。`devdocs/architecture/cortex-integration.md` §3.1 と 3 波アクティベーションモデルに従い:
+hippocampus サブエージェントは session index を消費します。`devdocs/history/architecture/cortex-integration.md` §3.1 と 3 波アクティベーションモデルに従い:
 
 ```
 1. Hippocampus がユーザーの現在の subject を受け取る(Step 0.5 から)
@@ -249,12 +249,12 @@ hippocampus サブエージェントは session index を消費します。`devd
 **このアーキテクチャが意図的に使わないもの**(cortex brainstorm からのユーザー決定 #3):
 
 - **No embeddings** — 意味的類似度は LLM 判断であり、ベクトル計算ではない。これは embedding モデルドリフト、embedding プロバイダロックイン、およびスキーマ変更ごとに re-embed する必要性を回避します。
-- **No FTS5 or any database** — markdown-first HARD RULE(`docs/architecture/markdown-first.md` 参照)。すべての検索基質はプレーンテキストかつ git バージョン管理されている。
+- **No FTS5 or any database** — markdown-first HARD RULE(`docs/history/architecture/markdown-first.md` 参照)。すべての検索基質はプレーンテキストかつ git バージョン管理されている。
 - **No background indexing daemon** — インデックスは Start Session でのみコンパイルされる; 読み取りはメッセージごとだが markdown I/O に限定される。cron なし、watchdog なし、長時間実行プロセスなし。
 
 パフォーマンス計算(§8 参照)は、シャーディングが必要になる前にこれが数千セッションまで十分スケールすることを確認します。
 
-**Failure fallback**: hippocampus が `INDEX.md` を読めない場合(ファイル欠損、破損、空)、`confidence: 0` で空のシグナルを GWT arbitrator に返し、ワークフローは v1.6.2a の動作に劣化します — ROUTER はクロスセッション注釈なしの raw ユーザーメッセージを見ます。これは `devdocs/architecture/cortex-integration.md` §5 Phase 1 kill-switch 設計の Cortex 劣化ポリシーにマッチします。
+**Failure fallback**: hippocampus が `INDEX.md` を読めない場合(ファイル欠損、破損、空)、`confidence: 0` で空のシグナルを GWT arbitrator に返し、ワークフローは v1.6.2a の動作に劣化します — ROUTER はクロスセッション注釈なしの raw ユーザーメッセージを見ます。これは `devdocs/history/architecture/cortex-integration.md` §5 Phase 1 kill-switch 設計の Cortex 劣化ポリシーにマッチします。
 
 ## 7. Keyword 抽出ルール(Keyword Extraction Rules)
 
@@ -270,7 +270,7 @@ Keywords は hippocampus の Wave 1 フィルターです。archiver Phase 1 は
 
 ## 8. スケール制限(Scale Limits)
 
-パフォーマンスはこの設計の load-bearing です — hippocampus はすべてのユーザーメッセージで走ります。スケール予算は `docs/architecture/markdown-first.md` §2 にマッチします:
+パフォーマンスはこの設計の load-bearing です — hippocampus はすべてのユーザーメッセージで走ります。スケール予算は `docs/history/architecture/markdown-first.md` §2 にマッチします:
 
 | セッション数 | INDEX.md サイズ | LLM スキャン時間 | 決定 |
 |---------------|----------------|---------------|------------------------------------------------|
@@ -430,8 +430,8 @@ retrospective のコンパイルステップが次の `INDEX.md` 行を生成:
 - `references/concept-spec.md` — `meta/concepts/` 下の concept ストレージ、hippocampus が session index と並んで参照
 - `references/hippocampus-spec.md` — このアーティファクトの消費者; 3 波アクティベーションを定義
 - `references/gwt-spec.md` — hippocampus 出力を受け取る GWT arbitrator
-- `devdocs/architecture/cortex-integration.md` §3.1 — アーキテクチャコンテキストとスキャンコスト見積もり
-- `docs/architecture/markdown-first.md` §2 と §4 — パフォーマンスベースラインとファイルレイアウトルール
+- `devdocs/history/architecture/cortex-integration.md` §3.1 — アーキテクチャコンテキストとスキャンコスト見積もり
+- `docs/history/architecture/markdown-first.md` §2 と §4 — パフォーマンスベースラインとファイルレイアウトルール
 - `pro/agents/archiver.md` — `{session_id}.md` の writer、Phase 1 スコープ
 - `pro/agents/retrospective.md` — `INDEX.md` の compiler、Mode 0 Start Session 責任
 

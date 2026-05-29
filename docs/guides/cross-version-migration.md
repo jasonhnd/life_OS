@@ -39,7 +39,7 @@
 
 ```
 1. /migrate-v1.7  （如果存在该 slash 命令）
-   或参考 docs/guides/v1.7-migration.md 手动升级到 v1.8.0
+   或参考 docs/history/v1.7-migration.md 手动升级到 v1.8.0
    
 2. 跑几次正常 session（验证 v1.8.x 行为正常）
 

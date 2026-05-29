@@ -9,7 +9,7 @@ translated_from: references/hippocampus-spec.md
 translator_note: 自動翻訳 2026-04-21、人間校正待ち
 related:
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/architecture/cortex-integration.md
+  - devdocs/history/architecture/cortex-integration.md
   - references/cortex-spec.md
   - references/concept-spec.md
   - references/session-index-spec.md
@@ -337,7 +337,7 @@ ROUTER / 下流エージェントが、検索されたコンテンツを **実�
 - **`references/concept-spec.md`** — concept markdown スキーマ、エッジ weight、permanence tier
 - **`references/session-index-spec.md`** — `meta/sessions/INDEX.md` 形式、1 行の規約
 - **`references/gwt-spec.md`** — hippocampus 出力を消費する GWT arbitrator
-- **`devdocs/architecture/cortex-integration.md`** — Step 0.5 が 11 ステップワークフローにどう plug するか
+- **`devdocs/history/architecture/cortex-integration.md`** — Step 0.5 が 11 ステップワークフローにどう plug するか
 - **`devdocs/brainstorm/2026-04-19-cortex-architecture.md`** — オリジナルの設計議論、ユーザー判断、トレードオフ
 
 ---

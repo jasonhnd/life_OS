@@ -11,7 +11,7 @@ superseded_by: pro/CLAUDE.md
 > Life OS 执行栈的第 4 层。Shell hooks（第 3 层）让 HARD RULE 真的"硬"起来；
 > Python tools 让系统自主运转。本文档是 `tools/` 下每个工具的权威契约。
 >
-> 参考：`docs/architecture/execution-layer.md`（设计动机）、
+> 参考：`docs/history/architecture/execution-layer.md`（设计动机）、
 > `references/data-model.md`（工具操作的数据类型）、
 > `references/adapter-github.md`（磁盘文件格式）。
 
@@ -779,7 +779,7 @@ if __name__ == "__main__":
 
 ## 13 · 相关规范(Related Specs)
 
-- `docs/architecture/execution-layer.md` —— 第 3 层（hook）与第 4 层
+- `docs/history/architecture/execution-layer.md` —— 第 3 层（hook）与第 4 层
   （本工具集）的设计动机。先读这个。
 - `references/hooks-spec.md` —— shell hook 契约。hook 是触发时刻的
   强制；tool 是批量维护。

@@ -222,8 +222,8 @@ Step 0.5 の総予算は **< 7 秒**(hippocampus 5s ソフトタイムアウト 
 
 アーキテクチャ層(Cortex がどう構築されているかを見たい読者向け):
 
-- `devdocs/architecture/cortex-integration.md` — 11 ステップ workflow 内の Step 0.5 / Step 7.5 挿入点
-- `docs/architecture/markdown-first.md` — なぜ `.md + YAML` を堅持し、データベースを導入しないのか
+- `devdocs/history/architecture/cortex-integration.md` — 11 ステップ workflow 内の Step 0.5 / Step 7.5 挿入点
+- `docs/history/architecture/markdown-first.md` — なぜ `.md + YAML` を堅持し、データベースを導入しないのか
 
 Spec 層(最も権威、ただし英語・技術志向):
 

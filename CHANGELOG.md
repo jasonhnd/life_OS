@@ -86,6 +86,15 @@ Closed the items fix3 had judged acceptable-to-leave, per user request for a zer
 
 Genuinely-frozen legacy files (`status: legacy` / `authoritative: false`, e.g. `cortex-spec.md`'s v1.7.2-era "16 agents") are left as-is by design.
 
+### fix5 (2026-05-29) — consolidate legacy docs into docs/history/
+
+Per user request to declutter the active tree: the genuinely-frozen v1.7-era documentation is now consolidated under `docs/history/` (with `i18n/{zh,ja}/docs/history/` mirrors) instead of scattered through the live `docs/` tree.
+
+- **Moved** (via `git mv`, history preserved): `docs/architecture/` → `docs/history/architecture/` (13 v1.7 architecture snapshots); `docs/user-guide/cortex/` → `docs/history/cortex/` (+ zh/ja mirrors, 6 v1.7 Cortex user guides); `docs/guides/v1.7-migration.md` and `references/v1.7-shipping-report-2026-04-21.md` → `docs/history/`.
+- **Re-pointed** all inbound links in active docs/specs (README, docs/index, user-guide/index, faq, MIGRATION, references/*-spec, etc.) to the new `docs/history/...` paths; rewrote docs/index + user-guide/index so they name `pro/CLAUDE.md` + `pro/agents/` as the current architecture authority and `docs/history/` as the archive.
+- **Left intentionally**: frozen records (CHANGELOG, `pro/compliance/*`, `_meta/rfc/*`) keep their original pre-move path references (historical accuracy); load-bearing feature specs (`snapshot-spec`, `concept-spec`, `hippocampus-spec`, etc.) stay in `references/` — they describe current features and are referenced by active agents, so they were NOT archived (their `status: legacy` label is a separate mislabel, not addressed here).
+- Added `docs/history/README.md` explaining the archive.
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency

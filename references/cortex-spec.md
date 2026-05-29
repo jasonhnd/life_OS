@@ -374,7 +374,7 @@ landed in the mid-band rather than the high band. Max 30 lines.}
 Every Cortex component is a Claude Code subagent defined in `pro/agents/*.md`. The execution rules are the same as the existing 16 subagents.
 
 - **No external API calls** — all LLM work happens inside the current Claude Code session. No Anthropic API key, no Claude API proxy, no OpenAI SDK.
-- **No database** — the storage-decision ADR (`docs/architecture/markdown-first.md`) is authoritative. Markdown is the source of truth. SQLite and any other database are out of scope.
+- **No database** — the storage-decision ADR (`docs/history/architecture/markdown-first.md`) is authoritative. Markdown is the source of truth. SQLite and any other database are out of scope.
 - **No separate background jobs** — no cron, no daemons, no scheduled workers. Data updates happen inside ARCHIVER Phase 2 writes.
 - **No external secrets** — no environment variables beyond what Claude Code already provides. No Vercel, no GitHub Actions, no CI/CD pipelines.
 - **Concept decay runs every adjourn** — not on a timer. The adjourn flow is the canonical maintenance window.
@@ -676,8 +676,8 @@ The following specifications are deliberately left to be resolved during impleme
 ## References
 
 - Overall architecture discussion → `devdocs/brainstorm/2026-04-19-cortex-architecture.md`
-- Integration bridge document → `devdocs/architecture/cortex-integration.md`
-- Markdown-first ADR → `docs/architecture/markdown-first.md`
+- Integration bridge document → `devdocs/history/architecture/cortex-integration.md`
+- Markdown-first ADR → `docs/history/architecture/markdown-first.md`
 - Hippocampus mechanism → `references/hippocampus-spec.md`
 - GWT arbitrator mechanism → `references/gwt-spec.md`
 - Narrator layer mechanism → `references/narrator-spec.md`

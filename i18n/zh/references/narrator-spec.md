@@ -13,7 +13,7 @@ related:
   - references/gwt-spec.md
   - references/eval-history-spec.md
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
-  - devdocs/architecture/cortex-integration.md
+  - devdocs/history/architecture/cortex-integration.md
   - pro/agents/router.md
   - pro/CLAUDE.md
 translated_from: references/narrator-spec.md

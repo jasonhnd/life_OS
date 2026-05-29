@@ -526,4 +526,4 @@ Spec 層(英語):
 
 ### 訳者注 / Translator's Note
 
-本ドキュメントは中国語版 (`docs/user-guide/cortex/auditor-eval-history.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(AUDITOR, RETROSPECTIVE, eval-history, Hermes RL, decision-review, patrol-inspection, information_isolation, veto_substantiveness, score_honesty, action_specificity, process_compliance, adjourn_completeness, soul_reference_quality, wiki_extraction_quality, cognitive_annotation_quality, citation_groundedness, tier_1_conflict, graceful degradation, immutability, anti-pattern 等)は原文の英語表記を保持しています。「退朝」「上朝」「奏折」などの中国語の朝廷メタファーは Life OS 独自用語として日本語文脈でも保持しました。人間校正待ち。
+本ドキュメントは中国語版 (`docs/history/cortex/auditor-eval-history.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(AUDITOR, RETROSPECTIVE, eval-history, Hermes RL, decision-review, patrol-inspection, information_isolation, veto_substantiveness, score_honesty, action_specificity, process_compliance, adjourn_completeness, soul_reference_quality, wiki_extraction_quality, cognitive_annotation_quality, citation_groundedness, tier_1_conflict, graceful degradation, immutability, anti-pattern 等)は原文の英語表記を保持しています。「退朝」「上朝」「奏折」などの中国語の朝廷メタファーは Life OS 独自用語として日本語文脈でも保持しました。人間校正待ち。

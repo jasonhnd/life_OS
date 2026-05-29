@@ -361,7 +361,7 @@ landed in the mid-band rather than the high band. Max 30 lines.}
 每个 Cortex 组件都是 `pro/agents/*.md` 中定义的 Claude Code 子 agent。执行规则与现有 16 个子 agent 相同。
 
 - **无外部 API 调用**（No external API calls）—— 所有 LLM 工作发生在当前 Claude Code 会话内。无 Anthropic API 密钥、无 Claude API 代理、无 OpenAI SDK。
-- **无数据库**（No database）—— 存储决策 ADR（`docs/architecture/markdown-first.md`）具有权威性。Markdown 是真实来源。SQLite 和任何其他数据库都在范围之外。
+- **无数据库**（No database）—— 存储决策 ADR（`docs/history/architecture/markdown-first.md`）具有权威性。Markdown 是真实来源。SQLite 和任何其他数据库都在范围之外。
 - **无独立后台作业**（No separate background jobs）—— 无 cron、无守护进程、无定时 worker。数据更新发生在 ARCHIVER Phase 2 写入内。
 - **无外部密钥**（No external secrets）—— 不需要 Claude Code 已提供之外的环境变量。无 Vercel、无 GitHub Actions、无 CI/CD 管道。
 - **概念衰减在每次散朝运行**（Concept decay runs every adjourn）—— 不由定时器驱动。散朝流程是规范的维护窗口。
@@ -663,8 +663,8 @@ Output:
 ## 引用（References）
 
 - 总体架构讨论 → `devdocs/brainstorm/2026-04-19-cortex-architecture.md`
-- 集成桥接文档 → `devdocs/architecture/cortex-integration.md`
-- Markdown-first ADR → `docs/architecture/markdown-first.md`
+- 集成桥接文档 → `devdocs/history/architecture/cortex-integration.md`
+- Markdown-first ADR → `docs/history/architecture/markdown-first.md`
 - Hippocampus 机制 → `references/hippocampus-spec.md`
 - GWT arbitrator 机制 → `references/gwt-spec.md`
 - Narrator 层机制 → `references/narrator-spec.md`

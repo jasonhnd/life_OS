@@ -31,7 +31,7 @@ hook は LLM コンテキスト外のサブプロセスで動きます。LLM は
 
 **Claude Code のみ(v1.7)。** ここで記述される hook システムは Anthropic の Claude Code CLI にネイティブに存在します。Gemini CLI と Codex CLI は v1.7 時点で同等の hook surface を公開しておらず — ランタイムバックストップなしのプロンプトレベル強制(SKILL.md の HARD RULE 記述)にフォールバックします。
 
-Gemini / Codex が互換 hook spec を公開したら、同じ 5 スクリプトをそこに登録できます。それまで、Claude Code 以外のホストでの Life OS は Layer 1(ドキュメント)と Layer 2(subagent 隔離)のみを得ます。これは `docs/architecture/execution-layer.md` にドキュメント化されています。
+Gemini / Codex が互換 hook spec を公開したら、同じ 5 スクリプトをそこに登録できます。それまで、Claude Code 以外のホストでの Life OS は Layer 1(ドキュメント)と Layer 2(subagent 隔離)のみを得ます。これは `docs/history/architecture/execution-layer.md` にドキュメント化されています。
 
 ---
 
@@ -409,7 +409,7 @@ Hook の挙動は `evals/scenarios/hook-compliance/` でカバーされます:
 - `references/tools-spec.md` — hooks を補完する Python Layer 4 ツール(`stats.py`、`backup.py`、`reconcile.py`)
 - `references/cortex-spec.md` — 全体 Cortex アーキテクチャ。Hooks はその markdown-first 不変条件を守る
 - `pro/compliance/2026-04-19-court-start-violation.md` — この spec を正当化する founding incident
-- `docs/architecture/execution-layer.md` — 完全な Layer 3(hooks)+ Layer 4(Python tools)アーキテクチャ
+- `docs/history/architecture/execution-layer.md` — 完全な Layer 3(hooks)+ Layer 4(Python tools)アーキテクチャ
 - `scripts/setup-hooks.sh` — v1.6.2 のインストーラテンプレート、v1.7 の拡張インストーラが継承する
 - `scripts/lifeos-version-check.sh` — v1.6.2 の唯一の hook、「pre-flight、idempotent、atomic」パターンの参照
 

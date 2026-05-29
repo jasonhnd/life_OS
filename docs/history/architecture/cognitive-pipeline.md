@@ -100,7 +100,7 @@ Perceive → Capture → Judge → Settle → Associate → Strategize → Emerg
 - `meta/user-patterns.md` — 行为模式 (ADVISOR 维护)
 
 **Auto-write 门槛**:
-- Wiki: 6 criteria + 隐私过滤 (见 `docs/architecture/hard-rules-catalog.md` WK1)
+- Wiki: 6 criteria + 隐私过滤 (见 `docs/history/architecture/hard-rules-catalog.md` WK1)
 - SOUL: ≥2 决策作为证据, 初始 confidence 0.3, What SHOULD BE 留空
 
 **用户事后纠正**: 删掉不认同的文件, 或说「undo recent wiki」回滚最近的 auto-write。不需要事前确认。

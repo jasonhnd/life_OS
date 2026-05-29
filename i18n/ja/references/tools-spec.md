@@ -12,7 +12,7 @@ superseded_by: pro/CLAUDE.md
 > 本当に hard にする一方、Python tools はシステムが自走するようにします。
 > 本ドキュメントは `tools/` 内のすべてのツールに対する権威的契約です。
 >
-> 参照: `docs/architecture/execution-layer.md`(設計根拠)、
+> 参照: `docs/history/architecture/execution-layer.md`(設計根拠)、
 > `references/data-model.md`(ツールが操作する型)、
 > `references/adapter-github.md`(ディスク上のファイルフォーマット)。
 
@@ -833,7 +833,7 @@ if __name__ == "__main__":
 
 ## 13 · 関連仕様(Related Specs)
 
-- `docs/architecture/execution-layer.md` — Layer 3(hooks)と Layer 4
+- `docs/history/architecture/execution-layer.md` — Layer 3(hooks)と Layer 4
   (これらの tools)の設計根拠。これを最初に読む。
 - `references/hooks-spec.md` — shell hook 契約。hooks はトリガー時の
   強制、tools はバッチメンテナンス。

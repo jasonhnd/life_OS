@@ -1,5 +1,5 @@
 ---
-translated_from: docs/user-guide/cortex/narrator-citations.md
+translated_from: docs/history/cortex/narrator-citations.md
 translator_note: auto-translated 2026-04-22, 待人工校对
 status: legacy
 authoritative: false
@@ -475,7 +475,7 @@ Spec 层(英文):
 其他:
 
 - `pro/agents/router.md` — Narrator 行为就住在 ROUTER 里(不是独立 agent)
-- `devdocs/architecture/cortex-integration.md` — Step 7.5 插入的位置
+- `devdocs/history/architecture/cortex-integration.md` — Step 7.5 插入的位置
 
 ---
 

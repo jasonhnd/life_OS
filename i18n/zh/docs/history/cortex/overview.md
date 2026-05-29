@@ -1,17 +1,18 @@
 ---
+translated_from: docs/history/cortex/overview.md
+translator_note: auto-translated 2026-04-22
 status: legacy
 authoritative: false
 superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
 ---
 
-# Cortex 总览 · v1.7 认知层总览
+# Cortex 总览 · v1.7 认知层总览(Cortex Overview · v1.7 Cognitive Layer)
 
 > 面包屑: [← 产品入口:用户指南首页](../index.md)
 
 > v1.7 给 Life OS 加了一层"认知基底"——Cortex。它不是一个新角色,也不是一个新命令。它让系统在你每次开口之前,就自动去翻历史、激活相关概念、比对你的 SOUL。本文是 Cortex 六篇用户指南的入口。
 
-## Cortex 是什么
+## Cortex 是什么(What is Cortex)
 
 Cortex 是 v1.7 新引入的 **Pre-Router Cognitive Layer**(预路由认知层),定位在 Life OS 命名体系里和 SOUL / Wiki / DREAM / STRATEGIC-MAP 并列:
 
@@ -27,7 +28,7 @@ Cortex 不替代任何模块。它做的事只有一件:**在 ROUTER 看到你�
 
 ---
 
-## 为什么要加 Cortex
+## 为什么要加 Cortex(Why add Cortex)
 
 v1.7 之前,Life OS 的长期记忆只在两个节点被触碰:
 
@@ -47,7 +48,7 @@ Cortex 要解决的就是这件事——把跨 session 记忆、概念图谱、�
 
 ---
 
-## 用户端体验变化总览
+## 用户端体验变化总览(User-facing changes · overview)
 
 升级到 v1.7 之后,**你不需要改任何使用习惯**。所有新能力都在后台自动运行。但有 6 个可见变化,会出现在你下一次上朝:
 
@@ -89,7 +90,7 @@ AUDITOR 每次 session 结束都给自己打 10 维度的分,写进 `meta/eval-h
 
 ---
 
-## 推荐阅读顺序
+## 推荐阅读顺序(Recommended reading order)
 
 如果你是 v1.6.2a 升级过来、**第一次听说 Cortex**,按这个顺序读效率最高:
 
@@ -102,7 +103,7 @@ AUDITOR 每次 session 结束都给自己打 10 维度的分,写进 `meta/eval-h
 
 ---
 
-## Cortex 不改变什么
+## Cortex 不改变什么(What Cortex doesn't change)
 
 为了打消顾虑,先把**不变的事**列清楚:
 
@@ -117,7 +118,7 @@ AUDITOR 每次 session 结束都给自己打 10 维度的分,写进 `meta/eval-h
 
 ---
 
-## 初次升级你要做什么
+## 初次升级你要做什么(First-time upgrade · what to do)
 
 短答:**跑一个 migrate,就完事了**。
 
@@ -142,7 +143,7 @@ Cortex 会进入 **cold-start mode**——`[COGNITIVE CONTEXT]` 基本是空的,
 
 ---
 
-## 何时 Cortex 会"安静"(不工作)
+## 何时 Cortex 会"安静"(不工作)(When Cortex stays quiet)
 
 三种场景,**Step 0.5 会跳过或简化**:
 
@@ -156,7 +157,7 @@ Cortex 会进入 **cold-start mode**——`[COGNITIVE CONTEXT]` 基本是空的,
 
 ---
 
-## 四个核心机制一句话
+## 四个核心机制一句话(Four mechanisms · one-liners)
 
 Cortex 内部由四个机制组成。每个都有自己的 spec 和 user-guide 页面:
 
@@ -167,7 +168,7 @@ Cortex 内部由四个机制组成。每个都有自己的 spec 和 user-guide �
 
 ---
 
-## 常见疑问
+## 常见疑问(FAQ)
 
 ### Cortex 会变慢吗?
 
@@ -205,7 +206,7 @@ Step 0.5 的总预算是 **< 7 秒**(hippocampus 5s 软超时 + concept lookup �
 
 ---
 
-## 深入阅读
+## 深入阅读(Further reading)
 
 产品入口:
 
@@ -222,8 +223,8 @@ Step 0.5 的总预算是 **< 7 秒**(hippocampus 5s 软超时 + concept lookup �
 
 架构层(给想看 Cortex 是怎么搭出来的读者):
 
-- `devdocs/architecture/cortex-integration.md` — 11 步 workflow 里 Step 0.5 / Step 7.5 的插入点
-- `docs/architecture/markdown-first.md` — 为什么坚持 `.md + YAML`,不引入数据库
+- `devdocs/history/architecture/cortex-integration.md` — 11 步 workflow 里 Step 0.5 / Step 7.5 的插入点
+- `docs/history/architecture/markdown-first.md` — 为什么坚持 `.md + YAML`,不引入数据库
 
 Spec 层(最权威,但是英文、技术向):
 
@@ -237,7 +238,7 @@ Spec 层(最权威,但是英文、技术向):
 
 ---
 
-## 一个真实示例
+## 一个真实示例(A real example)
 
 你决定问:"这一季度要不要把新产品线交给合伙人 A 负责?"
 
@@ -288,3 +289,7 @@ PLANNER 拿到的是**有 context 的规划输入**。它不会忘记你上季�
 ---
 
 **下一篇**: [hippocampus-recall.md — 跨 session 记忆检索](./hippocampus-recall.md)
+
+---
+
+> **译注**:本文从 `docs/history/cortex/overview.md` 同步,2026-04-22 由 auto-translation 流程完成。源文本已为中文,此处保留原文并补齐 i18n frontmatter。技术词(Cortex / Hippocampus / GWT / Narrator / Hebbian / Step 0.5 / Step 7.5 等)保留英文。若与 EN 原文出现漂移,以源文件为准。

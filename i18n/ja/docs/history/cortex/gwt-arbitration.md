@@ -504,7 +504,7 @@ Spec 層(英語):
 - `references/hippocampus-spec.md` — hippocampus 出力形式(GWT の入力源の一つ)
 - `references/concept-spec.md` — concept 出力形式
 - `references/soul-spec.md` §Tiered Reference by Confidence — tier 定義
-- `devdocs/architecture/cortex-integration.md` §4 — Step 0.5 3 源並列フロー
+- `devdocs/history/architecture/cortex-integration.md` §4 — Step 0.5 3 源並列フロー
 
 Agent 定義(深度ユーザー):
 
@@ -519,4 +519,4 @@ Agent 定義(深度ユーザー):
 
 ### 訳者注 / Translator's Note
 
-本ドキュメントは中国語版 (`docs/user-guide/cortex/gwt-arbitration.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(GWT, Global Neuronal Workspace, Arbitrator, salience, ignition, urgency, novelty, relevance, importance, tier_1_conflict, hippocampus, concept lookup, SOUL check, COGNITIVE CONTEXT, signal registry, graceful degradation 等)は原文の英語表記を保持しています。Dehaene の Global Neuronal Workspace 理論は意識科学の代表的モデルで、本稿では英語原語を基本とし日本語補足を添えました。人間校正待ち。
+本ドキュメントは中国語版 (`docs/history/cortex/gwt-arbitration.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(GWT, Global Neuronal Workspace, Arbitrator, salience, ignition, urgency, novelty, relevance, importance, tier_1_conflict, hippocampus, concept lookup, SOUL check, COGNITIVE CONTEXT, signal registry, graceful degradation 等)は原文の英語表記を保持しています。Dehaene の Global Neuronal Workspace 理論は意識科学の代表的モデルで、本稿では英語原語を基本とし日本語補足を添えました。人間校正待ち。

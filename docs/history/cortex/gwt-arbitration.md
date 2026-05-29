@@ -1,12 +1,11 @@
 ---
-translated_from: docs/user-guide/cortex/gwt-arbitration.md
-translator_note: auto-translated 2026-04-22, 待人工校对
 status: legacy
 authoritative: false
 superseded_by: pro/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
 ---
 
-# GWT 仲裁 · 多源信号的显著性竞争（GWT Arbitration）
+# GWT 仲裁 · 多源信号的显著性竞争
 
 > 面包屑: [← Cortex 总览](./overview.md) · [← 产品入口:用户指南首页](../index.md)
 
@@ -490,6 +489,11 @@ Concept lookup 可能**过度泛泛匹配**——每个 concept 都激活,拿到
 
 ## 深入阅读
 
+产品入口:
+
+- [What is Life OS](../../getting-started/what-is-life-os.md) — Life OS 整体定位
+- [Quickstart](../../getting-started/quickstart.md) — 首次上朝流程
+
 同目录用户文档:
 
 - [overview.md](./overview.md) — Cortex 总览
@@ -505,7 +509,7 @@ Spec 层(英文):
 - `references/hippocampus-spec.md` — hippocampus 输出格式(GWT 的输入源之一)
 - `references/concept-spec.md` — concept 输出格式
 - `references/soul-spec.md` §Tiered Reference by Confidence — tier 定义
-- `devdocs/architecture/cortex-integration.md` §4 — Step 0.5 三源并行流程
+- `devdocs/history/architecture/cortex-integration.md` §4 — Step 0.5 三源并行流程
 
 Agent 定义(深度用户):
 

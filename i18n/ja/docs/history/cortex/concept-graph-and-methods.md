@@ -516,4 +516,4 @@ Spec 層(英語):
 
 ### 訳者注 / Translator's Note
 
-本ドキュメントは中国語版 (`docs/user-guide/cortex/concept-graph-and-methods.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(concept, method, synapse, Hebbian, canonical, tentative, permanence, decay, activation, frame, hippocampus, archiver, DISPATCHER, ROUTER, SOUL, AUDITOR, RETROSPECTIVE, COGNITIVE CONTEXT 等)は原文の英語表記を保持しています。ヘブ型 (Hebbian) や脳科学由来の用語は専門用語として可能な限り英語併記とし、日本語文脈での可読性を優先しました。人間校正待ち。
+本ドキュメントは中国語版 (`docs/history/cortex/concept-graph-and-methods.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(concept, method, synapse, Hebbian, canonical, tentative, permanence, decay, activation, frame, hippocampus, archiver, DISPATCHER, ROUTER, SOUL, AUDITOR, RETROSPECTIVE, COGNITIVE CONTEXT 等)は原文の英語表記を保持しています。ヘブ型 (Hebbian) や脳科学由来の用語は専門用語として可能な限り英語併記とし、日本語文脈での可読性を優先しました。人間校正待ち。

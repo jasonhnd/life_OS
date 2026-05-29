@@ -29,7 +29,7 @@ This spec defines the five hooks required for v1.7, their contracts, their regex
 
 **Claude Code only (v1.7).** The hook system described here exists natively in Anthropic's Claude Code CLI. Gemini CLI and Codex CLI do not expose an equivalent hook surface in v1.7 — they fall back to prompt-level enforcement (SKILL.md HARD RULE statements) without the runtime backstop.
 
-When Gemini / Codex publish compatible hook specs, the same five scripts can be registered there. Until then, Life OS on non-Claude-Code hosts gets only Layer 1 (documentation) and Layer 2 (subagent isolation). This is documented in `docs/architecture/execution-layer.md`.
+When Gemini / Codex publish compatible hook specs, the same five scripts can be registered there. Until then, Life OS on non-Claude-Code hosts gets only Layer 1 (documentation) and Layer 2 (subagent isolation). This is documented in `docs/history/architecture/execution-layer.md`.
 
 ---
 
@@ -437,7 +437,7 @@ Each scenario is a markdown file with input, expected hook output, and expected 
 - `references/tools-spec.md` — Python Layer 4 tools (`stats.py`, `backup.py`, `reconcile.py`) that complement hooks
 - `references/cortex-spec.md` — overall Cortex architecture; hooks protect its markdown-first invariants
 - `pro/compliance/2026-04-19-court-start-violation.md` — the founding incident that justified this spec
-- `docs/architecture/execution-layer.md` — full Layer 3 (hooks) + Layer 4 (Python tools) architecture
+- `docs/history/architecture/execution-layer.md` — full Layer 3 (hooks) + Layer 4 (Python tools) architecture
 - `scripts/setup-hooks.sh` — v1.6.2 installer template that v1.7's extended installer inherits from
 - `scripts/lifeos-version-check.sh` — v1.6.2's only hook; reference for "pre-flight, idempotent, atomic" pattern
 

@@ -28,7 +28,7 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 > truly hard; Python tools make the system run on its own. This document is the
 > authoritative contract for every tool in `tools/`.
 >
-> Reference: `docs/architecture/execution-layer.md` (design rationale),
+> Reference: `docs/history/architecture/execution-layer.md` (design rationale),
 > `references/data-model.md` (types tools manipulate),
 > `references/adapter-github.md` (file format on disk).
 
@@ -839,7 +839,7 @@ Forbidden, in order of severity:
 
 ## 13 · Related Specs
 
-- `docs/architecture/execution-layer.md` — design rationale for Layer 3
+- `docs/history/architecture/execution-layer.md` — design rationale for Layer 3
   (hooks) and Layer 4 (these tools). Read this first.
 - `references/hooks-spec.md` — shell hook contracts. Hooks are
   trigger-time enforcement; tools are batch maintenance.

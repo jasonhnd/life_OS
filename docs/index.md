@@ -15,7 +15,7 @@
 | `getting-started/` | 新用户第一次接触系统需要看的 4 篇 | 刚装完，或者推荐给别人 |
 | `user-guide/` | 系统各个功能模块的用法（SOUL、DREAM、Wiki、主题、六部、战略地图、存储、会话生命周期、智库 Hall of Wisdom） | 想深入用某个功能 |
 | `guides/` | 场景化操作手册（年度规划、职业决策、建 wiki、映射战略等） | 遇到具体场景想抄作业 |
-| `architecture/` | 引擎内部设计（multiple agents、编排协议、状态机、信息隔离、HARD RULE 目录、多平台编排） | 想改代码、想写 subagent、想调试流程 |
+| `history/` | 已归档的 v1.7 历史文档（架构快照、Cortex v1.7 用户指南、v1.7 迁移指南），全标 `status: legacy` | 想了解系统演进史（当前架构权威源是 `pro/CLAUDE.md` + `pro/agents/`） |
 | `reference/` | 规格和字典类文档（9 主题 × multiple agents 的完整映射、触发词、适配器、FAQ、版本历史、token 估算） | 查具体名字、参数、数据结构 |
 | `evals/` | 评估脚本与场景 | 长期演化系统时的参考 |
 
@@ -25,7 +25,7 @@
 |------|-------|
 | `devdocs/brainstorm/` | 头脑风暴记录，时间戳命名 |
 | `devdocs/research/` | 调研报告，时间戳命名 |
-| `devdocs/architecture/` | 已 deprecated 的架构文档、内部规则 |
+| `devdocs/history/architecture/` | 已 deprecated 的架构文档、内部规则 |
 
 `docs/installation.md` 是公开入口，不要和 `getting-started/` 重复。安装流程只写在 installation.md 里；`getting-started/` 讲的是装完之后该做什么。
 
@@ -53,20 +53,15 @@
 - 想切主题或加新主题 → `user-guide/themes/`
 - 想调通 Notion 双向同步 → `user-guide/storage-and-sync/`
 - 想用 Hall of Wisdom 和苏格拉底聊 → `user-guide/hall-of-wisdom/`
-- 想理解 v1.7 Cortex 认知层（跨会话记忆 / 概念图 / 方法库 / GWT 仲裁 / Narrator 引用 / AUDITOR 自反馈）→ `user-guide/cortex/`
+- 想理解 Cortex 认知层（跨会话记忆 / 概念图 / 方法库 / GWT 仲裁 / Narrator 引用 / AUDITOR 自反馈）→ 当前行为见 `pro/CLAUDE.md` §0.5；v1.7 时代的用户指南已归档到 `docs/history/cortex/`
 
 场景化的操作手册在 `guides/` — 比如「年度规划会怎么开」「职业决策怎么走完整流程」，这些是 user-guide 的实战补充。
 
 ### 开发者 — 我想改系统 / 排查流程 bug
 
-架构细节全在 `architecture/`：
+当前架构权威源是 `pro/CLAUDE.md`（11 步编排协议、状态机、信息隔离、HARD RULE 全在里面）+ `pro/agents/*.md`（每个 agent 的源定义：功能边界、工具权限、触发条件）。改系统、写 subagent、排查流程 bug 都以这两处为准。
 
-- `pro/agents/*.md` — 每个 agent 的源定义（功能边界、工具权限、触发条件）。这是当前 active 的权威源；旧的 v1.7 历史 agent 清单文档仍在 `architecture/` 下并标了 `status: legacy`（仅作历史参考，不要把它当作当前架构入口）。
-- `architecture/orchestration-protocol.md` — 11 步编排协议的完整逻辑
-- `architecture/workflow-state-machine.md` — 状态机定义，违反哪一步会被 AUDITOR 标记
-- `architecture/hard-rules-catalog.md` — 33 条 HARD RULE 的完整清单
-- `architecture/information-isolation.md` — 哪些信息传哪些角色，为什么要隔开
-- `architecture/multi-platform-orchestration.md` — Claude / Gemini / Codex 三个 orchestrator 的差别
+v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow-state-machine / hard-rules-catalog / information-isolation / multi-platform-orchestration 等）已归档到 `docs/history/architecture/`，标了 `status: legacy`，仅供了解系统演进史，不要当作当前权威。
 
 改完代码必做：同步 3 份 README + 3 份 CHANGELOG + SKILL.md 的 `version:` 字段。这个在 `.claude/CLAUDE.md` 里有详细清单。
 
@@ -110,8 +105,8 @@
 - [平台选择](getting-started/choose-your-platform.md)
 - [公开安装指南](installation.md)
 - [Agent 定义源](../pro/agents/) — 当前 active 的 agent 定义全集
-- [编排协议](architecture/orchestration-protocol.md)
-- [HARD RULE 目录](architecture/hard-rules-catalog.md)
+- [编排协议（pro/CLAUDE.md，当前权威）](../pro/CLAUDE.md)
+- [历史架构档案](history/)
 - [FAQ](reference/faq.md)
 
 ---
@@ -136,8 +131,8 @@
 ### guides/
 操作手册，解决特定场景。每篇独立、可单独读。命名直接用场景名（`annual-planning-session.md`、`career-decision-playbook.md`）。
 
-### architecture/
-每篇对应一个架构议题。改系统前必读的顺序是：`system-overview` → `pro/agents/` 源定义 → `orchestration-protocol` → 按需看其他。`architecture/` 下的旧 agent 清单文档已 marked `status: legacy`（v1.7 历史档案），不要把它当作当前必读链路。
+### history/
+已归档的 v1.7 历史文档：`history/architecture/`（v1.7 架构快照）、`history/cortex/`（v1.7 Cortex 用户指南）、`history/v1.7-migration.md`、`history/v1.7-shipping-report-2026-04-21.md`。全部标了 `status: legacy`，仅作演进史参考。当前架构权威源是 `pro/CLAUDE.md` + `pro/agents/`，改系统以那两处为准。
 
 ### reference/
 查表用。不讲故事，只列条目。如果某个条目需要解释，在条目里留一行链接到 user-guide 或 architecture。
@@ -146,7 +141,7 @@
 评估脚本与场景，长期跑的。
 
 ### devdocs/ (不在 docs/ 下)
-`devdocs/brainstorm/`、`devdocs/research/`、`devdocs/architecture/` 里的文件是时间戳命名的内部记录（如 `2026-04-19-hermes-analysis.md`）。一次性文档 —— 写完就放那。不要回去改 —— 历史视角的价值就在于它是当时的想法。想更新就新写一篇。这些不 push 到 GitHub。
+`devdocs/brainstorm/`、`devdocs/research/`、`devdocs/history/architecture/` 里的文件是时间戳命名的内部记录（如 `2026-04-19-hermes-analysis.md`）。一次性文档 —— 写完就放那。不要回去改 —— 历史视角的价值就在于它是当时的想法。想更新就新写一篇。这些不 push 到 GitHub。
 
 ---
 

@@ -14,7 +14,7 @@ Session index 是 Cortex 的 hippocampus（跨会话检索）的数据源。产�
 
 ## 1. 目的（Purpose）
 
-session index 存在的意义是：让 hippocampus 子 agent 能在没有向量数据库、没有 SQLite、没有任何非 markdown 运行时的情况下，在每条消息上执行跨会话检索。按 `devdocs/architecture/cortex-integration.md` §3.1，检索由 LLM 驱动、读取一份编译好的纯文本索引 —— 扫描快、重建便宜、全 markdown 优先。
+session index 存在的意义是：让 hippocampus 子 agent 能在没有向量数据库、没有 SQLite、没有任何非 markdown 运行时的情况下，在每条消息上执行跨会话检索。按 `devdocs/history/architecture/cortex-integration.md` §3.1，检索由 LLM 驱动、读取一份编译好的纯文本索引 —— 扫描快、重建便宜、全 markdown 优先。
 
 两份 artifact 分担负载：
 
@@ -230,7 +230,7 @@ retrospective 只编译 —— 绝不写单会话文件。扩展既有 Mode 0 �
 
 ## 6. 读取流程（Hippocampus）（Read Flow · Hippocampus）
 
-hippocampus 子 agent 消费 session index。按 `devdocs/architecture/cortex-integration.md` §3.1 与三波激活模型：
+hippocampus 子 agent 消费 session index。按 `devdocs/history/architecture/cortex-integration.md` §3.1 与三波激活模型：
 
 ```
 1. Hippocampus 收到当前主题（来自 Step 0.5）
@@ -248,12 +248,12 @@ hippocampus 子 agent 消费 session index。按 `devdocs/architecture/cortex-in
 **本架构刻意不使用的东西**（来自 cortex brainstorm 的用户决策 #3）：
 
 - **不使用 embeddings** —— 语义相似由 LLM 判断，不由向量计算。这避免了 embedding 模型漂移、embedding 提供商锁定、以及每次 schema 变更都要重建 embedding 的需要。
-- **不使用 FTS5 或任何数据库** —— markdown 优先是 HARD RULE（见 `docs/architecture/markdown-first.md`）。所有检索基底都是纯文本并受 git 版本控制。
+- **不使用 FTS5 或任何数据库** —— markdown 优先是 HARD RULE（见 `docs/history/architecture/markdown-first.md`）。所有检索基底都是纯文本并受 git 版本控制。
 - **无后台索引守护进程** —— index 只在 Start Session 编译；读取按消息进行但限于 markdown I/O。无 cron、无 watchdog、无长驻进程。
 
 性能演算（见 §8）确认这套方案可扩展到数千会话之后才需要分片。
 
-**失败回退**：若 hippocampus 无法读取 `INDEX.md`（文件缺失、损坏、为空），它返回给 GWT arbitrator 一个空信号（`confidence: 0`），工作流降级为 v1.6.2a 行为 —— ROUTER 看到未加跨会话注释的原始用户消息。这匹配 `devdocs/architecture/cortex-integration.md` §5 Phase 1 kill-switch 设计中的 Cortex 降级策略。
+**失败回退**：若 hippocampus 无法读取 `INDEX.md`（文件缺失、损坏、为空），它返回给 GWT arbitrator 一个空信号（`confidence: 0`），工作流降级为 v1.6.2a 行为 —— ROUTER 看到未加跨会话注释的原始用户消息。这匹配 `devdocs/history/architecture/cortex-integration.md` §5 Phase 1 kill-switch 设计中的 Cortex 降级策略。
 
 ## 7. Keyword 抽取规则（Keyword Extraction Rules）
 
@@ -269,7 +269,7 @@ Keywords 是 hippocampus 的 Wave 1 过滤器。archiver Phase 1 用如下程序
 
 ## 8. 规模上限（Scale Limits）
 
-性能是本设计的承重部分 —— hippocampus 在每条用户消息上运行。规模预算匹配 `docs/architecture/markdown-first.md` §2：
+性能是本设计的承重部分 —— hippocampus 在每条用户消息上运行。规模预算匹配 `docs/history/architecture/markdown-first.md` §2：
 
 | 会话数量 | INDEX.md 大小  | LLM 扫描时间 | 决策                                       |
 |---------------|----------------|---------------|------------------------------------------------|
@@ -429,8 +429,8 @@ retrospective 编译步骤随后产出 `INDEX.md` 行：
 - `references/concept-spec.md` —— concept 在 `meta/concepts/` 的存储，hippocampus 与 session index 一同查询
 - `references/hippocampus-spec.md` —— 本 artifact 的消费者；定义三波激活
 - `references/gwt-spec.md` —— 接收 hippocampus 输出的 GWT arbitrator
-- `devdocs/architecture/cortex-integration.md` §3.1 —— 架构背景与扫描成本估算
-- `docs/architecture/markdown-first.md` §2 与 §4 —— 性能基线与文件布局规则
+- `devdocs/history/architecture/cortex-integration.md` §3.1 —— 架构背景与扫描成本估算
+- `docs/history/architecture/markdown-first.md` §2 与 §4 —— 性能基线与文件布局规则
 - `pro/agents/archiver.md` —— `{session_id}.md` 的写入者，Phase 1 范围
 - `pro/agents/retrospective.md` —— `INDEX.md` 的编译者，Mode 0 Start Session 职责
 

@@ -444,7 +444,7 @@ A: 跑一次 `setup-hooks.sh` 注册 hooks（Step 8）。然后开 Claude Code �
 
 ## 七、关联文档
 
-- `references/v1.7-shipping-report-2026-04-21.md` — 今天的 shipping 全景
+- `docs/history/v1.7-shipping-report-2026-04-21.md` — 今天的 shipping 全景
 - `references/cortex-architecture.md` — Cortex 数据流
 - `pro/compliance/2026-04-19-court-start-violation.md` — COURT-START-001 incident 档案（迁移包里）
 - `docs/installation.md` — 标准安装指引（迁移包里）

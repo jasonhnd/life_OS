@@ -1,5 +1,5 @@
 ---
-translated_from: docs/user-guide/cortex/hippocampus-recall.md
+translated_from: docs/history/cortex/hippocampus-recall.md
 translator_note: auto-translated 2026-04-22
 status: legacy
 authoritative: false
@@ -332,4 +332,4 @@ Agent 定义(深度用户看):
 
 ---
 
-> **译注**:本文从 `docs/user-guide/cortex/hippocampus-recall.md` 同步,2026-04-22 由 auto-translation 流程完成。源文本已为中文,此处保留原文并补齐 i18n frontmatter。技术词(Hippocampus / Cortex / GWT / Narrator / ROUTER / Wave 1/2/3 / Step 0.5 / signal_id / session_id / Opus / ripgrep / embedding / vector DB 等)保留英文。若与 EN 原文出现漂移,以源文件为准。
+> **译注**:本文从 `docs/history/cortex/hippocampus-recall.md` 同步,2026-04-22 由 auto-translation 流程完成。源文本已为中文,此处保留原文并补齐 i18n frontmatter。技术词(Hippocampus / Cortex / GWT / Narrator / ROUTER / Wave 1/2/3 / Step 0.5 / signal_id / session_id / Opus / ripgrep / embedding / vector DB 等)保留英文。若与 EN 原文出现漂移,以源文件为准。

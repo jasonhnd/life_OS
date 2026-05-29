@@ -5,7 +5,7 @@ audience: 作者本人 + 后续 CC / Gemini / Codex session
 status: legacy
 last_updated: 2026-04-22
 related:
-  - docs/architecture/markdown-first.md
+  - docs/history/architecture/markdown-first.md
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
   - SKILL.md
   - pro/CLAUDE.md
@@ -56,7 +56,7 @@ superseded_by: pro/CLAUDE.md
 - 位置：用户本地磁盘（iCloud Drive 路径 或 `~/` 下任意目录）
 - 原则：**markdown 是唯一 source of truth**。任何其他形式（数据库、Notion 镜像、索引文件）都是派生物，可以重建。
 
-详见 `docs/architecture/markdown-first.md`。
+详见 `docs/history/architecture/markdown-first.md`。
 
 ### 目录结构
 
@@ -436,10 +436,10 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 
 | 文档 | 内容 | 状态 |
 |------|------|------|
-| `docs/architecture/markdown-first.md` | markdown 作为真理源的哲学详解、frontmatter 规范、派生物重建规则、Hermes 对照 | ✅ 已写 |
-| `devdocs/architecture/cortex-integration.md` | Cortex 认知升级如何融入 Layer 2 | ✅ 已写 |
-| `docs/architecture/execution-layer.md` | Layer 3 Shell Hook + Layer 4 Python 工具的完整规格 | ✅ 已写 |
-| `docs/architecture/roadmap.md` | v1.6.2a → v1.7 的版本推进计划 | ✅ 已写 |
+| `docs/history/architecture/markdown-first.md` | markdown 作为真理源的哲学详解、frontmatter 规范、派生物重建规则、Hermes 对照 | ✅ 已写 |
+| `devdocs/history/architecture/cortex-integration.md` | Cortex 认知升级如何融入 Layer 2 | ✅ 已写 |
+| `docs/history/architecture/execution-layer.md` | Layer 3 Shell Hook + Layer 4 Python 工具的完整规格 | ✅ 已写 |
+| `docs/history/architecture/roadmap.md` | v1.6.2a → v1.7 的版本推进计划 | ✅ 已写 |
 | `devdocs/research/2026-04-20-storage-decision.md` | 存储决策的完整 ADR（为什么选 markdown、哪些方案被否决） | ✅ 已写 |
 | `devdocs/brainstorm/2026-04-19-cortex-architecture.md` | Cortex 架构的完整思考轨迹（辩论、re-frame、共识） | ✅ 已写 |
 

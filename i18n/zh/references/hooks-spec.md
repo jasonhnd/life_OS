@@ -31,7 +31,7 @@ hook 在 LLM 上下文之外的子进程里运行。LLM 没法贿赂它、忘掉
 
 **仅 Claude Code(v1.7)。** 这里描述的 hook 系统在 Anthropic 的 Claude Code CLI 中原生存在。Gemini CLI 与 Codex CLI 在 v1.7 不暴露等价 hook 表面 —— 它们回退到 prompt 级强制(SKILL.md HARD RULE 声明),没有运行时兜底。
 
-当 Gemini / Codex 发布兼容 hook 规范后,同一套五个脚本可以注册到那里。在那之前,非 Claude Code host 上的 Life OS 只拿到第 1 层(文档)与第 2 层(subagent 隔离)。这在 `docs/architecture/execution-layer.md` 里有记录。
+当 Gemini / Codex 发布兼容 hook 规范后,同一套五个脚本可以注册到那里。在那之前,非 Claude Code host 上的 Life OS 只拿到第 1 层(文档)与第 2 层(subagent 隔离)。这在 `docs/history/architecture/execution-layer.md` 里有记录。
 
 ---
 
@@ -409,7 +409,7 @@ Hook 行为由 `evals/scenarios/hook-compliance/` 覆盖:
 - `references/tools-spec.md` —— 与 hook 互补的 Python 第 4 层工具(`stats.py`、`backup.py`、`reconcile.py`)
 - `references/cortex-spec.md` —— 整体 Cortex 架构;hook 保护其 markdown-first 不变量
 - `pro/compliance/2026-04-19-court-start-violation.md` —— 催生本规范的奠基事件
-- `docs/architecture/execution-layer.md` —— 完整的第 3 层(hook)+ 第 4 层(Python tool)架构
+- `docs/history/architecture/execution-layer.md` —— 完整的第 3 层(hook)+ 第 4 层(Python tool)架构
 - `scripts/setup-hooks.sh` —— v1.6.2 安装器模板,v1.7 扩展安装器继承自此
 - `scripts/lifeos-version-check.sh` —— v1.6.2 仅有的 hook;"预检、幂等、原子"模式的参考
 

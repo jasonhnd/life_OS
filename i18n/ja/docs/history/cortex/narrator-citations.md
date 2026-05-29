@@ -469,7 +469,7 @@ Spec 層(英語):
 その他:
 
 - `pro/agents/router.md` — Narrator の挙動は ROUTER に住む(独立 agent ではない)
-- `devdocs/architecture/cortex-integration.md` — Step 7.5 挿入の位置
+- `devdocs/history/architecture/cortex-integration.md` — Step 7.5 挿入の位置
 
 ---
 
@@ -480,4 +480,4 @@ Spec 層(英語):
 
 ### 訳者注 / Translator's Note
 
-本ドキュメントは中国語版 (`docs/user-guide/cortex/narrator-citations.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(Narrator, Validator, substantive/connective, signal registry, citation, trace, groundedness, confabulation, Gazzaniga Left-Brain Interpreter, ROUTER, COUNCIL, AUDITOR, RETROSPECTIVE 等)は原文の英語表記を保持しています。Gazzaniga の左脳解釈器の説明は神経科学領域の標準用語ですが、日本語文脈での理解を優先し読解可能な表現としました。人間校正待ち。
+本ドキュメントは中国語版 (`docs/history/cortex/narrator-citations.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(Narrator, Validator, substantive/connective, signal registry, citation, trace, groundedness, confabulation, Gazzaniga Left-Brain Interpreter, ROUTER, COUNCIL, AUDITOR, RETROSPECTIVE 等)は原文の英語表記を保持しています。Gazzaniga の左脳解釈器の説明は神経科学領域の標準用語ですが、日本語文脈での理解を優先し読解可能な表現としました。人間校正待ち。

@@ -86,6 +86,15 @@ references↔i18n 对齐保持（中日已同步）。
 
 真正冻结的 legacy 文件（`status: legacy` / `authoritative: false`，如 `cortex-spec.md` v1.7.2 时代的「16 agents」）按设计保留原样。
 
+### fix5（2026-05-29）—— legacy 文档集中归档到 docs/history/
+
+按用户要求清爽活跃树：真正冻结的 v1.7 时代文档现集中到 `docs/history/`（含 `i18n/{zh,ja}/docs/history/` 镜像），不再散落在活跃 `docs/` 树里。
+
+- **搬迁**（`git mv`，保留历史）：`docs/architecture/` → `docs/history/architecture/`（13 个 v1.7 架构快照）；`docs/user-guide/cortex/` → `docs/history/cortex/`（+ 中日镜像，6 个 v1.7 Cortex 用户指南）；`docs/guides/v1.7-migration.md` 和 `references/v1.7-shipping-report-2026-04-21.md` → `docs/history/`。
+- **重指向**活跃 docs/spec 里的所有入站链接（README、docs/index、user-guide/index、faq、MIGRATION、references/*-spec 等）到新 `docs/history/...` 路径；改写 docs/index + user-guide/index，说明当前架构权威是 `pro/CLAUDE.md` + `pro/agents/`、`docs/history/` 是档案。
+- **有意保留**：冻结记录（CHANGELOG、`pro/compliance/*`、`_meta/rfc/*`）保留搬迁前的原路径引用（历史准确性）；载荷型功能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）留在 `references/`——它们描述现行功能、被活跃 agent 引用，**不归档**（其 `status: legacy` 标签是另一处误标，本次未动）。
+- 新增 `docs/history/README.md` 说明档案。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化

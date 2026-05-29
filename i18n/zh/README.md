@@ -261,7 +261,7 @@ Pivot 中删掉的：
 - Cron 基础设施：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、所有 launchd plist。
 - Python 中间层：`tools/memory.py`（现在直接 Write/Read 到 `~/.claude/lifeos-memory/`）、`tools/session_search.py`（现在直接 Grep）、`tools/cli.py`（不需要了）、5 个维护 python 工具（已被上面 user-invoked prompts 取代）。
 - Cortex artifact：`pro/agents/narrator-validator.md`（validator 是绑在 always-on 流程上的）。
-- Spec 文档：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`（cron 时代的 spec）。
+- Spec 文档：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/history/architecture/hermes-local.md`（cron 时代的 spec）。
 
 迁移：重新 pull repo，然后重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`（重新注册简化后的 hook 集合）。macOS 上 `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` 删掉死掉的 cron job。无第二大脑数据迁移需求。v1.7.x sessions / wiki / SOUL 完全兼容。
 
@@ -274,7 +274,7 @@ v1.7.3 让 Cortex 从「声明 always-on」变成「机器强制 always-on」，
 - **Cortex hook 强制注入** — `pre-prompt-guard` 现在在用户消息含决策关键词或超过 80 字时，输出 system-reminder 强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 的静默降级（17+ session 0 audit trail）。
 - **narrator-validator audit trail HARD RULE** — frontmatter `tools` 加 Bash + Write，按 pro/CLAUDE.md §0.5 强制写 `meta/runtime/<sid>/narrator-validator.json` audit trail JSON。
 - **4 个 slash command 接入** — `/compress`（inline 上下文压缩，归档到 `meta/compression/`）、`/search`（基于 `tools.session_search` 的 FTS5 跨 session 搜索）、`/memory`（基于 `tools.memory` 的 24-48h 短期记忆）、`/method`（基于 `tools.skill_manager` 的方法论库管理）。`setup-hooks.sh` 安装到 `~/.claude/commands/`。
-- **死代码清理** — `tools/prompt_cache.py`（118 行 0 调用，Claude Code 包月场景无意义）+ `docs/architecture/prompt-cache-strategy.md` 删除。`docs/architecture/hermes-local.md` 中相关引用清理完毕。
+- **死代码清理** — `tools/prompt_cache.py`（118 行 0 调用，Claude Code 包月场景无意义）+ `docs/history/architecture/prompt-cache-strategy.md` 删除。`docs/history/architecture/hermes-local.md` 中相关引用清理完毕。
 
 迁移：重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`，把 4 个新 slash command 安装到 `~/.claude/commands/`。
 
@@ -323,7 +323,7 @@ v1.7.1 是一次面向透明度和证据链的加固版本。系统会更明确�
 - 6 个 Cortex 用户指南 + v1.7-migration 用户体验章节
 - cortex-spec + hippocampus-spec 中日译本
 
-升级（v1.6 → v1.7）：详见 [docs/guides/v1.7-migration.md](docs/guides/v1.7-migration.md)。之前的 `uv run life-os-tool migrate` 命令在 R-1.8.0-011 与 `life-os-tool` dispatcher 一起删除；当前用 LLM 驱动的 `scripts/prompts/migrate-from-v1.6.md`，详见 `pro/CLAUDE.md` §0.5。
+升级（v1.6 → v1.7）：详见 [docs/history/v1.7-migration.md](docs/history/v1.7-migration.md)。之前的 `uv run life-os-tool migrate` 命令在 R-1.8.0-011 与 `life-os-tool` dispatcher 一起删除；当前用 LLM 驱动的 `scripts/prompts/migrate-from-v1.6.md`，详见 `pro/CLAUDE.md` §0.5。
 
 完整 v1.7 commit 链和 COURT-START-001 v1.6.3 事件档案见 [CHANGELOG](./CHANGELOG.md)。
 
