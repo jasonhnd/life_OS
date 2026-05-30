@@ -21,7 +21,7 @@ Each role invocation = **input tokens** (system instructions + incoming context)
 | Six Ministries (each) | ~350 | Instructions + background ~500 | Assessment report ~800 | ~1,650 |
 | Censorate | ~350 | Complete process record ~3,000 | Performance evaluation ~300 | ~3,650 |
 | Remonstrator | ~300 | Memorial + user message ~1,500 | Admonition ~300 | ~2,100 |
-| Morning Court Official | ~350 | Notion data ~1,000 | Briefing ~600 | ~1,950 (session-start only) |
+| Morning Court Official | ~350 | second-brain data ~1,000 | Briefing ~600 | ~1,950 (session-start only) |
 | Court Diarist | ~300 | Session context ~1,500 | Journal + wiki extraction ~500 | ~2,300 |
 | Hanlin Academy | ~250 | User message ~300 | Conversation reply ~500 | ~1,050 |
 
@@ -172,7 +172,7 @@ Morning Court Official (independent process, does not go through Three Departmen
 | Total | ~1,500-2,500 |
 | Cost | ~$0.03-0.05 |
 
-The Morning Court Official is a single call at session start. If connected to Notion, reading data increases input tokens.
+The Morning Court Official is a single call at session start. Reading the second-brain data (after `git pull`) increases input tokens.
 
 ---
 

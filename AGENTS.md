@@ -14,7 +14,7 @@
 - **多个 subagent 定义**：`pro/agents/*.md` — 各角色的岗位说明书（跨 host 共享）
 - **六领域职能详解**：`references/domains.md`
 - **标准场景配置**：`references/scene-configs.md`
-- **数据模型与 Notion 适配器**：`references/data-model.md`、`references/adapter-notion.md`
+- **数据模型与 git 适配器**：`references/data-model.md`、`references/adapter-github.md`
 
 ## Host-Agnostic 语义合同（v1.8.0）
 

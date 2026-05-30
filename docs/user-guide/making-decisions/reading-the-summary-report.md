@@ -145,7 +145,7 @@ Action Items:
 - 负责领域（后续 AUDITOR 和 ADVISOR 追踪用）
 
 **读 Action Items 的做法**：
-- 复制到 TODO 系统（Notion Todo Board / 苹果提醒 / Things 等）
+- 复制到 TODO 系统（苹果提醒 / Things 等）
 - 每条检查是否**今天就能开始第一步**——不能则要求自己拆成更小的子任务
 - 如果超过 5 条，优先级排序，先做 Must Address 相关的
 

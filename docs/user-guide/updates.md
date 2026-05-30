@@ -208,7 +208,7 @@ Life OS 有 3 份 CHANGELOG（三语 HARD RULE）：
 ## v1.6.2a · 2026-04-15
 
 ### Fixes
-- 修复 Notion sync 在 orchestrator 上下文丢失的问题
+- 修复第三方存储同步在编排层上下文丢失的问题（该传输层已移除；存储现为 GitHub-only）
 
 ## v1.6.2 · 2026-04-12
 

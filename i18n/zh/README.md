@@ -86,7 +86,7 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 ### 产品升级（改变 lifeos 能力的能力）
 
 - **🧠 gotchas + memory-keeper（C6）** —— `pro/gotchas.md` 是项目级技术坑的单文件。新 `memory-keeper` agent 在 archiver wrap-up phase 5 自动提炼。ROUTER 在重大任务前可 short-circuit 已知问题。首次 seed 跑从 v1.8.4-1.8.6 RFC + violations 历史产 ≥10 条。
-- **🔄 ScheduleWakeup 自驱循环（B4）** —— `/verify-release-and-watch` 和 `/notion-sync-and-watch` 每 270s 轮询（Anthropic prompt cache 窗口），最多 12 ticks（60 分钟）直到终态。自动修复缺失的 GitHub Release publish。lifeos 从 reactive 工具变成"能盯任务"的工具。
+- **🔄 ScheduleWakeup 自驱循环（B4）** —— `/verify-release-and-watch` 每 270s 轮询（Anthropic prompt cache 窗口），最多 12 ticks（60 分钟）直到终态。自动修复缺失的 GitHub Release publish。lifeos 从 reactive 工具变成"能盯任务"的工具。
 - **📋 verify-release 扩展为 11 个 check** —— 新 check 9（i18n diff parity，WARN 级）抓反复的"EN spec 更新但 zh/ja 漂移"违规类。新 check 10（diff 范围 forbidden extensions）抓上次 tag 以来引入的禁止扩展名文件。Check 8 扩展为 9 个禁止扩展名（加 `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`）。
 - **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 个 sub-check 验证 v1.8.7 artifact 保留 + md-only 约束在设计提议级别不被绕过（在到文件扩展闸门前抓漂移）。
 - **📚 Spec 硬化** —— `evals_scenarios:` frontmatter 字段现在在每个规划文档必填（dispatcher 不带就拒绝）。`concept-spec.md` 的 hotness 阈值显式化（≥3 sessions → confirmed，≥10 → canonical）。5 个新 `WHEN-NOT-TO-ADD.md` 为 pro/agents/、references/、meta/、themes/、scripts/ 设清楚边界。
@@ -105,58 +105,7 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 详见 [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 完整 RFC、DR-08（cargo-cult 砍掉）、DR-09（决策标准：产品质量不是时间）、DR-10（md-only 本体论约束），及设计决策审计 trail。
 
-> **之前**，v1.8.3 关闭了出境隐私缺口（详见 CHANGELOG 的 v1.8.3 内容）。
-
-## v1.8.3 新特性 — Notion 写入前的出境闸门
-
-**补上「外发」的隐私缺口。** v1.8.2 守住了「进入」vault 的内容（`pre-write-scan.sh` 防 SOUL.md / wiki / `meta/concepts/` / meta/user-patterns.md 被 secret、prompt injection、隐藏 Unicode 污染）。但 v1.8.2 对**离开** vault 的路径只字未提。Decision/Task/Journal 这些含用户原话、第三人姓名、具体金额的内容，从 `meta/outbox/<sid>/` 直接同步到 Notion 的 Step 10a 阶段——**完全没有任何隐私闸门**。v1.8.3 补上这块对称的出境守卫。
-
-### 为什么本地 outbox 和 Notion 不是同一个威胁模型
-
-能放在你私有 git 里的 `meta/outbox/<sid>/decisions/` 内容，跟该往 Notion 推什么，**不是同一个标准**：
-
-- Notion workspace 可能是共享的（团队 Notion、误开 public link）
-- Notion AI 可能为组织级 assistant 索引页面内容
-- 手机被偷看 Notion app
-- Notion 历史上有过数据泄露事件
-
-同一句话（"我老婆觉得 X 公司给的 ¥850 万 …"）在你私人日记里 OK，在 Notion 服务器上不 OK。v1.8.3 把这两件事分开对待。
-
-### 新 hook：`pre-notion-write.sh`
-
-> *v1.8.5 更新：`pre-notion-write.sh` hook 随 bash hook 层一起退役（md-only / DR-10）。下面的扫描逻辑不变——同一张模式表、同样三档 verdict——但编排器现在在每次 Notion 写之前以**内联 LLM 流程**执行它，而非 PreToolUse hook。当前行为见 `pro/CLAUDE.md` Step 10a。*
-
-每次 Notion MCP 写调用都会被检查。扫描把待发送内容按 [`references/outbound-pii-patterns.md`](../../references/outbound-pii-patterns.md) 的 5 组模式匹配，按三档行动模型处理：
-
-| 命中组 | Verdict | 行动 |
-|---|---|---|
-| **A** — 私钥、AWS / GitHub / Slack token、完整信用卡号、SSN、JP マイナンバー、≥40 字符高熵 | `block` | exit 2 取消调用，记 `CLASS_F` 违规 |
-| **B** — 第三人姓名 + 敏感事件（出轨/破产/被裁/divorced/fired） | `warn` | 弹 reminder；编排层**必须暂停**问 `(a) 净化 / (b) 跳过 / (c) 强行执行` |
-| **C** — 公司名 + 具体金额、银行账号形 | `warn` | 同上 |
-| **D** — 邮箱 / 国际电话 / 日中手机 / 日本邮政地址 | `warn` | 同上 |
-| **E** — URL trackers、JWT 形状 | `info` | 静默记录 |
-| 无命中 | `pass` | 正常进行 |
-
-审计记录写到 `meta/runtime/<sid>/notion-pii-scan-<ts>.json`，含命中类别 ID（**不记原文**），AUDITOR Mode 3 巡检可以追踪出境风险频次——如果你 40% 的 adjourn 都触发 Group B，那是个值得回顾的行为信号。
-
-### 为什么 B/C/D 是软告警 `warn` 而不是硬阻断
-
-Group A 模式无歧义，硬阻断正确。Group B/C/D 有非零误报率——bash POSIX regex 难以干净表达 CJK 字符范围，B3（中文姓名 + 敏感谓词）只能依赖罕见谓词动词；C2（银行账号形数字）本身就有歧义。硬阻断会让每次 adjourn 都卡住。软告警让你看到命中类别后自己选。
-
-### 为什么没有 `strip` 模式
-
-Claude Code 的 PreToolUse hook 不能改写 `tool_input`。净化必须在上一层做：编排层读到 warn reminder，自己生成净化版本，再重发 Notion 调用。Hook 只是**检测器**，不是改写器。这个 handoff 的编排契约写在 [`pro/CLAUDE.md` Step 10a](../../pro/CLAUDE.md)。
-
-### 迁移
-
-```bash
-cd ~/.claude/skills/life_OS && git pull
-bash scripts/setup-hooks.sh   # 注册 pre-notion-write
-```
-
-幂等——跑两遍是 no-op。卸载：`bash scripts/setup-hooks.sh --uninstall`。
-
-完整细节（5 组模式、审计 schema、JSON parser 三层 fallback）：[CHANGELOG.md](./CHANGELOG.md#183---2026-05-09)。
+> **v1.8.3 之前内容** —— 一道内联出境隐私闸门会在每次 Notion 写入前扫描 secret/PII。**已随 Notion 后端一并移除**（存储现在仅 GitHub）。
 
 > **v1.8.2 之前内容** — 全局 Obsidian 可读 HARD RULE (#11)、4 个专门 wiki 模板（`kind:` 字段）、`/wiki-obsidian-upgrade` 批量迁移、二进制输出转 `~/Downloads/`。详见 CHANGELOG。
 
@@ -219,7 +168,6 @@ v1.8.1 是 **Life OS 历史上最大的「减法」**。两波 5 月 1-2 日交�
 - **macOS 可移植性**：`pre-bash-approval.sh` 5 处裸 `python -c`。macOS 12+ 移除了裸 `python` → hook fail-CLOSED → 阻止所有 Bash。R-1.8.0-020 commit 标题声称修了；直到 Wave 1 才修。
 - **Scanner 误判**：`pre-write-scan.sh` pattern #5 之前会拦截 markdown 合法 inline code。收紧为 backtick 内必须含 shell 元字符。
 - **session-start-inbox UX**：2 个 task 名字写错；NEVER_RUN 桶从 8+ 行压成 1 行。
-- **Notion sync 硬编码 4 个 entity** — 现在 config-driven；读 `meta/config.md`。
 
 ### 迁移
 
@@ -450,7 +398,7 @@ Life OS 由五根支柱撑起来。**决策引擎**是核心——其余一切�
 
 ### 三、第二大脑 — 关掉窗口，什么都不会消失
 
-每一个决策、洞察、模式和行动项都写入**持久化知识库**——你拥有的结构化 markdown 文件，存在你选择的存储系统里。
+每一个决策、洞察、模式和行动项都写入**持久化知识库**——你拥有的结构化 markdown 文件，存在一个 git 仓库里。
 
 ```
 second-brain/
@@ -468,19 +416,20 @@ second-brain/
 └── archive/                # 完成的工作
 ```
 
-**三种存储后端** — 选适合你生活的：
+**GitHub 后端存储** —— 单一 git 仓库：
 
-| 后端 | 适合谁 | 特点 |
-|------|--------|------|
-| **GitHub** | 版本控制，可配合 Obsidian | 需要基本 Git 知识 |
-| **Google Drive** | 零配置，开箱即用 | 结构化程度低一些 |
-| **Notion** | 移动端友好，数据库视图 | 最适合手机随手记 |
+| 层 | 是什么 |
+|----|--------|
+| **本地工作副本** | 磁盘上的文件——同时也是你的 Obsidian vault。你在这里读写。 |
+| **GitHub 远端** | 备份 + 跨设备同步。会话结束 `git push`，会话开始 `git pull`。 |
 
-**跨设备同步**：午饭时在手机上记一个想法（Notion inbox）。坐到电脑前开朝，系统自动拉取、处理，然后把结果同步回去。
+就是 git 而已。版本、备份、多设备同步全部白送——没有单独的同步引擎、没有主/镜像之分、没有冲突解决层。（Google Drive + Notion 已移除；存储仅 GitHub。）
+
+**跨设备同步**：在笔记本上改完，`git push`。坐到台式机前开朝，系统 `git pull` 把改动拉进来。冲突就是普通的 git merge 冲突——单用户 vault 极少发生。
 
 **多窗口并行**：一个终端窗口处理项目 A，另一个处理项目 B。每个会话写入自己的 outbox。下次开朝时全部干净合并——不冲突、不加锁。
 
-首次运行时，系统自动创建完整的目录结构。
+**首次运行**：第一次开朝时，系统检测到没有 second-brain，会带你创建一个——它会初始化 git 仓库（本地工作副本 + 可选 GitHub 远端）并自动建好完整目录结构。
 
 ---
 
@@ -560,7 +509,7 @@ second-brain/
 你：d
 
 🌅 早朝官：
-   同步第二大脑……从 Notion 拉取 3 条收件箱记录。
+   同步第二大脑……git pull：3 处改动。
    📥 "研究一下认证项目"——昨天在手机上记的
    📥 "project-alpha：供应商回复了"——从邮件转过来的
    📥 快速笔记："重新审视预算假设"
@@ -613,7 +562,7 @@ second-brain/
      💤 N3："深思熟虑型决策者"维度新增证据（+1）
      💤 REM：🚨 检测到陈旧承诺——32 天前你说过会起草
             自由职业方案。下次简报将提示。
-   Phase 4 — 同步到 Notion……完成。
+   Phase 4 — 同步：git add + commit + push……完成。
    ✅ 完成清单已验证。会话已归档。
    ↩️ 要撤销任何自动写入：删除文件，或下次说"撤销最近 wiki/SOUL"。
 ```
@@ -767,7 +716,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
  │  │         · SOUL × 战略：驱动力和价值观对齐吗？
  │  │         · Wiki × 流动：知识真的在项目间传递吗？
  │  │         · 行为 × 优先级：你在回避 critical-path 吗？
- │  │     Phase 4 🔄 同步：git push + Notion 4 项操作
+ │  │     Phase 4 🔄 同步：git add + commit + push
  │  │     ✅ 完成清单：每项必须填入具体值（硬规则）
  │  │
  │  └─ 🎋 翰林院 — 人类智慧殿堂
@@ -780,7 +729,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
  │        结束时：临别赠言 → 思考旅程存入知识库
  │
  └─ 💾 存储层
-       GitHub / Google Drive / Notion（选 1-3 个）
+       GitHub（git 仓库：本地工作副本 + 远端）
        ├── SOUL.md          🔮 人格档案（从零生长）
        ├── meta/user-patterns.md 📊 行为模式（谏官观察）
        ├── meta/

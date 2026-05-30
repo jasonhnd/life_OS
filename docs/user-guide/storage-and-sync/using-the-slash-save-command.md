@@ -60,11 +60,10 @@ ROUTER：
   5. 写入文件。
   6. git add {specific-file}
   7. git commit -m "[life-os] {brief description}"
-  8. git push
-  9. 如果配置了 sync backend：也写到 GDrive / Notion。
-  10. cd 回原项目目录。
+  8. git push（推到 GitHub remote；无 remote 则仅本地 commit）
+  9. cd 回原项目目录。
   
-  11. 输出确认：
+  10. 输出确认：
       ✅ Saved to second-brain/meta/decisions/2026-04/dec-2026-04-08-001.md
       ✅ git push 成功
       📍 回到 ~/my-app
@@ -104,11 +103,11 @@ ROUTER：
 2. 本次会话产出多个东西（决策 + 任务 + 笔记），需要整体归档。
 3. 需要 DREAM 抽 wiki。
 4. 需要更新 SOUL snapshot。
-5. 需要同步到 Notion 让手机看到。
+5. 需要 `git push` 让其他设备 `git pull` 后看到。
 
 ### 能并用吗
 
-可以。会话中途用 `/save` 存了一个重要决策（防止丢），退朝时 ARCHIVER 继续处理剩下的东西 + DREAM + Notion sync。
+可以。会话中途用 `/save` 存了一个重要决策（防止丢），退朝时 ARCHIVER 继续处理剩下的东西 + DREAM + git push。
 
 但注意：`/save` 直接写主目录 = 不走 outbox = 和并行会话可能冲突。所以：
 
@@ -154,7 +153,7 @@ ROUTER：
 
 ```
 你：我刚看了个 blog 讲 AppFlowy，记一下要点给 wiki：
-    - AppFlowy 是 Notion 的开源替代
+    - AppFlowy 是一个开源的笔记 / 知识库工具
     - Rust 写的
     - 数据本地优先
     - 缺点：mobile app 还不成熟
@@ -170,7 +169,7 @@ ROUTER：这看起来是知识笔记，不是决策。
 
 ROUTER：
   ✅ 写入 wiki/tools/appflowy.md
-  ✅ 自动加 wikilinks: [[notion-alternatives]]
+  ✅ 自动加 wikilinks: [[note-tools]]
   ✅ git commit + push
   📍 回到 ~/my-app
 ```
@@ -236,11 +235,9 @@ cd ~/life-os-data/second-brain && \
 
 ### second-brain 路径在哪读
 
-CC 从 `meta/config.md` 或用户配置里知道 second-brain 的本地路径。如果是 GitHub primary → 就是本地 clone 的路径。
+CC 从 `meta/config.md` 或用户配置里知道 second-brain 的本地路径 —— 就是本地 git 工作副本（也是你的 Obsidian vault）的路径。
 
-`/save` 不适合 GDrive primary — GDrive MCP 没有 "cd + git" 的语义。对 GDrive primary 用户，相当于 `/save` 降级为"用 GDrive MCP 上传一个文件"。
-
-对 Notion primary — `/save` 相当于 notion-create-pages。没有 git 步骤。
+`/save` 直接用 "cd + git" 的语义：写文件 → `git add {specific-file}` → commit → push。这是存储的唯一形态（单一 git repo），所以 `/save` 在所有配置下都是这套流程，没有例外。
 
 ---
 
@@ -251,9 +248,8 @@ CC 从 `meta/config.md` 或用户配置里知道 second-brain 的本地路径。
 - ✅ 文件进对的目录（基于 session binding）。
 - ✅ YAML front matter 完整（type / title / date / status / last_modified）。
 - ✅ git commit message 符合 Life OS 规范（`[life-os]` 前缀）。
-- ✅ git push 成功或明确报告失败。
+- ✅ git push 成功或明确报告失败（无 remote 则仅本地 commit）。
 - ✅ 回到原项目目录不影响后续工作。
-- ✅ 所有 sync backends 都写（不止 primary）。
 
 ### /save 的限制
 

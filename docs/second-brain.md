@@ -3,21 +3,25 @@
 ## Core Architecture
 
 ```
-GitHub second-brain (disk) = Source of truth, complete records
-Notion (memory) = Lightweight working memory, active topics on mobile
-CC (Prime Minister / Morning Court Official) = The only role that touches both sides
+git repo = a single storage backend, two roles:
+  - local working copy (disk) = source of truth, complete records,
+    also your Obsidian vault
+  - GitHub remote = backup + cross-device sync channel
+CC (Prime Minister / Morning Court Official) = orchestrates git pull / push
 ```
 
 ### Data Channels
 
 ```
-Mobile: Claude.ai ↔ Notion MCP
-Desktop: CC ↔ GitHub second-brain + Notion MCP
+Desktop: CC ↔ local working copy (git)
+Cross-device: git pull (session start) / git push (session close)
+Mobile: commit into inbox/ via a git client (or a synced folder),
+        processed next desktop session
 ```
 
 ### Sync Rules
 
-**git commit = Notion update, mechanically bound.** File changes trigger sync; pure chat does not.
+**Sync is plain git:** `git pull` at session start (RETROSPECTIVE), `git push` at session close (ARCHIVER Phase 4). Merge conflicts are ordinary git conflicts.
 
 ---
 
@@ -203,23 +207,25 @@ Reverse queries (e.g., "which decisions applied this method?") use Dataview + Re
 
 ---
 
-## Notion Memory (4 Components)
+## Cross-Device Sync (git)
 
-### 📬 Inbox (Database)
+There is no separate cloud memory layer — everything lives in the one git repo as markdown.
 
-Message queue between mobile and desktop. Fields: Content / Source (Mobile/Desktop) / Status (Pending/Synced) / Time.
+### 📥 inbox/
 
-### 🧠 Current Status (Page)
+The drop-zone between mobile and desktop. On mobile, commit a markdown note into `inbox/` using a git client (e.g. Working Copy) or a folder that syncs to the repo. The next desktop session's `git pull` brings it down, and RETROSPECTIVE processes it.
 
-Mirrors `meta/STATUS.md`. Overwritten by Court Diarist at session close (as part of archive + sync).
+### 🧠 meta/STATUS.md
 
-### 📝 Working Memory (Topic Pages)
+The global status file. Rewritten by the Court Diarist at session close (part of archive + Phase 4 `git push`), then visible on any device after `git pull`.
 
-One page per active topic (about 5-10). When no longer active, archived to GitHub and deleted from Notion.
+### 📋 tasks files
 
-### 📋 Todo Board (Database)
+Active tasks live in `projects/*/tasks/` and `areas/*/tasks/`. Read or edit them on any device via Obsidian / any editor on the synced working copy.
 
-Active tasks synced from projects/*/tasks/ and areas/*/tasks/. Viewable and checkable on mobile.
+### Sync mechanics
+
+Session start: `git pull`. Session close: `git add` + `commit` + `push`. Cross-device hand-off is just pulling on the other machine; conflicting edits are ordinary git merge conflicts.
 
 ---
 

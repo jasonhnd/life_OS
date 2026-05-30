@@ -15,7 +15,7 @@ ARCHIVER: Phase 3 DREAM（运行下方三个阶段）
     ↓
 Dream 报告写入 meta/journal/{date}-dream.md
     ↓
-ARCHIVER: Phase 4 同步（git + Notion） → 会话结束
+ARCHIVER: Phase 4 同步（git add + commit + push） → 会话结束
 ```
 
 若 DREAM 失败或超时 → 把警告记入 `meta/sync-log.md`，不阻塞会话结束。
@@ -26,10 +26,8 @@ ARCHIVER: Phase 4 同步（git + Notion） → 会话结束
 
 **默认：最近 3 天（72 小时）内修改过的文件**。若最近 3 天没有文件修改，自动扩展到"自上次 dream 报告以来"（从最近的 `meta/journal/*-dream.md` 读取日期）。若没有 dream 报告，fallback 到扫描最近 7 天。
 
-检测方法：
-- GitHub 后端：`git log --since="3 days ago" --name-only --format=""` → 若空，`git log --since="{last_dream_date}" --name-only --format=""`
-- GDrive 后端：`modifiedTime > 3_days_ago` → 若空，`modifiedTime > last_dream_date`
-- Notion 后端：`last_edited_time > 3_days_ago` → 若空，`last_edited_time > last_dream_date`
+检测方法（git）：
+- `git log --since="3 days ago" --name-only --format=""` → 若空，`git log --since="{last_dream_date}" --name-only --format=""`
 
 ---
 

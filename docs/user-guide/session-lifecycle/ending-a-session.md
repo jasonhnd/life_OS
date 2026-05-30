@@ -2,11 +2,11 @@
 
 **本地备忘。不推送 GitHub。**
 
-退朝 = Adjourn Session。由 ARCHIVER 子代理在独立上下文中执行 4 阶段。Notion 同步由 orchestrator 在 archiver 返回后执行（Step 10a，不是 archiver）。
+退朝 = Adjourn Session。由 ARCHIVER 子代理在独立上下文中执行 4 阶段。Phase 4 是 `git add + commit + push`——存储是单一 git repo，没有独立的传输层同步步骤。
 
 触发词：`退朝` / `结束` / `adjourn` / `done` / `end` / `終わり` / `お疲れ` 等。
 
-权威源：`pro/agents/archiver.md` + `pro/CLAUDE.md` Step 10/10a。
+权威源：`pro/agents/archiver.md` + `pro/CLAUDE.md` Step 10。
 
 ---
 
@@ -23,7 +23,7 @@ ROUTER **禁止** 做以下任何事（HARD RULE）：
 
 - 在主上下文扫描会话找 wiki/SOUL/strategic 候选
 - 列候选给用户看，问"要保存这些吗？"
-- 说"告诉我你的决定，然后我启动 DREAM / Notion sync"
+- 说"告诉我你的决定，然后我启动 DREAM / git push"
 - 执行 Phase 1/2/3/4 里的任何内容
 - 在 archiver 的 phase 之间插话
 
@@ -34,7 +34,7 @@ ROUTER **禁止** 做以下任何事（HARD RULE）：
 ## Phase 1 · Archive（归档）
 
 ```
-1. 读 meta/config.md → storage backend 列表
+1. 读 meta/config.md → git remote 配置
 2. 生成 session-id：运行 date 命令取真实时间戳，格式化 {platform}-{YYYYMMDD}-{HHMM}
 3. 创建 outbox 目录：meta/outbox/{session_id}/
 4. Decision（summary report）→ meta/outbox/{session_id}/decisions/
@@ -141,7 +141,7 @@ previous_snapshot: {上一个 snapshot 文件名 / null}
 
 **目的**：下次上朝 RETROSPECTIVE Step 11.2 读最新 snapshot，算 delta/箭头。只记数值元数据，What IS/What SHOULD BE 留在主 SOUL.md。
 
-**归档策略**：>30 天移 `meta/snapshots/soul/_archive/`；>90 天删除（git + Notion 已保留）。
+**归档策略**：>30 天移 `meta/snapshots/soul/_archive/`；>90 天删除（git 历史中仍保留，可追溯）。
 
 ---
 
@@ -230,46 +230,14 @@ triggered_actions:
 
 ---
 
-## Phase 4 · Sync（仅 git；Notion 由 orchestrator 做）
+## Phase 4 · Sync（git）
 
 ```
-1. git add meta/outbox/{session_id}/ → commit → push（只加 outbox 目录）
-2. 更新 meta/config.md 的 last_sync_time
-3. GitHub backend 失败 → 写 meta/sync-log.md，标 ⚠️，不阻塞
+1. git add meta/outbox/{session_id}/ → commit → push 到 GitHub remote（只加 outbox 目录）
+2. push 失败（无 remote / 网络断 / 需先 pull）→ 本地 commit 已写好，记录提示，标 ⚠️，不阻塞；下次会话 pull 后再 push
 ```
 
-### archiver 不做 Notion sync
-
-archiver 没有 Notion MCP tools（它们是 environment-specific，不能声明在 agent frontmatter）。
-
-archiver 返回后，**orchestrator（主上下文）** 执行 Notion sync。
-
----
-
-## Step 10a · Notion Sync（orchestrator 做）— HARD RULE
-
-archiver 返回 Completion Checklist 后，orchestrator **必须** 用主上下文的 Notion MCP tools 执行：
-
-```
-a. 🧠 Current Status page: 覆盖写最新 STATUS.md 内容
-b. 📋 Todo Board: 同步本次会话 tasks（新→建，完成→打勾）
-c. 📝 Working Memory: 写会话摘要（subject、关键结论、action items）
-d. 📬 Inbox: 标记已处理项为 "Synced"
-e. 如 Notion MCP 不可用 → 报告："⚠️ Notion sync failed — 手机端看不到更新"
-f. 单项失败 → 报告哪一项，其他继续
-```
-
-完成后输出 Notion 部分的 checklist：
-
-```
-🔄 Notion sync:
-- 🧠 Status: [updated / failed: {reason}]
-- 📋 Todo: [synced {N} items / failed: {reason}]
-- 📝 Working Memory: [written / failed: {reason}]
-- 📬 Inbox: [marked synced / no items / failed: {reason}]
-```
-
-**不能静默跳过 Notion sync**。不能不尝试就说 "Notion MCP not connected"。
+存储是单一 git repo，同步就是 Phase 4 的 `git push` —— archiver 端到端做完，没有独立的传输层或编排层后处理步骤。手机端跨设备看到更新 = 在手机上 `git pull`。
 
 ---
 
@@ -285,7 +253,7 @@ f. 单项失败 → 报告哪一项，其他继续
 🌱 SOUL: Y 条自动写入
 🗺️ Strategic: [新关系 / 无变化 / 未配置]
 💤 DREAM: [关键洞察一句话 / 轻睡 — 无模式]
-🔄 Git: ✅ {commit hash} | Notion: ⏳ pending (orchestrator will sync)
+🔄 Git: ✅ {commit hash} pushed to GitHub remote
 
 ✅ Completion Checklist:
 - Subagent invocation: [✅ / ⚠️ ran in main context — VIOLATION]
@@ -297,8 +265,7 @@ f. 单项失败 → 报告哪一项，其他继续
 - Phase 2 strategic candidates: [{list} / none this session]
 - Phase 2 last_activity updated: [{projects touched}]
 - Phase 3 DREAM: [{1-line} / light sleep]
-- Phase 4 git: {commit hash}
-- Phase 4 Notion: ⏳ deferred to orchestrator (archiver lacks MCP tools)
+- Phase 4 git: {commit hash} pushed to GitHub remote (或 ⚠️ local commit only — push deferred)
 ```
 
 **每项必须有具体值**。不能 "TBD"，不能空。缺项 = 不完整退朝，AUDITOR 会 flag。
@@ -340,6 +307,6 @@ v1.5 开始强制：**adjourn 触发 = ROUTER 只输出 2 行，其他全部丢�
 1. 主上下文保持干净（只知道"触发了归档"）
 2. 4 阶段在独立上下文里一次性跑完，不会半路停
 3. 扫描/判断/自动写入 的逻辑只在 archiver 里
-4. Notion sync 分离出来，因为 MCP tools 是 environment-specific，archiver 拿不到
+4. Phase 4 同步（`git push`）由 archiver 端到端做完，不依赖任何 environment-specific 工具
 
-v1.6.2a 的 "fix: Notion sync returns to orchestrator" 就是这一块。之前 archiver 里 hardcode 说"Notion sync 交给 orchestrator"但 orchestrator 没做，结果手机端永远看不到。现在 CLAUDE.md Step 10a 明确：archiver 返回后，orchestrator 必须做 Notion sync，不能跳。
+历史注记：v1.6.x–v1.9.x 期间，存储曾支持环境特定的第三方传输层同步，需要在 archiver 返回后由编排层补做。该机制已移除——存储现为 GitHub-only，同步就是 archiver Phase 4 的 `git push`，没有编排层后处理步骤。

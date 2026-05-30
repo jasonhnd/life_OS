@@ -62,7 +62,7 @@
 | 🏛️ 霞が関 | `閣議終了` / `お疲れ` / `終わり` / `adjourn` / `end` |
 | 🏢 企業 | `お疲れ` / `終わり` / `adjourn` / `done` / `end` |
 
-**触发结果**：ROUTER 输出"📝 [Starting archive flow — 4 phases]..."，并立即 Launch(archiver) 以完整 4 阶段运行。archiver 返回后，编排器执行 Notion 同步（Step 10a）→ 会话结束。
+**触发结果**：ROUTER 输出"📝 [Starting archive flow — 4 phases]..."，并立即 Launch(archiver) 以完整 4 阶段运行。archiver 的 Phase 4 执行 `git add + commit + push` → 会话结束。
 
 **HARD RULE**：ROUTER 绝不能自己扫描会话提取 wiki/SOUL 候选，绝不能问用户"要保存哪些候选"——这些都是 archiver subagent 的内部工作。违反则 AUDITOR 会标记为流程违规。
 

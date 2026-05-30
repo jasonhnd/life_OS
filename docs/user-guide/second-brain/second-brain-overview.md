@@ -116,20 +116,19 @@ wiki 条目**自动写入**（v1.6.2）— 通过 6 条严格准则 + 隐私过�
 
 ---
 
-## Notion 四组件（记忆层）
+## 跨设备访问（git）
 
-Second-brain 在 GitHub / Google Drive 上时，Notion 可以作为轻量记忆层给手机用：
+存储是单一 git repo，没有独立的记忆层 —— 一切都是 repo 里的 markdown，跨设备靠普通 git：
 
-| 组件 | 类型 | 作用 |
-|------|------|------|
-| 📬 Inbox | 数据库 | 手机 ↔ 桌面的消息队列。Content / Source / Status / Time。 |
-| 🧠 Current Status | 页面 | 镜像 `meta/STATUS.md`。会话结束由 orchestrator 覆写。 |
-| 📝 Working Memory | 话题页 | 每个活跃话题一页（5-10 个）。不活跃了归档到 GitHub + 从 Notion 删掉。 |
-| 📋 Todo Board | 数据库 | 从 `projects/*/tasks/` 和 `areas/*/tasks/` 同步。手机可勾可看。 |
+| 文件 | 作用 |
+|------|------|
+| `inbox/` | 手机 ↔ 桌面的捕获队列。手机用 git 客户端把 markdown 提交进 `inbox/`。 |
+| `meta/STATUS.md` | 全局状态。会话结束由 ARCHIVER 重写，Phase 4 `git push` 后任何设备 `git pull` 可见。 |
+| `projects/*/tasks/`、`areas/*/tasks/` | 活跃任务。在任何设备用 Obsidian / 编辑器读改同步后的工作副本。 |
 
-这叫 **传输模式**。Notion 也可以做完整后端（六种数据类型都存 Notion），但不推荐 — 数据格式锁在 Notion 里，换不了工具。
+同步机制：会话开始 `git pull`，会话结束 `git push`。跨设备就是在另一台机器 `git pull`。
 
-详见 `docs/user-guide/storage-and-sync/notion-as-transport.md`。
+详见 `docs/user-guide/storage-and-sync/sync-protocol.md`。
 
 ---
 

@@ -66,12 +66,12 @@ introduced_in: v1.8.5
 ### F8 — TOOL FAILURE
 - **定義**: スクリプト、モデル、API、外部ツールがハード失敗。
 - **修復**: 依存を分離、フォールバック追加、stop condition 追加。
-- **例**: Notion MCP が Phase 4 途中で利用不能; gh CLI が 502 を返す。
+- **例**: git push が Phase 4 途中で失敗（ネットワーク断）; gh CLI が 502 を返す。
 
 ### F9 — TRACE FAILURE
 - **定義**: 実行を再構築できない; trace が欠落するか宣言されたステップと矛盾。
 - **修復**: trace キャプチャを改善; 各ステップを `meta/runtime/<sid>/` に書き込む。
-- **例**: archiver Phase 4 が完了したが `notion-sync-*.md` 監査 trail を書かない。
+- **例**: archiver Phase 4 が完了したが `archiver-phase-4.md` 監査 trail を書かない。
 
 ### F10 — RESPONSIBILITY FAILURE
 - **定義**: 明確な owner、承認ゲート、エスカレーションパスなし; または同一者が実行と承認の両方を行う。

@@ -118,6 +118,16 @@ tracked な全 `.md`（EN + zh/ja ミラー）を再スキャン：壊れたリ�
 
 修正後スキャンの証拠：**実リンク切れ 0**（意図的なプレースホルダ / 凍結 CHANGELOG 履歴 / gitignored devdocs 43 件を除外）、**未閉じ frontmatter 0**、**フェンス奇数 0**、**アクティブファイルのカウントドリフト 0**（`version-history.md` の「15→16 役割」歴史的遷移のみ残存、現在は正式に checker 除外）、3 言語セクション完全整合。
 
+### fix8（2026-05-31）—— Notion + Google Drive バックエンドを削除（GitHub 単一バックエンドストレージ）
+
+ストレージを**単一 git バックエンド**に簡素化——ローカル作業コピー（Obsidian vault でもある）+ GitHub リモート；同期は `git pull`（セッション開始）+ `git push`（ARCHIVER Phase 4）。ユーザーの指示によりリリース内修正（バージョン番号を上げない）としてコミット。
+
+- **削除**（12 ファイル削除）：Google Drive + Notion アダプター（+ zh/ja + docs コピー）、Notion 送信 PII ゲート（`outbound-pii-patterns.md` + `pro/CLAUDE.md` Step 10a）、`/notion-sync` + `/notion-sync-and-watch` コマンド、およびマルチバックエンド同期 / primary-sync / クロスバックエンド競合層。
+- **書き換え**（単一バックエンド git へ）：`data-model` / `data-layer`、`pro/{CLAUDE,AGENTS,GEMINI}`、各 agent（archiver / retrospective / router / advisor / auditor / knowledge-extractor）、`SKILL`、`self-driven-loops-spec`、README ×3、全ユーザードキュメント + i18n ミラー。
+- **保持**：受信プライバシースキャン（SOUL / wiki）は影響なし；凍結された `status:legacy` spec は歴史的 Notion 参照を保持；モバイルキャプチャはユーザー自身の git ワークフローで `inbox/` へ。
+
+検証：アクティブファイルの Notion/GDrive 残存 0、リポジトリ内リンク切れ 0（削除済み 12 ファイルへのダングリング 0）、未閉じ frontmatter 0、奇数フェンス 0、3 言語整合。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - セカンドブレイン構造最適化 + 透明性

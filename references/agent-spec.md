@@ -119,7 +119,7 @@ Pass rate criteria (D4):
 |---|---|---|---|
 | router | propose | suggest_only + write_inactive | medium |
 | retrospective | specify | suggest_only + write_inactive | low |
-| archiver | publish | publish (highest — does git push + Notion sync) | medium |
+| archiver | publish | publish (highest — does git push) | medium |
 | planner | specify | write_candidate | low |
 | reviewer | validate | approve (veto power) | high (judgment) |
 | dispatcher | implement | mutate_active (dispatches to domains) | medium |

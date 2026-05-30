@@ -7,8 +7,8 @@
 1. **全覆盖**：第二大脑覆盖生活、家庭、购物、爱好、本职工作、副业——所有领域
 2. **不绑定任何 LLM**：所有"智能"都编码在 markdown 文件里，不在模型权重中
 3. **无 AI 也能用**：用 Obsidian 打开 markdown 文件就能读写和导航。LLM 是加速器，不是前提
-4. **Markdown 是唯一真相源**：所有知识最终落在 .md 文件里。Notion 是传输层（inbox），不是存储层
-5. **Obsidian 是查看层**：把 GitHub repo 克隆到本地、用 Obsidian 打开。Wikilinks 和标准 markdown 链接使知识图自动可视化
+4. **Markdown 是唯一真相源**：所有知识最终落在 .md 文件里。存储是单一 git repo，没有独立的传输层
+5. **Obsidian 是查看层**：本地工作副本就是你的 Obsidian vault。Wikilinks 和标准 markdown 链接使知识图自动可视化
 
 ## 模型独立性
 
@@ -204,17 +204,15 @@ AUDITOR 在 Draft-Review-Execute 系统中有两种模式：
 
 ## 存储后端
 
-Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
+存储是**单一后端：一个 git repo**——本地工作副本（在硬盘上，也是用户的 Obsidian vault）+ 一个 GitHub remote 用于备份和跨设备同步。
 
 | 后端 | 适合 | Adapter | 格式 |
 |------|------|---------|------|
-| GitHub | 技术用户、Claude Code | `references/adapter-github.md` | .md + front matter |
-| Google Drive | 普通用户、零配置 | `references/adapter-gdrive.md` | .md + front matter |
-| Notion | Notion 用户 | `references/adapter-notion.md` | Notion 数据库 |
+| GitHub（git repo） | 所有用户 | `references/adapter-github.md` | .md + front matter |
 
 标准数据类型和操作：`references/data-model.md`
 
-多后端规则（同步、冲突、删除、失败处理）：`references/data-model.md`
+同步就是普通 git：会话开始 `git pull`，会话结束 `git push`。详见 `references/data-model.md`。
 
 ---
 
@@ -225,24 +223,22 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 ### 整理模式（会话开始）
 
 ```
-0. 读 meta/config.md → 获取后端列表和本平台的上次同步时间
+0. 读 meta/config.md → 获取 git remote 配置
 0. DATA LAYER CHECK：若 meta/config.md 不存在 → FIRST-RUN 模式：
-   - 问用户选哪个存储后端（GitHub / GDrive / Notion）
+   - 初始化 git repo（`git init`，本地工作副本 + 可选的 GitHub remote 用于备份和跨设备同步）
    - 创建最小目录结构：meta/（config.md, STATUS.md, journal/, outbox/）、projects/、areas/、wiki/、inbox/、archive/、templates/
-   - 写 meta/config.md 记录选择
+   - 写 meta/config.md 记录配置
    - 跳过 步骤 1-8，直接进入简报
-1. 读 meta/config.md → 获取后端列表和本平台的上次同步时间
-2. 探测每个配置的后端是否可用（不可用标记为 SKIPPED）
-3. 多后端同步（若配置多个后端且可用）：
-   - 查询每个可用的同步后端，自本平台 last_sync_time 以来的变化
-   - 比较、解决冲突（见 data-model.md）
-   - 应用变化到主后端
-   - 推送到同步后端
+1. 读 meta/config.md → 获取 git remote 配置
+2. git health check：确认 repo 状态、remote 是否可达（不可达则降级为纯本地，不阻塞）
+3. `git pull`（若配置了 remote 且可达）：
+   - 拉回远端自上次以来的变更（含手机经 git 写入 inbox/ 的条目）
+   - 冲突就是普通的 git 合并冲突，按常规解决
 4. OUTBOX MERGE：扫描 meta/outbox/ 未合并会话
    - 若 meta/.merge-lock 存在且 <5min → 跳过合并
    - 写 .merge-lock → 合并每个 outbox → 编译 STATUS.md → commit + push → 删除 .merge-lock
    - 在简报中报告已合并会话
-5. 读 inbox（未处理项）——通过主后端
+5. 读 inbox（未处理项）——本地工作副本
 6. 读 meta/STATUS.md（全局状态）
 7. 读 meta/lint-state.md（检查是否需要巡检：>4h 未运行）
 8. ReadProjectContext（绑定项目）——tasks、decisions、journal
@@ -262,10 +258,8 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 4. 写 index-delta.md（对 projects/{project}/index.md 的变更）
 5. 写 patterns-delta.md（若 ADVISOR 有建议，追加到 meta/user-patterns.md 的内容）
 6. 写 manifest.md（会话元数据）
-7. git add meta/outbox/{session_id}/ → commit → push（仅 outbox 目录）
-8. 同步 outbox 到 Notion（若配置）
-9. 更新本平台的 last_sync_time 在 meta/config.md
-10. 任何后端失败 → 记录到 meta/sync-log.md，不阻塞
+7. git add meta/outbox/{session_id}/ → commit → push 到 GitHub remote（仅 outbox 目录）
+8. git push 失败（无 remote / 网络断 / 需先 pull）→ 本地 commit 已写好，记录到 meta/journal/，不阻塞；下次会话 pull 后再 push
 
 注意：不要直接写入 projects/、STATUS.md 或 meta/user-patterns.md。合并发生在下次 Start Court。
 ```
@@ -309,6 +303,5 @@ Life OS 支持三种存储后端。用户选 1、2 或全部 3 个。
 
 ## 降级规则
 
-- 主后端不可达 → 标注"⚠️ primary backend unavailable"
-- 同步后端不可达 → 标注 ⚠️，记录日志，下次会话重试
-- 所有后端都不可用 → 正常运行，输出显示在对话中但不持久化
+- GitHub remote 不可达 → 标注"⚠️ remote unavailable"，本地 git 照常读写，`git push` 延后到下次会话
+- 完全无 remote（纯本地）→ 正常运行，所有数据持久化在本地工作副本，只是不跨设备同步

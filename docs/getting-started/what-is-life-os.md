@@ -104,10 +104,11 @@ second-brain/                    # v1.9 layout
 
 #### 同步与备份
 
-**iCloud（本地主存）+ GitHub（代码版本）+ Notion（跨设备视图）三重同步**。三个后端写入各有侧重，不是冗余：
-- iCloud：当前活跃文件系统，Mac 本地直接读写
-- GitHub：所有历史版本可追溯，可回滚
-- Notion：手机上能看能改（Inbox / Status / Todo / Working Memory 四个组件），Adjourn 时 orchestrator 负责把 markdown 同步进去
+**单一后端：一个 git repo —— 本地工作副本（也是你的 Obsidian vault）+ 一个 GitHub remote 用于备份和跨设备同步。** 两个角色，一个 repo：
+- 本地工作副本：当前活跃文件系统，本地直接读写，也是 Obsidian vault
+- GitHub remote：所有历史版本可追溯、可回滚，并作为跨设备同步通道
+
+同步就是普通 git：会话开始 `git pull`（RETROSPECTIVE），会话结束 `git push`（ARCHIVER Phase 4）。跨设备 = git pull/push；合并冲突就是普通的 git 冲突。
 
 #### markdown-first 原则
 
@@ -240,7 +241,7 @@ STRATEGIST 不走 Draft-Review-Execute 流程，是独立的"思想启发"通道
 - **Bash** — 跑任意本地命令。git 操作、文件整理、脚本调用、shell hook、任何本地 CLI 工具。
 - **WebFetch + WebSearch** — 联网抓资料、版本检查、链接验证、后台搜索。比 ChatGPT 的联网更可控——可以指定 URL 深度抓、可以在分析中并行跑多个搜索。
 - **多个子 agent 并行** — 同时跑多个独立 subagent，彼此信息隔离。六部是这个能力的固定用法，任何复杂任务都可以临时 spawn 多个 subagent（比如翰林院的 93 思想家圆桌）。
-- **Notion MCP + Google Drive MCP** — 跨设备同步。手机上改的 inbox 条目 Adjourn 时自动拉回本地；Status / Todo / Working Memory 四个 Notion 组件由 orchestrator 每次退朝时同步。
+- **git 同步** — 跨设备同步走普通 git：会话开始 `git pull` 拉回远端变更（含手机用 git 客户端写进 `inbox/` 的条目），会话结束 `git push` 推到 GitHub remote。
 - **定时任务** — launchd（Mac）/ cron（Linux）/ GitHub Actions 都可以跑，不绑任何特定云服务。你也可以用 Vercel / Cloudflare Workers / 自己的 VPS / 甚至手动跑——**Life OS 不在乎你选哪个**。默认零云依赖。
 
 **v1.7 GA 已落地的两层**（就是 Hermes 思路的本地化）：
@@ -265,7 +266,7 @@ STRATEGIST 不走 Draft-Review-Execute 流程，是独立的"思想启发"通道
   - `/inbox-process` → `scripts/prompts/inbox-process.md`：LLM 驱动去重 + manifest delta + 5 桶 confidence
   - `/migrate-confidence` → `scripts/prompts/migrate-confidence.md`：legacy float → enum 一次性迁移
   - `/method create|update|list` → `scripts/commands/method.md`：方法论库 CRUD
-  - Notion 同步：orchestrator 在 adjourn flow Step 10a 通过 MCP 直接做（`pro/CLAUDE.md` Step 10a）
+  - git 同步：ARCHIVER 在 Phase 4 直接 `git add + commit + push`（`pro/CLAUDE.md`）
 
   v1.7 cron 时代的 `scripts/decay-audit.py / dream-trigger-check.py / monthly-review.py / session-index.py / wiki-conflict-check.py` 已在 R-1.8.0-011（v1.8.0 pivot）删除。v1.8.0–v1.8.1 之间存在过的 `tools/*.py` 包（11 个模块）也在 v1.8.1 Wave 2 整体删除。Layer 4 现在是 100% LLM 驱动，不需要 Python 运行时（jq 是 hook 优先 JSON parser；python3 仅作为 jq 缺失时的 stdin 解析回退）。
 
@@ -330,7 +331,7 @@ Hermes 没有这些。方向是**吸收 Hermes 的执行模式，不抛弃 Life 
 
 ## 一天的完整工作流（真实示例）
 
-早上 9:00，Mac 前。场景：昨晚你在手机上用 Notion inbox 记了一条「研究 Japan permanent residency 要求」。
+早上 9:00，Mac 前。场景：昨晚你在手机上用 git 客户端往 `inbox/` 提交了一条「研究 Japan permanent residency 要求」。
 
 **9:00 · 打开 Claude Code，说"上朝"**
 
@@ -351,11 +352,11 @@ ROUTER 收到的不是原始消息，是带认知标注的输入。
 
 **9:00:15 · RETROSPECTIVE 18 步并行**
 
-RETROSPECTIVE 从 Notion 拉回昨晚的 inbox 条目、读 SOUL / user-patterns / Strategic Map、版本检查、巡查、编晨报。
+RETROSPECTIVE `git pull` 拉回昨晚提交的 inbox 条目、读 SOUL / user-patterns / Strategic Map、版本检查、巡查、编晨报。
 
 晨报里固定有一块「DREAM Auto-Triggers」——如果昨晚 DREAM 检测到什么跨 session 模式，会出现在这里。
 
-*（Layer 2 Skill + Layer 1 数据读取 + Layer 4 Notion 拉取）*
+*（Layer 2 Skill + Layer 1 数据读取 + git pull）*
 
 **9:01 · 决策引擎跑**
 
@@ -375,9 +376,9 @@ ROUTER 立即 Launch ARCHIVER subagent——不在主 context 扫描任何内容
 - Phase 1 Archive：decisions / tasks / journal → outbox
 - Phase 2 Knowledge Extraction：扫描整个 session，6 条严格标准 + privacy filter → 自动写 2 条 wiki、更新 SOUL 的"风险承受"维度、Strategic Map 新增一条 Japan-life line
 - Phase 3 DREAM：3 天深度复盘，REM 检测到「你最近 3 次决策都在挑战'保持灵活性'维度」→ 写入下次晨报
-- Phase 4 Sync：git push + Notion 同步
+- Phase 4 Sync：git add + commit + push（推到 GitHub remote）
 
-ARCHIVER 返回 Completion Checklist。Orchestrator 在主 context 执行 Notion MCP 同步（Status page 更新、Todo 同步、Working Memory 写入、Inbox 标 synced）。
+ARCHIVER 返回 Completion Checklist，本次会话的所有改动已 commit 并 push 到 GitHub remote，跨设备下次 `git pull` 就能拿到。
 
 *（Layer 2 Skill + Layer 1 数据写入 + Layer 3 git hook 强制 commit）*
 
@@ -406,7 +407,7 @@ Adjourn 后，编排层在月末触发 `scripts/prompts/advisor-monthly.md` 流�
 - **三个方向都参与**：第二大脑（读写）+ 决策引擎（分析）+ 认知执行（Cortex 前置 + Hermes 级 hook 和脚本）
 - **4 层都被调用**：Layer 1 存储 + Layer 2 编排 + Layer 3 强制 + Layer 4 维护
 - **你只做了 3 件事**：说"上朝"、选"认真审"、说"退朝"。其余全是系统跑。
-- **总时长约 46 分钟**，其中你的键盘操作不超过 5 分钟，剩余 41 分钟系统在并行审议、在写文件、在同步后端、在跑 hook、在做 DREAM 反思——这些都是不打扰你的。
+- **总时长约 46 分钟**，其中你的键盘操作不超过 5 分钟，剩余 41 分钟系统在并行审议、在写文件、在 git push、在跑 hook、在做 DREAM 反思——这些都是不打扰你的。
 
 ---
 
@@ -414,7 +415,7 @@ Adjourn 后，编排层在月末触发 `scripts/prompts/advisor-monthly.md` 流�
 
 **vs ChatGPT / Claude.ai**：日常聊天、代码、翻译、问答——继续用 ChatGPT 或其他通用 AI。Life OS 只在你要做「值得审」的事情时才发挥作用，其余时间 ROUTER 直接返回。Life OS 的独特性不是"更聪明的聊天"，是**长期记忆 + 多个 agent 制衡 + 认知前置**（认知前置在 v1.7 GA 已上线）。
 
-**vs Obsidian / Notion**：它们做知识管理比 Life OS 强。Life OS 的 wiki 是引擎自动提取的，不是你手敲的。**互补而不是替代**——用 Obsidian 看 Life OS 写的 markdown，体验最好。事实上 Life OS 的 iCloud 第二大脑文件夹就是用 Obsidian vault 的布局，所有 `[[wiki-link]]` 语法能直接跳转。
+**vs 专门的笔记 / 知识管理工具**：它们做手动知识管理比 Life OS 强。Life OS 的 wiki 是引擎自动提取的，不是你手敲的。**互补而不是替代**——用 Obsidian 看 Life OS 写的 markdown，体验最好。事实上 Life OS 的本地第二大脑文件夹就是用 Obsidian vault 的布局，所有 `[[wiki-link]]` 语法能直接跳转。
 
 **vs Todoist / Things**：它们做任务追踪比 Life OS 强太多。Life OS 里的 tasks 是决策流程的副产品——每次决策产生 action items，自动写进 `projects/*/tasks.md`。不是给你手动添加待办的地方。如果你想要纯 GTD 体验，用 Todoist；如果你想要"每个任务背后都有审议过的上下文"，用 Life OS。
 
@@ -474,7 +475,7 @@ Hermes 执行力强认知弱；Life OS 认知强，执行力在 v1.7 GA 已补�
 - **三个方向**（第二大脑 / 决策引擎 / 认知执行）是把原理 1-3 拆成可运行的子系统
 - **4 层架构** 是把三个方向落到工程上的分层视角
 - **Cortex + Hermes 级执行** 是原理 3 在 v1.7 GA 的已落地延伸——让系统不只"在入场退场记"，中间过程也能用记忆；让系统不只"能想"，还能"主动做"。这是原理 3 从"静态存储"到"动态激活"的延伸
-- **数十条 HARD RULEs（按 host 计数,详见 `references/hard-rules-index.md`）** 是这些原理在具体操作上的硬边界（intent clarification 不能跳、SOUL 要引用不能忽略、Notion sync 不能静默失败、Adjourn 不能半途退出、Privacy Filter 不能"人工把关"……）
+- **数十条 HARD RULEs（按 host 计数,详见 `references/hard-rules-index.md`）** 是这些原理在具体操作上的硬边界（intent clarification 不能跳、SOUL 要引用不能忽略、git push 不能静默失败、Adjourn 不能半途退出、Privacy Filter 不能"人工把关"……）
 
 复杂度是围绕这 3 个核心原理**向外**长的，不是**凭空**堆出来的。想理解系统不用记 33 条规则，只要记住这 3 条原理，规则会从原理里自然推导出来。
 

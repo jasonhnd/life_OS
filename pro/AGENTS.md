@@ -2,7 +2,7 @@
 
 > **v1.8.0 pivot completed (R-1.8.0-013 round-6 audit)**: Cortex §0.5 rewritten to pull-based; Session Modes updated to user-invoked (cron removed); narrator-validator references replaced with inline self-check; skeleton script blocks removed. The authoritative spec remains `pro/CLAUDE.md` — if a conflict surfaces, treat `pro/CLAUDE.md` as source of truth.
 
-> **Codex CLI host note (v1.8.5+)**: The Shell Hook layer (Layer 3) was retired entirely in v1.8.5 (per DR-10 md-only ontological constraint) — there is no longer a bash-hook backstop on ANY host. Runtime enforcement is now inline LLM procedures (AUDITOR Mode 3, the Step 10a outbound PII gate, etc.), which makes it **host-agnostic**: Codex CLI users get the SAME runtime enforcement as Claude Code, not a prompt-level-only downgrade. `references/hooks-spec.md` describes the retired v1.7 hook layer (historical reference only).
+> **Codex CLI host note (v1.8.5+)**: The Shell Hook layer (Layer 3) was retired entirely in v1.8.5 (per DR-10 md-only ontological constraint) — there is no longer a bash-hook backstop on ANY host. Runtime enforcement is now inline LLM procedures (AUDITOR Mode 3, inline compliance checks, etc.), which makes it **host-agnostic**: Codex CLI users get the SAME runtime enforcement as Claude Code, not a prompt-level-only downgrade. `references/hooks-spec.md` describes the retired v1.7 hook layer (historical reference only).
 
 All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.
 
@@ -53,7 +53,7 @@ The theme file is loaded at session start. All display names (for agents, phases
 
 When the user sends the first message, spawn simultaneously:
 - `router` (ROUTER): Prepare to respond to the user
-- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas + meta/decisions/journal), read meta/user-patterns.md, check Notion inbox, version check, platform detection
+- `retrospective` (RETROSPECTIVE agent · Housekeeping Mode): Prepare context in the background — read second-brain (inbox/projects/areas + meta/decisions/journal), read meta/user-patterns.md, version check, platform detection
 
 After the RETROSPECTIVE agent finishes, hand the "Pre-Session Preparation" results to the ROUTER. The ROUTER gives the user a **complete** first response that **must include the Pre-Session Preparation information**.
 
@@ -198,7 +198,7 @@ ROUTER output must match this template. Any deviation is a process violation, in
 - "Let me first check what candidates to save" — NO, archiver does that internally
 - "Tell me your decision, then I'll launch DREAM/sync" — NO, split flow is forbidden
 - Listing wiki/SOUL/strategic candidates in the main context — NO, that's Phase 2's job
-- Performing any file move, git commit, or Notion write in the main context — NO
+- Performing any file move or git commit in the main context — NO
 
 Spawn `archiver` as subagent, passing in:
 - Summary Report + AUDITOR report + ADVISOR report
@@ -208,44 +208,9 @@ The ARCHIVER subagent handles ALL session-closing operations in 4 phases end-to-
 1. **Archive**: decisions/tasks/journal → outbox
 2. **Knowledge Extraction**: scan ALL session materials for wiki + SOUL + strategic candidates. Archiver auto-writes wiki and SOUL entries when strict criteria are met (6 wiki criteria + privacy filter; SOUL criteria + low initial confidence). Users nudge post-hoc by deletion ("undo recent wiki" rolls back).
 3. **DREAM**: 3-day deep review (N1-N2 organize, N3 consolidate, REM creative connections)
-4. **Sync**: git push + Notion sync (4 specific operations)
+4. **Sync**: git add + commit + push (push fails / no remote → keep commit local, annotate "⚠️ not pushed — syncs next session")
 
 ROUTER does not interject between phases. The subagent emits the Completion Checklist when done. See `pro/agents/archiver.md` for the full specification.
-
-### 10a. Notion Sync (orchestrator, after archiver returns) — HARD RULE
-
-The archiver subagent cannot access Notion MCP tools (they are environment-specific). After the archiver returns with its Completion Checklist, the **orchestrator (main context)** MUST execute Notion sync using the Notion MCP tools available in the session.
-
-**Step 10a no ask (HARD RULE):** The orchestrator MUST automatically execute Notion sync immediately after the archiver returns. It MUST NOT ask for permission, pause for confirmation, or defer sync to a later prompt. Pausing or asking before executing Step 10a is a process violation.
-
-**Step 10a outbound boundary gate (HARD RULE · v1.8.3, inline since v1.8.5):** Before EACH Notion MCP write call, run the outbound PII scan inline — read the payload, match against `references/outbound-pii-patterns.md`, resolve to one of three verdicts (the `pre-notion-write.sh` hook was retired in v1.8.5; this is now an inline LLM procedure — same pattern library, same verdicts):
-- **pass** — no match. Proceed uninterrupted (no-ask default).
-- **warn** — Group B/C/D match. Pause exactly once: `(a) sanitize / (b) skip / (c) override`.
-- **block** — Group A hard secret. Do NOT send; surface the leak so the user can rotate. Logged as `CLASS_F`.
-
-Write `meta/runtime/<sid>/notion-pii-scan-<ts>.md` (matched category IDs only, never raw content) and the Step 10a audit trail to `meta/runtime/<sid>/notion-sync.md` per `references/audit-trail-spec.md`.
-
-**Sync targets are CONFIG-DRIVEN, not hardcoded.** The orchestrator MUST read `meta/config.md` and only sync the Notion entities the user has actually configured. The pre-R-1.8.0-022 spec hardcoded a 4-page list (`Status / Todo Board / Working Memory / Inbox`); real users often have a different layout, and hardcoding caused false "Working Memory: failed" reports for entities that never existed.
-
-```
-For each `*_page_id` / `*_database_id` field in meta/config.md:
-  - status_page_id     → overwrite with latest meta/STATUS.md content
-  - mirror_page_id     → overwrite with session summary (subject, key conclusions, action items)
-  - todo_database_id   → sync tasks from this session (new → create, completed → check off)
-  - inbox_database_id  → mark processed items as "Synced"
-  - <any other configured entity> → apply known mapping from references/adapter-notion.md, else skip with a one-line note
-If a write fails → report which one, continue with others.
-If NO Notion entity configured → skip Step 10a entirely (record skip reason in audit trail).
-If entities configured but Notion MCP unavailable → report "⚠️ Notion sync failed — mobile will not see updates" with the entity list.
-```
-
-After sync, output one checklist line PER CONFIGURED entity (skip unconfigured — do not list them as "failed"):
-```
-🔄 Notion sync:
-- <entity_name>: [updated / synced N items / failed: {reason} / skipped: not configured]
-```
-
-Do NOT skip Notion sync silently when entities ARE configured. Do NOT say "Notion MCP not connected" without attempting the tools. Do NOT report "failed" for entities that were never configured. Full canonical logic: `pro/CLAUDE.md` §10a.
 
 ### 11. STRATEGIST — Hall of Human Wisdom (ask the user)
 
@@ -295,13 +260,13 @@ See SKILL.md Trigger Words table for the complete list in English, Chinese, and 
 **Briefing skeleton pre-render — REMOVED in v1.8.0 R-1.8.0-011 Option A pivot:**
 Previously v1.7.2.3 required ROUTER to run `scripts/retrospective-briefing-skeleton.sh` and `scripts/archiver-briefing-skeleton.sh` to pre-render the 6-H2 briefing structure. Both scripts were deleted in R-1.8.0-011. Retrospective and archiver now generate briefings inline as part of their normal step/phase execution — no Bash skeleton, no `<!-- LLM_FILL -->` placeholders, no `retrospective-mode-0.sh` / `archiver-phase-prefetch.sh` either.
 
-**Adjourn Session** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `archiver` (ARCHIVER agent) → archive + knowledge extraction + DREAM + Notion sync + git push. HARD RULE. Archiver runs all 4 phases inline; no pre-fetch or skeleton scripts.
+**Adjourn Session** ("adjourn" / "done" / "end" / "退朝" / "结束" / "終わり" / "お疲れ"): Launch `archiver` (ARCHIVER agent) → archive + knowledge extraction + DREAM + git commit + push. HARD RULE. Archiver runs all 4 phases inline; no pre-fetch or skeleton scripts.
 
 **COUNCIL** ("debate" / "court debate" / "朝堂议政" / "討論"): 3 rounds of debate when domain conclusions conflict.
 
 **Quick Mode** ("quick" / "quick analysis" / "快速分析" / "クイック"): ROUTER skips intent clarification, enters Express analysis path directly (ROUTER launches 1-3 domains, no PLANNER/REVIEWER).
 
-**/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → sync backends → return to project directory.
+**/save Command**: When working in any project repo, user says `/save` → write files to second-brain → git commit + push → return to project directory.
 
 ## Session Binding (HARD RULE · v1.7.2.3 clarified — discussion scope ≠ data write scope)
 
@@ -331,7 +296,7 @@ These rules govern the orchestration layer (this file). They complement SKILL.md
 2. **AUDITOR + ADVISOR auto-trigger** — after every Draft-Review-Execute flow, both must run. Cannot be skipped. HARD RULE.
 3. **All subagent output must be shown in full with emoji** — every subagent displays its reasoning summary (evidence / considered options / judgment). Show each report immediately upon completion. No batching. No summarizing. HARD RULE.
 4. **Pro environment forces real subagents** — must spawn actual independent subagents. Single-context role simulation is prohibited. HARD RULE.
-5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; Notion unavailability only affects mobile sync, not core functions.
+5. **Data layer degradation** — mark "second-brain unavailable" when unreachable; an unreachable git remote only disables off-device backup, not core functions.
 6. **Trigger words MUST load agent files** — when a trigger word activates a role (Start Session → retrospective, Adjourn → archiver), the orchestrator MUST read the corresponding `pro/agents/*.md` file and spawn it as a real subagent. Never execute a role from memory without reading its definition file. HARD RULE.
 7. **AUDITOR Compliance Patrol auto-trigger** (v1.6.3b) — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST spawn `auditor` in Mode 3 (Compliance Patrol). Mode 3 audits the just-completed flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). All-pass output: `🔱 [theme: auditor] · ✅ Compliance Patrol passed`. Cannot be skipped. HARD RULE.
 
@@ -384,12 +349,12 @@ Adjourn is NOT a single step in the main workflow — it is an independent state
 
 **This file (AGENTS.md) is the Codex-specific orchestration file.** All other intelligence is pure markdown shared across Claude, Gemini, and Codex platforms.
 
-## Storage Backends
+## Storage Backend
 
-Life OS supports GitHub, Google Drive, and Notion as storage backends (1, 2, or all 3). Config in `meta/config.md`. Multi-backend: writes to all, reads from primary (GitHub > GDrive > Notion).
+Life OS uses a **single storage backend**: a git repository (local working copy + GitHub remote). Cross-device sync is `git pull` at session start + `git push` at session close. Google Drive + Notion were removed.
 
 - Data model: `references/data-model.md`
-- Adapters: `references/adapter-github.md`, `references/adapter-gdrive.md`, `references/adapter-notion.md`
+- Git adapter: `references/adapter-github.md`
 - Architecture: `references/data-layer.md`
 
 ## Information Isolation

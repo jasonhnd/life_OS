@@ -7,7 +7,6 @@ source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/commands/ship-and-
 introduced_in: v1.8.7
 referenced_by:
   - .claude/commands/verify-release-and-watch.md
-  - .claude/commands/notion-sync-and-watch.md
   - SKILL.md (Self-driven loops セクション)
 ---
 
@@ -19,9 +18,9 @@ slash コマンドが `ScheduleWakeup` を使って反復チェック（ポー�
 
 自己駆動ループは**すべて**成立する時に適切：
 
-1. **タスクに明確な終端状態がある**（例 "全 9 個の verify-release check が PASS"、"全 Notion アイテム同期済み"）。曖昧な "永遠に監視" は有効ユースケースではない
+1. **タスクに明確な終端状態がある**（例 "全 9 個の verify-release check が PASS"）。曖昧な "永遠に監視" は有効ユースケースではない
 2. **各イテレーションが安価**（ツール呼び出し 1-2 + 短い LLM 推論、フル subagent 起動ではない）
-3. **外部状態がイテレーション間で変化する**（CI 完了、GitHub Release publish、Notion sync 完了、ユーザが修正 push）
+3. **外部状態がイテレーション間で変化する**（CI 完了、GitHub Release publish、ユーザが修正 push）
 4. **ユーザが明示的にループを起動した**（例 `/verify-release-and-watch v1.8.7` 入力）—— 別コマンドから自動的に自己駆動ループを起動しない
 
 不適切ユースケース（以下のために自己駆動ループを構築**しない**）：
@@ -55,7 +54,7 @@ slash コマンドが `ScheduleWakeup` を使って反復チェック（ポー�
 - **ステータススナップショット**をユーザに出力：現在の状態、何が保留中、なぜタイムアウト
 - **ユーザに尋ねる**：どう進めるか（再実行？放棄？エスカレート？）
 
-60 分キャップが反映する：1 時間で外部状態が終端に至っていなければ何かおかしい（CI ハング / Release が Draft で詰まる / Notion 認証期限切れ）、人手が必要。
+60 分キャップが反映する：1 時間で外部状態が終端に至っていなければ何かおかしい（CI ハング / Release が Draft で詰まる）、人手が必要。
 
 `tickCount` は各 `ScheduleWakeup` `reason` フィールドで可視必須（例 `"tick 5/12: waiting for GitHub Release publish"`）、tick 間で復元可能でドリフト不可。
 
@@ -66,7 +65,7 @@ slash コマンドが `ScheduleWakeup` を使って反復チェック（ポー�
 | パターン | 例 |
 |---------|----|
 | 全チェックパス | "全 9 個の verify-release check PASS" → 退出 |
-| 空キュー | "Notion sync アイテムキュー空" → 退出 |
+| 空キュー | "全キューアイテム処理済み" → 退出 |
 | ユーザ解決 | "ユーザがブロッカを手動完了" → 退出 |
 | ハードキャップ | "tickCount > 12" → ステータススナップショット付き退出 |
 

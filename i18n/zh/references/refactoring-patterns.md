@@ -35,7 +35,7 @@ introduced_in: v1.8.5
 ### 5. STEP-EXTRACTION（步骤抽取）
 - **何时使用**: agent/EOU 内部某步骤可以做成确定性的（提升为 slash command）或隔离为有自己 blast radius 和治理的子 agent。
 - **产出**: 一个新的 slash command（`.claude/commands/*.md`）或子 subagent（`pro/agents/*.md`）处理被抽取步骤；父级引用被抽取单元。
-- **示例**: archiver Phase 4 Notion sync 被抽取到 `/notion-sync` slash command（v1.8.5）。Phase 4 现在调用 slash，不再自己实现 audit-trail 写入。
+- **示例**: archiver Phase 4 的 git 同步逻辑被抽取为可复用步骤。Phase 4 调用统一的 `git add + commit + push` 序列，不再各自重实现 audit-trail 写入。
 
 ### 6. VALIDATOR-ADDITION（验证器添加）
 - **何时使用**: 已知失败模式无验证门；输出质量依赖未验证假设；过去事件无回归用例防止复发。
@@ -45,7 +45,7 @@ introduced_in: v1.8.5
 ### 7. STOP-CONDITION-INJECTION（停止条件注入）
 - **何时使用**: agent/EOU 在无效、含糊或未授权状态下继续执行，而不是停下报告。
 - **产出**: `execution.stop_conditions` 中一个或多个新停止条件，含可观察触发标准。
-- **示例**: archiver 即使 `meta/config.md` 0 个 Notion entity 也跑 Phase 4 Notion sync。加停止条件：0 entity → 静默跳过 Phase 4，审计 trail 记录跳过原因（按 pro/CLAUDE.md Step 10a R-1.8.0-022 修复）。
+- **示例**: archiver 即使未配置 git 远端也尝试 Phase 4 push。加停止条件：无远端 → 静默跳过 push（提交保留在本地），审计 trail 记录跳过原因。
 
 ### 8. RESPONSIBILITY-SEPARATION（责任分离）
 - **何时使用**: 同一方既执行又审批，或两个不同审批权力被一个单元处理。

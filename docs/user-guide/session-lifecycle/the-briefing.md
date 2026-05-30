@@ -32,8 +32,8 @@
 ```
 📋 Pre-Session Preparation:
 - 📂 Session Scope: [projects/xxx or areas/xxx]
-- 💾 Storage: [GitHub(primary) + Notion(sync)]
-- 🔄 Sync: [Pulled N changes from Notion, M from GDrive / no changes]
+- 💾 Storage: [git repo (local working copy + GitHub remote)]
+- 🔄 Sync: [git pull: N changes / no changes / no remote (local-only)]
 - Platform: [name] | Model: [name]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ Up to date / ⬆️ Update available — 命令]
@@ -44,8 +44,8 @@
 字段含义：
 
 - **Session Scope**：本次会话绑定的项目。HARD RULE。所有读写都限制在此 scope。
-- **Storage**：primary + sync backend。primary 是权威源，sync 是镜像。
-- **Sync**：这次上朝拉了几条变更。"no changes" 是正常的，不是失败。
+- **Storage**：单一 git repo —— 本地工作副本（也是你的 Obsidian vault）+ GitHub remote 用于备份和跨设备同步。
+- **Sync**：这次上朝 `git pull` 拉了几条变更。"no changes" 是正常的，不是失败；"no remote" 表示纯本地用法。
 - **Platform**：Claude Code / Gemini / Codex。影响 update 命令。
 - **Life OS version**：本地 vs 远程。如果远程大于本地 → 提示 update。
 - **Behavior Profile**：`meta/user-patterns.md` 是否存在且已加载。

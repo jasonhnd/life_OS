@@ -232,7 +232,7 @@
 | previous_snapshot | string \| null | 是 | 上一个文件名，首个快照为 null |
 | dimensions | array | 是 | `[{name, confidence: 0-1, evidence_count, challenges, tier}]`，其中 tier ∈ `core`/`secondary`/`emerging` |
 
-存储：`meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`。仅本地（不同步 Notion）。仅元数据 —— 无 SOUL 正文内容。不可变。
+存储：`meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`。仅元数据 —— 无 SOUL 正文内容。不可变。
 
 ### EvalEntry
 
@@ -337,96 +337,58 @@ Index 编译器（retrospective Mode 0 → STATUS.md / STRATEGIC-MAP.md，archiv
 
 ---
 
-## 多后端规则
+## 存储后端（GitHub + 本地工作副本）
 
-### 后端选择
+Life OS 使用**单一存储后端**：一个 git 仓库。second-brain 以磁盘上的本地工作副本形式存在（同时也是你的 Obsidian vault）；GitHub 是为其做备份并跨设备同步的远端。没有主/同步之分、没有按后端探测、没有跨后端冲突层 —— git 原生提供版本、备份和多设备同步。
 
-用户可选 1 个、2 个或全部 3 个后端。选择多个时，系统自动指定一个为**主后端**（读写），其余为**同步后端**（仅写）。
+> 以前还提供 Google Drive 和 Notion 作为可选后端，配有多后端同步协议；两者已移除——存储仅 GitHub。
 
-**自动选择规则**：GitHub > Google Drive > Notion
+### 读 / 写
 
-| 配置 | 主后端 | 同步后端 |
-|------|--------|---------|
-| 仅 GitHub | GitHub | — |
-| 仅 GDrive | GDrive | — |
-| 仅 Notion | Notion | — |
-| GitHub + Notion | GitHub | Notion |
-| GitHub + GDrive | GitHub | GDrive |
-| GDrive + Notion | GDrive | Notion |
-| 全部三个 | GitHub | GDrive + Notion |
-
-### 写入顺序
-
-1. 先写入主后端
-2. 再依次写入每个同步后端
-3. 若某同步后端失败 → 标注 `⚠️ [backend] write failed`，记录至 `meta/sync-log.md`，继续处理其他后端
-4. 下次 session 自动重试失败的写入
-
-### 读取顺序
-
-1. 从主后端读取
-2. 若主后端不可用或搜索无结果 → 依次尝试同步后端
-3. 搜索结果标注数据来自哪个后端
+- **读** —— 从本地工作副本（磁盘上的文件）。
+- **写** —— 写入本地工作副本。向 GitHub 远端的持久化在 session 结束时经由 git 完成（ARCHIVER Phase 4）。
 
 ---
 
 ## 同步协议
 
-### Session 开始（RETROSPECTIVE家政）
+同步就是纯 git —— 没有 MCP 探测、没有 primary/sync 之分、没有按平台的 `last_sync` 记账。git 历史就是"自上次以来改了什么"的记录。
+
+### Session 开始（RETROSPECTIVE 家政）
 
 ```
-0. 读取 meta/config.md → 获取后端列表和上次同步时间戳
-1. 探测每个已配置后端的可用性：
-   - GitHub：检查 git 仓库是否可访问（git status）
-   - GDrive：检查 Google Drive MCP 是否已连接（尝试 list）
-   - Notion：检查 Notion MCP 是否已连接（尝试 search）
-   将不可用后端标记为本次 session SKIPPED。
-   若主后端不可用，临时提升下一个可用后端。
-   记录："💾 后端：GitHub ✅ | GDrive ❌（MCP 未连接）| Notion ✅"
-2. 对每个可用同步后端：
-   - 查询"自 [本平台 last_sync_time] 以来修改的条目"
-   - GitHub：git log --since
-   - GDrive：modifiedTime > last_sync_time
-   - Notion：last_edited_time > last_sync_time
-3. 比较变更：
-   - 只有一个后端修改了某条目 → 采用该修改
-   - 两个后端修改了同一条目 → last_modified 获胜
-   - 时间差 < 1 分钟 → 标记为 CONFLICT，保留两个版本
-4. 将获胜变更应用到主后端
-5. 将主后端状态推送至所有同步后端
-6. 将同步结果写入 meta/sync-log.md
-7. 在 meta/config.md 中更新本平台的 last_sync_time（不修改其他平台的时间戳）
+1. `git pull`（fetch + merge）second-brain 仓库，吸收其他设备推送的变更。
+2. 非 git 仓库 / 未配置远端 → 仅在本地工作副本上操作；标注"💾 存储：仅本地（无远端）"。
+3. pull 时 merge 冲突 → 把冲突文件呈现给用户解决（单用户 vault 极少发生）。
 ```
 
-### Session 结束（RETROSPECTIVE收朝）
+### Session 结束（ARCHIVER Phase 4）
 
 ```
-1. 将所有产出写入主后端
-2. 将所有产出写入每个同步后端
-3. 更新 meta/config.md 中的 last_sync_time
-4. 任何后端失败 → 记录，不阻塞流程
+1. 将 session outbox 合并到主结构（见 约束条件 · outbox 模式）。
+2. `git add` + `git commit` session 的变更。
+3. `git push` 到远端。push 失败（离线 / 无远端）→ 标注"⚠️ 未推送 —— 下次 session 同步"，提交保留在本地。
 ```
 
 ---
 
 ## 冲突解决
 
+单一后端意味着没有跨后端分叉。唯一的冲突来源是两台设备在两次同步之间编辑了同一文件，它在 `git pull` 时表现为 **git merge 冲突**：
+
 | 情况 | 处理方式 |
 |------|---------|
-| 只有一个后端发生变更 | 采用该变更 |
-| 两个后端修改了同一条目，时间差 > 1 分钟 | last_modified 获胜（最后写入获胜） |
-| 两个后端修改了同一条目，时间差 ≤ 1 分钟 | CONFLICT：保留两个版本，ROUTER询问用户选择 |
-| 用户解决冲突 | 获胜版本推送至所有后端 |
+| 干净 pull（无重叠） | 快进 / 自动合并，继续 |
+| 同一文件在两台设备被编辑 | git merge 冲突 → ROUTER 呈现冲突文件，用户解决，提交解决结果 |
+
+outbox 模式（每个 session 一个目录）让同一文件冲突即使在并发本地 session 下也极少发生。
 
 ---
 
 ## 删除规则
 
-- **删除操作不跨后端同步**
-- 在某个后端删除条目后 → 其他后端将其标记为 `_deleted: true`（软删除）
-- 下次 session，ROUTER询问用户："条目 X 在 [后端] 上已被删除。是否从所有后端删除？"
-- 用户确认 → 所有后端硬删除
-- 用户拒绝 → 在被删除的后端上恢复该条目
+- 删除是普通的 git 操作（`git rm` / 删文件 + 提交）。它像任何其他变更一样在下次 push/pull 时传播。
+- 没有软删除 `_deleted: true` 墓碑，也没有跨后端删除提示 —— 那些只是为了协调多个后端而存在。
 
 ---
 
@@ -434,36 +396,24 @@ Index 编译器（retrospective Mode 0 → STATUS.md / STRATEGIC-MAP.md，archiv
 
 | 场景 | 处理方式 |
 |------|---------|
-| 写入时后端离线 | 跳过该后端，标注 ⚠️，记录至 sync-log.md。下次 session 自动重试。 |
-| 同步中途崩溃 | 下次启动时：比较所有后端的 last_modified，检测不一致性，从最新版本自动修复。 |
-| 某后端数据损坏 | ROUTER检测到异常，询问用户："是否从 [其他后端] 恢复？" |
-| 新设备 | 配置存储在 meta/config.md。git clone → 配置就绪。无 second-brain → session 级别配置。 |
-| 添加新后端 | ROUTER询问："是否将现有数据从 [主后端] 同步至 [新后端]？" |
-| 移除后端 | ROUTER询问："保留 [被移除后端] 上的数据还是清理？" |
+| session 结束时远端不可达 | 本地提交，跳过 push，标注 ⚠️。下次 session 的 `git push` 补上。 |
+| pull 时 merge 冲突 | 呈现冲突文件；用户解决后再继续。 |
+| 非 git 仓库 / 无远端 | 仅在本地工作副本上操作；不推送任何东西。产出仍在对话中显示。 |
+| 新设备 | `git clone` second-brain 仓库 → 就绪。无 second-brain → session 级别配置。 |
 
 ---
 
 ## 配置
 
-存储在 `meta/config.md`（在 second-brain 仓库中）：
+git 远端存在仓库自己的 `.git/config` 里 —— Life OS 不重复存储它。`meta/config.md` 不再携带 `storage.backends` 列表或按平台的 `last_sync` 时间戳（git 历史就是"自上次以来改了什么"的真实来源）。
 
 ```yaml
+# meta/config.md（storage 段）
 storage:
-  backends:
-    - type: github
-      role: primary
-    - type: notion
-      role: sync
-  sync_log:
-    - platform: claude-code
-      last_sync: "2026-04-10T15:30:00Z"
-    - platform: gemini-cli
-      last_sync: "2026-04-10T14:00:00Z"
+  remote: github          # 单一后端；"none" = 仅本地工作副本
 ```
 
-**按平台记录同步时间戳**：每个平台记录各自的 `last_sync` 时间。Gemini CLI 启动 session 时，读取**自己的** `last_sync` 并查询该时间以来的变更——而非 Claude Code 的上次同步时间。这样可防止用户在多平台间交替使用时遗漏变更。
-
-无 second-brain → 配置存储在 session 上下文中，ROUTER在每次新 session 时询问。
+无 second-brain → ROUTER 在 session 本地操作（不持久化）。
 
 ---
 
@@ -473,7 +423,7 @@ storage:
 - **session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在退朝时生成（非 session 开始时）。时间戳必须通过 date 命令从系统时钟获取，禁止编造。示例：`claude-20260412-1700`、`gemini-20260412-1900`。
 - **Outbox merge lock**：合并期间写入 `meta/.merge-lock`。若该文件存在且时间 < 5 分钟，跳过合并正常进行。合并完成后删除。
 - **空 session**：若 session 无任何产出（无决策、任务或日志），不创建 outbox。
-- 移动设备通过 Notion 收件箱或 GDrive 收件箱写入，不直接写入结构化数据
+- 移动端捕获经由用户自己的 git 工作流（移动 git 客户端 / 同步文件夹）落入 `inbox/`，不直接写入结构化数据；在下一次桌面 session 处理
 - 所有适配器必须支持 7 个标准操作
 
 ### Outbox Manifest 格式

@@ -14,7 +14,7 @@ All agents refer to this file when reading or writing data.
 1. **Full coverage**: The second brain covers life, family, shopping, hobbies, day job, side ventures — everything
 2. **LLM-agnostic**: Not bound to any specific model. All "intelligence" is encoded in markdown files, not model weights
 3. **Works without AI**: Open the markdown files in Obsidian and you can read, write, and navigate. LLM is an accelerator, not a prerequisite
-4. **Markdown is the single source of truth**: All knowledge ultimately lands as .md files. Notion is the transport layer (inbox), not the storage layer
+4. **Markdown is the single source of truth**: All knowledge ultimately lands as .md files in the git repo — the local working copy is the storage layer, GitHub is the remote backup
 5. **Obsidian is the viewing layer**: Clone the GitHub repo locally, open in Obsidian. Wikilinks and standard markdown links enable automatic knowledge graph visualization
 
 ## Model Independence
@@ -229,7 +229,7 @@ When idle, each domain inspects its own jurisdiction. Defined in `meta/roles/cen
 
 ## Draft-Review-Execute Output Destinations
 
-All outputs use standard operations from `references/data-model.md`. The adapter for the user's chosen backend translates these into platform-specific calls.
+All outputs use standard operations from `references/data-model.md`. The git adapter (`references/adapter-github.md`) translates these into git operations on the working copy.
 
 | Output | Standard Operation |
 |--------|-------------------|
@@ -243,47 +243,43 @@ All outputs use standard operations from `references/data-model.md`. The adapter
 
 ---
 
-## Storage Backends
+## Storage Backend
 
-Life OS supports three storage backends. Users choose 1, 2, or all 3.
+Life OS uses a **single storage backend**: a git repository (local working copy + GitHub remote).
 
-| Backend | Best For | Adapter | Format |
-|---------|----------|---------|--------|
-| GitHub | Technical users, Claude Code | `references/adapter-github.md` | .md + front matter |
-| Google Drive | General users, zero setup | `references/adapter-gdrive.md` | .md + front matter |
-| Notion | Notion users | `references/adapter-notion.md` | Notion databases |
+| Backend | Adapter | Format |
+|---------|---------|--------|
+| GitHub (git) | `references/adapter-github.md` | .md + front matter |
+
+> Earlier versions also offered Google Drive and Notion; both were removed — storage is GitHub-only.
 
 Standard data types and operations: `references/data-model.md`
 
-Multi-backend rules (sync, conflict, deletion, failure handling): `references/data-model.md`
+Sync, conflict, deletion, failure handling: `references/data-model.md`
 
 ---
 
 ## RETROSPECTIVE Data Operations
 
-All operations use standard interfaces. Adapt calls per the user's configured backend(s).
+All operations use standard interfaces, mapped to git operations on the local working copy.
 
 ### Housekeeping Mode (Start of Conversation)
 
 ```
-0. Read meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
 0. DATA LAYER CHECK: If meta/config.md does not exist → FIRST-RUN mode:
-   - Ask user for storage backend choice (GitHub / GDrive / Notion)
    - Create minimum directory structure: meta/ (config.md, STATUS.md, journal/, outbox/), projects/, areas/, wiki/, inbox/, archive/, templates/
-   - Write meta/config.md with chosen backends
+   - Write meta/config.md
    - Skip steps 1-8, proceed to briefing
-1. Read meta/config.md → get backend list and THIS PLATFORM's last sync timestamp
-2. Probe each configured backend for MCP availability (mark unavailable as SKIPPED)
-3. Multi-backend sync (if multiple backends configured and available):
-   - Query each AVAILABLE sync backend for changes since this platform's last_sync_time
-   - Compare, resolve conflicts (see data-model.md)
-   - Apply changes to primary backend
-   - Push to sync backends
+1. Read meta/config.md.
+2. Probe git remote availability (git status / git remote). Unreachable → mark local-only for this session.
+3. `git pull` to absorb changes pushed from other devices.
+   - Not a git repo / no remote → local working copy only (annotate "💾 Storage: local only").
+   - Merge conflict → surface conflicting files to the user (see data-model.md).
 4. OUTBOX MERGE: scan meta/outbox/ for unmerged sessions
    - If meta/.merge-lock exists and < 5min → skip merge
    - Write .merge-lock → merge each outbox → compile STATUS.md → commit + push → delete .merge-lock
    - Report merged sessions in briefing
-5. Read inbox (unprocessed items) — via primary backend
+5. Read inbox (unprocessed items) — from the local working copy
 6. Read meta/STATUS.md (global status)
 7. Read meta/lint-state.md (check if inspection needed: >4h since last run)
 8. ReadProjectContext(bound project) — tasks, decisions, journal
@@ -304,9 +300,7 @@ All operations use standard interfaces. Adapt calls per the user's configured ba
 5. Write patterns-delta.md (append content for meta/user-patterns.md, if ADVISOR has suggestions)
 6. Write manifest.md (session metadata)
 7. git add meta/outbox/{session_id}/ → commit → push (ONLY the outbox directory)
-8. Sync outbox to Notion (if configured)
-9. Update this platform's last_sync_time in meta/config.md
-10. Any backend failure → log to meta/sync-log.md, don't block
+8. Push fails (offline / no remote) → keep the commit local, annotate "⚠️ not pushed — syncs next session". Do not block.
 
 NOTE: Do NOT write to projects/, STATUS.md, or meta/user-patterns.md directly. Merging happens at next Start Court.
 ```
@@ -350,6 +344,5 @@ NOTE: Do NOT write to projects/, STATUS.md, or meta/user-patterns.md directly. M
 
 ## Degradation Rules
 
-- Primary backend unreachable → annotate "⚠️ primary backend unavailable"
-- Sync backend unreachable → annotate ⚠️, log, retry next session
-- All backends unavailable → operates normally, output displayed in conversation but not persisted
+- Git remote unreachable → commit locally, annotate "⚠️ not pushed — syncs next session"
+- Not a git repo / no remote → operates normally, output displayed in conversation but not persisted

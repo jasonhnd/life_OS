@@ -59,15 +59,15 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
    - `meta/config.md` 存在 → 继续
    - 不存在 → **FIRST-RUN 模式**：
      a. 报告"📦 首次会话 — 未检测到 second-brain"
-     b. 询问存储后端（GitHub / Google Drive / Notion，可多选）
+     b. 初始化 git repo（`git init`，本地工作副本 + 可选的 GitHub remote 用于备份和跨设备同步）
      c. 创建目录结构（`meta/`, `projects/`, `areas/`, `wiki/`, `inbox/`, `archive/`, `templates/`）
-     d. 写 `meta/config.md` 记录选定后端
+     d. 写 `meta/config.md` 记录 git remote 配置
      e. 跳过步骤 4-7，跳到步骤 8
      f. 简报："✅ Second-brain 已创建。还没有项目。告诉我你在做什么。"
 
 #### Phase B · 同步
 
-**4.** 读 `meta/config.md` → 获取存储后端列表 + 上次同步时间戳
+**4.** 读 `meta/config.md` → 获取 git remote 配置
 
 **5. GIT 健康检查**（任何同步前先检测）：
    - `git worktree list` → 若有 "prunable" 或不存在路径，记录
@@ -77,11 +77,10 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
    - 有问题 → 报告并请求用户确认后修复
    - HARD RULE（GLOBAL.md Security Boundary #1）：**无用户确认不做破坏性操作**
 
-**6. FULL SYNC PULL**：查询所有配置的后端自 last_sync_time 以来的变更
-   - 对比时间戳，解决冲突（见 data-model.md）
-   - 应用胜出的变更到主后端
-   - 推送主后端状态到同步后端
-   - 更新 `meta/sync-log.md` + last_sync_time
+**6. GIT PULL**：`git pull`（若配置了 remote 且可达）
+   - 拉回远端自上次以来的变更（含手机经 git 写入 inbox/ 的条目）
+   - 冲突就是普通的 git 合并冲突，按常规 git 流程解决
+   - remote 不可达 → 降级为纯本地，记录 "⚠️ remote unavailable"，不阻塞
 
 **7. OUTBOX MERGE**：扫描 `meta/outbox/` 中未合并的 session 目录
    - 若 `meta/.merge-lock` 存在且 < 5 分钟 → 跳过合并，进步骤 8
@@ -170,8 +169,8 @@ v1.6.2 原则 "make SOUL and DREAM visible"：**SOUL Health Report** 和 **DREAM
 ```
 📋 Pre-Session Preparation:
 - 📂 Session Scope: [projects/xxx or areas/xxx]
-- 💾 Storage: [GitHub(primary) + Notion(sync)]
-- 🔄 Sync: [从 Notion 拉取 N 条，从 GDrive 拉取 M 条 / 无变更 / 单后端]
+- 💾 Storage: [git repo (本地工作副本 + GitHub remote)]
+- 🔄 Sync: [git pull: N changes / 无变更 / 无 remote (纯本地)]
 - Platform: [名] | Model: [名]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ 最新 / ⬆️ 有更新 / ⚠️ 远程检查失败]
@@ -252,8 +251,8 @@ v1.6.2 原则 "make SOUL and DREAM visible"：**SOUL Health Report** 和 **DREAM
 
 ```
 1. 平台检测 + 版本检查（同 Mode 0 步骤 8）
-2. 读 meta/config.md → 后端列表 + 上次同步
-3. 多后端同步（若多后端，同 Mode 0 步骤 6）
+2. 读 meta/config.md → git remote 配置
+3. git pull（若配置了 remote 且可达，同 Mode 0 步骤 6）
 4. Outbox 合并（若有未合并的，同 Mode 0 步骤 7）
 5. 项目绑定：确认当前关联的项目或 area
 6. 读 meta/user-patterns.md（若存在）
@@ -280,7 +279,7 @@ v1.6.2 原则 "make SOUL and DREAM visible"：**SOUL Health Report** 和 **DREAM
 - Behavior Profile: [已加载 / 未建立]
 - Global Overview: [N 个项目：A(active) B(active) C(on hold)...]
 - Strategic Map: [N 条 line / 未配置]
-- Notion Inbox: [N 条新消息 / 空 / 未连接]
+- Inbox: [N 条新消息 / 空]（git pull 后读 inbox/）
 ```
 
 ---

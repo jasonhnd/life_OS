@@ -108,10 +108,10 @@ second-brain/                    # v1.9 layout
 
 #### 同期とバックアップ
 
-**iCloud(ローカル主ストレージ)+ GitHub(コードバージョン)+ Notion(クロスデバイスビュー)の三重同期**。三つのバックエンドへの書き込みは各々役割が異なり、冗長ではありません:
-- iCloud: 現在アクティブなファイルシステム、Mac ローカルで直接読み書き
-- GitHub: すべての履歴バージョンが追跡可能、ロールバック可能
-- Notion: 携帯で閲覧・編集可能(Inbox / Status / Todo / Working Memory の 4 コンポーネント)、Adjourn 時に orchestrator が markdown を同期する役割を担います
+**単一の git リポジトリ**: ローカル作業コピー(ディスク上のファイル、同時にあなたの Obsidian vault)+ GitHub リモート(バックアップ + クロスデバイス同期)。三つのバックエンドではなく、ただの git:
+- ローカル作業コピー: 現在アクティブなファイルシステム、ローカルで直接読み書き、Obsidian で開く
+- GitHub リモート: すべての履歴バージョンが追跡可能・ロールバック可能、session 開始時に `git pull`、終了時に `git push`
+- クロスデバイス: 別のマシンで `git clone` / `git pull`；競合は通常の git merge 競合
 
 #### markdown-first 原則
 
@@ -244,7 +244,7 @@ STRATEGIST は Draft-Review-Execute フローを通らず、独立した「思�
 - **Bash** — 任意のローカルコマンドを実行。git 操作、ファイル整理、スクリプト呼び出し、shell hook、任意のローカル CLI ツール。
 - **WebFetch + WebSearch** — ネット接続で資料取得、バージョンチェック、リンク検証、バックグラウンド検索。ChatGPT のネット接続より制御可能——指定 URL を深く取得でき、分析中に複数の検索を並列実行できます。
 - **multiple subagents 並列** — 複数の独立 subagent を同時実行し、互いに情報隔離。六部はこの能力の固定用法で、任意の複雑タスクは臨時に複数の subagent を spawn できます(例: 翰林院の 93 思想家円卓)。
-- **Notion MCP + Google Drive MCP** — クロスデバイス同期。携帯で編集した inbox エントリは Adjourn 時にローカルに自動取得、Status / Todo / Working Memory の 4 つの Notion コンポーネントは orchestrator が退朝のたびに同期します。
+- **git クロスデバイス同期** — 携帯から git 経由で `inbox/` に投递したエントリは、session 開始時の `git pull` でローカルに自動取得され、次のデスクトップ session で処理されます；session 終了時の `git push` で当回の出力をリモートに戻します。独立した同期エンジンはありません。
 - **定時タスク** — launchd(Mac)/ cron(Linux)/ GitHub Actions 全て実行可能、特定のクラウドサービスに縛られません。Vercel / Cloudflare Workers / 自分の VPS / 手動実行も可能—— **Life OS はあなたがどれを選ぶか気にしません**。デフォルトはゼロクラウド依存。
 
 **v1.7 GA で実装された二層**(Hermes の思想をローカル化したもの):
@@ -269,7 +269,7 @@ STRATEGIST は Draft-Review-Execute フローを通らず、独立した「思�
   - `/inbox-process` → `scripts/prompts/inbox-process.md`: LLM 駆動重複検出 + manifest delta + 5 段階 confidence
   - `/migrate-confidence` → `scripts/prompts/migrate-confidence.md`: legacy float → enum の 1 回限りマイグレーション
   - `/method create|update|list` → `scripts/commands/method.md`: 手法ライブラリ CRUD
-  - Notion 同期: orchestrator が adjourn flow Step 10a で MCP 経由で直接実行（`pro/CLAUDE.md` Step 10a）
+  - git 同期: orchestrator が adjourn flow Phase 4 で `git add + commit + push` を直接実行（`pro/CLAUDE.md` Phase 4）
 
   v1.7 cron 時代の `scripts/decay-audit.py / dream-trigger-check.py / monthly-review.py / session-index.py / wiki-conflict-check.py` は R-1.8.0-011（v1.8.0 pivot）で削除済み。v1.8.0–v1.8.1 の間に存在した `tools/*.py` パッケージ（11 モジュール）も v1.8.1 Wave 2 で全削除。Layer 4 は現在 100% LLM 駆動、Python ランタイム不要（jq が hook の優先 JSON parser; python3 は jq 欠如時の stdin 解析フォールバックのみ）。
 
@@ -334,7 +334,7 @@ Hermes にはこれらがありません。方向は**Hermes の実行モード�
 
 ## 一日の完全ワークフロー(実例)
 
-朝 9:00、Mac の前。シーン: 昨夜携帯の Notion inbox に「Japan permanent residency 要件を調査」と記入。
+朝 9:00、Mac の前。シーン: 昨夜携帯から git 経由で `inbox/` に「Japan permanent residency 要件を調査」と記入。
 
 **9:00 · Claude Code を開き「上朝」と言う**
 
@@ -355,11 +355,11 @@ ROUTER が受け取るのは生のメッセージではなく、認知注釈付�
 
 **9:00:15 · RETROSPECTIVE 18 ステップ並列**
 
-RETROSPECTIVE が Notion から昨夜の inbox エントリを取得、SOUL / user-patterns / Strategic Map を読み、バージョンチェック、巡察、朝報を編集。
+RETROSPECTIVE が `git pull` で昨夜の inbox エントリを取得、SOUL / user-patterns / Strategic Map を読み、バージョンチェック、巡察、朝報を編集。
 
 朝報には固定で「DREAM Auto-Triggers」ブロックがあります——昨夜 DREAM がクロスセッションパターンを検出していれば、ここに現れます。
 
-*(Layer 2 Skill + Layer 1 データ読み + Layer 4 Notion 取得)*
+*(Layer 2 Skill + Layer 1 データ読み + git pull)*
 
 **9:01 · 意思決定エンジン実行**
 
@@ -379,9 +379,9 @@ ROUTER が即座に ARCHIVER subagent を Launch——メイン context で何�
 - Phase 1 Archive: decisions / tasks / journal → outbox
 - Phase 2 Knowledge Extraction: session 全体をスキャン、6 条厳格基準 + privacy filter → wiki 2 条自動書き込み、SOUL の「リスク耐性」次元を更新、Strategic Map に Japan-life ラインを追加
 - Phase 3 DREAM: 3 日間の深度復盤、REM が「最近 3 回の意思決定が『柔軟性を保つ』次元に挑戦」を検出 → 次回朝報に書き込み
-- Phase 4 Sync: git push + Notion 同期
+- Phase 4 Sync: git add + commit + push
 
-ARCHIVER が Completion Checklist を返す。Orchestrator がメイン context で Notion MCP 同期を実行(Status page 更新、Todo 同期、Working Memory 書き込み、Inbox synced マーク)。
+ARCHIVER が Completion Checklist を返す。Orchestrator がメイン context で `git add + commit + push` を実行(outbox マージ後の出力を GitHub リモートに戻す；オフラインならコミットはローカルに保持し、次の session で同期)。
 
 *(Layer 2 Skill + Layer 1 データ書き込み + Layer 3 git hook 強制 commit)*
 
@@ -418,7 +418,7 @@ git pre-commit hook が session 成果物をスキャン:
 
 **vs ChatGPT / Claude.ai**: 日常会話、コード、翻訳、問答—— ChatGPT や他の汎用 AI を使い続けてください。Life OS は「審議に値する」ことを行うときだけ機能し、それ以外は ROUTER が直接返答します。Life OS の独自性は「より賢い会話」ではなく、**長期記憶 + multiple agents 相互牽制 + 認知前置**(認知前置は v1.7 GA で実装済み)です。
 
-**vs Obsidian / Notion**: それらは知識管理では Life OS より優れています。Life OS の wiki はエンジンが自動抽出したもので、手打ちではありません。**相補的であり代替ではありません**—— Obsidian で Life OS が書いた markdown を見ると体験が最高です。実際、Life OS の iCloud セカンドブレインフォルダーは Obsidian vault レイアウトで、すべての `[[wiki-link]]` 構文が直接ジャンプできます。
+**vs Obsidian**: それは知識管理では Life OS より優れています。Life OS の wiki はエンジンが自動抽出したもので、手打ちではありません。**相補的であり代替ではありません**—— Obsidian で Life OS が書いた markdown を見ると体験が最高です。実際、Life OS のローカル作業コピー(git リポジトリ)は Obsidian vault レイアウトで、すべての `[[wiki-link]]` 構文が直接ジャンプできます。
 
 **vs Todoist / Things**: それらはタスク追跡で Life OS よりはるかに優れています。Life OS の tasks は意思決定プロセスの副産物です——意思決定のたびに action items が生成され、自動的に `projects/*/tasks.md` に書き込まれます。手動で todo を追加する場所ではありません。純粋な GTD 体験が欲しいなら Todoist、「各タスクの背後に審議されたコンテキストがある」が欲しいなら Life OS。
 
@@ -478,7 +478,7 @@ multiple agents、9 themes、4 層アーキテクチャ、数十の HARD RULEs�
 - **3 方向**(セカンドブレイン / 意思決定エンジン / 認知実行)は原理 1-3 を実行可能なサブシステムに分解
 - **4 層アーキテクチャ**は 3 方向をエンジニアリングに落とす階層視点
 - **Cortex + Hermes 級実行**は原理 3 の v1.7 GA での実装拡張——システムは「入退場のみで記憶」ではなく中間過程でも記憶を使える、「考えられる」だけでなく「能動的に行動できる」。これは原理 3 の「静的ストレージ」から「動的活性化」への延伸
-- **数十の HARD RULEs（host ごとに集計、詳細は `references/hard-rules-index.md`）** はこれら原理の具体操作上の硬い境界(intent clarification はスキップ不可、SOUL は引用必須で無視不可、Notion sync は silent fail 不可、Adjourn は途中退出不可、Privacy Filter は「人工審査」不可……)
+- **数十の HARD RULEs（host ごとに集計、詳細は `references/hard-rules-index.md`）** はこれら原理の具体操作上の硬い境界(intent clarification はスキップ不可、SOUL は引用必須で無視不可、git sync は silent fail 不可、Adjourn は途中退出不可、Privacy Filter は「人工審査」不可……)
 
 複雑度はこれら 3 コア原理の周りに**外向きに**育ったもので、**無から**積み上げたものではありません。システムを理解するのに 33 規則を覚える必要はなく、これら 3 原理を覚えれば、規則は原理から自然に導出されます。
 

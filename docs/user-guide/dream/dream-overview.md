@@ -27,7 +27,7 @@ ARCHIVER Phase 2: 当次 session 的 wiki/SOUL 自动写入
     ↓
 ARCHIVER Phase 3: DREAM（N1-N2 → N3 → REM）  ← 这里
     ↓
-ARCHIVER Phase 4: git 同步 + Notion 同步
+ARCHIVER Phase 4: git add + commit + push
     ↓
 Session 结束
 ```
@@ -46,10 +46,8 @@ Session 结束
 
 **不会扫描更老的文件，即使看起来相关。** 这是硬规则——DREAM 不是在做全盘分析，它是在做 3 天周期的记忆处理。
 
-检测方式：
-- GitHub 后端：`git log --since="3 days ago" --name-only`
-- GDrive 后端：`modifiedTime > 3_days_ago`
-- Notion 后端：`last_edited_time > 3_days_ago`
+检测方式（git）：
+- `git log --since="3 days ago" --name-only`
 
 ## 三阶段（人类睡眠类比）
 

@@ -35,7 +35,7 @@ introduced_in: v1.8.5
 ### 5. STEP-EXTRACTION
 - **Use when**: A step inside an agent/EOU can be made deterministic (promote to slash command) OR isolated as a sub-agent with its own blast radius and governance.
 - **Output**: A new slash command (`.claude/commands/*.md`), or a child subagent (`pro/agents/*.md`) handling the extracted step; parent references the extracted unit.
-- **Example**: archiver Phase 4 Notion sync extracted to `/notion-sync` slash command (v1.8.5). Phase 4 now invokes slash, doesn't reimplement audit-trail writing.
+- **Example**: wiki decay maintenance extracted to `/wiki-decay` slash command (v1.8.5). The agent now invokes the slash command instead of reimplementing the decay-classification logic inline.
 
 ### 6. VALIDATOR-ADDITION
 - **Use when**: A known failure mode has no validation gate; output quality depends on unverified assumptions; past incident has no regression case preventing recurrence.
@@ -45,7 +45,7 @@ introduced_in: v1.8.5
 ### 7. STOP-CONDITION-INJECTION
 - **Use when**: An agent/EOU continues executing in invalid, ambiguous, or unauthorized states rather than halting and reporting.
 - **Output**: One or more new stop conditions in `execution.stop_conditions` with observable trigger criteria.
-- **Example**: archiver was running Phase 4 Notion sync even when `meta/config.md` had 0 Notion entities configured. Added stop condition: if 0 entities → skip Phase 4 silently, log skip reason in audit trail (per pro/CLAUDE.md Step 10a R-1.8.0-022 fix).
+- **Example**: archiver's Phase 3 DREAM was scanning even when zero files changed in the 3-day window, fabricating "insights" from nothing. Added stop condition: if 0 changed files → skip DREAM as "light sleep", log skip reason in audit trail.
 
 ### 8. RESPONSIBILITY-SEPARATION
 - **Use when**: Same party executes and approves OR two distinct approval authorities handled by one unit.

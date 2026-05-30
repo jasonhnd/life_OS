@@ -604,8 +604,8 @@ Verify: /verify-v1.9
 
 Recommended next steps:
 1. Run /verify-v1.9 to confirm 8 acceptance criteria
-2. If you have GDrive/Notion backends: pause them briefly, let next session-start
-   sync push the v1.9 layout cleanly (avoids GDrive 400-op burst)
+2. Let the next session-start `git pull` / session-close `git push` propagate the
+   v1.9 layout to your GitHub remote cleanly
 3. Review meta/journal/<today>.md for any warnings or cleanup recommendations
 ```
 
@@ -628,7 +628,7 @@ The progress file enables (limited) idempotent recovery: re-running won't re-do 
 ## What this command does NOT do
 
 - Push to remote (user controls)
-- Trigger Notion / GDrive sync (next session-start does it naturally)
+- Force a `git push` (next session-close does it naturally)
 - Run /verify-v1.9 automatically (user explicitly)
 - Fix data quality issues beyond schema (e.g., missing decision rationale)
 - Clean up `archive/` non-project content (Stage 0c refuses; user handles manually)

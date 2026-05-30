@@ -26,7 +26,7 @@ For v1.8.5+ format (7 cols): `| Timestamp | Trigger | Type | F-Code | Severity |
 
 Extract:
 - `timestamp`
-- `trigger` (e.g. "上朝", "Adjourn", "Notion sync")
+- `trigger` (e.g. "上朝", "Adjourn", "git sync")
 - `type` (A1/A2/A3/B/C/D/E/F)
 - `f_code` (F1-F17; for legacy, infer per "A-F → F-Code Typical Mappings" table in violations.md)
 - `severity` (P0/P1/P2)

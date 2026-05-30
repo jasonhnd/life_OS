@@ -35,7 +35,7 @@ The PLANNER references this file when planning.
 ## 🏗️ INFRA Domain · Managing Construction (Including Health)
 - **Fitness Division**: Exercise plans, diet and nutrition, sleep quality, health checkups, mental health
 - **Housing Division**: Living space optimization, moving, renovation, workspace layout
-- **Digital Division**: Notion/knowledge base, servers and domains, development environment, data backup, automation
+- **Digital Division**: knowledge base, servers and domains, development environment, data backup, automation
 - **Routines Division**: Daily routines, morning/bedtime procedures, household efficiency, life rhythm
 
 ---

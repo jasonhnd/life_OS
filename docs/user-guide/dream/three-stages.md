@@ -197,6 +197,6 @@ REM 还会机械地评估 10 个触发器（详见 `10-auto-triggers.md`）。�
 
 三阶段跑完之后，ARCHIVER 把结果写进 `meta/journal/{date}-dream.md`，同时把 `triggered_actions` YAML 块暴露给下一次 RETROSPECTIVE 读取。
 
-接下来就是 Phase 4（git 同步 + Notion 同步）→ session 结束。
+接下来就是 Phase 4（git add + commit + push）→ session 结束。
 
 下次 session start 时，这些结果会出现在简报的固定位置。怎么读，看 `reading-dream-reports.md`。

@@ -365,7 +365,7 @@ Pass if 8a/8b/8d are PASS (8c/8e are WARN).
 
 Next steps:
 - Resume normal lifeos usage (上朝 / 退朝 work as before)
-- If GDrive/Notion backends were paused, re-enable
+- Next session-close `git push` propagates the v1.9 layout to your GitHub remote
 - Optional: Run /audit-mode-3 to baseline post-migration vault health
 
 </if>

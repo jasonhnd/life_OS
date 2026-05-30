@@ -26,7 +26,6 @@ Life OS 的核心机制是 多个 subagent **互相看不见对方的思考过�
 | 信息隔离 | 完整 | 完整 | 完整 |
 | 并行 subagent | 是 | 是 | 是 |
 | 工具调用 | Read / Edit / Write / Bash / Grep / Glob / Task | 对应 Gemini 工具集（有映射表） | 对应 Codex 工具集 |
-| Notion MCP | 支持（在主上下文执行 Step 10a） | 支持（同上） | 支持（同上） |
 | 成本 | Claude 订阅 / Max 计划 / API 量 | Google AI Studio 免费额度大 / Gemini Advanced | ChatGPT Plus / Pro |
 | 安装命令 | `/install-skill https://github.com/jasonhnd/life_OS` | `npx skills add jasonhnd/life_OS` | `npx skills add jasonhnd/life_OS` |
 | 自动更新 hook | 支持（`/install-agents`，v1.8.5 起取代已退役的 setup-hooks.sh） | 需手动 `npx skills add` 重装 | 需手动重装 |
@@ -41,7 +40,6 @@ Life OS 的核心机制是 多个 subagent **互相看不见对方的思考过�
 2. **Task tool 原生支持并行 subagent**。六部并行执行是编排协议的 HARD RULE（Step 5，one-by-one reporting）。Claude Code 的 Task tool 直接支持；Gemini / Codex 需要通过 skill 文件模拟，稍复杂。
 3. **`pro/CLAUDE.md` 是母版**。GEMINI.md 和 AGENTS.md 是从它同步过来的 —— 有新功能时 CLAUDE.md 先改，另外两个后跟。首选平台意味着拿到最新逻辑的时差最短。
 4. **auto-update hook** 可以做到「每天第一次上朝自动检查更新」，跑一次 `/install-agents` 就行（v1.8.5 起取代已退役的 setup-hooks.sh）。Gemini / Codex 要手动重装。
-5. **Notion MCP 成熟度**。Step 10a 需要在 orchestrator 的主上下文里调用 Notion MCP 工具。Claude Code 的 MCP 体系最成熟，`~/.claude.json` 里配好 MCP server 就能用；另外两个平台 MCP 支持度和稳定性还在追赶。
 
 Gemini 和 Codex 都是完整支持的一等公民 —— 功能同构，只是 Claude Code 在以上几点上稍稳。如果你的工作流已经在 Gemini 或 Codex 上，直接用，不需要切。
 
@@ -51,7 +49,6 @@ Gemini 和 Codex 都是完整支持的一等公民 —— 功能同构，只是 
 
 - 已经在 Antigravity workspace 里做项目开发，不想再开一个 terminal
 - Gemini Advanced 订阅不想浪费
-- 需要 Google Drive 作为主存储（Gemini CLI 和 GDrive 集成更顺）
 - 想跑 Gemini 最强模型的原生大 context 窗口（Claude opus 当前也是 1M 级，这点差距不大）
 
 **必做**：把 `.claude/worktrees/` 加进 `.gitignore`。Claude Code 在共享 repo 里会产生临时 worktree 目录，Gemini 的 context loader 读到这些大文件会撑爆上下文然后假装没事地不响应。这是 Gemini 用户最常见的「上朝卡住」原因。
@@ -85,7 +82,7 @@ Codex 的最强推理模型在长链路推理上稳定，但 ratelimit 偏严 �
 
 ## 一条补充建议
 
-如果你打算长期用 Life OS 做主要决策引擎，在两个平台上装一份：一个主力（比如 Claude Code），一个备用（比如 Gemini CLI）。SKILL.md 和 `pro/agents/*.md` 都是一样的 markdown，两边共享。真哪天 Opus 额度打满、或者 Anthropic 服务挂了，你切到另一个平台还能继续用，第二大脑的数据（GitHub / GDrive / Notion）平台无关，不会丢。
+如果你打算长期用 Life OS 做主要决策引擎，在两个平台上装一份：一个主力（比如 Claude Code），一个备用（比如 Gemini CLI）。SKILL.md 和 `pro/agents/*.md` 都是一样的 markdown，两边共享。真哪天 Opus 额度打满、或者 Anthropic 服务挂了，你切到另一个平台还能继续用，第二大脑的数据（git repo：本地工作副本 + GitHub remote）平台无关，不会丢。
 
 ---
 
@@ -99,7 +96,7 @@ Codex 的最强推理模型在长链路推理上稳定，但 ratelimit 偏严 �
 | 一次完整朝议（PLANNER→REVIEWER→DISPATCHER→6 部→REVIEWER→Summary→AUDITOR→ADVISOR）| ~80-120k tokens | ~90-140k tokens | ~100-150k tokens |
 | 一次 Express 分析（ROUTER + 2 部） | ~20-30k tokens | 同量级 | 同量级 |
 | 一次翰林院对话（2 位思想家 + 20 轮）| ~40-60k tokens | 同量级 | 同量级 |
-| 一次 adjourn（ARCHIVER 4 阶段 + DREAM + orchestrator Notion sync）| ~30-50k tokens | ~35-55k tokens | ~40-60k tokens |
+| 一次 adjourn（ARCHIVER 4 阶段 + DREAM + git push）| ~30-50k tokens | ~35-55k tokens | ~40-60k tokens |
 
 典型一天：1 次 start + 1-2 次完整朝议 + 3-5 次 Express + 1 次 adjourn ≈ 200-400k tokens。
 
@@ -109,7 +106,7 @@ Claude Code Max 计划日常日用足够；API 直接 billing 大概每天 $3-8 
 
 ## 换平台时数据会怎样
 
-核心：**第二大脑和平台解绑**。你的 SOUL / projects / wiki / journal 全都在你选的存储后端（GitHub / GDrive / Notion），和装在哪个 AI 平台无关。
+核心：**第二大脑和平台解绑**。你的 SOUL / projects / wiki / journal 全都在你的 git repo（本地工作副本 + GitHub remote），和装在哪个 AI 平台无关。
 
 换平台步骤：
 1. 旧平台里说「退朝」，确保这次数据都 sync 上去了
@@ -126,7 +123,6 @@ Claude Code Max 计划日常日用足够；API 直接 billing 大概每天 $3-8 
 ### Claude Code
 - **opus 额度**：Max 计划里 opus 级模型是有额度的，用完会自动降级到 sonnet 级。PLANNER / REVIEWER / COUNCIL 在 sonnet 上也能跑，但判断力降一档，特别是 REVIEWER 的 veto 敏感度。关键决策前如果看到「降级到 sonnet」提示，可以等额度刷新或切 Gemini 备用
 - **worktree 遗留**：之前用过 Claude Code 的 worktree 模式，目录里可能有 `.claude/worktrees/` 堆积。不清理会撑大 repo，影响 git push 速度。退一个 worktree 时选 "remove" 不要选 "keep"
-- **MCP server 配置要点**：Notion MCP 配在 `~/.claude.json` 的 `mcp_servers` 字段。配好之后 orchestrator 才能在 Step 10a 执行 Notion sync
 
 ### Gemini CLI / Antigravity
 - **`.claude/worktrees/` 必须 gitignore**：这是最常见的「Gemini 不响应」原因。Claude Code 的临时 worktree 文件被 Gemini 的 context loader 吞进去就撑爆了
@@ -136,7 +132,6 @@ Claude Code Max 计划日常日用足够；API 直接 billing 大概每天 $3-8 
 ### Codex CLI
 - **最强推理模型 ratelimit**：COUNCIL 辩论 + 翰林院圆桌这两个高 token 场景容易撞限流。遇到时拆会话（先处理决策，下一个会话单独开圆桌）
 - **AGENTS.md 标准**：Codex 遵循开放的 agents.md 协议。理论上其他支持这个协议的 agent 框架也能读 Life OS 的 `pro/AGENTS.md`，实测以 Codex 为准
-- **Codex 的 MCP 支持**：比 Claude 新，偶尔有 Notion sync 时序问题。如果退朝后 Notion 没更新，手动说「sync notion」触发一次
 
 ---
 

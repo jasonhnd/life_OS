@@ -26,7 +26,7 @@ Subsequent updates: archiver Phase 5 invokes memory-keeper after every Adjourn.
 
 - **archiver.md adjourn report contract is now 7-H2 not 6-H2 (v1.8.7)** — Previous spec said "6 core H2 headings"; v1.8.7 added Phase 5 (memory-keeper). Missing Phase 5 H2 in adjourn report = `Class C-brief-incomplete` per AUDITOR Mode 3. Fix: see `pro/agents/archiver.md` §"Adjourn Report Completeness Contract". (#RFC-v1.8.7 §2.1)
 
-- **archiver Phase 4 reports "Notion sync done" when MCP unavailable (silent failure F8)** — Historical bug. Fix: archiver MUST NOT claim Notion success when MCP tools unavailable; defer to orchestrator Step 10a. See `pro/agents/archiver.md:61`. (#v1.7-era fix)
+- **archiver Phase 4 reports "pushed" when git push actually failed (silent failure F8)** — Fix: archiver MUST NOT claim push success when `git push` failed (offline / no remote); annotate "⚠️ not pushed — syncs next session" and keep the commit local. See `pro/agents/archiver.md` failure_modes. (#v1.7-era fix)
 
 - **`pro/compliance/violations.md` is auditor's domain — memory-keeper NEVER writes there** — Cross-domain capture violation. Gotchas (technical) vs violations (process) are different stores. memory-keeper writes ONLY `pro/gotchas.md`. (#v1.8.7 gotchas-spec.md)
 

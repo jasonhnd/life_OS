@@ -88,7 +88,7 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 ### プロダクトアップグレード（lifeos の能力を変える能力）
 
 - **🧠 gotchas + memory-keeper（C6）** —— `pro/gotchas.md` はプロジェクトレベル技術 gotcha の単一ファイル。新 `memory-keeper` agent が archiver wrap-up phase 5 で自動抽出。ROUTER は重大タスク前に既知問題を short-circuit 可能。初回 seed 実行で v1.8.4-1.8.6 RFC + violations 履歴から ≥10 件生成。
-- **🔄 ScheduleWakeup 自己駆動ループ（B4）** —— `/verify-release-and-watch` と `/notion-sync-and-watch` が 270s ごとにポーリング（Anthropic prompt cache ウィンドウ）、最大 12 ticks（60 分）終端状態まで。GitHub Release publish 欠落を自動修正。lifeos が reactive ツールから "タスクを見張れる" ツールへ。
+- **🔄 ScheduleWakeup 自己駆動ループ（B4）** —— `/verify-release-and-watch` が 270s ごとにポーリング（Anthropic prompt cache ウィンドウ）、最大 12 ticks（60 分）終端状態まで。GitHub Release publish 欠落を自動修正。lifeos が reactive ツールから "タスクを見張れる" ツールへ。
 - **📋 verify-release が 11 個の check に拡張** —— 新 check 9（i18n diff parity、WARN レベル）が反復する "EN spec 更新したが zh/ja ドリフト" 違反クラスを捕捉。新 check 10（diff スコープの forbidden extensions）が前回 tag 以降に導入された禁止拡張子ファイルを捕捉。Check 8 が 9 つの禁止拡張子に拡張（`.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite` 追加）。
 - **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 sub-check が v1.8.7 アーティファクト維持 + md-only 制約が設計提案レベルで迂回されないことを検証（ファイル拡張子ゲート到達前にドリフトを捕捉）。
 - **📚 Spec 強化** —— `evals_scenarios:` frontmatter フィールドが各計画文書で必須（dispatcher は欠如すれば拒否）。`concept-spec.md` の hotness 閾値が明示化（≥3 sessions → confirmed、≥10 → canonical）。5 つの新 `WHEN-NOT-TO-ADD.md` が pro/agents/、references/、meta/、themes/、scripts/ に明確な境界を設定。
@@ -107,58 +107,7 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 完全な RFC、DR-08（cargo-cult カット）、DR-09（決定基準：時間ではなくプロダクト品質）、DR-10（md-only 本体論的制約）、設計決定の監査 trail は [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 参照。
 
-> **以前**、v1.8.3 はアウトバウンドプライバシーギャップを閉じた（v1.8.3 の詳細は CHANGELOG 参照）。
-
-## v1.8.3 の新機能 — Notion 書き込み前のアウトバウンド境界ゲート
-
-**「外向き」プライバシーの隙を塞ぐ。** v1.8.2 は vault に**入る**ものを守った（`pre-write-scan.sh` が SOUL.md / wiki / `meta/concepts/` / meta/user-patterns.md を secret・prompt injection・不可視 Unicode から守る）。だが v1.8.2 は vault を**出る**経路について何も言わなかった。Decision/Task/Journal の本文 —— ユーザーの生の言葉、第三者氏名、具体的金額を含む —— は `meta/outbox/<sid>/` から Notion へと Step 10a で同期されるとき、**何のプライバシーゲートも通っていなかった**。v1.8.3 は対称的なアウトバウンド守衛を導入する。
-
-### なぜローカル outbox と Notion が同じ脅威モデルではないか
-
-私的 git にある `meta/outbox/<sid>/decisions/` の内容と、Notion に送ってよいものは、**同じ基準ではない**：
-
-- Notion workspace は共有の可能性（チーム Notion、誤操作で公開リンク）
-- Notion AI が組織レベルアシスタントのためにページコンテンツを索引
-- モバイル端末で Notion アプリが盗み見される
-- Notion は歴史的にデータ漏洩事例あり
-
-同じ文（"妻が言った X 株式会社の ¥850 万 …"）は私的日記では OK でも、Notion サーバーでは NG。v1.8.3 はこの 2 つを別物として扱う。
-
-### 新 hook：`pre-notion-write.sh`
-
-> *v1.8.5 更新：`pre-notion-write.sh` hook は bash hook 層とともに退役しました（md-only / DR-10）。下記のスキャンロジックは不変です——同じパターン表、同じ 3 段階 verdict——が、オーケストレーターは現在、各 Notion 書き込みの前に PreToolUse hook ではなく**インライン LLM 手順**として実行します。現在の挙動は `pro/CLAUDE.md` Step 10a を参照。*
-
-すべての Notion MCP 書き込み呼び出しがチェックされる。スキャンは送信予定の内容を [`references/outbound-pii-patterns.md`](../../references/outbound-pii-patterns.md) の 5 グループパターンに対して照合し、3 段階アクションモデルで処理：
-
-| 命中グループ | Verdict | 動作 |
-|---|---|---|
-| **A** — 秘密鍵、AWS / GitHub / Slack トークン、完全クレカ番号、SSN、JP マイナンバー、≥40 文字の高エントロピー | `block` | exit 2 で呼び出しキャンセル、`CLASS_F` 違反記録 |
-| **B** — 第三者氏名 + 敏感イベント（出轨/破产/被裁/divorced/fired） | `warn` | reminder 注入；オーケストレーターが**必ず一度停止**して `(a) サニタイズ / (b) スキップ / (c) 強行` を尋ねる |
-| **C** — 社名 + 具体的金額、銀行口座形 | `warn` | 同上 |
-| **D** — メール / 国際電話 / 日中携帯 / 日本郵便番号 | `warn` | 同上 |
-| **E** — URL トラッカー、JWT 形状 | `info` | 静かに記録 |
-| 命中なし | `pass` | 通常進行 |
-
-監査記録は `meta/runtime/<sid>/notion-pii-scan-<ts>.json` に書かれ、命中カテゴリ ID 含む（**生コンテンツは記録しない**）。AUDITOR Mode 3 巡検でアウトバウンドリスク頻度を追跡可能 —— もし adjourn の 40% で Group B が発火するなら、それは振り返るべき行動シグナル。
-
-### なぜ B/C/D は諮問型 `warn` で `block` 強制ブロックでないか
-
-Group A パターンは曖昧性なし、強制ブロックは正解。Group B/C/D は非ゼロの誤検知率を持つ —— bash POSIX regex で CJK 範囲を綺麗に表現できず、B3（中国語氏名 + 敏感述語）は珍しい述語動詞のみに依存；C2（銀行口座形数字）は本質的に曖昧。強制ブロックすれば adjourn ごとに止まる。諮問型 warn ならユーザーが命中カテゴリを見て選べる。
-
-### なぜ `strip` モードがないか
-
-Claude Code の PreToolUse hook は `tool_input` を書き換えられない。サニタイズは一段上で行う：オーケストレーターが warn reminder を読み、サニタイズ版を生成し、Notion 呼び出しを再発行。Hook は**検出器**であって書き換え器ではない。この handoff のオーケストレーション契約は [`pro/CLAUDE.md` Step 10a](../../pro/CLAUDE.md) に。
-
-### マイグレーション
-
-```bash
-cd ~/.claude/skills/life_OS && git pull
-bash scripts/setup-hooks.sh   # pre-notion-write を登録
-```
-
-冪等 —— 2 回走らせても no-op。アンインストール：`bash scripts/setup-hooks.sh --uninstall`。
-
-完全な詳細（5 パターングループ、監査スキーマ、JSON parser 3 層 fallback）：[CHANGELOG.md](./CHANGELOG.md#183---2026-05-09)。
+> **v1.8.3 以前のコンテンツ** —— インラインのアウトバウンドプライバシーゲートが各 Notion 書き込み前に secret/PII をスキャンしていた。**Notion バックエンドとともに削除済み**（ストレージは現在 GitHub のみ）。
 
 > **v1.8.2 以前のコンテンツ** — グローバル Obsidian 可読 HARD RULE (#11)、4 つの専用 wiki テンプレート（`kind:` フィールド）、`/wiki-obsidian-upgrade` 一括マイグレーター、バイナリ出力を `~/Downloads/` にリダイレクト。詳細は CHANGELOG。
 
@@ -221,7 +170,6 @@ Wave 2 を駆動したユーザーの原文：「我想把这些东西全砍掉�
 - **macOS 移植性**：`pre-bash-approval.sh` に裸 `python -c` 5 箇所。macOS 12+ は裸 `python` を削除 → hook fail-CLOSED → 全 Bash コマンドブロック。R-1.8.0-020 commit タイトルは修正済みと主張したが、Wave 1 まで未修正だった。
 - **Scanner 誤判定**：`pre-write-scan.sh` pattern #5 が正当な markdown インラインコードをブロック。backtick 内に shell メタ文字を要求するよう厳格化。
 - **session-start-inbox UX**：2 つのタスク名間違い；NEVER_RUN バケットを 8+ 行から 1 行に圧縮。
-- **Notion sync が 4 entity をハードコード** — 設定駆動に変更；`meta/config.md` を読む。
 
 ### マイグレーション
 
@@ -451,7 +399,7 @@ Life OS は五つの柱で構成される。**意思決定エンジン**が中�
 
 ### III. セカンドブレイン — セッションが終わっても、何も消えない
 
-すべての決定、洞察、パターン、アクションアイテムは**永続的なナレッジベース**に書き込まれる——あなたが所有する構造化された Markdown ファイルで、あなたが選んだストレージに保存される。
+すべての決定、洞察、パターン、アクションアイテムは**永続的なナレッジベース**に書き込まれる——あなたが所有する構造化された Markdown ファイルで、一つの git リポジトリに保存される。
 
 ```
 second-brain/
@@ -469,19 +417,20 @@ second-brain/
 └── archive/                # 完了した仕事
 ```
 
-**3つのストレージバックエンド** — あなたの生活に合うものを選ぶ：
+**GitHub バックエンドストレージ** —— 単一の git リポジトリ：
 
-| バックエンド | 向いている人 | トレードオフ |
-|------------|------------|------------|
-| **GitHub** | バージョン管理、Obsidian 連携 | 基本的な Git 知識が必要 |
-| **Google Drive** | セットアップ不要、すぐ使える | 構造化は弱め |
-| **Notion** | モバイルフレンドリー、データベースビュー | スマホメモに最適 |
+| レイヤー | 何か |
+|---------|------|
+| **ローカル作業コピー** | ディスク上のファイル——同時にあなたの Obsidian vault。ここで読み書きする。 |
+| **GitHub リモート** | バックアップ + クロスデバイス同期。セッション終了時に `git push`、セッション開始時に `git pull`。 |
 
-**クロスデバイス同期**：ランチ中にスマホで思いついたことを Notion inbox に放り込む。パソコンの前に座って閣議を開始すると、システムがそれを取り込み、処理し、結果を同期する。
+ただの git。バージョン管理・バックアップ・マルチデバイス同期がすべて無償で付いてくる——別の同期エンジンも、primary/mirror の分割も、コンフリクト解決層もない。（Google Drive + Notion は 削除済み；ストレージは GitHub のみ。）
+
+**クロスデバイス同期**：ノート PC で編集して `git push`。デスクトップの前に座ってセッションを開始すると、システムが `git pull` で変更を取り込む。コンフリクトは通常の git merge コンフリクト——単一ユーザーの vault ではめったに起きない。
 
 **並列セッション**：一つのターミナルウィンドウで project-alpha、別のウィンドウで project-beta を作業する。各セッションが独自の outbox に書き込む。次に閣議を開始したとき、すべてがきれいにマージされる——コンフリクトもロックもない。
 
-初回起動時、セカンドブレインのディレクトリ構造は自動的に作成される。
+**初回起動**：最初のセッションで、システムは second-brain が存在しないことを検出し、作成へと案内する——git リポジトリ（ローカル作業コピー + 任意の GitHub リモート）と完全なディレクトリ構造を自動的に初期化する。
 
 ---
 
@@ -556,7 +505,7 @@ second-brain/
 
 🌅 定例閣議：
    テーマ自動検出 → 霞が関
-   セカンドブレインを同期中……Notion から3件取り込みました。
+   セカンドブレインを同期中……git pull：3 件の変更。
    📥 「資格プログラムを調べる」——昨日スマホでメモ
    📥 「project-alpha：取引先から返信あり」——メールから転送
    📥 クイックメモ：「予算の前提を見直す」
@@ -611,7 +560,7 @@ second-brain/
      💤 N3：「熟考型意思決定者」次元に新証拠（+1）
      💤 REM：🚨 古いコミットメント検出 — 32 日前に
             フリーランス計画を起草すると言いました。次ブリーフィングに表示。
-   Phase 4 — Notion に同期中……完了。
+   Phase 4 — 同期：git add + commit + push……完了。
    ✅ 完了チェックリスト検証済み。セッションアーカイブ完了。
    ↩️ 自動書き込みの取り消し：ファイル削除、または次回「最近の wiki/SOUL を取り消し」。
 ```
@@ -769,7 +718,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
  │  │         · SOUL × 戦略：ドライビングフォースは価値観と整合しているか？
  │  │         · Wiki × フロー：知識は実際にプロジェクト間を流れているか？
  │  │         · 行動 × 優先度：クリティカルパスのプロジェクトを避けていないか？
- │  │     Phase 4 🔄 同期：git push + Notion（4つの操作）
+ │  │     Phase 4 🔄 同期：git add + commit + push
  │  │     ✅ 完了チェックリスト：各項目に具体的な値が必須
  │  │
  │  └─ 🎋 内閣特別顧問（STRATEGIST）— 人類の叡智の殿堂
@@ -782,7 +731,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
  │        終了時：別れの言葉 → 思考の旅がナレッジベースに保存
  │
  └─ 💾 ストレージレイヤー
-       GitHub / Google Drive / Notion（1-3個を選択）
+       GitHub（git リポジトリ：ローカル作業コピー + リモート）
        ├── SOUL.md          🔮 パーソナリティアーカイブ（ゼロから育つ）
        ├── meta/user-patterns.md 📊 行動パターン（内閣参与の観察）
        ├── meta/

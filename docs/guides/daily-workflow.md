@@ -36,8 +36,8 @@
 ```
 📋 Pre-Session Preparation:
 - 📂 Session Scope: projects/life-os
-- 💾 Storage: GitHub(primary) + Notion(sync)
-- 🔄 Sync: Pulled 3 changes from Notion
+- 💾 Storage: git repo (本地工作副本 + GitHub remote)
+- 🔄 Sync: git pull: 3 changes
 - Platform: Claude Code | Model: opus
 - 🏛️ Life OS: v1.6.2a | Latest: v1.6.2a ✅
 - Project Status: 活跃开发中，上周合了 3 个 PR
@@ -84,7 +84,7 @@
 🟢 可以忽略: 三个 GitHub issue 都是问题重复，已有答案
 
 ❓ 决策需要:
-   - [cross-project] 接 Telegram 集成意味着放慢 Notion 优化，取舍？
+   - [cross-project] 接 Telegram 集成意味着放慢搜索体验优化，取舍？
 
 🔴 Immediate: 无
 🟡 Current: 发布 v1.6.3
@@ -126,18 +126,18 @@ Follow-through 指数这周到 80%（上周 62%）。
 
 ## 11:30 · 处理 inbox
 
-通常你手机上看 Notion、想到啥就丢进 Inbox 数据库。中午抽 10 分钟整理：
+通常你手机上想到啥，就用 git 客户端往 `inbox/` 提交一条。中午抽 10 分钟整理：
 
 ```
 看一下今天 inbox 有啥
 ```
 
-丞相查 Notion，返回：
+丞相读 `inbox/`（会话开始 `git pull` 已把手机提交的条目拉下来），返回：
 
 ```
 🏛️ 丞相
 
-📬 Notion Inbox (3 条):
+📬 Inbox (3 条):
 1. 考虑加 Telegram bot 支持 — 今早 08:23
 2. 某用户反馈 SOUL 写入太激进 — 昨晚 22:11
 3. 母亲节送什么礼物 — 昨晚 19:05
@@ -175,7 +175,7 @@ Follow-through 指数这周到 80%（上周 62%）。
 - 3 → areas/family/tasks/mother-day-gift.md（提前 2 周）
 Inbox 清空。
 
-注意第 1 条——你上周才决完"专注 Notion 优化"，
+注意第 1 条——你上周才决完"专注搜索体验优化"，
 现在又想加 Telegram。这是 repeated-decisions 的信号，
 下次上议前考虑让谏官先审一下。
 ```
@@ -225,7 +225,7 @@ Inbox 清空。
 
 ## 14:00 · 开大议（如果需要）
 
-下午处理早上简报的 ❓："接 Telegram 集成 vs 继续优化 Notion"：
+下午处理早上简报的 ❓："接 Telegram 集成 vs 继续优化搜索体验"：
 
 ```
 我要决定 Telegram 集成的优先级
@@ -238,7 +238,7 @@ Inbox 清空。
 
 ⚠️ Cross-project. 我读了 STRATEGIC-MAP:
 - life-os 在 product-expansion 线上，critical-path
-- 加 Telegram 让 Notion 优化延后 3-4 周
+- 加 Telegram 让搜索体验优化延后 3-4 周
 
 你的 driving_force 是"扩大用户量"还是"深化体验"?
 SOUL 显示上月倾向后者，但最近 2 次决策偏前者。
@@ -350,11 +350,11 @@ Phase 2:
   Strategic: Telegram 候选 → product-expansion
 Phase 3 DREAM:
   REM Auto-Triggers:
-    #10 Telegram 第 3 次提起 — 下次议前先问是否在逃避 Notion 深耕
+    #10 Telegram 第 3 次提起 — 下次议前先问是否在逃避搜索体验深耕
     #7 "长期主义" 和 "扩大" 最近 5 次中 3 次互相挑战
-Phase 4 Sync: git pushed / Notion by orchestrator
+Phase 4 Sync: git add + commit + push → origin
 
-🔄 Notion: 🧠 Status / 📋 Todo 4 items / 📝 Memory / 📬 Inbox synced
+🔄 Git: ✅ {commit hash} pushed to GitHub remote
 ```
 
 全程 45 秒。看到 checklist 就可以关电脑。
@@ -363,19 +363,18 @@ Phase 4 Sync: git pushed / Notion by orchestrator
 
 ## 跨设备同步到手机
 
-你睡前想在手机上看明天的简报概要。打开 Notion：
+退朝时 `git push` 已把今天所有改动推到 GitHub remote。你睡前想在手机上看明天的简报概要 —— 在手机上 `git pull`（用 Working Copy 等 git 客户端，或把仓库放进会自动同步的文件夹），就能直接读这些 markdown：
 
-- **🧠 Current Status** 页面：显示今天的总结 + 明天 🥇🥈 候选
-- **📋 Todo Board**：今天完成的项目打勾了，新创建的 task 都在这
-- **📝 Working Memory**：最近 3 次 session 的摘要
-- **📬 Inbox**：清空状态
+- **STATUS.md**：今天的总结 + 明天 🥇🥈 候选
+- **tasks.md**：今天完成的项目打勾了，新创建的 task 都在这
+- 各项目 `index.md`：最近 session 的摘要
 
-第二天早上，在地铁上你想到一个新想法——直接在手机 Notion Inbox 新建一条："是否考虑加中文宣传页"。
+第二天早上，在地铁上你想到一个新想法——直接用手机 git 客户端往 `inbox/` 提交一条："是否考虑加中文宣传页"，push 上去。
 
-第二天早起说"上朝"，早朝官的 Phase B 会 pull 这条：
+第二天早起说"上朝"，早朝官在 `git pull` 阶段会拉回这条：
 
 ```
-🔄 Sync: Pulled 1 change from Notion (inbox: "是否考虑加中文宣传页")
+🔄 Sync: git pull: 1 change (inbox: "是否考虑加中文宣传页")
 ```
 
 你的桌面看到的，和手机写的，已经合在一起。
@@ -392,7 +391,7 @@ Phase 4 Sync: git pushed / Notion by orchestrator
 | 下午 | 直接问问题 | 系统自己判断升堂 or 直接处理 |
 | 下班 | `早朝` | 中途简报，快 |
 | 晚饭后 | `我想找思想家聊 XXX` | 翰林院 |
-| 睡前 | `退朝` | 归档 + DREAM + Notion 推送 |
+| 睡前 | `退朝` | 归档 + DREAM + git push |
 
 ---
 

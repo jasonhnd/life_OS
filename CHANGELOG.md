@@ -118,6 +118,16 @@ A full re-scan of every tracked `.md` (EN + zh/ja mirrors) for broken intra-repo
 
 Post-fix scan evidence: **0 real broken links** (43 intentional placeholders / frozen CHANGELOG history / gitignored devdocs excluded), **0 unclosed frontmatter**, **0 odd code-fences**, **0 active-file count drift** (only the historical `version-history.md` "15→16 roles" transition remains, now formally checker-excluded), full trilingual section parity.
 
+### fix8 (2026-05-31) — remove Notion + Google Drive backends (GitHub-only storage)
+
+Storage simplified to a **single git backend** — local working copy (also the Obsidian vault) + a GitHub remote; sync is `git pull` (session start) + `git push` (ARCHIVER Phase 4). Shipped as a within-release fix (no version bump) per user direction.
+
+- **Removed** (12 files deleted): Google Drive + Notion adapters (+ zh/ja + docs copies), the Notion outbound-PII gate (`outbound-pii-patterns.md` + `pro/CLAUDE.md` Step 10a), the `/notion-sync` + `/notion-sync-and-watch` commands, and the multi-backend sync / primary-sync / cross-backend conflict layer.
+- **Rewrote** to single-backend git: `data-model` / `data-layer`, `pro/{CLAUDE,AGENTS,GEMINI}`, the agents (archiver / retrospective / router / advisor / auditor / knowledge-extractor), `SKILL`, `self-driven-loops-spec`, README ×3, and all user docs + i18n mirrors.
+- **Kept**: inbound privacy scanning (SOUL / wiki) unaffected; frozen `status:legacy` specs retain their historical Notion references; mobile capture now via the user's own git workflow into `inbox/`.
+
+Verification: 0 residual Notion/GDrive in active files, 0 broken intra-repo links (0 dangling to the 12 deleted files), 0 unclosed frontmatter, 0 odd code-fences, trilingual parity.
+
 ---
 
 ## [1.9.0] - 2026-05-27 - Second-brain structure optimization + transparency

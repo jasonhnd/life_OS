@@ -118,6 +118,16 @@ fix5 的链接更新 `sed`（`docs/architecture/` → `docs/history/architecture
 
 修复后扫描证据：**0 真实断链**（43 个有意占位符 / 冻结 CHANGELOG 历史 / gitignored devdocs 排除），**0 未闭合 frontmatter**，**0 围栏奇偶错**，**0 活跃文件计数漂移**（仅剩 `version-history.md` 的「15→16 角色」历史转换，现已正式从 checker 排除），三语章节完全对齐。
 
+### fix8（2026-05-31）—— 移除 Notion + Google Drive 后端（GitHub 单后端存储）
+
+存储简化为**单一 git 后端**——本地工作副本（也是 Obsidian vault）+ GitHub 远端；同步就是 `git pull`（会话开始）+ `git push`（ARCHIVER Phase 4）。按用户要求作为发布内修复（不升版本号）提交。
+
+- **移除**（删除 12 个文件）：Google Drive + Notion 适配器（+ zh/ja + docs 副本）、Notion 出站 PII 闸门（`outbound-pii-patterns.md` + `pro/CLAUDE.md` Step 10a）、`/notion-sync` + `/notion-sync-and-watch` 命令，以及多后端同步 / primary-sync / 跨后端冲突层。
+- **重写**为单后端 git：`data-model` / `data-layer`、`pro/{CLAUDE,AGENTS,GEMINI}`、各 agent（archiver / retrospective / router / advisor / auditor / knowledge-extractor）、`SKILL`、`self-driven-loops-spec`、README ×3，以及全部用户文档 + i18n 镜像。
+- **保留**：入站隐私扫描（SOUL / wiki）不受影响；冻结的 `status:legacy` 规范保留其历史 Notion 引用；手机端记录改为通过用户自己的 git 工作流写入 `inbox/`。
+
+验证：活跃文件 Notion/GDrive 残留 0、库内断链 0（指向 12 个已删文件的悬空链接 0）、未闭合 frontmatter 0、奇数围栏 0、三语对齐。
+
 ---
 
 ## [1.9.0] - 2026-05-27 - 第二大脑结构优化 + 透明化

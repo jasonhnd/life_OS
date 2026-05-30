@@ -103,7 +103,7 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 ### Product upgrades (capabilities that change what lifeos can do)
 
 - **🧠 gotchas + memory-keeper (C6)** — `pro/gotchas.md` is a single flat file of project-level technical gotchas. New `memory-keeper` agent extracts them automatically in archiver wrap-up phase 5. ROUTER can short-circuit known issues before major tasks. First seed run produces ≥10 entries from v1.8.4-1.8.6 RFC + violations history.
-- **🔄 ScheduleWakeup self-driven loops (B4)** — `/verify-release-and-watch` and `/notion-sync-and-watch` poll every 270s (Anthropic prompt cache window) for up to 12 ticks (60 min) until terminal state. Auto-fixes missing GitHub Release publish. lifeos goes from reactive tool to "can watch tasks" tool.
+- **🔄 ScheduleWakeup self-driven loops (B4)** — `/verify-release-and-watch` polls every 270s (Anthropic prompt cache window) for up to 12 ticks (60 min) until terminal state. Auto-fixes missing GitHub Release publish. lifeos goes from reactive tool to "can watch tasks" tool.
 - **📋 verify-release expanded to 11 checks** — new check 9 (i18n diff parity, WARN level) catches the recurring "EN spec updated but zh/ja drifted" violation class. New check 10 (diff-scoped forbidden extensions) catches forbidden-extension files introduced since last tag. Check 8 expanded to 9 forbidden extensions (added `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`).
 - **🛡️ AUDITOR Mode 7 (OpenHuman patterns compliance)** — 7 sub-checks verify v1.8.7 artifacts stay present + md-only constraint not bypassed at the design proposal level (catches drift before it hits the file-extension gate).
 - **📚 Spec hardening** — `evals_scenarios:` frontmatter field is now required in every planning document (dispatcher rejects without it). Hotness thresholds in `concept-spec.md` made explicit (≥3 sessions → confirmed, ≥10 → canonical). Five new `WHEN-NOT-TO-ADD.md` files set clear boundaries for pro/agents/, references/, meta/, themes/, scripts/.
@@ -122,58 +122,7 @@ No migration command needed. archiver first run creates `pro/gotchas.md` automat
 
 See [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) for the full RFC, DR-08 (cargo-cult cuts), DR-09 (decision standard: product quality not time), DR-10 (md-only ontological constraint), and the audit trail of design decisions.
 
-> **Previously**, v1.8.3 closed the outbound privacy gap (see CHANGELOG for the v1.8.3 detail).
-
-## What's New in v1.8.3 — Outbound boundary gate for Notion writes
-
-**Closing the privacy gap on the way out.** v1.8.2 hardened what *enters* your vault (`pre-write-scan.sh` defends `SOUL.md`, `wiki/`, `meta/concepts/`, `user-patterns.md` against secrets, prompt injection, invisible Unicode). But v1.8.2 said nothing about what *leaves* it. Decision/Task/Journal bodies — full of raw user prose, third-party names, specific amounts — were synced from `meta/outbox/<sid>/` straight to Notion at Step 10a with **no privacy gate at all**. v1.8.3 adds the missing outbound counterpart.
-
-### Why your local outbox and Notion are not the same threat model
-
-What can safely live in `meta/outbox/<sid>/decisions/` under your private git repo is not the same as what should travel to Notion:
-
-- Notion workspaces may be shared (team Notion, accidental public link)
-- Notion AI may index page content for org-wide assistants
-- Mobile-device theft exposes the Notion app
-- Notion has had data-breach incidents historically
-
-The same sentence ("我老婆觉得 X 公司给的 ¥850 万 …") can be acceptable in your private journal and unacceptable on Notion's servers. v1.8.3 treats them differently.
-
-### The new `pre-notion-write.sh` hook
-
-> *v1.8.5 update: the `pre-notion-write.sh` hook was retired with the bash hook layer (md-only / DR-10). The scan below is unchanged — same pattern table, same three verdicts — but the orchestrator now runs it as an **inline LLM procedure** before each Notion write, not as a PreToolUse hook. See `pro/CLAUDE.md` Step 10a for current behavior.*
-
-Every Notion MCP write call is checked. The scan matches the payload against [`references/outbound-pii-patterns.md`](references/outbound-pii-patterns.md) and applies a three-tier action model:
-
-| Group hit | Verdict | Action |
-|---|---|---|
-| **A** — private key, AWS / GitHub / Slack token, full credit-card, SSN, JP MyNumber, ≥40-char high-entropy | `block` | exit 2, cancels the call, logs `CLASS_F` violation |
-| **B** — third-party name + sensitive event (出轨/破产/被裁/divorced/fired) | `warn` | reminder; orchestrator MUST pause and ask `(a) sanitize / (b) skip / (c) override` |
-| **C** — company name + specific amount, bank-account-shaped numbers | `warn` | same |
-| **D** — email / international phone / JP+CN mobile / JP postal address | `warn` | same |
-| **E** — URL trackers, JWT shape | `info` | quiet log only |
-| no hit | `pass` | proceeds normally |
-
-Audit trail at `meta/runtime/<sid>/notion-pii-scan-<ts>.json` records the matched pattern category IDs (never raw content), so AUDITOR Mode 3 patrol can track outbound risk frequency over time — if you keep triggering Group B in 40 % of adjourns, that's a behavioral signal worth reviewing.
-
-### Why advisory `warn`, not hard-block, for B/C/D
-
-Group A patterns are unambiguous; hard-blocking is correct. Groups B/C/D have non-zero false-positive rates — bash POSIX regex can't cleanly express CJK ranges, so B3 (Chinese name + sensitive predicate) relies on the rare predicate verbs alone; C2 (bank-account-shaped digits) is inherently ambiguous. Hard-blocking those would derail every adjourn. Advisory warns let you see the matched category and choose.
-
-### Why no `strip` mode
-
-Claude Code PreToolUse hooks cannot rewrite `tool_input`. Sanitization happens one level up: orchestrator reads the warn reminder, generates a sanitized version, and re-issues the Notion call. The hook is the **detector**, not the rewriter. The orchestration contract for that handoff lives in [`pro/CLAUDE.md` Step 10a](pro/CLAUDE.md).
-
-### Migration
-
-```bash
-cd ~/.claude/skills/life_OS && git pull
-bash scripts/setup-hooks.sh   # registers pre-notion-write
-```
-
-Idempotent — running twice is a no-op. To uninstall: `bash scripts/setup-hooks.sh --uninstall`.
-
-For full detail (5 pattern groups, audit schema, JSON parser tiers): see [CHANGELOG.md](CHANGELOG.md#183---2026-05-09).
+> **Previously in v1.8.3** — an inline outbound privacy gate scanned every Notion write for secrets/PII before sync. **Removed** along with the Notion backend (storage is now GitHub-only).
 
 > **Previously in v1.8.2** — global Obsidian readability HARD RULE (#11), 4 specialized wiki templates (`kind:` field), `/wiki-obsidian-upgrade` batch migrator, binary output redirect to `~/Downloads/`. See CHANGELOG for the v1.8.2 detail.
 
@@ -236,7 +185,6 @@ This is not a critique of those projects — they solve different problems. But 
 - **macOS portability**: `pre-bash-approval.sh` had 5 bare `python -c` invocations. macOS 12+ removed bare `python` → hook fail-CLOSED → blocked every Bash command. R-1.8.0-020 commit title claimed this was fixed; it wasn't until Wave 1.
 - **Scanner false positive**: `pre-write-scan.sh` pattern #5 was blocking legitimate markdown inline code. Tightened to require shell metacharacters inside backticks.
 - **session-start-inbox UX**: 2 wrong task names; NEVER_RUN bucket compressed from 8+ lines to 1.
-- **Notion sync was hardcoded to 4 entities** — now config-driven; reads `meta/config.md`.
 
 ### Migration
 
@@ -504,21 +452,20 @@ second-brain/
 └── archive/                # Completed work
 ```
 
-**Three storage backends** — pick what fits your life:
+**GitHub-backed storage** — a single git repository:
 
-| Backend | Best for | Tradeoff |
-|---------|----------|----------|
-| **GitHub** | Version control, works with Obsidian | Requires basic Git knowledge |
-| **Google Drive** | Zero setup, just works | Less structured |
-| **Notion** | Mobile-friendly, database views | Best for phone capture |
+| Layer | What it is |
+|-------|------------|
+| **Local working copy** | The files on disk — also your Obsidian vault. Where you read and write. |
+| **GitHub remote** | Backup + cross-device sync. `git push` at session close, `git pull` at session start. |
 
-You can use one, two, or all three. Multi-backend: writes go to all selected backends, reads come from the primary (auto-priority: GitHub > Google Drive > Notion). Conflict resolution follows last-write-wins with timestamp comparison.
+It's just git. Versioning, backup, and multi-device sync come for free — there's no separate sync engine, no primary/mirror split, no conflict-resolution layer. (Google Drive + Notion were removed; storage is GitHub-only.)
 
-**Cross-device sync**: Capture a thought on your phone (Notion inbox) at lunch. When you sit down at your computer and start a session, the system pulls it in, processes it, and syncs results back.
+**Cross-device sync**: Edit on your laptop, `git push`. Sit down at your desktop, start a session, and the system `git pull`s the changes in. Conflicts are ordinary git merge conflicts — rare for a single-user vault.
 
 **Parallel sessions**: Work on project-alpha in one terminal window, project-beta in another. Each session writes to its own outbox directory. The next time you start a session, everything merges cleanly — no conflicts, no locks.
 
-**First-run setup**: On your very first session, the system detects that no second-brain exists and walks you through creating one — choose your backend(s), and the full directory structure is created automatically.
+**First-run setup**: On your very first session, the system detects that no second-brain exists and walks you through creating one — it initializes the git repo (local working copy + optional GitHub remote) and the full directory structure automatically.
 
 ---
 
@@ -597,7 +544,7 @@ You: Start session.
 You: b
 
 🌅 定例閣議:
-   Syncing second-brain... 3 inbox items pulled from Notion.
+   Syncing second-brain... git pull: 3 changes.
    📥 "Look into certification programs" — captured yesterday on phone
    📥 "project-alpha: supplier replied" — forwarded from email
    📥 Quick note: "revisit budget assumptions"
@@ -653,7 +600,7 @@ You: End session.
      💤 N3: new evidence for "deliberate decision-maker" dimension (+1)
      💤 REM: 🚨 Stale commitment detected — 32 days ago you said you would
             draft the freelance plan. Triggered for next session's briefing.
-   Phase 4 — Sync: git push... Notion sync... done.
+   Phase 4 — Sync: git add + commit + push... done.
    ✅ Completion checklist verified. Session archived.
    ↩️ To undo any auto-write: delete the file, or say "undo recent wiki/SOUL"
       next session.
@@ -694,7 +641,7 @@ Life OS installs in one command. It requires a **Pro Mode** terminal — that me
 
 On first start, you pick your theme. The system auto-detects your language and recommends a match, but the choice is always yours. You can switch at any time by saying "switch theme."
 
-**First run**: The system detects that no second-brain exists and walks you through setup — pick your storage backend(s), and the full directory structure is created automatically. On subsequent sessions, the system detects what kind of directory you are in: Life OS system repo (development), second-brain (normal use), or a project repo (connects to configured second-brain path).
+**First run**: The system detects that no second-brain exists and walks you through setup — it initializes the git repo (local working copy + optional GitHub remote) and the full directory structure automatically. On subsequent sessions, the system detects what kind of directory you are in: Life OS system repo (development), second-brain (normal use), or a project repo (connects to configured second-brain path).
 
 **Set up auto-updates** (Claude Code):
 
@@ -805,7 +752,7 @@ For detailed setup including storage backend configuration, see the **[full inst
  │  │         · SOUL × strategy: driving forces aligned with values?
  │  │         · Wiki × flows: knowledge actually transferring between projects?
  │  │         · Patterns × priorities: avoiding a critical-path project?
- │  │     Phase 4 🔄 Sync: git push + Notion (4 operations)
+ │  │     Phase 4 🔄 Sync: git add + commit + push
  │  │     ✅ Completion checklist: every item must have a concrete value
  │  │
  │  └─ 🎋 STRATEGIST — Hall of Human Wisdom
@@ -818,7 +765,7 @@ For detailed setup including storage backend configuration, see the **[full inst
  │        Ending: parting words → thinking journey saved to knowledge base
  │
  └─ 💾 Storage Layer
-       GitHub / Google Drive / Notion (pick 1-3)
+       GitHub (git repo: local working copy + remote)
        ├── SOUL.md          🔮 Personality archive (grows from zero)
        ├── user-patterns.md 📊 Behavioral patterns (ADVISOR observations)
        ├── meta/

@@ -50,7 +50,7 @@ The 22 lifeos subagents share 4 underlying behavioral principles, borrowed from 
 - Multi-step tasks: state brief plan + verify step
 - Strong success criteria let agents loop independently
 - **The test:** *Can I write the verification before the implementation?*
-- **lifeos enforcement:** B5 `evals_scenarios:` required frontmatter field in every planning document (v1.8.7, dispatcher rejects without it) · reviewer-final verification gate · self-driven loops B4 (verify-release-and-watch / notion-sync-and-watch) · method library
+- **lifeos enforcement:** B5 `evals_scenarios:` required frontmatter field in every planning document (v1.8.7, dispatcher rejects without it) · reviewer-final verification gate · self-driven loops B4 (verify-release-and-watch) · method library
 
 ### Spec writing conventions (Karpathy-borrowed)
 
@@ -327,10 +327,10 @@ ROUTER must NOT:
 - Scan session for wiki/SOUL/strategic candidates
 - List candidates to user
 - Ask "do you want to save these?"
-- Say "tell me, then I'll launch DREAM/Notion sync"
+- Say "tell me, then I'll launch DREAM"
 - Perform ANY Phase 1/2/3/4 logic
 
-After archiver subagent emits the Completion Checklist → orchestrator executes Notion sync (Step 10a in CLAUDE.md) using MCP tools available in the main context → then session ends.
+After archiver subagent emits the Completion Checklist → session ends. (Archiver performs the git push itself in Phase 4; there is no separate orchestrator sync step.)
 
 ### Review
 User says Review trigger → ROUTER output:
@@ -359,7 +359,7 @@ Line 2+: Immediately Launch(retrospective) as subagent in Mode 2
   - Scanning the session for "pre-extracted" wiki/SOUL/strategic candidates (that's Phase 2, archiver's job)
   - Asking the user "which candidates do you want to save?" (archiver asks inside the subagent)
   - Listing candidates and waiting for user's pick (same — it's archiver's internal interaction)
-  - Saying "tell me your decision, then I'll launch DREAM / Notion sync" (splits the 4-phase flow — violation)
+  - Saying "tell me your decision, then I'll launch DREAM" (splits the 4-phase flow — violation)
 - The entire adjourn flow must be executed by the archiver subagent in ONE launch, producing all 4 phases + Completion Checklist
 - If ROUTER outputs ANY Phase content in the main context → this is a process violation. AUDITOR must flag it.
 
@@ -497,7 +497,7 @@ Every retrospective Mode 0 invocation MUST include a Conscious Patrol section (`
 
 ### HARD RULE · Self-driven loops with ScheduleWakeup (v1.8.7 B4)
 
-Some long-running tasks (release verification, Notion sync) used to require the user to manually rerun a command every few minutes until done. v1.8.7 introduces **self-driven loops** using Claude Code's `ScheduleWakeup` tool — the command schedules its own next iteration at a cache-friendly interval, polls for terminal state, and exits when done or at a hard cap.
+Some long-running tasks (release verification) used to require the user to manually rerun a command every few minutes until done. v1.8.7 introduces **self-driven loops** using Claude Code's `ScheduleWakeup` tool — the command schedules its own next iteration at a cache-friendly interval, polls for terminal state, and exits when done or at a hard cap.
 
 **Pattern source**: `tinyhumansai/openhuman` `.claude/commands/ship-and-babysit.md`. **Full spec**: `references/self-driven-loops-spec.md`.
 
@@ -506,7 +506,6 @@ Some long-running tasks (release verification, Notion sync) used to require the 
 | Command | Base | Purpose |
 |---------|------|---------|
 | `/verify-release-and-watch [tag]` | `/verify-release` | Polls all 10 release checks until PASS or hard cap; auto-fixes missing GitHub Release publish |
-| `/notion-sync-and-watch [--resume]` | `/notion-sync` | Polls Notion sync until queue empty; resumes from checkpoint after transient failures |
 
 **Three hard invariants (DR-derived)**:
 

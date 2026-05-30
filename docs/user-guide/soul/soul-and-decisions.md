@@ -182,7 +182,7 @@ previous_snapshot: 2026-04-17-1850.md
 ### 归档策略
 
 - > 30 天：移到 `meta/snapshots/soul/_archive/`
-- > 90 天：从文件系统删除（git + Notion 已保留）
+- > 90 天：从当前文件系统删除（git 历史中仍保留，可追溯）
 
 ---
 

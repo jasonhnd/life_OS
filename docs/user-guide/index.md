@@ -35,7 +35,7 @@ Cortex 是 Pre-Router Cognitive Layer——每次开口前自动翻历史、激�
 ### 存储与同步
 
 - [Second Brain](second-brain/second-brain-overview.md) — 数据层目录结构
-- [Storage & Sync](storage-and-sync/sync-protocol.md) — 会话开始拉 / 结束写 / Notion 中转
+- [Storage & Sync](storage-and-sync/sync-protocol.md) — 会话开始 git pull / 结束 git push
 - [Wiki](wiki/wiki-overview.md) — 可复用知识档案
 
 ## 相关文档

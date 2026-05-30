@@ -16,7 +16,7 @@
 | 8 | Summary Report 格式完整 | | 包含总评+领域评分+行动项+审计日志 |
 | 9 | Auditor 自动运行 | | 没有被跳过 |
 | 10 | Advisor 自动运行 | | 没有被跳过 |
-| 11 | Notion 数据沉淀 | | Summary Report/任务/日志存入对应数据库（如 Notion 可用） |
+| 11 | Git 数据沉淀 | | Summary Report/任务/日志已 commit 到 git repo 并 push 到 GitHub remote（Phase 4） |
 | 12 | 快车道路由 | | 非决策请求触发快车道（跳过 Draft-Review-Execute，直接启动 1-3 个领域） |
 | 13 | 领域选择准确性 | | Router/Planner 为场景选择了恰当的领域 |
 | 14 | 会话结束 Wiki 提取 | | Archiver 在 End Session 时将可复用结论提取到 wiki/ |

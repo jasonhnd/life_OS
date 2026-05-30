@@ -77,29 +77,25 @@ git config --unset extensions.worktreeConfig
 
 ## 存储问题
 
-### Q：可以不连 Notion 吗？
+### Q：存储是怎么组织的？
 
-**可以**。Notion 是可选数据层。不连 Notion，所有功能正常——只是失去"移动端收件箱"和跨会话的云端同步。
+存储是**单一后端：一个 git repo**——本地工作副本（在硬盘上，也是你的 Obsidian vault）+ 一个 GitHub remote 用于备份和跨设备同步。没有多后端，没有 primary/sync 之分。
 
-### Q：三个后端该选哪个？
+### Q：可以不配 GitHub remote 吗？
 
-| 情况 | 推荐 |
-|------|------|
-| 懂 git、熟悉命令行 | **GitHub**（推荐） |
-| 不想学 git、希望零配置 | **Google Drive** |
-| 重度 Notion 用户 | **Notion**（作为完整后端） |
-| 已有 GitHub，想要移动端 | **GitHub + Notion**（Notion 作传输层） |
-| 混合场景 | 可同时启用三个 |
+**可以**。本地工作副本自己就能完整工作。GitHub remote 是可选的——配上之后才有离线备份和跨设备同步（`git pull` / `git push`）。纯本地用法所有功能正常，只是不能跨机器同步。
 
-自动选择规则：`GitHub > Google Drive > Notion`，优先级高的作 primary（读+写），其余作 sync（仅写）。
+### Q：同步是怎么做的？
 
-### Q：多后端冲突时怎么办？
+普通 git：
+- 会话开始：`git pull`（RETROSPECTIVE）拉回远端变更
+- 会话结束：`git add` + `commit` + `push`（ARCHIVER Phase 4）推上去
 
-- 只有一个后端改了 → 直接采纳
-- 两个后端都改了同一项，时间差 > 1 分钟 → `last_modified` 胜出
-- 两个后端都改了同一项，时间差 ≤ 1 分钟 → 保留两版本，ROUTER 问用户选哪个
+跨设备就是在另一台机器上 `git pull`。
 
-详见 `references/data-model.md` 的 Conflict Resolution。
+### Q：跨设备改同一个文件冲突了怎么办？
+
+就是普通的 git 合并冲突。下次 `git pull` 时 git 会标出冲突，按平常解决 git 冲突的方式处理即可（没有跨后端的特殊冲突逻辑）。
 
 ### Q：多会话并行会不会打架？
 
@@ -110,15 +106,9 @@ git config --unset extensions.worktreeConfig
 
 可以在 Claude Code 窗口 A 处理项目 A、同时在窗口 B 处理项目 B，互不干扰。
 
-### Q：我在 Notion 页面里直接改了东西，为什么没同步？
+### Q：手机上怎么记东西？
 
-**在传输模式下**（Notion 只作 sync，primary 是 GitHub/GDrive），Notion **没有** Task/Decision/Journal 数据库——这些都在 GitHub/GDrive。Notion 只有 📬 Inbox、🧠 STATUS 镜像、🗄️ Archive 三个组件。
-
-若你在 Inbox 之外的 Notion 页面直接编辑，这些变更对同步协议不可见。
-
-**解决**：
-- 移动端捕获都走 📬 Inbox
-- 正文编辑都在桌面端用 Obsidian（对 GitHub）或 Drive 客户端（对 GDrive）
+通过你自己的 git 工作流：用手机 git 客户端（如 Working Copy），或一个会同步到仓库的文件夹，把 markdown 提交进 `inbox/`。下次桌面会话 `git pull` 拉下来，RETROSPECTIVE 处理。没有云端 inbox。
 
 ---
 
@@ -278,7 +268,7 @@ Life OS 的核心价值是**独立 subagent 间的制衡**。如果所有"角色
 ### Q：Life OS 会把我的数据发给谁？
 
 - **模型侧**：每次会话的输入都发给你选择的模型供应商（Anthropic / Google / OpenAI）。这些数据受各供应商的隐私政策约束
-- **存储侧**：Life OS 只写入你配置的后端（GitHub 自己的 repo / Google Drive 自己的账户 / Notion 自己的 workspace）——没有任何 "Life OS 服务器"
+- **存储侧**：Life OS 只写入你自己的 git repo（本地工作副本 + 你自己的 GitHub remote）——没有任何 "Life OS 服务器"
 - **分析侧**：没有——Life OS 没有遥测、没有用量追踪
 
 ### Q：Wiki 的"零隐私过滤器"是什么？
@@ -299,8 +289,7 @@ DREAM N3 阶段扫描 decisions/ 寻找可复用结论时，会应用隐私过�
 
 部分可以：
 - 模型调用必须联网（所有 LLM 都是云端服务）
-- 但存储后端如果用 GitHub，`git commit` 可以离线；等联网时再 `git push`
-- Google Drive 和 Notion 必须联网
+- 存储是本地 git 工作副本，`git commit` 完全离线可用；等联网时再 `git push` 到 GitHub remote
 - 读取既有 `.md` 文件（用 Obsidian）可以完全离线——Life OS 文件本身就是纯 markdown
 
 ---

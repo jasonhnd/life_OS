@@ -60,8 +60,7 @@ Phase 3 (DREAM):
 - REM (10 trigger evaluations, creative connections)
 
 Phase 4 (Sync):
-- git push to GitHub adapter
-- Notion sync (handed back to orchestrator step 10a)
+- git add + commit + push to the GitHub remote
 
 ### Completion Checklist (HARD RULE)
 
@@ -76,8 +75,7 @@ Every checklist field MUST have a concrete value — no `TBD`, no `{...}`, no em
 - Phase 2 SessionSummary: written to meta/outbox/{id}/sessions/{id}.md
 - Phase 2 SOUL snapshot: 2026-04-21-1530.md
 - Phase 3 DREAM: 3 N1-N2 items, 1 N3 consolidation, 2 REM triggers (stale-commitment, repeated-decisions)
-- Phase 4 git: pushed (hash {actual-sha}, 12 files changed)
-- Phase 4 Notion: handed to orchestrator (step 10a)
+- Phase 4 git: pushed to GitHub remote (hash {actual-sha}, 12 files changed)
 ```
 
 ### AUDITOR Compliance Patrol (auto, after archiver completes)
@@ -239,18 +237,15 @@ AUDITOR channel 1. The archiver must write one trail file per phase:
 - `meta/runtime/<session_id>/archiver-phase-4.md`
 
 Each `archiver-phase-{1,2,3,4}.md` file must contain both `input_summary`
-and `output_summary`.
+and `output_summary`. Phase 4's trail records the `git add + commit + push`
+operations (commit hash, push result) — storage is a single git repo, so there
+is no separate transport-layer sync trail.
 
-The orchestrator Step 10a Notion sync must also write
-`meta/runtime/<session_id>/notion-sync.md`. That file must contain 4 MCP call
-records, and each record must include both the MCP `input_payload` and
-`output_payload`.
-
-#### R11 positive case: complete archiver and Notion sync trails
+#### R11 positive case: complete archiver trails
 
 Input: all 4 `archiver-phase-{1,2,3,4}.md` files exist with
-`input_summary` and `output_summary`; `notion-sync.md` exists with exactly 4
-MCP call records, each carrying input and output payloads.
+`input_summary` and `output_summary`; the phase-4 trail records the git
+commit hash and push result.
 
 Expected: AUDITOR returns `PASS` for R11 adjourn audit trail verification.
 
@@ -267,14 +262,10 @@ Input: an archiver phase trail exists but lacks `input_summary` or
 
 Expected: AUDITOR logs `C-trail-incomplete`.
 
-#### R11 negative case 3: incomplete Notion sync evidence
+#### R11 negative case 3: incomplete Phase 4 git evidence
 
-Input: `notion-sync.md` is absent.
-
-Expected: AUDITOR logs `C-no-audit-trail`.
-
-Input: `notion-sync.md` exists but has fewer or more than 4 MCP call records,
-or any call record lacks `input_payload` or `output_payload`.
+Input: `archiver-phase-4.md` exists but records no git commit hash or push
+result.
 
 Expected: AUDITOR logs `C-trail-incomplete`.
 
@@ -287,7 +278,7 @@ completion checklist, or audit conclusions.
 #### R12 negative case 1: second trigger reuses previous adjourn report
 
 Input: transcript contains 2 `退朝` triggers. The second response says
-`如上次所述 outbox/wiki/Notion sync unchanged` with no fresh phase execution
+`如上次所述 outbox/wiki/git push unchanged` with no fresh phase execution
 evidence.
 
 Expected: AUDITOR logs `C-fresh-skip` (P0).

@@ -117,7 +117,7 @@ Detail steps:
 
 For user-invoked manual rebuild (outside Mode 0), see `scripts/prompts/rebuild-session-index.md`.
 
-**Failure modes** (per spec §5): if individual session file has malformed YAML, log filename to `meta/sync-log.md` and skip — corrupt session is omitted from INDEX but file preserved for inspection. Do not block briefing.
+**Failure modes** (per spec §5): if individual session file has malformed YAML, annotate the filename in the briefing and skip — corrupt session is omitted from INDEX but file preserved for inspection. Do not block briefing.
 
 **Reporting**: include `📚 Session Index: N sessions indexed` in Mode 0 briefing. If recompile diff size differs from previous run by >10 sessions, also note `(Δ +N / -M from previous index)`.
 
@@ -363,12 +363,8 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    - If YES → proceed to step 4
    - If NO → FIRST-RUN mode (v1.9 layout — per RFC §11.1):
      a. Report: "📦 First session — no second-brain detected."
-     b. Ask: "Where should I store your data?
-        a) GitHub (version-controlled, works with Obsidian)
-        b) Google Drive (zero setup)
-        c) Notion (mobile-friendly)
-        You can pick multiple."
-     c. User answers → create v1.9 directory structure at target path:
+     b. Confirm storage: "Your data lives in a git repo — a local working copy (also your Obsidian vault) backed up to a GitHub remote. I'll initialize it here. (No remote configured → works local-only.)"
+     c. Initialize → create v1.9 directory structure at target path:
         meta/
           config.md           (含 migrated_to: v1.9 — 见步骤 d)
           STATUS.md
@@ -417,11 +413,9 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
    ```
    Briefing MUST report the divergence status from this snippet.
 
-6. FULL SYNC PULL [LLM judgment]: query ALL configured backends for changes since last_sync_time
-   - Compare timestamps, resolve conflicts (see data-model.md)
-   - Apply winning changes to primary backend
-   - Push primary state to sync backends
-   - Update meta/sync-log.md + last_sync_time
+6. GIT PULL [LLM judgment]: `git pull` the second-brain repo to absorb changes pushed from other devices
+   - Not a git repo / no remote → local working copy only (annotate "💾 Storage: local only")
+   - Merge conflict → surface the conflicting files to the user (see data-model.md)
    - R11 AUDIT TRAIL: before proceeding to Step 7, write `meta/runtime/<sid>/retrospective-step-6.md` via inline md write with YAML frontmatter (v1.8.6 R13 md audit trail; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md, not .json).
 
 7. OUTBOX MERGE [v1.8.0 R-1.8.0-011 · inline tool calls + LLM narrative · v1.9 path schema]: scan meta/outbox/ for unmerged session directories
@@ -594,8 +588,8 @@ Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and
 ```
 📋 Pre-Session Preparation:
 - 📂 Session Scope: [projects/xxx or areas/xxx]
-- 💾 Storage: [GitHub(primary) + Notion(sync)]
-- 🔄 Sync: [Pulled N changes from Notion, M from GDrive / no changes / single backend]
+- 💾 Storage: [GitHub / local only]
+- 🔄 Sync: [git pull: N changes / no changes / local-only]
 - Platform: [name] | Model: [name]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ Up to date / ⬆️ Update available — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
@@ -725,7 +719,7 @@ The session briefing is ready. What would you like to focus on?
 
 Prepare with whatever data you can access. Note what you cannot:
 - second-brain unreachable -> "[second-brain unavailable]"
-- Notion unavailable -> "[Notion not connected]"
+- git remote unreachable -> "[remote not reachable — local only]"
 
 ### Output Format (Housekeeping Mode)
 
@@ -741,7 +735,7 @@ Prepare with whatever data you can access. Note what you cannot:
 - Behavior Profile: [loaded / not established]
 - Global Overview: [N total projects: A(active) B(active) C(on hold)...]
 - Strategic Map: [N lines / not configured]
-- Notion Inbox: [N new messages / empty / not connected]
+- Inbox: [N unprocessed items / empty]
 ```
 
 ---

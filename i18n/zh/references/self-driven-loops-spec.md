@@ -7,7 +7,6 @@ source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/commands/ship-and-
 introduced_in: v1.8.7
 referenced_by:
   - .claude/commands/verify-release-and-watch.md
-  - .claude/commands/notion-sync-and-watch.md
   - SKILL.md (Self-driven loops 章节)
 ---
 
@@ -19,9 +18,9 @@ slash 命令使用 `ScheduleWakeup` 自调步骤进行迭代检查（轮询 → 
 
 自驱循环适合当**全部**满足：
 
-1. **任务有清楚的终态**（如"所有 9 个 verify-release check PASS"、"所有 Notion 项已同步"）。模糊的"永远监控"不是有效用例
+1. **任务有清楚的终态**（如"所有 9 个 verify-release check PASS"）。模糊的"永远监控"不是有效用例
 2. **每次迭代廉价**（一两个工具调用 + 简短 LLM 推理，不是完整 subagent 启动）
-3. **外部状态会在迭代间变化**（CI 完成、GitHub Release publish、Notion sync 完成、用户推了修复）
+3. **外部状态会在迭代间变化**（CI 完成、GitHub Release publish、用户推了修复）
 4. **用户显式调用了循环**（如键入 `/verify-release-and-watch v1.8.7`）—— 永不从另一个命令自动调用自驱循环
 
 不适合用例（**不要**为以下场景建自驱循环）：
@@ -55,7 +54,7 @@ slash 命令使用 `ScheduleWakeup` 自调步骤进行迭代检查（轮询 → 
 - **输出状态快照**给用户：当前状态、剩什么待办、为什么超时
 - **问用户**怎么办（重跑？放弃？升级？）
 
-60 分钟上限反映了：如果外部状态一小时还没到终态，肯定有问题（CI 卡死 / Release 卡 Draft / Notion 授权过期），需要人眼。
+60 分钟上限反映了：如果外部状态一小时还没到终态，肯定有问题（CI 卡死 / Release 卡 Draft），需要人眼。
 
 `tickCount` 必须每次都在 `ScheduleWakeup` `reason` 字段可见（如 `"tick 5/12: waiting for GitHub Release publish"`），跨 tick 可恢复不漂移。
 
@@ -66,7 +65,7 @@ slash 命令使用 `ScheduleWakeup` 自调步骤进行迭代检查（轮询 → 
 | 模式 | 例 |
 |------|----|
 | 所有检查通过 | "全部 9 个 verify-release check PASS" → 退出 |
-| 空队列 | "Notion sync 项队列空" → 退出 |
+| 空队列 | "所有队列项已处理" → 退出 |
 | 用户解决 | "用户手动完成了阻塞项" → 退出 |
 | 硬上限 | "tickCount > 12" → 带状态快照退出 |
 

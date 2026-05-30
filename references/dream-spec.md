@@ -19,7 +19,7 @@ Dream report written to meta/journal/{YYYY-MM-DD}-{slug}-dream.md
      rule — they stay as separate typed `<date>-<slug>-dream.md` files, still
      date-prefixed under meta/journal/. Per v1.9 RFC §3.5.2.1 / Bug #11 decision B.
      The daily meta/journal/<date>.md may tag `dream` + wikilink to this file.)
-ARCHIVER: Phase 4 Sync (git + Notion) → Session ends
+ARCHIVER: Phase 4 Sync (git add + commit + push) → Session ends
 ```
 
 If DREAM fails or times out → log warning to `meta/sync-log.md`, don't block session end.
@@ -30,10 +30,8 @@ If DREAM fails or times out → log warning to `meta/sync-log.md`, don't block s
 
 **Default: files modified in the last 3 days (72 hours).** If no files were modified in the last 3 days, automatically expand to "since the last dream report" (read the date from the most recent `meta/journal/*-dream.md`). If no dream report exists, scan the last 7 days as a fallback.
 
-Detection method:
-- GitHub backend: `git log --since="3 days ago" --name-only --format=""` → if empty, `git log --since="{last_dream_date}" --name-only --format=""`
-- GDrive backend: `modifiedTime > 3_days_ago` → if empty, `modifiedTime > last_dream_date`
-- Notion backend: `last_edited_time > 3_days_ago` → if empty, `last_edited_time > last_dream_date`
+Detection method (git):
+- `git log --since="3 days ago" --name-only --format=""` → if empty, `git log --since="{last_dream_date}" --name-only --format=""`
 
 ---
 

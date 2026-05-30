@@ -41,7 +41,7 @@ PLANNER 在规划时参考本文件。每个领域下设四个分支（Division�
 
 - **Fitness Division（健身）**：运动计划、饮食营养、睡眠质量、体检、心理健康
 - **Housing Division（住房）**：居住空间优化、搬家、装修、工作空间布局
-- **Digital Division（数字化）**：Notion/知识库、服务器与域名、开发环境、数据备份、自动化
+- **Digital Division（数字化）**：笔记/知识库系统、服务器与域名、开发环境、数据备份、自动化
 - **Routines Division（日常）**：日常作息、早晚流程、家务效率、生活节奏
 
 ---

@@ -119,7 +119,7 @@ Stage 6 Day 17 添加新 AUDITOR mode。检查:
 |---|---|---|---|
 | router | propose | suggest_only + write_inactive | medium |
 | retrospective | specify | suggest_only + write_inactive | low |
-| archiver | publish | publish（最高 — 做 git push + Notion sync）| medium |
+| archiver | publish | publish（最高 — 做 git push）| medium |
 | planner | specify | write_candidate | low |
 | reviewer | validate | approve（否决权）| high（judgment）|
 | dispatcher | implement | mutate_active（dispatch 到 domain）| medium |

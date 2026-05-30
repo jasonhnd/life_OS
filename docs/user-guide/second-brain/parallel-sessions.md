@@ -2,7 +2,7 @@
 
 **本地备忘。不推送 GitHub。给自己看的技术参考。**
 
-真实场景：你在 A 项目的终端开了个会话，家人在客厅用另一台 Mac 开了一个 CC 讨论家庭事情。或者你在公司用桌面电脑上 Claude Code，手机上同时用 Claude.ai 配合 Notion 记东西。
+真实场景：你在 A 项目的终端开了个会话，家人在客厅用另一台 Mac 开了一个 CC 讨论家庭事情。或者你在公司用桌面电脑上 Claude Code，手机上同时用 git 客户端往 `inbox/` 记东西。
 
 Life OS 支持这种 **多会话并行**。核心机制：outbox 模式 + .merge-lock。
 
@@ -212,13 +212,13 @@ outbox 里有：
 
 ### 场景 A · 桌面 + 手机
 
-你在桌面开会话讨论 career 项目。同时手机上用 Claude.ai 往 Notion inbox 丢东西。
+你在桌面开会话讨论 career 项目。同时手机上用 git 客户端往 `inbox/` 提交东西并 push。
 
-- 桌面会话：正常跑，退朝写 outbox。
-- 手机 Notion：实时写入 Inbox 数据库。
-- 下次上朝：读 Notion inbox + 合并 outbox → 都吸收。
+- 桌面会话：正常跑，退朝写 outbox + `git push`。
+- 手机：用 git 把 markdown 提交进 `inbox/` 并 push 到 remote。
+- 下次上朝：`git pull` 读 inbox/ + 合并 outbox → 都吸收。
 
-不会冲突，因为两边写不同的东西。
+不会冲突，因为两边写不同的文件（git 合并即可）。
 
 ### 场景 B · 两个桌面会话
 
@@ -233,38 +233,30 @@ outbox 里有：
 
 你在 Claude Code 跑一个会话。同时 Gemini CLI 跑另一个。两个平台独立的 orchestrator。
 
-- 每个平台维护自己的 `last_sync_time`（在 `meta/config.md` 里）。
-- 两个平台都写自己的 outbox。
-- 任何一个下次 Start Session 都会合并两个平台的 outbox。
+- 两个平台都写自己的 outbox 并 `git push` 到同一个 GitHub remote。
+- 任何一个下次 Start Session `git pull` 都会拿到对方的提交，并合并两个平台的 outbox。
 
-注意：`last_sync_time` 按平台存：
+git 自身按 commit 追踪每台设备/平台的状态，不需要 Life OS 维护各平台的同步时间戳。Gemini CLI 下次上朝 `git pull` 自然拿到 Claude Code push 的东西，不会漏。
 
 ```yaml
+# meta/config.md
 storage:
-  backends:
-    - type: github
-      role: primary
-  sync_log:
-    - platform: claude-code
-      last_sync: "2026-04-08T22:00:00+09:00"
-    - platform: gemini-cli
-      last_sync: "2026-04-08T18:30:00+09:00"
+  type: git
+  remote: "git@github.com:user/second-brain.git"
 ```
-
-Gemini CLI 下次上朝读**自己的** `last_sync`（18:30），查 Claude Code 在 22:00 推的东西。不会漏。
 
 ---
 
 ## 冲突检测
 
-真正冲突（两个会话改同一个 index 字段、时间差 < 1 分钟）会在合并时被发现。此时：
+两个会话改同一个文件，但都没先 pull，会在 `git pull` 时被 git 标为合并冲突。此时：
 
-1. ROUTER 晨报告诉用户："冲突：projects/X/index.md 的 status 字段有两个值。"
-2. 保留两个版本在 outbox 里不删。
-3. 问用户选哪个。
-4. 用户选了 → 写入 primary，推到 sync backends，清掉 outbox。
+1. ROUTER 晨报告诉用户："git 合并冲突：projects/X/index.md 的 status 字段有两个值。"
+2. git 在文件里插入冲突标记，保留两个版本。
+3. 问用户选哪个（或直接在 Obsidian / 编辑器里解决冲突标记）。
+4. 用户选定 → `git add` + 提交 + push。
 
-绝大多数情况下不会冲突 — 因为并行会话通常绑定不同项目。
+绝大多数情况下不会冲突 — 因为并行会话通常绑定不同项目，写不同文件。
 
 ---
 

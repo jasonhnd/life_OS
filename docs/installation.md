@@ -235,8 +235,8 @@ A: [Claude Code](https://claude.ai/code) is recommended. Full Pro Mode with mult
 **Q: I use both Claude Code and Antigravity. Will they conflict?**
 A: No. They use different orchestration files (`CLAUDE.md` vs `GEMINI.md`) and different agent model mappings. The same `pro/agents/*.md` files are shared. Just make sure `.claude/worktrees/` is in your `.gitignore` to prevent Antigravity from choking on Claude's temporary files.
 
-**Q: Can I use it without connecting Notion?**
-A: Yes. Notion is an optional data layer. Without it, all features work normally — you just won't have cross-session memory on mobile.
+**Q: Can I use it without a GitHub remote?**
+A: Yes. Storage is a single git repo. The local working copy on disk (also your Obsidian vault) works fully on its own. A GitHub remote is optional — add one when you want off-machine backup and cross-device sync via `git pull` / `git push`.
 
 **Q: Can I use it in a language other than Chinese?**
 A: Yes. The system supports English, Chinese, and Japanese. You can ask questions in any language.

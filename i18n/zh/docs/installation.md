@@ -234,8 +234,8 @@ A：推荐 [Claude Code](https://claude.ai/code)。完整 Pro 模式，多个独
 **Q：我同时用 Claude Code 和 Antigravity，会冲突吗？**
 A：不会。它们使用不同的编排文件（`CLAUDE.md` vs `GEMINI.md`）和不同的模型映射。共享的是 `pro/agents/*.md` 文件。只需确保 `.claude/worktrees/` 在你的 `.gitignore` 中，防止 Antigravity 因 Claude 的临时文件而卡住。
 
-**Q：不连接 Notion 能用吗？**
-A：能。Notion 是可选的数据层。不连接时所有功能照常工作，只是没有移动端的跨会话记忆。
+**Q：不配 GitHub 远端能用吗？**
+A：能。存储就是单一的 git 仓库。磁盘上的本地工作副本（同时也是你的 Obsidian vault）完全能独立工作。GitHub 远端是可选的——想要异地备份和经 `git pull` / `git push` 跨设备同步时再加。
 
 **Q：可以用中文以外的语言吗？**
 A：可以。系统支持英文、中文和日文。你用任何语言提问都能正常工作。

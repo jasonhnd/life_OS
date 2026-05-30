@@ -86,13 +86,13 @@ journal_date: 2026-04-08
 
 ## 変更検出
 
-同期用: `git log --since="{last_sync_time}" --name-only --format=""`
+同期用: `git pull` がリモート変更をマージ；変更一覧は `git log ORIG_HEAD..HEAD --name-only --format=""`
 
 最終同期以降に変更されたファイルのリストを返します。各ファイルをパースして type + id + last_modified を取得します。
 
 ## 削除
 
-フロントマターにマーク: `_deleted: true`。ユーザーがすべてのバックエンドでの確認をするまで `git rm` は行わない。
+ファイルを削除して `git rm`、commit する；削除は他の変更と同様に次の push/pull で伝播。単一バックエンド —— ソフト削除 `_deleted: true` トゥームストーンやクロスバックエンド確認はなし。
 
 ## コミット規約
 

@@ -232,7 +232,7 @@ Authoritative spec: `references/snapshot-spec.md` §YAML Frontmatter Schema.
 | previous_snapshot | string \| null | yes | Prior filename or null for first snapshot |
 | dimensions | array | yes | `[{name, confidence: 0-1, evidence_count, challenges, tier}]` where tier ∈ `core`/`secondary`/`emerging` |
 
-Storage: `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`. Local-only (not Notion-synced). Metadata only — no SOUL body content. Immutable.
+Storage: `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`. Metadata only — no SOUL body content. Immutable.
 
 ### EvalEntry
 
@@ -337,96 +337,58 @@ Index compilers (retrospective Mode 0 → STATUS.md / STRATEGIC-MAP.md, archiver
 
 ---
 
-## Multi-Backend Rules
+## Storage Backend (GitHub + local working copy)
 
-### Backend Selection
+Life OS uses a **single storage backend**: a git repository. The second-brain lives as a local working copy on disk (also your Obsidian vault); GitHub is the remote that backs it up and syncs it across devices. There is no primary/sync split, no per-backend probing, and no cross-backend conflict layer — git provides versioning, backup, and multi-device sync natively.
 
-Users choose 1, 2, or 3 backends. When multiple are selected, one is automatically designated as **primary** (reads + writes), others are **sync** (writes only).
+> Earlier versions also offered Google Drive and Notion as selectable backends with a multi-backend sync protocol; both were removed — storage is GitHub-only.
 
-**Auto-selection rule**: GitHub > Google Drive > Notion
+### Read / Write
 
-| Config | Primary | Sync |
-|--------|---------|------|
-| GitHub only | GitHub | — |
-| GDrive only | GDrive | — |
-| Notion only | Notion | — |
-| GitHub + Notion | GitHub | Notion |
-| GitHub + GDrive | GitHub | GDrive |
-| GDrive + Notion | GDrive | Notion |
-| All three | GitHub | GDrive + Notion |
-
-### Write Order
-
-1. Write to primary backend first
-2. Then write to each sync backend in order
-3. If any sync backend fails → annotate `⚠️ [backend] write failed`, log to `meta/sync-log.md`, continue with others
-4. Next session auto-retries failed writes
-
-### Read Order
-
-1. Read from primary backend
-2. If primary unavailable or search returns nothing → try sync backends in order
-3. Search results annotate which backend they came from
+- **Read** — from the local working copy (the files on disk).
+- **Write** — to the local working copy. Persistence to the GitHub remote happens at session end via git (ARCHIVER Phase 4).
 
 ---
 
 ## Sync Protocol
 
+Sync is plain git — no MCP probing, no primary/sync split, no per-platform `last_sync` bookkeeping. Git history is the record of "what changed since last time".
+
 ### Session Start (RETROSPECTIVE Housekeeping)
 
 ```
-0. Read meta/config.md → get backend list and last sync timestamp
-1. Probe each configured backend for availability:
-   - GitHub: check if git repo is accessible (git status)
-   - GDrive: check if Google Drive MCP is connected (attempt list)
-   - Notion: check if Notion MCP is connected (attempt search)
-   Mark unavailable backends as SKIPPED for this session.
-   If primary is unavailable, temporarily promote the next available backend.
-   Log: "💾 Backends: GitHub ✅ | GDrive ❌ (MCP not connected) | Notion ✅"
-2. For each AVAILABLE sync backend:
-   - Query "items modified since [this platform's last_sync_time]"
-   - GitHub: git log --since
-   - GDrive: modifiedTime > last_sync_time
-   - Notion: last_edited_time > last_sync_time
-3. Compare changes:
-   - Only one backend changed an item → adopt it
-   - Two backends changed the same item → last_modified wins
-   - Time difference < 1 minute → mark as CONFLICT, keep both versions
-4. Apply winning changes to primary backend
-5. Push primary state to all sync backends
-6. Update meta/sync-log.md with sync results
-7. Update this platform's last_sync_time in meta/config.md (do not touch other platforms' timestamps)
+1. `git pull` (fetch + merge) the second-brain repo to absorb changes pushed from other devices.
+2. Not a git repo / no remote configured → operate on the local working copy only; annotate "💾 Storage: local only (no remote)".
+3. Merge conflict on pull → surface the conflicting files to the user to resolve (rare for single-user vaults).
 ```
 
-### Session End (RETROSPECTIVE Wrap-up)
+### Session End (ARCHIVER Phase 4)
 
 ```
-1. Write all outputs to primary backend
-2. Write all outputs to each sync backend
-3. Update meta/config.md last_sync_time
-4. Any backend failure → log, don't block
+1. Merge session outboxes into the main structure (see Constraints · outbox pattern).
+2. `git add` + `git commit` the session's changes.
+3. `git push` to the remote. Push fails (offline / no remote) → annotate "⚠️ not pushed — will sync next session", keep the commit local.
 ```
 
 ---
 
 ## Conflict Resolution
 
+A single backend means no cross-backend divergence. The only conflict source is two devices editing the same file between syncs, which surfaces as a **git merge conflict** on `git pull`:
+
 | Situation | Action |
 |-----------|--------|
-| One backend changed | Adopt the change |
-| Two backends changed same item, time diff > 1 min | Last_modified wins (last write wins) |
-| Two backends changed same item, time diff ≤ 1 min | CONFLICT: keep both versions, ROUTER asks user to choose |
-| User resolves conflict | Winning version pushed to all backends |
+| Clean pull (no overlap) | Fast-forward / auto-merge, proceed |
+| Same file edited on two devices | git merge conflict → ROUTER surfaces the conflicting files, user resolves, commit the resolution |
+
+The outbox pattern (one directory per session) makes same-file conflicts rare even with concurrent local sessions.
 
 ---
 
 ## Deletion Rules
 
-- **Deletion does NOT sync across backends**
-- When an item is deleted on one backend → other backends mark it `_deleted: true` (soft delete)
-- Next session, ROUTER asks user: "Item X was deleted on [backend]. Delete from all backends?"
-- User confirms → hard delete everywhere
-- User declines → restore on the backend where it was deleted
+- Deletion is a normal git operation (`git rm` / delete the file + commit). It propagates on the next push/pull like any other change.
+- No soft-delete `_deleted: true` tombstones and no cross-backend deletion prompts — those existed only to reconcile multiple backends.
 
 ---
 
@@ -434,36 +396,24 @@ Users choose 1, 2, or 3 backends. When multiple are selected, one is automatical
 
 | Scenario | Handling |
 |----------|---------|
-| Backend offline during write | Skip that backend, annotate ⚠️, log to sync-log.md. Next session auto-retries. |
-| Crash mid-sync | Next startup: compare last_modified across all backends, detect inconsistencies, auto-repair from newest. |
-| Data corrupted on one backend | ROUTER detects anomaly, asks user: "Restore from [other backend]?" |
-| New device | Config lives in meta/config.md. Git clone → config ready. No second-brain → session-level config. |
-| Add new backend | ROUTER asks: "Sync existing data from [primary] to [new backend]?" |
-| Remove backend | ROUTER asks: "Keep data on [removed backend] or clean up?" |
+| Remote unreachable at session end | Commit locally, skip push, annotate ⚠️. Next session's `git push` catches up. |
+| Merge conflict on pull | Surface the conflicting files; user resolves before proceeding. |
+| Not a git repo / no remote | Operate on the local working copy only; nothing is pushed. Output still shown in conversation. |
+| New device | `git clone` the second-brain repo → ready. No second-brain → session-level config. |
 
 ---
 
 ## Configuration
 
-Stored in `meta/config.md` (in second-brain repo):
+The git remote lives in the repo's own `.git/config` — Life OS does not duplicate it. `meta/config.md` no longer carries a `storage.backends` list or per-platform `last_sync` timestamps (git history is the source of truth for "what changed since last time").
 
 ```yaml
+# meta/config.md (storage section)
 storage:
-  backends:
-    - type: github
-      role: primary
-    - type: notion
-      role: sync
-  sync_log:
-    - platform: claude-code
-      last_sync: "2026-04-10T15:30:00Z"
-    - platform: gemini-cli
-      last_sync: "2026-04-10T14:00:00Z"
+  remote: github          # single backend; "none" = local-only working copy
 ```
 
-**Per-platform sync timestamps**: Each platform records its own `last_sync` time. When Gemini CLI starts a session, it reads **its own** `last_sync` and queries for changes since that time — not since Claude Code's last sync. This prevents missed changes when the user alternates between platforms.
-
-No second-brain → config stored in session context, ROUTER asks each new session.
+No second-brain → ROUTER operates session-local (no persistence).
 
 ---
 
@@ -473,7 +423,7 @@ No second-brain → config stored in session context, ROUTER asks each new sessi
 - **Session-id format**: `{platform}-{YYYYMMDD}-{HHMM}`, generated at adjourn time (not session start). Example: `claude-20260412-1700`, `gemini-20260412-1900`.
 - **Outbox merge lock**: During merge, write `meta/.merge-lock`. If it exists and is < 5 minutes old, skip merge and proceed normally. Delete after merge completes.
 - **Empty sessions**: If a session has no output (no decisions, tasks, or journal entries), do not create an outbox.
-- Mobile devices write through Notion inbox or GDrive inbox, not directly to structured data
+- Mobile capture lands in `inbox/` via the user's own git workflow (mobile git client / synced folder), not directly into structured data; it is processed on the next desktop session
 - All adapters must support the 7 standard operations
 
 ### Outbox Manifest Format

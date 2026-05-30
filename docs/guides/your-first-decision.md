@@ -379,9 +379,9 @@ Operations Report:
   - wiki 候选"分居 12 月关系损耗 15-25%"——个人推论非公开研究，证据 1 不够 2，**discard**
   - SOUL 候选"决策时家庭意见权重"——**自动写入** confidence 0.3，What SHOULD BE 留空
 - **Phase 3 DREAM**：首次决策，REM 写"基线建立"
-- **Phase 4 Sync**：git push + Notion 推送
+- **Phase 4 Sync**：git add + commit + push（推到 GitHub remote）
 
-输出 Completion Checklist + Notion sync 结果后会话结束。
+输出 Completion Checklist + git push 结果后会话结束。
 
 ## 第 15 步 · 你该读什么
 

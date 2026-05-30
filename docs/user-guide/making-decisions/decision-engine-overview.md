@@ -42,7 +42,7 @@ Life OS 的做法：每个角色是独立 subagent，信息只在必要处传递
 
 ### 0. 预备会 · ROUTER + RETROSPECTIVE 并行启动
 
-**为什么并行不串行**：ROUTER 需要响应用户，RETROSPECTIVE 需要读 second-brain / Notion / user-patterns / wiki / 版本检查 / 平台检测。如果串行，用户要等整个 I/O 链路。并行后 ROUTER 拿到上下文再回话，首次响应含完整 Pre-Session Preparation。
+**为什么并行不串行**：ROUTER 需要响应用户，RETROSPECTIVE 需要 git pull + 读 second-brain / user-patterns / wiki / 版本检查 / 平台检测。如果串行，用户要等整个 I/O 链路。并行后 ROUTER 拿到上下文再回话，首次响应含完整 Pre-Session Preparation。
 
 **为什么不能跳过**：这是会话绑定的时机。没有 Pre-Session Preparation，ROUTER 就不知道绑定到哪个项目，后续所有读写都可能越界。
 
@@ -140,9 +140,9 @@ AUDITOR 还有另一个模式：Patrol Inspection，由 RETROSPECTIVE 在 housek
 1. **归档** — decisions / tasks / journal → outbox
 2. **知识提取** — 扫描所有会话材料，符合严格条件的 wiki 和 SOUL 条目自动写入（6 wiki 条件 + 隐私过滤；SOUL 条件 + 低初始置信度）
 3. **DREAM** — 3 晚深度回顾（N1-N2 整理，N3 巩固，REM 创造性连接）
-4. **同步** — git push + Notion 同步（4 个具体操作）
+4. **同步** — git add + commit + push（推到 GitHub remote）
 
-Notion 同步在第 10a 步由 orchestrator（主上下文）执行，因为 archiver 无法访问 Notion MCP 工具。
+存储是单一 git repo，同步就是 Phase 4 的 `git push` —— 没有独立的传输层或编排层后处理步骤。
 
 ### 11. STRATEGIST · 群贤堂（问你要不要）
 
@@ -186,7 +186,7 @@ STRATEGIST 不走 Draft-Review-Execute，独立运作：18 领域思想家索引
 
 ## 真实例子 · 一次"是否辞职创业"的全流程
 
-1. **预备会**：RETROSPECTIVE 拉出历史 — Notion 里有 3 篇相关笔记，user-patterns 显示你过去半年提过 4 次"不想干了"
+1. **预备会**：RETROSPECTIVE `git pull` 后拉出历史 — wiki 里有 3 篇相关笔记，user-patterns 显示你过去半年提过 4 次"不想干了"
 2. **ROUTER 分诊**：这是决策问题（A 或 B + 不可逆 + 情绪强）→ 全朝议。启动意图澄清，3 轮。
 3. **PLANNER 规划**：拆成 6 维度（财务安全、技能匹配、家庭影响、创业方向、法律风险、健康承受）。指派六领域全部启动。SOUL 参考加一维"家庭优先于事业（0.8 confidence）"。
 4. **REVIEWER 初审**：Conditionally Approved — 附加条件"必须包含 10/10/10 Regret Test"
@@ -197,7 +197,7 @@ STRATEGIST 不走 Draft-Review-Execute，独立运作：18 领域思想家索引
 9. **ROUTER 奏折**：整体评分 6/10，"条件成熟度 70%，建议延迟 3-6 个月找联创"
 10. **AUDITOR**：流程无违规
 11. **ADVISOR**：基于历史"你 4 次提过想辞职但都没动，这次的触发是什么？" — 建议先列"不辞职时每天最难受的 3 件事"
-12. **ARCHIVER**：归档决策文件、自动写入一条 SOUL 维度候选（confidence 0.3）、DREAM 触发、同步到 Notion
+12. **ARCHIVER**：归档决策文件、自动写入一条 SOUL 维度候选（confidence 0.3）、DREAM 触发、Phase 4 git add + commit + push
 
 这就是 11 步干完的事。
 

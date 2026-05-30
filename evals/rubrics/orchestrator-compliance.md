@@ -16,7 +16,7 @@ Audit the orchestration quality of each complete workflow (the Router is the chi
 | 8 | Summary Report format complete | | Includes overall assessment + domain scores + action items + audit log |
 | 9 | Auditor runs automatically | | Not skipped |
 | 10 | Advisor runs automatically | | Not skipped |
-| 11 | Notion data persistence | | Summary Report/tasks/logs stored in corresponding databases (if Notion available) |
+| 11 | Git data persistence | | Summary Report/tasks/logs committed to the git repo and pushed to the GitHub remote (Phase 4) |
 | 12 | Express path routing | | Non-decision requests trigger Express path (skip Draft-Review-Execute, direct to 1-3 domains) |
 | 13 | Domain selection accuracy | | Router / Planner selects appropriate domains for the scenario |
 | 14 | Wiki extraction at session close | | Archiver extracts reusable conclusions into wiki/ at End Session |

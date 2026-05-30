@@ -17,7 +17,6 @@ Examples:
 ```text
 meta/runtime/20260426T112233/retrospective-step-1.md
 meta/runtime/20260426T112233/archiver-phase-4.md
-meta/runtime/20260426T112233/notion-sync.md
 ```
 
 `session_id` is created once by ROUTER for a Life OS flow and reused by every subagent and orchestrator trail. Canonical format is `YYYYMMDDTHHMMSS`, with an optional suffix when a host needs collision avoidance.
@@ -29,7 +28,7 @@ Every audit trail file MUST be a markdown file with this structure:
 ```markdown
 ---
 subagent: retrospective|archiver|hippocampus|...
-step_or_phase: 1|6|phase-1|step-10a|...
+step_or_phase: 1|6|phase-1|phase-4|...
 step_name: THEME RESOLUTION|SOUL HEALTH SCAN|...
 started_at: <ISO8601>
 ended_at: <ISO8601>
@@ -84,8 +83,8 @@ value_invocations:
 
 | Field | Type | Meaning |
 |-------|------|---------|
-| `subagent` | string | Agent or orchestrator actor, e.g. `retrospective`, `archiver`, `notion-sync`. |
-| `step_or_phase` | string | Step or phase identifier, e.g. `step-1`, `phase-2`, `step-10a`. |
+| `subagent` | string | Agent or orchestrator actor, e.g. `retrospective`, `archiver`. |
+| `step_or_phase` | string | Step or phase identifier, e.g. `step-1`, `phase-2`, `phase-4`. |
 | `step_name` | string | Human-readable step/phase name. |
 | `started_at` | string | ISO 8601 start timestamp. |
 | `ended_at` | string | ISO 8601 end timestamp. |
@@ -106,19 +105,9 @@ AUDITOR Mode 3 validates:
 - Existence: each completed subagent has at least one expected trail file.
 - Schema: every markdown file has valid YAML frontmatter with all required fields.
 - Freshness: every trail file has `fresh_invocation: true` and integer `trigger_count_in_session`.
-- Cross-check: `output_summary` matches the ROUTER-pasted wrapper, required markers, payloads, Notion handoff receipts, and transactional token table.
+- Cross-check: `output_summary` matches the ROUTER-pasted wrapper, required markers, payloads, and transactional token table.
 - Token receipt: trail token fields can be summed and compared with the visible transaction receipt.
 - **v1.8.6 NEW**: no `.json` or `.yml` files in `meta/runtime/<session_id>/` (per HARD RULE "No .py/.sh/.yml/.json"). Any such file = `F4 SCOPE_FAILURE: forbidden extension in runtime dir`.
-
-## Notion Sync
-
-Step 10a writes:
-
-```text
-meta/runtime/<session_id>/notion-sync.md
-```
-
-The file uses `subagent: notion-sync` and `step_or_phase: step-10a` in frontmatter. Its `tool_calls` array records the Notion MCP operations with input and output payload summaries. ROUTER MUST write this file even when MCP is unavailable, using a failure summary instead of pausing for user permission.
 
 ## Migration from R12 JSON to R13 markdown (v1.8.5 → v1.8.6)
 

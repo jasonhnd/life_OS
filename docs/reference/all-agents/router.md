@@ -49,8 +49,8 @@ ROUTER 是所有用户消息的**入口点**。简单请求由它直接处理；
 
 📋 Pre-Session Preparation:
 - 📂 Session Scope: [projects/xxx or areas/xxx]
-- 💾 Storage: [GitHub(primary) + Notion(sync) / 未配置]
-- 🔄 Sync: [从同步后端拉取 N 条变更 / 无同步需求 / 单后端]
+- 💾 Storage: [git repo (本地工作副本 + GitHub remote) / 仅本地]
+- 🔄 Sync: [git pull: N changes / 无变更 / 无 remote]
 - Platform: [平台名] | Current Model: [模型名]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ 最新 / ⬆️ 有更新 — Claude Code: ... · Gemini/Codex: ...]
@@ -59,7 +59,7 @@ ROUTER 是所有用户消息的**入口点**。简单请求由它直接处理；
 - Behavior Profile: [已加载 / 未建立]
 ```
 
-如存储未配置，询问："数据要存在哪？GitHub / Google Drive / Notion — 可多选。"
+如存储未配置，询问："要初始化 git repo 吗？（本地工作副本，可选配 GitHub remote 用于备份和跨设备同步）"
 如果平台当前模型不是最强，询问用户是否切换。
 
 ### 2. SOUL / Wiki / Strategic Map 参考

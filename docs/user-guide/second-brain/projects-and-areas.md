@@ -140,7 +140,7 @@ strategic:
 | `deadline` | AUDITOR 巡查超期项目时用 |
 | `area` | 把项目链到大方向 |
 | `strategic.*` | STRATEGIC-MAP 编译时用，跨项目依赖图的节点 |
-| `last_modified` | 多后端同步冲突解决时用 |
+| `last_modified` | 记录最近修改时间，便于人和 DREAM 判断新旧 |
 
 ### status 的五个值
 

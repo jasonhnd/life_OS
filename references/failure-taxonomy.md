@@ -66,12 +66,12 @@ introduced_in: v1.8.5
 ### F8 — TOOL FAILURE
 - **Definition**: Script, model, API, or external tool fails hard.
 - **Repair**: Isolate dependency, add fallback, add stop condition.
-- **Example**: Notion MCP unavailable mid-Phase-4; gh CLI returns 502.
+- **Example**: `git push` fails mid-Phase-4 (remote unreachable); gh CLI returns 502.
 
 ### F9 — TRACE FAILURE
 - **Definition**: Run cannot be reconstructed; trace missing or contradicts declared steps.
 - **Repair**: Improve trace capture; every step writes to `meta/runtime/<sid>/`.
-- **Example**: archiver Phase 4 completes but writes no `notion-sync-*.md` audit trail.
+- **Example**: archiver Phase 4 completes but writes no `archiver-*.md` audit trail.
 
 ### F10 — RESPONSIBILITY FAILURE
 - **Definition**: No clear owner, approval gate, or escalation path; OR same party executes and approves.

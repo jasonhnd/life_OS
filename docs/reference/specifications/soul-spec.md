@@ -191,7 +191,7 @@ ADVISOR 在以下条件满足时创建新的 SOUL 维度：
 
 - 活跃快照：`meta/snapshots/soul/YYYY-MM-DD-HHMM.md`
 - 归档（>30 天）：`meta/snapshots/soul/_archive/YYYY-MM-DD-HHMM.md`
-- 删除（>90 天）：从文件系统移除（git 和 Notion 中保留）
+- 删除（>90 天）：从当前文件系统移除（git 历史中仍保留，可追溯）
 
 ### 快照格式
 

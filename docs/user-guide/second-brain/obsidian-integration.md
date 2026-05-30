@@ -22,9 +22,7 @@ Life OS 的 second-brain 是纯 markdown + YAML 文件。Obsidian 可以直接�
 
 ## 设置 Obsidian vault
 
-### 路径 A · GitHub second-brain
-
-你的 second-brain 是 git repo，clone 在本地某处（比如 `~/second-brain`）。
+你的 second-brain 是单一 git repo —— 本地工作副本就**是**你的 Obsidian vault（同一个文件夹）。clone 在本地某处（比如 `~/second-brain`）。
 
 1. 打开 Obsidian。
 2. "Open folder as vault" → 选 `~/second-brain`。
@@ -37,25 +35,7 @@ Life OS 的 second-brain 是纯 markdown + YAML 文件。Obsidian 可以直接�
 - Obsidian 同时打开那个 vault，浏览、搜索、看图。
 - 两边实时同步（Obsidian 监控文件系统）。
 
-### 路径 B · Google Drive second-brain
-
-GDrive 的 second-brain 没 clone 在本地。你有两个选择：
-
-**选项 1 · 本地 Google Drive Sync**
-
-在桌面装 Google Drive 桌面客户端。让它同步 `second-brain/` 到本地。然后用 Obsidian 打开本地副本。
-
-风险：文件冲突。Obsidian 和 Drive 都在写时可能互相覆盖。
-
-**选项 2 · 手动导出 → 只读浏览**
-
-定期用 `rclone` 或 Drive 导出把 second-brain 拉到本地。Obsidian 只读模式浏览。新增内容还是走 CC 会话。
-
-### 路径 C · Notion primary
-
-不适用。Notion 里是数据库，不是 markdown 文件。Obsidian 打不开。
-
-如果你想用 Obsidian → 不要选 Notion 作为 primary。选 GitHub 或 GDrive。
+因为本地工作副本就是 vault，Obsidian 永远看到的是最新内容，无需任何导出或转换步骤。跨设备同步走普通 git（`git pull` / `git push`）。
 
 ---
 
@@ -66,23 +46,23 @@ GDrive 的 second-brain 没 clone 在本地。你有两个选择：
 DREAM 抽 wiki 时默认用 wikilinks 风格：
 
 ```markdown
-# Notion 替代品调研
+# 开源笔记工具调研
 
-Notion 有一些开源替代品，比如 [[appflowy]] 和 [[anytype]]。
-但都有自己的权衡 — 详见 [[notion-vs-appflowy]]。
+主流笔记工具有一些开源替代品，比如 [[appflowy]] 和 [[anytype]]。
+但都有自己的权衡 — 详见 [[appflowy-vs-anytype]]。
 
 这个话题和 [[tool-migration-cost]] 相关。
 
 ## 结论
 
 [[appflowy]] 对技术用户友好，[[anytype]] 对普通用户更亲和。
-项目 [[../../projects/notion-migration|Notion migration 项目]] 已立项。
+项目 [[../../projects/note-tool-migration|笔记工具迁移项目]] 已立项。
 ```
 
 打开 Obsidian：
 
 - `[[appflowy]]` → 点一下跳到 `wiki/tools/appflowy.md`（如果存在）。如果不存在 → Obsidian 用红色标出来，点一下创建。
-- `[[../../projects/notion-migration|Notion migration 项目]]` → 跳到那个项目目录的 index.md。管道后的是显示名。
+- `[[../../projects/note-tool-migration|笔记工具迁移项目]]` → 跳到那个项目目录的 index.md。管道后的是显示名。
 
 ### 反向链接（Backlinks）
 
@@ -208,7 +188,7 @@ SORT deadline ASC
 
 ### 1. Obsidian Sync
 
-Obsidian 官方有云同步服务。**不要用。** Life OS 已经有自己的同步机制（GitHub / GDrive / Notion）。加一层 Obsidian Sync 会让冲突解决变成噩梦。
+Obsidian 官方有云同步服务。**不要用。** Life OS 已经有自己的同步机制（git pull / push 到 GitHub remote）。加一层 Obsidian Sync 会让冲突解决变成噩梦。
 
 ### 2. 写决策的正式流程
 
@@ -238,7 +218,7 @@ Obsidian 有移动端。如果你的 second-brain 在本地 + iCloud Drive 同�
 
 但注意：手机上编辑会让数据绕过 CC 会话，还会触发 iCloud 的同步延迟问题。**建议手机只读**。
 
-手机上写东西的正路：Notion Inbox → 桌面 CC 下次上朝拉进来。
+手机上写东西的正路：用手机 git 客户端把 markdown 提交进 `inbox/` → 桌面 CC 下次上朝 `git pull` 拉进来。
 
 ### Linux / Windows
 

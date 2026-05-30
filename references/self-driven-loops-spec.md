@@ -7,7 +7,6 @@ source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/commands/ship-and-
 introduced_in: v1.8.7
 referenced_by:
   - .claude/commands/verify-release-and-watch.md
-  - .claude/commands/notion-sync-and-watch.md
   - SKILL.md (Self-driven loops section)
 ---
 
@@ -19,9 +18,9 @@ Specification for slash commands that use `ScheduleWakeup` to self-pace iterativ
 
 Self-driven loops are appropriate when ALL of these hold:
 
-1. **The task has a clear terminal state** (e.g. "all 9 verify-release checks PASS", "all Notion items synced"). Vague "monitor forever" is not a valid use case
+1. **The task has a clear terminal state** (e.g. "all 9 verify-release checks PASS"). Vague "monitor forever" is not a valid use case
 2. **Each iteration is cheap** (one or two tool calls + brief LLM reasoning, not a full subagent launch)
-3. **External state can change between iterations** (CI completes, GitHub Release publishes, Notion sync finishes, user pushes a fix)
+3. **External state can change between iterations** (CI completes, GitHub Release publishes, user pushes a fix)
 4. **The user has explicitly invoked the loop** (e.g. typed `/verify-release-and-watch v1.8.7`) — never auto-invoke a self-driven loop from another command
 
 Inappropriate use cases (do NOT build self-driven loops for):
@@ -55,7 +54,7 @@ Every self-driven loop MUST track `tickCount` (incremented on every loop entry, 
 - **Output a status snapshot** to the user: current state, what's still pending, why timeout hit
 - **Ask the user** how to proceed (rerun? abandon? escalate?)
 
-The 60-minute cap reflects: if external state hasn't reached terminal in an hour, something is wrong (CI hanging / Release stuck Draft / Notion auth expired) and human eyes are needed.
+The 60-minute cap reflects: if external state hasn't reached terminal in an hour, something is wrong (CI hanging / Release stuck Draft) and human eyes are needed.
 
 `tickCount` MUST be visible in the `ScheduleWakeup` `reason` field for every call (e.g. `"tick 5/12: waiting for GitHub Release publish"`) so it's recoverable across ticks and can't drift.
 
@@ -66,7 +65,7 @@ Each self-driven loop defines its own exit condition. Common patterns:
 | Pattern | Example |
 |---------|---------|
 | All-checks-pass | "All 9 verify-release checks PASS" → exit |
-| Empty-queue | "Notion sync items queue empty" → exit |
+| Empty-queue | "all queued items processed" → exit |
 | User-resolved | "User has manually completed the blocker" → exit |
 | Hard-cap | "tickCount > 12" → exit with status snapshot |
 

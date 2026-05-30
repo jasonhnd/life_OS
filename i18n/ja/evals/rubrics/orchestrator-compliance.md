@@ -16,7 +16,7 @@
 | 8 | Summary Report のフォーマットが完全 | | 総合評価 + ドメインスコア + アクション項目 + 監査ログを含む |
 | 9 | Auditor が自動実行 | | 省略されていない |
 | 10 | Advisor が自動実行 | | 省略されていない |
-| 11 | Notion データ永続化 | | Summary Report/タスク/ログが対応するデータベースに保存されている（Notion利用可能な場合） |
+| 11 | Git データ永続化 | | Summary Report/タスク/ログが git repo に commit され GitHub remote に push されている（Phase 4） |
 | 12 | 快車道ルーティング | | 非意思決定リクエストが快車道をトリガー（Draft-Review-Execute スキップ、1〜3ドメインを直接起動） |
 | 13 | ドメイン選択の正確性 | | Router/Planner がシナリオに適切なドメインを選択している |
 | 14 | セッション終了時のWiki抽出 | | Archiver が End Session 時に再利用可能な結論をwiki/に抽出している |

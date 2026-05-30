@@ -51,7 +51,7 @@
 - 想管理 SOUL → `user-guide/soul/`
 - 想理解晨报里的 DREAM 块 → `user-guide/dream/`
 - 想切主题或加新主题 → `user-guide/themes/`
-- 想调通 Notion 双向同步 → `user-guide/storage-and-sync/`
+- 想理解 git 同步（会话开始 pull / 结束 push）→ `user-guide/storage-and-sync/`
 - 想用 Hall of Wisdom 和苏格拉底聊 → `user-guide/hall-of-wisdom/`
 - 想理解 Cortex 认知层（跨会话记忆 / 概念图 / 方法库 / GWT 仲裁 / Narrator 引用 / AUDITOR 自反馈）→ 当前行为见 `pro/CLAUDE.md` §0.5；v1.7 时代的用户指南已归档到 `docs/history/cortex/`
 
@@ -72,7 +72,7 @@ v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow
 - `reference/all-9-themes/` — 9 个主题每个角色叫什么、什么 tone
 - `reference/all-agents/` — engine ID 到角色定义的索引
 - `reference/trigger-words.md` — 所有触发词一览
-- `reference/adapters/` — GitHub / Google Drive / Notion 的适配器规格
+- `reference/adapters/` — GitHub 存储后端的适配器规格
 - `reference/specifications/` — SOUL / DREAM / Wiki / Strategic Map 的数据结构
 
 ---

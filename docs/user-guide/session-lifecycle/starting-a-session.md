@@ -42,9 +42,9 @@
 - 存在 → 继续步骤 4。
 - 不存在 → FIRST-RUN 模式：
   1. 报告"📦 首次会话 — 未检测到 second-brain"。
-  2. 问存储位置：a) GitHub  b) Google Drive  c) Notion。可多选。
+  2. 初始化 git repo（`git init`，本地工作副本 + 可选的 GitHub remote 用于备份和跨设备同步）。
   3. 在目标路径创建目录结构：`meta/`、`projects/`、`areas/`、`wiki/`、`inbox/`、`archive/`、`templates/`。
-  4. 写 `meta/config.md` 记录所选 backend。
+  4. 写 `meta/config.md` 记录 git remote 配置。
   5. 跳过步骤 4-7（没数据可同步），直接到步骤 8。
   6. 晨报输出"✅ second-brain 已创建。尚无项目。告诉我在做什么"。
 
@@ -56,7 +56,7 @@
 
 ### Step 4. 读 config
 
-`meta/config.md` → 拿到 backend 列表 + last_sync_time。
+`meta/config.md` → 拿到 git remote 配置。
 
 ### Step 5. GIT HEALTH CHECK — Git 健康检查
 
@@ -70,16 +70,15 @@
 
 为什么必要：GLOBAL.md Security Boundary #1 — 没有用户确认不能执行破坏性操作。worktree 残留会让后续 git 命令失败。
 
-### Step 6. FULL SYNC PULL — 全量拉取
+### Step 6. GIT PULL — 拉取远端变更
 
-查询所有已配置的 backend，拿到 last_sync_time 之后的变更：
+`git pull`（若配置了 GitHub remote 且可达）：
 
-- 比对时间戳，按 `data-model.md` 的规则解决冲突。
-- 把赢家写入主 backend。
-- 把主 backend 状态推送到所有同步 backend。
-- 更新 `meta/sync-log.md` 和 `last_sync_time`。
+- 拉回远端自上次以来的变更（含手机经 git 写入 inbox/ 的条目）。
+- 冲突就是普通的 git 合并冲突，按常规 git 流程解决。
+- remote 不可达 → 降级为纯本地，记录 "⚠️ remote unavailable"，不阻塞。
 
-为什么必要：多设备。手机在 Notion 上加了一条，桌面要拿到。手机改了一条，桌面要看到。
+为什么必要：多设备。手机用 git 往 `inbox/` 加了一条，桌面 `git pull` 要拿到。另一台机器改了一条，本机要看到。
 
 ### Step 7. OUTBOX MERGE — 离线会话合并
 

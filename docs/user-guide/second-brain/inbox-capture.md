@@ -10,25 +10,23 @@ Inbox 是 Life OS 的 GTD 收集篮。所有"将来可能要想的事"先丢进�
 
 ## 两个位置
 
-### 1. 手机 → Notion Inbox 数据库
+### 1. 手机 → `inbox/`（经 git）
 
-移动端没有 second-brain 的完整结构（手机里没有 git repo）。但 Notion inbox 手机能访问。工作流：
+手机上没有 second-brain 的完整结构，但你可以用手机 git 客户端（如 Working Copy），或一个会同步到仓库的文件夹，把一条 markdown 提交进 `inbox/`。工作流：
 
 ```
 你在地铁上想到点子
   ↓
-打开 Claude.ai 手机端 / Notion 手机端
+用手机 git 客户端在 inbox/ 新建一个 .md（或往同步文件夹里丢）
   ↓
-说一嘴 或 打字一行
+写一行：应该调研日本的创业签证
   ↓
-Notion Inbox 里一条新记录
-  Content: "应该调研日本的创业签证"
-  Source: Mobile
-  Status: Pending
-  Time: 2026-04-08 14:32 JST
+git commit + push
+  ↓
+inbox/2026-04-08-startup-visa.md 已在远端
 ```
 
-不需要选项目、不需要选领域、不需要分类。就一句话 + 自动打的时间戳。
+不需要选项目、不需要选领域、不需要分类。就一句话。下次桌面会话 `git pull` 拉下来。
 
 ### 2. 桌面 → `second-brain/inbox/` 目录
 
@@ -76,7 +74,7 @@ XX 公司发新产品了 — 要和我们 Q2 的对比
 
 每次上朝 RETROSPECTIVE 自动：
 
-1. 读所有 backend 里的 inbox（GitHub inbox/ + Notion Inbox）。
+1. `git pull` 后读 `inbox/`（含手机经 git 提交的条目）。
 2. 列出所有 pending 条目。
 3. 晨报里告诉你有几条待处理。
 
@@ -107,7 +105,7 @@ XX 公司发新产品了 — 要和我们 Q2 的对比
 | 是 SOUL 线索 | ADVISOR 观察、积累 evidence，不直接写 |
 | 没用 / 不想做 | 直接删 |
 
-分流完：Notion 里那条 Status 改成 `Synced`，桌面 inbox 文件删掉或归档。
+分流完：把 `inbox/` 里那个文件删掉或归档（删除由 git 追踪，下次 push 同步到远端）。
 
 ### 手动处理一条
 
@@ -124,7 +122,7 @@ ROUTER：这个看起来是意向/目标类。选一个：
 你：a
 
 ROUTER：好，写进 areas/learning/notes/2026-04-08-german-intent.md。
-       Notion 里标为 Synced。
+       原 inbox/ 条目已归档（git 追踪，下次 push 同步）。
 ```
 
 ---
@@ -133,21 +131,21 @@ ROUTER：好，写进 areas/learning/notes/2026-04-08-german-intent.md。
 
 ### 手机 → 桌面
 
-手机写入 Notion Inbox 是即时的（通过 Notion MCP）。桌面下次上朝 RETROSPECTIVE 全量拉取时读到。
+手机用 git 客户端把条目提交进 `inbox/` 并 push 到 GitHub remote。桌面下次上朝 RETROSPECTIVE 在 `git pull` 阶段读到。
 
-**延迟**：从你手机上说那句话，到桌面看到它 = 取决于你下次上朝的时间。可能是 10 分钟，也可能是 2 天。
+**延迟**：从你手机上提交那条，到桌面看到它 = 取决于你下次上朝（`git pull`）的时间。可能是 10 分钟，也可能是 2 天。
 
 ### 桌面 → 手机
 
-桌面产生的东西（决策、todo、STATUS）通过 ARCHIVER 的 Step 10a 同步回 Notion。手机端就能看到。
+桌面产生的东西（决策、todo、STATUS）在 ARCHIVER Phase 4 `git push` 到 GitHub remote。手机 `git pull` 后就能看到。
 
-**延迟**：从你下"adjourn"到同步完成 = 通常 30 秒以内。
+**延迟**：从你下"adjourn"到 `git push` 完成 = 通常 30 秒以内；手机端看到取决于你何时 `git pull`。
 
-### 同步不走 Notion 以外的手机途径
+### 手机捕获走你自己的 git 工作流
 
-iOS 的 Shortcut、Android 的 Tasker 等等都没接。要写进 inbox 就一条路 — **经过 Notion**。
+要写进 inbox 就一条路 — **用 git 把 markdown 提交进 `inbox/`**（手机 git 客户端，或一个会同步到仓库的文件夹）。
 
-如果你不用 Notion：没有手机捕获通道。桌面独立用。
+如果你没配 GitHub remote / 不在手机上用 git：没有手机捕获通道，桌面独立用。
 
 ---
 
@@ -178,35 +176,35 @@ AUDITOR 定期检查：
 
 **Day 0, 14:32, 地铁上**
 
-你在 Notion 手机端：
+你用手机 git 客户端往 `inbox/` 提交一条：
 
 ```
-应该调研下 Notion 竞品看有没有更开源的选择
+应该调研下笔记工具，看有没有更开源的选择
 ```
 
 **Day 0, 22:00, 桌面上朝**
 
-晨报：
+晨报（`git pull` 已拉回这条）：
 
 ```
 📬 Inbox 待处理: 1 条
-  - 应该调研下 Notion 竞品看有没有更开源的选择
+  - 应该调研下笔记工具，看有没有更开源的选择
 ```
 
 你："这个放到 areas/learning/notes/ 吧，当作以后要做的研究笔记。"
 
-ROUTER 写入 `areas/learning/notes/2026-04-08-notion-alternatives.md`，Notion 里那条标 Synced。
+ROUTER 写入 `areas/learning/notes/2026-04-08-note-tools.md`，原 inbox/ 条目归档。
 
 **Day 14, 22:00, 桌面**
 
-你："今天想认真研究下 Notion 替代品。" → 触发 Express 分析 → 几个 domain 一起跑 → 产出比较报告 → 写进 `areas/learning/notes/2026-04-22-notion-alternatives-comparison.md`。
+你："今天想认真研究下开源笔记工具。" → 触发 Express 分析 → 几个 domain 一起跑 → 产出比较报告 → 写进 `areas/learning/notes/2026-04-22-note-tools-comparison.md`。
 
 **Day 30, DREAM**
 
-ARCHIVER 的 DREAM 阶段扫到两篇笔记累计了足够证据 → 抽取成 wiki 条目 `wiki/tools/notion-alternatives.md`，通过 6 准则 + 隐私过滤 → 自动写入。
+ARCHIVER 的 DREAM 阶段扫到两篇笔记累计了足够证据 → 抽取成 wiki 条目 `wiki/tools/note-tools.md`，通过 6 准则 + 隐私过滤 → 自动写入。
 
 **Day 180, 未来的你**
 
-你在做另一个项目时提到 Notion。晨报的 wiki INDEX 匹配上，告诉你"我们已经研究过 Notion 替代品了，看 `wiki/tools/notion-alternatives.md`"。
+你在做另一个项目时提到笔记工具。晨报的 wiki INDEX 匹配上，告诉你"我们已经研究过开源笔记工具了，看 `wiki/tools/note-tools.md`"。
 
 一个零摩擦捕获 → 6 个月后变成可复用的知识。这就是 inbox → wiki 的生命周期。

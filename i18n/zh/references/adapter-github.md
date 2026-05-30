@@ -86,13 +86,13 @@ journal_date: 2026-04-08
 
 ## 变更检测
 
-用于同步：`git log --since="{last_sync_time}" --name-only --format=""`
+用于同步：`git pull` 合并远端变更；列出变化用 `git log ORIG_HEAD..HEAD --name-only --format=""`
 
 返回自上次同步以来变更的文件列表。解析每个文件获取 type + id + last_modified。
 
 ## 删除
 
-在 front matter 中标记：`_deleted: true`。在用户确认跨所有后端删除前，不执行 `git rm`。
+删除文件并 `git rm`，然后 commit；删除会像其他改动一样在下次 push/pull 传播。单后端——无软删除 `_deleted: true` 墓碑、无跨后端确认。
 
 ## Commit 规范
 

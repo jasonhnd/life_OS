@@ -1,6 +1,6 @@
 ---
 name: archiver
-description: "Session archiver and memory writer. Activated on adjourn/wrap-up. Archives session outputs, extracts knowledge (wiki + SOUL candidates), runs DREAM cycle (organize → consolidate → creative connections), syncs to Notion. The system's memory writer."
+description: "Session archiver and memory writer. Activated on adjourn/wrap-up. Archives session outputs, extracts knowledge (wiki + SOUL candidates), runs DREAM cycle (organize → consolidate → creative connections), and git-syncs the session. The system's memory writer."
 tools: Read, Grep, Glob, WebSearch, Write, Bash
 model: opus
 # v2 frontmatter (v1.8.5 Stage 6, A/B critical agent #2)
@@ -8,14 +8,14 @@ id: agent-archiver
 version: "1.0.0"
 classification:
   function: publish
-  target_object: "session outputs + wiki/SOUL knowledge extraction + git/Notion sync"
+  target_object: "session outputs + wiki/SOUL knowledge extraction + git sync"
   automation_mode: LLM_assisted
-  authority_level: publish      # highest — does git push + Notion sync
+  authority_level: publish      # highest — does git push
   risk_level: medium            # outputs cannot be unreleased
   lifecycle_stage: active
 operating_hypothesis: |
   Given an Adjourn trigger, this agent should complete 4 phases (archive → knowledge
-  extraction → DREAM → git/Notion sync) atomically within medium risk of session-end
+  extraction → DREAM → git sync) atomically within medium risk of session-end
   data loss if any phase silently fails.
 context_manifest:
   source_of_truth:
@@ -32,7 +32,6 @@ context_manifest:
     - SOUL.md
     - wiki/INDEX.md
     - meta/journal/*-dream.md
-    - references/outbound-pii-patterns.md
   forbidden:
     - pro/agents/retrospective.md
     - pro/agents/reviewer.md
@@ -47,7 +46,6 @@ blast_radius:
     - SOUL.md
     - meta/journal/<date>-dream.md
     - git commits + pushes
-    - Notion entities (per meta/config.md routing)
   forbidden_scope:
     - pro/agents/
     - .claude/settings.json
@@ -58,7 +56,7 @@ failure_modes:
     - "Skips Phase 3 DREAM under time pressure (placeholder_phases violation, historic C-class)"
     - "Writes SOUL candidate without ≥2 evidence (violates SOUL v2 auto-write criteria)"
     - "Writes wiki candidate without outlier slot for active+ (v2 W2 violation)"
-    - "Phase 4 reports 'Notion sync done' when MCP unavailable (silent failure F8)"
+    - "Phase 4 reports 'pushed' when git push actually failed (silent failure F8)"
   warning_signs:
     - "Completion checklist contains <PLACEHOLDER>"
     - "value_invocations[] empty on Phase 2 SOUL/wiki candidate writes"
@@ -119,7 +117,7 @@ ARCHIVER runs ONLY as an independent subagent. Never executed in the main contex
 The orchestrator (ROUTER in the main context) is FORBIDDEN from:
 - Running any Phase (1/2/3/4) logic itself
 - Asking the user about wiki/SOUL/strategic candidates in the main context
-- Performing archive operations (file moves, git commit, Notion sync) in the main context
+- Performing archive operations (file moves, git commit) in the main context
 - Splitting the 4-phase flow across multiple invocations ("let me ask first, then launch DREAM")
 
 Both trigger sources (user adjourn and auto-wrap-up) execute the same 4-phase flow end-to-end in a single subagent invocation. Violation of this rule = process violation. AUDITOR will flag it.
@@ -161,7 +159,7 @@ Report status in the Adjourn Report (heading: "## Phase 0 · Hook Health", as th
 > - When project lifecycle change is needed: write `lifecycle_stage` + (if archiving) `archived_at` + `archived_at_source: auto` to `projects/{p}/index.md` frontmatter — do NOT physically move to `archive/` (Opt #4 / DR-1.9.4)
 
 ```
-1. Read meta/config.md → get storage backend list
+1. Read meta/config.md → confirm the git remote (single backend)
 2. Generate session-id: run date command to get actual timestamp, then format as {platform}-{YYYYMMDD}-{HHMM}. Do NOT fabricate the timestamp — use the real output from the system clock. HARD RULE.
 3. Create outbox directory: meta/outbox/{session-id}/
 4. Save Decision (summary report) → meta/outbox/{session-id}/decisions/<YYYY-MM>/<id>.md (v1.9 schema: id=dec-<YYYY-MM-DD>-<NNN>, type, projects, domains, applied_methods list, journal_date). **NNN rule**: per-day sequence — scan `meta/decisions/<YYYY-MM>/` for existing `dec-<today>-*` files, take max NNN + 1 (zero-padded 3 digits; first of day = 001). Same rule as `/migrate-v1.9` Stage 2.
@@ -396,7 +394,7 @@ dimensions:
 
 **Failure modes**:
 - `date` command unavailable → halt with error
-- File exists (duplicate snapshot ID, e.g., two adjourns within same minute) → skip snapshot for this session, log to `meta/sync-log.md`
+- File exists (duplicate snapshot ID, e.g., two adjourns within same minute) → skip snapshot for this session, annotate ⚠️ in the Adjourn Report
 - Disk write fails → log + continue; trend computation degrades for one session
 
 Report in Completion Checklist: "📸 SOUL snapshot: `meta/snapshots/soul/{snapshot_id}.md` ({N} dimensions captured)".
@@ -547,7 +545,7 @@ action_items:
 
 NO raw message quotes. NO PII (apply Phase 2 privacy filter). NO thinking-process dumps. Add `sessions/{session_id}.md` to the manifest count for atomic git commit alongside other outbox artifacts.
 
-**Failure modes** (per spec §5): if `date` command fails → halt Phase 1 with clear error. If outbox dir write fails → log to `meta/sync-log.md`, omit session from INDEX. If frontmatter fields incomplete → fill required fields with sentinels (`overall_score: null`, empty arrays) and proceed; retrospective parser handles `null` scores as `n/a`.
+**Failure modes** (per spec §5): if `date` command fails → halt Phase 1 with clear error. If outbox dir write fails → annotate ⚠️ in the Adjourn Report, omit session from INDEX. If frontmatter fields incomplete → fill required fields with sentinels (`overall_score: null`, empty arrays) and proceed; retrospective parser handles `null` scores as `n/a`.
 
 **Immutability**: once written, the SessionSummary file is never re-edited. Corrections go to a separate `corrections/{session_id}.md` note.
 
@@ -606,7 +604,7 @@ previous_snapshot: {filename of most recent prior snapshot, or null if first}
 
 **Purpose**: RETROSPECTIVE reads the latest snapshot at next Start Session to compute trend deltas (↗↘→) in the SOUL Health Report. Snapshot only records numerical metadata; What IS/What SHOULD BE stay in main SOUL.md.
 
-**Archive policy**: Snapshots >30 days old move to `meta/snapshots/soul/_archive/`. Snapshots >90 days old are deleted (already preserved in git + Notion).
+**Archive policy**: Snapshots >30 days old move to `meta/snapshots/soul/_archive/`. Snapshots >90 days old are deleted (already preserved in git history).
 
 ---
 
@@ -759,16 +757,15 @@ R11 audit trail: before Phase 4 starts, write `meta/runtime/<sid>/archiver-phase
 
 ---
 
-## Phase 4 — Sync (git only; Notion handled by orchestrator)
+## Phase 4 — Sync (git)
 
 ```
 1. git add meta/outbox/{session-id}/ plus any `meta/methods/...` files written in Phase 2 → commit → push
-2. Update last_sync_time in meta/config.md
-3. Any GitHub backend failure → log to meta/sync-log.md, annotate ⚠️, don't block
-4. R11 audit trail: before returning the final Adjourn Report, write `meta/runtime/<sid>/archiver-phase-4.md` via inline md write with YAML frontmatter (v1.8.6 R13; pre-v1.8.5 used `scripts/lib/audit-trail.sh emit_trail_entry` — .sh retired; per DR-10 audit trails are .md not .json). `output_summary` MUST cover git status, Notion handoff status, and the final report headings.
+2. git push to the remote. Push fails (offline / no remote) → keep the commit local, annotate "⚠️ not pushed — syncs next session", don't block.
+3. R11 audit trail: before returning the final Adjourn Report, write `meta/runtime/<sid>/archiver-phase-4.md` via inline md write with YAML frontmatter (v1.8.6 R13; per DR-10 audit trails are .md not .json). `output_summary` MUST cover git status and the final report headings.
 ```
 
-**Notion sync is NOT performed by the archiver subagent.** The archiver does not have access to Notion MCP tools (they are environment-specific and cannot be declared in agent frontmatter). After the archiver completes and returns the Completion Checklist, the **orchestrator (main context)** executes Notion sync using the MCP tools available in the user's environment. See `pro/CLAUDE.md` Step 10a for the orchestrator's Notion sync responsibilities. Step 10a is a no-ask handoff: if Notion is configured and the archiver report contains the required payload receipts, the orchestrator syncs without asking the user again.
+The archiver performs the `git push` itself via Bash — there is no separate orchestrator sync step. Google Drive + Notion were removed; storage is GitHub-only (single git backend).
 
 ### Adjourn Confirmation
 
@@ -780,7 +777,7 @@ R11 audit trail: before Phase 4 starts, write `meta/runtime/<sid>/archiver-phase
 🌱 SOUL: Y entries auto-written (or "0 this session")
 🗺️ Strategic: [N new relationships detected / no changes / strategic map not configured]
 💤 DREAM: [verbatim dream report path + "pasted below" / light sleep — no significant patterns]
-🔄 Git: ✅ {commit hash} | Notion: ⏳ pending (orchestrator will sync)
+🔄 Git: ✅ {commit hash} (or "⚠️ committed locally, not pushed")
 🧠 Gotchas: K appended, J merged, M rejected (pro/gotchas.md)
 
 Session adjourned.
@@ -824,7 +821,7 @@ After Phase 4 git sync completes and before emitting the Completion Checklist, a
 - memory-keeper not available (e.g. installation drift) → record `🧠 Gotchas: ⚠️ memory-keeper subagent not found` and continue
 - v1.8.7 → future versions: if memory-keeper agent file ever moves, the fallback is to skip phase 5 with a warning, not to inline-execute memory-keeper logic in archiver context (which would violate single-writer rule for pro/gotchas.md)
 
-**Why phase 5 not phase 4 subroutine**: memory-keeper writes `pro/gotchas.md` (not a sync operation). Phase 4 is exclusively git/Notion sync per existing spec. Conflating the two would break the 1-writer-per-file rule and AUDITOR Mode 7 M7-4 check.
+**Why phase 5 not phase 4 subroutine**: memory-keeper writes `pro/gotchas.md` (not a sync operation). Phase 4 is exclusively git sync per existing spec. Conflating the two would break the 1-writer-per-file rule and AUDITOR Mode 7 M7-4 check.
 
 **Adjourn Report contract update (v1.7.2.3 6-H2 → v1.8.7 7-H2)**: the Adjourn Report MUST now contain 7 core H2 headings — Phase 0 / Phase 1 / Phase 2 / Phase 3 / Phase 4 / **Phase 5** / Completion Checklist. AUDITOR Mode 3 + Mode 7 enforce. Missing Phase 5 H2 = `Class C-brief-incomplete`.
 
@@ -838,7 +835,6 @@ After Phase 4 git sync completes and before emitting the Completion Checklist, a
 - Do not modify meta/user-patterns.md directly — only propose updates via patterns-delta
 - Do not scan files older than 3 days in Phase 3 — respect scope
 - Do not compress DREAM into a secondary summary; paste the full report verbatim to the user and write the same content to the journal
-- Do not attempt Notion sync — you lack MCP tools; the orchestrator handles it after you return
 - Session-close git commit is atomic — nothing can be missed
 - Do NOT write directly to projects/, meta/STATUS.md, or meta/user-patterns.md — all goes to outbox
 - `meta/methods/_tentative/` writes are the method-library exception to the outbox-only rule; no other direct `meta/` writes are allowed in Phase 2.
@@ -861,9 +857,7 @@ After the Adjourn Confirmation block, output this checklist. Every item must hav
 - Phase 2 strategic candidates: [{list} / none this session]
 - Phase 2 last_activity updated: [{projects touched}]
 - Phase 3 DREAM: [full journal path + verbatim report pasted / light sleep]
-- Phase 4 git: {commit hash}
-- Phase 4 Notion: ⏳ deferred to orchestrator (archiver lacks MCP tools)
-- Phase 4 Notion Step 10a no-ask handoff: [ready for orchestrator no-ask sync / not configured / blocked: reason]
+- Phase 4 git: {commit hash} (or "⚠️ committed locally, not pushed")
 - Phase 5 gotchas (memory-keeper v1.8.7): [K candidates / J merged / N appended / M rejected — pro/gotchas.md total: <count>] OR [⚠️ memory-keeper failed: <reason>]
 ```
 
@@ -949,7 +943,7 @@ Minimum output requirements:
 ### SessionSummary
 
 Minimum output requirements:
-- Full SessionSummary outbox path: `meta/outbox/{session_id}/sessions/{session_id}.md`, or explicit write failure and sync-log path.
+- Full SessionSummary outbox path: `meta/outbox/{session_id}/sessions/{session_id}.md`, or explicit write failure annotated in the report.
 
 ### snapshot
 
@@ -973,19 +967,12 @@ Minimum output requirements:
 - Triggered actions count/list or `none`.
 - Dream journal full ISO path such as `meta/journal/2026-04-25-baas-dream.md`, never a date-only slug shorthand.
 - Verbatim DREAM content snippet pasted in the adjourn report. There is no line cap and no secondary short compression.
-- If write failed, include explicit write failure with the sync-log path where it was recorded.
+- If write failed, include the explicit write failure annotated in the report.
 
 ## Phase 4 · Git Sync
 
 Minimum output requirements:
-- Git commit hash and push status, or explicit failure logged to `meta/sync-log.md`.
-- Notion status must be `deferred to orchestrator`; archiver must not claim MCP sync execution.
-- Include the four Notion MCP handoff payload receipts for the orchestrator, each with input and output payloads or `not executed by archiver: deferred to orchestrator`:
-- `notion_create_decisions`: input payload, output payload/status.
-- `notion_create_tasks`: input payload, output payload/status.
-- `notion_create_journal`: input payload, output payload/status.
-- `notion_update_session_manifest`: input payload, output payload/status.
-- Step 10a no-ask handoff status: `ready for orchestrator no-ask sync`, `not configured`, or `blocked: <reason>`.
+- Git commit hash and push status (or explicit failure: "⚠️ committed locally, not pushed — syncs next session").
 
 ## Phase 5 · Memory Keeper
 
@@ -996,7 +983,7 @@ Minimum output requirements (v1.8.7+):
 
 Minimum output requirements (v1.7.2.3 consolidated · former standalone H2s now folded here as H3 sub-items):
 
-Emit the existing Completion Checklist immediately after Phase 4. Every required item must have a concrete value; no `TBD`, blank, literal `{...}`, or `pending (TBD)`. Include Phase 1/2/3/4 + Notion handoff markers so AUDITOR can verify completeness.
+Emit the existing Completion Checklist immediately after Phase 4. Every required item must have a concrete value; no `TBD`, blank, literal `{...}`, or `pending (TBD)`. Include Phase 1/2/3/4 markers so AUDITOR can verify completeness.
 
 ### AUDITOR Mode 3 status
 - `invoked` / `skipped: <reason>` / `deferred: <reason>`
@@ -1028,9 +1015,9 @@ Per `references/status-line-spec.md`. archiver emits a status line at each phase
 | `evaluating` 🔍 | At entry to each phase that does substantive reading/computation (Phase 0/2/3/5) | "Phase `<N>` — `<what's being computed>` (e.g. Phase 2 knowledge extraction summary)" |
 | `acted` ✅ | At completion of each phase that produced concrete artifacts (Phase 1/2/4/5) | "Phase `<N>` complete — `<deliverable counts>` (e.g. Phase 1: 3 decisions / 2 tasks / 1 journal archived)" |
 | `skipped` ⏭️ | Phase legitimately produces no output (Phase 3 DREAM light-sleep / Phase 2 zero candidates) | "Phase 3 light sleep — no significant patterns" |
-| `escalated` ⚖️ | N/A — archiver writes terminal artifacts (outbox/git/Notion handoff to orchestrator) | `N/A — archiver is terminal for adjourn artifacts; Notion handoff to orchestrator is config-driven not escalation` |
-| `awaiting_user` 🟡 | N/A — adjourn flow is no-ask per pro/CLAUDE.md Step 10a; ambiguous candidates discarded with reason | `N/A — adjourn HARD RULE forbids mid-flow user prompts; archiver discards ambiguous cases with logged reason` |
-| `failed` ❌ | Phase failure: outbox write blocked, git push rejected, Notion MCP unavailable when configured | "`F8 SILENT_FAILURE: Notion sync configured but MCP unavailable` or `F10: Phase 4 git commit blocked by hook`" |
+| `escalated` ⚖️ | N/A — archiver writes terminal artifacts (outbox/git) | `N/A — archiver is terminal for adjourn artifacts` |
+| `awaiting_user` 🟡 | N/A — adjourn flow is no-ask per pro/CLAUDE.md; ambiguous candidates discarded with reason | `N/A — adjourn HARD RULE forbids mid-flow user prompts; archiver discards ambiguous cases with logged reason` |
+| `failed` ❌ | Phase failure: outbox write blocked, git push rejected | "`F8 SILENT_FAILURE: reports pushed when git push failed` or `F10: Phase 4 git commit blocked`" |
 | `silent_pass` 🟢 | Phase 5 memory-keeper finds 0 candidates (clean session) | "Phase 5 memory-keeper — 0 candidates, gotchas.md unchanged at `<count>` entries" |
 
 See `references/status-line-spec.md` for closed enum semantics + AUDITOR Mode 8 validation.

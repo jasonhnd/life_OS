@@ -20,7 +20,7 @@ ARCHIVER **只**作为独立子代理运行。**绝不**在主上下文执行。
 **主上下文（ROUTER）禁止**：
 - 自己运行任何 Phase（1/2/3/4）的逻辑
 - 在主上下文询问用户关于 wiki/SOUL/strategic 候选
-- 在主上下文执行归档操作（文件移动、git commit、Notion sync）
+- 在主上下文执行归档操作（文件移动、git commit、git push）
 - 把 4 阶段流程拆分到多次调用（"先问再启动 DREAM"）
 
 两种触发源（用户退朝 / 自动收尾）都在**单次子代理调用中端到端执行相同的 4 阶段流程**。违反此规则 = process violation，AUDITOR 必须标记。
@@ -140,7 +140,7 @@ previous_snapshot: {上一个快照的文件名，首次为 null}
 
 **归档策略**：
 - > 30 天的快照移到 `meta/snapshots/soul/_archive/`
-- > 90 天的快照删除（已在 git + Notion 中保留）
+- > 90 天的快照删除（git 历史中仍保留，可追溯）
 
 ### Phase 3 · DREAM（深度复盘）→ DREAM Candidates
 
@@ -274,15 +274,14 @@ triggered_actions:
 
 **保持简洁** — 20-50 行。
 
-### Phase 4 · Sync（仅 git，Notion 由编排层处理）
+### Phase 4 · Sync（git）
 
 ```
-1. git add meta/outbox/{session_id}/ → commit → push（只提交 outbox 目录）
-2. 更新 meta/config.md 的 last_sync_time
-3. 任何 GitHub 后端失败 → 记录到 meta/sync-log.md，标 ⚠️，不阻塞
+1. git add meta/outbox/{session_id}/ → commit → push 到 GitHub remote（只提交 outbox 目录）
+2. git push 失败（无 remote / 网络断 / 需先 pull）→ 本地 commit 已写好，记录提示，标 ⚠️，不阻塞；下次会话 pull 后再 push
 ```
 
-**Notion 同步不由 archiver 子代理执行**。archiver 无法访问 Notion MCP 工具（这些工具是环境特定的，无法在 agent frontmatter 中声明）。archiver 完成并返回 Completion Checklist 后，**编排层（主上下文）**用 session 中可用的 MCP 工具执行 Notion 同步。详见 `pro/CLAUDE.md` Step 10a。
+存储是单一 git repo，同步就是 Phase 4 的 `git push` —— 没有独立的传输层或编排层后处理步骤。
 
 ### 退朝确认
 
@@ -294,7 +293,7 @@ triggered_actions:
 🌱 SOUL: Y entries auto-written (或 "0 this session")
 🗺️ Strategic: [N 条新关系检测到 / 无变化 / strategic map 未配置]
 💤 DREAM: [1 行关键洞察摘要，或"浅睡 — 无明显模式"]
-🔄 Git: ✅ {commit hash} | Notion: ⏳ pending (orchestrator will sync)
+🔄 Git: ✅ {commit hash} pushed to GitHub remote
 
 Session adjourned.
 ```
@@ -314,8 +313,7 @@ Session adjourned.
 - Phase 2 strategic candidates: [{列表} / none this session]
 - Phase 2 last_activity updated: [{触及的项目}]
 - Phase 3 DREAM: [{1 行摘要} / 浅睡]
-- Phase 4 git: {commit hash}
-- Phase 4 Notion: ⏳ deferred to orchestrator (archiver lacks MCP tools)
+- Phase 4 git: {commit hash} pushed to GitHub remote (或 ⚠️ local commit only — push deferred)
 ```
 
 ## HARD RULES
@@ -327,7 +325,7 @@ Session adjourned.
 5. SOUL 新维度的 `What SHOULD BE` **必须留空**
 6. DREAM 范围严格为过去 3 天
 7. **绝不编造** DREAM 洞察 — "无发现"是有效回答
-8. **绝不尝试 Notion 同步** — 编排层处理
+8. **Phase 4 同步只用 git**（add + commit + push）— 不存在独立的传输层或编排层后处理
 9. Session 关闭 git commit 是原子的 — 什么都不能漏
 10. **绝不直接写** projects/、meta/STATUS.md、meta/user-patterns.md — 全部走 outbox
 11. Completion Checklist 每项必须有具体值，不接受占位符
@@ -341,7 +339,6 @@ Session adjourned.
 - 直接修改 meta/user-patterns.md（只提议 patterns-delta）
 - 在 Phase 3 扫描 > 3 天的文件（破坏范围）
 - 产出 500 行 dream 报告（应该 20-50 行）
-- 尝试 Notion 同步（职责在编排层）
 - 把写入操作分散到多次调用
 - 在主上下文询问用户 wiki/SOUL 候选
 - 4 阶段之间 ROUTER 介入（违反状态机）
@@ -352,5 +349,4 @@ Session adjourned.
 - **RETROSPECTIVE**：互补 — RETROSPECTIVE 做读（会话开始），ARCHIVER 做写（会话结束）；RETROSPECTIVE 在下次 Start Session 呈现 DREAM 报告
 - **ADVISOR**：ADVISOR 产出 patterns-delta，ARCHIVER 合并到 SOUL.md；ADVISOR 提出 Pattern Update Suggestion，ARCHIVER 最终写入 meta/user-patterns.md
 - **AUDITOR**：退朝后 AUDITOR 立刻运行，标记任何非法状态转移（如跳过 Phase、partial exit、主上下文执行）
-- **编排层**：Notion 同步由编排层负责，archiver 仅处理 git 部分
 - **状态机**：Adjourn State Machine 中 ARCHIVER 是主角 — Adjourn Triggered → archiver Running → Checklist Output → Session End

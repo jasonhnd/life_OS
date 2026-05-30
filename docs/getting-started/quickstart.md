@@ -42,15 +42,11 @@
 🎨 Theme: 三省六部（检测到「上朝」是 Tang Dynasty 专属词，自动加载）
 
 📦 未检测到 second-brain 目录。要初始化吗？
-请选择存储后端（可多选）：
-1) GitHub
-2) Google Drive
-3) Notion
-
-输入数字（比如「13」表示 GitHub + Notion）：
+系统会初始化一个 git repo（本地工作副本 + 可选的 GitHub remote 用于备份和跨设备同步）。
+要现在配置 GitHub remote 吗？（也可以先纯本地用，之后再加）
 ```
 
-选完，系统自动建好目录结构（projects/、areas/、wiki/、meta/ 等），然后进入正常的上朝流程。
+确认后，系统自动建好目录结构（projects/、areas/、wiki/、meta/ 等）并 `git init`，然后进入正常的上朝流程。
 
 ### 如果你已经有 second-brain
 
@@ -61,8 +57,8 @@
 
 🌅 朝议准备：
 - Session Scope：本次朝议暂未绑定项目，请确认要处理哪个项目/领域
-- Storage：GitHub ✓ / Google Drive ✗ / Notion ✓
-- Sync：已完成 full pull（3 条 inbox 拉入）
+- Storage：git repo ✓ / remote: origin ✓
+- Sync：git pull 完成（3 条 inbox 拉入）
 - Platform：Claude Code
 - Life OS version：1.6.2a（已是最新）
 - Project Status：3 个活跃项目，1 个待检视
@@ -119,7 +115,7 @@
 1. **归档**：决策、任务、日志 → outbox
 2. **知识萃取**：SOUL 和 Wiki 在满足严格条件时自动写入
 3. **DREAM**：N1-N2 整理零碎 → N3 巩固知识 → REM 创造性联想 + 10 个触发动作
-4. **同步**：git push → Notion 同步（orchestrator 主上下文执行）
+4. **同步**：git add + commit + push（推到 GitHub remote）
 
 退朝完会给你一份 Completion Checklist，每项都有具体值（不接受「TBD」）。
 
@@ -150,8 +146,8 @@
 **问**：ROUTER 直接给我答案了，没走六部
 **答**：正常。不是每件事都需要六部。ROUTER 有三档：直接回（闲聊 / 翻译 / 安慰）、Express（非决策分析，派 1-3 部门）、完整朝议（决策类）。你可以说「完整审一下这件事」把它 escalate。
 
-**问**：退朝后 Notion 报 sync 失败
-**答**：Notion 是 orchestrator 在主上下文里用 MCP 工具同步的，subagent 看不见这些工具。如果报失败，检查 Notion MCP 连接（~/.claude.json 里的 mcp_servers 配置），或是容忍失败 —— GitHub 和 Google Drive 仍然会写成功。
+**问**：退朝后 `git push` 报失败
+**答**：通常是没配 GitHub remote，或网络断了，或远端有未拉取的新提交（需要先 `git pull`）。本地 commit 已经写好，数据不会丢 —— 下次会话开始 `git pull` 后再 push 即可，或手动解决 git 冲突。
 
 **问**：我一直忘记说「退朝」直接关 terminal 会怎样
 **答**：本次的决策和对话会丢失 —— ARCHIVER 没跑，outbox 没写，SOUL/Wiki 没更新，DREAM 没做。下次 start session 时系统不会知道这次发生过什么。养成说退朝的习惯。

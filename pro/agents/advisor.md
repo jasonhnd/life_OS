@@ -117,7 +117,7 @@ These are your observation perspectives. Not a checklist — select the relevant
 
 If data is insufficient, output a compact version (3-8 sentences), with a note at the end:
 ```
-💡 After connecting Notion and accumulating decision records, the advisor can provide deeper behavioral pattern analysis
+💡 After accumulating decision records, the advisor can provide deeper behavioral pattern analysis
 ```
 
 ## SOUL Runtime (every decision)

@@ -47,9 +47,9 @@ MAJOR.MINOR.PATCH[子版本字母]
 
 ### v1.1.1 · 数据层转移（2026-04-05）
 
-GitHub second-brain 取代 Notion 成为主数据库：
+GitHub second-brain 成为主数据库：
 - GitHub 作为主存储（.md + front matter，融合 GTD + PARA + Zettelkasten）
-- Notion 下位为移动端 inbox
+- 移动端 inbox（历史上曾用第三方传输层，已移除；存储现为 GitHub-only）
 - 早朝官三模式（整理/复盘/收尾）
 - 会话项目绑定（每次会话锁定到一个 project/area）
 
@@ -65,7 +65,7 @@ GitHub second-brain 取代 Notion 成为主数据库：
 
 ### v1.3.0 · 三平台 Pro 模式 + 存储抽象层（2026-04-10）
 
-- 存储抽象层：1 套标准数据模型（6 类型 + 7 操作）+ 3 可选后端（GitHub / GDrive / Notion）
+- 存储抽象层：1 套标准数据模型（6 类型 + 7 操作）+ 多可选后端（多后端已移除；存储现为 GitHub-only）
 - 跨平台 Pro 模式：CLAUDE.md（Claude Code）/ GEMINI.md（Gemini CLI）/ AGENTS.md（Codex CLI）
 - 触发词标准化（英/中/日）
 
@@ -151,12 +151,9 @@ GitHub second-brain 取代 Notion 成为主数据库：
 - **DREAM 10 个自动触发动作**——每个都有硬阈值 + 软信号 + 24h 反垃圾
 - **SOUL 快照机制**——趋势箭头（↗↘→）
 
-### v1.6.2a · Notion 同步移回主上下文（2026-04-19）
+### v1.6.2a · 第三方存储同步移回主上下文（2026-04-19）
 
-修复：archiver subagent 报告 "Notion MCP not connected"，因为 Notion MCP 工具是环境特定的、在 subagent 中不可用。
-- archiver Phase 4 缩减为仅 git
-- Notion 同步移出 archiver，由主上下文（编排器）执行
-- 新增 Step 10a：archiver 返回后主上下文执行 Notion 同步
+历史条目：当时把环境特定的存储同步移出 archiver、由主上下文执行（Step 10a）。该套机制已移除——存储现为 GitHub-only，同步就是 archiver Phase 4 的 `git push`。
 
 ---
 

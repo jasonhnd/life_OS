@@ -3,21 +3,23 @@
 ## 核心架构
 
 ```
-GitHub second-brain（磁盘）= 事实来源，完整记录
-Notion（内存）= 轻量工作记忆，移动端活跃话题
-CC（丞相 / 早朝官）= 唯一同时接触两侧的角色
+git 仓库 = 单一存储后端，两种角色：
+  - 本地工作副本（磁盘）= 事实来源、完整记录，同时也是你的 Obsidian vault
+  - GitHub 远端 = 备份 + 跨设备同步通道
+CC（丞相 / 早朝官）= 编排 git pull / push
 ```
 
 ### 数据通道
 
 ```
-移动端：Claude.ai ↔ Notion MCP
-桌面端：CC ↔ GitHub second-brain + Notion MCP
+桌面端：CC ↔ 本地工作副本（git）
+跨设备：git pull（会话开始）/ git push（会话结束）
+移动端：经 git 客户端（或同步文件夹）commit 进 inbox/，下次桌面 session 处理
 ```
 
 ### 同步规则
 
-**git commit = Notion 更新，机械绑定**。文件改动触发同步；纯聊天不触发。
+**同步就是纯 git**：会话开始（RETROSPECTIVE）`git pull`，会话结束（ARCHIVER Phase 4）`git push`。Merge 冲突就是普通的 git 冲突。
 
 ---
 
@@ -203,23 +205,25 @@ methods            decisions          journal
 
 ---
 
-## Notion 内存（4 个组件）
+## 跨设备同步（git）
 
-### 📬 Inbox（数据库）
+没有独立的云内存层 —— 一切都以 markdown 形式存在于这一个 git 仓库里。
 
-移动端 / 桌面端之间的消息队列。字段：Content / Source（Mobile/Desktop）/ Status（Pending/Synced）/ Time。
+### 📥 inbox/
 
-### 🧠 Current Status（页面）
+移动端和桌面端之间的投递区。在手机上，用 git 客户端（如 Working Copy）或同步到仓库的文件夹，把一条 markdown 笔记 commit 进 `inbox/`。下次桌面 session 的 `git pull` 把它拉下来，RETROSPECTIVE 处理它。
 
-镜像 `meta/STATUS.md`。早朝官在 session 关闭时覆写（作为 archive + sync 的一部分）。
+### 🧠 meta/STATUS.md
 
-### 📝 Working Memory（话题页）
+全局状态文件。早朝官在 session 关闭时覆写（作为 archive + Phase 4 `git push` 的一部分），`git pull` 后在任何设备可见。
 
-每个活跃话题一页（约 5-10 个）。不再活跃时，归档到 GitHub 并从 Notion 删除。
+### 📋 tasks 文件
 
-### 📋 Todo Board（数据库）
+活动任务存在 `projects/*/tasks/` 和 `areas/*/tasks/`。在任何设备上经 Obsidian / 任意编辑器在同步的工作副本上读写。
 
-从 projects/*/tasks/ 和 areas/*/tasks/ 同步的活动任务。移动端可看可勾选。
+### 同步机制
+
+会话开始：`git pull`。会话结束：`git add` + `commit` + `push`。跨设备交接就是在另一台机器上 pull；冲突编辑就是普通的 git merge 冲突。
 
 ---
 

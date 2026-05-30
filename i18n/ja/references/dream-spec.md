@@ -18,7 +18,7 @@ ARCHIVER: Phase 3 DREAM（以下の3ステージを実行）
      typed `<date>-<slug>-dream.md` ファイルとして保持、meta/journal/ 配下で date-前缀のまま。
      v1.9 RFC §3.5.2.1 / Bug #11 決定 B 参照。当日の meta/journal/<date>.md は dream タグ + このファイルへの wikilink を付けてよい。）
     ↓
-ARCHIVER: Phase 4 同期（git + Notion）→ セッション終了
+ARCHIVER: Phase 4 同期（git）→ セッション終了
 ```
 
 DREAM が失敗またはタイムアウトした場合 → `meta/sync-log.md` に警告を記録し、セッション終了をブロックしない。
@@ -29,10 +29,7 @@ DREAM が失敗またはタイムアウトした場合 → `meta/sync-log.md` �
 
 **デフォルト：直近3日間（72時間以内）に変更されたファイル。** 3日間に変更がない場合、「前回のドリームレポート以降」に自動拡大（最新の `meta/journal/*-dream.md` の日付を読取）。ドリームレポートが存在しない場合、直近7日間にフォールバック。
 
-検出方法：
-- GitHub バックエンド: `git log --since="3 days ago" --name-only --format=""` → 空の場合、`git log --since="{前回ドリーム日付}" --name-only --format=""`
-- GDrive バックエンド: `modifiedTime > 3_days_ago` → 空の場合、`modifiedTime > 前回ドリーム日付`
-- Notion バックエンド: `last_edited_time > 3_days_ago` → 空の場合、`last_edited_time > 前回ドリーム日付`
+検出方法（git）：`git log --since="3 days ago" --name-only --format=""` → 空の場合、`git log --since="{前回ドリーム日付}" --name-only --format=""`
 
 ---
 

@@ -32,7 +32,7 @@
 | 分组 | 在做什么 | 失败会怎样 |
 |------|---------|----------|
 | 主题 + 目录检测（步 1-3） | 读触发词 / 配置、判断当前目录是 system repo / second-brain / 项目 repo、必要时初始化 second-brain | 目录类型错会写错文件；主题错会输出错语言 |
-| 同步 PULL（步 4-7） | 读 config、git health check、从所有后端拉数据、合并 outbox | 拉失败会降级（标记「后端不可用」），不 block |
+| 同步 PULL（步 4-7） | 读 config、git health check、`git pull` 拉远端变更、合并 outbox | 拉失败（网络断 / 无 remote）会降级，不 block |
 | 项目绑定 + 版本检查（步 8-9） | 确定本次会话绑定哪个项目 / area、对比本地 version 和 remote | 没绑定会在晨报请你确认 |
 | Context 加载（步 10-14） | 读 user-patterns、SOUL、STATUS、当前项目、全局概览 | SOUL 不存在不 block，会显示「Awaiting SOUL」 |
 | 战略地图编译（步 15） | 读 strategic-lines + 所有项目的 strategic frontmatter，现场 compile STRATEGIC-MAP.md | 没定义战略线不 block，显示「Strategic Map not initialized」 |
@@ -54,12 +54,12 @@
 为什么要绑定：防止你说「帮我看看这个合同」，系统不知道是哪个项目的合同，读进一堆无关 context。
 
 ### Storage
-显示当前激活的后端。格式：`GitHub ✓ / Google Drive ✗ / Notion ✓` —— 选中的打勾。读取走优先级（GitHub > GDrive > Notion），写入走全部选中的。某个后端不可用（网络断 / API key 失效）会标 `⚠️ unreachable`，继续用其他的，不 block。
+显示存储状态。存储是单一后端：一个 git repo —— 本地工作副本（也是你的 Obsidian vault）+ 一个 GitHub remote 用于备份和跨设备同步。格式：`git repo ✓ / remote: origin ✓`。没配 remote 会标 `remote: 未配置（仅本地）`，继续用，不 block。
 
 ### Sync
-Full pull 的结果。典型值：
-- `已完成 full pull（3 条 inbox 拉入）` —— 正常
-- `Notion 离线，跳过` —— 降级，手机 inbox 这次拉不到
+会话开始 `git pull` 的结果。典型值：
+- `git pull：3 条变更拉入` —— 正常
+- `无 remote，跳过 pull` —— 纯本地用法
 - `outbox 合并：2 个会话，无冲突` —— 有并行会话的情况
 
 ### Platform
@@ -188,7 +188,7 @@ ROUTER 识别抽象思考需求，问「要不要激活翰林院？」。你说�
 
 ## 第一次会话的几个实际感受
 
-- **18 步听起来多，实际 30-60 秒内跑完**。除了首次初始化 second-brain + 多个后端 PULL 的时候会慢到 2 分钟
+- **18 步听起来多，实际 30-60 秒内跑完**。除了首次初始化 second-brain + 首次 `git pull` 大量历史的时候会慢到 2 分钟
 - **晨报会有很多 emoji 和块状结构**。这是有意的 —— 每个块都是可被系统自己解析的。熟了之后你会开始只扫特定块（比如每天只看 DREAM Auto-Triggers）
 - **ROUTER 不会主动推销功能**。它不会说「你要不要试试 SOUL？」 —— 你说了再做。唯一例外是检测到抽象思考需求时，会问你要不要激活翰林院（这也是 HARD RULE，抓住用户的「深夜 3 点困惑」瞬间）
 - **第一次决策会慢**。完整朝议走一遍要 3-5 分钟（六部并行执行 + REVIEWER 两轮）。熟练后你会学会用 Express 走快路径做日常分析，只在真正的大决策时用完整朝议

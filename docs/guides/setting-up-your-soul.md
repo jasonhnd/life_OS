@@ -129,7 +129,7 @@ DREAM 发现："3 次决策都有'先咨询他人'的模式"，提议：
 
 这是整个 SOUL 系统里**唯一需要你手动做的事**。其他都自动。
 
-打开 `~/second-brain/SOUL.md`（或在 Notion 里找到 SOUL 页面），找到那个维度，编辑 What SHOULD BE 区块。
+打开 `~/second-brain/SOUL.md`（用 Obsidian 或任何编辑器打开本地工作副本），找到那个维度，编辑 What SHOULD BE 区块。
 
 ### 例子 A：你认同这个观察
 

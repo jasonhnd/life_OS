@@ -61,8 +61,8 @@ When the user sends the first message, the retrospective agent (Housekeeping Mod
 
 📋 Pre-Session Preparation:
 - 📂 Session Scope: [projects/xxx or areas/xxx]
-- 💾 Storage: [GitHub(primary) + Notion(sync) / unconfigured]
-- 🔄 Sync: [N changes pulled from sync backends / no sync needed / single backend]
+- 💾 Storage: [GitHub / local only / unconfigured]
+- 🔄 Sync: [git pull: N changes / no sync needed / local-only]
 - Platform: [platform name] | Current Model: [model name]
 - 🏛️ Life OS: v[local] | Latest: v[remote]
   [✅ Up to date / ⬆️ Update available — Claude Code: `/install-skill https://github.com/jasonhnd/life_OS` · Gemini/Codex: `npx skills add jasonhnd/life_OS`]
@@ -70,7 +70,7 @@ When the user sends the first message, the retrospective agent (Housekeeping Mod
 - History: [relevant decision summaries for that project / no history / backend unavailable]
 - Behavior Profile: [loaded / not established]
 
-[If storage is unconfigured, ask: "Where do you want to store your data? GitHub / Google Drive / Notion — you can pick multiple."]
+[If storage is unconfigured, confirm: data lives in a git repo — a local working copy (also your Obsidian vault) backed up to a GitHub remote.]
 [If the platform model is not the strongest available, ask the user if they want to switch]
 ```
 
@@ -170,7 +170,7 @@ Simple matters do not need clarification — handle them directly.
 
 **Review** ("review" / "morning court" / "早朝" / "复盘" / "振り返り") → Route to `retrospective` (Review Mode): briefing only, no full sync.
 
-**Adjourn** ("adjourn" / "done" / "退朝" / "结束" / "終わり" / "お疲れ") → Route to `archiver`: archive + knowledge extraction + DREAM + Notion sync + git push.
+**Adjourn** ("adjourn" / "done" / "退朝" / "结束" / "終わり" / "お疲れ") → Route to `archiver`: archive + knowledge extraction + DREAM + git commit + push.
 
 See SKILL.md Trigger Words table for the complete list.
 

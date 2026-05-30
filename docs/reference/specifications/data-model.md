@@ -161,96 +161,49 @@
 
 ---
 
-## 多后端规则
+## 存储后端（单一 git repo）
 
-### 后端选择
+存储是**单一后端：一个 git repo**——本地工作副本（在硬盘上，也是用户的 Obsidian vault）+ 一个 GitHub remote 用于备份和跨设备同步。没有 primary/sync 之分，没有多后端，没有跨后端冲突逻辑。
 
-用户选 1、2 或 3 个后端。多选时，一个自动指定为 **primary**（读 + 写），其他是 **sync**（仅写）。
-
-**自动选择规则**：GitHub > Google Drive > Notion
-
-| 配置 | Primary | Sync |
-|------|---------|------|
-| 仅 GitHub | GitHub | — |
-| 仅 GDrive | GDrive | — |
-| 仅 Notion | Notion | — |
-| GitHub + Notion | GitHub | Notion |
-| GitHub + GDrive | GitHub | GDrive |
-| GDrive + Notion | GDrive | Notion |
-| 全部三个 | GitHub | GDrive + Notion |
-
-### 写入顺序
-
-1. 先写 primary 后端
-2. 再按顺序写每个 sync 后端
-3. 若任何 sync 失败 → 标注 `⚠️ [backend] write failed`，记入 `meta/sync-log.md`，继续其他
-4. 下次会话自动重试失败写入
-
-### 读取顺序
-
-1. 从 primary 读
-2. 若 primary 不可用或搜索无结果 → 按顺序尝试 sync 后端
-3. 搜索结果标注来自哪个后端
+- 读：直接读本地工作副本的 `.md` 文件
+- 写：直接写本地工作副本，会话结束 commit
+- 同步：普通 git —— 会话开始 `git pull`，会话结束 `git push`
 
 ---
 
-## 同步协议
+## 同步协议（普通 git）
 
 ### 会话开始（RETROSPECTIVE 整理）
 
 ```
-0. 读 meta/config.md → 获取后端列表和上次同步时间
-1. 探测每个配置后端是否可用：
-   - GitHub：检查 git repo 可访问（git status）
-   - GDrive：检查 Google Drive MCP 是否连接（尝试 list）
-   - Notion：检查 Notion MCP 是否连接（尝试 search）
-   不可用的标记为 SKIPPED 本会话。
-   若 primary 不可用，临时晋升下一个可用后端。
-   记录："💾 Backends: GitHub ✅ | GDrive ❌ (MCP not connected) | Notion ✅"
-2. 对每个可用 sync 后端：
-   - 查询"自本平台 last_sync_time 以来修改的项"
-   - GitHub: git log --since
-   - GDrive: modifiedTime > last_sync_time
-   - Notion: last_edited_time > last_sync_time
-3. 比较变化：
-   - 只有一个后端改了某项 → 采纳
-   - 两个后端都改了同一项 → last_modified 胜出
-   - 时间差 < 1 分钟 → 标记 CONFLICT，保留两个版本
-4. 把胜出的变化应用到 primary
-5. 推送 primary 状态到所有 sync 后端
-6. 更新 meta/sync-log.md 记录同步结果
-7. 更新本平台的 last_sync_time 在 meta/config.md（不动其他平台的时间戳）
+0. 读 meta/config.md → 获取 git remote 配置
+1. git health check：
+   - 确认 repo 可访问（git status）
+   - 检查 remote 是否可达；不可达则降级为纯本地（记录 "⚠️ remote unavailable"），不阻塞
+2. git pull（若配置了 remote 且可达）：
+   - 拉回远端自上次以来的变更（含手机经 git 写入 inbox/ 的条目）
+3. 冲突就是普通的 git 合并冲突，按常规 git 流程解决
 ```
 
 ### 会话结束（RETROSPECTIVE 收尾）
 
 ```
-1. 写所有输出到 primary 后端
-2. 写所有输出到每个 sync 后端
-3. 更新 meta/config.md last_sync_time
-4. 任何后端失败 → 记录，不阻塞
+1. 写所有输出到本地工作副本（经 outbox）
+2. git add + commit + push 到 GitHub remote
+3. push 失败（无 remote / 网络断 / 需先 pull）→ 本地 commit 已写好，下次会话 pull 后再 push，不阻塞
 ```
 
 ---
 
 ## 冲突解决
 
-| 情况 | 动作 |
-|------|------|
-| 一个后端改了 | 采纳变化 |
-| 两个后端改了同一项，时间差 > 1 分钟 | last_modified 胜出（last write wins） |
-| 两个后端改了同一项，时间差 ≤ 1 分钟 | CONFLICT：保留两版本，ROUTER 问用户选哪个 |
-| 用户解决冲突 | 胜出版本推送到所有后端 |
+跨设备改同一文件 = 普通的 git 合并冲突。下次 `git pull` 时 git 标出冲突，按平常解决 git 冲突的方式处理。没有跨后端的特殊冲突逻辑。
 
 ---
 
 ## 删除规则
 
-- **删除不跨后端同步**
-- 某后端删除项后 → 其他后端标记为 `_deleted: true`（软删除）
-- 下次会话，ROUTER 问用户："Item X 在 [backend] 被删除。从所有后端删除吗？"
-- 用户确认 → 全部硬删除
-- 用户拒绝 → 在被删除的后端恢复
+删除文件就是删除文件，由 git 追踪。`git pull` / `git push` 把删除像任何改动一样在设备间同步。
 
 ---
 
@@ -258,12 +211,9 @@
 
 | 场景 | 处理 |
 |------|------|
-| 后端写入时离线 | 跳过该后端，标注 ⚠️，记入 sync-log.md。下次会话自动重试 |
-| 同步中途崩溃 | 下次启动：比较所有后端的 last_modified，检测不一致，从最新者自动修复 |
-| 某后端数据损坏 | ROUTER 检测异常，问用户："从 [其他后端] 恢复？" |
-| 新设备 | 配置存于 meta/config.md。Git clone → 配置就绪。无 second-brain → 会话级配置 |
-| 新增后端 | ROUTER 问："从 [primary] 同步既有数据到 [new backend] 吗？" |
-| 移除后端 | ROUTER 问："保留 [removed backend] 的数据，还是清理？" |
+| `git push` 时无 remote / 离线 | 本地 commit 已写好，记录提示，下次会话 pull 后再 push |
+| remote 有未拉取的新提交 | push 被拒 → 先 `git pull` 合并（可能解决冲突）再 push |
+| 新设备 | `git clone` 仓库 → 配置就绪 |
 
 ---
 
@@ -273,19 +223,11 @@
 
 ```yaml
 storage:
-  backends:
-    - type: github
-      role: primary
-    - type: notion
-      role: sync
-  sync_log:
-    - platform: claude-code
-      last_sync: "2026-04-10T15:30:00Z"
-    - platform: gemini-cli
-      last_sync: "2026-04-10T14:00:00Z"
+  type: git
+  remote: "git@github.com:user/second-brain.git"   # 可选；纯本地用法可省略
 ```
 
-**每平台独立的同步时间戳**：每个平台记录自己的 `last_sync` 时间。当 Gemini CLI 启动会话时，它读**自己的** `last_sync` 并查询自该时间以来的变化——不是 Claude Code 的上次同步时间。这防止用户在平台间切换时丢失变化。
+跨设备同步通过普通 git remote 完成 —— 任何机器 `git clone` 后即可参与，会话开始 `git pull`、结束 `git push`。
 
 无 second-brain → 配置存于会话上下文，ROUTER 每次新会话询问。
 
@@ -297,7 +239,7 @@ storage:
 - **Session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在 adjourn 时生成（不是会话开始时）。示例：`claude-20260412-1700`、`gemini-20260412-1900`
 - **Outbox 合并锁**：合并期间写 `meta/.merge-lock`。若存在且 <5 分钟，跳过合并照常进入。合并完成后删除
 - **空会话**：若会话无输出（无决策、任务、日志条目），不创建 outbox
-- 移动设备通过 Notion inbox 或 GDrive inbox 写入，不直接写结构化数据
+- 移动设备通过 git 把 markdown 提交进 `inbox/`（用手机 git 客户端或同步文件夹），不直接写结构化数据；下次桌面会话处理
 - 所有 adapter 必须支持 7 个标准操作
 
 ### Outbox Manifest 格式

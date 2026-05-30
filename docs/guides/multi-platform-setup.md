@@ -51,14 +51,13 @@ npx skills add jasonhnd/life_OS
 ```
 📦 First session — no second-brain detected.
 
-Where should I store your data?
-a) GitHub (version-controlled, works with Obsidian)
-b) Google Drive (zero setup)
-c) Notion (mobile-friendly)
-You can pick multiple.
+I'll initialize a git repo (a local working copy on disk — also your
+Obsidian vault — plus an optional GitHub remote for backup and
+cross-device sync). Configure a GitHub remote now? (you can stay
+local-only and add one later)
 ```
 
-你选完后，`meta/config.md` 记录配置。另外两个平台启动时读这个配置，**直接接入同一个 second-brain**。
+你确认后，`git init` + `meta/config.md` 记录配置。另外两个平台启动时读这个配置 + `git pull`，**直接接入同一个 second-brain**。
 
 ---
 
@@ -169,8 +168,7 @@ context is prohibited.
 ```
 09:00  你在桌面 Claude Code "上朝" → 做完议程 → "退朝"
          起居郎写: meta/outbox/claude-20260420-0915/
-         git push 到 GitHub
-         Notion 同步
+         git add + commit + push 到 GitHub remote
   
 12:00  午饭在咖啡馆，打开手机 Antigravity "开始"
          早朝官 Phase B 读 meta/config.md → git pull
@@ -336,12 +334,12 @@ cat ~/second-brain/meta/.merge-lock 2>/dev/null  # 应该不存在
 
 如果 .merge-lock 存在且很旧 → 删掉，下次上朝会重新合并。
 
-### 症状：Notion 只在一个平台同步成功
+### 症状：`git push` 只在一个平台成功
 
-**原因**：Notion token 只在某个平台配置了
+**原因**：GitHub remote 凭证（SSH key / token）只在某个平台配置了
 
 **排查**：
-确认每个平台都配置了 Notion MCP（在各自的 settings）。Notion sync 由 orchestrator（主 context）做，不是 archiver subagent。
+确认每个平台都能访问同一个 GitHub remote（各自的 git 凭证）。同步走普通 git —— 会话开始 `git pull`、会话结束 `git push`（ARCHIVER Phase 4）。
 
 ---
 
@@ -388,5 +386,4 @@ A：只要平台支持读 markdown + 调 MCP + 启动 subagent（或长 context 
 ## 下一步
 
 - 多平台配好之后，按 [daily-workflow.md](daily-workflow.md) 的节奏用
-- second-brain 作为 git 仓库，定期备份：`git push` 已经是备份，多一个 remote 更稳
-- 推荐加一个 Google Drive 作为 sync backend（防止 GitHub 意外）
+- second-brain 作为 git 仓库，定期备份：`git push` 已经是备份，多加一个 git remote（如第二个托管商）更稳

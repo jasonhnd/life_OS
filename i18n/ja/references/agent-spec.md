@@ -119,7 +119,7 @@ eval scenarios を実行:
 |---|---|---|---|
 | router | propose | suggest_only + write_inactive | medium |
 | retrospective | specify | suggest_only + write_inactive | low |
-| archiver | publish | publish（最高 — git push + Notion sync を実行）| medium |
+| archiver | publish | publish（最高 — git push を実行）| medium |
 | planner | specify | write_candidate | low |
 | reviewer | validate | approve（否決権）| high（judgment）|
 | dispatcher | implement | mutate_active（domain に dispatch）| medium |

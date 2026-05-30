@@ -24,7 +24,7 @@
 ```bash
 1. cd ~/.claude/skills/life_OS && git pull origin main
 2. /version-check                       # 确认本地 1.8.7
-3. /install-agents --refresh            # 装新 2 个 watch 命令（verify-release-and-watch / notion-sync-and-watch）
+3. /install-agents --refresh            # 装新 watch 命令（verify-release-and-watch）
 4. /verify-release v1.8.7               # 跑 11 个 check，全 ✅ 或 (10 PASS + 1 WARN)
 ```
 

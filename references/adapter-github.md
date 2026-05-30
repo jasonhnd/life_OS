@@ -91,13 +91,13 @@ journal_date: 2026-04-08
 
 ## Change Detection
 
-For sync: `git log --since="{last_sync_time}" --name-only --format=""`
+For sync: `git pull` merges remote changes; list them with `git log ORIG_HEAD..HEAD --name-only --format=""`
 
 Returns list of files changed since last sync. Parse each to get type + id + last_modified.
 
 ## Deletion
 
-Mark in front matter: `_deleted: true`. Do not `git rm` until user confirms across all backends.
+Delete the file and `git rm` it, then commit; the deletion propagates on the next push/pull like any other change. Single backend — no soft-delete `_deleted: true` tombstones and no cross-backend confirmation.
 
 ## Commit Convention
 

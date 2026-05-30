@@ -18,7 +18,7 @@ ARCHIVER：Phase 3 DREAM（运行下方三个阶段）
      `<date>-<slug>-dream.md` 文件，仍 date-前缀在 meta/journal/ 下。见 v1.9
      RFC §3.5.2.1 / Bug #11 决策 B。当天 meta/journal/<date>.md 可标 dream + wikilink 指向此文件。）
     ↓
-ARCHIVER：Phase 4 同步（git + Notion）→ 会话结束
+ARCHIVER：Phase 4 同步（git）→ 会话结束
 ```
 
 如果 DREAM 失败或超时 → 记录警告到 `meta/sync-log.md`，不阻塞会话结束。
@@ -29,10 +29,7 @@ ARCHIVER：Phase 4 同步（git + Notion）→ 会话结束
 
 **默认：过去 3 天（72 小时）内修改的文件。** 如果 3 天内无任何变动，自动扩大到"上次做梦以来"（读取最近一份 `meta/journal/*-dream.md` 的日期）。如果没有梦境报告，回退到最近 7 天。
 
-检测方法：
-- GitHub 后端：`git log --since="3 days ago" --name-only --format=""` → 如为空，`git log --since="{上次做梦日期}" --name-only --format=""`
-- GDrive 后端：`modifiedTime > 3_days_ago` → 如为空，`modifiedTime > 上次做梦日期`
-- Notion 后端：`last_edited_time > 3_days_ago` → 如为空，`last_edited_time > 上次做梦日期`
+检测方法（git）：`git log --since="3 days ago" --name-only --format=""` → 如为空，`git log --since="{上次做梦日期}" --name-only --format=""`
 
 ---
 

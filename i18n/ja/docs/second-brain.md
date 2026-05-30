@@ -3,21 +3,23 @@
 ## コアアーキテクチャ
 
 ```
-GitHub second-brain（ディスク）= 真実の源、完全な記録
-Notion（メモリ）= 軽量ワーキングメモリ、モバイルでのアクティブトピック
-CC（丞相 / 早朝官）= 両側に触れる唯一の役割
+git リポジトリ = 単一のストレージバックエンド、2 つの役割：
+  - ローカル作業コピー（ディスク）= 真実の源、完全な記録、同時にあなたの Obsidian vault
+  - GitHub リモート = バックアップ + クロスデバイス同期チャネル
+CC（丞相 / 早朝官）= git pull / push をオーケストレート
 ```
 
 ### データチャネル
 
 ```
-モバイル：Claude.ai ↔ Notion MCP
-デスクトップ：CC ↔ GitHub second-brain + Notion MCP
+デスクトップ：CC ↔ ローカル作業コピー（git）
+クロスデバイス：git pull（セッション開始）/ git push（セッション終了）
+モバイル：git クライアント（または同期フォルダー）で inbox/ に commit、次のデスクトップ session で処理
 ```
 
 ### 同期ルール
 
-**git commit = Notion 更新、機械的にバインド**。ファイル変更が同期をトリガー；純チャットはトリガーしない。
+**同期は素の git**：セッション開始（RETROSPECTIVE）に `git pull`、セッション終了（ARCHIVER Phase 4）に `git push`。Merge 競合は通常の git 競合。
 
 ---
 
@@ -203,23 +205,25 @@ methods            decisions          journal
 
 ---
 
-## Notion メモリ（4 コンポーネント）
+## クロスデバイス同期（git）
 
-### 📬 Inbox（データベース）
+独立したクラウドメモリレイヤーはない —— すべてはこの一つの git リポジトリに markdown として存在する。
 
-モバイル / デスクトップ間のメッセージキュー。フィールド：Content / Source（Mobile/Desktop）/ Status（Pending/Synced）/ Time。
+### 📥 inbox/
 
-### 🧠 Current Status（ページ）
+モバイルとデスクトップ間のドロップゾーン。モバイルでは、git クライアント（例 Working Copy）またはリポジトリに同期するフォルダーを使って、markdown ノートを `inbox/` に commit する。次のデスクトップ session の `git pull` がそれを取り込み、RETROSPECTIVE が処理する。
 
-`meta/STATUS.md` をミラー。早朝官がセッション終了時に上書き（archive + sync の一部として）。
+### 🧠 meta/STATUS.md
 
-### 📝 Working Memory（トピックページ）
+グローバルステータスファイル。早朝官がセッション終了時に上書きし（archive + Phase 4 `git push` の一部）、`git pull` 後に任意のデバイスで閲覧可能。
 
-アクティブトピックごとに 1 ページ（約 5-10 個）。アクティブでなくなった時、GitHub にアーカイブして Notion から削除。
+### 📋 tasks ファイル
 
-### 📋 Todo Board（データベース）
+アクティブタスクは `projects/*/tasks/` と `areas/*/tasks/` に存在。同期された作業コピー上で Obsidian / 任意のエディタを使い、任意のデバイスで読み書きできる。
 
-projects/*/tasks/ と areas/*/tasks/ から同期されるアクティブタスク。モバイルで閲覧 / チェック可能。
+### 同期メカニクス
+
+セッション開始：`git pull`。セッション終了：`git add` + `commit` + `push`。クロスデバイスの引き継ぎは別マシンで pull するだけ；競合する編集は通常の git merge 競合。
 
 ---
 
