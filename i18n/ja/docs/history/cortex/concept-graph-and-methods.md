@@ -2,7 +2,7 @@
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # 概念グラフ + メソッドライブラリ · システムはどう「知恵を蓄える」か / Concept Graph & Method Library
@@ -505,7 +505,7 @@ Spec 層(英語):
 - `references/method-library-spec.md` — method schema、promotion ladder、DISPATCHER 統合
 - `references/cortex-spec.md` §Archiver Candidate Routing — 候補がどの layer に入るかの決定木
 - `references/hippocampus-spec.md` §Wave 2/3 — 辺重みに沿った拡散方法
-- `pro/agents/archiver.md` — Phase 2 の実際の書き込みフロー
+- `agents/archiver.md` — Phase 2 の実際の書き込みフロー
 
 ---
 
@@ -514,6 +514,6 @@ Spec 層(英語):
 
 ---
 
-### 訳者注 / Translator's Note
+**訳者注 / Translator's Note**
 
 本ドキュメントは中国語版 (`docs/history/cortex/concept-graph-and-methods.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(concept, method, synapse, Hebbian, canonical, tentative, permanence, decay, activation, frame, hippocampus, archiver, DISPATCHER, ROUTER, SOUL, AUDITOR, RETROSPECTIVE, COGNITIVE CONTEXT 等)は原文の英語表記を保持しています。ヘブ型 (Hebbian) や脳科学由来の用語は専門用語として可能な限り英語併記とし、日本語文脈での可読性を優先しました。人間校正待ち。

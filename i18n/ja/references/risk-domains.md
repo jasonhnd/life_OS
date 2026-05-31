@@ -82,7 +82,7 @@ ROUTER は以下のヒューリスティックパターンを使用する。**�
 - 対象に $1000 を超える金額が含まれる（finance）
 - 対象に任意の指名された人物の医療状態が含まれる（health）
 - 対象に 6 ヶ月以上の時間制限のあるコミットメントが含まれる（legal/governance）
-- 対象に `pro/agents/` または `references/` 下のファイル変更が含まれる（governance）
+- 対象に `agents/` または `references/` 下のファイル変更が含まれる（governance）
 
 ### 「エスカレーション」の実際の意味
 
@@ -92,8 +92,8 @@ ROUTER は以下のヒューリスティックパターンを使用する。**�
 
 ## 使用シーン
 
-- **ROUTER triage**（`pro/agents/router.md` Stage 6 v2 frontmatter）: `context_manifest.source_of_truth` にこのファイル含む。Triage ステップはユーザーメッセージを R1-R8 と照合しなければならない。
-- **REVIEWER 否決**（`pro/agents/reviewer.md`）: 判定は適用されるリスク領域を引用しなければならない; ある場合、5 要件を確認しなければならない。
+- **ROUTER triage**（`agents/router.md` Stage 6 v2 frontmatter）: `context_manifest.source_of_truth` にこのファイル含む。Triage ステップはユーザーメッセージを R1-R8 と照合しなければならない。
+- **REVIEWER 否決**（`agents/reviewer.md`）: 判定は適用されるリスク領域を引用しなければならない; ある場合、5 要件を確認しなければならない。
 - **AUDITOR Mode 3**（Stage 7 Day 21）: scenario は各決定クラスのインシデントをチェック — 対象が R1-R8 にあり、5 要件のいずれかが欠落 → F10 RESPONSIBILITY_FAILURE。
 
 ## ソース出典

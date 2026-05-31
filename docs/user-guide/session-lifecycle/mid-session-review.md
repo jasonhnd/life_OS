@@ -4,7 +4,7 @@
 
 复盘 = Review = Mode 2。由 RETROSPECTIVE 子代理执行，但和上朝（Mode 0）不一样：**只生成晨报，不做全量同步，不做 outbox 合并**。
 
-权威源：`pro/agents/retrospective.md` Mode 2 + `pro/CLAUDE.md` Review trigger。
+权威源：`agents/retrospective.md` Mode 2 + `hosts/CLAUDE.md` Review trigger。
 
 ---
 

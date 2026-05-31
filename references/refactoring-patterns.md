@@ -34,13 +34,13 @@ introduced_in: v1.8.5
 
 ### 5. STEP-EXTRACTION
 - **Use when**: A step inside an agent/EOU can be made deterministic (promote to slash command) OR isolated as a sub-agent with its own blast radius and governance.
-- **Output**: A new slash command (`.claude/commands/*.md`), or a child subagent (`pro/agents/*.md`) handling the extracted step; parent references the extracted unit.
+- **Output**: A new slash command (`.claude/commands/*.md`), or a child subagent (`agents/*.md`) handling the extracted step; parent references the extracted unit.
 - **Example**: wiki decay maintenance extracted to `/wiki-decay` slash command (v1.8.5). The agent now invokes the slash command instead of reimplementing the decay-classification logic inline.
 
 ### 6. VALIDATOR-ADDITION
 - **Use when**: A known failure mode has no validation gate; output quality depends on unverified assumptions; past incident has no regression case preventing recurrence.
 - **Output**: A new deterministic check (slash command), schema constraint (in `references/*-spec.md` v2 frontmatter), OR regression case (`evals/regression-fixtures/rc-*.yml`).
-- **Example**: After v1.8.0 R-1.8.0-019 (GitHub Release Latest mismatch incident), added `/verify-release` 6-check sequence + HARD RULE in pro/CLAUDE.md.
+- **Example**: After v1.8.0 R-1.8.0-019 (GitHub Release Latest mismatch incident), added `/verify-release` 6-check sequence + HARD RULE in hosts/CLAUDE.md.
 
 ### 7. STOP-CONDITION-INJECTION
 - **Use when**: An agent/EOU continues executing in invalid, ambiguous, or unauthorized states rather than halting and reporting.
@@ -68,7 +68,7 @@ introduced_in: v1.8.5
 
 Before creating a new agent, spec, skill, or HARD RULE, MUST answer these 6 questions:
 
-1. Could a **rule** (in pro/AGENTS.md or pro/CLAUDE.md) accomplish this?
+1. Could a **rule** (in hosts/AGENTS.md or hosts/CLAUDE.md) accomplish this?
 2. Could a **schema field** (in references/*-spec.md frontmatter) accomplish this?
 3. Could a **validator** (slash command or AUDITOR Mode 3 scenario) accomplish this?
 4. Could a **regression case** (evals/regression-fixtures/*.yml) accomplish this?

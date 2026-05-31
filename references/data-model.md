@@ -6,7 +6,7 @@ All Life OS data operations use these standard types and interfaces. Adapters tr
 
 ### Decision
 
-> ⚠️ **v1.9 schema supersedes this table** (per RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records"). v1.9 is the canonical decision-record frontmatter; the pre-v1.9 fields below are retained for historical reference / legacy file parsing. **Field-name collision note**: v1.9 reuses `type` for the decision-record kind (`change` / `no_change` / `escalation` / `superseded`), NOT the pre-v1.9 workflow kind (`simple` / `3d6m`). When writing a new decision, use the v1.9 schema.
+> ⚠️ **v1.9 schema supersedes this table** (per RFC §3.3.2 / §11.2.1 + `hosts/CLAUDE.md` §"Decision Records"). v1.9 is the canonical decision-record frontmatter; the pre-v1.9 fields below are retained for historical reference / legacy file parsing. **Field-name collision note**: v1.9 reuses `type` for the decision-record kind (`change` / `no_change` / `escalation` / `superseded`), NOT the pre-v1.9 workflow kind (`simple` / `3d6m`). When writing a new decision, use the v1.9 schema.
 
 **v1.9 canonical schema** (`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`):
 

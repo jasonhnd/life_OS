@@ -1,6 +1,6 @@
 ---
 spec_id: failure-taxonomy.v1
-description: 借鉴自 eou-foundry 的架构层失败分类法 F1-F17。补充 life_OS 的流程违规分类法（A1/A2/A3/B/C/D/E/F 在 pro/compliance/violations.md）。v1.8.5 起每条 violations.md 条目必须同时带 A-F 标签和 F1-F17 标签。
+description: 借鉴自 eou-foundry 的架构层失败分类法 F1-F17。补充 life_OS 的流程违规分类法（A1/A2/A3/B/C/D/E/F 在 compliance/violations.md）。v1.8.5 起每条 violations.md 条目必须同时带 A-F 标签和 F1-F17 标签。
 status: active
 source_attribution: xiaolai/eou-foundry @ e4b12ce, engine/failure-taxonomy.yml
 introduced_in: v1.8.5
@@ -14,7 +14,7 @@ introduced_in: v1.8.5
 
 | 分类法 | 层次 | 示例 | 记录位置 |
 |---|---|---|---|
-| **A1/A2/A3/B/C/D/E/F**（`references/compliance-spec.md`）| **流程违规**（人/流程层）| A1: 跳过 retrospective Subagent; B: 编造路径; C: 跳步骤; D: 自批; E: 漏 publish; F: 出站 PII 泄露 | `pro/compliance/violations.md` |
+| **A1/A2/A3/B/C/D/E/F**（`references/compliance-spec.md`）| **流程违规**（人/流程层）| A1: 跳过 retrospective Subagent; B: 编造路径; C: 跳步骤; D: 自批; E: 漏 publish; F: 出站 PII 泄露 | `compliance/violations.md` |
 | **F1-F17**（本文档）| **架构失败**（系统设计层）| F11: 生命周期阶段错配; F12: spec 漂移; F14: 沉默判断 | 同 `violations.md`（Stage 8 加 F-code 列）|
 
 **两个分类法可叠加用于同一事件**。示例："ROUTER 跳过 retrospective Subagent 并编造路径" = `A1`（流程）+ `F12_DRIFT_FAILURE`（架构）。
@@ -44,7 +44,7 @@ introduced_in: v1.8.5
 ### F5 — INSTRUCTION FAILURE
 - **定义**: 步骤不清晰、矛盾或不可执行。
 - **修复**: 重写执行流程。
-- **示例**: pro/agents/retrospective.md 18 步中 step 12 与 step 7 矛盾。
+- **示例**: agents/retrospective.md 18 步中 step 12 与 step 7 矛盾。
 
 ### F6 — JUDGMENT FAILURE（子类型）
 
@@ -86,7 +86,7 @@ introduced_in: v1.8.5
 ### F12 — DRIFT FAILURE
 - **定义**: spec/scripts/docs/validator 已发散；一层的改动未传播到其他层。
 - **修复**: 识别权威层（`schemas/` 或 `references/`），协调依赖层，CI/audit 加词汇同步检查。
-- **示例**: pro/agents/router.md 引用已删除的 `pro/agents/narrator-validator.md`。**B 编造路径违规映射到这里**。
+- **示例**: agents/router.md 引用已删除的 `agents/narrator-validator.md`。**B 编造路径违规映射到这里**。
 
 ### F13 — PERFORMANCE FAILURE
 - **定义**: 执行正确但规模化时退化。
@@ -118,11 +118,11 @@ introduced_in: v1.8.5
 并非每个诊断失败都变成改动。按 Stage 7 `no_change_record` 协议显式记录决策：
 
 - **change**: 改变行为的决策。记录到 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`，`type: change`（v1.9 schema）。
-- **no_change**: 决定接受当前行为。记录到 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`，`type: no_change`（v1.9 schema —— .md 非 .yml，DR-1.9.2；完整 frontmatter 见 `pro/CLAUDE.md` §"Decision Records"）。`reopen_condition` 必填。**缺记录看上去与未调查事件无异。**
+- **no_change**: 决定接受当前行为。记录到 `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`，`type: no_change`（v1.9 schema —— .md 非 .yml，DR-1.9.2；完整 frontmatter 见 `hosts/CLAUDE.md` §"Decision Records"）。`reopen_condition` 必填。**缺记录看上去与未调查事件无异。**
 
 ## 使用场景
 
-- v1.8.5 起每条 `pro/compliance/violations.md` 条目除 A/B/C/D/E/F 标签外还带 F1-F17 标签（Stage 8 Day 24）。
+- v1.8.5 起每条 `compliance/violations.md` 条目除 A/B/C/D/E/F 标签外还带 F1-F17 标签（Stage 8 Day 24）。
 - AUDITOR Mode 3 按 F-code 分类发现（Stage 7 Day 19 F14 scenario）。
 - DREAM REM 周期使用 agent/entry v2 frontmatter 的 failure_modes.known/warning_signs（Stage 6）检测早期警告模式。
 

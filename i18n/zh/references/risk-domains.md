@@ -82,7 +82,7 @@ ROUTER 使用以下启发式模式。**任一匹配 → 升级到 full deliberat
 - 主题涉及金额 >$1000（finance）
 - 主题涉及任何具名人士的医疗状况（health）
 - 主题涉及任何时间限定的承诺 >6 个月（legal/governance）
-- 主题涉及修改 `pro/agents/` 或 `references/` 下任何文件（governance）
+- 主题涉及修改 `agents/` 或 `references/` 下任何文件（governance）
 
 ### "升级"的实际含义
 
@@ -92,8 +92,8 @@ ROUTER 使用以下启发式模式。**任一匹配 → 升级到 full deliberat
 
 ## 使用场景
 
-- **ROUTER triage**（`pro/agents/router.md` Stage 6 v2 frontmatter）：`context_manifest.source_of_truth` 含本文件。Triage 步骤必须检查用户消息是否匹配 R1-R8。
-- **REVIEWER 否决**（`pro/agents/reviewer.md`）：Verdict 必须引用适用的风险领域；如有，必须确认 5 要求全部。
+- **ROUTER triage**（`agents/router.md` Stage 6 v2 frontmatter）：`context_manifest.source_of_truth` 含本文件。Triage 步骤必须检查用户消息是否匹配 R1-R8。
+- **REVIEWER 否决**（`agents/reviewer.md`）：Verdict 必须引用适用的风险领域；如有，必须确认 5 要求全部。
 - **AUDITOR Mode 3**（Stage 7 Day 21）：scenario 检查每个决策类事件——如果主题在 R1-R8 中且 5 要求任一缺失 → F10 RESPONSIBILITY_FAILURE。
 
 ## 来源出处

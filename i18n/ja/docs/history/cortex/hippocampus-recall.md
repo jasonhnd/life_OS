@@ -2,7 +2,7 @@
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Hippocampus · クロスセッション記憶検索(Hippocampus · Cross-Session Memory Recall)
@@ -322,7 +322,7 @@ Spec 層(最も権威、英語):
 
 Agent 定義(深度ユーザー向け):
 
-- `pro/agents/hippocampus.md` — 実際の subagent 定義、tool 制約、model 選択
+- `agents/hippocampus.md` — 実際の subagent 定義、tool 制約、model 選択
 
 ---
 

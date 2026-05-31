@@ -1,35 +1,35 @@
 ---
 spec_id: gotchas-spec.v1
-description: 「pro/gotchas.md」仕様 —— プロジェクトレベル技術 gotcha 知識ベース。各エントリは"踏んだ穴 + ファイルパス + 修正方法"を記録し、ROUTER と下流 agent が新タスク前に既知問題を short-circuit できるようにする。`pro/compliance/violations.md`（プロセス違反）と `meta/sessions/`（セッション記録）と区別する。パターンは tinyhumansai/openhuman `.claude/memory.md` から借用；lifeos 実装は md-only、`memory-keeper` agent が書き込む。
+description: 「gotchas.md」仕様 —— プロジェクトレベル技術 gotcha 知識ベース。各エントリは"踏んだ穴 + ファイルパス + 修正方法"を記録し、ROUTER と下流 agent が新タスク前に既知問題を short-circuit できるようにする。`compliance/violations.md`（プロセス違反）と `meta/sessions/`（セッション記録）と区別する。パターンは tinyhumansai/openhuman `.claude/memory.md` から借用；lifeos 実装は md-only、`memory-keeper` agent が書き込む。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/memory.md (259 行フラット単一ファイル + トピック分組)
 introduced_in: v1.8.7
 referenced_by:
-  - pro/agents/memory-keeper.md
-  - pro/agents/archiver.md (wrap-up phase 5)
+  - agents/memory-keeper.md
+  - agents/archiver.md (wrap-up phase 5)
   - SKILL.md (ROUTER タスク前スキャン、将来バージョン)
 ---
 
 # Gotchas 仕様 v1
 
-`pro/gotchas.md` は lifeos の**プロジェクトレベル技術 gotcha 知識ベース** —— 単一フラットファイルで非自明な挙動、ファイル固有の bug、回避策を集約し、新セッションが行動前に必ず知るべき情報を提供する。
+`gotchas.md` は lifeos の**プロジェクトレベル技術 gotcha 知識ベース** —— 単一フラットファイルで非自明な挙動、ファイル固有の bug、回避策を集約し、新セッションが行動前に必ず知るべき情報を提供する。
 
 ## 他の知識ストアとの位置づけ
 
 | ストア | 何を記録するか | ライフサイクル |
 |--------|---------------|---------------|
 | `meta/sessions/<sid>.md` | セッションのタイムライン + 決定 | 1 セッション 1 ファイル、アーカイブ |
-| `pro/compliance/violations.md` | プロセス違反（A1/A2/A3/B/C/D/E/F + F1-F17） | append-only 監査ログ |
+| `compliance/violations.md` | プロセス違反（A1/A2/A3/B/C/D/E/F + F1-F17） | append-only 監査ログ |
 | `meta/wiki/<topic>.md` | 再利用可能な世界知識（"NPO 貸付には貸金業法免除なし"） | 手動キュレーション |
 | `meta/concepts/<concept>.md` | シナプスグラフノード（Cortex） | hippocampus がアクティベート |
-| **`pro/gotchas.md`** | **プロジェクト技術 gotcha + ファイルパス + 修正** | **memory-keeper が継続抽出** |
+| **`gotchas.md`** | **プロジェクト技術 gotcha + ファイルパス + 修正** | **memory-keeper が継続抽出** |
 
 Gotcha は違反**ではない**（それは `compliance/violations.md` 行き）。Gotcha は再利用可能な世界知識**ではない**（それは `meta/wiki/` 行き）。Gotcha は **dev 内部 short-circuit メモリ**："次に X に触る時、まずここを見ろ"。
 
 ## ファイル位置とスコープ
 
-- **パス**：`pro/gotchas.md`（単一ファイル、dev repo ルート域）
+- **パス**：`gotchas.md`（単一ファイル、dev repo ルート域）
 - **言語**：英語単一言語（プロジェクト内部 dev 知識ベース —— v1.8.7 RFC DR-03 により三言語ミラー対象外）
 - **サイズ予算**：目標 ≤500 行；800 行はソフト閾値で分割議論
 - **対象**：ROUTER + memory-keeper + 既に触れた領域で重大タスクを行う任意の agent
@@ -78,15 +78,15 @@ Gotcha は違反**ではない**（それは `compliance/violations.md` 行き�
 - ❌ プロセス違反（compliance/violations.md を使う）
 - ❌ lifeos 自身と無関係な再利用可能な世界知識（meta/wiki/ を使う）
 - ❌ ユーザ個人情報（アイデンティティレベルなら SOUL.md；瞬時なら sessions/）
-- ❌ pro/CLAUDE.md または他の権威ソースで既に文書化されている内容
+- ❌ hosts/CLAUDE.md または他の権威ソースで既に文書化されている内容
 
 ## 更新方法
 
-memory-keeper agent は `pro/gotchas.md` の**唯一の書き込み者**。人間の直接編集は許可されるが推奨されない —— 重複排除をバイパスし、フォーマット非準拠エントリを生む可能性がある。
+memory-keeper agent は `gotchas.md` の**唯一の書き込み者**。人間の直接編集は許可されるが推奨されない —— 重複排除をバイパスし、フォーマット非準拠エントリを生む可能性がある。
 
 更新フロー（memory-keeper は archiver wrap-up phase 5 から呼ばれる）：
 
-1. memory-keeper が現在の `pro/gotchas.md` を読む
+1. memory-keeper が現在の `gotchas.md` を読む
 2. 現セッションをスキャンして新 gotcha 候補を探す
 3. 各候補について：
    - 既存エントリと重複排除（短いタイトルの部分文字列マッチ）
@@ -102,7 +102,7 @@ RFC §7 退出基準により、memory-keeper の v1.8.7 release セッション
 - `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
 - `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
 - `_meta/rfc/v1.9-second-brain-structure-optimization.md`
-- `pro/compliance/violations.md`（フィルタ：根本原因が技術的で、純プロセスでないエントリ）
+- `compliance/violations.md`（フィルタ：根本原因が技術的で、純プロセスでないエントリ）
 
 シードエントリも gotcha（技術的）であり、プロセス違反ではない。
 
@@ -110,7 +110,7 @@ RFC §7 退出基準により、memory-keeper の v1.8.7 release セッション
 
 - **重複排除**：短いタイトルの部分文字列マッチ —— 新候補の短いタイトルが既存エントリの部分文字列なら、重複作成せず既存にマージ（挙動説明を拡張するか新ファイルパスを追加）
 - **保持**：gotcha は自動失効しない。底層問題がコードベースで永久修正**かつ**修正検証後にのみ削除される
-- **削除手順**：memory-keeper がエントリを `<!-- removed v1.X.Y: fixed in <ref> -->` でマーク（ファイル内にコメントとして保持、監査用）、または将来の `pro/gotchas-resolved.md` アーカイブに移動
+- **削除手順**：memory-keeper がエントリを `<!-- removed v1.X.Y: fixed in <ref> -->` でマーク（ファイル内にコメントとして保持、監査用）、または将来の `gotchas-resolved.md` アーカイブに移動
 
 ## 失敗モード
 
@@ -123,6 +123,6 @@ RFC §7 退出基準により、memory-keeper の v1.8.7 release セッション
 
 ## 関連 spec
 
-- `pro/agents/memory-keeper.md` —— agent 定義
+- `agents/memory-keeper.md` —— agent 定義
 - `references/compliance-spec.md` —— gotchas と violations の区別
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 —— 本 spec の起源

@@ -8,7 +8,7 @@ allowed-tools:
 
 # /verify-release
 
-You are verifying that a release is fully shipped, not just tagged. **HARD RULE per pro/AGENTS.md**: `git push --tags` does NOT auto-create a GitHub Release. The Releases page can stay frozen on an older version even though main + the new tag are up to date.
+You are verifying that a release is fully shipped, not just tagged. **HARD RULE per hosts/AGENTS.md**: `git push --tags` does NOT auto-create a GitHub Release. The Releases page can stay frozen on an older version even though main + the new tag are up to date.
 
 ## Inputs
 
@@ -152,4 +152,4 @@ VERDICT: PASS / WARN / FAIL
 
 - **Paste literal `git` and `gh` output, do not summarize.** Summarizing creates space for the LLM to fabricate clean results when checks actually failed.
 - **Any ❌ means the release is NOT done.** Do not declare success with a partial pass.
-- **Cannot be skipped.** Per pro/AGENTS.md HARD RULE "GitHub Release alignment", every release-bumping commit must complete `/verify-release` before being considered shipped.
+- **Cannot be skipped.** Per hosts/AGENTS.md HARD RULE "GitHub Release alignment", every release-bumping commit must complete `/verify-release` before being considered shipped.

@@ -110,7 +110,7 @@ Each seal level uses a level-specific prompt:
 - **L1 → L2 (month digest)**: "Compose monthly review from these week digests. Identify: monthly themes, decisions that hardened/softened, concept activations that crossed canonical threshold, recurring people. Target: 1500-2500 tokens."
 - **L2 → L3 (year digest)**: "Generate annual review from month digests. Identify: year's central narratives, longest-running unresolved threads, SOUL evolution evidence, strategic-line changes. Target: 3000-5000 tokens."
 
-Prompts live at `pro/seal-prompts/L0-to-L1.md` / etc. (location TBD, not built in v1.8.7).
+Prompts live at `scripts/prompts/seal/L0-to-L1.md` / etc. (location TBD, not built in v1.8.7).
 
 ## What v1.8.7 does NOT do
 

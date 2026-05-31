@@ -1,15 +1,15 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # 11 步编排协议 (文档)
 
-这是 `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` 里 11 步工作流的**文档化讲解**, 不是指令本身。每步做什么、输入是什么、输出是什么、由哪个 agent 执行。
+这是 `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` 里 11 步工作流的**文档化讲解**, 不是指令本身。每步做什么、输入是什么、输出是什么、由哪个 agent 执行。
 
-源文件是 `pro/CLAUDE.md`(Claude)/ `pro/GEMINI.md`(Gemini)/ `pro/AGENTS.md`(Codex),三份结构等价。
+源文件是 `hosts/CLAUDE.md`(Claude)/ `hosts/GEMINI.md`(Gemini)/ `hosts/AGENTS.md`(Codex),三份结构等价。
 
 ---
 

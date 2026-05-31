@@ -1,5 +1,5 @@
 ---
-description: Convert a historical pro/compliance/violations.md row into an evals/regression-fixtures/rc-*.md fixture (markdown with YAML frontmatter — no .yml per the md-only ontological constraint). Lazy alternative to bulk historic-row conversion (per Stage 9 D7 default). Use when a recurring violation pattern emerges (3+ similar rows) and you want regression test coverage.
+description: Convert a historical compliance/violations.md row into an evals/regression-fixtures/rc-*.md fixture (markdown with YAML frontmatter — no .yml per the md-only ontological constraint). Lazy alternative to bulk historic-row conversion (per Stage 9 D7 default). Use when a recurring violation pattern emerges (3+ similar rows) and you want regression test coverage.
 argument-hint: "<violation-row-id-or-timestamp>"
 allowed-tools:
   - Read
@@ -10,13 +10,13 @@ allowed-tools:
 
 # /regression-from-violation
 
-Convert a specific row in `pro/compliance/violations.md` into a markdown regression fixture (YAML frontmatter + body) under `evals/regression-fixtures/rc-<descriptor>.md`. The 7 critical fixtures (4 F-class + 1 forbidden-extension + 2 most-cited historic) shipped in Stage 9; remaining ~70 historical rows use this slash command for lazy conversion as patterns recur. (Fixtures were `.yml` until v1.8.5 Stage 9 / v1.8.6; the md-only ontological constraint / DR-10 forbids `.yml`, so fixtures are now `.md`.)
+Convert a specific row in `compliance/violations.md` into a markdown regression fixture (YAML frontmatter + body) under `evals/regression-fixtures/rc-<descriptor>.md`. The 7 critical fixtures (4 F-class + 1 forbidden-extension + 2 most-cited historic) shipped in Stage 9; remaining ~70 historical rows use this slash command for lazy conversion as patterns recur. (Fixtures were `.yml` until v1.8.5 Stage 9 / v1.8.6; the md-only ontological constraint / DR-10 forbids `.yml`, so fixtures are now `.md`.)
 
 ## Procedure
 
 ### 1. Locate the violation row
 ```bash
-grep -nE "<timestamp-or-keyword>" pro/compliance/violations.md
+grep -nE "<timestamp-or-keyword>" compliance/violations.md
 ```
 If multiple matches → ask user which row via AskUserQuestion.
 
@@ -46,7 +46,7 @@ expected_verdict: FAIL
 expected_failure_class: <F1-F17 from row>
 expected_check: <which AUDITOR Mode or slash command should catch this>
 introduced_in: v1.8.5 Stage 9 (lazy conversion)
-related_spec: <links to relevant references/*.md or pro/CLAUDE.md sections>
+related_spec: <links to relevant references/*.md or hosts/CLAUDE.md sections>
 input_scenario:
   trigger: <trigger>
   actual_behavior: <what went wrong, paraphrased from Details>
@@ -56,7 +56,7 @@ input_scenario:
 # rc-<descriptor>-<N>
 
 ## Description
-Historic regression converted from pro/compliance/violations.md row dated <timestamp>.
+Historic regression converted from compliance/violations.md row dated <timestamp>.
 Original violation: <details>
 Pattern recurrence count: <K> times in last 90 days (run AUDITOR Mode 3 to refresh).
 
@@ -64,14 +64,14 @@ Pattern recurrence count: <K> times in last 90 days (run AUDITOR Mode 3 to refre
 <F-Code> <FAILURE_CLASS>: <human-readable summary>
 Severity: <P0/P1/P2>
 Defense layers that should catch:
-- Layer 2 (orchestration enforcement): <relevant SKILL.md / pro/CLAUDE.md rule>
+- Layer 2 (orchestration enforcement): <relevant SKILL.md / hosts/CLAUDE.md rule>
 - Layer 3 (subagent self-check): <relevant agent's frontmatter failure_modes>
 - Layer 4 (post-hoc audit): AUDITOR Mode <N> scenario
 - Layer 5 (regression test): this file
 
 ## Historic context
-Original violation row: pro/compliance/violations.md (timestamp <timestamp>)
-Incident dossier (if exists): pro/compliance/<incident-file>.md
+Original violation row: compliance/violations.md (timestamp <timestamp>)
+Incident dossier (if exists): compliance/<incident-file>.md
 ```
 
 ### 4. Write fixture file via Write tool

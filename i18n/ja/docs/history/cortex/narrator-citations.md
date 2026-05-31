@@ -2,7 +2,7 @@
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Narrator 引用と Trace · 捏造防止メカニズム / Narrator Citations & Trace
@@ -464,11 +464,11 @@ Spec 層(英語):
 - `references/narrator-spec.md` — 完全 spec: substantive/connective ルール、validator アルゴリズム、trace UX
 - `references/eval-history-spec.md` §5.10 — `citation_groundedness` 採点基準
 - `references/cortex-spec.md` §Grounded Generation — なぜ Gazzaniga が Cortex 設計の中核的隠患か
-- `pro/agents/narrator-validator.md` — validator subagent 定義
+- `agents/narrator-validator.md` — validator subagent 定義
 
 その他:
 
-- `pro/agents/router.md` — Narrator の挙動は ROUTER に住む(独立 agent ではない)
+- `agents/router.md` — Narrator の挙動は ROUTER に住む(独立 agent ではない)
 - `devdocs/architecture/cortex-integration.md` — Step 7.5 挿入の位置
 
 ---
@@ -478,6 +478,6 @@ Spec 層(英語):
 
 ---
 
-### 訳者注 / Translator's Note
+**訳者注 / Translator's Note**
 
 本ドキュメントは中国語版 (`docs/history/cortex/narrator-citations.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(Narrator, Validator, substantive/connective, signal registry, citation, trace, groundedness, confabulation, Gazzaniga Left-Brain Interpreter, ROUTER, COUNCIL, AUDITOR, RETROSPECTIVE 等)は原文の英語表記を保持しています。Gazzaniga の左脳解釈器の説明は神経科学領域の標準用語ですが、日本語文脈での理解を優先し読解可能な表現としました。人間校正待ち。

@@ -6,7 +6,7 @@ Life OS のすべてのデータ操作はこれらの標準型とインターフ
 
 ### Decision
 
-> ⚠️ **v1.9 schema が下表を置き換え**（RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records" 参照）。v1.9 は決定記録 frontmatter の権威ソース；下方の pre-v1.9 フィールドは歴史参照 / レガシーファイル解析用に保持。**フィールド名衝突の注意**：v1.9 は `type` を決定記録の種類（`change` / `no_change` / `escalation` / `superseded`）に再利用し、pre-v1.9 の workflow 種類（`simple` / `3d6m`）**ではない**。新規決定を書く際は v1.9 schema を使う。
+> ⚠️ **v1.9 schema が下表を置き換え**（RFC §3.3.2 / §11.2.1 + `hosts/CLAUDE.md` §"Decision Records" 参照）。v1.9 は決定記録 frontmatter の権威ソース；下方の pre-v1.9 フィールドは歴史参照 / レガシーファイル解析用に保持。**フィールド名衝突の注意**：v1.9 は `type` を決定記録の種類（`change` / `no_change` / `escalation` / `superseded`）に再利用し、pre-v1.9 の workflow 種類（`simple` / `3d6m`）**ではない**。新規決定を書く際は v1.9 schema を使う。
 
 **v1.9 正規 schema**（`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`）：
 

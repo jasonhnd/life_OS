@@ -36,11 +36,11 @@ npx skills add jasonhnd/life_OS
 ```
 
 安装后：
-- Claude Code 读 `pro/CLAUDE.md`
-- Gemini / Antigravity 读 `pro/GEMINI.md`
-- Codex 读 `pro/AGENTS.md`
+- Claude Code 读 `hosts/CLAUDE.md`
+- Gemini / Antigravity 读 `hosts/GEMINI.md`
+- Codex 读 `hosts/AGENTS.md`
 
-**多个 subagent 定义共享**（都在 `pro/agents/*.md`）。只有编排文件分三份。
+**多个 subagent 定义共享**（都在 `agents/*.md`）。只有编排文件分三份。
 
 ---
 
@@ -123,7 +123,7 @@ git push
 - Opus 模型指令风格偏向"先规划后执行"
 - `Task` 工具 + subagent 架构是强制
 
-`pro/CLAUDE.md` 强化这些：
+`hosts/CLAUDE.md` 强化这些：
 
 ```
 ## CC Environment Enforces Pro Mode (HARD RULE)
@@ -139,7 +139,7 @@ context is prohibited.
 - 但 Pro Mode 仍优先——只是 fallback 可以容忍
 - Web 工具集成更自然
 
-`pro/GEMINI.md` 类似，但放宽了 "subagent 必须" 到 "subagent 推荐"。
+`hosts/GEMINI.md` 类似，但放宽了 "subagent 必须" 到 "subagent 推荐"。
 
 ### Codex 特性
 
@@ -147,7 +147,7 @@ context is prohibited.
 - 复杂议程可能被截断
 - 倾向于 express path（快车道）
 
-`pro/AGENTS.md` 针对 Codex 有明确引导：
+`hosts/AGENTS.md` 针对 Codex 有明确引导：
 
 ```
 # Codex 的最佳实践
@@ -243,13 +243,13 @@ Theme 只影响**输出的 display name**，不影响数据本身。
 | 文件 | 平台专属 | 内容 |
 |------|----------|------|
 | `SKILL.md` | 共享 | 系统总入口 |
-| `pro/GLOBAL.md` | 共享 | 通用 agent 规则 |
-| `pro/agents/*.md` | 共享 | 多个 subagent 定义 |
+| `hosts/GLOBAL.md` | 共享 | 通用 agent 规则 |
+| `agents/*.md` | 共享 | 多个 subagent 定义 |
 | `themes/*.md` | 共享 | 9 个主题 |
 | `references/*.md` | 共享 | 规格定义 |
-| `pro/CLAUDE.md` | Claude Code | 编排协议 |
-| `pro/GEMINI.md` | Gemini/Antigravity | 编排协议 |
-| `pro/AGENTS.md` | Codex | 编排协议 |
+| `hosts/CLAUDE.md` | Claude Code | 编排协议 |
+| `hosts/GEMINI.md` | Gemini/Antigravity | 编排协议 |
+| `hosts/AGENTS.md` | Codex | 编排协议 |
 
 设计原则：**data 和 logic 共享，编排方言分开**。
 
@@ -379,7 +379,7 @@ A：什么都不需要。单平台是默认状态。这篇文档是给多平台�
 A：不会冲突。Theme 是 per-session，每次会话独立选择。数据层用 functional ID，无 theme 影响。
 
 **Q：可以用非官方平台吗？**
-A：只要平台支持读 markdown + 调 MCP + 启动 subagent（或长 context 模拟），理论都能跑。但 SKILL 没专门适配文件——需要你自己写一个 `pro/XXX.md` 编排。
+A：只要平台支持读 markdown + 调 MCP + 启动 subagent（或长 context 模拟），理论都能跑。但 SKILL 没专门适配文件——需要你自己写一个 `hosts/XXX.md` 编排。
 
 ---
 

@@ -3,7 +3,7 @@ translated_from: docs/history/cortex/auditor-eval-history.md
 translator_note: auto-translated 2026-04-22, 待人工校对
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # AUDITOR Eval-History · 系统的自反馈循环（AUDITOR Eval-History）
@@ -22,7 +22,7 @@ Eval-history 是 Life OS 的**结构化自评反馈环**。AUDITOR 写,RETROSPEC
 
 ### 被 Hermes 启发的一课
 
-[Hermes Lesson 5](../../../../devdocs/research/2026-04-19-hermes-analysis.md) 的核心: **自评必须回流到系统,不能只是一次性报告**。
+Hermes Lesson 5（内部调研记录：`devdocs/research/2026-04-19-hermes-analysis.md`）的核心: **自评必须回流到系统,不能只是一次性报告**。
 
 v1.6.2a 的 AUDITOR 已经在每次决策结束时给各 agent 打分——**PLANNER 维度全不全?REVIEWER 封驳有没有依据?domain 分数和分析一致吗?**——但这些评分**只存在本次 session 的 Summary Report 里**。session 结束,它们蒸发。
 
@@ -337,7 +337,7 @@ uv run tools/reconcile.py
 简报里看到系统性问题,你可以:
 
 - **本次 session 针对性关注**——警告已经说了"本次重点关注 X",跟着做
-- **改 agent spec**——比如系统说 REVIEWER 反复漏 dormant 维度,就编辑 `pro/agents/reviewer.md` 加一项 checklist
+- **改 agent spec**——比如系统说 REVIEWER 反复漏 dormant 维度,就编辑 `agents/reviewer.md` 加一项 checklist
 - **改 cortex config**——比如系统说 hippocampus retrieval 质量低,`meta/config.md` 里考虑调整 `top_k_signals` 或 `per_signal_floor`
 - **手工反驳**——如果你不认同系统性模式检测(比如 narrator 失败率高但你觉得是暂时问题不是系统性的),在当前 session 里说"我认为这个检测是误报",AUDITOR 会记一笔,后续 pattern 仍会持续监控但降权
 
@@ -355,7 +355,7 @@ uv run tools/reconcile.py
 
 - **同一 `violations[].type` 在 30 天内出现 3+ 次** → 已被规则 5 升级到 meta/user-patterns.md。**这是系统已经表态"这是一个稳定模式"** → 改对应 agent spec
 - **`process_compliance` 连续 3 次 <5** → 状态机在崩。优先级最高,其他都可以等,这个不能
-- **`citation_groundedness` 单次 <5** + trace 验证确实是 narrator 编造 → 编辑 `pro/agents/narrator-validator.md` 加更严的检查,或考虑是否 registry 本身有漏
+- **`citation_groundedness` 单次 <5** + trace 验证确实是 narrator 编造 → 编辑 `agents/narrator-validator.md` 加更严的检查,或考虑是否 registry 本身有漏
 
 ### 黄色信号(观察 + 预备)
 
@@ -387,7 +387,7 @@ Eval-history 的 anti-patterns 里明确写:
 
 > **Do not** allow face-saving in AUDITOR's own evaluation. If `score_honesty: 3` is warranted, write 3 — AUDITOR evaluating itself with uniform 7s is the exact anti-pattern AUDITOR was built to detect in others.
 
-实务上: AUDITOR 的 spec(`pro/agents/auditor.md`)禁止"blanket 7s or 8s",并要求每个维度必须基于**具体证据**(quoted agent output、score contradiction、skipped phase)。如果 AUDITOR 的 body 里写"all agents performed well" 这种通用赞美,这是它自己禁止的 anti-pattern,下次 AUDITOR 扫历史时会 flag 自己的问题。
+实务上: AUDITOR 的 spec(`agents/auditor.md`)禁止"blanket 7s or 8s",并要求每个维度必须基于**具体证据**(quoted agent output、score contradiction、skipped phase)。如果 AUDITOR 的 body 里写"all agents performed well" 这种通用赞美,这是它自己禁止的 anti-pattern,下次 AUDITOR 扫历史时会 flag 自己的问题。
 
 这是一个二阶的自监控:**AUDITOR 检测 AUDITOR**。不完美,但比没有强。
 
@@ -436,7 +436,7 @@ Eval-history 的 anti-patterns 里明确写:
 
 1. **读 body 的 Weaknesses 和 Recommendations**——AUDITOR 通常给出了具体的修复方向
 2. **查最近的 session journal**,看 adjourn 是否真的 broken(ARCHIVER 4 phase 有没有跑完、Completion Checklist 是否有 TBD)
-3. **如果是结构性问题**(archiver 被拆分多段跑),按 Recommendations 改 ARCHIVER 的 prompt / `pro/CLAUDE.md` 的 state machine 约束
+3. **如果是结构性问题**(archiver 被拆分多段跑),按 Recommendations 改 ARCHIVER 的 prompt / `hosts/CLAUDE.md` 的 state machine 约束
 4. **如果是偶然**(某次 Claude API 抖动导致 phase 中断),记录下来,下次 session 正常 adjourn 就能恢复
 
 不需要立即 rollback 或重装 Cortex——eval-history 本身是**诊断**,不是**灾难**。
@@ -460,7 +460,7 @@ ls meta/eval-history/*.md | wc -l
 比例应该在 50–80%(因为 direct-handle / Express 短 / STRATEGIST 都不写)。如果比例 <30%,可能:
 
 1. AUDITOR 在多次 session 里写入失败(磁盘、权限)——查 session journal 里 AUDITOR 部分有没有 "eval write failed" 消息
-2. `pro/agents/auditor.md` 的 spec 对"什么场景写"的判断过严——可能 Express 的 brief report 都被当作"不够深度"跳过了
+2. `agents/auditor.md` 的 spec 对"什么场景写"的判断过严——可能 Express 的 brief report 都被当作"不够深度"跳过了
 
 处理:
 ```bash
@@ -507,8 +507,8 @@ Spec 层(英文):
 - `references/eval-history-spec.md` — 完整 spec: schema、系统性规则、存储、迁移
 - `references/cortex-spec.md` §Open Questions — eval-history 驱动的 spec revision 流程
 - `references/hooks-spec.md` — `process_compliance` 违规日志来源
-- `pro/agents/auditor.md` — 唯一的 eval-history 写入者
-- `pro/agents/retrospective.md` — Mode 0 的 pattern detection
+- `agents/auditor.md` — 唯一的 eval-history 写入者
+- `agents/retrospective.md` — Mode 0 的 pattern detection
 
 其他:
 

@@ -1,8 +1,8 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ deleted v1.8.1 Wave 2. Layer 3 bash hooks deleted v1.8.5 (hook layer 退役). v1.8.7 md-only ontological commit forbids both .py and .sh. Read for historical context only; current behavior in pro/CLAUDE.md + scripts/prompts/*.md (LLM-driven inline)."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ deleted v1.8.1 Wave 2. Layer 3 bash hooks deleted v1.8.5 (hook layer 退役). v1.8.7 md-only ontological commit forbids both .py and .sh. Read for historical context only; current behavior in hosts/CLAUDE.md + scripts/prompts/*.md (LLM-driven inline)."
 ---
 
 # 执行层架构 · Shell Hooks (Layer 3) + Python Tools (Layer 4) — LEGACY
@@ -12,14 +12,14 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Layer 4 Python tools/ deleted v1.8.1 Wa
 > - **Layer 3 bash hooks** 在 v1.8.5（2026-05-22）整体退役（~30 个 .sh 全删），运行时 enforcement 转 inline LLM 流程（auditor Mode 3 等）
 > - **v1.8.7 md-only 本体论 commit**（DR-10）禁止 .py / .sh / .yml / .json / .sql / .db / .sqlite 文件类型，永久约束
 >
-> 本文档描述的 12 个核心 Python 工具 + 11 个 bash hook **均已不存在**。文件保留作历史参考。当前 enforcement 见 pro/CLAUDE.md + pro/agents/auditor.md Mode 3。
+> 本文档描述的 12 个核心 Python 工具 + 11 个 bash hook **均已不存在**。文件保留作历史参考。当前 enforcement 见 hosts/CLAUDE.md + agents/auditor.md Mode 3。
 >
 > **v1.8.1 过渡架构快照（本身已被 v1.8.5 取代——bash hooks 已全部退役）：**
 > - ~~**Layer 3 = bash hooks**（`scripts/hooks/*.sh`）~~ — **v1.8.5 Stage 2 整体退役**，运行时 enforcement 转为 inline LLM 流程（auditor Mode 3 等）。v1.8.7 DR-10 起 md-only 为本体约束，永久禁止 `.sh`。
 > - **Layer 4 = LLM-driven prompts** — 不再是 Python；改为 `scripts/prompts/*.md`，ROUTER 读 prompt 用 Read/Write/Glob/Grep 直接做事（这部分 v1.9 仍然成立）
 > - **Slash commands** — `.claude/commands/*.md` + `scripts/prompts/*.md` 配对：`/inbox-process` `/research` `/wiki-decay` `/migrate-confidence` `/wiki-link-audit` 等（v1.8.5 起所有 `setup-hooks.sh` 安装动作由 `/install-agents` 取代）
 >
-> 详见：`pro/CLAUDE.md`（编排合同）+ `SKILL.md`（系统定义，含 md-only 本体约束）+ `CHANGELOG.md` v1.8.5 段。
+> 详见：`hosts/CLAUDE.md`（编排合同）+ `SKILL.md`（系统定义，含 md-only 本体约束）+ `CHANGELOG.md` v1.8.5 段。
 
 > 本文档（保留作历史参考）说明的是 v1.7 时代的执行层设计：如何让 HARD RULE 真正"hard"、如何让决策引擎不只在用户打字时才动起来。
 >
@@ -37,17 +37,17 @@ Hermes Local 由 `Layer 3` 运行时 backstop 与 `Layer 4` Python 工具组成�
 
 ## 1 · 为什么需要执行层
 
-Life OS 从 v1.0 到 v1.6.2 一直是"纯文档系统"——16 个 subagent 的身份、职责、封驳循环全部写在 `pro/agents/*.md` 里，orchestrator 读 markdown、launch subagent、拼报告。这条路线的优点是模型无关（LLM-agnostic）、可审计、零运行时依赖。
+Life OS 从 v1.0 到 v1.6.2 一直是"纯文档系统"——16 个 subagent 的身份、职责、封驳循环全部写在 `agents/*.md` 里，orchestrator 读 markdown、launch subagent、拼报告。这条路线的优点是模型无关（LLM-agnostic）、可审计、零运行时依赖。
 
 但两件事把"纯文档"的天花板撞穿了：
 
 ### 1.1 LLM 偷懒（已被证明）
 
-2026-04-19 COURT-START-001 incident（见 `pro/compliance/2026-04-19-court-start-violation.md`）：用户在 dev repo 说"上朝"，Claude **完全跳过** `retrospective` 子代理，在主上下文里自演几步就输出报告，并且**编造**了不存在的文件路径作为"权威 HARD RULE 源"。事后复盘结论：
+2026-04-19 COURT-START-001 incident（见 `compliance/2026-04-19-court-start-violation.md`）：用户在 dev repo 说"上朝"，Claude **完全跳过** `retrospective` 子代理，在主上下文里自演几步就输出报告，并且**编造**了不存在的文件路径作为"权威 HARD RULE 源"。事后复盘结论：
 
 > 文档里写"HARD RULE"四个字不会让它真的 hard。文档完整 + 零强制机制 ≈ 无文档。LLM 默认会找省力路径，必须用 hook / audit gate / test 强制。
 
-这是**执行层缺失**直接导致的产品级 bug。SKILL.md 和 pro/CLAUDE.md 把规则写得无比清楚，但 orchestrator 自己就能违反——那规则对用户的保护就是零。
+这是**执行层缺失**直接导致的产品级 bug。SKILL.md 和 hosts/CLAUDE.md 把规则写得无比清楚，但 orchestrator 自己就能违反——那规则对用户的保护就是零。
 
 ### 1.2 LLM 不主动（等用户打字）
 
@@ -209,7 +209,7 @@ if [[ "$PROMPT" =~ $TRIGGER_RE ]]; then
 HARD RULE · Trigger "$TRIGGER" detected.
 
 Required actions (NOT optional):
-1. Read pro/agents/${AGENT}.md BEFORE doing anything else
+1. Read agents/${AGENT}.md BEFORE doing anything else
 2. Launch(${AGENT}) as independent subagent in $MODE
 3. Do NOT execute any step in main context
 4. Do NOT simulate subagent output
@@ -217,7 +217,7 @@ Required actions (NOT optional):
    🌅 Trigger: ${TRIGGER} → Launching ${AGENT} subagent
    [Launch(${AGENT}) here]
 
-Violation of this rule will be logged to pro/compliance/violations.md.
+Violation of this rule will be logged to compliance/violations.md.
 Precedent: COURT-START-001 (2026-04-19) proved that "文档级 HARD RULE" 无强制机制 = 糊弄.
 </system-reminder>
 EOF
@@ -229,7 +229,7 @@ fi
 #### 3.3.2 `lifeos-post-response-verify.sh` · PostToolUse 合规扫描
 
 **触发**：每次工具调用完成后。
-**作用**：检查 orchestrator 的输出是否符合 trigger 模板。检测到违规 → 写入 `pro/compliance/violations.md`（dev repo）或 `meta/compliance/violations.md`（user repo）。
+**作用**：检查 orchestrator 的输出是否符合 trigger 模板。检测到违规 → 写入 `compliance/violations.md`（dev repo）或 `meta/compliance/violations.md`（user repo）。
 
 **检测规则**（举例）：
 
@@ -254,7 +254,7 @@ fi
 - 同类违规 ≥ 5 → `retrospective` 晨报顶部 🚨 警示
 - 同类违规 ≥ 10（90 日内）→ 每次 session start 强制 AUDITOR Compliance Patrol
 
-**90 日归档**：`pro/compliance/violations.md` 只保留最近 90 日；更早的归档到 `pro/compliance/archive/YYYY-QN.md`。这一步由 Python 工具 `backup.py` 执行，不是 shell hook 的职责。
+**90 日归档**：`compliance/violations.md` 只保留最近 90 日；更早的归档到 `compliance/archive/YYYY-QN.md`。这一步由 Python 工具 `backup.py` 执行，不是 shell hook 的职责。
 
 #### 3.3.3 `lifeos-pre-write-scan.sh` · PreToolUse 写入前扫描
 
@@ -340,7 +340,7 @@ if grep -q "退朝\|adjourn\|お疲れ" "$TRANSCRIPT"; then
     if ! grep -q "$PHASE" "$TRANSCRIPT"; then
       echo "[Hook] Adjourn violation: missing $PHASE" >&2
       # 写违规 log
-      LOG="./pro/compliance/violations.md"
+      LOG="./compliance/violations.md"
       [ -f "$LOG" ] || LOG="./meta/compliance/violations.md"
       echo "| $(date -Iseconds) | 退朝 | C (incomplete) | P1 | Missing $PHASE | false |" >> "$LOG"
     fi
@@ -370,7 +370,7 @@ fi
 
 ```
 dev repo (life-os):
-  pro/compliance/
+  compliance/
     violations.md              ← 开发者自己的违规 log（git 追踪）
     violations.example.md      ← 格式示例
     archive/2026-Q2.md         ← 90 日外归档
@@ -391,8 +391,8 @@ user repo (second-brain):
 **路径解析**（hook 自动判断当前是 dev 还是 use repo）：
 
 ```bash
-if [ -f "./pro/agents/retrospective.md" ]; then
-  LOG="./pro/compliance/violations.md"       # dev repo
+if [ -f "./agents/retrospective.md" ]; then
+  LOG="./compliance/violations.md"       # dev repo
 elif [ -f "./meta/config.md" ]; then
   LOG="./meta/compliance/violations.md"     # user second-brain
 else
@@ -702,7 +702,7 @@ Layer 3 负责**不让 LLM 糊弄**；Layer 4 负责**让系统自己动起来**
 
 - Layer 3：`pre-prompt-guard` + `post-response-verify` + `pre-write-scan` + `stop-session-verify` + `pre-read-allowlist`（共 5 个 hook，完整契约见 `references/hooks-spec.md`）
 - Layer 4：`reindex` + `reconcile` + `stats` + `daily_briefing`（前 4 个 Python 工具）
-- 违规 log 双仓库机制正式上线（`pro/compliance/` + `meta/compliance/`）
+- 违规 log 双仓库机制正式上线（`compliance/` + `meta/compliance/`）
 - 文档：本文件 + `docs/guides/hooks-install.md` + `docs/guides/python-tools-install.md`
 
 **v1.7 · 阶段二 — 扩展与自动化**
@@ -741,13 +741,13 @@ Layer 3 负责**不让 LLM 糊弄**；Layer 4 负责**让系统自己动起来**
 
 ## 附 · 相关文档
 
-- `pro/compliance/2026-04-19-court-start-violation.md` — COURT-START-001 完整事件档案
+- `compliance/2026-04-19-court-start-violation.md` — COURT-START-001 完整事件档案
 - `devdocs/research/2026-04-19-hermes-analysis.md` — Hermes Agent 深度调研
 - `docs/history/architecture/16-agents.md` — Layer 2 的 16 个 subagent 定义
 - `docs/history/architecture/hard-rules-catalog.md` — Layer 1 的全部 HARD RULE 清单
 - `docs/history/architecture/markdown-first.md` — 为什么所有状态必须 md + git
 - `scripts/setup-hooks.sh` — 当前 v1.6.2a 的 hook 安装脚本（模板）
 - `scripts/lifeos-version-check.sh` — 当前唯一在线的 hook 实现（参考）
-- `pro/GLOBAL.md` — 所有 agent 共享的安全边界
+- `hosts/GLOBAL.md` — 所有 agent 共享的安全边界
 
 **END**

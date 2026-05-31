@@ -15,7 +15,7 @@
 | `getting-started/` | 新用户第一次接触系统需要看的 4 篇 | 刚装完，或者推荐给别人 |
 | `user-guide/` | 系统各个功能模块的用法（SOUL、DREAM、Wiki、主题、六部、战略地图、存储、会话生命周期、智库 Hall of Wisdom） | 想深入用某个功能 |
 | `guides/` | 场景化操作手册（年度规划、职业决策、建 wiki、映射战略等） | 遇到具体场景想抄作业 |
-| `history/` | 已归档的 v1.7 历史文档（架构快照、Cortex v1.7 用户指南、v1.7 迁移指南），全标 `status: legacy` | 想了解系统演进史（当前架构权威源是 `pro/CLAUDE.md` + `pro/agents/`） |
+| `history/` | 已归档的 v1.7 历史文档（架构快照、Cortex v1.7 用户指南、v1.7 迁移指南），全标 `status: legacy` | 想了解系统演进史（当前架构权威源是 `hosts/CLAUDE.md` + `agents/`） |
 | `reference/` | 规格和字典类文档（9 主题 × multiple agents 的完整映射、触发词、适配器、FAQ、版本历史、token 估算） | 查具体名字、参数、数据结构 |
 | `evals/` | 评估脚本与场景 | 长期演化系统时的参考 |
 
@@ -53,13 +53,13 @@
 - 想切主题或加新主题 → `user-guide/themes/`
 - 想理解 git 同步（会话开始 pull / 结束 push）→ `user-guide/storage-and-sync/`
 - 想用 Hall of Wisdom 和苏格拉底聊 → `user-guide/hall-of-wisdom/`
-- 想理解 Cortex 认知层（跨会话记忆 / 概念图 / 方法库 / GWT 仲裁 / Narrator 引用 / AUDITOR 自反馈）→ 当前行为见 `pro/CLAUDE.md` §0.5；v1.7 时代的用户指南已归档到 `docs/history/cortex/`
+- 想理解 Cortex 认知层（跨会话记忆 / 概念图 / 方法库 / GWT 仲裁 / Narrator 引用 / AUDITOR 自反馈）→ 当前行为见 `hosts/CLAUDE.md` §0.5；v1.7 时代的用户指南已归档到 `docs/history/cortex/`
 
 场景化的操作手册在 `guides/` — 比如「年度规划会怎么开」「职业决策怎么走完整流程」，这些是 user-guide 的实战补充。
 
 ### 开发者 — 我想改系统 / 排查流程 bug
 
-当前架构权威源是 `pro/CLAUDE.md`（11 步编排协议、状态机、信息隔离、HARD RULE 全在里面）+ `pro/agents/*.md`（每个 agent 的源定义：功能边界、工具权限、触发条件）。改系统、写 subagent、排查流程 bug 都以这两处为准。
+当前架构权威源是 `hosts/CLAUDE.md`（11 步编排协议、状态机、信息隔离、HARD RULE 全在里面）+ `agents/*.md`（每个 agent 的源定义：功能边界、工具权限、触发条件）。改系统、写 subagent、排查流程 bug 都以这两处为准。
 
 v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow-state-machine / hard-rules-catalog / information-isolation / multi-platform-orchestration 等）已归档到 `docs/history/architecture/`，标了 `status: legacy`，仅供了解系统演进史，不要当作当前权威。
 
@@ -84,10 +84,10 @@ v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow
 | 文件 | 地位 |
 |------|------|
 | `SKILL.md` | 路由文件，Claude / Gemini / Codex 都会先读这个 |
-| `pro/CLAUDE.md` | Claude 平台的 11 步编排协议 |
-| `pro/GEMINI.md` | Gemini 平台同等地位的编排文件 |
-| `pro/AGENTS.md` | Codex 平台的编排文件 |
-| `pro/agents/*.md` | 多个 subagent 的定义 |
+| `hosts/CLAUDE.md` | Claude 平台的 11 步编排协议 |
+| `hosts/GEMINI.md` | Gemini 平台同等地位的编排文件 |
+| `hosts/AGENTS.md` | Codex 平台的编排文件 |
+| `agents/*.md` | 多个 subagent 的定义 |
 | `themes/*.md` | 9 个主题的显示名映射 |
 | `references/*.md` | 数据模型、适配器、SOUL / DREAM / Wiki spec |
 
@@ -104,8 +104,8 @@ v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow
 - [第一次上朝全流程](getting-started/first-session.md)
 - [平台选择](getting-started/choose-your-platform.md)
 - [公开安装指南](installation.md)
-- [Agent 定义源](../pro/agents/) — 当前 active 的 agent 定义全集
-- [编排协议（pro/CLAUDE.md，当前权威）](../pro/CLAUDE.md)
+- [Agent 定义源](../agents/) — 当前 active 的 agent 定义全集
+- [编排协议（hosts/CLAUDE.md，当前权威）](../hosts/CLAUDE.md)
 - [历史架构档案](history/)
 - [FAQ](reference/faq.md)
 
@@ -132,7 +132,7 @@ v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow
 操作手册，解决特定场景。每篇独立、可单独读。命名直接用场景名（`annual-planning-session.md`、`career-decision-playbook.md`）。
 
 ### history/
-已归档的 v1.7 历史文档：`history/architecture/`（v1.7 架构快照）、`history/cortex/`（v1.7 Cortex 用户指南）、`history/v1.7-migration.md`、`history/v1.7-shipping-report-2026-04-21.md`。全部标了 `status: legacy`，仅作演进史参考。当前架构权威源是 `pro/CLAUDE.md` + `pro/agents/`，改系统以那两处为准。
+已归档的 v1.7 历史文档：`history/architecture/`（v1.7 架构快照）、`history/cortex/`（v1.7 Cortex 用户指南）、`history/v1.7-migration.md`、`history/v1.7-shipping-report-2026-04-21.md`。全部标了 `status: legacy`，仅作演进史参考。当前架构权威源是 `hosts/CLAUDE.md` + `agents/`，改系统以那两处为准。
 
 ### reference/
 查表用。不讲故事，只列条目。如果某个条目需要解释，在条目里留一行链接到 user-guide 或 architecture。
@@ -154,7 +154,7 @@ v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow
 - **CHANGELOG**：在 `/CHANGELOG.md` 和三语版本
 - **SKILL.md**：在项目根目录，是路由文件，不是 doc
 - **scene configs、domain details、data model**：这些是「源」，在 `/references/` 里（注意不是 `/docs/reference/`），engine 直接读
-- **agent 定义**：在 `/pro/agents/`，doc 里只能引用，不能复述
+- **agent 定义**：在 `/agents/`，doc 里只能引用，不能复述
 
 `docs/reference/` 和 `/references/` 是两个不同的地方，别混淆：
 - `/references/` —— 引擎读的权威规格（`domains.md`、`soul-spec.md`、`wiki-spec.md`、`dream-spec.md`、`data-model.md`、`adapter-*.md` 等）

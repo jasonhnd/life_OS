@@ -4,7 +4,7 @@
 
 ## HARD RULE：每次决策都引用
 
-SKILL.md 和 `pro/agents/reviewer.md` 定义了这条硬规则：
+SKILL.md 和 `agents/reviewer.md` 定义了这条硬规则：
 
 **REVIEWER 在每次决策的 Summary Report 前，必须输出一块 "🔮 SOUL Reference"**。
 
@@ -188,7 +188,7 @@ previous_snapshot: 2026-04-17-1850.md
 
 ## 信息隔离
 
-按 `pro/CLAUDE.md` 的信息隔离表：
+按 `hosts/CLAUDE.md` 的信息隔离表：
 
 - **REVIEWER** 收到：计划文档 或 六部报告 + 当前 SOUL.md（通过主动读取）
 - **REVIEWER** 不收到：其他 agent 的思考过程

@@ -1,4 +1,4 @@
-﻿---
+---
 # Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
 # Schema unchanged; only file extension changed.
 ---
@@ -9,13 +9,13 @@
 id: rc-f17-value-hallucination
 description: |
   Negative fixture: REVIEWER cites a SOUL dim_id that does NOT exist in SOUL.md.
-  Pure confabulation 窶・REVIEWER invented a value to justify the verdict.
+  Pure confabulation — REVIEWER invented a value to justify the verdict.
   AUDITOR Mode 3 F17 scan MUST FAIL on this. Direct B-class confabulation; also F17.
 expected_verdict: FAIL
 expected_failure_class: F17_VALUE_HALLUCINATION_FAILURE
 expected_check: AUDITOR Mode 3 F17 scenario (cited domain_value_id not in SOUL.md)
 introduced_in: v1.8.5 Stage 9
-related_spec: references/failure-taxonomy.md F17 ﾂｷ references/soul-spec.md v2
+related_spec: references/failure-taxonomy.md F17 · references/soul-spec.md v2
 
 input_soul_md_excerpt:
   path: SOUL.md
@@ -36,7 +36,7 @@ input_soul_md_excerpt:
     - id: dv-long-term-over-short-term
       formulation: "Long-term flourishing over short-term comfort"
       priority: 3
-    # NO dv-tradition-over-novelty in SOUL 窶・this is the regression bait
+    # NO dv-tradition-over-novelty in SOUL — this is the regression bait
 
 input_audit_trail:
   path: meta/runtime/2026-05-25-test-sid/reviewer-final-verdict.md
@@ -45,11 +45,11 @@ input_audit_trail:
       "schema_version": "r12",
       "subagent": "reviewer",
       "step_or_phase": "final-verdict",
-      "output_summary": "VETO 窶・proposal departs too radically from established practice",
+      "output_summary": "VETO — proposal departs too radically from established practice",
       "value_invocations": [
         {
           "invocation_id": "vi-2026-05-25-1",
-          "domain_value_id": "dv-tradition-over-novelty",   # 竊・NOT IN SOUL.md (F17)
+          "domain_value_id": "dv-tradition-over-novelty",   # → NOT IN SOUL.md (F17)
           "rule_conflict": "Should we adopt this new framework or stick with the proven approach?",
           "chosen_path": "Stick with proven approach",
           "rejected_alternative": "Adopt new framework"

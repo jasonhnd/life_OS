@@ -7,7 +7,7 @@
 1. **任意の `.sh` / `.bash` shell スクリプト** —— `SKILL.md` md-only 本体論的制約（DR-10 v1.8.7）に従う。v1.8.5 は bash hook 層全体を退役；v1.8.7 はその退役を永久化。禁止拡張子：`.sh / .bash / .py / .yml / .yaml / .json / .sql / .db / .sqlite`。
 2. **任意の `.py` Python スクリプト** —— 同上。
 3. **"自分用だけ"の新 slash コマンド** —— slash コマンドはユーザ向け；明確な name + argument-hint + description が必要、リリースの一部として出荷必須。個人的な一回限りの自動化はあなたの `~/.claude/commands/` に直接置く（本 repo には入れない）。
-4. **起動語なしの新保守 prompt** —— `scripts/prompts/*.md` ファイルは `pro/CLAUDE.md` で文書化された自然言語パターンで ROUTER が起動する。起動語が文書化されていない prompt は死コード。
+4. **起動語なしの新保守 prompt** —— `scripts/prompts/*.md` ファイルは `hosts/CLAUDE.md` で文書化された自然言語パターンで ROUTER が起動する。起動語が文書化されていない prompt は死コード。
 5. **ユーザ向けドキュメント** —— `docs/` と `gitbooks/` が担当。
 6. **ヘルパー関数 / ライブラリ** —— scripts/ にヘルパーライブラリなし；コマンドと prompt は自己完結 LLM 駆動 md ファイル。
 
@@ -21,13 +21,13 @@
 
 ### `scripts/prompts/<name>.md`
 
-ROUTER がインライン読み取りする内部保守 prompt（インストールステップなし）。`pro/CLAUDE.md` §"自動起動ルール" で文書化された自然言語パターンで起動。
+ROUTER がインライン読み取りする内部保守 prompt（インストールステップなし）。`hosts/CLAUDE.md` §"自動起動ルール" で文書化された自然言語パターンで起動。
 
 現在 21+ prompt（advisor-monthly、archiver-recovery、auditor-mode-2、backup、daily-briefing、eval-history-monthly、extract-concepts、inbox-process、migrate-confidence、migrate-from-v1.6、migrate-to-wikilinks、rebuild-concept-index、rebuild-session-index、reindex、research、review-queue、snapshot-cleanup、spec-compliance、strategic-consistency、wiki-decay、wiki-link-audit、wiki-obsidian-upgrade）。
 
 ## 新コマンドまたは prompt 追加前 — Minimality Rule チェック
 
-`pro/CLAUDE.md` Minimality Rule に従う：
+`hosts/CLAUDE.md` Minimality Rule に従う：
 
 1. **ROUTER がネイティブ処理**できるか（新コマンド不要）？
 2. **既存コマンド/prompt 拡張**で達成できるか？

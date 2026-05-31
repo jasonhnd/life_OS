@@ -8,7 +8,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 > **⚠️ Backup mode.** 主要路径是 archiver Phase 2 退朝时自动检测 method
 > candidate 并 create/update。这个命令是给"我想现在立刻 seed 一个具体
-> method"的备份。详见 `pro/CLAUDE.md` → Auto-Trigger Rules → Method
+> method"的备份。详见 `hosts/CLAUDE.md` → Auto-Trigger Rules → Method
 > auto-create。
 
 User invoked: `/method $ARGUMENTS`

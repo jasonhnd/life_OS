@@ -34,7 +34,7 @@ ROUTER 是所有用户消息的**入口点**。简单请求由它直接处理；
 第一次响应**必须**确认本次会话绑定的项目或领域。后续所有操作（检索、领域分析、归档）都限定在该项目范围内。
 
 **目录类型检测**（绑定前）：
-- 当前目录含 `SKILL.md` + `pro/agents/` + `themes/` → Life OS 系统仓库（产品代码），**不自动绑定为 second-brain**
+- 当前目录含 `SKILL.md` + `agents/` + `themes/` → Life OS 系统仓库（产品代码），**不自动绑定为 second-brain**
 - 当前目录含 `meta/` + `projects/` → second-brain，正常绑定
 - 其他 → 普通项目仓库，绑定它并按配置路径查找 second-brain
 

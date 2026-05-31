@@ -1,6 +1,6 @@
 # 全部 Agent 索引（24 个）
 
-> Life OS 全部 subagent 的查表索引。**权威定义**在 [`pro/agents/*.md`](../../../pro/agents/)（每个 agent 的岗位说明书：功能边界、工具权限、触发条件）。
+> Life OS 全部 subagent 的查表索引。**权威定义**在 [`agents/*.md`](../../../agents/)（每个 agent 的岗位说明书：功能边界、工具权限、触发条件）。
 >
 > 下面分组列出。**业务层 agent** 在本目录有详细文档（直接链到对应页）；**Cortex 认知层 + 工具/内部 agent** 只链到权威定义，不在本目录单独展开——它们是内部机制，单独写文档只会制造双份漂移。
 
@@ -35,26 +35,26 @@
 | council | 跨域辩论：结论严重冲突时的 3 轮结构化辩论 | [council.md](council.md) |
 | strategist | 智库 Hall of Wisdom：与历史思想家对话 | [strategist.md](strategist.md) |
 
-## Cortex 认知层（5 · 内部，权威定义见 `pro/agents/`）
+## Cortex 认知层（5 · 内部，权威定义见 `agents/`）
 
 | Agent | 职能 | 权威定义 |
 |-------|------|---------|
-| hippocampus | 跨会话记忆检索（3 波扩散激活） | [pro/agents/hippocampus.md](../../../pro/agents/hippocampus.md) |
-| concept-lookup | 概念图直接匹配 | [pro/agents/concept-lookup.md](../../../pro/agents/concept-lookup.md) |
-| soul-check | 相关 SOUL 维度检查 | [pro/agents/soul-check.md](../../../pro/agents/soul-check.md) |
-| gwt-arbitrator | GWT 显著性仲裁，合并 Cortex 信号 | [pro/agents/gwt-arbitrator.md](../../../pro/agents/gwt-arbitrator.md) |
-| narrator | 给 Summary Report 加引用（ROUTER 内部模式，非独立 spawn） | [pro/agents/narrator.md](../../../pro/agents/narrator.md) |
+| hippocampus | 跨会话记忆检索（3 波扩散激活） | [agents/hippocampus.md](../../../agents/hippocampus.md) |
+| concept-lookup | 概念图直接匹配 | [agents/concept-lookup.md](../../../agents/concept-lookup.md) |
+| soul-check | 相关 SOUL 维度检查 | [agents/soul-check.md](../../../agents/soul-check.md) |
+| gwt-arbitrator | GWT 显著性仲裁，合并 Cortex 信号 | [agents/gwt-arbitrator.md](../../../agents/gwt-arbitrator.md) |
+| narrator | 给 Summary Report 加引用（ROUTER 内部模式，非独立 spawn） | [agents/narrator.md](../../../agents/narrator.md) |
 
-> Cortex 自 v1.8.0 起为 pull-based（ROUTER 按需启动），当前行为见 `pro/CLAUDE.md` §0.5；v1.7 时代的用户指南已归档到 `docs/history/cortex/`。
+> Cortex 自 v1.8.0 起为 pull-based（ROUTER 按需启动），当前行为见 `hosts/CLAUDE.md` §0.5；v1.7 时代的用户指南已归档到 `docs/history/cortex/`。
 
-## 工具 / 内部（3 · 权威定义见 `pro/agents/`）
+## 工具 / 内部（3 · 权威定义见 `agents/`）
 
 | Agent | 职能 | 权威定义 |
 |-------|------|---------|
-| knowledge-extractor | archiver Phase 2 知识提取 carve-out | [pro/agents/knowledge-extractor.md](../../../pro/agents/knowledge-extractor.md) |
-| memory-keeper | archiver Phase 5 gotchas 提炼 | [pro/agents/memory-keeper.md](../../../pro/agents/memory-keeper.md) |
-| monitor | 运维控制台（看维护任务时间戳 + 报告） | [pro/agents/monitor.md](../../../pro/agents/monitor.md) |
+| knowledge-extractor | archiver Phase 2 知识提取 carve-out | [agents/knowledge-extractor.md](../../../agents/knowledge-extractor.md) |
+| memory-keeper | archiver Phase 5 gotchas 提炼 | [agents/memory-keeper.md](../../../agents/memory-keeper.md) |
+| monitor | 运维控制台（看维护任务时间戳 + 报告） | [agents/monitor.md](../../../agents/monitor.md) |
 
 ---
 
-> 注：`pro/agents/WHEN-NOT-TO-ADD.md` 不是 agent，而是「何时**不要**新增 agent」的边界守则，故不在本索引内。
+> 注：`agents/WHEN-NOT-TO-ADD.md` 不是 agent，而是「何时**不要**新增 agent」的边界守则，故不在本索引内。

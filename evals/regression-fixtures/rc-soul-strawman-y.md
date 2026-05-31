@@ -1,4 +1,4 @@
-﻿---
+---
 # Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
 # Schema unchanged; only file extension changed.
 ---
@@ -16,7 +16,7 @@ expected_verdict: FAIL
 expected_failure_class: F3_SCHEMA_FAILURE
 expected_check: C3 (Formulation "X over Y" form, Y not strawman)
 introduced_in: v1.8.5 Stage 4
-related_spec: references/soul-spec.md v2 ﾂｧ"Required Schema Constraints ﾂｧ3"
+related_spec: references/soul-spec.md v2 §"Required Schema Constraints §3"
 
 input_soul_md: |
   soul_reference_set:

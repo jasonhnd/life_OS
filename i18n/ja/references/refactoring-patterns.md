@@ -34,13 +34,13 @@ introduced_in: v1.8.5
 
 ### 5. STEP-EXTRACTION（ステップ抽出）
 - **使用時**: agent/EOU 内のステップを deterministic に（slash command に昇格）するか、独自の blast radius とガバナンスを持つサブ agent として分離できる。
-- **成果**: 抽出されたステップを処理する新しい slash command（`.claude/commands/*.md`）または子 subagent（`pro/agents/*.md`）; 親は抽出された単位を参照。
+- **成果**: 抽出されたステップを処理する新しい slash command（`.claude/commands/*.md`）または子 subagent（`agents/*.md`）; 親は抽出された単位を参照。
 - **例**: archiver Phase 4 の git 同期ロジックが再利用可能なステップとして抽出。Phase 4 は統一された `git add + commit + push` シーケンスを呼び出し、audit-trail 書き込みを各自で再実装しない。
 
 ### 6. VALIDATOR-ADDITION（バリデータ追加）
 - **使用時**: 既知の失敗モードに検証ゲートがない; 出力品質が未検証の前提に依存; 過去のインシデントに再発防止の回帰ケースがない。
 - **成果**: 新しい deterministic チェック（slash command）、schema 制約（`references/*-spec.md` v2 frontmatter）、または回帰ケース（`evals/regression-fixtures/rc-*.yml`）。
-- **例**: v1.8.0 R-1.8.0-019（GitHub Release Latest ミスマッチインシデント）後、`/verify-release` 6 チェックシーケンス + pro/CLAUDE.md HARD RULE 追加。
+- **例**: v1.8.0 R-1.8.0-019（GitHub Release Latest ミスマッチインシデント）後、`/verify-release` 6 チェックシーケンス + hosts/CLAUDE.md HARD RULE 追加。
 
 ### 7. STOP-CONDITION-INJECTION（停止条件注入）
 - **使用時**: agent/EOU が無効、曖昧、または無権限の状態で停止して報告するのではなく、実行を継続している。
@@ -68,7 +68,7 @@ introduced_in: v1.8.5
 
 新しい agent、spec、skill、または HARD RULE を作成する前に、以下 6 つの質問に必ず答える：
 
-1. **ルール**（pro/AGENTS.md または pro/CLAUDE.md 内）で達成できるか？
+1. **ルール**（hosts/AGENTS.md または hosts/CLAUDE.md 内）で達成できるか？
 2. **schema フィールド**（references/*-spec.md frontmatter 内）で達成できるか？
 3. **バリデータ**（slash command または AUDITOR Mode 3 scenario）で達成できるか？
 4. **回帰ケース**（evals/regression-fixtures/*.yml）で達成できるか？

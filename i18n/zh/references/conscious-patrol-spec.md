@@ -7,8 +7,8 @@ source_attribution: "tinyhumansai/openhuman @ b7b8ba6, gitbooks/features/subcons
 introduced_in: v1.8.7（2026-05-26 加入，按 DR-11）
 referenced_by:
   - SKILL.md (E10 HARD RULE)
-  - pro/agents/retrospective.md (Mode 0 系统化 Conscious Patrol)
-  - pro/agents/auditor.md (Mode 8 patrol 合规)
+  - agents/retrospective.md (Mode 0 系统化 Conscious Patrol)
+  - agents/auditor.md (Mode 8 patrol 合规)
   - references/status-line-spec.md（每个 patrol task 输出 status line）
 ---
 
@@ -98,7 +98,7 @@ retrospective Mode 0 把以下作为默认 patrol items 每次 session 跑：
 
 ### lifeos-007 · Gotchas review（v1.8.7 新）
 
-- **来源**：lifeos v1.8.7 C6 —— `pro/gotchas.md`
+- **来源**：lifeos v1.8.7 C6 —— `gotchas.md`
 - **检查内容**：引用近 7 天碰过的文件/代码的 gotcha（相关性信号）；已解决的 gotcha（代码修了但 gotcha 还列着）
 - **输出**：status line + N 个相关 gotcha 浮现
 - **用户决策**：ROUTER 扫当前任务的相关 gotcha；用户确认 / 撤销
@@ -218,6 +218,6 @@ v1.8.7 **做**：
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 路径 D + DR-11
 - 模式来源：`tinyhumansai/openhuman` `gitbooks/features/subconscious.md`（idle autonomous Subconscious Loop，基于 daemon）
 - 配套：`references/status-line-spec.md`（每 patrol task 用 8 enum status）
-- 配套：`pro/agents/retrospective.md` Mode 0（Conscious Patrol 运行处）
-- 配套：`pro/agents/auditor.md` Mode 8（验证）
-- 相关但**不同**：lifeos v1.8.0 cron 退役（`pro/CLAUDE.md` §"Mode 1 · Business session" —— 解释为何 daemon 式自治被拒）
+- 配套：`agents/retrospective.md` Mode 0（Conscious Patrol 运行处）
+- 配套：`agents/auditor.md` Mode 8（验证）
+- 相关但**不同**：lifeos v1.8.0 cron 退役（`hosts/CLAUDE.md` §"Mode 1 · Business session" —— 解释为何 daemon 式自治被拒）

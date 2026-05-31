@@ -281,6 +281,6 @@ critical-path 最敏感——7 天不动就该注意。insurance 角色根本不
 ## 相关文件
 
 - `references/strategic-map-spec.md`——Health Archetypes 表（第 120 行附近）
-- `pro/agents/retrospective.md`——Step 15d 匹配逻辑
+- `agents/retrospective.md`——Step 15d 匹配逻辑
 - `docs/user-guide/strategic-map/project-roles.md`——decay 阈值按 role
 - `docs/user-guide/strategic-map/blind-spot-detection.md`——什么时候原型本身也不够（需要盲点检测补充）

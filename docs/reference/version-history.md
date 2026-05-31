@@ -11,7 +11,7 @@
 Life OS 遵循 **Strict SemVer**（严格语义化版本）：
 
 ```
-MAJOR.MINOR.PATCH[子版本字母]
+MAJOR.MINOR.PATCH[.维护快照]
 ```
 
 | 段位 | 何时递增 |
@@ -19,13 +19,21 @@ MAJOR.MINOR.PATCH[子版本字母]
 | **MAJOR** | 破坏性变更（Breaking Change）——会导致现有数据或工作流无法继续运行 |
 | **MINOR** | 新增功能——向后兼容的增强 |
 | **PATCH** | 修复和维护——不改变功能 |
-| **子版本字母** | 同一天内的补丁（a, b, c...），合并到一次发布 |
+| **维护快照** | 用户明确要求的维护快照（例如 `1.9.1.1`），可 push 但不必创建 release tag |
 
-同一天的变更合并为一次发布。每次发布都打 git tag。
+同一天的变更合并为一次发布。正式发布都打 git tag；用户明确要求的维护快照可只提交并 push。
 
 ---
 
 ## 主要版本汇总
+
+### v1.9.1.1 · 仓库结构清理与最终审计（2026-05-31）
+
+- 移除旧 Pro 源结构，改为 `hosts/`、`agents/`、`compliance/`
+- 清理 ignored 本地档案与缓存，`devdocs/` 从工作区删除
+- 三语 README 瘦身，旧 release notes 迁回 CHANGELOG/history
+- 退役 legacy specs 归档到 `docs/history/specs/`
+- 全库 Markdown 验证：断链、乱码、frontmatter、代码围栏、BOM、禁用扩展全部清零
 
 ### v1.0.0 · 首次发布（2026-04-03）
 
@@ -56,7 +64,7 @@ GitHub second-brain 成为主数据库：
 ### v1.2.0 · 国际化 + 架构整合（2026-04-08）
 
 - 全部 34 个文件翻译为英文（为权威版），附完整中日译本
-- **pro/GLOBAL.md**：跨 多个 agent 的共享规则
+- **hosts/GLOBAL.md**：跨 多个 agent 的共享规则
 - 认知管道：5 阶段信息流
 - 御史台审计模式（第二种操作模式，除决策审查外加入巡检）
 - 四步知识提取训练
@@ -114,7 +122,7 @@ GitHub second-brain 成为主数据库：
 
 ### v1.4.4a–b · 三层强制执行 + 防时间戳捏造（2026-04-15）
 
-- `MUST read pro/agents/X.md and launch as subagent. HARD RULE.`
+- `MUST read agents/X.md and launch as subagent. HARD RULE.`
 - Session-id 必须用真实 date 命令输出，不许捏造
 
 ### v1.5.0 · 战略地图（2026-04-15）
@@ -199,7 +207,7 @@ GitHub second-brain 成为主数据库：
 ```yaml
 ---
 name: life-os
-version: "1.6.2a"       ← 当前版本
+version: "1.9.1.1"       ← 当前版本
 ---
 ```
 

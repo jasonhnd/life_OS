@@ -6,7 +6,7 @@
 
 触发词：`上朝` / `开始` / `start` / `begin` / `はじめる` / `朝廷開始` 等。
 
-权威源：`pro/agents/retrospective.md` Mode 0。
+权威源：`agents/retrospective.md` Mode 0。
 
 ---
 
@@ -29,7 +29,7 @@
 
 在当前目录判断处于哪种情境：
 
-- 当前目录是 Life OS 系统仓库（含 `SKILL.md` + `pro/agents/` + `themes/`）→ 问用户：a) 连接 second-brain  b) 我在开发 Life OS，绑定本仓库  c) 新建 second-brain。选 b 跳过步骤 3-7（不需要同步）。
+- 当前目录是 Life OS 系统仓库（含 `SKILL.md` + `agents/` + `themes/`）→ 问用户：a) 连接 second-brain  b) 我在开发 Life OS，绑定本仓库  c) 新建 second-brain。选 b 跳过步骤 3-7（不需要同步）。
 - 当前目录是 second-brain（含 `meta/` + `projects/`）→ 正常进入步骤 3。
 - 其他情况 → 当作普通项目仓库，去配置路径找 second-brain。
 

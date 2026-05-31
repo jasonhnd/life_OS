@@ -249,7 +249,7 @@
 ## 相关文件
 
 - `references/strategic-map-spec.md`——Blind Spot Detection 章节
-- `pro/agents/retrospective.md`——编译时的盲点扫描
+- `agents/retrospective.md`——编译时的盲点扫描
 - `docs/user-guide/strategic-map/project-roles.md`——flow 定义（断流的前提）
 - `docs/user-guide/strategic-map/cross-layer-integration.md`——盲点在跨层面的体现
 - `docs/user-guide/dream/10-auto-triggers.md`——DREAM 的盲点相关触发器（#2、#5、#8）

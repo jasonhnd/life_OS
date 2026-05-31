@@ -1,6 +1,6 @@
 ---
 spec_id: failure-taxonomy.v1
-description: Architecture-level failure taxonomy F1-F17 borrowed from eou-foundry. Complements life_OS process-violation taxonomy (A1/A2/A3/B/C/D/E/F in pro/compliance/violations.md). Every violations.md entry MUST carry both an A-F class tag and an F1-F17 tag from v1.8.5 onwards.
+description: Architecture-level failure taxonomy F1-F17 borrowed from eou-foundry. Complements life_OS process-violation taxonomy (A1/A2/A3/B/C/D/E/F in compliance/violations.md). Every violations.md entry MUST carry both an A-F class tag and an F1-F17 tag from v1.8.5 onwards.
 status: active
 source_attribution: xiaolai/eou-foundry @ e4b12ce, engine/failure-taxonomy.yml
 introduced_in: v1.8.5
@@ -14,7 +14,7 @@ introduced_in: v1.8.5
 
 | Taxonomy | Layer | Examples | Where logged |
 |---|---|---|---|
-| **A1/A2/A3/B/C/D/E/F** (`references/compliance-spec.md`) | **Process violation** (人/流程层) | A1: skip retrospective Subagent; B: confabulated path; C: skip step; D: self-approve; E: missing publish; F: outbound PII leak | `pro/compliance/violations.md` |
+| **A1/A2/A3/B/C/D/E/F** (`references/compliance-spec.md`) | **Process violation** (人/流程层) | A1: skip retrospective Subagent; B: confabulated path; C: skip step; D: self-approve; E: missing publish; F: outbound PII leak | `compliance/violations.md` |
 | **F1-F17** (this doc) | **Architecture failure** (系统设计层) | F11: lifecycle stage mismatch; F12: spec drift; F14: silent judgment | Same `violations.md` (Stage 8 adds F-code column) |
 
 **Both taxonomies apply to the same incident**. Example: "ROUTER skipped retrospective Subagent and confabulated a path" = `A1` (process) + `F12_DRIFT_FAILURE` (architecture).
@@ -44,7 +44,7 @@ introduced_in: v1.8.5
 ### F5 — INSTRUCTION FAILURE
 - **Definition**: Steps are unclear, contradictory, or non-executable.
 - **Repair**: Rewrite execution procedure.
-- **Example**: pro/agents/retrospective.md 18 steps where step 12 contradicts step 7.
+- **Example**: agents/retrospective.md 18 steps where step 12 contradicts step 7.
 
 ### F6 — JUDGMENT FAILURE (subtypes)
 
@@ -86,7 +86,7 @@ introduced_in: v1.8.5
 ### F12 — DRIFT FAILURE
 - **Definition**: Specs, scripts, docs, validators diverged; a change in one layer not propagated.
 - **Repair**: Identify canonical layer (`schemas/` or `references/`), reconcile dependents, add vocabulary-sync check to CI/audit.
-- **Example**: pro/agents/router.md references `pro/agents/narrator-validator.md` which was deleted. **B confabulated-path violations map here**.
+- **Example**: agents/router.md references `agents/narrator-validator.md` which was deleted. **B confabulated-path violations map here**.
 
 ### F13 — PERFORMANCE FAILURE
 - **Definition**: Executes correctly but degrades at scale.
@@ -118,11 +118,11 @@ introduced_in: v1.8.5
 Not every diagnosed failure becomes a change. Record decisions explicitly per Stage 7 `no_change_record` protocol:
 
 - **change**: A decision to change behavior. Record at `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` with `type: change` (v1.9 schema).
-- **no_change**: Decision made to accept current behavior. Record at `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` with `type: no_change` (v1.9 schema — .md not .yml per DR-1.9.2; see `pro/CLAUDE.md` §"Decision Records" for full frontmatter). `reopen_condition` is mandatory. **A missing record looks identical to an uninvestigated incident.**
+- **no_change**: Decision made to accept current behavior. Record at `meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` with `type: no_change` (v1.9 schema — .md not .yml per DR-1.9.2; see `hosts/CLAUDE.md` §"Decision Records" for full frontmatter). `reopen_condition` is mandatory. **A missing record looks identical to an uninvestigated incident.**
 
 ## Use cases
 
-- Every `pro/compliance/violations.md` entry from v1.8.5 onwards carries F1-F17 tag in addition to A/B/C/D/E/F tag (Stage 8 Day 24).
+- Every `compliance/violations.md` entry from v1.8.5 onwards carries F1-F17 tag in addition to A/B/C/D/E/F tag (Stage 8 Day 24).
 - AUDITOR Mode 3 emits findings classified by F-code (Stage 7 Day 19 F14 scenario).
 - DREAM REM cycle uses failure_modes.known/warning_signs from agent/entry v2 frontmatter (Stage 6) to detect early-warning patterns.
 

@@ -6,7 +6,7 @@
 
 ### Cortex 认知层
 
-Cortex 是 Pre-Router Cognitive Layer——每次开口前自动翻历史、激活相关概念、比对 SOUL。**当前行为（v1.8.0 起改为 pull-based）见 `pro/CLAUDE.md` §0.5**；下面这组 v1.7 时代（always-on）的用户指南已归档到 `docs/history/cortex/`，仅作演进史参考：
+Cortex 是 Pre-Router Cognitive Layer——每次开口前自动翻历史、激活相关概念、比对 SOUL。**当前行为（v1.8.0 起改为 pull-based）见 `hosts/CLAUDE.md` §0.5**；下面这组 v1.7 时代（always-on）的用户指南已归档到 `docs/history/cortex/`，仅作演进史参考：
 
 - [总览](../history/cortex/overview.md) — Cortex 做什么 + 6 个新能力用户视角
 - [跨 session 记忆(Hippocampus)](../history/cortex/hippocampus-recall.md)
@@ -42,5 +42,5 @@ Cortex 是 Pre-Router Cognitive Layer——每次开口前自动翻历史、激�
 
 - 新用户:[getting-started/what-is-life-os.md](../getting-started/what-is-life-os.md) → [quickstart.md](../getting-started/quickstart.md) → [first-session.md](../getting-started/first-session.md)
 - 场景手册:[guides/](../guides/) 下的具体场景(年度规划、职业决策等)
-- 架构细节:当前权威源 [pro/CLAUDE.md](../../pro/CLAUDE.md)；v1.7 历史架构见 [history/architecture/](../history/architecture/)
+- 架构细节:当前权威源 [hosts/CLAUDE.md](../../hosts/CLAUDE.md)；v1.7 历史架构见 [history/architecture/](../history/architecture/)
 - 权威规格:[references/](../../references/)

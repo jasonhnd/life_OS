@@ -1,8 +1,8 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # Scenario: Adjourn Compliance (Class C/D/E regression test)
@@ -80,7 +80,7 @@ Every checklist field MUST have a concrete value — no `TBD`, no `{...}`, no em
 
 ### AUDITOR Compliance Patrol (auto, after archiver completes)
 
-Per pro/CLAUDE.md Orchestration Code of Conduct rule #7 (v1.6.3b), the orchestrator MUST launch AUDITOR Mode 3 after archiver returns. Mode 3 audits 4 Adjourn checks (C/D/E + A3) plus 7 Cortex checks (CX1-CX7) when cortex_enabled.
+Per hosts/CLAUDE.md Orchestration Code of Conduct rule #7 (v1.6.3b), the orchestrator MUST launch AUDITOR Mode 3 after archiver returns. Mode 3 audits 4 Adjourn checks (C/D/E + A3) plus 7 Cortex checks (CX1-CX7) when cortex_enabled.
 
 ## Quality Checkpoints
 
@@ -158,14 +158,14 @@ Manual inspection needed.
 
 ## Linked Documents
 
-- `pro/agents/archiver.md` — archiver 4-phase flow + HARD RULE Subagent-Only
-- `pro/agents/auditor.md` Mode 3 — Compliance Patrol with Adjourn detection
-- `pro/CLAUDE.md` Adjourn State Machine + Orchestration rule #7
+- `agents/archiver.md` — archiver 4-phase flow + HARD RULE Subagent-Only
+- `agents/auditor.md` Mode 3 — Compliance Patrol with Adjourn detection
+- `hosts/CLAUDE.md` Adjourn State Machine + Orchestration rule #7
 - `references/compliance-spec.md` — Class C/D/E definitions
 - `references/session-index-spec.md` — SessionSummary write at Phase 2 end
 - `references/snapshot-spec.md` — SOUL snapshot dump at Phase 2 Step 3
 - `references/concept-spec.md` — concept extraction algorithm
-- `pro/compliance/2026-04-19-court-start-violation.md` — original incident
+- `compliance/2026-04-19-court-start-violation.md` — original incident
 - `evals/scenarios/start-session-compliance.md` — companion scenario for Class A/B
 
 ### Test: Adjourn Report Completeness (v1.7.0.1)

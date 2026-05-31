@@ -227,8 +227,8 @@ DREAM REM 发现的新关系会变成：
 - `references/soul-spec.md`——SOUL 维度定义
 - `references/wiki-spec.md`——wiki 自动写入 6 条标准
 - `references/dream-spec.md`——DREAM 三阶段和 10 个触发器
-- `pro/agents/retrospective.md`——Step 15e 跨层验证
-- `pro/agents/archiver.md`——Phase 3 的 cross-layer checks
+- `agents/retrospective.md`——Step 15e 跨层验证
+- `agents/archiver.md`——Phase 3 的 cross-layer checks
 - `docs/user-guide/strategic-map/strategic-lines.md`——driving_force 和 SOUL 的关系
 - `docs/user-guide/strategic-map/blind-spot-detection.md`——SOUL-strategy 失配作为盲点
 - `docs/user-guide/dream/10-auto-triggers.md`——#2, #3, #5, #7 都涉及跨层检查

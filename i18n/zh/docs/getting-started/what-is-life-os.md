@@ -174,7 +174,7 @@ STRATEGIST 不走 Draft-Review-Execute 流程,是独立的"思想启发"通道�
 #### 当前状态
 
 **v1.6.2a 已完整跑通**。具体包括：
-- 每个 agent 都有独立文件(`pro/agents/*.md`),每个角色的岗位说明书清晰
+- 每个 agent 都有独立文件(`agents/*.md`),每个角色的岗位说明书清晰
 - 9 个主题可切换(英 / 中 / 日 × 古典 / 政府 / 企业),trigger 词自动识别主题
 - DREAM 10 触发器硬阈值 + 软信号并存,24h 反重复抑制
 - Adjourn 状态机 AUDITOR 强制执行,非法状态转换自动记录到 user-patterns
@@ -270,7 +270,7 @@ STRATEGIST 不走 Draft-Review-Execute 流程,是独立的"思想启发"通道�
   - `/inbox-process` → `scripts/prompts/inbox-process.md`：LLM 驱动去重 + manifest delta + 5 桶 confidence
   - `/migrate-confidence` → `scripts/prompts/migrate-confidence.md`：legacy float → enum 一次性迁移
   - `/method create|update|list` → `scripts/commands/method.md`：方法论库 CRUD
-  - git 同步：orchestrator 在 adjourn flow Phase 4 直接做 `git add + commit + push`（`pro/CLAUDE.md` Phase 4）
+  - git 同步：orchestrator 在 adjourn flow Phase 4 直接做 `git add + commit + push`（`hosts/CLAUDE.md` Phase 4）
 
   v1.7 cron 时代的 `scripts/decay-audit.py / dream-trigger-check.py / monthly-review.py / session-index.py / wiki-conflict-check.py` 已在 R-1.8.0-011（v1.8.0 pivot）删除。v1.8.0–v1.8.1 之间存在过的 `tools/*.py` 包（11 个模块）也在 v1.8.1 Wave 2 整体删除。Layer 4 现在是 100% LLM 驱动,不需要 Python 运行时（jq 是 hook 优先 JSON parser；python3 仅作为 jq 缺失时的 stdin 解析回退）。
 

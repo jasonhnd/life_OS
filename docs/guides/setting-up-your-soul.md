@@ -294,7 +294,7 @@ last_validated: 2026-04-12
 (awaiting your input)  ← 你还没决定这是好事还是坏事
 
 ### Gap
-TBD
+(pending user input)
 
 ---
 ```

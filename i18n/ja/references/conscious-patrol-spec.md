@@ -7,8 +7,8 @@ source_attribution: "tinyhumansai/openhuman @ b7b8ba6, gitbooks/features/subcons
 introduced_in: v1.8.7（2026-05-26 追加、DR-11 に基づく）
 referenced_by:
   - SKILL.md (E10 HARD RULE)
-  - pro/agents/retrospective.md (Mode 0 が Conscious Patrol を体系化)
-  - pro/agents/auditor.md (Mode 8 patrol コンプライアンス)
+  - agents/retrospective.md (Mode 0 が Conscious Patrol を体系化)
+  - agents/auditor.md (Mode 8 patrol コンプライアンス)
   - references/status-line-spec.md（各 patrol タスクが status line を出力）
 ---
 
@@ -98,7 +98,7 @@ retrospective Mode 0 が以下を各 session のデフォルト patrol items と
 
 ### lifeos-007 · Gotchas review（v1.8.7 新規）
 
-- **出典**：lifeos v1.8.7 C6 —— `pro/gotchas.md`
+- **出典**：lifeos v1.8.7 C6 —— `gotchas.md`
 - **何をチェック**：過去 7 日に触れたファイル/コードを参照する gotcha（関連性シグナル）；解決済みの gotcha（コードベース修正済みだが gotcha がまだリストアップ）
 - **出力**：status line + N 関連 gotchas が浮上
 - **ユーザ決定**：ROUTER が現在のタスクに関連する gotchas をスキャン；ユーザが確認 / 却下
@@ -218,6 +218,6 @@ v1.8.7 が**すること**：
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 path D + DR-11
 - パターン源：`tinyhumansai/openhuman` `gitbooks/features/subconscious.md`（idle autonomous Subconscious Loop、daemon ベース）
 - 連携：`references/status-line-spec.md`（各 patrol タスクが 8 enum status を使用）
-- 連携：`pro/agents/retrospective.md` Mode 0（Conscious Patrol が実行される場所）
-- 連携：`pro/agents/auditor.md` Mode 8（検証）
-- 関連するが**異なる**：lifeos v1.8.0 cron 退役（`pro/CLAUDE.md` §"Mode 1 · Business session" —— daemon 式自律が拒否された理由を説明）
+- 連携：`agents/retrospective.md` Mode 0（Conscious Patrol が実行される場所）
+- 連携：`agents/auditor.md` Mode 8（検証）
+- 関連するが**異なる**：lifeos v1.8.0 cron 退役（`hosts/CLAUDE.md` §"Mode 1 · Business session" —— daemon 式自律が拒否された理由を説明）

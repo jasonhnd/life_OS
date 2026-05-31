@@ -3,7 +3,7 @@ translated_from: docs/history/cortex/overview.md
 translator_note: auto-translated 2026-04-22
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Cortex 总览 · v1.7 认知层总览(Cortex Overview · v1.7 Cognitive Layer)

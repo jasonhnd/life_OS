@@ -2,7 +2,7 @@
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # AUDITOR Eval-History · システムの自己フィードバックループ / AUDITOR Eval-History
@@ -21,7 +21,7 @@ Eval-history は Life OS の**構造化自己評価フィードバックルー�
 
 ### Hermes から得た教訓
 
-[Hermes Lesson 5](../../../../devdocs/research/2026-04-19-hermes-analysis.md) のコア: **自己評価はシステムにフィードバックされるべき、一回性のレポートであってはならない**。
+Hermes Lesson 5（内部調査記録: `devdocs/research/2026-04-19-hermes-analysis.md`）のコア: **自己評価はシステムにフィードバックされるべき、一回性のレポートであってはならない**。
 
 v1.6.2a の AUDITOR は既に各決定終了時に各 agent を採点していました——**PLANNER の次元網羅性は?REVIEWER の封駁に根拠は?domain スコアと分析は一致?**——しかしこれらの評価は**本 session の Summary Report にのみ存在**。session 終了で蒸発。
 
@@ -337,7 +337,7 @@ uv run tools/reconcile.py
 ブリーフィングでシステミック問題を見たら:
 
 - **本 session で標的関注**——警告が「本 session で X に重点関注」と言っている、従う
-- **agent spec を改変**——例えばシステムが REVIEWER が dormant 次元を繰り返し漏らすと言うなら、`pro/agents/reviewer.md` を編集して checklist 項目を追加
+- **agent spec を改変**——例えばシステムが REVIEWER が dormant 次元を繰り返し漏らすと言うなら、`agents/reviewer.md` を編集して checklist 項目を追加
 - **cortex config を改変**——例えばシステムが hippocampus retrieval 品質が低いと言うなら、`meta/config.md` で `top_k_signals` や `per_signal_floor` 調整を検討
 - **手動反論**——システミックパターン検出に同意しない場合(例えば narrator 失敗率高いが暫定的問題でシステミックではないと思う)、現 session で「この検出は誤報と考える」と言う、AUDITOR が記録、後続 pattern 監視は継続だが重み下がる
 
@@ -355,7 +355,7 @@ uv run tools/reconcile.py
 
 - **同一 `violations[].type` が 30 日で 3+ 回出現** → 既にルール 5 で meta/user-patterns.md に昇格。**システムが「これは安定したパターン」と表明** → 対応 agent spec を改変
 - **`process_compliance` 連続 3 回 <5** → 状態機が壊れている。優先度最高、他は待てるがこれは待てない
-- **`citation_groundedness` 単回 <5** + trace 検証で本当に narrator 捏造 → `pro/agents/narrator-validator.md` を編集してより厳格なチェックを追加、または registry 自体に漏れがないか検討
+- **`citation_groundedness` 単回 <5** + trace 検証で本当に narrator 捏造 → `agents/narrator-validator.md` を編集してより厳格なチェックを追加、または registry 自体に漏れがないか検討
 
 ### 黄信号(観察 + 予備)
 
@@ -387,7 +387,7 @@ Eval-history の anti-patterns に明言:
 
 > **Do not** allow face-saving in AUDITOR's own evaluation. If `score_honesty: 3` is warranted, write 3 — AUDITOR evaluating itself with uniform 7s is the exact anti-pattern AUDITOR was built to detect in others.
 
-実務上: AUDITOR の spec (`pro/agents/auditor.md`) は「blanket 7s or 8s」を禁止、各次元は**具体的証拠**(quoted agent output、score contradiction、skipped phase)を必須。AUDITOR の body に「all agents performed well」のような一般賛美があれば、それが自身禁止の anti-pattern、次回 AUDITOR が歴史スキャン時に自身の問題を flag。
+実務上: AUDITOR の spec (`agents/auditor.md`) は「blanket 7s or 8s」を禁止、各次元は**具体的証拠**(quoted agent output、score contradiction、skipped phase)を必須。AUDITOR の body に「all agents performed well」のような一般賛美があれば、それが自身禁止の anti-pattern、次回 AUDITOR が歴史スキャン時に自身の問題を flag。
 
 これは二階の自己モニタリング: **AUDITOR が AUDITOR を検出**。完璧でないが、ないよりまし。
 
@@ -436,7 +436,7 @@ panic しない。優先度順:
 
 1. **body の Weaknesses と Recommendations を読む**——AUDITOR が通常具体的修復方向を提示
 2. **直近 session journal** を確認、adjourn が本当に broken か(ARCHIVER 4 phase 完走したか、Completion Checklist に TBD があるか)
-3. **構造的問題**(archiver が分段実行)なら、Recommendations に従い ARCHIVER の prompt / `pro/CLAUDE.md` の状態機制約を改変
+3. **構造的問題**(archiver が分段実行)なら、Recommendations に従い ARCHIVER の prompt / `hosts/CLAUDE.md` の状態機制約を改変
 4. **偶発**(ある Claude API 揺れで phase 中断)なら、記録、次回 session で正常 adjourn で復旧
 
 即時 rollback や Cortex 再インストールは不要——eval-history 自体は**診断**であり**災害**ではない。
@@ -460,7 +460,7 @@ ls meta/eval-history/*.md | wc -l
 比率は 50–80% が妥当(direct-handle / Express 短 / STRATEGIST は書かないため)。比率 <30% なら:
 
 1. AUDITOR が複数 session で書き込み失敗(ディスク、権限)——session journal の AUDITOR 部に "eval write failed" メッセージがないか確認
-2. `pro/agents/auditor.md` の spec で「どのシナリオで書くか」の判定が厳しすぎる——Express の brief report がすべて「深度不足」でスキップされた可能性
+2. `agents/auditor.md` の spec で「どのシナリオで書くか」の判定が厳しすぎる——Express の brief report がすべて「深度不足」でスキップされた可能性
 
 対処:
 ```bash
@@ -507,8 +507,8 @@ Spec 層(英語):
 - `references/eval-history-spec.md` — 完全 spec: schema、システミックルール、ストレージ、移行
 - `references/cortex-spec.md` §Open Questions — eval-history 駆動の spec revision フロー
 - `references/hooks-spec.md` — `process_compliance` 違反ログ源
-- `pro/agents/auditor.md` — 唯一の eval-history 書き込み者
-- `pro/agents/retrospective.md` — Mode 0 の pattern detection
+- `agents/auditor.md` — 唯一の eval-history 書き込み者
+- `agents/retrospective.md` — Mode 0 の pattern detection
 
 その他:
 
@@ -524,6 +524,6 @@ Spec 層(英語):
 
 ---
 
-### 訳者注 / Translator's Note
+**訳者注 / Translator's Note**
 
 本ドキュメントは中国語版 (`docs/history/cortex/auditor-eval-history.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(AUDITOR, RETROSPECTIVE, eval-history, Hermes RL, decision-review, patrol-inspection, information_isolation, veto_substantiveness, score_honesty, action_specificity, process_compliance, adjourn_completeness, soul_reference_quality, wiki_extraction_quality, cognitive_annotation_quality, citation_groundedness, tier_1_conflict, graceful degradation, immutability, anti-pattern 等)は原文の英語表記を保持しています。「退朝」「上朝」「奏折」などの中国語の朝廷メタファーは Life OS 独自用語として日本語文脈でも保持しました。人間校正待ち。

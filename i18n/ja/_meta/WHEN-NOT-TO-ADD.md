@@ -5,7 +5,7 @@
 ## ここに **属さない** もの
 
 1. **正規仕様** —— 例 "audit trail の動作方式定義"。→ 行き先：`references/<name>-spec.md`（三言語ミラー込み）。
-2. **Agent 定義** —— `pro/agents/` 専属。
+2. **Agent 定義** —— `agents/` 専属。
 3. **ユーザ決定または知識** —— 例 "信託構造採用の決定"。→ 行き先（ユーザの second-brain）：`decisions/` または `meta/wiki/`。
 4. **SOUL.md または theme ファイル** —— SOUL はユーザ second-brain ルートへ；theme は `themes/` へ。
 5. **ビルド出力 / コンパイル成果物** —— lifeos にビルドステップなし（md-only）。`meta/dist/` や `meta/build/` を加えたくなったら、間違った問題を解いている。
@@ -33,7 +33,7 @@ lifeos **dev repo** の `meta/` には：`rfc/` + `release-notes/` + `methods/` 
 - **dev repo** の `meta/`（lifeos ソースコード）—— 例 `meta/rfc/`、`meta/release-notes/`
 - **ユーザ second-brain** の `meta/`（ユーザランタイムデータ）—— 例 `meta/sessions/`、`meta/runtime/`、`meta/wiki/`
 
-両者の混同は反復する落とし穴（seed 後の `pro/gotchas.md` 参照）。
+両者の混同は反復する落とし穴（seed 後の `gotchas.md` 参照）。
 
 ## 参照
 

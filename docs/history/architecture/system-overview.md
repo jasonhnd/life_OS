@@ -8,14 +8,14 @@ related:
   - docs/history/architecture/markdown-first.md
   - devdocs/brainstorm/2026-04-19-cortex-architecture.md
   - SKILL.md
-  - pro/CLAUDE.md
+  - hosts/CLAUDE.md
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Life OS 系统总览 — LEGACY（v1.7-era 快照）
 
-> ⚠️ **LEGACY（v1.7-era，2026-04-22 快照）。** 本文描述 v1.7 时代的 **4 层架构**，其中 **Layer 4（Python tools/）在 v1.8.1 Wave 2 整体删除**、**Layer 3（bash hooks `scripts/hooks/*.sh`）在 v1.8.5 Stage 2 整体退役**——运行时 enforcement 现为 inline LLM 流程；v1.8.7 DR-10 起 md-only 为本体约束（禁止 `.py`/`.sh`/`.yml`/`.json`）。当前权威架构见 `pro/CLAUDE.md` + `SKILL.md`。本文保留作历史参考，**对当前行为不具权威性**（`authoritative: false`）。
+> ⚠️ **LEGACY（v1.7-era，2026-04-22 快照）。** 本文描述 v1.7 时代的 **4 层架构**，其中 **Layer 4（Python tools/）在 v1.8.1 Wave 2 整体删除**、**Layer 3（bash hooks `scripts/hooks/*.sh`）在 v1.8.5 Stage 2 整体退役**——运行时 enforcement 现为 inline LLM 流程；v1.8.7 DR-10 起 md-only 为本体约束（禁止 `.py`/`.sh`/`.yml`/`.json`）。当前权威架构见 `hosts/CLAUDE.md` + `SKILL.md`。本文保留作历史参考，**对当前行为不具权威性**（`authoritative: false`）。
 >
 > 一句话：Life OS = **第二大脑 + 决策引擎 + 认知执行智能体**（三合一）。v1.9 现状只剩 Layer 2（Skill）+ Layer 1（Second Brain）两层实体，原 Layer 3/4 的职责已并入 Layer 2 的 inline LLM 流程。
 
@@ -32,8 +32,8 @@ superseded_by: pro/CLAUDE.md
 │   scripts/hooks/*.sh · Claude Code hook 机制                  │
 ├──────────────────────────────────────────────────────────────┤
 │ Layer 2 · Skill 层（核心逻辑）                                 │
-│   SKILL.md · pro/CLAUDE.md / GEMINI.md / AGENTS.md            │
-│   pro/agents/*.md            · themes/*.md (9 个)             │
+│   SKILL.md · hosts/CLAUDE.md / GEMINI.md / AGENTS.md            │
+│   agents/*.md            · themes/*.md (9 个)             │
 │   Cortex 增量：Pre-Router 认知前置层（v1.7 GA）                │
 ├──────────────────────────────────────────────────────────────┤
 │ Layer 1 · 数据层 / Second Brain（真理源）                      │
@@ -145,11 +145,11 @@ meta/
 | 文件/目录 | 作用 |
 |----------|------|
 | `SKILL.md` | skill 根入口，任何平台启动时第一个被 load |
-| `pro/CLAUDE.md` | Claude 平台 11 步编排协议（**唯一绑 Claude 的文件**） |
-| `pro/GEMINI.md` | Gemini CLI 等价编排 |
-| `pro/AGENTS.md` | Codex CLI 等价编排 |
-| `pro/GLOBAL.md` | 全部 agent 必须遵守的通用规则 |
-| `pro/agents/*.md` | **多个 subagent 定义**（跨平台共享） |
+| `hosts/CLAUDE.md` | Claude 平台 11 步编排协议（**唯一绑 Claude 的文件**） |
+| `hosts/GEMINI.md` | Gemini CLI 等价编排 |
+| `hosts/AGENTS.md` | Codex CLI 等价编排 |
+| `hosts/GLOBAL.md` | 全部 agent 必须遵守的通用规则 |
+| `agents/*.md` | **多个 subagent 定义**（跨平台共享） |
 | `themes/*.md` | **9 个主题文件**（只定义显示名 + tone + 语言） |
 | `references/*.md` | 跨 agent 复用的规格（数据模型、适配器、4 大 spec） |
 
@@ -164,7 +164,7 @@ hippocampus / concept-lookup / soul-check / gwt-arbitrator
 narrator / knowledge-extractor / monitor
 ```
 
-详见 `pro/agents/*.md` 和 `references/domains.md`。
+详见 `agents/*.md` 和 `references/domains.md`。
 
 ### 9 个主题
 
@@ -190,7 +190,7 @@ AUDITOR → ADVISOR
 Adjourn（ARCHIVER 4 phases）→ Notion Sync
 ```
 
-详细状态机见 `pro/CLAUDE.md`。
+详细状态机见 `hosts/CLAUDE.md`。
 
 ### v1.7 Cortex 增量（GA）
 
@@ -251,7 +251,7 @@ Annotated input → ROUTER（原 multiple agents 流程不变）
 
 ### 为什么需要 Layer 3
 
-SKILL.md 和 pro/CLAUDE.md 里写了"HARD RULE"，但 LLM 可能忘记或绕过。Shell hook 在 runtime 层面**机械执行**：
+SKILL.md 和 hosts/CLAUDE.md 里写了"HARD RULE"，但 LLM 可能忘记或绕过。Shell hook 在 runtime 层面**机械执行**：
 
 - Layer 2 规则："adjourn 必须走 4 phases"——LLM 可能跳步
 - Layer 3 hook："Stop 时如果没检测到 4 phases 标记 → 报错阻止会话结束"——无法绕过
@@ -327,9 +327,9 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 
 ### 模型独立
 
-- **绑模型的文件**：仅 `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` 三份编排协议
-- **不绑模型的文件**：`SKILL.md`、`pro/GLOBAL.md`、`pro/agents/*.md`、`themes/*.md`、`references/*.md`、second-brain 全部
-- **换模型成本**：新平台写一份 `pro/{NEW}.md` 照 CLAUDE.md 改工具名映射，其他 0 改动
+- **绑模型的文件**：仅 `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` 三份编排协议
+- **不绑模型的文件**：`SKILL.md`、`hosts/GLOBAL.md`、`agents/*.md`、`themes/*.md`、`references/*.md`、second-brain 全部
+- **换模型成本**：新平台写一份 `hosts/{NEW}.md` 照 CLAUDE.md 改工具名映射，其他 0 改动
 
 ### 存储独立
 
@@ -353,7 +353,7 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 【0 · Layer 3】
 用户输入 "我要不要辞职 （complex 决策 trigger）"
   pre-prompt-guard.sh 检测到高优先级 trigger
-  → 确保 SKILL.md + pro/CLAUDE.md 已 load
+  → 确保 SKILL.md + hosts/CLAUDE.md 已 load
 
 【1 · Layer 2 · Cortex Pre-Router】（v1.7）
   海马体子 agent 扩散激活 → 检索 projects/career/ + SOUL "risk_tolerance" + wiki
@@ -450,12 +450,12 @@ Life OS 的"不绑定"有**两条独立的腿**，缺一条都不行。
 | 想加什么 | 改哪里 | 举例 |
 |---------|-------|------|
 | 新主题 | `themes/` 加文件 | 加 `themes/en-silicon-valley.md` |
-| 新 agent | `pro/agents/` 加文件 + SKILL.md 角色表加一行 | 加 `pro/agents/therapist.md` |
-| 新平台 | 复制 `pro/CLAUDE.md` 改工具名映射 | 加 `pro/CURSOR.md` |
+| 新 agent | `agents/` 加文件 + SKILL.md 角色表加一行 | 加 `agents/therapist.md` |
+| 新平台 | 复制 `hosts/CLAUDE.md` 改工具名映射 | 加 `hosts/CURSOR.md` |
 | 新 Shell hook | `scripts/hooks/` 加脚本 + setup-hooks.sh 注册 | 加 `scripts/hooks/no-commit-secrets.sh` |
 | 新 Python 工具 | `tools/` 加脚本 | 加 `tools/weekly_review.py` |
 | 新存储后端 | `references/adapter-{name}.md` 加标准数据操作 | 加 `adapter-obsidian.md` |
-| 新 Cortex 模块（v1.7） | `pro/agents/` 加子 agent + `meta/concepts/` 加新字段 | 加 `pro/agents/amygdala.md` |
+| 新 Cortex 模块（v1.7） | `agents/` 加子 agent + `meta/concepts/` 加新字段 | 加 `agents/amygdala.md` |
 
 **核心扩展哲学**：加东西不应该改其他层。加新主题不动 agent；加新 agent 不动主题；加新 hook 不动 Python 工具。
 

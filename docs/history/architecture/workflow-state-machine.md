@@ -1,15 +1,15 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # 工作流状态机
 
 Life OS 有两套严格的状态机: **主决策状态机**(Step 0-10)和**退朝状态机**(Adjourn)。任何违反合法转换的行为都是 process violation, AUDITOR 必须标记。
 
-源: `pro/CLAUDE.md` 的 "Workflow State Machine" 和 "Adjourn State Machine" 章节。
+源: `hosts/CLAUDE.md` 的 "Workflow State Machine" 和 "Adjourn State Machine" 章节。
 
 ---
 
@@ -128,7 +128,7 @@ REVIEWER 的 Veto 不是状态跳跃, 而是在 PLANNER ↔ REVIEWER 之间循�
 
 Life OS 没有「状态机引擎」这种东西。状态转换靠的是:
 
-1. **编排协议文件** (`pro/CLAUDE.md`) 里**明确规定**每步的前置条件
+1. **编排协议文件** (`hosts/CLAUDE.md`) 里**明确规定**每步的前置条件
 2. **agent 文件** 里明确该 agent 只接受什么输入 (信息隔离)
 3. **AUDITOR 自动巡查** 工作流记录, 回溯检查
 

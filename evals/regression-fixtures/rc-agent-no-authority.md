@@ -1,4 +1,4 @@
-﻿---
+---
 # Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
 # Schema unchanged; only file extension changed.
 ---
@@ -8,21 +8,21 @@
 ```yaml
 id: rc-agent-no-authority
 description: |
-  Negative fixture: pro/agents/*.md file missing v2 required `classification.authority_level`
+  Negative fixture: agents/*.md file missing v2 required `classification.authority_level`
   field (one of the 6 facets). AUDITOR Mode 6 A1 check MUST FAIL on this. If A1 reports
   PASS, validator has regressed and an agent without declared authority has slipped through.
 expected_verdict: FAIL
 expected_failure_class: F3_SCHEMA_FAILURE
 expected_check: A1 (every agent has all v2 required fields)
 introduced_in: v1.8.5 Stage 6
-related_spec: references/agent-spec.md v2 ﾂｧ"Required v2 Fields"
+related_spec: references/agent-spec.md v2 §"Required v2 Fields"
 
 input_agent_file:
-  path: pro/agents/example-no-authority.md
+  path: agents/example-no-authority.md
   content: |
     ---
     name: example-no-authority
-    description: "Example agent for regression testing 窶・missing authority_level"
+    description: "Example agent for regression testing — missing authority_level"
     tools: Read, Grep, Glob
     model: opus
     id: agent-example-no-authority
@@ -31,7 +31,7 @@ input_agent_file:
       function: validate
       target_object: "regression test artifact"
       automation_mode: LLM_assisted
-      # MISSING authority_level 窶・regression bait
+      # MISSING authority_level — regression bait
       risk_level: low
       lifecycle_stage: candidate
     operating_hypothesis: |
@@ -42,13 +42,13 @@ input_agent_file:
         - evals/regression-fixtures/
       supporting: []
       forbidden:
-        - pro/agents/reviewer.md
+        - agents/reviewer.md
     blast_radius:
       allowed_scope:
         - meta/runtime/<sid>/example-no-authority-*.md
       forbidden_scope:
         - SOUL.md
-        - pro/agents/
+        - agents/
     failure_modes:
       known: []
       warning_signs: []
@@ -58,7 +58,7 @@ input_agent_file:
     Body of agent definition...
 
 expected_finding: |
-  F3 SCHEMA_FAILURE: pro/agents/example-no-authority.md missing v2 field:
+  F3 SCHEMA_FAILURE: agents/example-no-authority.md missing v2 field:
   classification.authority_level (one of 6 facets required per agent-spec.md v2)
 
 ```

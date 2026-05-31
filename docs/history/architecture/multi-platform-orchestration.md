@@ -1,8 +1,8 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # 多平台编排: Claude / Gemini / Codex
@@ -15,11 +15,11 @@ Life OS 支持 3 个平台: Claude Code、Gemini CLI / Antigravity、OpenAI Code
 
 | 文件 | 用途 | 平台 |
 |------|------|------|
-| `pro/CLAUDE.md` | Claude 平台的编排协议 | Claude Code |
-| `pro/GEMINI.md` | Gemini 平台的编排协议 | Gemini CLI / Antigravity |
-| `pro/AGENTS.md` | Codex 平台的编排协议 | OpenAI Codex CLI |
-| `pro/GLOBAL.md` | 通用 agent 规则 | 3 平台共用 |
-| `pro/agents/*.md` | 16 个 subagent 定义 | 3 平台共用 |
+| `hosts/CLAUDE.md` | Claude 平台的编排协议 | Claude Code |
+| `hosts/GEMINI.md` | Gemini 平台的编排协议 | Gemini CLI / Antigravity |
+| `hosts/AGENTS.md` | Codex 平台的编排协议 | OpenAI Codex CLI |
+| `hosts/GLOBAL.md` | 通用 agent 规则 | 3 平台共用 |
+| `agents/*.md` | 16 个 subagent 定义 | 3 平台共用 |
 | `SKILL.md` | Skill 根入口 | 3 平台共用 |
 | `themes/*.md` | 9 个主题 | 3 平台共用 |
 | `references/*.md` | 规格文件 | 3 平台共用 |
@@ -44,7 +44,7 @@ Claude 用内置的 `Task` 工具启动 subagent。主 agent 调用 `Task(subage
 
 ### Gemini CLI / Antigravity
 
-Gemini 作为独立的 agent 实例启动。每个 `pro/agents/*.md` 是 self-contained subagent definition。
+Gemini 作为独立的 agent 实例启动。每个 `agents/*.md` 是 self-contained subagent definition。
 
 调用模式: "Spawn a new agent instance with the agent file's content as its system prompt, passing only the specified input data."
 
@@ -124,9 +124,9 @@ subagents); simulating roles within a single context is prohibited.
 
 SKILL.md 被 load 时, 平台根据自己的 CLI 环境选择对应的编排文件:
 
-- Claude Code 读 `pro/CLAUDE.md`
-- Gemini CLI 读 `pro/GEMINI.md`
-- Codex CLI 读 `pro/AGENTS.md` (AGENTS.md 是开放标准, Codex 跟随这个标准)
+- Claude Code 读 `hosts/CLAUDE.md`
+- Gemini CLI 读 `hosts/GEMINI.md`
+- Codex CLI 读 `hosts/AGENTS.md` (AGENTS.md 是开放标准, Codex 跟随这个标准)
 
 **检测不是动态的**, 是**约定的**。每个 CLI 在启动 skill 时, 按自己的设计选定一份编排文件。
 
@@ -148,7 +148,7 @@ SKILL.md 被 load 时, 平台根据自己的 CLI 环境选择对应的编排文�
 
 ### 核心设计: agent 是抽象的
 
-`pro/agents/*.md` 里不写任何平台具体的东西。全部定义是:
+`agents/*.md` 里不写任何平台具体的东西。全部定义是:
 
 - 角色身份 (你是谁、你干什么)
 - 输入 (你会收到什么)
@@ -160,7 +160,7 @@ SKILL.md 被 load 时, 平台根据自己的 CLI 环境选择对应的编排文�
 
 ### 好处
 
-1. **改 agent = 一次改, 3 平台通用**。比如修改 REVIEWER 的封驳规则, 只改 `pro/agents/reviewer.md`, 3 平台自动同步。
+1. **改 agent = 一次改, 3 平台通用**。比如修改 REVIEWER 的封驳规则, 只改 `agents/reviewer.md`, 3 平台自动同步。
 2. **测试方便**。一个 agent 在 Claude 上测好了, Gemini 和 Codex 上行为一致 (模型差异除外)。
 3. **文档清晰**。用户想知道「REVIEWER 做什么」, 直接读 reviewer.md, 不用看 3 份编排文件。
 
@@ -235,7 +235,7 @@ AGENTS.md 遵循一个**开放标准** — 不是 Codex 专属, 任何新兴的 
 
 想支持新平台 X:
 
-1. 写一份新的编排文件, 比如 `pro/X.md`
+1. 写一份新的编排文件, 比如 `hosts/X.md`
 2. 照着 CLAUDE.md 结构, 改 "Platform Mapping" 章节的工具名映射
 3. 改 "X Environment Enforces Pro Mode" 章节
 4. 如果 X 的 subagent 启动机制有特殊之处, 说清楚
@@ -260,8 +260,8 @@ AGENTS.md 遵循一个**开放标准** — 不是 Codex 专属, 任何新兴的 
 3. Gemini 的模型上下文窗口小于 Claude, 输入被截断
 
 排查:
-1. 看 `pro/GEMINI.md` 的工具名映射表, 检查 agent 文件的 `tools:` 字段是否都有对应映射
-2. 看 Gemini 的 subagent 启动 API 文档, 对比 `pro/GEMINI.md` 的 "Subagent Invocation" 章节
+1. 看 `hosts/GEMINI.md` 的工具名映射表, 检查 agent 文件的 `tools:` 字段是否都有对应映射
+2. 看 Gemini 的 subagent 启动 API 文档, 对比 `hosts/GEMINI.md` 的 "Subagent Invocation" 章节
 3. 打印 subagent 收到的 context 长度, 确认没超出 Gemini 的窗口
 
 ### 症状: 「3 平台都能跑但输出不一样」

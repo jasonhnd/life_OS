@@ -1,6 +1,6 @@
 # DREAM Specification
 
-DREAM is the system's offline memory processing — inspired by human sleep cycles. It runs as **Phase 3 of the ARCHIVER** (`pro/agents/archiver.md`) at the end of every session, scanning the last 3 days of activity to organize, consolidate, and discover.
+DREAM is the system's offline memory processing — inspired by human sleep cycles. It runs as **Phase 3 of the ARCHIVER** (`agents/archiver.md`) at the end of every session, scanning the last 3 days of activity to organize, consolidate, and discover.
 
 > **Note**: DREAM is not a standalone agent. It was merged into the ARCHIVER in v1.4.4. This spec defines the three stages; the ARCHIVER integrates them into its closing flow.
 

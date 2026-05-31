@@ -45,14 +45,17 @@ You need to have [Claude Code](https://claude.ai/code) (Anthropic's command-line
 After installation, type in Claude Code:
 
 ```
-Help me analyze whether I should switch jobs
+I just installed Life OS. Check my setup and walk me through starting.
 ```
 
-If you see a response in this format, installation was successful:
+If you see a short Doctor report in this format, installation was successful:
 
 ```
-🏛️ Prime Minister · Presenting
-📋 Decree: ... | 📌 Type: ... | 💡 Suggested activation: ...
+🩺 Life OS Doctor
+Status: ready | needs setup | needs attention
+Directory: ...
+Skill root: ...
+Recommended next step:
 ```
 
 ### What Makes Pro Mode Special
@@ -77,7 +80,7 @@ Pro Mode is now available on [Gemini CLI](https://github.com/google-gemini/gemin
 npx skills add jasonhnd/life_OS
 ```
 
-3. Done! The system auto-detects Gemini and loads `pro/GEMINI.md` for orchestration
+3. Done! The system auto-detects Gemini and loads `hosts/GEMINI.md` for orchestration
 
 ### Antigravity-Specific Notes
 
@@ -87,7 +90,7 @@ npx skills add jasonhnd/life_OS
 ### What's Different from Claude Pro Mode
 
 - Automatically uses Gemini's strongest available model (no hardcoded version)
-- Tool names are mapped automatically (see `pro/GEMINI.md` for the mapping table)
+- Tool names are mapped automatically (see `hosts/GEMINI.md` for the mapping table)
 - Same workflow, same information isolation, same multiple roles
 
 ---
@@ -105,7 +108,7 @@ Pro Mode is now available on [Codex CLI](https://github.com/openai/codex) with m
 npx skills add jasonhnd/life_OS
 ```
 
-3. Done! The system auto-detects Codex and loads `pro/AGENTS.md` for orchestration
+3. Done! The system auto-detects Codex and loads `hosts/AGENTS.md` for orchestration
 
 ### What's Different from Claude Pro Mode
 
@@ -141,6 +144,7 @@ Regardless of platform, test with these messages after installation:
 
 | You say | You should see |
 |---------|---------------|
+| "I just installed Life OS. Check my setup and walk me through starting." | Doctor health check: directory type, skill root, second-brain, git sync, and the next sentence to say |
 | "Help me analyze whether I should buy a MacBook" | Prime Minister determines it needs to be escalated, initiates Three Departments and Six Ministries process |
 | "Help me translate a paragraph of Japanese" | Prime Minister handles directly (no process initiated) |
 | "Morning court" | Morning Court Official delivers briefing |
@@ -233,7 +237,7 @@ The `version` field at the top of SKILL.md shows the current version number. See
 A: [Claude Code](https://claude.ai/code) is recommended. Full Pro Mode with multiple independent subagents, one-command install.
 
 **Q: I use both Claude Code and Antigravity. Will they conflict?**
-A: No. They use different orchestration files (`CLAUDE.md` vs `GEMINI.md`) and different agent model mappings. The same `pro/agents/*.md` files are shared. Just make sure `.claude/worktrees/` is in your `.gitignore` to prevent Antigravity from choking on Claude's temporary files.
+A: No. They use different orchestration files (`CLAUDE.md` vs `GEMINI.md`) and different agent model mappings. The same `agents/*.md` files are shared. Just make sure `.claude/worktrees/` is in your `.gitignore` to prevent Antigravity from choking on Claude's temporary files.
 
 **Q: Can I use it without a GitHub remote?**
 A: Yes. Storage is a single git repo. The local working copy on disk (also your Obsidian vault) works fully on its own. A GitHub remote is optional — add one when you want off-machine backup and cross-device sync via `git pull` / `git push`.

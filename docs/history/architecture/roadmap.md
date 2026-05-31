@@ -5,12 +5,12 @@ status: legacy
 owner: Jason
 tags: [roadmap, versioning, cortex, execution-layer]
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Life OS · v1.7 推进计划（LEGACY）
 
-> ⚠️ **LEGACY（v1.7-era 推进计划，2026-04-20）。** 本文是 v1.7 内部推进计划。其中"Hermes 风格执行层"的 5 个 bash hook 已在 **v1.8.5 Stage 2 整体退役**（md-only / DR-10），运行时 enforcement 转 inline LLM 流程。保留作历史参考；当前架构见 `pro/CLAUDE.md` + `SKILL.md`。
+> ⚠️ **LEGACY（v1.7-era 推进计划，2026-04-20）。** 本文是 v1.7 内部推进计划。其中"Hermes 风格执行层"的 5 个 bash hook 已在 **v1.8.5 Stage 2 整体退役**（md-only / DR-10），运行时 enforcement 转 inline LLM 流程。保留作历史参考；当前架构见 `hosts/CLAUDE.md` + `SKILL.md`。
 >
 > v1.7 是一个大版本 — 把 Cortex 认知架构和 Hermes 风格的执行层，在同一个版本里全部交付完毕。本文档是 v1.7 内部推进计划，不分切到后续版本。
 
@@ -107,8 +107,8 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 
 **新 agent（2 个）**：
 
-- `pro/agents/hippocampus.md` — **海马体**：三波激活扩散（直接匹配 → 强连接 → 弱连接），按相关度 + 权重取 top 5-7 注入 ROUTER 输入
-- `pro/agents/gwt-arbitrator.md` — **GWT 仲裁**：收集并行模块的信号 → 按 salience 竞争 → 最强信号进入"意识层"广播
+- `agents/hippocampus.md` — **海马体**：三波激活扩散（直接匹配 → 强连接 → 弱连接），按相关度 + 权重取 top 5-7 注入 ROUTER 输入
+- `agents/gwt-arbitrator.md` — **GWT 仲裁**：收集并行模块的信号 → 按 salience 竞争 → 最强信号进入"意识层"广播
 
 **现有 agent 扩展**：
 
@@ -127,8 +127,8 @@ Life OS 当前向四个方向并行发展，其中两个已稳定维护，两个
 
 **编排协议更新**：
 
-- `pro/CLAUDE.md` 加 **Step 0.5 认知前置**：ROUTER 处理前先 spawn hippocampus 子 agent
-- `pro/GEMINI.md` / `pro/AGENTS.md` 同步（跨平台一致性）
+- `hosts/CLAUDE.md` 加 **Step 0.5 认知前置**：ROUTER 处理前先 spawn hippocampus 子 agent
+- `hosts/GEMINI.md` / `hosts/AGENTS.md` 同步（跨平台一致性）
 
 **阶段 B 出口判据**：
 
@@ -256,7 +256,7 @@ LLM 扫描 INDEX.md 作语义检索，在小规模（< 1000 session）下 2-5 �
 
 Gemini CLI / Codex CLI 目前无对等 hook 机制，守卫不能跨平台。
 
-**缓解**：Gemini / Codex 用 **prompt 级约束** 弥补（在 pro/GEMINI.md / pro/AGENTS.md 里加更严格的 HARD RULE 提示）。长期看，Anthropic 以外的平台也在向 hook 生态靠拢，等外部条件成熟再打平。
+**缓解**：Gemini / Codex 用 **prompt 级约束** 弥补（在 hosts/GEMINI.md / hosts/AGENTS.md 里加更严格的 HARD RULE 提示）。长期看，Anthropic 以外的平台也在向 hook 生态靠拢，等外部条件成熟再打平。
 
 ### 风险 3 · v1.7 内容太多，可能一次做不完
 
@@ -287,7 +287,7 @@ Cortex 某些功能（如叙事层 grounded generation）增加了每次 session
 - **Cortex brainstorm** · `devdocs/brainstorm/2026-04-19-cortex-architecture.md` — 14 层 → 7 层的完整讨论轨迹
 - **当前变更历史** · `CHANGELOG.md` — v1.0.0 → v1.6.2a 的完整演进
 - **系统能力** · `SKILL.md` — 当前版本的权威定义
-- **编排协议** · `pro/CLAUDE.md` — Pro 模式的信息隔离 + 封驳循环 + Notion 存档
+- **编排协议** · `hosts/CLAUDE.md` — Pro 模式的信息隔离 + 封驳循环 + Notion 存档
 
 ---
 

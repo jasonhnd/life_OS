@@ -3,7 +3,7 @@ translated_from: docs/history/cortex/hippocampus-recall.md
 translator_note: auto-translated 2026-04-22
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Hippocampus · 跨 Session 记忆检索(Cross-Session Memory Recall)
@@ -323,7 +323,7 @@ Spec 层(最权威,英文):
 
 Agent 定义(深度用户看):
 
-- `pro/agents/hippocampus.md` — 实际的 subagent 定义、tool 约束、model 选择
+- `agents/hippocampus.md` — 实际的 subagent 定义、tool 约束、model 选择
 
 ---
 

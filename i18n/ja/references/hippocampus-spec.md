@@ -14,14 +14,14 @@ related:
   - references/concept-spec.md
   - references/session-index-spec.md
   - references/gwt-spec.md
-  - pro/agents/hippocampus.md
+  - agents/hippocampus.md
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Hippocampus · Agent Contract Spec
 
-> 本ドキュメントは **hippocampus サブエージェント** のコントラクトを規定します: 何を受け取り、何を返し、どのように検索し、どのように失敗するか。エージェント本体は `pro/agents/hippocampus.md` にあります。本仕様はその動作に関する authoritative なソースです。
+> 本ドキュメントは **hippocampus サブエージェント** のコントラクトを規定します: 何を受け取り、何を返し、どのように検索し、どのように失敗するか。エージェント本体は `agents/hippocampus.md` にあります。本仕様はその動作に関する authoritative なソースです。
 
 ---
 
@@ -66,7 +66,7 @@ Hippocampus は以下を **しません**:
 
 ## 3. エージェント定義 Frontmatter(Agent Definition Frontmatter)
 
-実際のエージェントファイル(`pro/agents/hippocampus.md`)は以下を宣言しなければなりません:
+実際のエージェントファイル(`agents/hippocampus.md`)は以下を宣言しなければなりません:
 
 ```yaml
 ---
@@ -114,7 +114,7 @@ hippocampus_input:
 - 前セッションのトランスクリプト(INDEX.md 経由の要約のみ)
 - SOUL.md のフルコンテンツ(プライバシー境界 — hippocampus は concept tag を見るが、identity narrative は見ない)
 - `current_theme` を超えるユーザーのプラットフォーム / 環境の詳細
-- 他のエージェントの思考プロセス(`pro/CLAUDE.md` の Information Isolation テーブルに従う)
+- 他のエージェントの思考プロセス(`hosts/CLAUDE.md` の Information Isolation テーブルに従う)
 
 この隔離が重要な理由: hippocampus は **独立したシグナル** を生成しなければならず、それを GWT が他のシグナルに対して重みづけできるようにします。もし SOUL check 出力をすでに見ていれば、補完的ながら異なる検索アングルを浮上させる能力を失います。競合には独立性が必要です。
 
@@ -320,7 +320,7 @@ ROUTER / 下流エージェントが、検索されたコンテンツを **実�
 
 - **すべてのセッションを検索しない。** 網羅的検索は目的を打ち破ります(そしてトークン予算を吹き飛ばします)。Wave の上限は理由があって存在します。
 - **embedding や vector database を使わない。** ユーザー判断 #3: markdown-first、LLM 判断のみ。ベクトルストアの追加はアーキテクチャを変えます — 別の承認を要します。
-- **セッションファイルや concept ファイルを変更しない。** Hippocampus は read-only です。すべての書き込みは ARCHIVER Phase 2 で発生します(`pro/agents/archiver.md` を参照)。
+- **セッションファイルや concept ファイルを変更しない。** Hippocampus は read-only です。すべての書き込みは ARCHIVER Phase 2 で発生します(`agents/archiver.md` を参照)。
 - **検索されたコンテンツを SYSTEM PROMPT に注入しない。** volatile すぎて prompt cache を破壊し、長いセッションでシステムプロンプトを膨張させます。検索されたコンテンツは常に `[COGNITIVE CONTEXT]` で区切られたユーザーメッセージに入ります。
 - **隔離をスキップしない。** 他の Pre-Router Cognitive Layer 出力を読まないこと。入力にそれを見たら、コントラクト違反として扱い、エラーを返します。
 - **検索コンテンツにない主張を合成しない。** Hippocampus は検索エージェントであり、reasoner ではありません。各検索セッションの `reason` フィールドは、そのセッションの markdown の内容をパラフレーズしなければならず、それを超えて推論してはなりません。
@@ -350,7 +350,7 @@ ROUTER / 下流エージェントが、検索されたコンテンツを **実�
 
 ---
 
-**ドキュメントステータス**: v1.7 Cortex Phase 1 のアクティブ仕様。変更には明示的なバージョン bump と、プロジェクト HARD RULE に従った `pro/agents/hippocampus.md`、`references/cortex-spec.md`、3 言語 CHANGELOG エントリの更新が必要です。
+**ドキュメントステータス**: v1.7 Cortex Phase 1 のアクティブ仕様。変更には明示的なバージョン bump と、プロジェクト HARD RULE に従った `agents/hippocampus.md`、`references/cortex-spec.md`、3 言語 CHANGELOG エントリの更新が必要です。
 
 ---
 

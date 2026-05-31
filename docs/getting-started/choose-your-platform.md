@@ -10,7 +10,7 @@ Life OS 装在 AI 终端里。三个平台官方支持：Claude Code、Gemini CL
 
 Life OS 的核心机制是 多个 subagent **互相看不见对方的思考过程**。PLANNER 出计划，REVIEWER 独立复核时拿到的是计划本身，拿不到 PLANNER 怎么想出这个计划的推理链。这是制衡的前提 —— 如果 REVIEWER 能看到 PLANNER 的思考，它会被锚定，否决就走形式。
 
-这需要真实的 subagent 机制：每个 agent 跑在独立上下文里，orchestrator 负责传消息，消息内容由协议规定（`pro/CLAUDE.md` 的「信息隔离」表）。
+这需要真实的 subagent 机制：每个 agent 跑在独立上下文里，orchestrator 负责传消息，消息内容由协议规定（`hosts/CLAUDE.md` 的「信息隔离」表）。
 
 单一聊天窗口做不到这件事。你可以在 ChatGPT 里让它「扮演 多个角色」，但那是同一个上下文在打不同称呼 —— 本质上只有一个声音，互相根本没法真正独立。Life OS 的所有 HARD RULE 在单上下文里全部失效。
 
@@ -22,7 +22,7 @@ Life OS 的核心机制是 多个 subagent **互相看不见对方的思考过�
 |------|-------------|-------------------------|------------------|
 | 模型 | Claude opus / sonnet / haiku 三级（按角色分配，自动选当前最强版本） | Gemini 最强可用模型（orchestrator 运行时自动选择，无硬编码版本） | Codex 最强推理模型（orchestrator 运行时自动选择，无硬编码版本） |
 | Subagent 机制 | 原生 Task tool，独立上下文 | `.agents/skills/` 加载 subagent 文件 | `AGENTS.md` 开放标准 |
-| 编排文件 | `pro/CLAUDE.md` | `pro/GEMINI.md` | `pro/AGENTS.md` |
+| 编排文件 | `hosts/CLAUDE.md` | `hosts/GEMINI.md` | `hosts/AGENTS.md` |
 | 信息隔离 | 完整 | 完整 | 完整 |
 | 并行 subagent | 是 | 是 | 是 |
 | 工具调用 | Read / Edit / Write / Bash / Grep / Glob / Task | 对应 Gemini 工具集（有映射表） | 对应 Codex 工具集 |
@@ -38,7 +38,7 @@ Life OS 的核心机制是 多个 subagent **互相看不见对方的思考过�
 
 1. **Claude 的 opus 级模型在 PLANNER / REVIEWER / COUNCIL 上的判断力明显好**。这三个角色是引擎的瓶颈 —— 计划质量、否决敏锐度、辩论深度都决定了 Summary Report 的含金量。当前版本的 Claude opus 在这三件事上的信号比 Gemini 和 Codex 的最强版本都更稳定（作者主观评估，截至 2026-04）。
 2. **Task tool 原生支持并行 subagent**。六部并行执行是编排协议的 HARD RULE（Step 5，one-by-one reporting）。Claude Code 的 Task tool 直接支持；Gemini / Codex 需要通过 skill 文件模拟，稍复杂。
-3. **`pro/CLAUDE.md` 是母版**。GEMINI.md 和 AGENTS.md 是从它同步过来的 —— 有新功能时 CLAUDE.md 先改，另外两个后跟。首选平台意味着拿到最新逻辑的时差最短。
+3. **`hosts/CLAUDE.md` 是母版**。GEMINI.md 和 AGENTS.md 是从它同步过来的 —— 有新功能时 CLAUDE.md 先改，另外两个后跟。首选平台意味着拿到最新逻辑的时差最短。
 4. **auto-update hook** 可以做到「每天第一次上朝自动检查更新」，跑一次 `/install-agents` 就行（v1.8.5 起取代已退役的 setup-hooks.sh）。Gemini / Codex 要手动重装。
 
 Gemini 和 Codex 都是完整支持的一等公民 —— 功能同构，只是 Claude Code 在以上几点上稍稳。如果你的工作流已经在 Gemini 或 Codex 上，直接用，不需要切。
@@ -82,7 +82,7 @@ Codex 的最强推理模型在长链路推理上稳定，但 ratelimit 偏严 �
 
 ## 一条补充建议
 
-如果你打算长期用 Life OS 做主要决策引擎，在两个平台上装一份：一个主力（比如 Claude Code），一个备用（比如 Gemini CLI）。SKILL.md 和 `pro/agents/*.md` 都是一样的 markdown，两边共享。真哪天 Opus 额度打满、或者 Anthropic 服务挂了，你切到另一个平台还能继续用，第二大脑的数据（git repo：本地工作副本 + GitHub remote）平台无关，不会丢。
+如果你打算长期用 Life OS 做主要决策引擎，在两个平台上装一份：一个主力（比如 Claude Code），一个备用（比如 Gemini CLI）。SKILL.md 和 `agents/*.md` 都是一样的 markdown，两边共享。真哪天 Opus 额度打满、或者 Anthropic 服务挂了，你切到另一个平台还能继续用，第二大脑的数据（git repo：本地工作副本 + GitHub remote）平台无关，不会丢。
 
 ---
 
@@ -127,11 +127,11 @@ Claude Code Max 计划日常日用足够；API 直接 billing 大概每天 $3-8 
 ### Gemini CLI / Antigravity
 - **`.claude/worktrees/` 必须 gitignore**：这是最常见的「Gemini 不响应」原因。Claude Code 的临时 worktree 文件被 Gemini 的 context loader 吞进去就撑爆了
 - **Antigravity 的 skill 路径**：workspace scope 在 `.agents/skills/`，global scope 在 `~/.gemini/antigravity/skills/`。装错地方 Antigravity 找不到
-- **工具名映射**：Gemini 的工具和 Claude 的不完全同名。`pro/GEMINI.md` 里有完整映射表，正常用户不需要知道，但调试时有用
+- **工具名映射**：Gemini 的工具和 Claude 的不完全同名。`hosts/GEMINI.md` 里有完整映射表，正常用户不需要知道，但调试时有用
 
 ### Codex CLI
 - **最强推理模型 ratelimit**：COUNCIL 辩论 + 翰林院圆桌这两个高 token 场景容易撞限流。遇到时拆会话（先处理决策，下一个会话单独开圆桌）
-- **AGENTS.md 标准**：Codex 遵循开放的 agents.md 协议。理论上其他支持这个协议的 agent 框架也能读 Life OS 的 `pro/AGENTS.md`，实测以 Codex 为准
+- **AGENTS.md 标准**：Codex 遵循开放的 agents.md 协议。理论上其他支持这个协议的 agent 框架也能读 Life OS 的 `hosts/AGENTS.md`，实测以 Codex 为准
 
 ---
 

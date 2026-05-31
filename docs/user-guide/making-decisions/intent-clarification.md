@@ -6,7 +6,7 @@
 
 **任何复杂请求在升级到 PLANNER 之前，ROUTER 必须进行 2-3 轮意图澄清。不能跳过。**
 
-这条规则写在 `pro/agents/router.md` 的 Intent Clarification 节，并且列为 anti-pattern 第一条：
+这条规则写在 `agents/router.md` 的 Intent Clarification 节，并且列为 anti-pattern 第一条：
 
 > Do not skip intent clarification and escalate directly. This is a HARD RULE.
 
@@ -30,7 +30,7 @@
 
 用户在情绪高峰时提的决策问题，**不是决策问题**，是情绪问题披着决策的外衣。
 
-`pro/agents/router.md` 里的 Emotion Separation Protocol：
+`agents/router.md` 里的 Emotion Separation Protocol：
 
 1. 先承认情绪："听起来你压力很大。"（一句话，不多说）
 2. 分离："我们先把焦虑放一边，只看事实——现在的情况具体是怎样的？"
@@ -152,7 +152,7 @@ ROUTER: 🏛️ Petition
 
 ## 什么时候超出 3 轮
 
-**不允许超过 3 轮。** `pro/agents/router.md` 的 anti-patterns 明确写了：
+**不允许超过 3 轮。** `agents/router.md` 的 anti-patterns 明确写了：
 
 > Do not clarify for more than 3 rounds
 

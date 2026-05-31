@@ -110,7 +110,7 @@ Buffer 计数可在实施时调整；重要的是 cascade 结构。
 - **L1 → L2（月摘要）**："从这些周摘要写月度回顾。识别：月度主题、硬化/软化的决定、跨过 canonical 阈值的概念激活、反复出现的人。目标：1500-2500 tokens。"
 - **L2 → L3（年摘要）**："从月摘要生成年度回顾。识别：年度核心叙事、最长未解线、SOUL 演化证据、战略线变化。目标：3000-5000 tokens。"
 
-Prompt 位于 `pro/seal-prompts/L0-to-L1.md` 等（位置 TBD，v1.8.7 不建）。
+Prompt 位于 `scripts/prompts/seal/L0-to-L1.md` 等（位置 TBD，v1.8.7 不建）。
 
 ## v1.8.7 **不**做什么
 

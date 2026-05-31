@@ -1,6 +1,6 @@
 ---
 spec_id: failure-taxonomy.v1
-description: eou-foundry から借用したアーキテクチャレベル失敗分類法 F1-F17。life_OS のプロセス違反分類法（A1/A2/A3/B/C/D/E/F、pro/compliance/violations.md）を補完する。v1.8.5 以降、すべての violations.md エントリは A-F タグと F1-F17 タグの両方を持つ必要がある。
+description: eou-foundry から借用したアーキテクチャレベル失敗分類法 F1-F17。life_OS のプロセス違反分類法（A1/A2/A3/B/C/D/E/F、compliance/violations.md）を補完する。v1.8.5 以降、すべての violations.md エントリは A-F タグと F1-F17 タグの両方を持つ必要がある。
 status: active
 source_attribution: xiaolai/eou-foundry @ e4b12ce, engine/failure-taxonomy.yml
 introduced_in: v1.8.5
@@ -14,7 +14,7 @@ introduced_in: v1.8.5
 
 | 分類法 | レイヤー | 例 | 記録場所 |
 |---|---|---|---|
-| **A1/A2/A3/B/C/D/E/F**（`references/compliance-spec.md`）| **プロセス違反**（人/プロセス層）| A1: retrospective Subagent スキップ; B: パス捏造; C: ステップスキップ; D: 自己承認; E: publish 漏れ; F: 出力 PII 漏洩 | `pro/compliance/violations.md` |
+| **A1/A2/A3/B/C/D/E/F**（`references/compliance-spec.md`）| **プロセス違反**（人/プロセス層）| A1: retrospective Subagent スキップ; B: パス捏造; C: ステップスキップ; D: 自己承認; E: publish 漏れ; F: 出力 PII 漏洩 | `compliance/violations.md` |
 | **F1-F17**（本ドキュメント）| **アーキテクチャ失敗**（システム設計層）| F11: ライフサイクル段階ミスマッチ; F12: spec drift; F14: 沈黙判断 | 同じ `violations.md`（Stage 8 で F-code 列追加）|
 
 **両方の分類法は同じインシデントに適用される**。例: "ROUTER が retrospective Subagent をスキップし、パスを捏造した" = `A1`（プロセス）+ `F12_DRIFT_FAILURE`（アーキテクチャ）。
@@ -44,7 +44,7 @@ introduced_in: v1.8.5
 ### F5 — INSTRUCTION FAILURE
 - **定義**: ステップが不明、矛盾、または実行不能。
 - **修復**: 実行手順を書き直す。
-- **例**: pro/agents/retrospective.md の 18 ステップで step 12 が step 7 と矛盾。
+- **例**: agents/retrospective.md の 18 ステップで step 12 が step 7 と矛盾。
 
 ### F6 — JUDGMENT FAILURE（サブタイプ）
 
@@ -86,7 +86,7 @@ introduced_in: v1.8.5
 ### F12 — DRIFT FAILURE
 - **定義**: spec、scripts、docs、validator が乖離; 一層の変更が他層に伝播されていない。
 - **修復**: 正典層（`schemas/` または `references/`）を特定し、依存層を調整、CI/audit に語彙同期チェックを追加。
-- **例**: pro/agents/router.md が削除された `pro/agents/narrator-validator.md` を参照。**B 捏造パス違反もここにマップ**。
+- **例**: agents/router.md が削除された `agents/narrator-validator.md` を参照。**B 捏造パス違反もここにマップ**。
 
 ### F13 — PERFORMANCE FAILURE
 - **定義**: 正しく実行するがスケール時に劣化。
@@ -118,11 +118,11 @@ introduced_in: v1.8.5
 すべての診断された失敗が変更になるわけではない。Stage 7 `no_change_record` プロトコルに従って決定を明示的に記録：
 
 - **change**: 動作を変更する決定。`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` に `type: change` で記録（v1.9 schema）。
-- **no_change**: 現在の動作を受け入れる決定。`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` に `type: no_change` で記録（v1.9 schema — .yml ではなく .md、DR-1.9.2；完全な frontmatter は `pro/CLAUDE.md` §"Decision Records" 参照）。`reopen_condition` は必須。**記録の欠落は未調査インシデントと区別がつかない。**
+- **no_change**: 現在の動作を受け入れる決定。`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md` に `type: no_change` で記録（v1.9 schema — .yml ではなく .md、DR-1.9.2；完全な frontmatter は `hosts/CLAUDE.md` §"Decision Records" 参照）。`reopen_condition` は必須。**記録の欠落は未調査インシデントと区別がつかない。**
 
 ## 使用シーン
 
-- v1.8.5 以降、すべての `pro/compliance/violations.md` エントリは A/B/C/D/E/F タグに加えて F1-F17 タグを持つ（Stage 8 Day 24）。
+- v1.8.5 以降、すべての `compliance/violations.md` エントリは A/B/C/D/E/F タグに加えて F1-F17 タグを持つ（Stage 8 Day 24）。
 - AUDITOR Mode 3 は F-code で分類された findings を発行（Stage 7 Day 19 F14 scenario）。
 - DREAM REM サイクルは agent/entry v2 frontmatter（Stage 6）の failure_modes.known/warning_signs を使用して早期警告パターンを検出。
 

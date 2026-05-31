@@ -1,13 +1,13 @@
 ---
 spec_id: i18n-diff-parity-spec.v1
-description: 改动行三语对齐验证规范。当 `references/*.md` 在两个 tag 间（或 HEAD vs 上个 tag）变化时，对应的 `i18n/zh/references/<同名>.md` 和 `i18n/ja/references/<同名>.md` 必须同范围变化。作为 verify-release check #9 强制（v1.8.7 WARN 级，v1.8.8 目标 BLOCK）。消除 `pro/compliance/violations.md` 反复出现的"EN spec 更新但 zh/ja 漂移"违规。
+description: 改动行三语对齐验证规范。当 `references/*.md` 在两个 tag 间（或 HEAD vs 上个 tag）变化时，对应的 `i18n/zh/references/<同名>.md` 和 `i18n/ja/references/<同名>.md` 必须同范围变化。作为 verify-release check #9 强制（v1.8.7 WARN 级，v1.8.8 目标 BLOCK）。消除 `compliance/violations.md` 反复出现的"EN spec 更新但 zh/ja 漂移"违规。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman AGENTS.md:118-120 (改动行覆盖率 gate 通过 diff-cover)，模式从 "改动覆盖率" 适配到 "改动 i18n 镜像"
 introduced_in: v1.8.7
 referenced_by:
   - .claude/commands/verify-release.md (check 9)
-  - pro/agents/auditor.md (Mode 7 M7-5)
+  - agents/auditor.md (Mode 7 M7-5)
 ---
 
 # i18n 改动对齐规范 v1
@@ -32,9 +32,9 @@ EN spec 文件在 `references/*.md` 在两个 tag 间变化时，对应的 ZH/JA
 
 - `SKILL.md` —— 单文件（主题处理输出语言）
 - `references/hard-rules-index.md` —— 单文件（dev 内部索引）
-- `pro/gotchas.md` —— 单文件（dev 内部知识库）
-- `pro/agents/*.md` —— 每 agent 单文件（themes/ 处理显示）
-- `pro/*.md`（CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md）—— host 特定编排，不是用户面翻译
+- `gotchas.md` —— 单文件（dev 内部知识库）
+- `agents/*.md` —— 每 agent 单文件（themes/ 处理显示）
+- `hosts/*.md`（CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md）—— host 特定编排，不是用户面翻译
 - `meta/**/*` —— 运行时工件和 RFC
 - `themes/*.md` —— theme 文件用原生文化语言
 
@@ -149,4 +149,4 @@ AUDITOR Mode 7 M7-5 尊重这些例外。
 
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
 - 模式来源：`tinyhumansai/openhuman` AGENTS.md:118-120（改动行覆盖率通过 diff-cover）—— 适配 i18n 镜像
-- `pro/compliance/violations.md` —— 本 spec 旨在防止的历史漂移事件
+- `compliance/violations.md` —— 本 spec 旨在防止的历史漂移事件

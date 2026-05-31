@@ -24,7 +24,7 @@
 
 ## Expected violations.md diff
 
-**One new row** in `pro/compliance/violations.md`:
+**One new row** in `compliance/violations.md`:
 ```
 | <ISO-8601-ts> | CLASS_E | high | unknown | category=private-key-rsa path_seg=id_rsa | pre-read-allowlist | open |
 ```

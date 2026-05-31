@@ -4,7 +4,7 @@
 
 ## ここに **属さない** もの
 
-1. **エンジンロジック** —— 例 "archiver phase 2 で何をするか"。→ 行き先：`pro/agents/archiver.md`。
+1. **エンジンロジック** —— 例 "archiver phase 2 で何をするか"。→ 行き先：`agents/archiver.md`。
 2. **Spec 内容** —— 例 "session frontmatter 定義"。→ 行き先：`references/session-index-spec.md`。
 3. **Agent 挙動の翻訳** —— theme は**表示名のみ**を翻訳、**挙動は翻訳しない**。挙動は theme 間で完全同一。
 4. **"とりあえず追加"の新文化設定** —— 下記 "新 theme 追加前" 参照。

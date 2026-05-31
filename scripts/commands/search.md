@@ -8,7 +8,7 @@ allowed-tools: Read, Grep, Glob
 
 > **v1.8.0 pivot 注解**：之前调用 `python -m tools.session_search`（SQLite FTS5），但 `tools/session_search.py` 在 v1.8.0 pivot 中被删除。Search 现在用 Grep tool 直接搜 `meta/sessions/*.md`，没有 python 中间层。
 
-> **Backup mode**: 主要路径是 ROUTER 在 Cortex pull-based 调度下 launch `hippocampus` subagent，结果出现在 `[COGNITIVE CONTEXT]` 块里。这个命令是给"我想精确搜某个关键词不走 Cortex"的备份。详见 `pro/CLAUDE.md` → §0.5 (Cortex pull-based)。
+> **Backup mode**: 主要路径是 ROUTER 在 Cortex pull-based 调度下 launch `hippocampus` subagent，结果出现在 `[COGNITIVE CONTEXT]` 块里。这个命令是给"我想精确搜某个关键词不走 Cortex"的备份。详见 `hosts/CLAUDE.md` → §0.5 (Cortex pull-based)。
 
 User invoked: `/search $ARGUMENTS`
 

@@ -2,7 +2,7 @@
 translator_note: 自動翻訳 2026-04-22、人間校正待ち
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # GWT 仲裁 · 多源シグナルの顕著性競争 / GWT Arbitration
@@ -468,7 +468,7 @@ grep -l "gwt_arbitration" meta/sessions/$(ls -t meta/sessions/ | head -1)
 
 診断: これは AUDITOR が最も気にする「コスパ」指標。可能な原因:
 
-1. **ROUTER prompt が cognitive context 使用を十分誘導していない**——`pro/agents/router.md` に「`[COGNITIVE CONTEXT]` ブロックを参照すべき」をより明確にする必要があるかも
+1. **ROUTER prompt が cognitive context 使用を十分誘導していない**——`agents/router.md` に「`[COGNITIVE CONTEXT]` ブロックを参照すべき」をより明確にする必要があるかも
 2. **Hippocampus 品質低**——検索した session が本当に無関係、下流 agent が使えない
 3. **質問タイプ自体が歴史と関連薄い**——多くの質問が孤立した新問題なら、cortex は元々役に立てない
 
@@ -508,7 +508,7 @@ Spec 層(英語):
 
 Agent 定義(深度ユーザー):
 
-- `pro/agents/gwt-arbitrator.md` — agent 定義、tool 制約、model 選択
+- `agents/gwt-arbitrator.md` — agent 定義、tool 制約、model 選択
 
 ---
 
@@ -517,6 +517,6 @@ Agent 定義(深度ユーザー):
 
 ---
 
-### 訳者注 / Translator's Note
+**訳者注 / Translator's Note**
 
 本ドキュメントは中国語版 (`docs/history/cortex/gwt-arbitration.md`) からの自動翻訳版です(2026-04-22 作成)。技術用語(GWT, Global Neuronal Workspace, Arbitrator, salience, ignition, urgency, novelty, relevance, importance, tier_1_conflict, hippocampus, concept lookup, SOUL check, COGNITIVE CONTEXT, signal registry, graceful degradation 等)は原文の英語表記を保持しています。Dehaene の Global Neuronal Workspace 理論は意識科学の代表的モデルで、本稿では英語原語を基本とし日本語補足を添えました。人間校正待ち。

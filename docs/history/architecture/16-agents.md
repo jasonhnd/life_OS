@@ -1,15 +1,15 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # 16 个 Agent 完整清单
 
 全部 16 个 subagent 的 engine ID、职能、触发条件、工具权限、model、文件路径。
 
-**所有 agent 都用 `model: opus`**(pro/agents/*.md 里 frontmatter 固定是 opus;跨平台时由各自的编排文件映射到该平台最强模型)。
+**所有 agent 都用 `model: opus`**(agents/*.md 里 frontmatter 固定是 opus;跨平台时由各自的编排文件映射到该平台最强模型)。
 
 ---
 
@@ -17,22 +17,22 @@ note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; curre
 
 | # | Engine ID | 中文名(三省六部主题) | 功能 | 触发方式 | 工具权限 | Agent 文件 |
 |---|-----------|-------------------|------|---------|---------|-----------|
-| 1 | `router` | 丞相 | 入口路由、意图澄清、收件箱 | 每条消息 | Read, Grep, Glob, WebSearch, Write | `pro/agents/router.md` |
-| 2 | `planner` | 中书令 | 规划 + 任务分解 | ROUTER 升格 | Read, Grep, Glob, WebSearch | `pro/agents/planner.md` |
-| 3 | `reviewer` | 门下侍中 | 审议 + 情感审查 + 封驳权 | 规划后 + 执行后 | Read | `pro/agents/reviewer.md` |
-| 4 | `dispatcher` | 尚书令 | 下达执行令 | 审议通过后 | Read, Grep, Glob | `pro/agents/dispatcher.md` |
-| 5 | `people` | 吏部尚书 | 人事关系 | 按需 | Read, Grep, Glob, WebSearch | `pro/agents/people.md` |
-| 6 | `finance` | 户部尚书 | 金钱 + 资产 | 按需 | Read, Grep, Glob, Bash | `pro/agents/finance.md` |
-| 7 | `growth` | 礼部尚书 | 学习 + 表达 | 按需 | Read, Grep, Glob, WebSearch | `pro/agents/growth.md` |
-| 8 | `execution` | 兵部尚书 | 行动 + 执行 | 按需 | Read, Grep, Glob, Bash, WebSearch | `pro/agents/execution.md` |
-| 9 | `governance` | 刑部尚书 | 规矩 + 风险 | 按需 | Read, Grep, Glob, WebSearch | `pro/agents/governance.md` |
-| 10 | `infra` | 工部尚书 | 基础设施 + 健康 | 按需 | Read, Grep, Glob, Bash | `pro/agents/infra.md` |
-| 11 | `auditor` | 御史大夫 | 检查 agent 工作质量 | 每次流程后自动 | Read, Grep, Glob, Write | `pro/agents/auditor.md` |
-| 12 | `advisor` | 谏议大夫 | 观察用户行为模式 | 每次流程后自动 | Read | `pro/agents/advisor.md` |
-| 13 | `council` | 朝堂议政 | 跨部辩论 | 部门结论冲突时 | Read, Grep, Glob | `pro/agents/council.md` |
-| 14 | `retrospective` | 起居郎 | 开朝、同步 pull、晨报、巡视 | "开始" / 主题触发词 | Read, Grep, Glob, WebSearch, Write, Bash | `pro/agents/retrospective.md` |
-| 15 | `archiver` | 史官 | 退朝、知识提取、DREAM、sync | "退朝" / 流程后自动 | Read, Grep, Glob, WebSearch, Write, Bash | `pro/agents/archiver.md` |
-| 16 | `strategist` | 翰林院 | 人类智库 · 93 思想家 · 18 领域 | 需要时询问用户 | Read, Grep, Glob, WebSearch, Agent, Bash | `pro/agents/strategist.md` |
+| 1 | `router` | 丞相 | 入口路由、意图澄清、收件箱 | 每条消息 | Read, Grep, Glob, WebSearch, Write | `agents/router.md` |
+| 2 | `planner` | 中书令 | 规划 + 任务分解 | ROUTER 升格 | Read, Grep, Glob, WebSearch | `agents/planner.md` |
+| 3 | `reviewer` | 门下侍中 | 审议 + 情感审查 + 封驳权 | 规划后 + 执行后 | Read | `agents/reviewer.md` |
+| 4 | `dispatcher` | 尚书令 | 下达执行令 | 审议通过后 | Read, Grep, Glob | `agents/dispatcher.md` |
+| 5 | `people` | 吏部尚书 | 人事关系 | 按需 | Read, Grep, Glob, WebSearch | `agents/people.md` |
+| 6 | `finance` | 户部尚书 | 金钱 + 资产 | 按需 | Read, Grep, Glob, Bash | `agents/finance.md` |
+| 7 | `growth` | 礼部尚书 | 学习 + 表达 | 按需 | Read, Grep, Glob, WebSearch | `agents/growth.md` |
+| 8 | `execution` | 兵部尚书 | 行动 + 执行 | 按需 | Read, Grep, Glob, Bash, WebSearch | `agents/execution.md` |
+| 9 | `governance` | 刑部尚书 | 规矩 + 风险 | 按需 | Read, Grep, Glob, WebSearch | `agents/governance.md` |
+| 10 | `infra` | 工部尚书 | 基础设施 + 健康 | 按需 | Read, Grep, Glob, Bash | `agents/infra.md` |
+| 11 | `auditor` | 御史大夫 | 检查 agent 工作质量 | 每次流程后自动 | Read, Grep, Glob, Write | `agents/auditor.md` |
+| 12 | `advisor` | 谏议大夫 | 观察用户行为模式 | 每次流程后自动 | Read | `agents/advisor.md` |
+| 13 | `council` | 朝堂议政 | 跨部辩论 | 部门结论冲突时 | Read, Grep, Glob | `agents/council.md` |
+| 14 | `retrospective` | 起居郎 | 开朝、同步 pull、晨报、巡视 | "开始" / 主题触发词 | Read, Grep, Glob, WebSearch, Write, Bash | `agents/retrospective.md` |
+| 15 | `archiver` | 史官 | 退朝、知识提取、DREAM、sync | "退朝" / 流程后自动 | Read, Grep, Glob, WebSearch, Write, Bash | `agents/archiver.md` |
+| 16 | `strategist` | 翰林院 | 人类智库 · 93 思想家 · 18 领域 | 需要时询问用户 | Read, Grep, Glob, WebSearch, Agent, Bash | `agents/strategist.md` |
 
 ---
 
@@ -145,9 +145,9 @@ ROUTER 还管理触发词模板 (上朝 / 退朝 / 复盘 / 辩论 / 快速 / �
 
 在 Claude 平台: 直接映射到 Claude opus。
 
-在 Gemini 平台: `pro/GEMINI.md` 把 `model: opus` 翻译成 Gemini 平台最强可用模型 (auto-select)。
+在 Gemini 平台: `hosts/GEMINI.md` 把 `model: opus` 翻译成 Gemini 平台最强可用模型 (auto-select)。
 
-在 Codex 平台: `pro/AGENTS.md` 把 `model: opus` 翻译成 Codex 平台最强可用模型 (auto-select)。
+在 Codex 平台: `hosts/AGENTS.md` 把 `model: opus` 翻译成 Codex 平台最强可用模型 (auto-select)。
 
 这样做的好处: 换模型时不用改 16 个 agent 文件,只改对应平台的编排文件里的映射表。
 

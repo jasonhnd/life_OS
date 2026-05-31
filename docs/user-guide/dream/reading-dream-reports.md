@@ -217,7 +217,7 @@ Phase 3 的目标：从最近几天的累积里，抓住**冷的、累积的**�
 
 - `meta/journal/{date}-dream.md`——实际 dream 报告的位置
 - `references/dream-spec.md`——权威 spec（Output Format 章节）
-- `pro/agents/retrospective.md`——Mode 0 Step 16 的 DREAM 读取逻辑
-- `pro/agents/archiver.md`——Phase 3 的 DREAM 写入逻辑
+- `agents/retrospective.md`——Mode 0 Step 16 的 DREAM 读取逻辑
+- `agents/archiver.md`——Phase 3 的 DREAM 写入逻辑
 - `docs/user-guide/dream/dream-overview.md`——概览
 - `docs/user-guide/dream/10-auto-triggers.md`——10 个触发器细节

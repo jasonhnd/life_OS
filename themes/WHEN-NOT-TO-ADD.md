@@ -4,7 +4,7 @@
 
 ## What does NOT belong here
 
-1. **Engine logic** — e.g. "what archiver does in phase 2". → Goes to: `pro/agents/archiver.md`.
+1. **Engine logic** — e.g. "what archiver does in phase 2". → Goes to: `agents/archiver.md`.
 2. **Spec content** — e.g. "definition of session frontmatter". → Goes to: `references/session-index-spec.md`.
 3. **Translations of agent behavior** — themes only translate **display names**, NOT behaviors. Behavior remains identical across themes.
 4. **A new cultural setting "just because"** — see "Before adding a new theme" below.

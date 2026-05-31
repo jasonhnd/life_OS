@@ -12,16 +12,16 @@ related:
   - references/concept-spec.md
   - references/session-index-spec.md
   - references/gwt-spec.md
-  - pro/agents/hippocampus.md
+  - agents/hippocampus.md
 translated_from: references/hippocampus-spec.md
 translator_note: auto-translated 2026-04-21, 待人工校对
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Hippocampus · Agent Contract Spec（Agent 契约规范）
 
-> 本文档规定 **hippocampus 子 agent** 的契约：它接收什么、返回什么、如何检索、以及如何失败。Agent 本身位于 `pro/agents/hippocampus.md`；本规范是其行为的权威来源。
+> 本文档规定 **hippocampus 子 agent** 的契约：它接收什么、返回什么、如何检索、以及如何失败。Agent 本身位于 `agents/hippocampus.md`；本规范是其行为的权威来源。
 
 ---
 
@@ -66,7 +66,7 @@ Hippocampus **不做**：
 
 ## 3. Agent 定义 Frontmatter（Agent Definition Frontmatter）
 
-实际 agent 文件（`pro/agents/hippocampus.md`）必须声明：
+实际 agent 文件（`agents/hippocampus.md`）必须声明：
 
 ```yaml
 ---
@@ -114,7 +114,7 @@ hippocampus_input:
 - 之前会话的转录（只有通过 INDEX.md 的摘要）
 - SOUL.md 完整内容（隐私边界 —— hippocampus 看到概念标签，不看身份叙事）
 - 超出 `current_theme` 的用户平台/环境细节
-- 其他 agent 的思考过程（依 `pro/CLAUDE.md` Information Isolation 表）
+- 其他 agent 的思考过程（依 `hosts/CLAUDE.md` Information Isolation 表）
 
 为什么这种隔离重要：hippocampus 必须产出一个**独立信号**，让 GWT 能够与其他信号相衡量。若它已经看到 SOUL check 输出，它就失去了浮现互补但不同检索视角的能力。竞争需要独立。
 
@@ -320,7 +320,7 @@ ROUTER / 下游 agent 是否**真的引用**了检索到的内容？AUDITOR 扫�
 
 - **不要检索所有会话。** 穷举搜索违背目的（并爆掉 token 预算）。波的上限有其原因。
 - **不要使用 embedding 或向量数据库。** 用户决策 #3：markdown-first，仅 LLM 判断。加入向量存储改变架构 —— 需要独立批准。
-- **不要修改会话文件或概念文件。** Hippocampus 只读。所有写入发生在 ARCHIVER Phase 2（见 `pro/agents/archiver.md`）。
+- **不要修改会话文件或概念文件。** Hippocampus 只读。所有写入发生在 ARCHIVER Phase 2（见 `agents/archiver.md`）。
 - **不要把检索内容注入到 SYSTEM PROMPT 中。** 太易变、破坏提示缓存、在长会话中膨胀系统提示。检索内容始终进入用户消息，以 `[COGNITIVE CONTEXT]` 分隔。
 - **不要跳过隔离。** 不要读取其他 Pre-Router Cognitive Layer 输出。若你在输入中见到它们，视为契约违反并返回错误。
 - **不要合成检索内容中没有的声明。** Hippocampus 是检索 agent，不是推理器。每个检索会话中的 `reason` 字段必须转述该会话 markdown 中的内容，不得越之推断。
@@ -350,7 +350,7 @@ ROUTER / 下游 agent 是否**真的引用**了检索到的内容？AUDITOR 扫�
 
 ---
 
-**文档状态**：v1.7 Cortex Phase 1 的活跃规范。变更要求显式版本升级，并按项目 HARD RULE 更新 `pro/agents/hippocampus.md`、`references/cortex-spec.md` 以及三语 CHANGELOG 条目。
+**文档状态**：v1.7 Cortex Phase 1 的活跃规范。变更要求显式版本升级，并按项目 HARD RULE 更新 `agents/hippocampus.md`、`references/cortex-spec.md` 以及三语 CHANGELOG 条目。
 
 ---
 

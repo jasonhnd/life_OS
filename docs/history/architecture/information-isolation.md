@@ -1,15 +1,15 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # 信息隔离原则
 
 Life OS 的 16 个 agent 之间**不是共享上下文的**。每个 agent 作为独立 subagent 启动,只拿到**最小必要信息**。这是核心防 groupthink 和防决策污染的机制。
 
-源: `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` 的 "Information Isolation" 章节。
+源: `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` 的 "Information Isolation" 章节。
 
 ---
 
@@ -94,7 +94,7 @@ COUNCIL 里每个辩论部门作为独立 subagent 启动。各自收到:
 
 ### 技术层面
 
-1. **编排协议文件明确规定传什么**。例如 `pro/CLAUDE.md` Step 4 写明 "Launch dispatcher, passing in the approved planning document. **Do not pass** the PLANNER/REVIEWER's thought processes."
+1. **编排协议文件明确规定传什么**。例如 `hosts/CLAUDE.md` Step 4 写明 "Launch dispatcher, passing in the approved planning document. **Do not pass** the PLANNER/REVIEWER's thought processes."
 2. **subagent API 本身就隔离**。Claude/Gemini/Codex 的 subagent 都是独立 context window, 不共享父 agent 的 context。只能通过函数参数显式传入。
 3. **agent 文件里写 `tools:` 限制**。例如 REVIEWER 只有 `tools: Read`, 不能 Write,强迫它专心做判断,不能偷偷改文件。
 
@@ -118,7 +118,7 @@ AUDITOR 抓的典型泄漏症状:
 
 ### SOUL Reference 的 3 层分级
 
-REVIEWER 引用 SOUL 时有严格分级 (参见 `pro/agents/reviewer.md`):
+REVIEWER 引用 SOUL 时有严格分级 (参见 `agents/reviewer.md`):
 - core (confidence ≥ 0.7): **全部**引用
 - secondary (0.3 ≤ c < 0.7): 选语义相关的 **top 3**, 列出评估过但未选的其他维度
 - emerging (c < 0.3): 只计数, 不展示
@@ -161,7 +161,7 @@ DISPATCHER 在分派任务给领域时, 如果 ROUTER 标记过相关 wiki 条�
 
 **后果**: Phase 2 的候选扫描被 ROUTER 看到了, ROUTER 可能带着偏见把「用户会喜欢的」候选传给 archiver, 污染 auto-write 决策。
 
-**防范**: `pro/agents/archiver.md` 里有 Subagent-Only Execution 的 HARD RULE, 并且 archiver 自己会在 Phase 2 开始前做 "self-check"。
+**防范**: `agents/archiver.md` 里有 Subagent-Only Execution 的 HARD RULE, 并且 archiver 自己会在 Phase 2 开始前做 "self-check"。
 
 **检测**: AUDITOR 看 workflow 记录, 如果 ROUTER 在说「退朝」后到 archiver 启动之间有任何内容扫描, 标记违规。
 

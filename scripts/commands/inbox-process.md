@@ -1,5 +1,5 @@
 ---
-description: 走查 meta/queue/to-process/ — 对每个待处理项判断是否入 wiki / archive / defer / reject
+description: 处理 meta/queue/to-process/，逐条判断是否写入 wiki、归档、延期或拒收
 argument-hint: [可选 focus，例如 wiki / fintech / methodology]
 allowed-tools: Read, Bash, Glob, Grep, Write, Edit
 ---
@@ -24,20 +24,20 @@ dispositions per item:
 ## Backup mode
 
 **Slash command is backup mode**. Primary path: user says "处理 inbox" /
-"扫一下 inbox" / "process inbox" — `pre-prompt-guard` hook auto-detects
-and ROUTER reads `scripts/prompts/inbox-process.md`. The slash command
-exists for explicit invocation, focus narrowing, and audit/test.
+"扫一下 inbox" / "process inbox"; ROUTER matches those phrases inline and
+reads `scripts/prompts/inbox-process.md`. The slash command exists for
+explicit invocation, focus narrowing, and audit/test.
 
 ## Execution
 
 Read and follow `scripts/prompts/inbox-process.md` step-by-step. That
-prompt defines the full workflow (scan → triage → propose → user-confirm
-→ execute → log). Do not invent your own flow.
+prompt defines the full workflow (scan -> triage -> propose -> user-confirm
+-> execute -> log). Do not invent your own flow.
 
 If `$ARGUMENTS` is non-empty, treat it as a focus hint:
-- domain name (`fintech`, `methodology`) → only process items that look like they belong to that domain
-- `wiki` → only propose accept/update; auto-defer anything ambiguous
-- `clean` → propose reject for any item older than 30 days that hasn't been touched
+- domain name (`fintech`, `methodology`) -> only process items that look like they belong to that domain
+- `wiki` -> only propose accept/update; auto-defer anything ambiguous
+- `clean` -> propose reject for any item older than 30 days that hasn't been touched
 
 After execution, the user MUST see:
 1. A per-item disposition table with their accept/reject choices

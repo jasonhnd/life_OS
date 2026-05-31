@@ -31,6 +31,6 @@ If no wrappers found:
 
 ## Important
 
-- This does NOT touch the source `pro/agents/*.md` files in the lifeos repo (those are the source of truth).
+- This does NOT touch the source `agents/*.md` files in the lifeos repo (those are the source of truth).
 - This does NOT remove `~/.claude/agents/` directory itself or non-lifeos wrappers (e.g. user's own custom agents).
 - Re-running `/install-agents` after this restores all wrappers.

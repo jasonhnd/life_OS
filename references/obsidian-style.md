@@ -21,7 +21,7 @@ applies_to: "every human-readable .md file Life OS produces (wiki entries, sessi
 >
 > **Out of scope**: pure data files (`.json`, `.yaml`, `.csv`, `.toml`),
 > source code (`.sh`, `.py`, `.js`, `.ts`), agent definition files in
-> `pro/agents/*.md` (those are LLM-system files, not user-facing reading
+> `agents/*.md` (those are LLM-system files, not user-facing reading
 > material — though if heavily user-read, prefer to follow this guide too).
 
 ---

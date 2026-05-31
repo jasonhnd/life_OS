@@ -14,7 +14,7 @@ Before R-1.8.0-013, "things needing user attention" lived in 7 places:
 | ADVISOR monthly | `meta/eval-history/advisor-monthly-<month>.md` SOUL drift |
 | Strategic Consistency | `meta/eval-history/strategic-consistency-<month>.md` conflicts |
 | Archiver recovery | `meta/eval-history/recovery/<date>.md` results |
-| AUDITOR Mode 3 violations | `pro/compliance/violations.md` |
+| AUDITOR Mode 3 violations | `compliance/violations.md` |
 | Cron notifications (deleted) | `meta/queue/notifications.md` |
 | Summary Reports | scattered in session files |
 
@@ -215,7 +215,7 @@ The retrospective Mode 0 Conscious Patrol (task `lifeos-002`) surfaces the queue
 
 ## Monitor mode integration
 
-`pro/agents/monitor.md` dashboard shows full queue grouped by:
+`agents/monitor.md` dashboard shows full queue grouped by:
 - Priority (P0 first)
 - Source (group by maintenance task)
 - Age (oldest first within priority)

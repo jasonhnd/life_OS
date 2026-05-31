@@ -161,6 +161,6 @@ Action Items:
 ## 相关文档
 
 - 详细职能划分：`references/domains.md`
-- Subagent 定义：`pro/agents/people.md`、`finance.md`、`growth.md`、`execution.md`、`governance.md`、`infra.md`
-- 编排协议：`pro/CLAUDE.md`
+- Subagent 定义：`agents/people.md`、`finance.md`、`growth.md`、`execution.md`、`governance.md`、`infra.md`
+- 编排协议：`hosts/CLAUDE.md`
 - 各领域详细说明：本目录下的 `{domain}-domain.md` 文件

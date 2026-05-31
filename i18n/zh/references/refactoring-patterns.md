@@ -34,13 +34,13 @@ introduced_in: v1.8.5
 
 ### 5. STEP-EXTRACTION（步骤抽取）
 - **何时使用**: agent/EOU 内部某步骤可以做成确定性的（提升为 slash command）或隔离为有自己 blast radius 和治理的子 agent。
-- **产出**: 一个新的 slash command（`.claude/commands/*.md`）或子 subagent（`pro/agents/*.md`）处理被抽取步骤；父级引用被抽取单元。
+- **产出**: 一个新的 slash command（`.claude/commands/*.md`）或子 subagent（`agents/*.md`）处理被抽取步骤；父级引用被抽取单元。
 - **示例**: archiver Phase 4 的 git 同步逻辑被抽取为可复用步骤。Phase 4 调用统一的 `git add + commit + push` 序列，不再各自重实现 audit-trail 写入。
 
 ### 6. VALIDATOR-ADDITION（验证器添加）
 - **何时使用**: 已知失败模式无验证门；输出质量依赖未验证假设；过去事件无回归用例防止复发。
 - **产出**: 新的确定性检查（slash command）、schema 约束（在 `references/*-spec.md` v2 frontmatter）或回归用例（`evals/regression-fixtures/rc-*.yml`）。
-- **示例**: v1.8.0 R-1.8.0-019（GitHub Release Latest 错配事件）后，加 `/verify-release` 6 项 check 序列 + pro/CLAUDE.md HARD RULE。
+- **示例**: v1.8.0 R-1.8.0-019（GitHub Release Latest 错配事件）后，加 `/verify-release` 6 项 check 序列 + hosts/CLAUDE.md HARD RULE。
 
 ### 7. STOP-CONDITION-INJECTION（停止条件注入）
 - **何时使用**: agent/EOU 在无效、含糊或未授权状态下继续执行，而不是停下报告。
@@ -68,7 +68,7 @@ introduced_in: v1.8.5
 
 在创建新 agent、spec、skill 或 HARD RULE 前，必须回答以下 6 个问题：
 
-1. 一条**规则**（在 pro/AGENTS.md 或 pro/CLAUDE.md 中）能否完成？
+1. 一条**规则**（在 hosts/AGENTS.md 或 hosts/CLAUDE.md 中）能否完成？
 2. 一个**schema 字段**（在 references/*-spec.md frontmatter 中）能否完成？
 3. 一个**验证器**（slash command 或 AUDITOR Mode 3 scenario）能否完成？
 4. 一个**回归用例**（evals/regression-fixtures/*.yml）能否完成？

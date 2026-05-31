@@ -7,7 +7,7 @@
 1. **任何 `.sh` / `.bash` shell 脚本** —— 按 `SKILL.md` md-only 本体论约束（DR-10 v1.8.7）。v1.8.5 退役整个 bash hook 层；v1.8.7 让那次退役永久化。禁止扩展名：`.sh / .bash / .py / .yml / .yaml / .json / .sql / .db / .sqlite`。
 2. **任何 `.py` Python 脚本** —— 同上。
 3. **"只给我自己用的"新 slash 命令** —— slash 命令面向用户；必须有清晰名 + argument-hint + description 并作为发版一部分发布。个人一次性自动化直接放你的 `~/.claude/commands/`（不进本 repo）。
-4. **没有触发词的新维护 prompt** —— `scripts/prompts/*.md` 由 ROUTER 通过 `pro/CLAUDE.md` 中文档化的自然语言模式调用。没有文档化触发词的 prompt 是死代码。
+4. **没有触发词的新维护 prompt** —— `scripts/prompts/*.md` 由 ROUTER 通过 `hosts/CLAUDE.md` 中文档化的自然语言模式调用。没有文档化触发词的 prompt 是死代码。
 5. **用户用的文档** —— `docs/` 和 `gitbooks/` 干这个。
 6. **辅助函数 / 库** —— scripts/ 里没有辅助库；命令和 prompt 是自包含的 LLM 驱动 md 文件。
 
@@ -21,13 +21,13 @@
 
 ### `scripts/prompts/<name>.md`
 
-ROUTER 内联读取的内部维护 prompt（无安装步骤）。由 `pro/CLAUDE.md` §"自动触发规则"文档化的自然语言模式触发。
+ROUTER 内联读取的内部维护 prompt（无安装步骤）。由 `hosts/CLAUDE.md` §"自动触发规则"文档化的自然语言模式触发。
 
 当前 21+ 个 prompt（advisor-monthly、archiver-recovery、auditor-mode-2、backup、daily-briefing、eval-history-monthly、extract-concepts、inbox-process、migrate-confidence、migrate-from-v1.6、migrate-to-wikilinks、rebuild-concept-index、rebuild-session-index、reindex、research、review-queue、snapshot-cleanup、spec-compliance、strategic-consistency、wiki-decay、wiki-link-audit、wiki-obsidian-upgrade）。
 
 ## 加新命令或 prompt 前 — Minimality Rule 检查
 
-按 `pro/CLAUDE.md` Minimality Rule：
+按 `hosts/CLAUDE.md` Minimality Rule：
 
 1. **ROUTER 原生处理**就行（不需要新命令）吗？
 2. **既有命令/prompt 扩展**能解决吗？

@@ -410,7 +410,7 @@ AI 靠这段文字"入戏"。写得空洞 → agent 扮演得浅。
 ## 反模式 · 不要做的事
 
 ### ❌ 引擎硬编码 display name
-永远不要在 `pro/agents/*.md` 或 `SKILL.md` 里写"丞相"、"CEO"这种显示名。引擎只认 engine ID（router / planner / ...），显示名来自 theme。
+永远不要在 `agents/*.md` 或 `SKILL.md` 里写"丞相"、"CEO"这种显示名。引擎只认 engine ID（router / planner / ...），显示名来自 theme。
 
 ### ❌ 一个文件管多个主题
 保持"一个主题一个文件"，文件名就是主题 ID。便于切换、便于删除、便于贡献回上游。

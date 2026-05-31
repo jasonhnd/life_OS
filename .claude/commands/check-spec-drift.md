@@ -23,20 +23,20 @@ Scan all `.md`, `.yml`, `.yaml`, `.json` under repo root, **excluding**:
 - `CHANGELOG.md` and `i18n/*/CHANGELOG.md`
 - `docs/reference/version-history.md` (version log — historical agent counts + illustrative example paths, same rationale as CHANGELOG)
 - `backup/` (gitignored clone)
-- `pro/compliance/` (violation logs are historical)
+- `compliance/` (violation logs are historical)
 - `MIGRATION.md`
 - `*-template.md`
 - Files with YAML frontmatter declaring `status: legacy` or `authoritative: false`
 
 ## Scanner 1 · Broken paths
 
-For every matching file, find references like `scripts/foo.sh`, `pro/agents/bar.md`, `tools/baz.py`, etc. Then `Read` each referenced path. Any reference whose target file does NOT exist is a **broken-path drift**.
+For every matching file, find references like `scripts/foo.sh`, `agents/bar.md`, `tools/baz.py`, etc. Then `Read` each referenced path. Any reference whose target file does NOT exist is a **broken-path drift**.
 
 Example grep:
 ```bash
-grep -rEhn '(scripts|pro/agents|tools|references|themes|evals/scenarios|evals/rubrics|i18n/[a-z]+/references)/[a-zA-Z0-9_/.-]+\.(sh|py|md|yml|yaml)' \
+grep -rEhn '(scripts|agents|tools|references|themes|evals/scenarios|evals/rubrics|i18n/[a-z]+/references)/[a-zA-Z0-9_/.-]+\.(sh|py|md|yml|yaml)' \
   --include='*.md' --include='*.yml' --include='*.yaml' --include='*.json' \
-  | grep -vE '^(CHANGELOG|MIGRATION|backup/|pro/compliance/)'
+  | grep -vE '^(CHANGELOG|MIGRATION|backup/|compliance/)'
 ```
 
 For each match: check if the referenced file exists. Missing → flag as broken-path.

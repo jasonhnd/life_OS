@@ -16,7 +16,7 @@
 
 ### Q：我同时用 Claude Code 和 Antigravity，它们会冲突吗？
 
-**不会**。它们使用不同的编排文件（`pro/CLAUDE.md` vs `pro/GEMINI.md`）和不同的模型映射。同一套 `pro/agents/*.md` 文件共享。
+**不会**。它们使用不同的编排文件（`hosts/CLAUDE.md` vs `hosts/GEMINI.md`）和不同的模型映射。同一套 `agents/*.md` 文件共享。
 
 **唯一需要注意**：把 `.claude/worktrees/` 加进 `.gitignore`，防止 Antigravity 被 Claude Code 留下的临时文件淹没上下文。
 
@@ -370,7 +370,7 @@ Pro 模式使用 Opus：
 
 ### Q：我能自己修改 agent 行为吗？
 
-可以。每个 agent 定义在 `pro/agents/{agent-id}.md`，用 markdown 写，可读可编辑。修改后重新加载 Life OS（`/install-skill` 或 `npx skills add` 再运行一次）。
+可以。每个 agent 定义在 `agents/{agent-id}.md`，用 markdown 写，可读可编辑。修改后重新加载 Life OS（`/install-skill` 或 `npx skills add` 再运行一次）。
 
 但：
 - 修改 HARD RULE 会破坏制衡机制——谨慎

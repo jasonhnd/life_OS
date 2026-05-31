@@ -1,28 +1,29 @@
 ---
-description: 即时记忆登记 / 读取（~/.claude/lifeos-memory/ 短期记忆库 · v1.8.0 pivot 直接读写文件）
+description: 即时记忆登记 / 读取（~/.claude/lifeos-memory/ 短期记忆库 · Markdown KV）
 argument-hint: emit <key>=<value> | read | remove <key> | path
 allowed-tools: Read, Write, Bash, Glob
 ---
 
 # /memory · 即时记忆 (v1.8.0 pivot)
 
-> **v1.8.0 pivot 注解**：之前调用 `python -m tools.memory`，但 `tools/memory.py` 在 v1.8.0 pivot 中被删除。Memory 现在是一个扁平 KV 目录 (`~/.claude/lifeos-memory/<key>.json`)，ROUTER 直接用 Write/Read tool 读写，没有 python 中间层。
+> **v1.8.0 pivot 注解**：之前调用 `python -m tools.memory`，但 `tools/memory.py` 在 v1.8.0 pivot 中被删除。v1.8.6/DR-10 后 Memory KV 改为 Markdown 文件。Memory 现在是一个扁平 KV 目录 (`~/.claude/lifeos-memory/<key>.md`)，ROUTER 直接用 Write/Read tool 读写，没有 python 中间层。
 
-> **Backup mode**: 主要路径是 ROUTER 在 `pre-prompt-guard.sh` 检测 "记一下/提醒我/TODO/覚えて" 等关键词后自动 emit。这个命令是给"我想精确控制 key/value 格式"的备份。详见 `pro/CLAUDE.md` → Auto-Trigger Rules → Memory auto-emit。
+> **Backup mode**: 主要路径是 ROUTER 用 inline trigger rules 匹配 "记一下/提醒我/TODO/覚えて" 等关键词后自动 emit。这个命令是给"我想精确控制 key/value 格式"的备份。详见 `hosts/CLAUDE.md` → Auto-Trigger Rules → Memory auto-emit。
 
 User invoked: `/memory $ARGUMENTS`
 
 ## 数据结构
 
-每条 memory 是 `~/.claude/lifeos-memory/<key>.json`：
+每条 memory 是 `~/.claude/lifeos-memory/<key>.md`：
 
-```json
-{
-  "value": "<text>",
-  "role": "礼/户/刑/工/吏/兵",
-  "created": "<ISO8601>",
-  "trigger_time": "<optional ISO8601 if value contains date/time>"
-}
+```markdown
+---
+key: "<key>"
+value: "<text>"
+role: "礼/户/刑/工/吏/兵"
+created: "<ISO8601>"
+trigger_time: "<optional ISO8601 if value contains date/time>"
+---
 ```
 
 Key 推荐格式：`reminder:<context>` / `decision:<topic>` / `note:<context>`。
@@ -34,7 +35,7 @@ Key 推荐格式：`reminder:<context>` / `decision:<topic>` / `note:<context>`�
 1. 解析 `key` 和 `value`
 2. 推断 `role`：决策→刑、人际/学习/品牌→礼、财务→户、健康/数字基建→工、关系经营/团队→吏、项目执行→兵
 3. 如果 `value` 含日期/时间 → 提取为 `trigger_time` 字段
-4. 用 Write 工具创建 `~/.claude/lifeos-memory/<sanitized-key>.json`（key 中的 `:` 改为 `__`、`/` 改为 `_`）
+4. 用 Write 工具创建 `~/.claude/lifeos-memory/<sanitized-key>.md`（key 中的 `:` 改为 `__`、`/` 改为 `_`）
 5. 报告：
 
    ```
@@ -47,7 +48,7 @@ Key 推荐格式：`reminder:<context>` / `decision:<topic>` / `note:<context>`�
 
 ### `read`
 
-1. Glob `~/.claude/lifeos-memory/*.json`
+1. Glob `~/.claude/lifeos-memory/*.md`
 2. 对每个文件 Read 内容
 3. 按 `created` 倒序列出
 4. 格式：
@@ -60,7 +61,7 @@ Key 推荐格式：`reminder:<context>` / `decision:<topic>` / `note:<context>`�
 ### `remove <key>`
 
 1. Resolve sanitized path
-2. `Bash: rm ~/.claude/lifeos-memory/<sanitized-key>.json`
+2. `Bash: rm ~/.claude/lifeos-memory/<sanitized-key>.md`
 3. 报告 "🗑️ 已删除 <key>"
 
 ### `path`
@@ -75,7 +76,7 @@ Key 推荐格式：`reminder:<context>` / `decision:<topic>` / `note:<context>`�
 
 | 时长 | 位置 | 例子 |
 |------|------|------|
-| 即时（<48h） | `~/.claude/lifeos-memory/<key>.json` | 临时提醒、临时决策 |
+| 即时（<48h） | `~/.claude/lifeos-memory/<key>.md` | 临时提醒、临时决策 |
 | 中期（week） | `wiki/<topic>.md` | archiver 退朝时写 |
 | 长期（年） | `SOUL.md` | 价值观、维度 |
 

@@ -173,7 +173,7 @@ STRATEGIST は Draft-Review-Execute フローを通らず、独立した「思�
 #### 現在のステータス
 
 **v1.6.2a で完全に稼働中**。具体的には:
-- multiple agents がそれぞれ独立ファイルを持つ(`pro/agents/*.md`)、各役割の職務説明書が明確
+- multiple agents がそれぞれ独立ファイルを持つ(`agents/*.md`)、各役割の職務説明書が明確
 - 9 テーマ切り替え可能(英 / 中 / 日 × 古典 / 政府 / 企業)、trigger 語でテーマを自動識別
 - DREAM 10 トリガーのハード閾値 + ソフトシグナル併存、24h 反復抑制
 - Adjourn ステートマシンを AUDITOR が強制執行、不正な状態遷移は自動的に user-patterns に記録
@@ -269,7 +269,7 @@ STRATEGIST は Draft-Review-Execute フローを通らず、独立した「思�
   - `/inbox-process` → `scripts/prompts/inbox-process.md`: LLM 駆動重複検出 + manifest delta + 5 段階 confidence
   - `/migrate-confidence` → `scripts/prompts/migrate-confidence.md`: legacy float → enum の 1 回限りマイグレーション
   - `/method create|update|list` → `scripts/commands/method.md`: 手法ライブラリ CRUD
-  - git 同期: orchestrator が adjourn flow Phase 4 で `git add + commit + push` を直接実行（`pro/CLAUDE.md` Phase 4）
+  - git 同期: orchestrator が adjourn flow Phase 4 で `git add + commit + push` を直接実行（`hosts/CLAUDE.md` Phase 4）
 
   v1.7 cron 時代の `scripts/decay-audit.py / dream-trigger-check.py / monthly-review.py / session-index.py / wiki-conflict-check.py` は R-1.8.0-011（v1.8.0 pivot）で削除済み。v1.8.0–v1.8.1 の間に存在した `tools/*.py` パッケージ（11 モジュール）も v1.8.1 Wave 2 で全削除。Layer 4 は現在 100% LLM 駆動、Python ランタイム不要（jq が hook の優先 JSON parser; python3 は jq 欠如時の stdin 解析フォールバックのみ）。
 

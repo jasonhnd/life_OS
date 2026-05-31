@@ -79,7 +79,7 @@ Life OS skill 本质也是一个 git repo。`cd` 到 skill 目录 `git pull`。�
 
 ### Gemini CLI
 
-Gemini CLI 的 skills 机制不同 — 每个平台 orchestrator 文件（`pro/GEMINI.md`）独立维护。升级步骤：
+Gemini CLI 的 skills 机制不同 — 每个平台 orchestrator 文件（`hosts/GEMINI.md`）独立维护。升级步骤：
 
 1. `cd ~/.gemini/skills/life_OS && git pull`（或你的本地 skill 路径）
 2. Gemini 下次启动自动读新版本。
@@ -89,7 +89,7 @@ Gemini CLI 的 skills 机制不同 — 每个平台 orchestrator 文件（`pro/G
 同理：
 
 1. `cd ~/.codex/skills/life_OS && git pull`
-2. `pro/AGENTS.md` 是 Codex 的 orchestrator 文件。
+2. `hosts/AGENTS.md` 是 Codex 的 orchestrator 文件。
 
 ### 手动升级（fallback）
 

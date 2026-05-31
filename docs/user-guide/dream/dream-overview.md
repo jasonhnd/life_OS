@@ -4,7 +4,7 @@
 
 DREAM 是 Life OS 的"离线记忆处理系统"——灵感来自人类睡眠周期。每次你退朝（adjourn），系统会像大脑在夜里整理记忆那样，扫描最近 3 天的活动，做三件事：整理、巩固、发现。
 
-**重要：DREAM 不是独立的 subagent。** 从 v1.4.4 起，它被并入 ARCHIVER，作为 ARCHIVER 的 **Phase 3** 执行。权威定义在 `references/dream-spec.md` 和 `pro/agents/archiver.md`。
+**重要：DREAM 不是独立的 subagent。** 从 v1.4.4 起，它被并入 ARCHIVER，作为 ARCHIVER 的 **Phase 3** 执行。权威定义在 `references/dream-spec.md` 和 `agents/archiver.md`。
 
 ## 为什么叫 DREAM
 
@@ -169,7 +169,7 @@ triggered_actions:
 ## 相关文件
 
 - `references/dream-spec.md`——权威 spec
-- `pro/agents/archiver.md`——Phase 3 执行逻辑
+- `agents/archiver.md`——Phase 3 执行逻辑
 - `docs/user-guide/dream/three-stages.md`——三阶段细节
 - `docs/user-guide/dream/10-auto-triggers.md`——10 个自动触发器
 - `docs/user-guide/dream/reading-dream-reports.md`——怎么读 dream 报告

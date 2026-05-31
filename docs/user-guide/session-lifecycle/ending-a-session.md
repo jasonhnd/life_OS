@@ -6,7 +6,7 @@
 
 触发词：`退朝` / `结束` / `adjourn` / `done` / `end` / `終わり` / `お疲れ` 等。
 
-权威源：`pro/agents/archiver.md` + `pro/CLAUDE.md` Step 10。
+权威源：`agents/archiver.md` + `hosts/CLAUDE.md` Step 10。
 
 ---
 

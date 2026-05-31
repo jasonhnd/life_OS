@@ -1,8 +1,8 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # GWT 仲裁 · 多源信号的显著性竞争
@@ -468,7 +468,7 @@ grep -l "gwt_arbitration" meta/sessions/$(ls -t meta/sessions/ | head -1)
 
 诊断: 这是 AUDITOR 最关心的"性价比"指标。可能原因:
 
-1. **ROUTER prompt 没充分引导使用 cognitive context**——pro/agents/router.md 可能需要更明确"你应该参考 `[COGNITIVE CONTEXT]` 块"
+1. **ROUTER prompt 没充分引导使用 cognitive context**——agents/router.md 可能需要更明确"你应该参考 `[COGNITIVE CONTEXT]` 块"
 2. **Hippocampus 质量低**——检索的 session 确实不相关,下游 agent 没法用
 3. **你的问题类型本身和历史关联不强**——如果多数问题都是孤立的新问题,cortex 本来就发挥不了作用
 
@@ -513,7 +513,7 @@ Spec 层(英文):
 
 Agent 定义(深度用户):
 
-- `pro/agents/gwt-arbitrator.md` — agent 定义、tool 约束、model 选择
+- `agents/gwt-arbitrator.md` — agent 定义、tool 约束、model 选择
 
 ---
 

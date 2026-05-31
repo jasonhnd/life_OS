@@ -144,7 +144,7 @@ Strategic Map 真正产生价值的场景：
 ## 相关文件
 
 - `references/strategic-map-spec.md`——权威 spec
-- `pro/agents/retrospective.md`——Step 15 编译逻辑
+- `agents/retrospective.md`——Step 15 编译逻辑
 - `docs/user-guide/strategic-map/strategic-lines.md`——怎么写第一条战略线
 - `docs/user-guide/strategic-map/project-roles.md`——四种项目角色
 - `docs/user-guide/strategic-map/health-archetypes.md`——6 种健康原型

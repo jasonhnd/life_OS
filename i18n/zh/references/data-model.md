@@ -6,7 +6,7 @@
 
 ### Decision（决策）
 
-> ⚠️ **v1.9 schema 取代下表**（见 RFC §3.3.2 / §11.2.1 + `pro/CLAUDE.md` §"Decision Records"）。v1.9 是决策记录 frontmatter 的权威源；下方 pre-v1.9 字段保留用于历史参考 / 遗留文件解析。**字段名冲突提示**：v1.9 把 `type` 复用为决策记录种类（`change` / `no_change` / `escalation` / `superseded`），**不是** pre-v1.9 的 workflow 种类（`simple` / `3d6m`）。写新决策时用 v1.9 schema。
+> ⚠️ **v1.9 schema 取代下表**（见 RFC §3.3.2 / §11.2.1 + `hosts/CLAUDE.md` §"Decision Records"）。v1.9 是决策记录 frontmatter 的权威源；下方 pre-v1.9 字段保留用于历史参考 / 遗留文件解析。**字段名冲突提示**：v1.9 把 `type` 复用为决策记录种类（`change` / `no_change` / `escalation` / `superseded`），**不是** pre-v1.9 的 workflow 种类（`simple` / `3d6m`）。写新决策时用 v1.9 schema。
 
 **v1.9 权威 schema**（`meta/decisions/<YYYY-MM>/dec-<YYYY-MM-DD>-<NNN>.md`）：
 

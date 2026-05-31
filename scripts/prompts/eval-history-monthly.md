@@ -37,7 +37,7 @@ inline via Glob + Read + simple text scan.
    - `auditor_violations:` count by class (A/B/C/D/E)
    - REVIEWER veto count (search "veto" / "封驳" in journal)
    - decision count by domain (frontmatter `domain:`)
-4. Also `Glob` `pro/compliance/violations.md` (single file) and `Read`
+4. Also `Glob` `compliance/violations.md` (single file) and `Read`
    it; tally violation rows that fall within the target month.
 5. Aggregate into the report below; write directly to output path.
 

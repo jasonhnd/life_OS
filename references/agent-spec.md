@@ -1,6 +1,6 @@
 ---
 spec_id: agent-spec.v2
-description: Standard frontmatter schema for all pro/agents/*.md subagent definition files. Borrows EOU 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes from eou-foundry. Applies to all pro/agents/*.md subagent definition files (router, retrospective, archiver, planner, reviewer, dispatcher, advisor, auditor, strategist, monitor, council, hippocampus, gwt-arbitrator, concept-lookup, soul-check, narrator, knowledge-extractor, memory-keeper + 6 domain agents).
+description: Standard frontmatter schema for all agents/*.md subagent definition files. Borrows EOU 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes from eou-foundry. Applies to all agents/*.md subagent definition files (router, retrospective, archiver, planner, reviewer, dispatcher, advisor, auditor, strategist, monitor, council, hippocampus, gwt-arbitrator, concept-lookup, soul-check, narrator, knowledge-extractor, memory-keeper + 6 domain agents).
 status: active
 authoritative: true
 source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + engine/eou-contract.md
@@ -9,7 +9,7 @@ introduced_in: v1.8.5
 
 # Agent Specification v2
 
-Every `pro/agents/*.md` subagent definition file MUST have YAML frontmatter conforming to the v2 standard. v1.8.5 Stage 6 migrates all existing agents.
+Every `agents/*.md` subagent definition file MUST have YAML frontmatter conforming to the v2 standard. v1.8.5 Stage 6 migrates all existing agents.
 
 > **Why v2**: v1 agent frontmatter only had `name + description + tools + model` (4 fields). v2 adds 6 structural fields borrowed from eou-foundry that make agent boundaries grep-able, blast radius explicit, and failure modes documented. Per RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6.
 
@@ -43,12 +43,12 @@ operating_hypothesis: |
 # v2 NEW: context_manifest (eou eou-contract.md §context_manifest)
 context_manifest:
   source_of_truth:     # files this agent reads as authoritative
-    - pro/CLAUDE.md
-    - pro/GLOBAL.md
+    - hosts/CLAUDE.md
+    - hosts/GLOBAL.md
   supporting:          # secondary context
     - references/relevant-spec.md
-  forbidden:           # MUST NOT read — information isolation per pro/CLAUDE.md §Information Isolation
-    - pro/agents/other-peer.md
+  forbidden:           # MUST NOT read — information isolation per hosts/CLAUDE.md §Information Isolation
+    - agents/other-peer.md
 
 # v2 NEW: blast_radius (eou eou-contract.md §blast_radius)
 blast_radius:
@@ -58,7 +58,7 @@ blast_radius:
   forbidden_scope:     # files this agent MUST NOT modify
     - SOUL.md          # only ARCHIVER Phase 2 writes SOUL candidates
     - foundry/eous/    # if applicable
-    - pro/agents/      # agent definitions never self-modify
+    - agents/      # agent definitions never self-modify
 
 # v2 NEW: failure_modes (eou eou-contract.md §failure_modes)
 failure_modes:
@@ -76,7 +76,7 @@ failure_modes:
 
 ## Required v2 Fields (HARD)
 
-For every `pro/agents/*.md`, the frontmatter MUST have:
+For every `agents/*.md`, the frontmatter MUST have:
 
 1. **All v1 fields**: `name`, `description`, `tools`, `model`
 2. **identity**: `id`, `version`
@@ -92,7 +92,7 @@ New AUDITOR mode added at Stage 6 Day 17. Checks:
 - **A1**: every agent has all v2 required fields
 - **A2**: `tools` list matches what agent actually uses (no `Read` in tools but agent does Read calls = drift)
 - **A3**: `forbidden_scope` is not bypassed (agent's output trail in `meta/runtime/<sid>/` shows no write to forbidden paths)
-- **A4**: agent's `failure_modes.known` includes any violation classes from `pro/compliance/violations.md` where the agent is implicated
+- **A4**: agent's `failure_modes.known` includes any violation classes from `compliance/violations.md` where the agent is implicated
 
 Findings classified per `references/failure-taxonomy.md`.
 
@@ -204,7 +204,7 @@ When any subagent proposes a course of action that has a notable tradeoff (cauti
 
 ### Override mechanism
 
-Agents whose role legitimately violates DA-1/DA-2/DA-3 MUST declare the override in their `pro/agents/<name>.md` frontmatter:
+Agents whose role legitimately violates DA-1/DA-2/DA-3 MUST declare the override in their `agents/<name>.md` frontmatter:
 
 ```yaml
 default_anti_patterns_override:

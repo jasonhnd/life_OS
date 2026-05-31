@@ -3,7 +3,7 @@ translated_from: docs/history/cortex/narrator-citations.md
 translator_note: auto-translated 2026-04-22, 待人工校对
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Narrator 引用与 Trace · 防编造机制（Narrator Citations & Trace）
@@ -470,11 +470,11 @@ Spec 层(英文):
 - `references/narrator-spec.md` — 完整 spec: substantive/connective 规则、validator 算法、trace UX
 - `references/eval-history-spec.md` §5.10 — `citation_groundedness` 计分标准
 - `references/cortex-spec.md` §Grounded Generation — 为什么 Gazzaniga 是 Cortex 设计的核心隐患
-- `pro/agents/narrator-validator.md` — validator subagent 定义
+- `agents/narrator-validator.md` — validator subagent 定义
 
 其他:
 
-- `pro/agents/router.md` — Narrator 行为就住在 ROUTER 里(不是独立 agent)
+- `agents/router.md` — Narrator 行为就住在 ROUTER 里(不是独立 agent)
 - `devdocs/architecture/cortex-integration.md` — Step 7.5 插入的位置
 
 ---

@@ -5,7 +5,7 @@
 - **Engine ID**: `retrospective`
 - **模型**: opus
 - **工具**: Read, Grep, Glob, WebSearch, Write, Bash
-- **功能定位**: 会话周期管理者。负责会话启动、上下文准备、周期性复盘。**归档与退朝由 ARCHIVER 负责**（见 `pro/agents/archiver.md`）。
+- **功能定位**: 会话周期管理者。负责会话启动、上下文准备、周期性复盘。**归档与退朝由 ARCHIVER 负责**（见 `agents/archiver.md`）。
 
 RETROSPECTIVE 有三种模式，根据调用时的指令决定：
 - **Mode 0 · Start Session**（完整的会话启动）
@@ -50,7 +50,7 @@ RETROSPECTIVE 有三种模式，根据调用时的指令决定：
    - **HARD RULE**：用户中途切换主题，立即重新展示选择器，加载新主题，立即切换语言，用新语言确认
 
 **2. DIRECTORY TYPE CHECK（目录类型检测）**
-   - 含 `SKILL.md` + `pro/agents/` + `themes/` → Life OS 系统仓库（产品代码）
+   - 含 `SKILL.md` + `agents/` + `themes/` → Life OS 系统仓库（产品代码）
      询问："你在 Life OS 开发仓中。想做什么？a) 连接到 second-brain；b) 开发 Life OS，绑定此仓；c) 创建新 second-brain"
    - 含 `meta/` + `projects/` → second-brain，正常继续
    - 其他 → 普通项目仓库，按配置路径查找 second-brain

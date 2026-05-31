@@ -15,7 +15,7 @@
 
 ## 奏折标准结构
 
-源自 `pro/CLAUDE.md` 第 7 步定义：
+源自 `hosts/CLAUDE.md` 第 7 步定义：
 
 ```
 Summary Report: [Subject]

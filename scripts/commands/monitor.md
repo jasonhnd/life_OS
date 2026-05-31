@@ -10,14 +10,14 @@ User invoked: `/monitor $ARGUMENTS`
 
 ## ⚠️ Backup mode (post-2026-04-29 user feedback)
 
-**Slash command 是 backup mode**。主路径是自然语言：用户说「监控模式」/「进 monitor」/「看系统状态」/「看 cron」/「ops console」等关键词，pre-prompt-guard hook 自动检测并注入 system-reminder，ROUTER 自动 launch monitor subagent。
+**Slash command 是 backup mode**。主路径是自然语言：用户说「监控模式」/「进 monitor」/「看系统状态」/「看维护状态」/「ops console」等关键词，ROUTER 用 inline trigger rules 自动进入 monitor 模式并 launch monitor subagent。
 
 只有在以下场景才用 `/monitor` slash 命令：
 - 用户想精确控制 monitor mode 的 focus 参数（`/monitor wiki` / `/monitor advisor`）
 - 自然语言关键词没匹配上 → 用户显式 escape hatch
 - 测试 / 审计
 
-如果你（ROUTER）发现自己在引导用户输入 `/monitor`，停下 — 你应该自动 launch monitor subagent。详见 `pro/CLAUDE.md` Auto-Trigger Rules · Monitor mode auto-launch。
+如果你（ROUTER）发现自己在引导用户输入 `/monitor`，停下 — 你应该自动 launch monitor subagent。详见 `hosts/CLAUDE.md` Auto-Trigger Rules · Monitor mode auto-launch。
 
 ## v1.8.0 pivot 注解
 
@@ -67,7 +67,7 @@ User invoked: `/monitor $ARGUMENTS`
    `tail -30 meta/queue/notifications.md 2>/dev/null`
 
 3. **读最近 violations**：
-   `tail -10 pro/compliance/violations.md`
+   `tail -10 compliance/violations.md`
 
 4. **生成 dashboard 给用户**：
 
@@ -132,6 +132,6 @@ User invoked: `/monitor $ARGUMENTS`
 
 ## Spec source
 
-- `pro/CLAUDE.md` → Session Modes (v1.8.0 pivot — user-invoked, no cron)
-- `pro/agents/monitor.md` (subagent role definition)
+- `hosts/CLAUDE.md` → Session Modes (v1.8.0 pivot — user-invoked, no cron)
+- `agents/monitor.md` (subagent role definition)
 - `scripts/prompts/<job>.md` (10 user-invoked maintenance prompts)

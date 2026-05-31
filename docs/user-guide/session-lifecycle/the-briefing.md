@@ -6,7 +6,7 @@
 
 设计原则（v1.6.2 开始）：**SOUL Health Report 和 DREAM Auto-Triggers 固定在顶部**。不是可选的脚注。每次都显示（或显式标"空"）。
 
-权威源：`pro/agents/retrospective.md` Mode 0 Output Format。
+权威源：`agents/retrospective.md` Mode 0 Output Format。
 
 ---
 

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -81,224 +81,11 @@ v1.6.1 では**明治政府テーマ**が新たに加わった。枢密院、大
 
 ---
 
-## v1.8.7 の新機能 — OpenHuman 着想の強化（md-only 本体論的制約）
+## 現在の状態
 
-**OpenHuman のパターンを借用、技術スタックは借用しない。** v1.8.7 は `tinyhumansai/openhuman` から 7 つの設計パターンを吸収（memory tree cascade、ScheduleWakeup 自己駆動ループ、gotchas 知識ベース、hotness 駆動 concept 実体化、三言語 diff 整合性、"意図的に近空" アンチパターンドキュメント、evals 必須ワークフロー）—— しかしそれぞれを md-only で表現、SQL なし / JSON なし / sh なし / py なし。DR-10 により、md-only は今や lifeos の**本体論的制約** —— lifeos が lifeos である定義属性。将来禁止拡張子の導入を提案する RFC は要件を再定義必須、制約を緩和してはならない。
+Life OS は現在、markdown-only かつ GitHub 単一バックエンドの個人意思決定システムです。現在の利用導線は自然言語が中心です。インストール後は、やりたいことをそのまま言えば、ROUTER が適切な workflow に対応づけます。Slash command は残っていますが、主に setup、maintenance、diagnostics のための配管であり、日常利用の入口ではありません。
 
-### プロダクトアップグレード（lifeos の能力を変える能力）
-
-- **🧠 gotchas + memory-keeper（C6）** —— `pro/gotchas.md` はプロジェクトレベル技術 gotcha の単一ファイル。新 `memory-keeper` agent が archiver wrap-up phase 5 で自動抽出。ROUTER は重大タスク前に既知問題を short-circuit 可能。初回 seed 実行で v1.8.4-1.8.6 RFC + violations 履歴から ≥10 件生成。
-- **🔄 ScheduleWakeup 自己駆動ループ（B4）** —— `/verify-release-and-watch` が 270s ごとにポーリング（Anthropic prompt cache ウィンドウ）、最大 12 ticks（60 分）終端状態まで。GitHub Release publish 欠落を自動修正。lifeos が reactive ツールから "タスクを見張れる" ツールへ。
-- **📋 verify-release が 11 個の check に拡張** —— 新 check 9（i18n diff parity、WARN レベル）が反復する "EN spec 更新したが zh/ja ドリフト" 違反クラスを捕捉。新 check 10（diff スコープの forbidden extensions）が前回 tag 以降に導入された禁止拡張子ファイルを捕捉。Check 8 が 9 つの禁止拡張子に拡張（`.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite` 追加）。
-- **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 sub-check が v1.8.7 アーティファクト維持 + md-only 制約が設計提案レベルで迂回されないことを検証（ファイル拡張子ゲート到達前にドリフトを捕捉）。
-- **📚 Spec 強化** —— `evals_scenarios:` frontmatter フィールドが各計画文書で必須（dispatcher は欠如すれば拒否）。`concept-spec.md` の hotness 閾値が明示化（≥3 sessions → confirmed、≥10 → canonical）。5 つの新 `WHEN-NOT-TO-ADD.md` が pro/agents/、references/、meta/、themes/、scripts/ に明確な境界を設定。
-- **🌳 Memory tree cascade seal —— v2.0 提案** —— `references/memory-tree-spec.md` が sessions/wiki の L0 → L1 → L2 → L3 cascade アーキテクチャを定義、OpenHuman から借用。Spec は提案として凍結；v1.8.7 archiver 挙動変更なし。実装は v1.9/v2.0 に延期、Jason の second-brain 実データ検証待ち。
-
-### v1.8.6 からのアップグレード（zero-friction）
-
-```
-1. cd <lifeos repo> && git pull origin main
-2. /version-check
-3. /install-agents --refresh
-4. /verify-release v1.8.7
-```
-
-マイグレーションコマンド不要。archiver 初回実行で `pro/gotchas.md` を自動作成。既存データレイアウトは変わらない。
-
-完全な RFC、DR-08（cargo-cult カット）、DR-09（決定基準：時間ではなくプロダクト品質）、DR-10（md-only 本体論的制約）、設計決定の監査 trail は [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 参照。
-
-> **v1.8.3 以前のコンテンツ** —— インラインのアウトバウンドプライバシーゲートが各 Notion 書き込み前に secret/PII をスキャンしていた。**Notion バックエンドとともに削除済み**（ストレージは現在 GitHub のみ）。
-
-> **v1.8.2 以前のコンテンツ** — グローバル Obsidian 可読 HARD RULE (#11)、4 つの専用 wiki テンプレート（`kind:` フィールド）、`/wiki-obsidian-upgrade` 一括マイグレーター、バイナリ出力を `~/Downloads/` にリダイレクト。詳細は CHANGELOG。
-
----
-
-## v1.8.1 の新機能 — Zero-Python pivot + Wiki Plan B + 確証バイアス対抗ポジショニング
-
-v1.8.1 は **Life OS 史上最大の「引き算」**。5 月 1-2 日に 2 つの wave で配信、両方とも同じ v1.8.1 タグの下：
-
-### Wave 1 · Plan B wiki + auto-bootstrap（5 月 1 日）
-
-- **`/inbox-process`** — `meta/queue/to-process/` に任意の `.md` をドロップ、「処理 inbox」または `/inbox-process` と発話。ROUTER がスキャン、各項目の配置（accept→wiki / update→wiki / archive / reject / defer / merge）を提案、確認を待ち、実行、ログ記録。Wave 2 で LLM ベース重複検出（SHA256 なし、FTS5 なし）+ `meta/queue/manifest.json` デルタ追跡を追加。
-- **`/research <topic>`** — 並列で 5 つ（`--depth deep` で 8 つ）の `general-purpose` subagent を起動し academic / practitioner / contrarian / origin / adjacent 角度をカバー。SCHEMA 互換 wiki ドラフトに統合、強制 `Counterpoints` セクション + 自動反 confirmation bias チェック付き。Wave 2 で切り離された CitationAgent（Phase 4、Anthropic パターン）を追加。citation verifier 込みで総 wall time ≤ 9 min。
-- **`wiki/log.md` 活動タイムライン規約** — 各 wiki Write/Edit/移動操作で 1 行 append + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` と `/research` が自動でログを書く。
-- **コマンド不要の vault 自動 bootstrap** — v1.8.1 で初めて vault 内で Claude Code セッションを開くとき、SessionStart hook が欠落しているスキャフォールディングを自動検出してサイレントに作成。`✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` の 1 行のみ表示。`.obsidian/graph.json` も自動パッチ（先にバックアップ）。
-
-### Wave 2 · Zero-Python pivot（5 月 2 日）
-
-Wave 2 を駆動したユーザーの原文：「我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。」 — Layer 4 Python tools/ パッケージ全体がユーザーが要求も使用もしていない複雑度（FTS5、ベクトル、mypy/ruff/pytest CI gate、50+ オプショナル依存）を背負っていた。Wave 2 はリポジトリの Python を一行残らず削除：
-
-- **11 個の Python モジュール削除**：`tools/{approval,embed,export,reconcile,research,search,seed,sync_notion,skill_manager,stats,__init__}.py` と `tools/lib/{__init__,config,llm,notion,second_brain}.py` とそのパッケージ README。
-- **17 個の pytest テストファイル削除**（削除されたモジュールに対応）。
-- **パッケージング削除**：`pyproject.toml`、`uv.lock`、`.python-version`、`.github/workflows/integration.yml`、9 個の `evals/scenarios/tool-*.md` eval シナリオ。
-- **セキュリティ guard が bash ネイティブに**：唯一セキュリティクリティカルな Python（`tools/approval.py` からの ~40 危険コマンドパターン guard）を `scripts/hooks/pre-bash-approval.sh` 内に bash 正規表現配列としてインライン port。100% 純 bash；jq で JSON parse（python3 は stdin 抽出フォールバックのみ）。出処保持：NousResearch/hermes-agent (MIT) commit `59b56d4...` から fork。17 フィクスチャ（10 基本 + 7 エッジ）スモークテスト済み。
-- **CI workflow 書き直し**：`.github/workflows/test.yml` は元 6 ジョブ（pytest + mypy + ruff × 3 OS × 2 Python）。今は 3 ジョブ（`bash -n` + tests/hooks/ + spec drift、ubuntu/macOS/windows 横断）。~3 倍速、Python ツールチェーン不要。
-- **Python のラッパーだった bash 削除**：`scripts/wiki/wiki-link-audit.sh`（311 行の bash + awk frontmatter parsing）→ `scripts/prompts/wiki-link-audit.md`（LLM 駆動 Glob + Grep + Read）に置換。
-
-### Wave 2 · 9 つの wiki スキーマ／パイプライン改善（5 月 2 日）
-
-| Wiki 改善 | 何が変わったか |
-|---|---|
-| `aliases: []` フィールド | Obsidian が `[[wikilink]]` 解決に使用 |
-| `source` → `sources: []` | 複数配列；貢献した URL/citation すべてをリスト |
-| `confidence` を 5 段階 enum に | `impossible \| unlikely \| possible \| likely \| certain`（以前は `0.0–1.0` float）。`/migrate-confidence` でレガシーエントリ変換；`/wiki-decay` がスキャン時に自動マッピング。 |
-| `last_tended` フィールド | ISO 日付 — 最後に能動的に review した時点（cosmetic 編集ではなく） |
-| `review_by` フィールド | ISO 日付 — `wiki-decay` がこのエントリを再表示すべき時点 |
-| 各事実の出処タグ | `^[extracted]`（ソースから言い換え）、`^[inferred]`（自分の合成）、`^[ambiguous]`（ソース不一致）。`/research` agent 出力で必須；`/inbox-process` accept/update で必須。 |
-| `/inbox-process` LLM ベース重複検出 | SHA256 ハッシュを置換 — バイト一致だけでなく言い換え近似重複も捕捉。grep + Read を使った純 LLM 判断。 |
-| `meta/queue/manifest.json` デルタ追跡 | 各 `/inbox-process` 実行が提案テーブルの行に Δ-new vs carried-over をマーク。 |
-| `/research` 切り離された CitationAgent | Anthropic パターン Phase 4：WebFetch で各 `^[extracted]` claim が `sources[]` に対応するか検証。未検証は自動降格。30%+ 失敗で confidence が一段階下がる。`--no-citations` でオプトアウト可。 |
-
-### Life OS Wiki が他とどう違うか（確証バイアス対抗ポジショニング）
-
-我々がベンチマークした 6 つの主要 LLM-Wiki / マルチエージェント research プロジェクト（Anthropic research-system ブログ、LangChain `langgraph` agent supervisor、GPT-Researcher、CrewAI、QX-Labs、OpenAI Deep Research）のうち、これらすべてを兼ね備えるものはありません：
-
-| 軸 | Life OS Wiki | 大半の他者 |
-|---|---|---|
-| 永続化ストレージ | 統合 wiki（markdown + frontmatter）、セッション横断で残る | 一時的なチャット出力 |
-| bullet ごとの出処 | `^[extracted]`/`^[inferred]`/`^[ambiguous]` 必須 | なし、または run レベルのみ |
-| Citation 検証 | 切り離された CitationAgent が合成**後**に実行（分析の深さを保つ） | インターリーブ（モデルを浅く引用しやすい事実に押しやる） |
-| Confidence 校正 | 5 段階 enum が誠実な評価を強制 | float（虚偽の精度）または不明示 |
-| 鮮度モデル | `last_tended` + `review_by` + `/wiki-decay` 再表示 | append-only、decay モデルなし |
-| Inbox 引き渡し | ユーザーが完全な提案テーブルでトリアージ、書き込み前に確認 | 自治追加（後で気づく） |
-| デプロイ姿勢 | Zero Python（bash + markdown のみ） | Pip / npm / requirements.txt |
-
-これは他プロジェクトへの批判ではありません — 異なる問題を解いています。ただし「LLM wiki」「マルチエージェント research」ツールを試して (a) 出力が消える (b) 真のソースと合成の区別がつかない (c) agent が主張内容に言及していない URL を自信ありげに引用する、と感じたなら — それらが Life OS Wiki が塞ごうとしているギャップです。
-
-### クリティカル bugfix（Wave 1）
-
-- **macOS 移植性**：`pre-bash-approval.sh` に裸 `python -c` 5 箇所。macOS 12+ は裸 `python` を削除 → hook fail-CLOSED → 全 Bash コマンドブロック。R-1.8.0-020 commit タイトルは修正済みと主張したが、Wave 1 まで未修正だった。
-- **Scanner 誤判定**：`pre-write-scan.sh` pattern #5 が正当な markdown インラインコードをブロック。backtick 内に shell メタ文字を要求するよう厳格化。
-- **session-start-inbox UX**：2 つのタスク名間違い；NEVER_RUN バケットを 8+ 行から 1 行に圧縮。
-
-### マイグレーション
-
-```bash
-cd ~/.claude/skills/life_OS && git pull
-bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confidence + /wiki-link-audit をインストール
-```
-
-その後 second-brain vault 内で任意の Claude Code セッションを開く。Vault スキャフォールディング自動作成。レガシー float `confidence` を持つ既存 wiki エントリは引き続き動作 — `/wiki-decay` が自動マッピング。永続的に enum へマイグレーション：vault 内で `/migrate-confidence` を実行（冪等、書き込み前に提案プレビュー）。
-
-`python -m tools.<X>` を実行していたユーザー：それらの Python エントリポイントはもう存在しません。完全な代替表は [CHANGELOG.md](./CHANGELOG.md#181---2026-05-02) を参照。
-
----
-
-## v1.8.0 の新機能 — User-Invoked Maintenance（pivot 後）
-
-v1.8.0 は当初 cron 自治 + always-on Cortex を搭載してリリースしました。本番テスト 2 日で cron アーキテクチャは全ての信頼性試験に失敗（サイレントなデータロス、LLM-in-cron の権限ストール、stale なスクリプトパス、複数の bash 互換性 bug）。v1.8.0 は**同じバージョンタグのまま**シンプルな設計に**インプレース pivot**：**ユーザーが全てを起動、ROUTER が直接実行**。
-
-**コア原則**：cron は決定論性を要求、LLM は非決定論的 — このミスマッチは patch では解消できません。cron を明示的なユーザープロンプトに置き換え。あなたが「インデックス再構築」「月次レビュー」と言えば ROUTER が `scripts/prompts/<job>.md` を読んで内部実行。バックグラウンドプロセスなし、何もあなたが見ていない時には実行されない。
-
-2 つの session モード：
-
-- **Mode 1 · ビジネス session** — 標準の Claude Code チャット。長期持続：数日〜数週間にまたがる。**上朝/退朝はオプショナルなソフトトリガー**。Cortex は **pull-based に変更**（ROUTER がメッセージごとに hippocampus / concept-lookup / soul-check / gwt-arbitrator を起動するか判断）、always-on ではなくなりました。
-- **Mode 2 · Monitor session**（`/monitor`）— view-and-invoke 運用コンソール。メンテナンスタスクのタイムスタンプ + 最近のレポート + action items を表示。あなたが「跑 X」「都跑」と言えば、monitor が対応する prompt を読んで実行。cron なし、バックグラウンドなし。
-
-10 個の user-invoked メンテナンスジョブ（それぞれ `scripts/prompts/<job>.md` の markdown prompt、ROUTER が読んで Read/Write/Bash で直接実行）：
-
-- `reindex` · `daily-briefing` · `backup` · `spec-compliance` · `wiki-decay`（v1.7.x の "python tool" ジョブ、現在は LLM が実行）
-- `archiver-recovery` · `auditor-mode-2` · `advisor-monthly` · `eval-history-monthly` · `strategic-consistency`（v1.8.0 の "prompt cron" ジョブ、現在は user-invoked）
-
-Hooks（自動 fire するのは 1 つだけ）：
-
-- `session-start-inbox` — session 開始時に 10 個のメンテナンスタスクの最終実行タイムスタンプをスキャン、「何が overdue か」を 1 行で表示。**何も実行しない**、何を起動するかはあなたが決定。
-- `pre-prompt-guard` — memory キーワード自動検出 + 上朝/退朝ソフトトリガー。**Cortex always-on enforcement は削除**。
-- `pre-bash-approval`（保持）— 危険な bash に対するセキュリティゲート。
-- `post-task-audit-trail`（弱化）— archiver + knowledge-extractor のみ R11 audit trail を強制（Cortex は trail 書き込み不要に）。
-
-Pivot で削除されたもの：
-- Cron インフラ：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、全 launchd plist。
-- Python ミドルウェア：`tools/memory.py`（現在は直接 Write/Read で `~/.claude/lifeos-memory/`）、`tools/session_search.py`（現在は直接 Grep）、`tools/cli.py`（不要）、5 つのメンテナンス python ツール（上記 user-invoked prompts に置換）。
-- Cortex artifact：`pro/agents/narrator-validator.md`（validator は always-on フローに紐付いていた）。
-- Spec ドキュメント：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`（cron 時代の spec）。
-
-マイグレーション：repo を再 pull、`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行（簡略化された hook セットを再登録）。macOS では `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` で死んだ cron job を削除。第二の脳のデータマイグレーションは不要。v1.7.x sessions / wiki / SOUL は完全互換。
-
----
-
-## v1.7.3 の新機能
-
-v1.7.3 は Cortex を「宣言 always-on」から「強制 always-on」に変え、Hermes ツールにユーザーが見える・トリガーできる実際の入口を与えます。
-
-- **Cortex hook 強制注入** — `pre-prompt-guard` がユーザーメッセージに決定キーワードを含む、または 80 文字を超える場合、ROUTER が回答前に 5 つの Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）を並列起動するよう強制する system-reminder を出力します。v1.7.2 のサイレント degradation（17+ セッションで 0 audit trail）を修正。
-- **narrator-validator audit trail HARD RULE** — frontmatter `tools` に Bash + Write を追加、pro/CLAUDE.md §0.5 に従い `meta/runtime/<sid>/narrator-validator.json` JSON audit trail 書き込みを必須化。
-- **4 つの slash command 接続** — `/compress`（インライン圧縮、`meta/compression/` にアーカイブ）、`/search`（`tools.session_search` による FTS5 クロスセッション検索）、`/memory`（`tools.memory` による 24-48h 短期記憶）、`/method`（`tools.skill_manager` によるメソッドライブラリ管理）。`setup-hooks.sh` が `~/.claude/commands/` にインストール。
-- **デッドコード削除** — `tools/prompt_cache.py`（118 行 0 caller、Claude Code サブスク環境では無意味）と `docs/architecture/prompt-cache-strategy.md` を削除。`docs/architecture/hermes-local.md` の関連参照を整理。
-
-マイグレーション：4 つの新しい slash command を `~/.claude/commands/` にインストールするため `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` を再実行してください。
-
----
-
-## v1.7.2.3 の新機能
-
-v1.7.2.3 は RETROSPECTIVE の Mode 0 ownership を明確にします。ROUTER が Bash で生成する briefing skeleton を所有し、レポートの約80%を事前レンダリングします。subagent は `<!-- LLM_FILL: today_focus_and_pending_decisions -->` だけを約5-15行で埋め、Today's Focus と Pending Decisions を書きます。ROUTER がそのブロックを skeleton に差し込み、briefing を安定・簡潔・監査しやすい形に保ちます。
-
----
-
-## v1.7.2.1 の新機能
-
-v1.7.2.1 は「引き算」のホットフィックスです。テーマの美しさを戻しつつ、余分なレポート儀式を取り除きました。ユーザーに見えるレポート構造は 17 個の H2 ブロックから 6 個へ減り、compressed wrapper の必須要件を外し、バージョンマーカーは確認しやすい固定位置に置かれます。ルールは少なく、briefing は読みやすくなり、必要な監査可能性は維持されます。
-
----
-
-## v1.7.2 の新機能
-
-v1.7.2 では、ローカル実行面をより分かりやすいユーザー向け物語として整理し、Hermes Local を Life OS がプロンプトの外側で防護と自動化を実行するための公開名称にしました。対象は Layer 3 hooks と Layer 4 Python tools で、内部仕様では引き続き `execution layer`、`Layer 3`、`Layer 4` という安定したラベルを使います。有効化済みのワークスペースでは、Cortex は常時稼働する認知経路として扱われ、各ユーザーメッセージにルーティング前の記憶、概念、SOUL 信号を付与し、索引やサブエージェントが使えない場合は決定論的に降格します。version-check hook はリモート SHA で日次キャッシュを失効させ、`--force` にも対応したため、同日内の新リリースが古いキャッシュに隠れなくなりました。Hermes 由来の prompt-cache と context-compression 補助ツールは速度を高め、大きな貼り付け transcript を扱いやすくします。圧縮はローカルのコンテキスト管理だけに使われ、完全な忠実性が必要なサブエージェント報告と監査証拠は引き続き原文のまま貼り付けます。
-
----
-
-## v1.7.1 の新機能
-
-v1.7.1 は、透明性と証拠の扱いを強化するリリースです。token 使用量をより明確に示し、どの作業が実行、スキップ、またはエスカレーションされたのかをユーザーが確認できるようにしました。ROUTER はサブエージェント出力を圧縮せず、そのまま貼り付ける必要があります。AUDITOR の確認はさらにプログラム的になり、27 件の強化は hook 活動、i18n ドリフト、Cortex 出力、GWT の明示化、DREAM の完全出力、force push 対応、マーカーの曖昧性解消、markdown frame 解決などをまとめています。R10 アーキテクチャ転換：18 個の retrospective ステップのうち 11 個を LLM から ROUTER Bash へ移しました。LLM のコンプライアンスギャップは、spec ルールの追加ではなくプログラム置換で閉じました。R11 は runtime audit trail ファイルを追加し、AUDITOR が subagent 横断で直接検証できるようにして、agent reasoning を露出せずに情報隔離のボトルネックを破ります。R12：すべての「上朝」は fresh invocation です。LLM は前回の briefing を再利用できず、禁止フレーズ、length collapse、fresh marker 欠落はいずれも P0 の C-fresh-skip を発火します。
-
----
-
-## v1.7.0.1 の新機能
-
-反コンファビュレーション強化により虚構の失敗説明がユーザーに届かなくなった。
-
-パッチ更新：最終 briefing contract を明文化し、Mode 0 が Claude Code hooks を自己チェックし、Cortex は `meta/config.md` で OFF / opt-in になります。フック自動インストールがテスト機展開ギャップを解消。
-ソース根拠を強めた briefing では、PRIMARY-SOURCE 実測カウントマーカー、STATUS.md の古さによる抑制、30d-≥3 Compliance Watch 自動バナー、そしてユーザー表示前に ROUTER が Bash で数値・バージョン・パス主張を確認する仕組みを追加しました。
-
----
-
-## v1.7 の新機能
-
-**Cortex 認知層 · 正式リリース**
-
-- 5 つの新 Cortex 能力：クロスセッション記憶（hippocampus）、信号調停（GWT）、引用付き生成（narrator）、コンセプトグラフ、SOUL 次元検出
-- 5 つの runtime hook が HARD RULE を強制（COURT-START-001 同類違反を防止）
-- 10 の Python ツール + 3 つの lib（reindex / reconcile / stats / research / daily_briefing / export / sync_notion / seed / migrate / search / embed）
-- 6 つの Cortex ユーザーガイド + v1.7-migration UX 章
-- cortex-spec + hippocampus-spec の中国語・日本語訳
-
-アップグレード（v1.6 → v1.7）：詳細は [docs/history/v1.7-migration.md](../../docs/history/v1.7-migration.md)。以前の `uv run life-os-tool migrate` コマンドは R-1.8.0-011 で `life-os-tool` dispatcher と共に削除されました；現在は LLM 駆動の `scripts/prompts/migrate-from-v1.6.md` を使用、詳細は `pro/CLAUDE.md` §0.5。
-
-v1.7 の全 commit チェーンと COURT-START-001 v1.6.3 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
-
----
-
-## v1.6.3 の新機能
-
-**信頼ガード——HARD RULE 違反への五層防御**。テストで、著者本人が Life OS 開発 repo で「上朝」と発言した際、LLM は retrospective サブエージェントをスキップし、メインコンテキストで 18 ステップを模倣し、存在しないパスを権威ソースとして捏造した。ドキュメントだけでは何も強制されない——すべての HARD RULE は記述的、強制メカニズムはゼロ。v1.6.3 は五層独立防御を提供し、すべてのトリガーワードが実サブエージェントを確実に起動するようにする：
-
-1. **UserPromptSubmit hook**（`scripts/lifeos-pre-prompt-guard.sh`）— 9 テーマすべての 上朝 / start / 閣議開始 / 退朝 などを検出、応答前に HARD RULE リマインダーをモデルのコンテキストへ注入
-2. **Pre-flight Compliance Check** — ROUTER は任意のツール呼び出し前に `🌅 Trigger: [語] → Theme: [名] → Action: Launch([agent]) [Mode]` を出力必須、欠如 = 違反記録
-3. **サブエージェント自己チェック** — retrospective Mode 0 の最初の文がサブエージェントが実際に起動したことを証明（メインコンテキスト模倣ではない）
-4. **AUDITOR Compliance Patrol（Mode 3）** — 7 クラス違反分類（A1 サブエージェントスキップ、A2 ディレクトリチェックスキップ、A3 Pre-flight スキップ、B 事実捏造、C フェーズ未完了、D プレースホルダー値、E メインコンテキストフェーズ実行）、各セッション開始とアーカイブ後に実行
-5. **Eval 回帰** — `evals/scenarios/start-session-compliance.md` が COURT-START-001 の 6 つの失敗モードを固定化
-
-**デュアルリポ違反ログ**（md + git、ユーザーのストレージ制約に準拠）：違反は `pro/compliance/violations.md`（dev repo、公開）と `meta/compliance/violations.md`（ユーザー second-brain、プライベート）に永続化。エスカレーションラダー：30 日以内に同種 ≥3 → hook リマインダー強化；≥5 → briefing 冒頭に `🚨 Compliance Watch`；90 日以内に ≥10 → AUDITOR が毎セッション巡検。
-
-**v1.6.2 の機能も引き続き利用可能**：退朝フロー部分スキップ不可 · Wiki 自動書き込み · SOUL 継続自動書き込み · DREAM 10 自動トリガー · SOUL トレンド矢印 · REVIEWER SOUL 3 層戦略 · ブリーフィング冒頭の SOUL ヘルスレポート。
-
-> **v1.6.3a ホットパッチ（2026-04-21）** — Layer 1 のインストールギャップを解消。`scripts/setup-hooks.sh` が UserPromptSubmit hook を自動登録するように（1 回実行：`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`）。Hook regex を強化（最初の行 + 長さチェック）し、ペースト内容の偽陽性を削減。違反分類に F クラス（偽陽性）を追加。
-
-完全なリストと元の COURT-START-001 incident アーカイブは [CHANGELOG](./CHANGELOG.md) を参照。
-
----
-
+リリース履歴は [`CHANGELOG.md`](../../CHANGELOG.md) と [`docs/reference/version-history.md`](../../docs/reference/version-history.md) を参照してください。v1.6-v1.8 の古い architecture notes は [`docs/history/`](../../docs/history/) に保存されています。歴史的文脈として残していますが、現在の操作ガイドではありません。
 ## 仕組み
 
 Life OS は五つの柱で構成される。**意思決定エンジン**が中核で、残りはすべてそこから派生する。
@@ -308,6 +95,8 @@ Life OS は五つの柱で構成される。**意思決定エンジン**が中�
 ### I. 意思決定エンジン — 立案、審査、差し戻し、実行、監査
 
 エンジンは複数のエージェントを動かす。設計原理は1,400年の歴史を持つ——**チェックを受けない声があってはならない**。テーマはこれらのエージェントにあなたの文化の名前を与える。ロジック自体はつねに同一だ。
+
+#### 複数のエージェント
 
 すべての重大な意思決定は三段階を通過する。ショートカットはない。
 
@@ -358,6 +147,8 @@ Life OS は五つの柱で構成される。**意思決定エンジン**が中�
 
     📋 閣議決定書     → 総合スコア：6.2/10 — 条件付きで進行可
 ```
+
+#### エクスプレス分析
 
 すべてにフルフローが必要なわけではない。内閣官房長官（ROUTER）が日常会話、簡単な質問、感情面のサポートを直接処理する。省庁の専門知識は必要だが意思決定ではない場合——たとえば「フリーランスに適用される税制は？」——**エクスプレスパス**が1-3の関連省庁に送り、フル閣議は行わない。
 
@@ -567,7 +358,7 @@ second-brain/
 
 閣議終了は4フェーズで構成される：アーカイブ、知識抽出、DREAM サイクル、同期。完了チェックリストで漏れを防ぐ。
 
-### レビュー
+**レビュー**
 
 セッション中、3種類の定期レビューが利用できる：
 
@@ -610,19 +401,25 @@ Life OS は1コマンドでインストールできる。**Pro Mode** ターミ�
 
 初回起動時にテーマを選ぶ。システムが言語を自動検出して最適なテーマを提案するが、選択はつねにあなた次第だ。いつでも「テーマ切り替え」と言えば変更できる。
 
-**自動更新を設定する**（Claude Code）：
-```bash
-bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+**初回利用でコマンドを覚える必要はない**。インストール後はそのままこう言えばよい：
+
 ```
-セッション開始時に1日1回、更新を自動チェックする。
+Life OS をインストールしたばかりです。設定を確認して、始め方を案内してください。
+```
+
+ROUTER は自然言語から Doctor ヘルスチェックを起動する：現在のディレクトリ種別、skill root、host readiness、second-brain の到達性、git sync の状態を確認し、次に言うべき一文を返す。設定済みだと分かっている場合は、そのまま「閣議開始」や "Start session" と言えばよい。
+
+**Claude Code setup plumbing**：
+
+`/install-agents --refresh` を実行すると、`lifeos-*` subagent wrappers を登録/更新する。これは日常の入口ではない；通常利用は自然言語で始める。v1.8.5 以前の `bash scripts/setup-hooks.sh` は hook layer 退役に伴い廃止済み。
 
 ### Task から直接呼べる subagent
 
-`bash scripts/setup-hooks.sh` を実行すると、life_OS は Task から呼べる agents を `~/.claude/agents/lifeos-*.md` に自動登録する。これにより Claude Code は `Task(lifeos-retrospective)` や `Task(lifeos-archiver)` を一級の対象として認識し、`general-purpose` へ fallback しなくなる。
+`/install-agents --refresh` を実行すると、life_OS は Task から呼べる agents を `~/.claude/agents/lifeos-*.md` に自動登録する。これにより Claude Code は `Task(lifeos-retrospective)` や `Task(lifeos-archiver)` を一級の対象として認識し、`general-purpose` へ fallback しなくなる。
 
-`lifeos-` prefix は他の skill の agents との衝突を避けるためのもの。Wrapper は skill 内の `pro/agents/*.md` の canonical 定義を指すため、skill を更新して setup を再実行すれば agent の挙動も更新される。リポジトリには複数の agent 定義ファイルがあり、ほぼすべてが Task-spawnable wrapper として登録される。`narrator.md` のみ ROUTER-internal のまま残る。
+`lifeos-` prefix は他の skill の agents との衝突を避けるためのもの。Wrapper は skill 内の `agents/*.md` の canonical 定義を指すため、skill を更新して setup を再実行すれば agent の挙動も更新される。リポジトリには複数の agent 定義ファイルがあり、ほぼすべてが Task-spawnable wrapper として登録される。`narrator.md` のみ ROUTER-internal のまま残る。
 
-アンインストール：`bash scripts/unregister-claude-agents.sh`。
+アンインストール：`/uninstall-agents`。
 
 **手動更新**：任意のセッションで「アップデート」と言うだけ。
 
@@ -632,7 +429,9 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 ---
 
-## アーキテクチャ
+## 内部構造
+
+### アーキテクチャ
 
 ```
 👑 あなた
@@ -744,6 +543,10 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
        ├── wiki/            📚 再利用可能な知識（DREAM から育つ）
        └── archive/         🗄️ 完了した仕事
 ```
+
+### 6つの領域
+
+六省庁はそれぞれ4つの専門部門を持ち、合計24の専門分野を扱う。領域が重なる場合は根本原因で管轄を決め、必要に応じて閣議が調整する。
 
 ### 認知パイプライン
 

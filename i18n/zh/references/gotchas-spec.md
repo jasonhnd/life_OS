@@ -1,35 +1,35 @@
 ---
 spec_id: gotchas-spec.v1
-description: 「pro/gotchas.md」规范 —— 项目级技术坑知识库。每条记录"踩过的坑 + 文件路径 + 修复方法"，让 ROUTER 和下游 agent 在新任务前 short-circuit 已知问题。区别于 `pro/compliance/violations.md`（流程违规）和 `meta/sessions/`（单次会话记录）。模式借鉴自 tinyhumansai/openhuman `.claude/memory.md`；lifeos 落地是 md-only，由 `memory-keeper` agent 写入。
+description: 「gotchas.md」规范 —— 项目级技术坑知识库。每条记录"踩过的坑 + 文件路径 + 修复方法"，让 ROUTER 和下游 agent 在新任务前 short-circuit 已知问题。区别于 `compliance/violations.md`（流程违规）和 `meta/sessions/`（单次会话记录）。模式借鉴自 tinyhumansai/openhuman `.claude/memory.md`；lifeos 落地是 md-only，由 `memory-keeper` agent 写入。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/memory.md (259 行扁平单文件 + 主题分组)
 introduced_in: v1.8.7
 referenced_by:
-  - pro/agents/memory-keeper.md
-  - pro/agents/archiver.md (wrap-up phase 5)
+  - agents/memory-keeper.md
+  - agents/archiver.md (wrap-up phase 5)
   - SKILL.md (ROUTER 任务前扫描，未来版本)
 ---
 
 # Gotchas 规范 v1
 
-`pro/gotchas.md` 是 lifeos 的**项目级技术坑知识库** —— 单文件集中收纳非显然的行为、文件特定的 bug、纠正办法，让任何新会话在动手前先知道。
+`gotchas.md` 是 lifeos 的**项目级技术坑知识库** —— 单文件集中收纳非显然的行为、文件特定的 bug、纠正办法，让任何新会话在动手前先知道。
 
 ## 与其他知识库的定位区别
 
 | 存储 | 记录什么 | 生命周期 |
 |------|---------|---------|
 | `meta/sessions/<sid>.md` | 单次会话的时间线 + 决策 | 一会话一文件，归档 |
-| `pro/compliance/violations.md` | 流程违规（A1/A2/A3/B/C/D/E/F + F1-F17） | 仅追加审计日志 |
+| `compliance/violations.md` | 流程违规（A1/A2/A3/B/C/D/E/F + F1-F17） | 仅追加审计日志 |
 | `meta/wiki/<topic>.md` | 可复用的世界知识（"NPO 借贷无貸金業法 豁免"） | 人工策展 |
 | `meta/concepts/<concept>.md` | 突触图节点（Cortex） | hippocampus 激活 |
-| **`pro/gotchas.md`** | **项目技术坑 + 文件路径 + 修复** | **memory-keeper 持续提炼** |
+| **`gotchas.md`** | **项目技术坑 + 文件路径 + 修复** | **memory-keeper 持续提炼** |
 
 Gotchas **不是**违规（那是 `compliance/violations.md`）。Gotchas **不是**可复用世界知识（那是 `meta/wiki/`）。Gotchas 是 **dev 内部 short-circuit 记忆**："下次碰 X，先看这里"。
 
 ## 文件位置与范围
 
-- **路径**：`pro/gotchas.md`（单文件，dev repo 根区）
+- **路径**：`gotchas.md`（单文件，dev repo 根区）
 - **语言**：仅英文单语（项目内部 dev 知识库 —— 按 v1.8.7 RFC DR-03 不做三语镜像）
 - **大小预算**：目标 ≤500 行；800 行软阈值触发拆分讨论
 - **受众**：ROUTER + memory-keeper + 任何在已踩过区域开展重大任务的 agent
@@ -78,15 +78,15 @@ Gotchas **不是**违规（那是 `compliance/violations.md`）。Gotchas **不�
 - ❌ 流程违规（用 compliance/violations.md）
 - ❌ 跟 lifeos 自身无关的可复用世界知识（用 meta/wiki/）
 - ❌ 用户个人信息（身份级用 SOUL.md；瞬时用 sessions/）
-- ❌ 已在 pro/CLAUDE.md 或其他权威源已有的内容
+- ❌ 已在 hosts/CLAUDE.md 或其他权威源已有的内容
 
 ## 如何更新
 
-memory-keeper agent 是 `pro/gotchas.md` 的**唯一写入者**。人工直接编辑允许但不鼓励 —— 绕过去重且可能产生不符合格式的条目。
+memory-keeper agent 是 `gotchas.md` 的**唯一写入者**。人工直接编辑允许但不鼓励 —— 绕过去重且可能产生不符合格式的条目。
 
 更新流程（memory-keeper 由 archiver wrap-up phase 5 调用）：
 
-1. memory-keeper 读取当前 `pro/gotchas.md`
+1. memory-keeper 读取当前 `gotchas.md`
 2. 扫描当前 session 找新 gotcha 候选
 3. 对每个候选：
    - 跟既有条目去重（短标题子串匹配）
@@ -102,7 +102,7 @@ memory-keeper agent 是 `pro/gotchas.md` 的**唯一写入者**。人工直接�
 - `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
 - `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
 - `_meta/rfc/v1.9-second-brain-structure-optimization.md`
-- `pro/compliance/violations.md`（过滤：根因是技术性的而非纯流程的条目）
+- `compliance/violations.md`（过滤：根因是技术性的而非纯流程的条目）
 
 种子条目仍是 gotcha（技术性），不是流程违规。
 
@@ -110,7 +110,7 @@ memory-keeper agent 是 `pro/gotchas.md` 的**唯一写入者**。人工直接�
 
 - **去重**：短标题子串匹配 —— 新候选短标题若是既有条目的子串，合并到既有（扩展行为描述或加新文件路径）而非创建重复
 - **保留**：gotchas 不自动过期。仅在底层问题在代码库永久修复**且**修复经验证后才移除
-- **移除流程**：memory-keeper 标记条目为 `<!-- removed v1.X.Y: fixed in <ref> -->`（在文件中保留为注释作审计），或移到未来的 `pro/gotchas-resolved.md` 归档
+- **移除流程**：memory-keeper 标记条目为 `<!-- removed v1.X.Y: fixed in <ref> -->`（在文件中保留为注释作审计），或移到未来的 `gotchas-resolved.md` 归档
 
 ## 失败模式
 
@@ -123,6 +123,6 @@ memory-keeper agent 是 `pro/gotchas.md` 的**唯一写入者**。人工直接�
 
 ## 相关 spec
 
-- `pro/agents/memory-keeper.md` —— agent 定义
+- `agents/memory-keeper.md` —— agent 定义
 - `references/compliance-spec.md` —— 区分 gotchas 与 violations
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 —— 本 spec 起源

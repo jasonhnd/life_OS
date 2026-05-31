@@ -5,7 +5,7 @@
 ## What does NOT belong here
 
 1. **Canonical specifications** — e.g. "definition of how audit trails work". → Goes to: `references/<name>-spec.md` (with three-language mirror).
-2. **Agent definitions** — those are `pro/agents/` exclusive.
+2. **Agent definitions** — those are `agents/` exclusive.
 3. **User decisions or knowledge** — e.g. "my decision to use trust structure". → Goes to (in user's second-brain): `decisions/` or `meta/wiki/`.
 4. **SOUL.md or theme files** — SOUL goes to user's second-brain root; themes go to `themes/`.
 5. **Build outputs / compiled artifacts** — lifeos has no build step (md-only). If you find yourself wanting to add `meta/dist/` or `meta/build/`, you're solving the wrong problem.
@@ -33,7 +33,7 @@ When writing a new spec or feature that touches `meta/`, clarify whether the pat
 - **dev repo** `meta/` (the lifeos source code) — examples: `meta/rfc/`, `meta/release-notes/`
 - **user's second-brain** `meta/` (the user's running data) — examples: `meta/sessions/`, `meta/runtime/`, `meta/wiki/`
 
-Confusion between these two is a recurring gotcha (see `pro/gotchas.md` once seeded).
+Confusion between these two is a recurring gotcha (see `gotchas.md` once seeded).
 
 ## Reference
 

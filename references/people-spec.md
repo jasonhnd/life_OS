@@ -95,7 +95,7 @@ high` for these patterns in the BODY:
 - email addresses
 - full name (first + last) other than `canonical_name` itself
 
-Violations → CLASS_C entry in `pro/compliance/violations.md` + P0 review-queue
+Violations → CLASS_C entry in `compliance/violations.md` + P0 review-queue
 item per `references/review-queue-spec.md`.
 
 `privacy_tier: high` means **redact aggressively** in any future export.

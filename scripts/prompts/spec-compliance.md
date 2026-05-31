@@ -17,7 +17,7 @@
 
 ## Goal
 
-Cross-check what the spec docs (pro/agents/, pro/CLAUDE.md, references/)
+Cross-check what the spec docs (agents/, hosts/CLAUDE.md, references/)
 **promise** against what the runtime evidence (meta/eval-history/,
 meta/runtime/) actually **shows**. Surface gaps so the user knows what's
 written-but-not-running.
@@ -29,7 +29,7 @@ user-invoked.
 
 ### 1. Scan promises
 
-Glob `pro/agents/*.md`, `pro/CLAUDE.md`, `references/*.md`. For each file,
+Glob `agents/*.md`, `hosts/CLAUDE.md`, `references/*.md`. For each file,
 Grep for promise keywords:
 
 ```

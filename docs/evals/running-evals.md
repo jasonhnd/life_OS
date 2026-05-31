@@ -162,7 +162,10 @@ on:
   pull_request:
     paths:
       - 'SKILL.md'
-      - 'pro/**'
+      - 'hosts/**'
+      - 'agents/**'
+      - 'compliance/**'
+      - 'gotchas.md'
       - 'themes/**'
       - 'references/**'
 
@@ -189,7 +192,7 @@ jobs:
           path: evals/outputs/
 ```
 
-**路径触发很重要**：只有改了 SKILL.md / pro/ / themes/ / references/ 才跑 eval。改 docs/ 或改 CHANGELOG 不用跑——会烧 API 额度。
+**路径触发很重要**：只有改了 SKILL.md / hosts/ / agents/ / compliance/ / gotchas.md / themes/ / references/ 才跑 eval。改 docs/ 或改 CHANGELOG 不用跑——会烧 API 额度。
 
 **Failure artifact**：失败时把 outputs/ 上传成 artifact，可以下载下来本地看，不用开 CI 的 log 挨条翻。
 
@@ -223,7 +226,7 @@ PATH 里没有 `claude`。确认装了 Claude Code CLI，确认可以在 shell �
 
 ## 日常使用建议
 
-- **每次改 SKILL.md 或 pro/CLAUDE.md 之后跑一次**（3-5 分钟）
+- **每次改 SKILL.md 或 hosts/CLAUDE.md 之后跑一次**（3-5 分钟）
 - **发版前跑一次全套**（6 个场景，~10 分钟）
 - **发版后跑一次回归**确认 production 装完还能跑
 - **定期每月跑一次 consistency 检查**：同一场景跑 3 次，diff 看结果稳不稳

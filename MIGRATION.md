@@ -29,7 +29,7 @@
 ```
 
 **无迁移命令**。首次 archiver wrap-up（用户说"退朝"或"adjourn"）时会自动：
-- 创建 `pro/gotchas.md`（带 14 条 v1.8.4-1.8.7 提炼的种子）
+- 创建 `gotchas.md`（带 14 条 v1.8.4-1.8.7 提炼的种子）
 - archiver Phase 5 调 memory-keeper agent 完成 gotchas 抽取
 - retrospective Mode 0 patrol 系统化为 7 system tasks（lifeos-001 ~ 007）
 
@@ -89,7 +89,7 @@ v1.8.6 加了 md-only 强制（禁 `.yml` / `.json`），v1.8.7 又加 `.sql` / 
 ```bash
 1. **先读 v1.8.0 release notes** — 这是 architectural break point
    - Python tools (memory.py / search.py / cli.py / 5 个 cron jobs) 全删
-   - Cron 退役（setup-cron.sh + launchd plists 全删 — v1.8.0 pivot 决策见 pro/CLAUDE.md §"Mode 1"）
+   - Cron 退役（setup-cron.sh + launchd plists 全删 — v1.8.0 pivot 决策见 hosts/CLAUDE.md §"Mode 1"）
 2. 备份你的 second-brain（重大架构升级前的标准动作）
 3. git pull origin main
 4. 解除旧 cron / launchd（如有）：
@@ -122,11 +122,11 @@ npx skills add jasonhnd/life_OS
 
 ### ✅ 已在 GitHub（`git clone` 自动到手）
 
-- 全部源码：`tools/`、`scripts/`、`tests/`、`pro/`、`themes/`、`evals/`、`references/`
-- 全部规格：`SKILL.md`、`pro/CLAUDE.md`、`references/*.md`（含 v1.7 Cortex 11 个 spec + 架构文档 + shipping report）
+- 全部源码：`scripts/`、`agents/`、`hosts/`、`compliance/`、`themes/`、`evals/`、`references/`
+- 全部规格：`SKILL.md`、`hosts/CLAUDE.md`、`references/*.md`（含 v1.7 Cortex 11 个 spec + 架构文档 + shipping report）
 - 全部 i18n：`i18n/zh/`、`i18n/ja/`（README + CHANGELOG）
 - 项目配置：`pyproject.toml`、`.python-version`、`Makefile`、`.github/workflows/test.yml`
-- 合规公开记录：`pro/compliance/violations.md`、`violations.example.md`
+- 合规公开记录：`compliance/violations.md`、`violations.example.md`
 
 ### 🚫 gitignore，必须手动复制
 
@@ -135,7 +135,7 @@ npx skills add jasonhnd/life_OS
 | `.claude/CLAUDE.md` | 项目级 Claude Code 指令（含 5 项 HARD RULE 上朝触发约束）| `.claude/` 整目录被 gitignore |
 | `.claude/settings.json` | dev repo 的 UserPromptSubmit hook 配置 | 同上 |
 | `.claude/settings.local.json` | 本地用户自定义设置（如有）| 同上 |
-| `pro/compliance/2026-04-19-court-start-violation.md` | COURT-START-001 完整 incident 档案（473 行）| `pro/compliance/*.md` 排除 violations.md/example |
+| `compliance/2026-04-19-court-start-violation.md` | COURT-START-001 完整 incident 档案（473 行）| `compliance/*.md` 排除 violations.md/example |
 | `docs/installation.md`、`docs/second-brain.md`、`docs/token-estimation.md` 三语 | 本地详细安装文档 | `docs/` 整目录被 gitignore（v1.6.3 b69187c 加的）|
 
 ### 🔧 完全在 repo 外（要在新机器重装）
@@ -179,7 +179,7 @@ tar czf dev-repo-private.tar.gz \
   .claude/CLAUDE.md \
   .claude/settings.json \
   $([ -f ~/Google_Antigravity/life-os/.claude/settings.local.json ] && echo .claude/settings.local.json) \
-  pro/compliance/2026-04-19-court-start-violation.md \
+  compliance/2026-04-19-court-start-violation.md \
   docs/
 
 # 2. 把 Claude 自动记忆打包
@@ -254,7 +254,7 @@ tar xzf ~/life-os-migration/dev-repo-private.tar.gz
 
 # 验证
 ls -la .claude/CLAUDE.md .claude/settings.json
-ls -la pro/compliance/2026-04-19-court-start-violation.md
+ls -la compliance/2026-04-19-court-start-violation.md
 ls docs/
 ```
 
@@ -363,7 +363,7 @@ cd ~/Google_Antigravity/life-os
 
 如果新用户名 ≠ `ms23m2`：
 - 改 `~/.claude/projects/-Users-{你的}-Google-Antigravity-life-os/memory/` 路径
-- 旧路径里的硬编码（如 `pro/compliance/violations.md` 的 `<system-reminder>` 路径）会自适应——hook 用 `$CLAUDE_PROJECT_DIR` 解析
+- 旧路径里的硬编码（如 `compliance/violations.md` 的 `<system-reminder>` 路径）会自适应——hook 用 `$CLAUDE_PROJECT_DIR` 解析
 
 如果新 cwd 路径 ≠ `~/Google_Antigravity/life-os`：
 - Claude 自动记忆 memory 目录命名包含路径，需重命名（见 Step 6）
@@ -399,7 +399,7 @@ make test  # 验证 184 测试通过
 ```bash
 ls -la ~/life-os-migration/
 # 应该有：
-# dev-repo-private.tar.gz       (.claude/ + pro/compliance/{incident}.md + docs/)
+# dev-repo-private.tar.gz       (.claude/ + compliance/{incident}.md + docs/)
 # claude-memory.tar.gz          (Claude 自动记忆，可能为空)
 # claude-global-settings.json   (~/.claude/settings.json 副本)
 ```
@@ -411,7 +411,7 @@ cd ~/Google_Antigravity/life-os
 ls -la .claude/
 # 应有：CLAUDE.md, settings.json (+ settings.local.json 如果有)
 
-ls pro/compliance/
+ls compliance/
 # 应有：violations.md, violations.example.md (in git) + 2026-04-19-court-start-violation.md (just restored)
 
 ls docs/ i18n/zh/docs/ i18n/ja/docs/
@@ -426,7 +426,7 @@ ls ~/.claude/projects/-Users-{你}-Google-Antigravity-life-os/memory/
 ## 六、常见问题
 
 **Q: GitHub repo 里有敏感信息吗？**
-A: 没有。所有 PII（人名、金额、具体公司、家人朋友）都被 archiver Phase 2 的 privacy filter 过滤了。pro/compliance/ 里的 incident 档案被 gitignore（含个人 use repo 的对话引用）。
+A: 没有。所有 PII（人名、金额、具体公司、家人朋友）都被 archiver Phase 2 的 privacy filter 过滤了。compliance/ 里的 incident 档案被 gitignore（含个人 use repo 的对话引用）。
 
 **Q: 我在旧机器有些 v1.6.3 之前的 commits 还没 push 怎么办？**
 A: 跑 `git log origin/main..HEAD` 看本地超前 commits。如果有：先 push 再迁移。今天的 44 commits 我全部 push 了，应该没残留。
@@ -446,6 +446,6 @@ A: 跑一次 `setup-hooks.sh` 注册 hooks（Step 8）。然后开 Claude Code �
 
 - `docs/history/v1.7-shipping-report-2026-04-21.md` — 今天的 shipping 全景
 - `references/cortex-architecture.md` — Cortex 数据流
-- `pro/compliance/2026-04-19-court-start-violation.md` — COURT-START-001 incident 档案（迁移包里）
+- `compliance/2026-04-19-court-start-violation.md` — COURT-START-001 incident 档案（迁移包里）
 - `docs/installation.md` — 标准安装指引（迁移包里）
 - `Makefile` — `make help` 看所有 dev 命令

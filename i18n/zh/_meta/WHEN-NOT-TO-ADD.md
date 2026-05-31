@@ -5,7 +5,7 @@
 ## 什么 **不** 属于这里
 
 1. **权威规范** —— 如"audit trail 工作方式定义"。→ 去：`references/<name>-spec.md`（含三语镜像）。
-2. **Agent 定义** —— 那是 `pro/agents/` 专属。
+2. **Agent 定义** —— 那是 `agents/` 专属。
 3. **用户决策或知识** —— 如"用信托结构的决定"。→ 去（用户的 second-brain）：`decisions/` 或 `meta/wiki/`。
 4. **SOUL.md 或 theme 文件** —— SOUL 放用户 second-brain 根；theme 放 `themes/`。
 5. **构建产物 / 编译工件** —— lifeos 无构建步骤（md-only）。若你想加 `meta/dist/` 或 `meta/build/`，是在解决错的问题。
@@ -33,7 +33,7 @@ lifeos **dev repo** 的 `meta/` 含：`rfc/` + `release-notes/` + `methods/` + �
 - **dev repo** 的 `meta/`（lifeos 源码）—— 如 `meta/rfc/`、`meta/release-notes/`
 - **用户 second-brain** 的 `meta/`（用户运行数据）—— 如 `meta/sessions/`、`meta/runtime/`、`meta/wiki/`
 
-两者混淆是反复出现的坑（见 seed 后的 `pro/gotchas.md`）。
+两者混淆是反复出现的坑（见 seed 后的 `gotchas.md`）。
 
 ## 引用
 

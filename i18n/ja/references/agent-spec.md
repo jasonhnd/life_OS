@@ -1,6 +1,6 @@
 ---
 spec_id: agent-spec.v2
-description: すべての pro/agents/*.md subagent 定義ファイルの標準 frontmatter schema。eou-foundry から 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes を借用。すべての pro/agents/*.md subagent 定義ファイルに適用（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、knowledge-extractor、memory-keeper + 6 domain agent）。
+description: すべての agents/*.md subagent 定義ファイルの標準 frontmatter schema。eou-foundry から 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes を借用。すべての agents/*.md subagent 定義ファイルに適用（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、knowledge-extractor、memory-keeper + 6 domain agent）。
 status: active
 authoritative: true
 source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + engine/eou-contract.md
@@ -9,7 +9,7 @@ introduced_in: v1.8.5
 
 # Agent 仕様 v2
 
-すべての `pro/agents/*.md` subagent 定義ファイルは v2 標準に準拠する YAML frontmatter を**必ず持たなければならない**。v1.8.5 Stage 6 は既存の agent すべてを移行する。
+すべての `agents/*.md` subagent 定義ファイルは v2 標準に準拠する YAML frontmatter を**必ず持たなければならない**。v1.8.5 Stage 6 は既存の agent すべてを移行する。
 
 > **なぜ v2**: v1 agent frontmatter には `name + description + tools + model`（4 フィールド）のみ。v2 は eou-foundry から借用した 6 つの構造化フィールドを追加 —— agent 境界が grep 可能、blast radius が明示的、failure modes が文書化される。RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6 に従う。
 
@@ -43,12 +43,12 @@ operating_hypothesis: |
 # v2 新規: context_manifest（eou eou-contract.md §context_manifest）
 context_manifest:
   source_of_truth:     # この agent が authoritative として読むファイル
-    - pro/CLAUDE.md
-    - pro/GLOBAL.md
+    - hosts/CLAUDE.md
+    - hosts/GLOBAL.md
   supporting:          # 二次的 context
     - references/relevant-spec.md
-  forbidden:           # 読んではいけない — pro/CLAUDE.md §Information Isolation に従う
-    - pro/agents/other-peer.md
+  forbidden:           # 読んではいけない — hosts/CLAUDE.md §Information Isolation に従う
+    - agents/other-peer.md
 
 # v2 新規: blast_radius（eou eou-contract.md §blast_radius）
 blast_radius:
@@ -58,7 +58,7 @@ blast_radius:
   forbidden_scope:     # この agent が修正してはいけないファイル
     - SOUL.md          # ARCHIVER Phase 2 のみが SOUL candidate を書く
     - foundry/eous/    # 該当する場合
-    - pro/agents/      # agent 定義は自己修正してはならない
+    - agents/      # agent 定義は自己修正してはならない
 
 # v2 新規: failure_modes（eou eou-contract.md §failure_modes）
 failure_modes:
@@ -76,7 +76,7 @@ failure_modes:
 
 ## 必須 v2 フィールド（HARD）
 
-各 `pro/agents/*.md` の frontmatter は以下を**必ず持たなければならない**:
+各 `agents/*.md` の frontmatter は以下を**必ず持たなければならない**:
 
 1. **すべての v1 フィールド**: `name`, `description`, `tools`, `model`
 2. **アイデンティティ**: `id`, `version`
@@ -92,7 +92,7 @@ Stage 6 Day 17 で新 AUDITOR mode を追加。チェック:
 - **A1**: すべての agent がすべての v2 必須フィールドを持つ
 - **A2**: `tools` リストが agent の実際の使用と一致（tools に `Read` がないが agent が Read 呼び出しをする = drift）
 - **A3**: `forbidden_scope` がバイパスされていない（agent の `meta/runtime/<sid>/` 出力 trail が forbidden パスへの書き込みなしを示す）
-- **A4**: agent の `failure_modes.known` が `pro/compliance/violations.md` の中でこの agent が関与する任意の違反クラスを含む
+- **A4**: agent の `failure_modes.known` が `compliance/violations.md` の中でこの agent が関与する任意の違反クラスを含む
 
 発見は `references/failure-taxonomy.md` に従って分類。
 
@@ -204,7 +204,7 @@ risk_level の根拠: REVIEWER ゲートなしで最終出力を生成する age
 
 ### 上書きメカニズム
 
-DA-1/DA-2/DA-3 を正当に違反する agent は、`pro/agents/<name>.md` frontmatter で上書きを宣言する必要がある：
+DA-1/DA-2/DA-3 を正当に違反する agent は、`agents/<name>.md` frontmatter で上書きを宣言する必要がある：
 
 ```yaml
 default_anti_patterns_override:

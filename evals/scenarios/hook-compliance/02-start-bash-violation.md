@@ -41,7 +41,7 @@ This is the COURT-START-001 regression scenario at hook level.
 
 ## Expected violations.md diff
 
-**One new row** appended to `pro/compliance/violations.md`:
+**One new row** appended to `compliance/violations.md`:
 ```
 | <ISO-8601-ts> | CLASS_A | critical | ROUTER | trigger=start expected=Task(retrospective) got=Bash | post-response-verify | open |
 ```
@@ -58,5 +58,5 @@ This is the COURT-START-001 regression scenario at hook level.
 cwd=$(pwd)
 echo '{"tool_name":"Bash","tool_input":{"command":"cat meta/sessions/INDEX.md"},"recent_user_message":"上朝","session_id":"eval-02","cwd":"'$cwd'"}' \
   | bash scripts/hooks/post-response-verify.sh
-# expect: exit 2, CLASS_A row added to pro/compliance/violations.md
+# expect: exit 2, CLASS_A row added to compliance/violations.md
 ```

@@ -45,14 +45,17 @@ Life OS 可以在多种 AI 平台上使用。选择你用的平台，按步骤�
 安装后，在 Claude Code 中输入：
 
 ```
-帮我分析一下要不要换工作
+我刚装好 Life OS，帮我检查配置并带我开始。
 ```
 
-如果看到以下格式的回复，说明安装成功：
+如果看到以下格式的 Doctor 自检，说明安装成功：
 
 ```
-🏛️ 丞相 · 启奏
-📋 旨意：... | 📌 类型：... | 💡 建议启用：...
+🩺 Life OS Doctor
+Status: ready | needs setup | needs attention
+Directory: ...
+Skill root: ...
+Recommended next step:
 ```
 
 ### Pro 模式的特别之处
@@ -77,7 +80,7 @@ Pro 模式现已支持 [Gemini CLI](https://github.com/google-gemini/gemini-cli)
 npx skills add jasonhnd/life_OS
 ```
 
-3. 完成！系统自动检测 Gemini 并加载 `pro/GEMINI.md` 进行编排
+3. 完成！系统自动检测 Gemini 并加载 `hosts/GEMINI.md` 进行编排
 
 ### Antigravity 注意事项
 
@@ -87,7 +90,7 @@ npx skills add jasonhnd/life_OS
 ### 与 Claude Pro 模式的区别
 
 - 自动使用 Gemini 最强可用模型（无硬编码版本号）
-- 工具名自动映射（详见 `pro/GEMINI.md` 的映射表）
+- 工具名自动映射（详见 `hosts/GEMINI.md` 的映射表）
 - 相同的流程、相同的信息隔离、相同的 多个角色
 
 ---
@@ -105,7 +108,7 @@ Pro 模式现已支持 [Codex CLI](https://github.com/openai/codex)，由 o3 驱
 npx skills add jasonhnd/life_OS
 ```
 
-3. 完成！系统自动检测 Codex 并加载 `pro/AGENTS.md` 进行编排
+3. 完成！系统自动检测 Codex 并加载 `hosts/AGENTS.md` 进行编排
 
 ### 与 Claude Pro 模式的区别
 
@@ -141,6 +144,7 @@ npx skills add jasonhnd/life_OS
 
 | 你说 | 应该看到 |
 |------|---------|
+| "我刚装好 Life OS，帮我检查配置并带我开始。" | Doctor 自检：目录类型、skill root、second-brain、git sync，以及下一句该说什么 |
 | "帮我分析一下要不要买 MacBook" | 丞相判断为需要上报，启动三省六部流程 |
 | "帮我翻译一段日语" | 丞相直接处理（不启动流程） |
 | "早朝" | 早朝官出简报 |
@@ -232,7 +236,7 @@ SKILL.md 顶部的 `version` 字段显示当前版本号。最新版本见 [GitH
 A：推荐 [Claude Code](https://claude.ai/code)。完整 Pro 模式，多个独立 subagent，一行命令安装。
 
 **Q：我同时用 Claude Code 和 Antigravity，会冲突吗？**
-A：不会。它们使用不同的编排文件（`CLAUDE.md` vs `GEMINI.md`）和不同的模型映射。共享的是 `pro/agents/*.md` 文件。只需确保 `.claude/worktrees/` 在你的 `.gitignore` 中，防止 Antigravity 因 Claude 的临时文件而卡住。
+A：不会。它们使用不同的编排文件（`CLAUDE.md` vs `GEMINI.md`）和不同的模型映射。共享的是 `agents/*.md` 文件。只需确保 `.claude/worktrees/` 在你的 `.gitignore` 中，防止 Antigravity 因 Claude 的临时文件而卡住。
 
 **Q：不配 GitHub 远端能用吗？**
 A：能。存储就是单一的 git 仓库。磁盘上的本地工作副本（同时也是你的 Obsidian vault）完全能独立工作。GitHub 远端是可选的——想要异地备份和经 `git pull` / `git push` 跨设备同步时再加。

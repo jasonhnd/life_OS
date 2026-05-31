@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.1-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1.1-brightgreen.svg)](CHANGELOG.md)
 
 [Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
 
@@ -96,216 +96,11 @@ Nine different worlds. Identical rigor underneath. Each language offers three go
 
 ---
 
-## What's New in v1.8.7 — OpenHuman-inspired hardening (md-only ontological constraint)
+## Current Status
 
-**Borrowing patterns from OpenHuman, not its tech stack.** v1.8.7 absorbs 7 design patterns from `tinyhumansai/openhuman` (memory tree cascade, ScheduleWakeup self-driven loops, gotchas knowledge base, hotness-driven concept materialization, three-language diff parity, "intentionally near-empty" anti-pattern docs, evals-required workflow) — but expresses every one in md-only, no SQL / no JSON / no sh / no py. Per DR-10, md-only is now lifeos's **ontological constraint** — the definitional property of being lifeos. Any future RFC proposing to introduce a forbidden extension must redefine the requirement, not relax the constraint.
+Life OS is now a markdown-only, GitHub-backed decision system. The current user path is natural language first: after installation, say what you want to do, and ROUTER maps it to the right workflow. Slash commands remain as setup and maintenance plumbing, not the daily interface.
 
-### Product upgrades (capabilities that change what lifeos can do)
-
-- **🧠 gotchas + memory-keeper (C6)** — `pro/gotchas.md` is a single flat file of project-level technical gotchas. New `memory-keeper` agent extracts them automatically in archiver wrap-up phase 5. ROUTER can short-circuit known issues before major tasks. First seed run produces ≥10 entries from v1.8.4-1.8.6 RFC + violations history.
-- **🔄 ScheduleWakeup self-driven loops (B4)** — `/verify-release-and-watch` polls every 270s (Anthropic prompt cache window) for up to 12 ticks (60 min) until terminal state. Auto-fixes missing GitHub Release publish. lifeos goes from reactive tool to "can watch tasks" tool.
-- **📋 verify-release expanded to 11 checks** — new check 9 (i18n diff parity, WARN level) catches the recurring "EN spec updated but zh/ja drifted" violation class. New check 10 (diff-scoped forbidden extensions) catches forbidden-extension files introduced since last tag. Check 8 expanded to 9 forbidden extensions (added `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`).
-- **🛡️ AUDITOR Mode 7 (OpenHuman patterns compliance)** — 7 sub-checks verify v1.8.7 artifacts stay present + md-only constraint not bypassed at the design proposal level (catches drift before it hits the file-extension gate).
-- **📚 Spec hardening** — `evals_scenarios:` frontmatter field is now required in every planning document (dispatcher rejects without it). Hotness thresholds in `concept-spec.md` made explicit (≥3 sessions → confirmed, ≥10 → canonical). Five new `WHEN-NOT-TO-ADD.md` files set clear boundaries for pro/agents/, references/, meta/, themes/, scripts/.
-- **🌳 Memory tree cascade seal — v2.0 proposal** — `references/memory-tree-spec.md` defines L0 → L1 → L2 → L3 cascade architecture for sessions/wiki, borrowed from OpenHuman. Spec is frozen as proposal; archiver behavior unchanged in v1.8.7. Implementation deferred to v1.9/v2.0 pending real-data validation in Jason's second-brain.
-
-### Upgrading from v1.8.6 (zero-friction)
-
-```
-1. cd <lifeos repo> && git pull origin main
-2. /version-check
-3. /install-agents --refresh
-4. /verify-release v1.8.7
-```
-
-No migration command needed. archiver first run creates `pro/gotchas.md` automatically. Existing data layout unchanged.
-
-See [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) for the full RFC, DR-08 (cargo-cult cuts), DR-09 (decision standard: product quality not time), DR-10 (md-only ontological constraint), and the audit trail of design decisions.
-
-> **Previously in v1.8.3** — an inline outbound privacy gate scanned every Notion write for secrets/PII before sync. **Removed** along with the Notion backend (storage is now GitHub-only).
-
-> **Previously in v1.8.2** — global Obsidian readability HARD RULE (#11), 4 specialized wiki templates (`kind:` field), `/wiki-obsidian-upgrade` batch migrator, binary output redirect to `~/Downloads/`. See CHANGELOG for the v1.8.2 detail.
-
----
-
-## What's New in v1.8.1 — Zero-Python pivot + Wiki Plan B + Counter-bias positioning
-
-v1.8.1 is the **largest reduction in Life OS history**. Two waves shipped May 1-2, both under the same v1.8.1 tag:
-
-### Wave 1 · Plan B wiki + auto-bootstrap (May 1)
-
-- **`/inbox-process`** — drop any `.md` into `meta/queue/to-process/`, then say "处理 inbox" or `/inbox-process`. ROUTER scans, proposes per-item disposition (accept→wiki / update→wiki / archive / reject / defer / merge), waits for confirmation, executes, logs. v1.8.1 Wave 2 added LLM-based duplicate detection (no SHA256, no FTS5) + delta tracking via `meta/queue/manifest.json`.
-- **`/research <topic>`** — spawns 5 (or 8 with `--depth deep`) parallel `general-purpose` subagents covering academic / practitioner / contrarian / origin / adjacent angles. Synthesizes a SCHEMA-compliant wiki draft with mandatory `Counterpoints` section + automatic counter-bias check. v1.8.1 Wave 2 added decoupled CitationAgent (Phase 4, Anthropic pattern). Total wall time ≤ 9 min with citation verifier.
-- **`wiki/log.md` activity timeline convention** — every wiki Write/Edit/move appends one line with action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`). `/inbox-process` and `/research` write log entries automatically.
-- **Zero-setup vault bootstrap** — the first time you open a Claude Code session in a vault on v1.8.1, the SessionStart hook automatically detects missing scaffolding and creates it silently. You see one `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files` line, then nothing. `.obsidian/graph.json` is auto-patched (with backup) if present.
-
-### Wave 2 · Zero-Python pivot (May 2)
-
-User feedback driving Wave 2: "我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。" — the entire Layer 4 Python tools/ package was carrying complexity (FTS5, vectors, mypy/ruff/pytest CI gates, 50+ optional deps) for capabilities the user never asked for or used. Wave 2 deletes every line of Python in the repo:
-
-- **11 Python modules deleted**: `tools/{approval,embed,export,reconcile,research,search,seed,sync_notion,skill_manager,stats,__init__}.py` plus `tools/lib/{__init__,config,llm,notion,second_brain}.py` and the package README.
-- **17 pytest test files deleted** (matching the deleted modules).
-- **Packaging deleted**: `pyproject.toml`, `uv.lock`, `.python-version`, `.github/workflows/integration.yml`, 9 `evals/scenarios/tool-*.md` eval scenarios.
-- **Security guard now bash-native**: the only security-critical Python (~40 dangerous-command pattern guard from `tools/approval.py`) was ported inline into `scripts/hooks/pre-bash-approval.sh` as a bash regex array. 100% pure bash; jq for JSON parsing (python3 fallback for stdin extraction only). Provenance preserved: forked from NousResearch/hermes-agent (MIT) commit `59b56d4...`. Smoke-tested with 17 fixtures (10 base + 7 edge cases).
-- **CI workflow rewrite**: `.github/workflows/test.yml` was 6 jobs (pytest + mypy + ruff × 3 OS × 2 Python). Now 3 jobs (`bash -n` + tests/hooks/ + spec drift, across ubuntu/macOS/windows). ~3× faster, no Python toolchain to install.
-- **Bash-that-wrapped-Python deleted**: `scripts/wiki/wiki-link-audit.sh` (311 lines of bash + awk frontmatter parsing) replaced by `scripts/prompts/wiki-link-audit.md` (LLM-driven Glob + Grep + Read).
-
-### Wave 2 · 9 wiki schema/pipeline improvements (May 2)
-
-| Wiki improvement | What changed |
-|---|---|
-| `aliases: []` field | Obsidian uses for `[[wikilink]]` resolution |
-| `source` → `sources: []` | Plural array; list every contributing URL/citation |
-| `confidence` is now a 5-bucket enum | `impossible \| unlikely \| possible \| likely \| certain` (was `0.0–1.0` float). Run `/migrate-confidence` to convert legacy entries; `/wiki-decay` auto-maps on the fly. |
-| `last_tended` field | ISO date — last time you actively reviewed (vs cosmetic edit) |
-| `review_by` field | ISO date — when `wiki-decay` should re-surface this entry |
-| Provenance tags on every fact | `^[extracted]` (paraphrased from a source), `^[inferred]` (your synthesis), `^[ambiguous]` (sources disagree). Required by `/research` agents and `/inbox-process` accept/update. |
-| LLM-based dedup in `/inbox-process` | Replaces SHA256 hashing — catches paraphrased near-duplicates, not just byte-identical. Pure LLM judgment using grep + Read. |
-| `meta/queue/manifest.json` delta tracking | Each `/inbox-process` run marks proposal-table rows as Δ-new vs carried-over. |
-| Decoupled CitationAgent in `/research` | Anthropic-pattern Phase 4: WebFetch-verifies every `^[extracted]` claim against `sources[]`. Auto-downgrades unverified claims. Confidence drops one bucket if 30%+ unverified. Opt-out with `--no-citations`. |
-
-### How Life OS Wiki differs (counter-bias positioning)
-
-Across the 6 major LLM-Wiki / multi-agent research projects we benchmarked against (Anthropic's research-system blog post, LangChain `langgraph` agent supervisor, GPT-Researcher, CrewAI, QX-Labs, OpenAI Deep Research), no single one combines all of these:
-
-| Axis | Life OS Wiki | Most others |
-|---|---|---|
-| Persistent backing store | Integrated wiki (markdown + frontmatter), survives sessions | Ephemeral chat output |
-| Per-bullet provenance | `^[extracted]`/`^[inferred]`/`^[ambiguous]` required | None or run-level only |
-| Citation verification | Decoupled CitationAgent runs AFTER synthesis (preserves analytical depth) | Interleaved (drives toward shallow easy-to-cite facts) |
-| Confidence calibration | 5-bucket enum forces honest assessment | Float (illusory precision) or unstated |
-| Freshness model | `last_tended` + `review_by` + `/wiki-decay` re-surfacing | Append-only, no decay model |
-| Inbox handoff | User triages with full proposal table, confirms before write | Autonomous append (you find out later) |
-| Deployment posture | Zero Python (bash + markdown only) | Pip / npm / requirements.txt |
-
-This is not a critique of those projects — they solve different problems. But if you've tried "LLM wiki" or "multi-agent research" tools and found that (a) the output disappears, (b) you can't tell what's a real source vs a synthesis, or (c) the agent confidently cites URLs that don't say what it claims — those are the gaps Life OS Wiki is built to close.
-
-### Critical bugfixes (Wave 1)
-
-- **macOS portability**: `pre-bash-approval.sh` had 5 bare `python -c` invocations. macOS 12+ removed bare `python` → hook fail-CLOSED → blocked every Bash command. R-1.8.0-020 commit title claimed this was fixed; it wasn't until Wave 1.
-- **Scanner false positive**: `pre-write-scan.sh` pattern #5 was blocking legitimate markdown inline code. Tightened to require shell metacharacters inside backticks.
-- **session-start-inbox UX**: 2 wrong task names; NEVER_RUN bucket compressed from 8+ lines to 1.
-
-### Migration
-
-```bash
-cd ~/.claude/skills/life_OS && git pull
-bash scripts/setup-hooks.sh   # installs new /inbox-process + /research + /migrate-confidence + /wiki-link-audit
-```
-
-Then open any Claude Code session inside your second-brain vault. Vault scaffolding is auto-created. Existing wiki entries with legacy float `confidence` keep working — `/wiki-decay` auto-maps. To permanently migrate to the enum, run `/migrate-confidence` from your vault (idempotent, with proposal preview).
-
-For users who had `python -m tools.<X>` invocations: those Python entrypoints no longer exist. See [CHANGELOG.md](CHANGELOG.md#181---2026-05-02) for the full replacement table.
-
----
-
-## What's New in v1.8.0 — User-Invoked Maintenance (post-pivot)
-
-v1.8.0 originally shipped with cron autonomy + always-on Cortex. After two days of production testing the cron architecture failed every reliability test (silent data loss, LLM-in-cron permission stalls, stale script paths, multiple bash compatibility bugs). v1.8.0 was **pivoted in-place** (same version tag) to a simpler design: **user invokes everything, ROUTER does the work directly**.
-
-**Core principle**: cron required determinism, LLMs are non-deterministic — that mismatch can't be patched. Replace cron with explicit user prompts. The user types "rebuild index" or "monthly review", ROUTER reads `scripts/prompts/<job>.md` and executes inline. No background processes. Nothing runs without you watching.
-
-Two session modes:
-
-- **Mode 1 · Business session** — your standard Claude Code chat. Long-lived: a session can span days/weeks. 上朝/退朝 are **optional soft triggers**. Cortex is now **pull-based** (ROUTER decides per-message whether to launch hippocampus / concept-lookup / soul-check / gwt-arbitrator) instead of always-on.
-- **Mode 2 · Monitor session** (`/monitor`) — view-and-invoke operations console. Shows maintenance task timestamps + recent reports + action items. You say "跑 X" / "都跑", monitor reads the matching prompt and executes. No cron, no background.
-
-10 user-invoked maintenance jobs (each is a markdown prompt at `scripts/prompts/<job>.md` that ROUTER reads + executes via Read/Write/Bash):
-
-- `reindex` · `daily-briefing` · `backup` · `spec-compliance` · `wiki-decay` (the v1.7.x "python tool" jobs, now LLM-driven)
-- `archiver-recovery` · `auditor-mode-2` · `advisor-monthly` · `eval-history-monthly` · `strategic-consistency` (the v1.8.0 "prompt cron" jobs, now user-invoked)
-
-Hooks (only 1 fires automatically):
-
-- `session-start-inbox` — at session start, scans the 10 maintenance jobs' last-run timestamps and shows a one-line "what's overdue" status. **Does not execute anything**; you decide what to invoke.
-- `pre-prompt-guard` — memory keyword auto-detect + 上朝/退朝 soft trigger. **Cortex always-on enforcement REMOVED**.
-- `pre-bash-approval` (kept) — security gate against dangerous bash.
-- `post-task-audit-trail` (weakened) — only enforces R11 audit trail for archiver + knowledge-extractor (Cortex agents no longer required to write trails).
-
-Removed in pivot:
-- Cron infrastructure: `scripts/setup-cron.sh`, `scripts/run-cron-now.sh`, `scripts/commands/run-cron.md`, `tools/missed_cron_check.py`, `tools/cron_health_report.py`, all launchd plists.
-- Python middleware: `tools/memory.py` (now Write/Read directly to `~/.claude/lifeos-memory/`), `tools/session_search.py` (now Grep directly), `tools/cli.py` (no longer needed), 5 maintenance python tools (replaced by user-invoked prompts above).
-- Cortex artifacts: `pro/agents/narrator-validator.md` (validator was tied to always-on flow).
-- Spec docs: `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/architecture/hermes-local.md` (cron-era specs).
-
-Migration: re-pull the repo, then re-run `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh` (re-registers the simplified hook set). On macOS, `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` to remove the dead cron jobs. No second-brain data migration required. v1.7.x sessions / wiki / SOUL fully compatible.
-
----
-
-## Historical version notes
-
-> v1.7.3 (Cortex always-on hook injection + narrator-validator + 4 slash commands wired) and earlier v1.7.x release notes have been consolidated into [`CHANGELOG.md`](CHANGELOG.md). v1.7.3's "always-on Cortex" behavior was REVERSED in v1.8.0 R-1.8.0-011 pivot — current architecture is pull-based (see "What's New in v1.8.0" above). The README only describes the CURRENT architecture; previous designs live in CHANGELOG so this section doesn't mislead users.
-
----
-
-## What's New in v1.7.2.3
-
-v1.7.2.3 clarifies Mode 0 ownership for RETROSPECTIVE. ROUTER now owns the Bash-rendered briefing skeleton and pre-renders roughly 80% of the report, while the subagent contributes only the `<!-- LLM_FILL: today_focus_and_pending_decisions -->` block with a short Today's Focus and Pending Decisions section. ROUTER splices that block back into the skeleton, keeping the briefing grounded, compact, and easier to audit.
-
----
-
-## What's New in v1.7.2.1
-
-v1.7.2.1 is a subtraction hotfix: it restores the theme aesthetic while removing extra reporting ceremony. The user-visible report shape is reduced from 17 H2 blocks to 6, the compressed wrapper requirement is removed, and version markers stay in fixed positions for easier checking. The result is fewer rules, cleaner briefings, and the same auditability without the visual clutter.
-
----
-
-## What's New in v1.7.2
-
-v1.7.2 turns the local execution surface into a clearer user story: Hermes Local is now the public name for the safeguards and automation that make Life OS enforceable outside the prompt. It covers Layer 3 hooks and Layer 4 Python tools, while internal specs keep the stable `execution layer`, `Layer 3`, and `Layer 4` labels. Cortex is now described as an always-on cognitive path for enabled workspaces: every user message can receive pre-router memory, concept, and SOUL signals, with graceful degradation when indexes or subagents are unavailable. The version-check hook now invalidates its daily cache against the remote SHA and supports `--force`, so same-day updates are no longer hidden by stale cache output. Hermes-derived prompt-cache and context-compression helpers improve speed and help large pasted transcripts stay manageable. Compression is only for local context management; subagent reports and audit evidence still stay literal where the workflow requires full fidelity.
-
----
-
-## What's New in v1.7.1
-
-v1.7.1 is a hardening release for transparency and evidence handling. Token use is now surfaced more explicitly so users can see why work was run, skipped, or escalated. ROUTER must paste subagent output without compressing it, preserving the full report trail for review. AUDITOR checks are more programmatic, and the release groups 27 fixes across hooks, i18n drift, Cortex emission, GWT clarity, DREAM output, force-push handling, marker disambiguation, and markdown frame resolution. R10 architectural shift: 11 of 18 retrospective steps moved from LLM to ROUTER Bash. LLM compliance gap closed by program substitution, not more spec rules. R11 adds runtime audit trail files so AUDITOR can verify across subagents directly, breaking the information-isolation bottleneck without exposing agent reasoning. R12: every '上朝' is fresh — LLM cannot reuse previous briefing. Forbidden phrases + length collapse + missing fresh markers all trigger C-fresh-skip P0.
-
----
-
-## What's New in v1.7.0.1
-
-Patch update: final briefing contracts are now explicit, Mode 0 self-checks Claude Code hooks, and Cortex is OFF / opt-in via `meta/config.md`. Hook auto-install closes the test-machine deployment gap.
-Anti-confabulation hardening prevents fabricated failure explanations from reaching users.
-Source-grounded briefings now include PRIMARY-SOURCE measured-count markers, STATUS.md staleness suppression, automatic 30d-≥3 Compliance Watch banners, and ROUTER Bash fact-checks for numeric/version/path claims before user display.
-
----
-
-## What's New in v1.7
-
-**Cortex Cognitive Layer — GA release**
-
-- 5 new Cortex capabilities: cross-session memory (hippocampus), signal arbitration (GWT), cited generation (narrator), concept graph, SOUL dimension detection
-- 5 runtime hooks enforcing HARD RULEs (prevents COURT-START-001 class of violations)
-- 10 Python tools + 3 libs (reindex / reconcile / stats / research / daily_briefing / export / sync_notion / seed / migrate / search / embed)
-- 6 Cortex user-guides + v1.7-migration UX chapter
-- cortex-spec + hippocampus-spec translated to Chinese and Japanese
-
-Upgrade (v1.6 → v1.7): see [docs/history/v1.7-migration.md](docs/history/v1.7-migration.md). The previous `uv run life-os-tool migrate` command was removed in R-1.8.0-011 along with the `life-os-tool` dispatcher; current invocation uses `scripts/prompts/migrate-from-v1.6.md` (LLM-driven) per `pro/CLAUDE.md` §0.5.
-
-See [CHANGELOG](CHANGELOG.md) for the full v1.7 commit chain and the COURT-START-001 v1.6.3 incident archive.
-
----
-
-## What's new in v1.6.3
-
-**Trust guard — five-layer defense against HARD RULE violations.** In testing, the author said "上朝" in the Life OS dev repo and the LLM bypassed the retrospective subagent, simulated 18 steps inline, and fabricated non-existent paths as authority. Documentation alone doesn't enforce anything — every HARD RULE was descriptive, with zero real enforcement. v1.6.3 ships five independent layers so every trigger word actually launches a real subagent:
-
-1. **UserPromptSubmit hook** (`scripts/lifeos-pre-prompt-guard.sh`) — detects 上朝 / start / 閣議開始 / 退朝 etc. across all 9 themes, injects HARD RULE reminder into the model's context before any response
-2. **Pre-flight Compliance Check** — ROUTER must output `🌅 Trigger: [word] → Theme: [name] → Action: Launch([agent]) [Mode]` before any tool call; missing line = logged violation
-3. **Subagent self-check** — retrospective Mode 0 first line proves the subagent was actually launched (not main-context simulation)
-4. **AUDITOR Compliance Patrol (Mode 3)** — 7-class violation taxonomy (A1 skip subagent, A2 skip directory check, A3 skip Pre-flight, B fabricate, C incomplete phase, D placeholder, E main-context phase) runs after every session start and archive
-5. **Eval regression** — `evals/scenarios/start-session-compliance.md` codifies all 6 COURT-START-001 failure modes
-
-**Dual-repo violations log** (md + git, per user's storage constraint): violations persist to `pro/compliance/violations.md` (dev repo, public) and `meta/compliance/violations.md` (user second-brain, private). Escalation ladder: ≥3 same type in 30 days → stricter hook reminder; ≥5 → briefing `🚨 Compliance Watch`; ≥10 in 90 days → AUDITOR patrol every session.
-
-**Still current from v1.6.2**: Bulletproof adjourn · Wiki auto-writes · SOUL auto-writes · DREAM 10 auto-triggers · SOUL trend arrows · REVIEWER 3-tier SOUL strategy · SOUL Health Report in briefing.
-
-> **v1.6.3a hot patch (2026-04-21)** — closes the Layer 1 install gap. `scripts/setup-hooks.sh` now auto-registers the UserPromptSubmit hook (run once: `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`). Hook regex tightened (first-line + length checks) to reduce false positives on pasted content. New Class F (false positive) added to violation taxonomy.
-
-See [CHANGELOG](CHANGELOG.md) for the full list and the original COURT-START-001 incident archive.
-
----
-
+For release history, use [`CHANGELOG.md`](CHANGELOG.md) and [`docs/reference/version-history.md`](docs/reference/version-history.md). Old v1.6-v1.8 architecture notes live under [`docs/history/`](docs/history/); they are preserved for context but are not the current operating guide.
 ## How it works
 
 Life OS rests on five pillars. The **decision engine** is the core — everything else grows from it.
@@ -643,15 +438,23 @@ On first start, you pick your theme. The system auto-detects your language and r
 
 **First run**: The system detects that no second-brain exists and walks you through setup — it initializes the git repo (local working copy + optional GitHub remote) and the full directory structure automatically. On subsequent sessions, the system detects what kind of directory you are in: Life OS system repo (development), second-brain (normal use), or a project repo (connects to configured second-brain path).
 
+**No command memorization required**: After installing, just say:
+
+```
+I just installed Life OS. Check my setup and walk me through starting.
+```
+
+The ROUTER runs the Doctor health-check workflow from natural language: directory type, skill root, host readiness, second-brain reachability, and git sync. It then tells you the next sentence to say. If you already know your setup is ready, say "Start session" or the theme-specific start word such as "上朝".
+
 **Set up auto-updates** (Claude Code):
 
-Run `/install-agents` in Claude Code (slash command — registers life_OS agents + sets up daily update check). Note: pre-v1.8.5 used `bash scripts/setup-hooks.sh`; that script was retired during the v1.8.5 hook layer退役 + md-only ontological commit.
+Run `/install-agents --refresh` in Claude Code (setup plumbing — registers life_OS agents + refreshes wrappers). This is not the daily user path; normal use is natural language. Note: pre-v1.8.5 used `bash scripts/setup-hooks.sh`; that script was retired during the v1.8.5 hook layer退役 + md-only ontological commit.
 
 ### Task-spawnable subagents
 
-After running `/install-agents`, life_OS auto-registers its Task-spawnable agents under `~/.claude/agents/lifeos-*.md`. Claude Code then recognizes calls such as `Task(lifeos-retrospective)` and `Task(lifeos-archiver)` as first-class targets instead of falling back to `general-purpose`.
+After running `/install-agents --refresh`, life_OS auto-registers its Task-spawnable agents under `~/.claude/agents/lifeos-*.md`. Claude Code then recognizes calls such as `Task(lifeos-retrospective)` and `Task(lifeos-archiver)` as first-class targets instead of falling back to `general-purpose`.
 
-The `lifeos-` prefix avoids collisions with other skills. Wrappers point at the canonical definitions under `pro/agents/*.md` in the skill, so updating the skill and rerunning setup refreshes agent behavior. There are multiple agents definition files; 21 are Task-spawnable wrappers, while `narrator.md` remains ROUTER-internal.
+The `lifeos-` prefix avoids collisions with other skills. Wrappers point at the canonical definitions under `agents/*.md` in the skill, so updating the skill and rerunning setup refreshes agent behavior. There are multiple agents definition files; 21 are Task-spawnable wrappers, while `narrator.md` remains ROUTER-internal.
 
 Uninstall: `/uninstall-agents` (slash command, replaces deleted `scripts/unregister-claude-agents.sh`).
 

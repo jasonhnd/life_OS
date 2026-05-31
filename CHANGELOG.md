@@ -2,7 +2,33 @@
 
 ## Versioning Rules
 
-This project follows **Strict SemVer**: MAJOR (Breaking Change) · MINOR (new features) · PATCH (fixes and maintenance). Changes on the same day are merged into a single release, and every release gets a git tag.
+This project follows **Strict SemVer** for releases: MAJOR (Breaking Change) · MINOR (new features) · PATCH (fixes and maintenance). Explicit user-requested maintenance snapshots may use `MAJOR.MINOR.PATCH.MAINT` when pushed without creating a release tag. Changes on the same day are merged into a single release, and every release gets a git tag.
+
+---
+
+## [1.9.1.1] - 2026-05-31 - Repository structure cleanup and final audit
+
+```yaml
+---
+version: 1.9.1.1
+date: 2026-05-31
+type: maintenance
+breaking_changes: []
+new_features:
+  - "Natural-language Doctor workflow added at `scripts/prompts/doctor.md` so users can ask Life OS to check setup and explain the next step without memorizing a command."
+fixes:
+  - "Removed the legacy Pro source tree by moving host files to `hosts/`, shared agents to `agents/`, compliance records to `compliance/`, and updating active references."
+  - "Cleaned local ignored archives/caches: `devdocs/`, generated `.claude/` wrappers/settings, and ignored historical `_meta` draft files."
+  - "Slimmed the trilingual README files by replacing long v1.6-v1.8 release-note blocks with a current-status summary and links to CHANGELOG/version-history/history."
+  - "Archived retired legacy reference specs under `docs/history/specs/` with thin stubs left at the old `references/*.md` paths; zh/ja mirrors were archived in the same structure."
+  - "Fixed active Markdown quality issues: stale hook/runtime wording, Memory KV `.json` drift, mojibake, broken public links, BOMs, frontmatter closure, and code-fence parity."
+validation:
+  - "git diff --check passed (only CRLF normalization warnings from pre-existing files)."
+  - "0 legacy Pro path hits, 0 UTF-8 mojibake hits, 0 filtered local Markdown link errors, 0 odd code fences, 0 unclosed frontmatter, 0 forbidden diff extensions, 0 ignored files left."
+---
+```
+
+> Maintenance snapshot requested by the user after the final full-repo cleanup. No tag or GitHub Release is created in this commit unless explicitly requested separately.
 
 ---
 
@@ -16,10 +42,10 @@ type: patch
 breaking_changes: []
 new_features: []
 fixes:
-  - "v1.8.6 R12→R13 audit-trail migration was incomplete: ~60 references to forbidden `meta/runtime/<sid>/*.json` paths remained across all 16 agent `allowed_scope` declarations, SKILL.md, pro/CLAUDE.md rule #8 + the optional wrapper template, 8 scripts/prompts maintenance jobs, the /notion-sync command, and active eval scenarios/fixtures — each would make an agent write an F4 SCOPE_FAILURE file. All corrected to `.md` (markdown + YAML frontmatter)."
+  - "v1.8.6 R12→R13 audit-trail migration was incomplete: ~60 references to forbidden `meta/runtime/<sid>/*.json` paths remained across all 16 agent `allowed_scope` declarations, SKILL.md, hosts/CLAUDE.md rule #8 + the optional wrapper template, 8 scripts/prompts maintenance jobs, the /notion-sync command, and active eval scenarios/fixtures — each would make an agent write an F4 SCOPE_FAILURE file. All corrected to `.md` (markdown + YAML frontmatter)."
   - "`meta/queue/manifest.json` → `meta/queue/manifest.md` (the inbox-process system manifest was a forbidden standalone .json data file; converted to YAML frontmatter, all 6 read/write references updated)"
   - "/regression-from-violation command was still generating `rc-*.yml` fixtures (forbidden .yml); now generates `rc-*.md` with YAML frontmatter, matching the shipped fixtures. run-tool-eval.md fixture-extension reference also corrected."
-  - "v1.8.5 hook-retirement remnants: active-framed references to retired bash hooks (`pre-notion-write.sh`, `session-start-inbox.sh`, `pre-prompt-guard.sh`) reframed to inline LLM procedures in pro/CLAUDE.md (Step 10a outbound PII scan + monitor/queue keyword match + session-start scan), root AGENTS.md host-availability table, references/review-queue-spec.md, archiver Phase 0, and 11 maintenance-prompt trigger lines"
+  - "v1.8.5 hook-retirement remnants: active-framed references to retired bash hooks (`pre-notion-write.sh`, `session-start-inbox.sh`, `pre-prompt-guard.sh`) reframed to inline LLM procedures in hosts/CLAUDE.md (Step 10a outbound PII scan + monitor/queue keyword match + session-start scan), root AGENTS.md host-availability table, references/review-queue-spec.md, archiver Phase 0, and 11 maintenance-prompt trigger lines"
   - "LEGACY framing added/corrected: hooks-spec.md, compliance-spec.md, system-overview.md, roadmap.md banners; obsidian-spec.md `superseded_by` pointer updated from the retired `setup-secondbrain.sh` to the `/setup-secondbrain` slash command; execution-layer.md internal 'current architecture' sub-block corrected"
   - "evals/README.md (+ zh/ja): retired `./evals/run-eval.sh` → `/run-eval` slash command"
 alternatives_considered:
@@ -61,8 +87,8 @@ A 5-agent parallel deep audit of every behavioral file (orchestration core, 24 s
 - **SOUL snapshot writer/reader path split** — knowledge-extractor (v1.7.3 primary writer) wrote `meta/soul-snapshots/<sid>.md` while every reader + `snapshot-spec.md` use `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`; snapshots landed where nothing read them → SOUL trend arrows silently broke. Writer + archiver carve-out summary corrected.
 - **archiver Adjourn Report Phase 5 omission** — the runtime H2 enumeration said "6 core H2" and omitted `## Phase 5`, contradicting the 7-H2 contract → AUDITOR would flag every adjourn. Enumeration + AUDITOR briefing-completeness check fixed to 7.
 - **AUDITOR ↔ retrospective briefing-heading mismatch** — AUDITOR's expected headings (`## 3 18步执行 / ## 4 御史台巡查 / ## 5 待陛下圣裁`) no longer matched retrospective's actual output (`## 3 DREAM / ## 4 Today's Focus / ## 5 系统状态`) → false-flag on every compliant briefing. AUDITOR realigned to the producer.
-- **pro/AGENTS.md + pro/GEMINI.md resynced to pro/CLAUDE.md** — Step 10a still hardcoded the 4-page Notion list (Status/Todo Board/Working Memory/Inbox) that CLAUDE.md made config-driven (R-1.8.0-022) → false "Working Memory: failed" on hosts without those entities; the line-5 host note still claimed `scripts/hooks/` registration + prompt-level-only enforcement (retired v1.8.5, now host-agnostic inline); stale NARRATOR-VALIDATOR info-isolation row. All three ported.
-- **Retired-token / stale-path cleanup across active files** — archiver called deleted `tools/lib/cortex/*.py`; pro/CLAUDE.md + auditor "Bash checks" → inline LLM; data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + active getting-started docs carried references to deleted python tools, retired bash hooks, the deleted narrator-validator, or pre-v1.9 paths (`_meta/`, `meta/decisions/*.md`) presented as current. Corrected or reframed as historical. references↔i18n parity preserved (zh/ja synced).
+- **hosts/AGENTS.md + hosts/GEMINI.md resynced to hosts/CLAUDE.md** — Step 10a still hardcoded the 4-page Notion list (Status/Todo Board/Working Memory/Inbox) that CLAUDE.md made config-driven (R-1.8.0-022) → false "Working Memory: failed" on hosts without those entities; the line-5 host note still claimed `scripts/hooks/` registration + prompt-level-only enforcement (retired v1.8.5, now host-agnostic inline); stale NARRATOR-VALIDATOR info-isolation row. All three ported.
+- **Retired-token / stale-path cleanup across active files** — archiver called deleted `tools/lib/cortex/*.py`; hosts/CLAUDE.md + auditor "Bash checks" → inline LLM; data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + active getting-started docs carried references to deleted python tools, retired bash hooks, the deleted narrator-validator, or pre-v1.9 paths (`_meta/`, `meta/decisions/*.md`) presented as current. Corrected or reframed as historical. references↔i18n parity preserved (zh/ja synced).
 
 Legacy-marked files (`status: legacy` / `authoritative: false`) were correctly skipped — the repo's legacy-framing discipline held up.
 
@@ -71,7 +97,7 @@ Legacy-marked files (`status: legacy` / `authoritative: false`) were correctly s
 Closes the remaining low-severity drift from the round-2 audit:
 
 - **De-hardcoded subagent counts** — `agent-spec.md` ("all 23 subagents", "all 22 lifeos subagents") and `status-line-spec.md` ("22 subagents") disagreed on the count (actual: 24) and violated the "don't hardcode agent count" rule; all replaced with non-numeric phrasing (EN/zh/ja). `agent-spec.md`'s subagent list also still named the deleted `narrator-validator` and omitted `memory-keeper` — corrected.
-- **Fixed broken RFC scan-source paths** — `memory-keeper.md`, `gotchas-spec.md`, `pro/gotchas.md`, and the memory-keeper eval scenario listed `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md` (never existed) at the wrong `meta/` path; corrected to the existing `_meta/rfc/` RFCs (v1.8.5 / v1.8.7 / v1.9).
+- **Fixed broken RFC scan-source paths** — `memory-keeper.md`, `gotchas-spec.md`, `gotchas.md`, and the memory-keeper eval scenario listed `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md` (never existed) at the wrong `meta/` path; corrected to the existing `_meta/rfc/` RFCs (v1.8.5 / v1.8.7 / v1.9).
 - **Misc**: `retrospective.md` mojibake in a retired hook block + a stale "audit trail JSON" → `.md` (DR-10); `run-tool-eval.md` presented the unimplemented `/run-regression` as existing → marked planned; `migrate-wiki-v2.md` `/audit --mode 5` given an inline fallback.
 
 references↔i18n parity preserved (zh/ja synced).
@@ -82,7 +108,7 @@ Closed the items fix3 had judged acceptable-to-leave, per user request for a zer
 
 - **`_meta/rfc/v1.8.7` seed-source plan** corrected to the existing `_meta/rfc/` RFCs (it carried the same non-existent `v1.8.4` / `v1.8.6` reference, inside the historical RFC).
 - **`changelog-spec.md` (EN/zh/ja)** worked-example dropped the hardcoded "21 agent frontmatter" → "agent frontmatter" (no count).
-- **`/exit-monitor` + `/audit`** reframed from bare slash-command syntax (which implied backing command files that don't exist) to the natural-language / inline-recognized triggers they actually are (`monitor.md` + `pro/CLAUDE.md`); also a leftover "cron activity" line in the monitor dashboard → "recent maintenance runs".
+- **`/exit-monitor` + `/audit`** reframed from bare slash-command syntax (which implied backing command files that don't exist) to the natural-language / inline-recognized triggers they actually are (`monitor.md` + `hosts/CLAUDE.md`); also a leftover "cron activity" line in the monitor dashboard → "recent maintenance runs".
 
 Genuinely-frozen legacy files (`status: legacy` / `authoritative: false`, e.g. `cortex-spec.md`'s v1.7.2-era "16 agents") are left as-is by design.
 
@@ -91,8 +117,8 @@ Genuinely-frozen legacy files (`status: legacy` / `authoritative: false`, e.g. `
 Per user request to declutter the active tree: the genuinely-frozen v1.7-era documentation is now consolidated under `docs/history/` (with `i18n/{zh,ja}/docs/history/` mirrors) instead of scattered through the live `docs/` tree.
 
 - **Moved** (via `git mv`, history preserved): `docs/architecture/` → `docs/history/architecture/` (13 v1.7 architecture snapshots); `docs/user-guide/cortex/` → `docs/history/cortex/` (+ zh/ja mirrors, 6 v1.7 Cortex user guides); `docs/guides/v1.7-migration.md` and `references/v1.7-shipping-report-2026-04-21.md` → `docs/history/`.
-- **Re-pointed** all inbound links in active docs/specs (README, docs/index, user-guide/index, faq, MIGRATION, references/*-spec, etc.) to the new `docs/history/...` paths; rewrote docs/index + user-guide/index so they name `pro/CLAUDE.md` + `pro/agents/` as the current architecture authority and `docs/history/` as the archive.
-- **Left intentionally**: frozen records (CHANGELOG, `pro/compliance/*`, `_meta/rfc/*`) keep their original pre-move path references (historical accuracy); load-bearing feature specs (`snapshot-spec`, `concept-spec`, `hippocampus-spec`, etc.) stay in `references/` — they describe current features and are referenced by active agents, so they were NOT archived (their `status: legacy` label is a separate mislabel, not addressed here).
+- **Re-pointed** all inbound links in active docs/specs (README, docs/index, user-guide/index, faq, MIGRATION, references/*-spec, etc.) to the new `docs/history/...` paths; rewrote docs/index + user-guide/index so they name `hosts/CLAUDE.md` + `agents/` as the current architecture authority and `docs/history/` as the archive.
+- **Left intentionally**: frozen records (CHANGELOG, `compliance/*`, `_meta/rfc/*`) keep their original pre-move path references (historical accuracy); load-bearing feature specs (`snapshot-spec`, `concept-spec`, `hippocampus-spec`, etc.) stay in `references/` — they describe current features and are referenced by active agents, so they were NOT archived (their `status: legacy` label is a separate mislabel, not addressed here).
 - Added `docs/history/README.md` explaining the archive.
 
 ### fix6 (2026-05-29) — correct fix5's over-broad path substitution
@@ -110,7 +136,7 @@ Caught pre-ship by a full-repo broken-path + frontmatter + version + conflict-ma
 A full re-scan of every tracked `.md` (EN + zh/ja mirrors) for broken intra-repo links, frontmatter closure, code-fence balance, trilingual section parity, and hardcoded agent counts. Findings, all fixed in one pass:
 
 - **README RFC links broken (all 3 langs)** — linked `meta/rfc/...` but the file is tracked at `_meta/rfc/...` (underscore). The repo's own `/check-spec-drift` Scanner-1 regex never catches this (its prefix list omits `meta/`), so it had gone undetected.
-- **zh/ja README relative-path links** — `pro/CLAUDE.md`, `references/outbound-pii-patterns.md`, `docs/history/v1.7-migration.md` were linked bare (resolving inside `i18n/{zh,ja}/`) instead of `../../` to repo root.
+- **zh/ja README relative-path links** — `hosts/CLAUDE.md`, `references/outbound-pii-patterns.md`, `docs/history/v1.7-migration.md` were linked bare (resolving inside `i18n/{zh,ja}/`) instead of `../../` to repo root.
 - **docs/reference leading-slash links** — `faq.md` + `version-history.md` used root-absolute `](/...)` links that resolve to neither GitHub nor local file root; converted to relative.
 - **cortex breadcrumb regression (introduced by fix5 move)** — the 18 archived cortex docs (EN + zh + ja) linked `../index.md`, which stopped existing after the move to `docs/history/cortex/`; repointed to `../README.md`. Created `i18n/{zh,ja}/docs/history/README.md` archive indexes (parity with EN) and repointed the broken zh/ja "Quickstart" links to the EN canonical.
 - **hardcoded agent counts de-hardcoded** — `WHEN-NOT-TO-ADD.md` (×3 langs), `install-agents.md`, `auditor.md` (×3), and the e9/e10 eval scenarios stated stale counts (20/21/22/23; actual ~24); replaced with non-numeric phrasing per the "多个 agent" rule. The ja README architecture diagram still said "16エージェント" while EN/zh already said "multiple agents" — fixed.
@@ -122,8 +148,8 @@ Post-fix scan evidence: **0 real broken links** (43 intentional placeholders / f
 
 Storage simplified to a **single git backend** — local working copy (also the Obsidian vault) + a GitHub remote; sync is `git pull` (session start) + `git push` (ARCHIVER Phase 4). Shipped as a within-release fix (no version bump) per user direction.
 
-- **Removed** (12 files deleted): Google Drive + Notion adapters (+ zh/ja + docs copies), the Notion outbound-PII gate (`outbound-pii-patterns.md` + `pro/CLAUDE.md` Step 10a), the `/notion-sync` + `/notion-sync-and-watch` commands, and the multi-backend sync / primary-sync / cross-backend conflict layer.
-- **Rewrote** to single-backend git: `data-model` / `data-layer`, `pro/{CLAUDE,AGENTS,GEMINI}`, the agents (archiver / retrospective / router / advisor / auditor / knowledge-extractor), `SKILL`, `self-driven-loops-spec`, README ×3, and all user docs + i18n mirrors.
+- **Removed** (12 files deleted): Google Drive + Notion adapters (+ zh/ja + docs copies), the Notion outbound-PII gate (`outbound-pii-patterns.md` + `hosts/CLAUDE.md` Step 10a), the `/notion-sync` + `/notion-sync-and-watch` commands, and the multi-backend sync / primary-sync / cross-backend conflict layer.
+- **Rewrote** to single-backend git: `data-model` / `data-layer`, `hosts/{CLAUDE,AGENTS,GEMINI}`, the agents (archiver / retrospective / router / advisor / auditor / knowledge-extractor), `SKILL`, `self-driven-loops-spec`, README ×3, and all user docs + i18n mirrors.
 - **Kept**: inbound privacy scanning (SOUL / wiki) unaffected; frozen `status:legacy` specs retain their historical Notion references; mobile capture now via the user's own git workflow into `inbox/`.
 
 Verification: 0 residual Notion/GDrive in active files, 0 broken intra-repo links (0 dangling to the 12 deleted files), 0 unclosed frontmatter, 0 odd code-fences, trilingual parity.
@@ -192,13 +218,13 @@ date: 2026-05-25
 type: patch
 breaking_changes: []
 new_features:
-  - "C6: pro/gotchas.md (project-level tech gotchas knowledge base) + pro/agents/memory-keeper.md (extractor agent) + archiver wrap-up phase 5 (6-H2 → 7-H2 adjourn report contract)"
+  - "C6: gotchas.md (project-level tech gotchas knowledge base) + agents/memory-keeper.md (extractor agent) + archiver wrap-up phase 5 (6-H2 → 7-H2 adjourn report contract)"
   - "C6: 9 themes updated with memory-keeper role display name (六部=史馆 / 中国政府=政策档案处 / 公司=知识管理部 / 霞が関=記録局 / 明治政府=史官局 / 日本企業=ナレッジマネジメント室 / C-Suite=Chief Memory Officer / Roman=Curator Memoriae / US Gov=Office of Lessons Learned)"
   - "B4: ScheduleWakeup self-driven loops — /verify-release-and-watch + /notion-sync-and-watch (270s tick × 12 hard cap, Claude Code only)"
   - "B4: references/self-driven-loops-spec.md (three-language) defining 270s rationale, 12-tick cap, host compatibility"
   - "F11: references/i18n-diff-parity-spec.md (three-language) — section-level EN ↔ zh / EN ↔ ja diff parity rules"
   - "F11: /verify-release check 9 (i18n diff parity, WARN level in v1.8.7, BLOCK target v1.8.8)"
-  - "F12: 5 WHEN-NOT-TO-ADD.md files × 3 languages = 15 anti-pattern boundary docs (pro/agents/, references/, _meta/, themes/, scripts/)"
+  - "F12: 5 WHEN-NOT-TO-ADD.md files × 3 languages = 15 anti-pattern boundary docs (agents/, references/, _meta/, themes/, scripts/)"
   - "B5: references/feature-workflow-spec.md (three-language) defining 4-stage workflow with evals_scenarios required field; planner.md + dispatcher.md updated to enforce"
   - "A1: references/memory-tree-spec.md (three-language, status: proposal) — L0/L1/L2/L3 cascade seal architecture for v1.9/v2.0; archiver behavior unchanged in v1.8.7"
   - "A3: concept-spec.md hotness thresholds made explicit (≥3 sessions → confirmed, ≥10 → canonical) — documentation only, behavior unchanged"
@@ -223,7 +249,7 @@ alternatives_considered:
     rejected_because: "ScheduleWakeup is Claude Code-specific. Other hosts (Gemini/Codex) lack equivalent. Gracefully degrade to manual reruns instead of building cross-host approximation."
 ordering_dependency:
   blocked_by: [v1.8.6]
-  must_coexist_with: [DR-10 SKILL.md HARD RULE upgrade, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, pro/agents/memory-keeper.md, AUDITOR Mode 7, 9 themes update]
+  must_coexist_with: [DR-10 SKILL.md HARD RULE upgrade, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, agents/memory-keeper.md, AUDITOR Mode 7, 9 themes update]
 regression_cases_added:
   - "evals/scenarios/rc-forbidden-extension-sql.md (planned in Stage 6)"
   - "evals/scenarios/rc-forbidden-extension-json.md (planned in Stage 6)"
@@ -244,7 +270,7 @@ upgrade_mode: zero-friction
 4. /verify-release v1.8.7  # 11 checks all PASS
 ```
 
-No migration command. archiver first run auto-creates `pro/gotchas.md` with ≥10 seed entries from memory-keeper scanning v1.8.4-1.8.6 RFC + violations history.
+No migration command. archiver first run auto-creates `gotchas.md` with ≥10 seed entries from memory-keeper scanning v1.8.4-1.8.6 RFC + violations history.
 
 See `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` for full RFC + DR-01 through DR-10 audit trail.
 
@@ -303,7 +329,7 @@ type: patch
 breaking_changes:
   - "SOUL.md schema v1 → v2: priority {1..N} total order, X-over-Y formulation required, inclusion test 6Q gate, outlier role slot mandatory, 3-8 dim cap"
   - "wiki entry schema v1 → v2: 6 facets classification, operating_hypothesis, context_manifest 3-layer, reference_set 5 role slots, failure_modes, arguments_against"
-  - "23 pro/agents/*.md frontmatter v1 → v2: id + version + classification (6 facets) + operating_hypothesis + context_manifest + blast_radius + failure_modes"
+  - "23 agents/*.md frontmatter v1 → v2: id + version + classification (6 facets) + operating_hypothesis + context_manifest + blast_radius + failure_modes"
   - "audit-trail-spec R11 → R12: value_invocations[] required on contested-case decisions"
   - "Hook layer integral retirement: 11 bash hooks deleted, 38 .sh files removed; 5-layer defense → 4-layer (D1 accepted any pass rate)"
   - "CHANGELOG.md schema: v1.8.5+ entries require YAML frontmatter per references/changelog-spec.md v1"
@@ -372,7 +398,7 @@ regression_cases_added:
 - `/uninstall-agents` + `/install-agents` to refresh agent wrappers
 - `/migrate-soul-v2` (interactive, per-dim) — legacy entries auto-deprecate 2027-05-23
 - `/migrate-wiki-v2` (interactive, per-entry) — legacy entries auto-deprecate 2027-05-23
-- pro/agents/ already auto-migrated
+- agents/ already auto-migrated
 - CHANGELOG / violations.md format applies prospectively only
 
 ### Acknowledgments
@@ -389,7 +415,7 @@ Inspiration: xiaolai/eou-foundry @ e4b12ce. 30 design ideas borrowed with attrib
 
 DREAM journals are async overnight snapshots. A HARD trigger written at N-1's adjourn can already be resolved by the user before N's session boot — but `retrospective` Step 16 promoted it to today's P0 anyway, because it never checked whether the task it pointed to was still open. The 2026-05-16 briefing surfaced `8938 revenue-uplift task closure` as a P0 follow-up even though the task had `status: closed-superseded` written the day before.
 
-Fix · `pro/agents/retrospective.md` Step 16 gains a **TRIGGER VALIDITY RE-CHECK** HARD RULE. For every HARD trigger that names a task path or slug, the subagent MUST `Read` the referenced task frontmatter and inspect `status:` BEFORE promotion:
+Fix · `agents/retrospective.md` Step 16 gains a **TRIGGER VALIDITY RE-CHECK** HARD RULE. For every HARD trigger that names a task path or slug, the subagent MUST `Read` the referenced task frontmatter and inspect `status:` BEFORE promotion:
 
 - `closed` / `done` / `failed` / `archived` / `superseded` / `closed-*` → render as `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>` and DO NOT promote.
 - File missing → fuzzy match by slug under `projects/**/tasks/`; renamed → still validate status; truly not found → promote with note `task slug not found on disk, treating as still-actionable`.
@@ -404,7 +430,7 @@ The 2026-05-16 briefing reported `archiver-recovery 13d overdue` while the **sam
 
 Fix · two-layer defense:
 
-1. **Subagent layer** · `pro/agents/retrospective.md` Step 0.5 marker list gains a 4th literal marker: `[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`. The new HARD RULE explicitly forbids byte-copying the transcript's stale value or re-estimating the day count; `session-start-inbox.sh` is declared the **only** source of truth; subagent is its caller.
+1. **Subagent layer** · `agents/retrospective.md` Step 0.5 marker list gains a 4th literal marker: `[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`. The new HARD RULE explicitly forbids byte-copying the transcript's stale value or re-estimating the day count; `session-start-inbox.sh` is declared the **only** source of truth; subagent is its caller.
 2. **ROUTER layer** · `SKILL.md` ROUTER fact-check gains **rule 8**: ROUTER re-runs the same script and byte-equal compares the `## Overdue maintenance` block against the marker (ignoring the `· source=subagent-recompute@...` timestamp tail). Mismatch → strike marker and replace with `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`. Marker missing → ROUTER refuses to show the briefing. Beyond the marker, ROUTER scans the briefing's `系统状态 / Compliance Watch / Today's Focus` sections (NOT the whole file, to avoid false-positives in ADVISOR / review queue text) for `\d+\s*d(ays)?\s*overdue` adjacent to any of the 10 maintenance task names; any conflict is treated as confabulation and struck.
 
 **Wave 1.5 spec gap closures**:
@@ -413,7 +439,7 @@ Fix · two-layer defense:
 
 ### Changed files
 
-- `pro/agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`; Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip; Mode 2 Data Sources step 7 (maintenance marker contract).
+- `agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`; Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip; Mode 2 Data Sources step 7 (maintenance marker contract).
 - `SKILL.md` — frontmatter version → 1.8.4; ROUTER fact-check rule 8 + wrapper-strip note.
 - `references/dream-spec.md`, `i18n/zh/references/dream-spec.md`, `i18n/ja/references/dream-spec.md` — triggered_actions schema gains optional `task_ref` field.
 - `README.md`, `i18n/zh/README.md`, `i18n/ja/README.md` — version badge → 1.8.4.
@@ -461,7 +487,7 @@ Three-tier JSON parser (jq → python → raw fallback) matches `pre-write-scan.
 
 Pattern order contract documented in §4: `D` and `A8` order swapped to avoid phone-vs-mynumber collision. Audit trail schema in §5. Maintenance rules in §6.
 
-### Updated · `pro/CLAUDE.md` Step 10a · outbound boundary gate
+### Updated · `hosts/CLAUDE.md` Step 10a · outbound boundary gate
 
 Added a third HARD RULE block to Step 10a:
 
@@ -506,9 +532,9 @@ Single source of truth for Obsidian-friendly markdown conventions. Covers:
 - **CSS classes** `cssclasses: [decision, important]` for per-entry visual styling (advanced).
 - 12-item LLM checklist, anti-pattern list, migration tooling pointer.
 
-### Added · HARD RULE #11 in `pro/CLAUDE.md` (and mirrored to GEMINI.md / AGENTS.md)
+### Added · HARD RULE #11 in `hosts/CLAUDE.md` (and mirrored to GEMINI.md / AGENTS.md)
 
-Codifies the Obsidian readability requirement at the orchestration layer. Out of scope: pure data files (`.json`, `.yaml`, `.csv`), source code, agent definition files in `pro/agents/*.md`. Migration tool: `/wiki-obsidian-upgrade` for legacy wiki entries.
+Codifies the Obsidian readability requirement at the orchestration layer. Out of scope: pure data files (`.json`, `.yaml`, `.csv`), source code, agent definition files in `agents/*.md`. Migration tool: `/wiki-obsidian-upgrade` for legacy wiki entries.
 
 ### Added · 4 new wiki entry templates (v1.8.2 `kind:` field)
 
@@ -567,8 +593,8 @@ All `scripts/prompts/*.md` updated with v1.8.2 readability reference:
 
 ### Updated · 2 agent files now mention HARD RULE #11
 
-- `pro/agents/retrospective.md` — Mode 0/2 briefings use `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]`
-- `pro/agents/archiver.md` — Phase outputs (session archives / wiki entries / SOUL snapshots / DREAM / Completion Checklist) all follow the style guide; Phase 2 wiki extraction MUST use `wiki/.templates/`
+- `agents/retrospective.md` — Mode 0/2 briefings use `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]`
+- `agents/archiver.md` — Phase outputs (session archives / wiki entries / SOUL snapshots / DREAM / Completion Checklist) all follow the style guide; Phase 2 wiki extraction MUST use `wiki/.templates/`
 
 ### Updated · `wiki/OBSIDIAN-SETUP.md` template (auto-written)
 
@@ -603,7 +629,7 @@ Idempotent. Plan-preview before any write. Companion: `/migrate-confidence` for 
 ### Out of scope (intentional)
 
 - Non-wiki files (sessions, SOUL snapshots, DREAM entries, eval-history reports) follow v1.8.2 conventions for NEW writes (per HARD RULE #11) but are NOT batch-upgraded — they migrate organically as the user touches them.
-- Pure data files (`.json`, `.yaml`, `.csv`), source code, and agent definition files (`pro/agents/*.md`) are exempt from HARD RULE #11.
+- Pure data files (`.json`, `.yaml`, `.csv`), source code, and agent definition files (`agents/*.md`) are exempt from HARD RULE #11.
 
 ---
 
@@ -643,12 +669,12 @@ End-to-end smoke test (empty `wiki/` + empty `_meta/` + minimal `.obsidian/graph
 
 ### Fixed · session-start-inbox UX (rolled-up R-1.8.0-021 + R-1.8.0-022 into the 1.8.1 cut)
 
-- **2 wrong task names in `TASKS_LINE` array**: `auditor-patrol` → `auditor-mode-2`, `monthly-summary` → `eval-history-monthly` (correct names per `pro/CLAUDE.md` canonical 10-job table and actual `scripts/prompts/*.md` filenames).
+- **2 wrong task names in `TASKS_LINE` array**: `auditor-patrol` → `auditor-mode-2`, `monthly-summary` → `eval-history-monthly` (correct names per `hosts/CLAUDE.md` canonical 10-job table and actual `scripts/prompts/*.md` filenames).
 - **NEVER_RUN bucket split from OVERDUE**: tasks with no baseline are now reported under `## Available on-demand (do NOT proactively offer)` with explicit instruction not to mention unless user asks; previously LLM treated them as overdue and proactively offered jobs the user never opted into. Output compressed from 8+ lines to 1 comma-separated line for token budget.
 
 ### Fixed · Notion sync hardcoding (rolled-up from v1.8.0 maintenance line)
 
-- **`pro/CLAUDE.md` Step 10a was hardcoding 4 Notion entities** (Status / Todo Board / Working Memory / Inbox). Real users have varied layouts; orchestrator was reporting "Working Memory: failed" for entities that never existed. Now config-driven: orchestrator reads `_meta/config.md`, only syncs configured entities, skips Step 10a entirely if no Notion configured, no false-fail lines in checklist.
+- **`hosts/CLAUDE.md` Step 10a was hardcoding 4 Notion entities** (Status / Todo Board / Working Memory / Inbox). Real users have varied layouts; orchestrator was reporting "Working Memory: failed" for entities that never existed. Now config-driven: orchestrator reads `_meta/config.md`, only syncs configured entities, skips Step 10a entirely if no Notion configured, no false-fail lines in checklist.
 
 ### Fixed · pattern transparency in pre-bash-approval
 
@@ -799,7 +825,7 @@ For users who had been running any `python -m tools.<X>` invocation: those Pytho
 ### Added · Session Modes (the core architectural shift)
 
 - **Mode 1 · Business session**: long-lived Claude Code chat, sessions can span days/weeks. 上朝/退朝 are now optional soft triggers, not mandatory daily cycle.
-- **Mode 2 · Monitor session**: new `/monitor` slash command opens operations console mode (`pro/agents/monitor.md`). Reads cron output, triggers cron manually, processes action items. Does NOT engage business deliberation. Exits via `/exit-monitor`.
+- **Mode 2 · Monitor session**: new `/monitor` slash command opens operations console mode (`agents/monitor.md`). Reads cron output, triggers cron manually, processes action items. Does NOT engage business deliberation. Exits via `/exit-monitor`.
 - **Mode 3 · Cron autonomy**: 10 scheduled jobs + 1 RunAtLoad on macOS launchd / Linux cron. Background, no user attention, runs even when no session is active.
 
 ### Added · Cron jobs (5 new in v1.8.0, total 10 + 1 RunAtLoad)
@@ -845,12 +871,12 @@ NEW v1.8.0:
 
 ### Added · New subagent + manual trigger script
 
-- `pro/agents/monitor.md` — Mode 2 role
+- `agents/monitor.md` — Mode 2 role
 - `scripts/run-cron-now.sh <job>` — manual cron trigger
 
 ### Changed
 
-- **pro/CLAUDE.md**: new "Session Modes (v1.8.0)" section
+- **hosts/CLAUDE.md**: new "Session Modes (v1.8.0)" section
 - **scripts/setup-cron.sh**: extended from 3 → 10 cron jobs + 1 RunAtLoad. Added `repo_command_pymod` / `repo_command_prompt` builders + 5 new launchd plist printers.
 - **scripts/setup-hooks.sh**: registers 3 new hooks
 - **scripts/hooks/pre-prompt-guard.sh**: 上朝/退朝 trigger reminder softened (HARD RULE → optional soft trigger language)
@@ -872,16 +898,16 @@ NEW v1.8.0:
 
 - **R-1.8.0-010 · ARCHITECTURE PIVOT (post-2026-04-29) · cron architecture abandoned**: After two days of production testing, the cron-driven architecture from R-1.8.0-001~009 still failed the user's reliability test. The 5 prompt-based cron jobs (archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency) silently lost data: cron-spawned `claude -p` sessions completed analysis then asked the user "shall I write?" via prompt template politeness — no human was watching the cron, sessions timed out, exit 0, `_meta/eval-history/` empty. The `--dangerously-skip-permissions` flag (R-1.8.0-006) only bypassed the OS-level Write permission, not the LLM's own conversational politeness. Verdict: **cron requires determinism, LLM is non-deterministic, the mismatch can't be patched**.
   - **Pivot decision (per user)**: replace cron with explicit user prompts. User says "rebuild index" / "monthly review", ROUTER reads `scripts/prompts/<job>.md` and executes inline. No background processes.
-  - **Deleted (17 files)**: `scripts/setup-cron.sh`, `scripts/run-cron-now.sh`, `scripts/commands/run-cron.md`, `tools/missed_cron_check.py`, `tools/cron_health_report.py`, `tools/reindex.py`, `tools/daily_briefing.py`, `tools/backup.py`, `tools/spec_compliance_report.py`, `tools/wiki_decay.py`, `tools/memory.py`, `tools/session_search.py`, `tools/cli.py`, `pro/agents/narrator-validator.md`, `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/architecture/hermes-local.md`. Plus 3 eval scenarios for deleted tools.
+  - **Deleted (17 files)**: `scripts/setup-cron.sh`, `scripts/run-cron-now.sh`, `scripts/commands/run-cron.md`, `tools/missed_cron_check.py`, `tools/cron_health_report.py`, `tools/reindex.py`, `tools/daily_briefing.py`, `tools/backup.py`, `tools/spec_compliance_report.py`, `tools/wiki_decay.py`, `tools/memory.py`, `tools/session_search.py`, `tools/cli.py`, `agents/narrator-validator.md`, `references/automation-spec.md`, `references/session-modes-spec.md`, `docs/architecture/hermes-local.md`. Plus 3 eval scenarios for deleted tools.
   - **Created (5 user-invoked prompts)**: `scripts/prompts/{reindex,daily-briefing,backup,spec-compliance,wiki-decay}.md` — replace the deleted python tools. Each is a markdown prompt ROUTER reads + executes via Read/Write/Bash/Glob/Grep when user invokes by keyword.
   - **Modified (5 existing prompts)**: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md` — switched from "autonomous cron-triggered" framing to "user-invoked from session" framing. Removed UNATTENDED CRON CONTRACT block (no longer needed).
   - **Hooks restructured (3 hooks)**:
     - `scripts/hooks/pre-prompt-guard.sh`: removed Cortex always-on enforcement block (lines 111-167). Memory keyword detection now writes directly to `~/.claude/lifeos-memory/<key>.json` via Write tool instead of calling deleted `tools/memory.py`. 上朝/退朝 soft trigger preserved.
     - `scripts/hooks/session-start-inbox.sh`: complete rewrite — was reading cron output, now scans 10 maintenance task globs for last-run timestamps (`_meta/eval-history/<job>-*.md` mtimes), shows overdue summary as `<system-reminder>`. Hook only displays; user decides what to invoke.
     - `scripts/hooks/post-task-audit-trail.sh`: weakened — removed Cortex subagent (hippocampus / concept-lookup / soul-check / gwt-arbitrator) and narrator-validator from R11 audit trail enforcement. Only archiver + knowledge-extractor still required to write trails (they touch persistent state).
-  - **Cortex pull-based** (`pro/CLAUDE.md` §0.5 rewritten): the 4 Cortex subagents are no longer launched on every qualifying message. ROUTER decides per-message whether the response benefits from cross-session memory (hippocampus), canonical concept grounding (concept-lookup), SOUL alignment check (soul-check), or arbitrated context (gwt-arbitrator). Heuristic: "would launching this change my response?" yes → launch, no → skip. Subagent description files updated to reflect pull-based activation.
+  - **Cortex pull-based** (`hosts/CLAUDE.md` §0.5 rewritten): the 4 Cortex subagents are no longer launched on every qualifying message. ROUTER decides per-message whether the response benefits from cross-session memory (hippocampus), canonical concept grounding (concept-lookup), SOUL alignment check (soul-check), or arbitrated context (gwt-arbitrator). Heuristic: "would launching this change my response?" yes → launch, no → skip. Subagent description files updated to reflect pull-based activation.
   - **Slash commands rewritten**: `/monitor` now a view-and-invoke console (was cron monitor); `/memory` now writes JSON files directly (was python middleware); `/search` now uses Grep tool directly (was SQLite FTS5 via python).
-  - **Spec docs**: `pro/CLAUDE.md` §0.5 + Session Modes section both rewritten. `references/hard-rules-index.md` updated to clarify Cortex is not always-on. `pro/AGENTS.md`, `pro/GEMINI.md`, `AGENTS.md` get pivot notice at top pointing to `pro/CLAUDE.md` as authoritative (full content sweep deferred).
+  - **Spec docs**: `hosts/CLAUDE.md` §0.5 + Session Modes section both rewritten. `references/hard-rules-index.md` updated to clarify Cortex is not always-on. `hosts/AGENTS.md`, `hosts/GEMINI.md`, `AGENTS.md` get pivot notice at top pointing to `hosts/CLAUDE.md` as authoritative (full content sweep deferred).
   - **Stats**: ~3500 lines of cron infrastructure + python middleware deleted. ~500 lines of user-invoked prompt content added. Net: 23 deletions, 5 creations, ~25 modifications.
   - **Backup**: `git branch backup-pre-v1.8-pivot @ 7b15509` preserves the pre-pivot state.
 
@@ -900,10 +926,10 @@ NEW v1.8.0:
     - `scripts/prompts/snapshot-cleanup.md` (replaces snapshot.py retention logic)
     - `scripts/prompts/extract-concepts.md` (replaces extract.py + extraction.py)
   - **Spec rewrites (5 agent specs)**:
-    - `pro/agents/hippocampus.md` L88-92: FTS5 SQLite helper → Grep tool on INDEX.md directly
-    - `pro/agents/retrospective.md` L47-55: Python helper path removed, inline LLM rebuild only; L244 R10 boundary rewritten (no pre-fetch script)
-    - `pro/agents/archiver.md`: snapshot Python helper block → inline Write with explicit YAML schema; extraction Python helper → inline tokenize/stopword/slug steps; SessionSummary Python helper → direct Write with explicit byte-level format contract; v1.7.2.3 rationale block updated
-    - `pro/CLAUDE.md` L268-286: HARD RULE briefing skeleton blocks (retrospective + archiver) deleted, replaced with "Bash skeleton REMOVED" notes
+    - `agents/hippocampus.md` L88-92: FTS5 SQLite helper → Grep tool on INDEX.md directly
+    - `agents/retrospective.md` L47-55: Python helper path removed, inline LLM rebuild only; L244 R10 boundary rewritten (no pre-fetch script)
+    - `agents/archiver.md`: snapshot Python helper block → inline Write with explicit YAML schema; extraction Python helper → inline tokenize/stopword/slug steps; SessionSummary Python helper → direct Write with explicit byte-level format contract; v1.7.2.3 rationale block updated
+    - `hosts/CLAUDE.md` L268-286: HARD RULE briefing skeleton blocks (retrospective + archiver) deleted, replaced with "Bash skeleton REMOVED" notes
   - **Cost accepted**:
     - retrospective Mode 0: ~1-2s pre-fetch + LLM filling → ~30-60s full LLM execution (~30× slower)
     - archiver Adjourn: 10-12 min → ~25-30 min (back to pre-v1.7.2.3 timing; the Bash skeleton was specifically designed to halve this)
@@ -926,33 +952,33 @@ NEW v1.8.0:
 - **R-1.8.0-012 · Monitor mode → natural language only (post-2026-04-29 user feedback)**: Per user "这个不能要任何命令全部都要自然语言", monitor mode must be triggered by natural language keywords, not by typing `/monitor`. Slash command remains as backup mode (consistent with `/memory` `/search` `/method`).
   - **`scripts/hooks/pre-prompt-guard.sh`**: added `MONITOR_KEYWORD_RE` detection block right after `MEMORY_KEYWORD_RE`. Keywords: 监控模式 / 进监控 / 进 monitor / 开监控 / 监控控制台 / 看系统状态 / 看 cron / 看维护状态 / 维护控制台 / ops console / monitor mode / enter monitor / open monitor / 看 lifeos 状态 / 进运维. When matched, injects `<system-reminder>` (`trigger=monitor`) instructing ROUTER to launch `Task(subagent_type=monitor)` directly — DO NOT redirect to `/monitor`.
   - **`scripts/hooks/pre-prompt-guard.sh`** (also fixed in same edit — R-1.8.0-010 leftover): MEMORY block text still said `python -m tools.memory emit "..."` even though `tools/memory.py` was deleted. Updated to instruct ROUTER to write `~/.claude/lifeos-memory/<sanitized-key>.json` directly via Write tool with explicit JSON schema (`value` / `role` / `created` / optional `trigger_time`).
-  - **`pro/CLAUDE.md` Special Triggers section**: added Monitor Mode entry alongside 上朝 / 退朝 / Quick Mode. Notes natural language is primary, `/monitor` is backup.
-  - **`pro/CLAUDE.md` Auto-Trigger Rules section**: added "Monitor mode auto-launch" subsection alongside Memory auto-emit. Lists 中/英 keywords. The 4 v1.7.3 slash commands (`/compress` `/search` `/memory` `/method`) note expanded to 5 to include `/monitor`.
+  - **`hosts/CLAUDE.md` Special Triggers section**: added Monitor Mode entry alongside 上朝 / 退朝 / Quick Mode. Notes natural language is primary, `/monitor` is backup.
+  - **`hosts/CLAUDE.md` Auto-Trigger Rules section**: added "Monitor mode auto-launch" subsection alongside Memory auto-emit. Lists 中/英 keywords. The 4 v1.7.3 slash commands (`/compress` `/search` `/memory` `/method`) note expanded to 5 to include `/monitor`.
   - **`scripts/commands/monitor.md`**: added "Backup mode" notice block at top. Tells ROUTER not to redirect users to slash command — natural language is primary. Slash command kept for: explicit focus parameter (`/monitor wiki`), auto-trigger fallback (regex miss), testing.
-  - **No code path broken**: `/monitor` slash command still works for power users; the `monitor` subagent at `pro/agents/monitor.md` is unchanged. Only the entry path expanded.
+  - **No code path broken**: `/monitor` slash command still works for power users; the `monitor` subagent at `agents/monitor.md` is unchanged. Only the entry path expanded.
 
 - **R-1.8.0-013 · 5 borrows from llm_wiki (post-2026-04-29 user research)**: Per user instruction "1，单独 2，llm 3，折中 4，全，完整" approving full implementation of all 5 borrowed patterns from [nashsu/llm_wiki](https://github.com/nashsu/llm_wiki). lifeos shifts from "plain text + frontmatter ids" to "Obsidian-vault-compatible wikilink graph + async review queue + LLM-friendly relevance signals + page taxonomy refinement".
   - **Borrow 1 · Obsidian `[[wikilinks]]` syntax everywhere body text references another page**: `wiki/`, `_meta/concepts/`, `_meta/sessions/`, `_meta/methods/`, `_meta/people/`, `_meta/comparisons/`, `SOUL.md`, `_meta/STRATEGIC-MAP.md`. Frontmatter stays YAML strings (machine-parseable) EXCEPT `_meta/concepts/<id>.md` exception fields `provenance.source_sessions: ["[[YYYY-MM-DD]]"]` and `outgoing_edges[].target: "[[concept-<id>]]"`. Display variant `[[id|Display Name]]` for long names. Convention struck through "No cross-references" rule in `references/wiki-spec.md`.
   - **Borrow 2 · Obsidian vault layout**: `tools/seed.py` now writes `.obsidian/app.json` (`useMarkdownLinks: false`, `newLinkFormat: shortest`, `userIgnoreFilters` excluding `_meta/runtime/`), `.obsidian/core-plugins.json` (graph + backlinks + outgoing-links + tag-pane enabled), `.obsidian/.gitignore` (per-device state files like workspace.json excluded). Users can open the second-brain in Obsidian for graph view + backlinks panel. Spec: `references/obsidian-spec.md`.
   - **Borrow 3 · Async Review Queue (single source of truth for "needs user attention")**: `_meta/review-queue.md` consolidates 7 previously-scattered sources (auditor-patrol / advisor-monthly / strategic-consistency / archiver-recovery / eval-history-monthly action items + violations.md + cron notifications.md). YAML item schema: `id` (`r{YYYY-MM-DD}-{NNN}`) / `created` / `source` / `type` / `priority` (P0/P1/P2) / `summary` / `detail_path` / `related` (wikilinks) / `suggested_action` / `status` (open/reviewed/resolved/dismissed) / `closed_at` / `closed_by`. In-place status updates (Edit, never Write); resolved > 100 items auto-archived to `_meta/review-queue/archive/{YYYY-MM}.md` (折中 strategy per user choice). Spec: `references/review-queue-spec.md`. New walker prompt `scripts/prompts/review-queue.md` ("处理 queue" / "看 queue" / "review queue") walks user through each open item with A (act) / R (reviewed) / D (dismiss) / S (skip) / Q (quit) choices.
-  - **Borrow 4 · 4-signal LLM-friendly relevance model (replaces hippocampus Wave 2 simple weight formula)**: `relevance(candidate, current) = 3 × direct_link_count + 4 × source_overlap_count + 2 × common_neighbor_count + 1 × type_affinity`. Counts (not Adamic-Adar `1/log(degree)`) chosen because LLM cannot reliably compute log per user choice "2 (LLM-friendly simplified)". Type affinity matrix: same type 1.0, related (concept↔wiki/person/method) 0.5, unrelated 0.0. Updated in `references/hippocampus-spec.md` Wave 2 + `pro/agents/hippocampus.md`.
+  - **Borrow 4 · 4-signal LLM-friendly relevance model (replaces hippocampus Wave 2 simple weight formula)**: `relevance(candidate, current) = 3 × direct_link_count + 4 × source_overlap_count + 2 × common_neighbor_count + 1 × type_affinity`. Counts (not Adamic-Adar `1/log(degree)`) chosen because LLM cannot reliably compute log per user choice "2 (LLM-friendly simplified)". Type affinity matrix: same type 1.0, related (concept↔wiki/person/method) 0.5, unrelated 0.0. Updated in `references/hippocampus-spec.md` Wave 2 + `agents/hippocampus.md`.
   - **Borrow 5 · Page taxonomy refinement — people + comparisons get own directories**: New `_meta/people/<id>.md` (people-as-first-class-entities; canonical_name / aliases / relationship / privacy_tier / mention_count / concepts_linked wikilinks; spec: `references/people-spec.md`) and `_meta/comparisons/<id>.md` (decision-comparison-as-first-class; options / criteria / decision / confidence / outcome tracking; spec: `references/comparison-spec.md`) per user choice "1 (单独, separate directory not just frontmatter type field)". Sources/synthesis/queries NOT split (overlap with sessions/wiki).
   - **New specs (4)**: `references/people-spec.md`, `references/comparison-spec.md`, `references/obsidian-spec.md`, `references/review-queue-spec.md`.
   - **Edited specs (3)**: `references/wiki-spec.md` (page taxonomy + wikilink convention section, struck "no cross-references"), `references/concept-spec.md` (wikilink convention with frontmatter exception examples), `references/hippocampus-spec.md` (Wave 2 4-signal formula).
-  - **Edited subagents (5)**: `pro/agents/hippocampus.md` (Wave 2 spec sync), `pro/agents/archiver.md` (Phase 2 routing + wikilink writing HARD RULE + review queue append), `pro/agents/knowledge-extractor.md` (same routing/wikilink/queue HARD RULE), `pro/agents/retrospective.md` (Mode 0 briefing wikilinks + ## Open Review Queue H2 section if items exist), `pro/agents/monitor.md` (Review Queue Dashboard).
+  - **Edited subagents (5)**: `agents/hippocampus.md` (Wave 2 spec sync), `agents/archiver.md` (Phase 2 routing + wikilink writing HARD RULE + review queue append), `agents/knowledge-extractor.md` (same routing/wikilink/queue HARD RULE), `agents/retrospective.md` (Mode 0 briefing wikilinks + ## Open Review Queue H2 section if items exist), `agents/monitor.md` (Review Queue Dashboard).
   - **Edited prompts (5 maintenance + 2 new)**: All 5 v1.8.0 maintenance prompts (`auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `archiver-recovery.md` / `eval-history-monthly.md`) got "v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)" sections with source-specific YAML templates. NEW `scripts/prompts/review-queue.md` (walker per Borrow 3) and `scripts/prompts/migrate-to-wikilinks.md` (full content migration per user choice "4，全，完整").
   - **Edited tools (1)**: `tools/seed.py` — added 3 new `META_GITKEEP_DIRS` (`_meta/people`, `_meta/comparisons`, `_meta/review-queue/archive`), constants `_REVIEW_QUEUE` / `_OBSIDIAN_APP_JSON` / `_OBSIDIAN_CORE_PLUGINS` / `_OBSIDIAN_GITIGNORE`, function `_write_obsidian_vault(target)` wired into `_seed_scaffolding()`. Smoke test passed.
   - **Edited hooks (1)**: `scripts/hooks/session-start-inbox.sh` — added awk-based parsing of `_meta/review-queue.md` `## Open items` section counting P0/P1/P2 priorities; outputs `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>. Say "看 queue" to walk through.` in SessionStart system-reminder.
   - **R-1.8.0-013 self-audit fix (commit follows)**: parallel-agent audit of the borrow surfaced 7 real bugs — all fixed in same release per user "全部干完，不要再留任何 bug 了":
     - **HIGH · awk priority regex was unanchored** — patterns `/priority: P0/` matched body prose like `summary: "escalated because priority: P0 was missed"`, double-counting. Anchored to `^[[:space:]]*priority:[[:space:]]*P0([^0-9]|$)` (rejects no-`\b`-support GNU awk). Now correctly handles no-space (`priority:P0`) and extra-space (`priority:    P0`) variants too.
     - **HIGH · CHANGELOG promised `Latest: <summary>` in session-start hook output but hook only emitted counts** — extended awk to capture first `summary:` field of newest open item, truncate at 80 chars, emit via `Latest: ${REVIEW_QUEUE_LATEST}` line. Tab-separator splitting in bash. Privacy filter notice added for `[[person-*]]` items with `privacy_tier: high`.
-    - **HIGH · `source_session(s)` field-name singular/plural inconsistency** between `references/comparison-spec.md` (singular, one decision moment) and `references/concept-spec.md` (plural, accumulating evidence). Documented the semantic distinction in `references/wiki-spec.md` exception list and synced `pro/agents/archiver.md` + `pro/agents/knowledge-extractor.md` to cite both names with the correct cardinality reasoning.
+    - **HIGH · `source_session(s)` field-name singular/plural inconsistency** between `references/comparison-spec.md` (singular, one decision moment) and `references/concept-spec.md` (plural, accumulating evidence). Documented the semantic distinction in `references/wiki-spec.md` exception list and synced `agents/archiver.md` + `agents/knowledge-extractor.md` to cite both names with the correct cardinality reasoning.
     - **HIGH · 4-signal `type_affinity` related set undercounted** — CHANGELOGs cited `concept↔wiki/person/method` but spec + agent only said `concept↔wiki, concept↔person`. Aligned all sources to: `concept ↔ wiki, concept ↔ person, concept ↔ method, wiki ↔ method, person ↔ comparison`.
     - **MEDIUM · advisor-monthly missing `outcome-unmeasured` type enum** — added to type list + extended priority to include P2 for "comparison missing ## Outcome past 90d" detection (the comparison-spec's outcome-tracking flow).
     - **MEDIUM · awk silent error swallow** — removed `2>/dev/null` from awk command so parser regressions surface to SessionStart hook log instead of silently producing empty output. `|| true` retained for non-existence on first-time vaults.
     - **LOW · pre-prompt-guard hooks could double-fire** REVIEW_QUEUE + MIGRATE_WIKILINKS for messages mentioning both keywords, sending two competing `<system-reminder>` blocks. Added `[ "$ACTIVITY_REMINDER" != "yes" ]` first-match-wins guard to both blocks.
     - **LOW · `_OBSIDIAN_GITIGNORE` constant naming overload** with repo-root `_GITIGNORE` — added inline comment at line 244 of `tools/seed.py` clarifying it's the vault-internal one.
-    - **LOW · trigger keyword lists drifted between hook + pro/CLAUDE.md + walker prompt** — designated `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE as canonical source; updated CLAUDE.md and `scripts/prompts/review-queue.md` to mirror it.
+    - **LOW · trigger keyword lists drifted between hook + hosts/CLAUDE.md + walker prompt** — designated `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE as canonical source; updated CLAUDE.md and `scripts/prompts/review-queue.md` to mirror it.
   - **R-1.8.0-013 second self-audit fix (commit follows)**: 6-agent deep parallel audit (python-reviewer + silent-failure-hunter + code-reviewer + security-reviewer + comment-analyzer + type-design-analyzer) of the previous fix surfaced **15 more bugs** including 3 CRITICAL/HIGH that would have silently broken Obsidian integration in every new vault. All fixed:
     - **HIGH · Obsidian core-plugin IDs were WRONG** — `tools/seed.py` wrote `"backlink"`, `"outgoing-link"`, and `"starred"` to `.obsidian/core-plugins.json` but Obsidian's actual plugin IDs are `"backlinks"`, `"outgoing-links"`, and `"bookmarks"` (the latter renamed from `starred` in Obsidian 1.2 / Aug 2023). Obsidian silently ignores unrecognized plugin names — meaning every new lifeos vault opened in Obsidian had backlinks panel, outgoing-links panel, and bookmarks panel quietly disabled. Fixed all three IDs + added explanatory comment block citing Obsidian's docs URL.
     - **HIGH · `.obsidian/.gitignore` missing `cache`, `plugins/`, `themes/`** — community plugins / themes installed per-device would have been silently committed to git, polluting repos. Added entries + `hot-reload.json` (dev workflow) + comment explaining why two `.gitignore` files exist (Obsidian Sync ignores vault-root `.gitignore`).
@@ -1029,13 +1055,13 @@ These are real improvements but each is a multi-hour refactor; explicitly deferr
 
   **Verified + fixed**:
   1. **P0 — `pre-bash-approval.sh` had 5 bare `python -c` invocations (lines 57/133/166/179/187)**. macOS 12+ removed the bare `python` binary; only `python3` is available. The hook was failing-CLOSED with `python: command not found`, blocking every Bash command and deadlocking Claude Code on macOS. Fix: added portable `PYTHON=$(command -v python3 || command -v python)` detection at top, replaced all 5 bare `python` calls with `"$PYTHON"`. Same fix would benefit any non-macOS Linux without `/usr/bin/python` symlink. R-1.8.0-020 had introduced the GitHub-Release alignment HARD RULE but the underlying hook bug was never actually fixed despite the commit title — this round closes that gap.
-  2. **P1 — `session-start-inbox.sh` NEVER_RUN list wasted ~10 lines of LLM context per session**. R-1.8.0-021 split NEVER_RUN out of the OVERDUE bucket so the LLM stops mistakenly offering never-run jobs, but the multi-line bullet list still occupied tokens in every Claude Code session. Compressed to a single comma-separated line (`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`). All 10 canonical maintenance jobs preserved (downstream user's suggestion to delete jobs was rejected — those are the v1.8.0 user-invoked discoverability surface per `pro/CLAUDE.md`).
-  3. **P2 — `pro/CLAUDE.md` Step 10a hardcoded 4 Notion entities (Status / Todo / Working Memory / Inbox)**. Real users have varied Notion layouts (downstream user only had 2 of those 4 configured); orchestrator was reporting "Working Memory: failed" for entities that never existed. Rewrote to be config-driven: orchestrator reads `_meta/config.md`, only syncs configured entities, skips Step 10a entirely if no Notion entity configured, and only lists configured entities in the checklist (not "failed: not configured" lines for unconfigured ones).
+  2. **P1 — `session-start-inbox.sh` NEVER_RUN list wasted ~10 lines of LLM context per session**. R-1.8.0-021 split NEVER_RUN out of the OVERDUE bucket so the LLM stops mistakenly offering never-run jobs, but the multi-line bullet list still occupied tokens in every Claude Code session. Compressed to a single comma-separated line (`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`). All 10 canonical maintenance jobs preserved (downstream user's suggestion to delete jobs was rejected — those are the v1.8.0 user-invoked discoverability surface per `hosts/CLAUDE.md`).
+  3. **P2 — `hosts/CLAUDE.md` Step 10a hardcoded 4 Notion entities (Status / Todo / Working Memory / Inbox)**. Real users have varied Notion layouts (downstream user only had 2 of those 4 configured); orchestrator was reporting "Working Memory: failed" for entities that never existed. Rewrote to be config-driven: orchestrator reads `_meta/config.md`, only syncs configured entities, skips Step 10a entirely if no Notion entity configured, and only lists configured entities in the checklist (not "failed: not configured" lines for unconfigured ones).
   4. **P2 — `pre-bash-approval.sh` blocked-command message said "匹配模式: unknown" too often**. The `pattern_key` field in approval.py decision payload was sometimes missing, falling through to literal `'unknown'`. Improved to extract and concatenate `key=` + `matched=` (the actual matched substring) + `regex=` (the source pattern), with a clear "decision payload missing all 4 fields" diagnostic when nothing is available. Also added explicit doc note that inline `export LIFEOS_YOLO_MODE=1` doesn't work in Claude Code Bash tool (PreToolUse hook reads env BEFORE the export executes); persistent bypass requires editing `~/.claude/settings.local.json` env block.
 
   **Declined with reasoning**:
-  - **R-1.8.0-023 (claimed: spec drift to deleted scripts)** — INVALID. All references to `setup-cron.sh` / `retrospective-mode-0.sh` / `archiver-briefing-skeleton.sh` / `archiver-phase-prefetch.sh` in active spec files are explicit "REMOVED in R-1.8.0-011 / deleted in Option A pivot" markers with explanatory context (e.g. `pro/agents/retrospective.md` L244: "R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-0.sh` deleted): RETROSPECTIVE Mode 0 / Mode 2 runs all 18 steps from scratch each invocation"). The spec correctly documents what was deleted and what replaced it; scanner correctly skips via CONTEXT_ALLOW.
-  - **R-1.8.0-024 (claimed: knowledge-extractor not registered as Task agent)** — likely STALE INSTALL. `scripts/setup-hooks.sh` L303-308 calls `register-claude-agents.sh` which iterates `pro/agents/*.md` and writes every file (including `knowledge-extractor.md`) as `~/.claude/agents/lifeos-<name>.md` wrapper. New installs get the full set. The downstream user's environment is missing `lifeos-knowledge-extractor` because they upgraded from a v1.6.x install before knowledge-extractor existed; rerunning `bash scripts/setup-hooks.sh` will re-register everything. Adding short-name aliases would risk colliding with other Claude Code skills using common names (`archiver`, `auditor`, etc.).
+  - **R-1.8.0-023 (claimed: spec drift to deleted scripts)** — INVALID. All references to `setup-cron.sh` / `retrospective-mode-0.sh` / `archiver-briefing-skeleton.sh` / `archiver-phase-prefetch.sh` in active spec files are explicit "REMOVED in R-1.8.0-011 / deleted in Option A pivot" markers with explanatory context (e.g. `agents/retrospective.md` L244: "R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-0.sh` deleted): RETROSPECTIVE Mode 0 / Mode 2 runs all 18 steps from scratch each invocation"). The spec correctly documents what was deleted and what replaced it; scanner correctly skips via CONTEXT_ALLOW.
+  - **R-1.8.0-024 (claimed: knowledge-extractor not registered as Task agent)** — likely STALE INSTALL. `scripts/setup-hooks.sh` L303-308 calls `register-claude-agents.sh` which iterates `agents/*.md` and writes every file (including `knowledge-extractor.md`) as `~/.claude/agents/lifeos-<name>.md` wrapper. New installs get the full set. The downstream user's environment is missing `lifeos-knowledge-extractor` because they upgraded from a v1.6.x install before knowledge-extractor existed; rerunning `bash scripts/setup-hooks.sh` will re-register everything. Adding short-name aliases would risk colliding with other Claude Code skills using common names (`archiver`, `auditor`, etc.).
   - **R-1.8.0-026 (claimed: LIFEOS_YOLO_MODE inline bypass doesn't work)** — BY DESIGN (security). PreToolUse hook reads env BEFORE the user's `export` runs; allowing inline bypass would defeat the guard. Doc fix added in fix #4 above explaining persistent bypass via `~/.claude/settings.local.json`.
 
   **Verification**:
@@ -1048,34 +1074,34 @@ These are real improvements but each is a multi-hour refactor; explicitly deferr
   - `pytest tests/` → 233 passed / 3 deselected
   - 31 tracked .sh `bash -n` → all pass
 
-  3-language CHANGELOG synced. v1.8.0 tag will be force-realigned per pro/CLAUDE.md rule #10 (Release alignment).
+  3-language CHANGELOG synced. v1.8.0 tag will be force-realigned per hosts/CLAUDE.md rule #10 (Release alignment).
 
-- **R-1.8.0-021 · Fix session-start-inbox hook: 2 wrong task names + "never run" treated as overdue (post-2026-05-01 user audit)**: User pasted a downstream auditor's complaint that `scripts/hooks/session-start-inbox.sh` had spec drift — the auditor's diagnosis was 80% wrong (claimed 6 v1.8.0 user-invoked maintenance jobs were "cron-only residue" and proposed deleting them, which would have broken the v1.8.0 discovery mechanism), but their secondary observation was a real UX bug. Verified against `pro/CLAUDE.md` canonical 10-job table.
-  - **2 real bugs fixed**: `TASKS_LINE` array had 2 task names that didn't match any `scripts/prompts/*.md` file or the canonical `pro/CLAUDE.md` Maintenance table:
+- **R-1.8.0-021 · Fix session-start-inbox hook: 2 wrong task names + "never run" treated as overdue (post-2026-05-01 user audit)**: User pasted a downstream auditor's complaint that `scripts/hooks/session-start-inbox.sh` had spec drift — the auditor's diagnosis was 80% wrong (claimed 6 v1.8.0 user-invoked maintenance jobs were "cron-only residue" and proposed deleting them, which would have broken the v1.8.0 discovery mechanism), but their secondary observation was a real UX bug. Verified against `hosts/CLAUDE.md` canonical 10-job table.
+  - **2 real bugs fixed**: `TASKS_LINE` array had 2 task names that didn't match any `scripts/prompts/*.md` file or the canonical `hosts/CLAUDE.md` Maintenance table:
     - `auditor-patrol` → `auditor-mode-2` (the actual prompt + canonical name)
     - `monthly-summary` → `eval-history-monthly` (same)
     Without this fix, when the user said "跑 auditor-patrol", ROUTER could not resolve a real prompt file. The eval-history glob path (which scans for legacy report filenames in `_meta/eval-history/`) was kept unchanged because that's where historical reports were written under the old names — the task name has to match prompt files, but the report glob has to match historical artifact names.
   - **"never run" semantic split**: previously any task with no prior run history was reported as `<name>: never run` in the same `OVERDUE` bucket. The LLM treated this as debt and proactively offered to run jobs the user had never opted into. Split into two buckets:
     - `OVERDUE` — task has a baseline AND age > target. Real debt; LLM should mention.
     - `NEVER_RUN` — task has no baseline. Listed under "Available on-demand (never run yet — NOT overdue, do NOT proactively offer)" with explicit instruction to stay silent unless user asks "what maintenance is available". Also updated the "How to surface" examples to only cite overdue (with-baseline) items, not never-run.
-  - **Comments tightened**: added contract note next to `TASKS_LINE` that task names MUST match `scripts/prompts/<name>.md` AND `pro/CLAUDE.md` canonical table; explained why `review-queue` (handled by separate parser) and `migrate-to-wikilinks` (one-time migration) are intentionally absent.
+  - **Comments tightened**: added contract note next to `TASKS_LINE` that task names MUST match `scripts/prompts/<name>.md` AND `hosts/CLAUDE.md` canonical table; explained why `review-queue` (handled by separate parser) and `migrate-to-wikilinks` (one-time migration) are intentionally absent.
   - **Smoke test**: with synthesized stubs (5d-old INDEX.md, 12d-old spec-compliance report, no other history), hook now outputs `## Overdue maintenance` with only `reindex: 5d` and `## Available on-demand` listing the 8 never-run jobs separately with the do-NOT-offer instruction. Previously the same fixture would have shown all 9 missing jobs as overdue.
   - **Verification**: `bash -n scripts/hooks/session-start-inbox.sh` pass; STRICT scanner unchanged exit 0; mypy / ruff / pytest unaffected (no Python touched).
 
 - **R-1.8.0-020 · GitHub Release alignment HARD RULE + verifier script (post-2026-04-30 user observation)**: User screenshotted GitHub Releases page after R-1.8.0-019: **"Latest" still showed v1.7.3 even though main + v1.8.0 tag were both at `e51822e`**. Root cause: `git push --tags` only updates the git layer; GitHub's Releases page is a separate UI where the Latest badge and release notes must be **explicitly published** via `gh release create` or the web UI. The 4-29 v1.8.0 Draft never got published, so v1.7.3 stayed Latest. User instruction verbatim: "今后每次都要检查这个东西" (going forward, always check this).
   - **Published v1.8.0 Release**: deleted the stale 4-29 Draft, recreated tag at `e51822e`, ran `gh release create v1.8.0 --latest` with full release notes covering R-1.8.0-013..019. v1.8.0 now shows as Latest on GitHub.
   - **Added `scripts/verify-release.sh`**: post-release alignment check. Verifies (1) working tree clean, (2) HEAD == origin/main, (3) target tag points to HEAD, (4) tag pushed to remote, (5) GitHub Release exists for the tag, (6) not Draft, (7) marked as Latest on GitHub. Any drift fails exit 1 with the exact `git` / `gh` command needed to fix. Default target is the most recent tag; `bash scripts/verify-release.sh v1.8.0` checks a specific tag.
-  - **Added rule #10 to `pro/CLAUDE.md` Orchestration Code of Conduct**: makes the 4-step release sequence (push main → push tag → `gh release create --latest` → `verify-release.sh` exits 0) a HARD RULE so future sessions / future versions / Gemini & Codex hosts all enforce it. The local `.claude/CLAUDE.md` (gitignored, this user only) gets the same rule for daily-driver visibility.
+  - **Added rule #10 to `hosts/CLAUDE.md` Orchestration Code of Conduct**: makes the 4-step release sequence (push main → push tag → `gh release create --latest` → `verify-release.sh` exits 0) a HARD RULE so future sessions / future versions / Gemini & Codex hosts all enforce it. The local `.claude/CLAUDE.md` (gitignored, this user only) gets the same rule for daily-driver visibility.
   - **Verification**: `bash scripts/verify-release.sh` → exit 0 (after committing the script itself); `gh release list` confirms `v1.8.0 Latest`.
 
 - **R-1.8.0-019 · Drop active links to `16-agents` legacy paths + scanner catches them (post-2026-04-30 user round-13 audit)**: Round-12 closed all *content* drift (active docs no longer hardcode "16 subagents"). User round-13 caught the last residual class: **active doc index still pointed users to legacy `architecture/16-agents.md` and `reference/all-16-agents/` paths**. The legacy files themselves are correctly marked, but having `docs/index.md` link to them under the "essential reading" / "open this file to find an agent" navigation effectively re-promoted v1.7 historical content as current architecture.
   - **Renamed legacy reference directory**: `git mv docs/reference/all-16-agents → docs/reference/all-agents` (16 per-agent reference files preserved; only the directory name dropped the obsolete count).
   - **Rewrote `docs/index.md` navigation** (3 lines previously linked to legacy paths):
-    - "Open this file to find an agent" reading list now points to `pro/agents/*.md` (the actual current source) instead of `architecture/16-agents.md`. Legacy file presence noted but explicitly de-recommended as "current architecture entry point".
-    - "Quick links" section: replaced `[multiple agents](architecture/16-agents.md)` with `[Agent 定义源](../pro/agents/)`.
-    - "Required reading order before changing the system" rewritten to flow `system-overview` → `pro/agents/` source → `orchestration-protocol`, with explicit note that the architecture/ directory's old agent-list document is `status: legacy` v1.7 history and not part of the current critical path.
+    - "Open this file to find an agent" reading list now points to `agents/*.md` (the actual current source) instead of `architecture/16-agents.md`. Legacy file presence noted but explicitly de-recommended as "current architecture entry point".
+    - "Quick links" section: replaced the old literal link text `multiple agents -> architecture/16-agents.md` with `Agent 定义源 -> ../agents/`.
+    - "Required reading order before changing the system" rewritten to flow `system-overview` → `agents/` source → `orchestration-protocol`, with explicit note that the architecture/ directory's old agent-list document is `status: legacy` v1.7 history and not part of the current critical path.
   - **Scanner upgrade (`scripts/check-spec-drift.sh`)**: added `16-agents.md`, `all-16-agents`, `all-16-a""gents` (bash-concat) to FORBIDDEN_TOKENS so any future active doc that links to the old paths fails STRICT mode. Legacy files (already marked `status: legacy`) remain exempt as usual.
-  - **Committed runtime log**: `pro/compliance/violations.md` had an uncommitted runtime-log line (`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`) appended by `stop-session-verify` hook during today's testing — committed alongside the round-13 changes (file is the auto-appended violation log; `pro/compliance/` is in EXEMPT_PATTERN so doesn't trigger drift).
+  - **Committed runtime log**: `compliance/violations.md` had an uncommitted runtime-log line (`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`) appended by `stop-session-verify` hook during today's testing — committed alongside the round-13 changes (file is the auto-appended violation log; `compliance/` is in EXEMPT_PATTERN so doesn't trigger drift).
   - **Verification**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0; auditor's exact `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` filtered to non-legacy non-CHANGELOG → 0 active hits; `git ls-files | xargs grep -l "16-agents|all-16-agents"` filtered to non-legacy non-CHANGELOG → **0 active hits** (was 1: docs/index.md); mypy --strict tools/ → 0 errors / 16 files; ruff → clean; pytest → 233 passed / 3 deselected; 31 tracked .sh `bash -n` → all pass.
 
 - **R-1.8.0-018 · Paragraph-aware lookback + broader noun coverage (post-2026-04-30 user round-12 audit)**: Round-11 narrowed EXEMPT_PATTERN to file-level only, but user round-12 caught two remaining classes of false-pass:
@@ -1090,13 +1116,13 @@ These are real improvements but each is a multi-hour refactor; explicitly deferr
     - `docs/guides/your-first-decision.md`: "中间 16 个岗位具体在做什么" → "中间多个岗位具体在做什么".
     - `docs/user-guide/themes/themes-overview.md`: "以下 16 个功能完全相同" → "以下核心功能完全相同".
     - `docs/user-guide/themes/adding-a-theme.md`: "确保 16 个 ID 全部填上" → "确保所有当前 engine ID 全部填上".
-    - `docs/architecture/system-overview.md`: architecture box "pro/agents/*.md (16 个) · themes/*.md (9 个)" → "pro/agents/*.md · themes/*.md (9 个)" (kept the 9-themes count which is structural-stable; dropped the volatile agent count).
-    - `pro/agents/retrospective.md`: TBD reference `pro/compliance/2026-04-23-status-cache-drift.md` rephrased to "(planned, TBD: ... will be created when the post-mortem is filed)" so the planned-context exemption applies.
+    - `docs/architecture/system-overview.md`: architecture box "agents/*.md (16 个) · themes/*.md (9 个)" → "agents/*.md · themes/*.md (9 个)" (kept the 9-themes count which is structural-stable; dropped the volatile agent count).
+    - `agents/retrospective.md`: TBD reference `compliance/2026-04-23-status-cache-drift.md` rephrased to "(planned, TBD: ... will be created when the post-mortem is filed)" so the planned-context exemption applies.
   - **Verification**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0; auditor's exact `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` filtered to non-legacy non-CHANGELOG → **0 active hits**; mypy --strict tools/ → 0 errors / 16 files; ruff → clean; pytest → 233 passed / 3 deselected; 31 tracked .sh `bash -n` → all pass.
 
 - **R-1.8.0-017 · Scanner is now the source of truth — narrowed EXEMPT_PATTERN + caught real residuals (post-2026-04-30 user round-11 audit)**: User round-11 audit's core insight: R-1.8.0-016's scanner was passing because it had over-broad **directory-level exemptions** (whole `docs/architecture/`, `docs/guides/`, `i18n/.*/docs/`, `i18n/.*/references/` were skipped), not because the repo was actually clean. With those exemptions the scanner could not be used as proof of "active docs are clean". Auditor proved the gap by listing 24 active count-drift residuals scanner missed (FAQ, themes overview, ZH/JA installation, etc.). This round (a) makes the scanner trustworthy by deleting directory exemptions and (b) fixes everything the new scanner catches.
   - **Scanner tightening (`scripts/check-spec-drift.sh`)**:
-    - **Removed directory-level exemptions**: `docs/architecture/`, `docs/guides/`, `i18n/.*/docs/`, `i18n/.*/references/`, `references/v1.7-shipping-report-`, `references/cortex-spec.md`, `references/tools-spec.md`, `references/narrator-spec.md`. The new EXEMPT_PATTERN only covers truly historical artifacts (CHANGELOG, backup/, MIGRATION, the scanner itself, *-template, pro/compliance/ violations log). Everything else must declare itself legacy via YAML frontmatter (`status: legacy` / `authoritative: false`) OR earn an 8-line CONTEXT_ALLOW lookback exemption per line.
+    - **Removed directory-level exemptions**: `docs/architecture/`, `docs/guides/`, `i18n/.*/docs/`, `i18n/.*/references/`, `references/v1.7-shipping-report-`, `references/cortex-spec.md`, `references/tools-spec.md`, `references/narrator-spec.md`. The new EXEMPT_PATTERN only covers truly historical artifacts (CHANGELOG, backup/, MIGRATION, the scanner itself, *-template, compliance/ violations log). Everything else must declare itself legacy via YAML frontmatter (`status: legacy` / `authoritative: false`) OR earn an 8-line CONTEXT_ALLOW lookback exemption per line.
     - **Broadened SUBAGENT_COUNT_PATTERNS**: added regex variants the round-10 fix missed — `子 agent` (子 = "sub" alt gloss), `[N] 个[modifier] subagent` allowing up to 12 chars between count and noun (e.g. `16 个真正独立的 subagent`), `[N] engine ID`, `[N] engine agent`, JA `[N]の独立サブエージェント`, `[N]のAI 役職`, `同じ[N]の役職`, `[N] subagent 並列`. Threshold raised to N≥13 so structural counts like "1-3 domain agents" / "2 independent subagents per Express request" / "9 themes" are not false-positives — only suspicious magnitudes (matching the system's historical 14/16/22/23 counts) trigger.
   - **Active doc fixes (28 substitutions across 13 files)**: Python script + per-file edits replaced all newly-caught hits with count-free wording.
     - `docs/getting-started/what-is-life-os.md` + ZH parallel: "16 子 agent 并行 — 同时跑 16 个独立 subagent" → "多个子 agent 并行 — 同时跑多个独立 subagent". Same paragraph also lost the v1.7-era narrator-validator standalone subagent description; replaced with v1.8.0 inline self-check description in EN/ZH/JA.
@@ -1108,18 +1134,18 @@ These are real improvements but each is a multi-hour refactor; explicitly deferr
     - `i18n/ja/docs/installation.md`: 9 instances ("16の独立したAI役職", "16のサブエージェント", "16の独立サブエージェント", "同じ16の役職") → "複数の …".
     - `i18n/ja/README.md`: native-subagent registration paragraph specific count (22 / 21) → "複数の agent 定義ファイル / ほぼすべて".
     - `docs/user-guide/themes/adding-a-theme.md` PR contribution checklist: "16 个 engine ID 完整映射" → "全部 engine ID 完整映射".
-  - **Marked v1.7 narrator-spec translations as legacy**: `i18n/{zh,ja}/references/narrator-spec.md` were `status: draft` (no `authoritative: false`); now `status: legacy` + `authoritative: false` + `superseded_by: pro/agents/narrator.md` so the scanner correctly treats them as historical (the EN parent was already so-marked).
+  - **Marked v1.7 narrator-spec translations as legacy**: `i18n/{zh,ja}/references/narrator-spec.md` were `status: draft` (no `authoritative: false`); now `status: legacy` + `authoritative: false` + `superseded_by: agents/narrator.md` so the scanner correctly treats them as historical (the EN parent was already so-marked).
   - **Cortex compliance gate retired (`scripts/lifeos-compliance-check.sh`)**: `check_cortex_gate()` previously fired on the legacy `cortex_enabled: true` config flag. v1.8.0 R-1.8.0-011 made Cortex pull-based — that flag is dead. The gate now triggers only when the transcript already shows ROUTER explicitly launched a Cortex subagent (`Task(hippocampus)` / `Launch(concept-lookup)` / etc.). When ROUTER skipped Cortex (the common case post-pivot), the gate returns "not applicable" and CX1/CX2/CX3 don't fire. Updated `tests/test_compliance_check.py::TestCortex` accordingly: replaced the v1.7 `test_cortex_enabled_no_agents_fails` with `test_cortex_enabled_no_agents_passes_post_pivot` (validates the legacy flag is now ignored) and added `test_cortex_partial_launch_fails` (validates that partial Cortex evidence still fails CX2/CX3).
   - **Verification**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0 (broken paths: 0; subagent-count drift hits in active files: 0); user-side `git ls-files | xargs grep -l "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` filtered to non-legacy non-CHANGELOG → **0 active hits**; mypy --strict tools/ → 0 errors / 16 files; ruff → clean; pytest → **233 passed** / 3 deselected (was 232 + 1 failure from the cortex gate change); 31 tracked .sh `bash -n` → all pass.
 
 - **R-1.8.0-016 · Permanent count-drift fix — drop hardcoded subagent count entirely (post-2026-04-30 user round-10 audit + explicit user instruction)**: User instruction verbatim: "不要说多少个 agent 了，多少个 agent 不重要，就说'多个 agent'就行。改了十几遍了，还没有改好。" Rather than continue chasing 16→23 substitutions every time the count changes, this round permanently retires the hardcoded count: replaced "23 (sub)agents / 23 个 subagent / 23 個の独立した agent / 16 个独立 AI 角色 / etc." with **count-free wording** ("multiple subagents" / "多个 subagent" / "複数の subagent") across all active docs. Subsequent agent-count changes (e.g. v1.9 may add more) will not require any doc edit.
-  - **Bulk count-removal sweep**: Python script ran two passes across 17 active (non-legacy, non-CHANGELOG) docs covering EN/ZH/JA. 79 substring/regex substitutions total. Patterns covered: `N independent (AI )?(agents|roles|subagents)`, `N (sub)?agents?`, `N AI roles`, `All N subagents`, `the N defined roles`, `N functional IDs`, `## N Roles`, `#### The N agents`, ZH `N 个 (subagent|agent|独立 agent|AI 角色|角色|功能 ID)`, JA `Nの(独立した|エージェント|機能 ID|声|個の)`, plus `N agent (制衡|编排|definitions|files|calls|相互牽制|意思決定エンジン)`. Files touched: `SKILL.md`, `README.md`, `i18n/{zh,ja}/README.md`, `docs/index.md`, `docs/installation.md`, `i18n/zh/docs/installation.md`, `docs/getting-started/{what-is-life-os,first-session,choose-your-platform}.md` (× EN/ZH/JA where applicable), `docs/architecture/{system-overview,roadmap}.md`, `docs/evals/{overview,writing-new-scenarios}.md`, `docs/guides/multi-platform-setup.md`, `docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`, `docs/user-guide/making-decisions/reading-the-summary-report.md`, `docs/user-guide/themes/{adding-a-theme,themes-overview}.md`, `docs/reference/version-history.md`, `pro/AGENTS.md`, `pro/GEMINI.md`, root `AGENTS.md`. Historical record (v1.6.0 entry in `version-history.md` saying "v1.6.0 当时为 16 个，至 v1.8.0 增至 23 个") preserved — that's a deliberate fact, not drift.
+  - **Bulk count-removal sweep**: Python script ran two passes across 17 active (non-legacy, non-CHANGELOG) docs covering EN/ZH/JA. 79 substring/regex substitutions total. Patterns covered: `N independent (AI )?(agents|roles|subagents)`, `N (sub)?agents?`, `N AI roles`, `All N subagents`, `the N defined roles`, `N functional IDs`, `## N Roles`, `#### The N agents`, ZH `N 个 (subagent|agent|独立 agent|AI 角色|角色|功能 ID)`, JA `Nの(独立した|エージェント|機能 ID|声|個の)`, plus `N agent (制衡|编排|definitions|files|calls|相互牽制|意思決定エンジン)`. Files touched: `SKILL.md`, `README.md`, `i18n/{zh,ja}/README.md`, `docs/index.md`, `docs/installation.md`, `i18n/zh/docs/installation.md`, `docs/getting-started/{what-is-life-os,first-session,choose-your-platform}.md` (× EN/ZH/JA where applicable), `docs/architecture/{system-overview,roadmap}.md`, `docs/evals/{overview,writing-new-scenarios}.md`, `docs/guides/multi-platform-setup.md`, `docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`, `docs/user-guide/making-decisions/reading-the-summary-report.md`, `docs/user-guide/themes/{adding-a-theme,themes-overview}.md`, `docs/reference/version-history.md`, `hosts/AGENTS.md`, `hosts/GEMINI.md`, root `AGENTS.md`. Historical record (v1.6.0 entry in `version-history.md` saying "v1.6.0 当时为 16 个，至 v1.8.0 增至 23 个") preserved — that's a deliberate fact, not drift.
   - **Scanner upgrade — regex-based count-drift detection (`scripts/check-spec-drift.sh`)**: replaced the round-9 fixed-token list (`"16 sub""agents"` etc.) with `SUBAGENT_COUNT_PATTERNS` — a regex list that matches **any** hardcoded count. Patterns are bash adjacent-string concatenated so the scanner source itself contains zero literal hits. ERE patterns: `[0-9]+ (sub|independent )?(agents?|subagents?|roles?|individuals?)`, `[0-9]+ ?个 ?(subagent|agent|角色|功能 ID)`, `[0-9]+ agent (制衡|编排|定义|calls)`, `[0-9]+ 個の独立した (subagent|agent|エージェント)`, `[0-9]+の(機能 ID|声|エージェント)`. Same 8-line CONTEXT_ALLOW lookback + legacy frontmatter exemption. Future bumps (v1.9 +N agents) won't trigger drift because nobody will write a hardcoded count in the first place. Scanner caught 3 residuals my initial bulk sweep missed (`docs/user-guide/themes/{adding-a-theme,themes-overview}.md` had `4 个角色`, `16 个角色`, `16 个功能 ID`) — all rephrased.
   - **Verification**: `STRICT=1 bash scripts/check-spec-drift.sh` exit 0 (broken paths: 0; subagent-count hits in active files: 0); user-side `git ls-files | xargs grep -lE "\b\d{1,2} (sub)?agents?\b|..."` filtered to non-legacy non-CHANGELOG: **0 active hits**; mypy --strict tools/ → 0 errors / 16 files; ruff → clean; pytest → 232 passed / 3 deselected; 31 tracked .sh `bash -n` → all pass.
   - **`v1.8.0` tag realigned again** to include this round-10 permanent fix.
 
-- **R-1.8.0-015 · Subagent-count drift cleanup + tag realignment (post-2026-04-30 user round-9 audit)**: User round-9 audit caught two residual issues after R-1.8.0-014 STRICT pass: (a) subagent count drift — root `AGENTS.md` already said 23, but `pro/AGENTS.md`, `pro/GEMINI.md`, `docs/index.md`, `docs/installation.md`, `SKILL.md`, both READMEs (EN/ZH/JA) and ~14 user-facing docs still said 16; (b) `v1.8.0` git tag still pointed at `02aea0d` (R-1.8.0-013 commit) instead of the latest Spec-GC HEAD `6cb3d79`. The semantic count drift was the kind of issue R-1.8.0-014's scanner couldn't catch — STRICT only verified deleted-path / forbidden-token references, not user-visible semantic numbers.
-  - **Bulk count update (16 → 23)**: ran a mechanical replace across all active (non-legacy, non-CHANGELOG) docs. Files updated: `SKILL.md`, `pro/AGENTS.md`, `pro/GEMINI.md`, `README.md` (EN), `i18n/zh/README.md`, `i18n/ja/README.md`, `docs/index.md`, `docs/installation.md`, `i18n/zh/docs/installation.md`, `docs/getting-started/{first-session,choose-your-platform,what-is-life-os}.md`, `i18n/zh/docs/getting-started/what-is-life-os.md`, `i18n/ja/docs/getting-started/what-is-life-os.md`, `docs/architecture/{system-overview,roadmap}.md`, `docs/evals/{overview,writing-new-scenarios}.md`, `docs/guides/multi-platform-setup.md`, `docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`, `docs/reference/version-history.md`. Patterns covered: `16 subagents`, `16 个 subagent`, `16 个 agent`, `16 个独立 agent`, `All 16 subagents`, `16 independent agents`, `16 個の独立した agent`, `16 functional IDs`. The historical v1.6.0 migration entry in `version-history.md` was rephrased to `v1.6.0 当时的 agent 文件重命名（v1.6.0 时为 16 个，至 v1.8.0 增至 23 个）` so the reference stays historically accurate.
+- **R-1.8.0-015 · Subagent-count drift cleanup + tag realignment (post-2026-04-30 user round-9 audit)**: User round-9 audit caught two residual issues after R-1.8.0-014 STRICT pass: (a) subagent count drift — root `AGENTS.md` already said 23, but `hosts/AGENTS.md`, `hosts/GEMINI.md`, `docs/index.md`, `docs/installation.md`, `SKILL.md`, both READMEs (EN/ZH/JA) and ~14 user-facing docs still said 16; (b) `v1.8.0` git tag still pointed at `02aea0d` (R-1.8.0-013 commit) instead of the latest Spec-GC HEAD `6cb3d79`. The semantic count drift was the kind of issue R-1.8.0-014's scanner couldn't catch — STRICT only verified deleted-path / forbidden-token references, not user-visible semantic numbers.
+  - **Bulk count update (16 → 23)**: ran a mechanical replace across all active (non-legacy, non-CHANGELOG) docs. Files updated: `SKILL.md`, `hosts/AGENTS.md`, `hosts/GEMINI.md`, `README.md` (EN), `i18n/zh/README.md`, `i18n/ja/README.md`, `docs/index.md`, `docs/installation.md`, `i18n/zh/docs/installation.md`, `docs/getting-started/{first-session,choose-your-platform,what-is-life-os}.md`, `i18n/zh/docs/getting-started/what-is-life-os.md`, `i18n/ja/docs/getting-started/what-is-life-os.md`, `docs/architecture/{system-overview,roadmap}.md`, `docs/evals/{overview,writing-new-scenarios}.md`, `docs/guides/multi-platform-setup.md`, `docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`, `docs/reference/version-history.md`. Patterns covered: `16 subagents`, `16 个 subagent`, `16 个 agent`, `16 个独立 agent`, `All 16 subagents`, `16 independent agents`, `16 個の独立した agent`, `16 functional IDs`. The historical v1.6.0 migration entry in `version-history.md` was rephrased to `v1.6.0 当时的 agent 文件重命名（v1.6.0 时为 16 个，至 v1.8.0 增至 23 个）` so the reference stays historically accurate.
   - **Updated subagent enumeration in `docs/architecture/system-overview.md`**: previously the "23 个 subagent" header was followed by a 16-name list. Updated the list to all 23 IDs (added: `hippocampus`, `concept-lookup`, `soul-check`, `gwt-arbitrator`, `narrator`, `knowledge-extractor`, `monitor`).
   - **Scanner extension (`scripts/check-spec-drift.sh`)**: added 7 subagent-count drift tokens to `FORBIDDEN_TOKENS`. Tokens are written via bash adjacent-string concatenation (`"16 sub""agents"`) so the scanner source itself does not carry the literal substring — that lets a user-side `rg "16 subagents"` audit against the repo find zero hits in the scanner itself, only real drift candidates. Legacy frontmatter (`status: legacy` or `authoritative: false`) exemption applies as usual; v1.7-era spec / archive files still mention "16" historically and are correctly skipped.
   - **`v1.8.0` tag force-realigned**: deleted local + remote tag, recreated annotated tag at HEAD `6cb3d79` so consumers fetching `v1.8.0` get the full Spec-GC + subagent-count cleanup (R-1.8.0-014 + R-1.8.0-015), not the stale R-1.8.0-013 snapshot. (`git tag -d v1.8.0 && git push origin :refs/tags/v1.8.0 && git tag -a v1.8.0 <head> && git push origin v1.8.0`.)
@@ -1135,7 +1161,7 @@ These are real improvements but each is a multi-hour refactor; explicitly deferr
   - **Active-file rewrites** (deleted-script references replaced with explicit "deleted in v1.8.0 pivot" annotations or migrated to the current pull-based equivalents):
     - `docs/getting-started/what-is-life-os.md` Layer 4 section (× EN/ZH/JA): replaced cron-era `scripts/{decay-audit,dream-trigger-check,monthly-review,session-index,wiki-conflict-check}.py` listing with the actual `python -m tools.<name>` modules shipped post R-1.8.0-011.
     - `tools/README.md`: rewrote Status + Authoritative Spec sections, replaced "Planned Modules" table with "Currently Shipped Modules" enumerating the 10 actually-present tools, marked deleted dispatcher / cron scripts / cortex helpers as historical context.
-    - `pro/agents/monitor.md` Related Specs: marked `references/automation-spec.md` and `references/session-modes-spec.md` as deleted in v1.8.0 pivot (superseded by `pro/CLAUDE.md` Session Modes).
+    - `agents/monitor.md` Related Specs: marked `references/automation-spec.md` and `references/session-modes-spec.md` as deleted in v1.8.0 pivot (superseded by `hosts/CLAUDE.md` Session Modes).
     - `evals/scenarios/tool-seed.md`: marked `references/SOUL-template.md` and `references/tools-spec.md §6.10` as legacy/deleted; `tools/seed.py` now generates skeleton inline.
     - `docs/user-guide/themes/adding-a-theme.md`: removed reference to non-existent `themes/zh-classical-tw.md`; described traditional-Chinese variant as a user-created file.
   - **Legacy frontmatter pass (round-8 cumulative · 71 files marked across two batches)**: spec / legacy-doc files in `docs/architecture/`, `docs/guides/v1.7-migration.md`, `docs/user-guide/cortex/*` (× EN/ZH/JA), `references/{cortex-spec, cortex-architecture, narrator-spec, tools-spec, v1.7-shipping-report, templates/concept-template, concept-spec, data-layer, eval-history-spec, hippocampus-spec, method-library-spec, session-index-spec, snapshot-spec, compliance-spec}.md` (× EN/ZH/JA), `evals/scenarios/*` carry `status: legacy` (or `authoritative: false`) so the scanner recognizes them as historical content rather than active spec.
@@ -1189,16 +1215,16 @@ User feedback driving v1.8.0: 「Hermes 和 cortex 的问题」→「为什么�
   - `/method create|update|list` — method library management via `tools.skill_manager` CLI.
 - **Approval guard wired (PreToolUse Bash hook)**: new `scripts/hooks/pre-bash-approval.sh` bridges every Bash command to `tools/approval.py`. Closes the v1.7.2 gap where 47 dangerous-command patterns + hardline + tirith guards sat with 0 callers. Hook reads Claude Code stdin JSON, runs `check_dangerous_command()`, exits 0 (silent approve) or exit 2 + stderr (block with reason). Bypass: `export LIFEOS_YOLO_MODE=1`. Registered in `setup-hooks.sh` as `life-os-pre-bash-approval` (PreToolUse · matcher Bash · timeout 5s).
 - **Memory auto-emit detection (auto-trigger patch · 2026-04-27)**: `pre-prompt-guard.sh` also detects 中/英/日 memory keywords (记一下 / remind me / 覚えて / TODO etc) and injects `<system-reminder>` (trigger=memory) forcing ROUTER to auto-run `python -m tools.memory emit` instead of redirecting user to `/memory`. Adds `trigger=memory` value to hook activity log.
-- **pro/CLAUDE.md → Auto-Trigger Rules section (auto-trigger patch · 2026-04-27)**: codifies memory auto-emit, compress auto-suggest, search auto-trigger (via Cortex hippocampus), method auto-create (via archiver Phase 2 → knowledge-extractor). Principle: "if ROUTER asks the user to switch to a slash command, that is a UX bug — just do the action".
-- **knowledge-extractor subagent (Phase 2 carve-out · 2026-04-27)**: new `pro/agents/knowledge-extractor.md` (Opus tier, [Read, Grep, Glob, Bash, Write] tools). Performs the 7 Phase 2 sub-steps (wiki six-criteria gate / SOUL changes / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map) AND writes the 7 persistent files. Writes 7 extraction reports to `_meta/runtime/<sid>/extraction/*.md` for archiver to read back. R11 audit trail to `_meta/runtime/<sid>/knowledge-extractor.json`. Reason: previous monolithic archiver had 80%+ placeholder violations (10+ recent adjourn runs in `pro/compliance/violations.md` 2026-04-25 through 2026-04-27) because it had to do everything in one invocation. ROUTER MUST launch knowledge-extractor BEFORE archiver.
+- **hosts/CLAUDE.md → Auto-Trigger Rules section (auto-trigger patch · 2026-04-27)**: codifies memory auto-emit, compress auto-suggest, search auto-trigger (via Cortex hippocampus), method auto-create (via archiver Phase 2 → knowledge-extractor). Principle: "if ROUTER asks the user to switch to a slash command, that is a UX bug — just do the action".
+- **knowledge-extractor subagent (Phase 2 carve-out · 2026-04-27)**: new `agents/knowledge-extractor.md` (Opus tier, [Read, Grep, Glob, Bash, Write] tools). Performs the 7 Phase 2 sub-steps (wiki six-criteria gate / SOUL changes / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map) AND writes the 7 persistent files. Writes 7 extraction reports to `_meta/runtime/<sid>/extraction/*.md` for archiver to read back. R11 audit trail to `_meta/runtime/<sid>/knowledge-extractor.json`. Reason: previous monolithic archiver had 80%+ placeholder violations (10+ recent adjourn runs in `compliance/violations.md` 2026-04-25 through 2026-04-27) because it had to do everything in one invocation. ROUTER MUST launch knowledge-extractor BEFORE archiver.
 
 ### Changed
 
-- **narrator-validator audit trail HARD RULE**: `pro/agents/narrator-validator.md` frontmatter `tools` extended from `[Read]` to `[Read, Bash, Write]`; new "Audit Trail (R11, HARD RULE)" section added requiring `_meta/runtime/<sid>/narrator-validator.json` write before returning YAML output.
+- **narrator-validator audit trail HARD RULE**: `agents/narrator-validator.md` frontmatter `tools` extended from `[Read]` to `[Read, Bash, Write]`; new "Audit Trail (R11, HARD RULE)" section added requiring `_meta/runtime/<sid>/narrator-validator.json` write before returning YAML output.
 - **Version markers**: `SKILL.md` frontmatter and 3 README badges updated to `1.7.3`.
 - **Spec docs updated for inline compression**: `SKILL.md` Trigger Execution Templates `/compress` section, `references/hard-rules-index.md` manual compression bullet, and `evals/scenarios/cortex-retrieval.md` CX11 positive case all rewritten to describe ROUTER inline compression replacing the removed `tools/context_compressor.py`.
-- **4 slash command files demoted to backup mode (auto-trigger patch · 2026-04-27)**: each `scripts/commands/{compress,search,memory,method}.md` now starts with a "⚠️ Backup mode" header pointing to the relevant pro/CLAUDE.md Auto-Trigger Rules subsection. Slash commands remain functional for: (1) precise user control, (2) developer smoke test, (3) auto-trigger fallback.
-- **archiver.md Phase 2 carve-out + spec consistency fix (carve-out · 2026-04-27)**: `pro/agents/archiver.md` line 77 fixed (was "12-section Adjourn Report Completeness Contract" legacy v1.7.2 wording, now matches v1.7.2.3 "6-H2"). Phase 2 entire spec rewritten: primary path delegates to `knowledge-extractor` subagent; legacy 7-sub-step inline spec preserved as fallback. `pro/CLAUDE.md` Step 10 updated: ROUTER MUST launch `knowledge-extractor` first, then `archiver`. New launch sequence template.
+- **4 slash command files demoted to backup mode (auto-trigger patch · 2026-04-27)**: each `scripts/commands/{compress,search,memory,method}.md` now starts with a "⚠️ Backup mode" header pointing to the relevant hosts/CLAUDE.md Auto-Trigger Rules subsection. Slash commands remain functional for: (1) precise user control, (2) developer smoke test, (3) auto-trigger fallback.
+- **archiver.md Phase 2 carve-out + spec consistency fix (carve-out · 2026-04-27)**: `agents/archiver.md` line 77 fixed (was "12-section Adjourn Report Completeness Contract" legacy v1.7.2 wording, now matches v1.7.2.3 "6-H2"). Phase 2 entire spec rewritten: primary path delegates to `knowledge-extractor` subagent; legacy 7-sub-step inline spec preserved as fallback. `hosts/CLAUDE.md` Step 10 updated: ROUTER MUST launch `knowledge-extractor` first, then `archiver`. New launch sequence template.
 - **stop-session-verify hook LLM_FILL detection (carve-out · 2026-04-27)**: `scripts/hooks/stop-session-verify.sh check_phase()` enhanced. Previously only detected TBD / `{...}` / "placeholder" string in phase header lines. Now also scans the next 30 lines after each phase header for unfilled `<!-- LLM_FILL: ... -->` patterns and `LLM_FILL:` strings, marking that phase as `placeholder_phases`. Catches the actual root cause of recent archiver violations (LLM emitting Bash skeleton verbatim without filling placeholders).
 
 ### Removed (4 dead modules · 1830 lines)
@@ -1244,18 +1270,18 @@ User feedback driving this release window:
 
 ## [1.7.2.3] - 2026-04-26 - Retrospective skeleton ownership
 
-> Subagent D ownership patch. Scope limited to `pro/agents/retrospective.md`, `SKILL.md`, three README files, and three CHANGELOG files.
+> Subagent D ownership patch. Scope limited to `agents/retrospective.md`, `SKILL.md`, three README files, and three CHANGELOG files.
 
 ### Changed
 
-- **RETROSPECTIVE ownership narrowed**: `pro/agents/retrospective.md` now states that ROUTER pre-renders roughly 80% of Mode 0 via Bash skeleton.
+- **RETROSPECTIVE ownership narrowed**: `agents/retrospective.md` now states that ROUTER pre-renders roughly 80% of Mode 0 via Bash skeleton.
 - **Single LLM fill slot**: the subagent fills only `<!-- LLM_FILL: today_focus_and_pending_decisions -->` with about 5-15 lines for Today's Focus and Pending Decisions; ROUTER splices that block into the skeleton.
 - **Version markers**: `SKILL.md` and README badges now point to `1.7.2.3`.
 - **install_sha field for SHA gap fix**: `SKILL.md` frontmatter now carries `commit_sha` and `install_date` fields. `setup-hooks.sh` auto-writes them on git clone deployments. New `scripts/lib/sha-fallback.sh` provides 3-tier resolution: `SKILL.md` frontmatter → `.install-meta` JSON → `git rev-parse HEAD` → `unknown`. Closes `Local commit SHA: unknown` bug on install-skill deployments.
-- **SOUL/DREAM display restored (v1.6.x parity)**: `scripts/retrospective-briefing-skeleton.sh` now Bash-pastes full `SOUL.md` content and full latest `_meta/journal/*-dream.md` content verbatim in fenced markdown blocks. LLM only adds delta interpretation (confidence trend / today implications) on top, cannot compress structural SOUL/DREAM data. `pro/agents/retrospective.md` ## 2 / ## 3 spec updated to reflect new "Bash paste full content + LLM trend narrative" model. Reverses v1.7.2.1 over-subtraction that compressed SOUL Health to "changed dimensions only" and DREAM to "1-2 sentence digest".
-- **Adjourn 12 H2 → 6 H2 + LLM token budget (speed fix)**: `pro/agents/archiver.md` Adjourn Report Completeness Contract reduced from 12 H2 to 6 core H2 (Phase 0/1/2/3/4 + Completion Checklist). AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost folded as H3 sub-items under Completion Checklist. New "Phase 2/3 LLM Token Budget" HARD RULE: Phase 2 narrative ≤ 1500 tokens (combined wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity), Phase 3 narrative ≤ 800 tokens. Verbatim DREAM journal does not count toward budget (Bash paste). Speed target: archiver Adjourn 25 min → 10-12 min.
-- **archiver-briefing-skeleton.sh new (Bash skeleton for archiver)**: New `scripts/archiver-briefing-skeleton.sh` mirrors `retrospective-briefing-skeleton.sh` design — emits 6 H2 Adjourn Report framework with Bash-pasted Phase 0/1/4 + measured facts (outbox path / decision-task-journal counts / wiki-SOUL-DREAM stat / git status / Stop hook health). LLM only fills `<!-- LLM_FILL -->` placeholders for Phase 2/3 narrative + Completion Checklist values. Wired into `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Step 10 Adjourn Session block. Complementary to existing `archiver-phase-prefetch.sh` (R11 audit trail).
-- **Session Binding HARD RULE rewritten (product direction correction)**: `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Session Binding HARD RULE clarified: discussion scope ≠ data write scope. Session binding constrains data persistence (where decisions/wiki/SOUL get written) but NOT discussion topics. ROUTER engages directly with whatever the user raises (financial / strategic / interpersonal / cross-project / abstract). ROUTER MUST NOT deflect with "本窗口角色只做 X" / "请转到其他窗口" / "translate to planner trigger paste for another window" / "召唤翰林院 panel" without explicit user request. Reverses 13-round hardening accumulated effect of LLMs treating session binding as business-topic forbidden zone. Restores Life OS to its founding purpose as a decision thinking assistant.
+- **SOUL/DREAM display restored (v1.6.x parity)**: `scripts/retrospective-briefing-skeleton.sh` now Bash-pastes full `SOUL.md` content and full latest `_meta/journal/*-dream.md` content verbatim in fenced markdown blocks. LLM only adds delta interpretation (confidence trend / today implications) on top, cannot compress structural SOUL/DREAM data. `agents/retrospective.md` ## 2 / ## 3 spec updated to reflect new "Bash paste full content + LLM trend narrative" model. Reverses v1.7.2.1 over-subtraction that compressed SOUL Health to "changed dimensions only" and DREAM to "1-2 sentence digest".
+- **Adjourn 12 H2 → 6 H2 + LLM token budget (speed fix)**: `agents/archiver.md` Adjourn Report Completeness Contract reduced from 12 H2 to 6 core H2 (Phase 0/1/2/3/4 + Completion Checklist). AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost folded as H3 sub-items under Completion Checklist. New "Phase 2/3 LLM Token Budget" HARD RULE: Phase 2 narrative ≤ 1500 tokens (combined wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity), Phase 3 narrative ≤ 800 tokens. Verbatim DREAM journal does not count toward budget (Bash paste). Speed target: archiver Adjourn 25 min → 10-12 min.
+- **archiver-briefing-skeleton.sh new (Bash skeleton for archiver)**: New `scripts/archiver-briefing-skeleton.sh` mirrors `retrospective-briefing-skeleton.sh` design — emits 6 H2 Adjourn Report framework with Bash-pasted Phase 0/1/4 + measured facts (outbox path / decision-task-journal counts / wiki-SOUL-DREAM stat / git status / Stop hook health). LLM only fills `<!-- LLM_FILL -->` placeholders for Phase 2/3 narrative + Completion Checklist values. Wired into `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` Step 10 Adjourn Session block. Complementary to existing `archiver-phase-prefetch.sh` (R11 audit trail).
+- **Session Binding HARD RULE rewritten (product direction correction)**: `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` Session Binding HARD RULE clarified: discussion scope ≠ data write scope. Session binding constrains data persistence (where decisions/wiki/SOUL get written) but NOT discussion topics. ROUTER engages directly with whatever the user raises (financial / strategic / interpersonal / cross-project / abstract). ROUTER MUST NOT deflect with "本窗口角色只做 X" / "请转到其他窗口" / "translate to planner trigger paste for another window" / "召唤翰林院 panel" without explicit user request. Reverses 13-round hardening accumulated effect of LLMs treating session binding as business-topic forbidden zone. Restores Life OS to its founding purpose as a decision thinking assistant.
 
 ### Migration
 
@@ -1411,8 +1437,8 @@ No required second-brain migration. Optional: run `bash scripts/setup-cron.sh in
 - **10 Python tools unified under `life-os-tool`** — reindex / reconcile / stats / research / daily-briefing / backup / migrate / search / export / seed (+ embed placeholder + sync-notion)
 - **3 Python libraries** — `tools/lib/{config, llm, notion}` as the shared surface for every tool
 - **Trilingual user guide shipped** — 6 new Cortex guides (EN) + Chinese/Japanese cortex-spec and hippocampus-spec translations
-- **Host-agnostic orchestration contract** — Step 0.5 (Pre-Router Cognitive) + Step 7.5 (Narrator validation) now normative in CLAUDE.md / GEMINI.md / AGENTS.md (root + `pro/`)
-- **Life OS agents register as native Claude Code subagents** — install writes 21 Task-spawnable `~/.claude/agents/lifeos-*.md` wrappers from the 22 `pro/agents/*.md` definitions, skipping the ROUTER-internal narrator template so `Task(lifeos-retrospective)` no longer falls back to `general-purpose`
+- **Host-agnostic orchestration contract** — Step 0.5 (Pre-Router Cognitive) + Step 7.5 (Narrator validation) now normative in `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md`
+- **Life OS agents register as native Claude Code subagents** — install writes 21 Task-spawnable `~/.claude/agents/lifeos-*.md` wrappers from the 22 `agents/*.md` definitions, skipping the ROUTER-internal narrator template so `Task(lifeos-retrospective)` no longer falls back to `general-purpose`
 
 ### Features
 
@@ -1438,7 +1464,7 @@ No required second-brain migration. Optional: run `bash scripts/setup-cron.sh in
   - `embed` — placeholder (explicit no-op, per v1.7 decision "no vector DB")
   - `sync_notion` — two-way Notion mirror (via `tools/lib/notion.py`)
 - **Python libraries** — `tools/lib/config.py` (env + pyproject resolution) · `tools/lib/llm.py` (LLM call wrapper with retries + token accounting) · `tools/lib/notion.py` (Notion API client)
-- **Orchestration** — Step 0.5 (Pre-Router Cognitive Layer) and Step 7.5 (Narrator validation) synchronized into CLAUDE.md, GEMINI.md, and AGENTS.md at both root and `pro/` levels; contract is now host-agnostic
+- **Orchestration** — Step 0.5 (Pre-Router Cognitive Layer) and Step 7.5 (Narrator validation) synchronized into `hosts/CLAUDE.md`, `hosts/GEMINI.md`, and `hosts/AGENTS.md`; contract is now host-agnostic
 - **Bootstrap tooling** — `tools/seed_concepts.py` + 3 user-facing templates for second-brain bootstrap; 11 tests
 
 ### Documentation
@@ -1479,7 +1505,7 @@ No required second-brain migration. Optional: run `bash scripts/setup-cron.sh in
 ### Compliance
 
 - **2 incident dossiers** captured during the Cortex GA run
-  - `backup/pro/compliance/2026-04-19-court-start-violation.md` — archived (resolved, lesson absorbed into L1/L2 hooks)
+  - `backup/compliance/2026-04-19-court-start-violation.md` — archived (resolved, lesson absorbed into L1/L2 hooks)
   - Narrator-spec violation — **resolved 2026-04-22** (absorbed into the Step 7.5 narrator-validator contract)
 
 ### Selected Files Touched (post-alpha.2 commits)
@@ -1505,7 +1531,7 @@ f8a26c6 feat(tools): embed.py placeholder + search.py (S5+S4 parallel-sprint mer
 5ff0d32 feat(hooks+lib): stop-session-verify.sh + Notion lib + pyproject (S1+S2 parallel-sprint merge)
 4a2590f docs(orchestration): update root AGENTS.md with host-agnostic Step 0.5/7.5 contract
 4ae2a65 feat(hooks): add pre-write-scan.sh
-bf7f87e docs(orchestration): sync Step 0.5/7.5 to pro/AGENTS.md
+bf7f87e docs(orchestration): sync Step 0.5/7.5 to hosts/AGENTS.md
 877c629 feat(lib): add tools/lib/llm.py + tests
 efa339d feat(lib): add tools/lib/config.py + tests
 1414677 feat(hooks): add post-response-verify.sh
@@ -1519,7 +1545,7 @@ a503301 feat(hooks): add pre-prompt-guard.sh
 
 ## [1.7.0-alpha.2] - 2026-04-21 · Post-v1.7.0-alpha follow-ups bundle
 
-> 📚 **Comprehensive overview**: see [`references/v1.7-shipping-report-2026-04-21.md`](references/v1.7-shipping-report-2026-04-21.md) for the full single-page narrative covering both the v1.6.3 COURT-START-001 fix line AND the v1.7 Cortex line in one document. Recommended starting point if you're returning to the repo and want to know "what shipped today".
+> 📚 **Comprehensive overview**: see [`docs/history/v1.7-shipping-report-2026-04-21.md`](docs/history/v1.7-shipping-report-2026-04-21.md) for the full single-page narrative covering both the v1.6.3 COURT-START-001 fix line AND the v1.7 Cortex line in one document. Recommended starting point if you're returning to the repo and want to know "what shipped today".
 
 > 13 commits shipped after v1.7.0-alpha to close TBDs from the alpha CHANGELOG and add tooling/test infrastructure. Will roll into v1.7.0 stable release.
 
@@ -1558,8 +1584,8 @@ a503301 feat(hooks): add pre-prompt-guard.sh
 
 ### 🔌 Wiring polish
 
-- `pro/CLAUDE.md` Information Isolation table extended for all 6 v1.7 subagents (was: only hippocampus + GWT) + narrator-validator chain note in Step 0.5
-- `pro/agents/archiver.md` adds explicit "Phase 2 Mid-Step — SOUL Snapshot" with both Python helper + direct write paths
+- `hosts/CLAUDE.md` Information Isolation table extended for all 6 v1.7 subagents (was: only hippocampus + GWT) + narrator-validator chain note in Step 0.5
+- `agents/archiver.md` adds explicit "Phase 2 Mid-Step — SOUL Snapshot" with both Python helper + direct write paths
 
 ### 🐛 Bug fixes
 
@@ -1611,12 +1637,12 @@ After REVIEWER Final Review, optional `narrator` wraps Summary Report substantiv
 
 | Agent | File | Spec |
 |-------|------|------|
-| hippocampus | `pro/agents/hippocampus.md` | `references/hippocampus-spec.md` |
-| concept-lookup | `pro/agents/concept-lookup.md` | `references/concept-spec.md` |
-| soul-check | `pro/agents/soul-check.md` | derived from soul-spec + gwt-spec §6 |
-| gwt-arbitrator | `pro/agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
-| narrator | `pro/agents/narrator.md` | `references/narrator-spec.md` |
-| narrator-validator | `pro/agents/narrator-validator.md` | narrator-spec validator section |
+| hippocampus | `agents/hippocampus.md` | `references/hippocampus-spec.md` |
+| concept-lookup | `agents/concept-lookup.md` | `references/concept-spec.md` |
+| soul-check | `agents/soul-check.md` | derived from soul-spec + gwt-spec §6 |
+| gwt-arbitrator | `agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
+| narrator | `agents/narrator.md` | `references/narrator-spec.md` |
+| narrator-validator | `agents/narrator-validator.md` | narrator-spec validator section |
 
 All 6 enforce information isolation: peer Pre-Router agent outputs are rejected. All are read-only — mutations happen only in archiver Phase 2.
 
@@ -1654,10 +1680,10 @@ python3 -m pytest tests/ -v        # 77 passed in 0.23s
 
 ### 🔌 Wiring updates
 
-- **`pro/agents/archiver.md`** Phase 2 — adds (a) concept extraction + Hebbian update + SYNAPSES regeneration step, (b) SessionSummary write step
-- **`pro/agents/retrospective.md`** Mode 0 — adds INDEX.md compilation step + AUDITOR Compliance Patrol auto-follow
-- **`pro/CLAUDE.md`** — new Workflow Step 0.5 (Pre-Router Cognitive Layer); Information Isolation table extended for hippocampus + gwt-arbitrator entries
-- **`pro/agents/auditor.md`** Mode 3 — adds 7 Cortex compliance checks (CX1-CX7)
+- **`agents/archiver.md`** Phase 2 — adds (a) concept extraction + Hebbian update + SYNAPSES regeneration step, (b) SessionSummary write step
+- **`agents/retrospective.md`** Mode 0 — adds INDEX.md compilation step + AUDITOR Compliance Patrol auto-follow
+- **`hosts/CLAUDE.md`** — new Workflow Step 0.5 (Pre-Router Cognitive Layer); Information Isolation table extended for hippocampus + gwt-arbitrator entries
+- **`agents/auditor.md`** Mode 3 — adds 7 Cortex compliance checks (CX1-CX7)
 
 ### 🚦 Default OFF (opt-in)
 
@@ -1686,8 +1712,8 @@ CX checks skipped when `cortex_enabled: false`.
 ### 📁 Files Touched (19 commits)
 
 Specs: `references/{cortex,hippocampus,gwt,concept,snapshot,session-index,narrator,hooks,tools,eval-history,method-library}-spec.md` + 8 modified existing references.
-Subagents: `pro/agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`.
-Wiring: `pro/CLAUDE.md`, `pro/agents/{archiver,retrospective,auditor}.md`.
+Subagents: `agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`.
+Wiring: `hosts/CLAUDE.md`, `agents/{archiver,retrospective,auditor}.md`.
 Tools: `tools/lib/{second_brain.py,cortex/*}`, `tools/{stats,rebuild_session_index,rebuild_concept_index}.py`.
 Project: `pyproject.toml`, `.python-version`, `tools/README.md`.
 Tests: `tests/{__init__,test_second_brain,test_session_index,test_concept_and_snapshot,test_stats}.py`.
@@ -1716,18 +1742,18 @@ Default OFF means existing users see ZERO behavior change unless they opt in. v1
 
 ## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 Auto-Trigger Wired
 
-> v1.6.3 shipped Mode 3 (Compliance Patrol) spec into `pro/agents/auditor.md` but **nothing actually invoked it**. The first production run in a user second-brain confirmed the gap: retrospective Mode 0 completed, briefing displayed, but no AUDITOR Compliance Patrol report appeared. Layer 4 of the five-layer defense was inert.
+> v1.6.3 shipped Mode 3 (Compliance Patrol) spec into `agents/auditor.md` but **nothing actually invoked it**. The first production run in a user second-brain confirmed the gap: retrospective Mode 0 completed, briefing displayed, but no AUDITOR Compliance Patrol report appeared. Layer 4 of the five-layer defense was inert.
 
 ### 🔧 Fix
 
-`pro/CLAUDE.md` Orchestration Code of Conduct gains rule #7:
+`hosts/CLAUDE.md` Orchestration Code of Conduct gains rule #7:
 
 > **AUDITOR Compliance Patrol auto-trigger** — after every `retrospective` Mode 0 (Start Session) completes OR every `archiver` returns, the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). Cannot be skipped. HARD RULE.
 
 Three supporting docs updated to make the contract explicit:
 
-- `pro/agents/retrospective.md` — adds "Auto-Follow: AUDITOR Compliance Patrol" section noting orchestrator chains Mode 3 after Mode 0 returns. Subagent itself does not launch AUDITOR.
-- `pro/agents/auditor.md` — Mode 3 "When to run" section adds explicit trigger contract: orchestrator-launched, not self-launched, with cross-reference to `pro/CLAUDE.md` rule #7.
+- `agents/retrospective.md` — adds "Auto-Follow: AUDITOR Compliance Patrol" section noting orchestrator chains Mode 3 after Mode 0 returns. Subagent itself does not launch AUDITOR.
+- `agents/auditor.md` — Mode 3 "When to run" section adds explicit trigger contract: orchestrator-launched, not self-launched, with cross-reference to `hosts/CLAUDE.md` rule #7.
 - `SKILL.md` — version 1.6.3a → 1.6.3b.
 
 ### 📊 Five-layer defense status (post-1.6.3b)
@@ -1743,9 +1769,9 @@ Three supporting docs updated to make the contract explicit:
 ### Files Touched
 
 - `SKILL.md` (version 1.6.3a → 1.6.3b)
-- `pro/CLAUDE.md` (+ Orchestration rule #7)
-- `pro/agents/retrospective.md` (+ Auto-Follow section)
-- `pro/agents/auditor.md` (Mode 3 "When to run" trigger contract clarified)
+- `hosts/CLAUDE.md` (+ Orchestration rule #7)
+- `agents/retrospective.md` (+ Auto-Follow section)
+- `agents/auditor.md` (Mode 3 "When to run" trigger contract clarified)
 - `README.md` + 三語 (badge)
 - `CHANGELOG.md` + 三語
 
@@ -1790,7 +1816,7 @@ Trigger regex now runs against **first line only** (was multiline). Pasted trans
 
 ### 🆕 Class F — False positive
 
-Added to `references/compliance-spec.md` Type Taxonomy and `pro/compliance/violations.md` Type Legend:
+Added to `references/compliance-spec.md` Type Taxonomy and `compliance/violations.md` Type Legend:
 
 | Code | Name | Default Severity |
 |------|------|------------------|
@@ -1800,7 +1826,7 @@ First documented Class F entry: 2026-04-21T13:42 — paste of v1.6.3 production-
 
 ### 📋 COURT-START-001 status update
 
-4 incident entries in `pro/compliance/violations.md` annotated with production-verification evidence:
+4 incident entries in `compliance/violations.md` annotated with production-verification evidence:
 - L2 (Pre-flight Compliance Check) — verified working in user second-brain on 2026-04-21
 - L3 (Subagent Self-Check) — verified working in user second-brain on 2026-04-21
 - L4 (AUDITOR Compliance Patrol) + L5 (eval regression) — pending observation window
@@ -1813,8 +1839,8 @@ First documented Class F entry: 2026-04-21T13:42 — paste of v1.6.3 production-
 - `scripts/setup-hooks.sh` (refactor with register_hook helper + UserPromptSubmit registration)
 - `scripts/lifeos-pre-prompt-guard.sh` (+ length check + first-line extraction)
 - `references/compliance-spec.md` (+ Class F to Type Taxonomy)
-- `pro/compliance/violations.md` (+ Class F to legend, + 1 F entry, + L2/L3 verification annotations on 4 COURT-START-001 entries)
-- `pro/compliance/violations.example.md` (+ Example 11 Class F)
+- `compliance/violations.md` (+ Class F to legend, + 1 F entry, + L2/L3 verification annotations on 4 COURT-START-001 entries)
+- `compliance/violations.example.md` (+ Example 11 Class F)
 - `README.md` + 三語 (version badge + v1.6.3a hot-patch note)
 - `CHANGELOG.md` + 三語
 
@@ -1840,8 +1866,8 @@ Root cause of COURT-START-001: documentation was complete, but **every HARD RULE
 
 1. **Hook layer** — `scripts/lifeos-pre-prompt-guard.sh` runs on `UserPromptSubmit`, detects trigger words (上朝 / start / 閣議開始 / 退朝 / etc., all 9 themes), injects a `<system-reminder>` with the exact HARD RULE text and violation taxonomy into the assistant's context before any response.
 2. **Pre-flight Compliance Check** — `SKILL.md` now requires ROUTER to output a 1-line confirmation before any tool call: `🌅 Trigger: [word] → Theme: [name] → Action: Launch([agent]) [Mode]`. Missing line = Class A3 violation, logged.
-3. **Subagent self-check** — `pro/agents/retrospective.md` Mode 0 first line must be: `✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.` This proves the subagent was actually launched.
-4. **AUDITOR Compliance Patrol (Mode 3)** — `pro/agents/auditor.md` adds Mode 3 with a 7-class taxonomy (A1/A2/A3/B/C/D/E) and 6 detection checks for Start Session / Adjourn paths. Runs after every retrospective Mode 0 and archiver completion.
+3. **Subagent self-check** — `agents/retrospective.md` Mode 0 first line must be: `✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading agents/retrospective.md. Starting Step 1: THEME RESOLUTION.` This proves the subagent was actually launched.
+4. **AUDITOR Compliance Patrol (Mode 3)** — `agents/auditor.md` adds Mode 3 with a 7-class taxonomy (A1/A2/A3/B/C/D/E) and 6 detection checks for Start Session / Adjourn paths. Runs after every retrospective Mode 0 and archiver completion.
 5. **Eval regression** — `evals/scenarios/start-session-compliance.md` codifies the 6 COURT-START-001 failure modes as Quality Checkpoints with grep-based failure detection commands.
 
 ### 📋 Violation Taxonomy (7 classes)
@@ -1860,7 +1886,7 @@ Root cause of COURT-START-001: documentation was complete, but **every HARD RULE
 
 User explicitly required: *"local sh command execution is fine, but the database must be md files and GitHub storage."* Violations are persisted to:
 
-- `pro/compliance/violations.md` — dev repo (public, ships with Life OS)
+- `compliance/violations.md` — dev repo (public, ships with Life OS)
 - `_meta/compliance/violations.md` — user second-brain (private, per-user)
 
 Both use the same format: `| Timestamp | Trigger | Type | Severity | Details | Resolved |`.
@@ -1875,17 +1901,17 @@ Both use the same format: `| Timestamp | Trigger | Type | Severity | Details | R
 - `scripts/lifeos-pre-prompt-guard.sh` — UserPromptSubmit hook (bash, chmod +x)
 - `.claude/settings.json` — hook registration for dev repo
 - `references/compliance-spec.md` — full specification: taxonomy, dual-repo strategy, write/read paths, escalation ladder, archival, resolution protocol, privacy
-- `pro/compliance/violations.md` — dev-repo live log (5 seed entries from COURT-START-001)
-- `pro/compliance/violations.example.md` — 10 example entries per class + grep recipes
-- `pro/compliance/2026-04-19-court-start-violation.md` — full incident archive (473 lines, 12 sections)
+- `compliance/violations.md` — dev-repo live log (5 seed entries from COURT-START-001)
+- `compliance/violations.example.md` — 10 example entries per class + grep recipes
+- `compliance/2026-04-19-court-start-violation.md` — full incident archive (473 lines, 12 sections)
 - `evals/scenarios/start-session-compliance.md` — regression test for 6 COURT-START-001 failure modes
 
 ### ✏️ Modified Files
 
 - `.claude/CLAUDE.md` — new HARD RULE section for Start Session triggers
 - `SKILL.md` — version 1.6.2a → 1.6.3, Pre-flight Compliance Check section inserted before Start Session routing
-- `pro/agents/retrospective.md` — Subagent Self-Check block before Execution Steps
-- `pro/agents/auditor.md` — Mode 3 (Compliance Patrol) with 7-class taxonomy + detection checks
+- `agents/retrospective.md` — Subagent Self-Check block before Execution Steps
+- `agents/auditor.md` — Mode 3 (Compliance Patrol) with 7-class taxonomy + detection checks
 
 ### 🔄 Resolution Protocol
 
@@ -1930,7 +1956,7 @@ Previous bug: ROUTER sometimes executed Phase 2 (knowledge extraction) in the ma
 
 Three independent defenses added:
 - **SKILL.md + archiver.md wording** — HARD RULE forbidding ROUTER from any Phase content in the main context; explicit "Subagent-Only Execution" block in archiver.md
-- **Adjourn State Machine in pro/CLAUDE.md** — legal/illegal state transitions enumerated; AUDITOR flags every violation to user-patterns.md
+- **Adjourn State Machine in hosts/CLAUDE.md** — legal/illegal state transitions enumerated; AUDITOR flags every violation to user-patterns.md
 - **Mandatory launch templates** — SKILL.md's "Trigger Execution Templates (HARD RULE)" section pins the exact output pattern for Start Session / Adjourn / Review
 
 ### 📚 Wiki Auto-Write (no user confirmation)
@@ -2008,12 +2034,12 @@ Decision challenging a Tier 1 dimension → REVIEWER adds ⚠️ SOUL CONFLICT w
 ### Files Touched
 
 - `SKILL.md` (version + trigger templates)
-- `pro/CLAUDE.md` (state machines + wiki/SOUL auto-write descriptions)
-- `pro/GEMINI.md` / `pro/AGENTS.md` (cross-platform Gemini CLI + Codex CLI parity)
-- `pro/agents/archiver.md` (Phase 2 auto-write + snapshot dump + Phase 3 10-trigger detection logic)
-- `pro/agents/advisor.md` (unified SOUL Runtime: 5 steps, every decision)
-- `pro/agents/reviewer.md` (3-tier SOUL reference strategy)
-- `pro/agents/retrospective.md` (Step 11 expanded to 11.1-11.6: snapshot read + trend computation)
+- `hosts/CLAUDE.md` (state machines + wiki/SOUL auto-write descriptions)
+- `hosts/GEMINI.md` / `hosts/AGENTS.md` (cross-platform Gemini CLI + Codex CLI parity)
+- `agents/archiver.md` (Phase 2 auto-write + snapshot dump + Phase 3 10-trigger detection logic)
+- `agents/advisor.md` (unified SOUL Runtime: 5 steps, every decision)
+- `agents/reviewer.md` (3-tier SOUL reference strategy)
+- `agents/retrospective.md` (Step 11 expanded to 11.1-11.6: snapshot read + trend computation)
 - `references/wiki-spec.md` + 三語 (6 criteria + privacy filter + user nudges)
 - `references/soul-spec.md` + 三語 (auto-write + snapshot mechanism + tiered reference)
 - `references/dream-spec.md` + 三語 (10 triggers per-section with hard/soft detection)
@@ -2195,7 +2221,7 @@ Built on cognitive science research:
 
 ### Enforcement Changes
 
-- **SKILL.md**: Start Court / Adjourn routing changed from "Route to X" → "MUST read `pro/agents/X.md` and launch as subagent. HARD RULE."
+- **SKILL.md**: Start Court / Adjourn routing changed from "Route to X" → "MUST read `agents/X.md` and launch as subagent. HARD RULE."
 - **qiju.md**: Added mandatory Completion Checklist — every phase must report a concrete value (commit hash, Notion sync status, etc.). Missing items = incomplete adjourn.
 - **Orchestration Code of Conduct**: Added rule #6 — "Trigger words MUST load agent files. Never execute a role from memory without reading its definition file. HARD RULE."
 
@@ -2242,12 +2268,12 @@ Named after the Tang Dynasty official who recorded the emperor's words and actio
 ### Token Savings
 - **SKILL.md**: 384 → 93 lines (−291 lines ≈ −4,700 tokens/session)
 - Removed: Censorate/Remonstrator/Political Affairs Hall/Morning Court Official detailed descriptions, Memorial format, Storage Configuration, Lite Mode flow, Two Types of Deliberation table, Pro Mode installation details
-- All removed content already exists in agent files (`pro/agents/*.md`) or reference files (`references/*.md`)
+- All removed content already exists in agent files (`agents/*.md`) or reference files (`references/*.md`)
 
 ### Code of Conduct Redistribution
 - PM-relevant rules (8 rules) stay in SKILL.md
-- Orchestration rules (#2 veto, #7 auto-trigger, #11 full output, #14 real subagents, #9 degradation) moved to `pro/CLAUDE.md` new "Orchestration Code of Conduct" section
-- Universal agent rules already covered by `pro/GLOBAL.md`
+- Orchestration rules (#2 veto, #7 auto-trigger, #11 full output, #14 real subagents, #9 degradation) moved to `hosts/CLAUDE.md` new "Orchestration Code of Conduct" section
+- Universal agent rules already covered by `hosts/GLOBAL.md`
 
 ### Ministry On-Demand Selection
 - `zhongshu.md`: New "Ministry Selection (HARD RULE)" — only assign relevant ministries with justification
@@ -2373,7 +2399,7 @@ The old model assumed one session at a time and used a `.lock` file to warn abou
 
 ### Files Changed
 
-- `pro/agents/zaochao.md` — Mode 0/1 add outbox merge, Mode 3/4 rewritten to write outbox
+- `agents/zaochao.md` — Mode 0/1 add outbox merge, Mode 3/4 rewritten to write outbox
 - `references/data-model.md` — Session lock removed, outbox rules + manifest/delta formats added
 - `references/data-layer.md` — Directory structure + Housekeeping/Wrap-Up flows updated
 - `references/adapter-github.md` — Commit convention rewritten for outbox pattern
@@ -2403,7 +2429,7 @@ After every Adjourn Court, the system "sleeps" — inspired by human sleep archi
 - **N3 (Consolidate)** — extract recurring themes into wiki, update behavior patterns, propose SOUL entries
 - **REM (Connect)** — discover cross-domain links, check value-behavior alignment, generate unexpected insights
 - **Scope**: last 3 days only. Dream reports stored in `_meta/journal/` and presented at next Start Court
-- **New agent**: `pro/agents/dream.md`
+- **New agent**: `agents/dream.md`
 
 ### 📐 New Reference Files
 
@@ -2509,7 +2535,7 @@ English is now the canonical version; Chinese and Japanese ship as i18n translat
 
 ### Architecture Consolidation
 
-- **pro/GLOBAL.md** — shared rules across all 14 agents extracted into a single authoritative source; each agent file trimmed by ~30%
+- **hosts/GLOBAL.md** — shared rules across all 14 agents extracted into a single authoritative source; each agent file trimmed by ~30%
 - **Cognitive pipeline** — five-stage information flow: perceive → capture → associate → judge → distill → emerge
 - **Censorate audit mode** — a second operating mode beyond decision review: each ministry audits its own territory in the second-brain
 - **Four-step knowledge extraction training** — user decides → accumulates examples → LLM distills rules → periodic correction

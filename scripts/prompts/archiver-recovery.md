@@ -22,13 +22,13 @@ The user may have:
   and exit.
 - (b) Forgotten to say adjourn → no archiver Phase 1-4 ran → recovery needed.
 - (c) Said adjourn but archiver failed (CLASS_C violation in
-  `pro/compliance/violations.md`) → recovery needed.
+  `compliance/violations.md`) → recovery needed.
 
 ## Required actions (in order)
 
 1. **Detect today's adjourn state**:
    - Find archiver-phase-4.md files modified today across `meta/runtime/` (pre-v1.8.6 legacy sessions may use `archiver-phase-4.json`)
-   - Check today's CLASS_C archiver violations in `pro/compliance/violations.md`
+   - Check today's CLASS_C archiver violations in `compliance/violations.md`
 
 2. **Decision matrix**:
    - Found complete adjourn AND no violations → **silent skip**, write to `meta/eval-history/recovery/archiver-recovery-{date}.log` "no recovery needed", exit 0. (Path renamed from `cron-runs/` in R-1.8.0-011 — cron removed, paths use `recovery/` to reflect user-invoked semantics.)
@@ -38,7 +38,7 @@ The user may have:
    - Find the most recent session that has `archiver-phase-1.md` but missing 2/3/4 (pre-v1.8.6 legacy: `archiver-phase-1.json`): this is the incomplete adjourn to recover.
    - If no incomplete session exists, create a new SID: `cron-recovery-{YYYYMMDD-HHMM}`.
    - Reconstruct context: read latest entries in `meta/sessions/INDEX.md`, `SOUL.md`, `meta/journal/`.
-   - Launch `knowledge-extractor` subagent (Phase 2 carve-out per pro/agents/knowledge-extractor.md).
+   - Launch `knowledge-extractor` subagent (Phase 2 carve-out per agents/knowledge-extractor.md).
    - Wait for YAML output.
    - Launch `archiver` subagent (Phase 1 archive + Phase 3 DREAM + Phase 4 sync; Phase 2 reads knowledge-extractor reports).
    - Wait for completion checklist.

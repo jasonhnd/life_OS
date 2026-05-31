@@ -1,6 +1,6 @@
 # 5 分钟 Quickstart
 
-目标：装好之后，在 5 分钟内跑通一次完整的会话启动 → 对话 → 退朝 → 归档 sync 的循环。
+目标：装好之后，在 5 分钟内用自然语言跑通一次完整的自检 → 会话启动 → 对话 → 退朝 → 归档 sync 的循环。
 
 ---
 
@@ -20,23 +20,55 @@
 
 ---
 
-## 2. 第一次说什么
+## 2. 第一句话说什么
 
-直接在 terminal 里打这三个字：
+如果你是第一次用，直接说：
+
+```
+我刚装好 Life OS，帮我检查配置并带我开始。
+```
+
+ROUTER 会自动跑 Doctor 自检：确认你在什么目录、Life OS skill 是否装好、second-brain 是否存在、git sync 是否可用、当前 host 是否能启动 subagent。你不用记 `/doctor` 之类的命令。
+
+如果你已经确认配置没问题，也可以直接说：
 
 ```
 上朝
 ```
 
-就这样。不用自我介绍，不用说「我是新用户」，不用问「你能做什么」。
-
 ---
 
 ## 3. 预期看到的输出
 
+### Doctor 自检输出
+
+第一次说“我刚装好...”时，你应该先看到一个很短的健康检查：
+
+```
+🩺 Life OS Doctor
+Status: needs setup
+
+Directory: project repo
+Skill root: ~/.claude/skills/life_OS · version 1.9.1
+Second-brain: not found
+Git sync: local-only
+Host: Claude Code · subagents setup needed
+
+What this means:
+- Life OS 已安装，但还没有 second-brain。
+- 需要先创建一个 git-backed vault，之后所有决策、wiki、SOUL、DREAM 都写在那里。
+
+Recommended next step:
+1. 我刚装好 Life OS，帮我创建 second-brain 并开始。
+2. 如果这是已有 vault，告诉我 second-brain 路径。
+3. Claude Code setup：/install-agents --refresh
+```
+
+Doctor 结束后，按推荐的自然语言继续说即可。
+
 ### 如果你从来没用过（第二大脑不存在）
 
-系统检测到 second-brain 目录不存在，会走首次设置流程：
+当你确认创建 second-brain 后，系统会走首次设置流程：
 
 ```
 🎨 Theme: 三省六部（检测到「上朝」是 Tang Dynasty 专属词，自动加载）

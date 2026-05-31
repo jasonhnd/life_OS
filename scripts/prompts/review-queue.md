@@ -10,7 +10,7 @@
 
 ## Trigger keywords
 
-Canonical list (ROUTER matches these inline; pre-v1.8.5 this list mirrored `pre-prompt-guard.sh` REVIEW_QUEUE_RE, retired with the hook layer in v1.8.5 Stage 2 — see `pro/CLAUDE.md` §"Review Queue auto-launch"):
+Canonical list (ROUTER matches these inline; pre-v1.8.5 this list mirrored `pre-prompt-guard.sh` REVIEW_QUEUE_RE, retired with the hook layer in v1.8.5 Stage 2 — see `hosts/CLAUDE.md` §"Review Queue auto-launch"):
 
 - 中文: `处理 queue` / `处理queue` / `看 queue` / `看queue` / `走一遍 queue` / `今天有什么要处理的` / `有什么要我决定的` / `queue 处理` / `review 队列`
 - English: `review queue` / `process queue` / `walk queue` / `queue walk`

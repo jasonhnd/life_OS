@@ -45,14 +45,17 @@ Life OSはさまざまなAIプラットフォームで使用できます。お�
 インストール後、Claude Codeで以下を入力してください：
 
 ```
-転職すべきか分析してほしい
+Life OS をインストールしたばかりです。設定を確認して、始め方を案内してください。
 ```
 
-以下の形式で応答が表示されれば、インストール成功です：
+以下のような Doctor ヘルスチェックが表示されれば、インストール成功です：
 
 ```
-🏛️ 丞相・上奏
-📋 題目: ... | 📌 類型: ... | 💡 推奨起動: ...
+🩺 Life OS Doctor
+Status: ready | needs setup | needs attention
+Directory: ...
+Skill root: ...
+Recommended next step:
 ```
 
 ### Proモードの特徴
@@ -77,7 +80,7 @@ Proモードが[Gemini CLI](https://github.com/google-gemini/gemini-cli)と[Goog
 npx skills add jasonhnd/life_OS
 ```
 
-3. 完了です！システムが自動的にGeminiを検出し、`pro/GEMINI.md`をオーケストレーション用にロードします
+3. 完了です！システムが自動的にGeminiを検出し、`hosts/GEMINI.md`をオーケストレーション用にロードします
 
 ### Antigravity固有の注意点
 
@@ -87,7 +90,7 @@ npx skills add jasonhnd/life_OS
 ### Claude Proモードとの違い
 
 - Geminiの最強の利用可能なモデルを自動使用（ハードコードされたバージョンなし）
-- ツール名は自動マッピング（マッピング表は`pro/GEMINI.md`を参照）
+- ツール名は自動マッピング（マッピング表は`hosts/GEMINI.md`を参照）
 - 同じワークフロー、同じ情報隔離、同じ役職セット
 
 ---
@@ -105,7 +108,7 @@ Proモードが[Codex CLI](https://github.com/openai/codex)で利用可能にな
 npx skills add jasonhnd/life_OS
 ```
 
-3. 完了です！システムが自動的にCodexを検出し、`pro/AGENTS.md`をオーケストレーション用にロードします
+3. 完了です！システムが自動的にCodexを検出し、`hosts/AGENTS.md`をオーケストレーション用にロードします
 
 ### Claude Proモードとの違い
 
@@ -141,6 +144,7 @@ npx skills add jasonhnd/life_OS
 
 | あなたの発言 | 表示されるべきもの |
 |---------|---------------|
+| 「Life OS をインストールしたばかりです。設定を確認して、始め方を案内してください」 | Doctor ヘルスチェック：ディレクトリ種別、skill root、second-brain、git sync、次に言うべき一文 |
 | 「MacBookを買うべきか分析して」 | 丞相が上奏が必要と判断し、三省六部プロセスを開始 |
 | 「日本語の文章を翻訳して」 | 丞相が直接対応（プロセスは開始しない） |
 | 「早朝」 | 早朝官がブリーフィングを提供 |
@@ -232,7 +236,7 @@ SKILL.md先頭の`version`フィールドに現在のバージョン番号が表
 A：[Claude Code](https://claude.ai/code)を推奨します。複数の独立サブエージェントによる完全な Pro モード、ワンコマンドインストールです。
 
 **Q：Claude CodeとAntigravityの両方を使っています。競合しますか？**
-A：いいえ。異なるオーケストレーションファイル（`CLAUDE.md` vs `GEMINI.md`）と異なるモデルマッピングを使用します。`pro/agents/*.md`ファイルは共有されます。`.claude/worktrees/`が`.gitignore`に含まれていれば、AntigravityがClaudeの一時ファイルで詰まることはありません。
+A：いいえ。異なるオーケストレーションファイル（`CLAUDE.md` vs `GEMINI.md`）と異なるモデルマッピングを使用します。`agents/*.md`ファイルは共有されます。`.claude/worktrees/`が`.gitignore`に含まれていれば、AntigravityがClaudeの一時ファイルで詰まることはありません。
 
 **Q：GitHub リモートなしで使えますか？**
 A：はい。ストレージは単一の git リポジトリです。ディスク上のローカル作業コピー（同時にあなたの Obsidian vault）はそれ単体で完全に動作します。GitHub リモートはオプション——マシン外バックアップと `git pull` / `git push` によるクロスデバイス同期が欲しいときに追加してください。

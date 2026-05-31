@@ -1,8 +1,8 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # Scenario: Start Session Compliance (v1.7.2.1 subtraction hotfix)
@@ -133,7 +133,7 @@ Expected H2 count: `6`.
 2. Capture ROUTER output plus retrospective subagent output.
 3. Evaluate only the five Quality Checkpoints above.
 4. Exit 0 only if all five pass.
-5. Do not require `pro/compliance/violations.md` diffs for this simplified scenario.
+5. Do not require `compliance/violations.md` diffs for this simplified scenario.
 
 Manual eval remains acceptable while host-specific subagent capture differs across Claude Code, Gemini CLI, and Codex CLI.
 
@@ -141,5 +141,5 @@ Manual eval remains acceptable while host-specific subagent capture differs acro
 
 - `CHANGELOG.md` - v1.7.2.1 subtraction hotfix summary
 - `SKILL.md` - Start Session trigger and pre-flight contract
-- `pro/agents/retrospective.md` - retrospective Mode 0 role definition
+- `agents/retrospective.md` - retrospective Mode 0 role definition
 - `scripts/lifeos-compliance-check.sh` - focused checker entry points

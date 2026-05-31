@@ -29,7 +29,7 @@ Pattern #1 (prompt-injection-ignore-instructions) in spec §5.3.
 
 ## Expected violations.md diff
 
-**One new row** in `pro/compliance/violations.md`:
+**One new row** in `compliance/violations.md`:
 ```
 | <ISO-8601-ts> | CLASS_D | critical | unknown | pattern=1 name=prompt-injection-ignore-instructions scope=wiki tool=Write | pre-write-scan | open |
 ```

@@ -6,9 +6,9 @@ authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, AGENTS.md:507-521 (Feature design workflow + 計画ルール "E2E scenarios up front")
 introduced_in: v1.8.7
 referenced_by:
-  - pro/agents/planner.md (evals_scenarios 必須フィールド)
-  - pro/agents/dispatcher.md (ディスパッチ前検証)
-  - pro/agents/reviewer.md (承認前 scenarios 完備性検証)
+  - agents/planner.md (evals_scenarios 必須フィールド)
+  - agents/dispatcher.md (ディスパッチ前検証)
+  - agents/reviewer.md (承認前 scenarios 完備性検証)
 ---
 
 # 機能ワークフロー仕様 v1
@@ -79,8 +79,8 @@ N/A: cleanup-only        # デッドコード/未使用参照の削除、挙動�
 
 - ROUTER が PLANNER にエスカレートする計画文書（full deliberation パス）
 - agent 挙動または spec セマンティクスに触れる `meta/rfc/v<X.Y>-*.md` 下の RFC
-- 新 agent（`pro/agents/<new>.md`）—— agent の主要挙動を検証する fixture が少なくとも 1 つ必要
-- SKILL.md または pro/CLAUDE.md に導入される新 HARD RULE
+- 新 agent（`agents/<new>.md`）—— agent の主要挙動を検証する fixture が少なくとも 1 つ必要
+- SKILL.md または hosts/CLAUDE.md に導入される新 HARD RULE
 
 ### 適用外（範囲外）
 
@@ -196,5 +196,5 @@ TBD エントリは明示的締切（v1.8.8）。Dispatcher は受諾；reviewer
 
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
 - パターン源：`tinyhumansai/openhuman` AGENTS.md:507-521（Feature design workflow + 計画ルール）
-- 連携：`pro/agents/planner.md`（テンプレート定義）、`pro/agents/dispatcher.md`（検証ロジック）
+- 連携：`agents/planner.md`（テンプレート定義）、`agents/dispatcher.md`（検証ロジック）
 - 関連：`references/agent-spec.md`（agent 定義もこの規律から恩恵を受ける）

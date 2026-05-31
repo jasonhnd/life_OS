@@ -1,35 +1,35 @@
 ---
 spec_id: gotchas-spec.v1
-description: Specification for `pro/gotchas.md` — the project-level technical gotcha knowledge base. Each entry records "踩过的坑 + 文件路径 + 修复方法" so ROUTER and downstream agents can short-circuit known issues. Distinct from `pro/compliance/violations.md` (process violations) and `meta/sessions/` (per-session record). Pattern borrowed from tinyhumansai/openhuman `.claude/memory.md`; lifeos adaptation is md-only and writes by `memory-keeper` agent.
+description: Specification for `gotchas.md` — the project-level technical gotcha knowledge base. Each entry records "踩过的坑 + 文件路径 + 修复方法" so ROUTER and downstream agents can short-circuit known issues. Distinct from `compliance/violations.md` (process violations) and `meta/sessions/` (per-session record). Pattern borrowed from tinyhumansai/openhuman `.claude/memory.md`; lifeos adaptation is md-only and writes by `memory-keeper` agent.
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, .claude/memory.md (259 lines flat single file with topical grouping)
 introduced_in: v1.8.7
 referenced_by:
-  - pro/agents/memory-keeper.md
-  - pro/agents/archiver.md (wrap-up phase 5)
+  - agents/memory-keeper.md
+  - agents/archiver.md (wrap-up phase 5)
   - SKILL.md (ROUTER pre-task scan, future)
 ---
 
 # Gotchas Specification v1
 
-`pro/gotchas.md` is lifeos's **project-level technical gotcha knowledge base** — a single flat file collecting non-obvious behaviors, file-specific bugs, and corrective workarounds that any new session should know before acting.
+`gotchas.md` is lifeos's **project-level technical gotcha knowledge base** — a single flat file collecting non-obvious behaviors, file-specific bugs, and corrective workarounds that any new session should know before acting.
 
 ## Positioning vs other knowledge stores
 
 | Store | What it records | Lifecycle |
 |-------|----------------|-----------|
 | `meta/sessions/<sid>.md` | Per-session timeline + decisions made | One file per session, archived |
-| `pro/compliance/violations.md` | Process violations (A1/A2/A3/B/C/D/E/F + F1-F17) | Append-only audit log |
+| `compliance/violations.md` | Process violations (A1/A2/A3/B/C/D/E/F + F1-F17) | Append-only audit log |
 | `meta/wiki/<topic>.md` | Reusable world knowledge ("NPO lending has no 貸金業法 exemption") | Manually curated |
 | `meta/concepts/<concept>.md` | Synaptic graph nodes (Cortex) | Hippocampus activates them |
-| **`pro/gotchas.md`** | **Project technical坑 + file path + fix** | **Continuously extracted by memory-keeper** |
+| **`gotchas.md`** | **Project technical坑 + file path + fix** | **Continuously extracted by memory-keeper** |
 
 Gotchas are **not** violations (those go to `compliance/violations.md`). Gotchas are **not** reusable world knowledge (that goes to `meta/wiki/`). Gotchas are **dev-internal short-circuit memory**: "next time we touch X, here's what to know first".
 
 ## File location and scope
 
-- **Path**: `pro/gotchas.md` (single file, dev repo root area)
+- **Path**: `gotchas.md` (single file, dev repo root area)
 - **Language**: English single-language (project-internal dev knowledge base — three-language mirroring not applied per DR-03 in v1.8.7 RFC)
 - **Size budget**: target ≤500 lines; soft threshold for sub-file split is 800 lines
 - **Audience**: ROUTER + memory-keeper + any agent before major task on a known-touched area
@@ -78,15 +78,15 @@ Do NOT capture:
 - ❌ Process violations (use compliance/violations.md)
 - ❌ Reusable world knowledge unrelated to lifeos itself (use meta/wiki/)
 - ❌ User personal information (use SOUL.md if it's identity-level; sessions/ if it's transient)
-- ❌ Anything already documented in pro/CLAUDE.md or other authoritative source
+- ❌ Anything already documented in hosts/CLAUDE.md or other authoritative source
 
 ## How to update
 
-memory-keeper agent is the **sole writer** of `pro/gotchas.md`. Direct human edits are allowed but discouraged — they bypass dedup and may create entries that don't follow format.
+memory-keeper agent is the **sole writer** of `gotchas.md`. Direct human edits are allowed but discouraged — they bypass dedup and may create entries that don't follow format.
 
 Update flow (memory-keeper invoked from archiver wrap-up phase 5):
 
-1. memory-keeper reads current `pro/gotchas.md`
+1. memory-keeper reads current `gotchas.md`
 2. Scans current session for new gotcha candidates
 3. For each candidate:
    - Dedup against existing entries (substring match on short title)
@@ -102,7 +102,7 @@ Per RFC §7 退出标准, memory-keeper's first run on v1.8.7 release session mu
 - `_meta/rfc/v1.8.5-cleanup-and-hardening.md`
 - `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`
 - `_meta/rfc/v1.9-second-brain-structure-optimization.md`
-- `pro/compliance/violations.md` (filter: entries where root cause is technical, not pure process)
+- `compliance/violations.md` (filter: entries where root cause is technical, not pure process)
 
 Seed entries are still gotchas (technical), not process violations.
 
@@ -110,7 +110,7 @@ Seed entries are still gotchas (technical), not process violations.
 
 - **Dedup**: substring match on short title — if new candidate's short title is a substring of existing, merge into existing (extend behavior description or add new file path) rather than create duplicate
 - **Retention**: gotchas don't auto-expire. They get removed only when the underlying issue is permanently fixed in the codebase AND the fix is verified
-- **Removal procedure**: memory-keeper marks entry as `<!-- removed v1.X.Y: fixed in <ref> -->` (keep in file as comment for audit), or moves to a future `pro/gotchas-resolved.md` archive
+- **Removal procedure**: memory-keeper marks entry as `<!-- removed v1.X.Y: fixed in <ref> -->` (keep in file as comment for audit), or moves to a future `gotchas-resolved.md` archive
 
 ## Failure modes
 
@@ -123,6 +123,6 @@ Seed entries are still gotchas (technical), not process violations.
 
 ## Related specs
 
-- `pro/agents/memory-keeper.md` — agent definition
+- `agents/memory-keeper.md` — agent definition
 - `references/compliance-spec.md` — distinguish gotchas from violations
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.1 C6 — origin of this spec

@@ -82,7 +82,7 @@ Even without explicit keywords, ROUTER MUST trigger escalation if:
 - Subject involves money amounts >$1000 (finance)
 - Subject involves any named person's medical condition (health)
 - Subject involves any time-bounded commitment >6 months (legal/governance)
-- Subject involves modifying any file under `pro/agents/` or `references/` (governance)
+- Subject involves modifying any file under `agents/` or `references/` (governance)
 
 ### What "escalation" means in practice
 
@@ -92,8 +92,8 @@ Even without explicit keywords, ROUTER MUST trigger escalation if:
 
 ## Use cases
 
-- **ROUTER triage** (`pro/agents/router.md` Stage 6 v2 frontmatter): `context_manifest.source_of_truth` includes this file. Triage step MUST check user message against R1-R8.
-- **REVIEWER veto** (`pro/agents/reviewer.md`): Verdict MUST cite which risk domains apply; if any, 5 requirements MUST be confirmed.
+- **ROUTER triage** (`agents/router.md` Stage 6 v2 frontmatter): `context_manifest.source_of_truth` includes this file. Triage step MUST check user message against R1-R8.
+- **REVIEWER veto** (`agents/reviewer.md`): Verdict MUST cite which risk domains apply; if any, 5 requirements MUST be confirmed.
 - **AUDITOR Mode 3** (Stage 7 Day 21): scenario checks every decision-class incident — if subject was in R1-R8 and any of 5 requirements missing → F10 RESPONSIBILITY_FAILURE.
 
 ## Source attribution

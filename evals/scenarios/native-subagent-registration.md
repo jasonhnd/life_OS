@@ -23,14 +23,14 @@ expected_files_glob:
   - "{tmp_dir}/fake-home/.claude/agents/lifeos-*.md"
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Scenario · Native Subagent Registration
 
 ## Scenario
 
-Install-time registration must scan `pro/agents/*.md` in the skill, skip any
+Install-time registration must scan `agents/*.md` in the skill, skip any
 `type: router-internal-template` files, and emit one `lifeos-<base>.md`
 wrapper per remaining agent under `~/.claude/agents/`. Claude Code then
 recognizes those wrappers as native `Task()` targets.

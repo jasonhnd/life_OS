@@ -12,14 +12,14 @@ related:
   - references/concept-spec.md
   - references/session-index-spec.md
   - references/gwt-spec.md
-  - pro/agents/hippocampus.md
+  - agents/hippocampus.md
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Hippocampus · Agent Contract Spec
 
-> This document specifies the **hippocampus subagent** contract: what it receives, what it returns, how it retrieves, and how it fails. The agent itself lives at `pro/agents/hippocampus.md`; this spec is the authoritative source for its behavior.
+> This document specifies the **hippocampus subagent** contract: what it receives, what it returns, how it retrieves, and how it fails. The agent itself lives at `agents/hippocampus.md`; this spec is the authoritative source for its behavior.
 
 ---
 
@@ -63,7 +63,7 @@ Hippocampus does **not**:
 
 ## 3. Agent Definition Frontmatter
 
-The actual agent file (`pro/agents/hippocampus.md`) must declare:
+The actual agent file (`agents/hippocampus.md`) must declare:
 
 ```yaml
 ---
@@ -111,7 +111,7 @@ hippocampus_input:
 - Previous session transcripts (only summaries via INDEX.md)
 - SOUL.md full content (privacy boundary — hippocampus sees concept tags, not identity narrative)
 - User's platform / environment details beyond `current_theme`
-- Other agents' thought processes (per `pro/CLAUDE.md` Information Isolation table)
+- Other agents' thought processes (per `hosts/CLAUDE.md` Information Isolation table)
 
 Why this isolation matters: hippocampus must produce an **independent signal** that GWT can weigh against other signals. If it already sees SOUL check output, it loses the ability to surface complementary-but-different retrieval angles. Competition requires independence.
 
@@ -328,7 +328,7 @@ Explicit don'ts — violations are process errors, AUDITOR flags them.
 
 - **Do not retrieve all sessions.** Exhaustive search defeats the purpose (and blows the token budget). Wave caps exist for a reason.
 - **Do not use embeddings or vector databases.** User decision #3: markdown-first, LLM-judgment-only. Adding a vector store changes the architecture — requires separate approval.
-- **Do not modify session files or concept files.** Hippocampus is read-only. All writes happen in ARCHIVER Phase 2 (see `pro/agents/archiver.md`).
+- **Do not modify session files or concept files.** Hippocampus is read-only. All writes happen in ARCHIVER Phase 2 (see `agents/archiver.md`).
 - **Do not inject retrieved content into the SYSTEM PROMPT.** Too volatile, breaks the prompt cache, bloats the system prompt over long sessions. Retrieved content always goes into the user message, delimited by `[COGNITIVE CONTEXT]`.
 - **Do not skip isolation.** Do not read other Pre-Router Cognitive Layer outputs. If you see them in the input, treat as a contract violation and return an error.
 - **Do not synthesize claims that aren't in retrieved content.** Hippocampus is a retrieval agent, not a reasoner. The `reason` field in each retrieved session must paraphrase what's in that session's markdown, not infer beyond it.
@@ -358,4 +358,4 @@ Explicit don'ts — violations are process errors, AUDITOR flags them.
 
 ---
 
-**Document status**: Active spec for v1.7 Cortex Phase 1. Changes require explicit version bump and update to `pro/agents/hippocampus.md`, `references/cortex-spec.md`, and three-language CHANGELOG entries per project HARD RULE.
+**Document status**: Active spec for v1.7 Cortex Phase 1. Changes require explicit version bump and update to `agents/hippocampus.md`, `references/cortex-spec.md`, and three-language CHANGELOG entries per project HARD RULE.

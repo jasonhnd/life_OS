@@ -6,7 +6,7 @@
 
 封驳（Veto）是 REVIEWER 对 PLANNER 或六领域输出说"不通过"的权力。源自中国古代门下省驳回诏书的制度——皇帝颁诏，门下省有权拒绝。Life OS 里 REVIEWER 的这个角色就是防止 PLANNER 的规划或领域报告有明显缺陷时被强行推进。
 
-`pro/CLAUDE.md` 里写的 Orchestration Code of Conduct 第一条：
+`hosts/CLAUDE.md` 里写的 Orchestration Code of Conduct 第一条：
 
 > Veto is the soul — REVIEWER must review seriously, including emotional dimensions. HARD RULE.
 
@@ -46,7 +46,7 @@ Conditionally Approved 的流程效果：**不回炉 PLANNER，向前走但带�
 
 ## 什么触发封驳
 
-`pro/agents/reviewer.md` 没给出"封驳规则清单"，因为 REVIEWER 是**判断**而不是"规则执行机"。但实战中触发封驳的典型信号：
+`agents/reviewer.md` 没给出"封驳规则清单"，因为 REVIEWER 是**判断**而不是"规则执行机"。但实战中触发封驳的典型信号：
 
 1. **维度缺失** — 关键维度没被覆盖。例如"换工作决策"没考虑家庭影响。
 2. **分工不合理** — 该由 finance 做的事指派给了 execution。
@@ -58,7 +58,7 @@ Conditionally Approved 的流程效果：**不回炉 PLANNER，向前走但带�
 
 ## 封驳格式（必须四字段）
 
-REVIEWER 封驳时必须给出四个字段（`pro/agents/reviewer.md` HARD RULE）：
+REVIEWER 封驳时必须给出四个字段（`agents/reviewer.md` HARD RULE）：
 
 ```
 🚫 Veto
@@ -72,7 +72,7 @@ REVIEWER 封驳时必须给出四个字段（`pro/agents/reviewer.md` HARD RULE�
 
 ## 封驳循环 · 最多 2 次
 
-`pro/CLAUDE.md` 第 3 步：
+`hosts/CLAUDE.md` 第 3 步：
 
 > Veto Correction Loop: Pass the veto reasons and correction direction back to the PLANNER; the PLANNER revises and resubmits to the REVIEWER for review. Maximum 2 loops; the 3rd time must result in Approved or Conditionally Approved.
 
@@ -142,7 +142,7 @@ REVIEWER 在第 6 步终审时，会专门验证这两项是否被履行。没�
 
 ## 情感维度的封驳
 
-`pro/agents/reviewer.md` 明确要求：**所有决策都要审情感维度**，包括工作决策。不能敷衍。
+`agents/reviewer.md` 明确要求：**所有决策都要审情感维度**，包括工作决策。不能敷衍。
 
 四类情感审查：
 1. **情绪**：用户当前状态是否影响判断？
@@ -191,7 +191,7 @@ Reviewer anti-pattern 第二条：
 
 ## Red Team Review · 假设计划会失败
 
-REVIEWER 发 verdict 前必须做一次 Red Team（`pro/agents/reviewer.md`）：
+REVIEWER 发 verdict 前必须做一次 Red Team（`agents/reviewer.md`）：
 
 > Before issuing your verdict, assume the plan WILL fail. Identify:
 > - What is the most fragile assumption?
@@ -291,7 +291,7 @@ Conditions:
 
 ## 反模式 · REVIEWER 不要做什么
 
-`pro/agents/reviewer.md` anti-patterns：
+`agents/reviewer.md` anti-patterns：
 
 1. **每次都 Approve** — 就该封驳时要封驳
 2. **用"建议用户自己考虑"糊弄情感维度** — 要给判断

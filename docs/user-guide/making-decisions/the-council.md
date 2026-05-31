@@ -14,7 +14,7 @@ COUNCIL 是 Life OS 的**跨领域辩论场**。当六领域的结论出现严�
 
 ## 何时自动触发
 
-`pro/agents/council.md` 写的触发条件：
+`agents/council.md` 写的触发条件：
 
 > **Auto-trigger** (by reviewer during final review):
 > - Any two domains' scores differ by ≥ 3 points (e.g., finance gives 4/10, execution gives 8/10)
@@ -32,7 +32,7 @@ COUNCIL 是 Life OS 的**跨领域辩论场**。当六领域的结论出现严�
 - 细节差异但结论一致 —— 比如两个领域都说"做"，只是具体路径不同
 - 仅一个领域有异议 —— 需要至少两个领域明确对立
 
-`pro/agents/council.md` anti-patterns 里明确：
+`agents/council.md` anti-patterns 里明确：
 
 > Do not trigger debate for minor score differences (< 3 points) — those are normal variance
 
@@ -50,7 +50,7 @@ COUNCIL 是 Life OS 的**跨领域辩论场**。当六领域的结论出现严�
 - 用户看到 Must Address 里某几条互相矛盾，想看辩论
 - 用户想测试某个假设是否能被某领域站住脚
 
-`pro/agents/router.md` 里写的：当用户在奏折后犹豫时，ROUTER 要分辨：
+`agents/router.md` 里写的：当用户在奏折后犹豫时，ROUTER 要分辨：
 - **犹豫因为数据冲突** → COUNCIL（可能已经自动触发了）
 - **犹豫因为"不知道我到底想要什么"** → 问是否启动 STRATEGIST
 
@@ -68,7 +68,7 @@ COUNCIL 是 Life OS 的**跨领域辩论场**。当六领域的结论出现严�
 **Round 3 · Final Statement（终结陈述）**
 - 每方用 **≤ 2 句话**给出最终立场
 
-**句数限制是硬性的**。`pro/agents/council.md` anti-patterns：
+**句数限制是硬性的**。`agents/council.md` anti-patterns：
 
 > Do not let debates devolve into monologues — enforce sentence limits
 
@@ -106,7 +106,7 @@ Side B ([domain]): [最强论据，1 句话]
 📌 Recommendation to router: [综合建议——不是决定，由用户决定]
 ```
 
-**关键：Moderator 不做最终决定**。`pro/agents/council.md` anti-patterns：
+**关键：Moderator 不做最终决定**。`agents/council.md` anti-patterns：
 
 > Do not let the moderator take sides — the moderator summarizes, the user decides
 
@@ -116,7 +116,7 @@ Moderator 的工作是**总结 + 指出化解分歧所需的信息**，不是"�
 
 COUNCIL 辩论完，输出裁决，接下来的流程：
 
-1. **PLANNER 重新介入**（这是 `pro/CLAUDE.md` 第 6 步的说法）：
+1. **PLANNER 重新介入**（这是 `hosts/CLAUDE.md` 第 6 步的说法）：
 
    > After the debate, the PLANNER compiles consensus and disagreements, and the ROUTER produces the Summary Report incorporating the debate outcome.
 
@@ -136,7 +136,7 @@ COUNCIL 辩论完，输出裁决，接下来的流程：
 
 ## 辩论轮次不能省
 
-`pro/agents/council.md` anti-patterns：
+`agents/council.md` anti-patterns：
 
 > Do not skip rounds — all 3 rounds are mandatory
 
@@ -241,7 +241,7 @@ Summary Report 正文里会嵌入 Verdict 块（前面讲过的格式）。
 
 ## 反模式总结
 
-`pro/agents/council.md` 完整 anti-patterns：
+`agents/council.md` 完整 anti-patterns：
 
 1. **不要让辩论变独白** — 强制句数限制
 2. **Moderator 不要站队** — Moderator 总结，用户决定

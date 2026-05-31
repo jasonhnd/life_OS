@@ -1,6 +1,6 @@
 ---
 spec_id: agent-spec.v2
-description: 所有 pro/agents/*.md subagent 定义文件的标准 frontmatter schema。从 eou-foundry 借鉴 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes。适用所有 pro/agents/*.md subagent 定义文件（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、knowledge-extractor、memory-keeper + 6 个 domain agent）。
+description: 所有 agents/*.md subagent 定义文件的标准 frontmatter schema。从 eou-foundry 借鉴 6 facets classification + operating_hypothesis + context_manifest + blast_radius + failure_modes。适用所有 agents/*.md subagent 定义文件（router、retrospective、archiver、planner、reviewer、dispatcher、advisor、auditor、strategist、monitor、council、hippocampus、gwt-arbitrator、concept-lookup、soul-check、narrator、knowledge-extractor、memory-keeper + 6 个 domain agent）。
 status: active
 authoritative: true
 source_attribution: xiaolai/eou-foundry @ e4b12ce, schemas/eou.schema.yml + engine/eou-contract.md
@@ -9,7 +9,7 @@ introduced_in: v1.8.5
 
 # Agent 规范 v2
 
-每个 `pro/agents/*.md` subagent 定义文件**必须**有符合 v2 标准的 YAML frontmatter。v1.8.5 Stage 6 迁移全部现有 agent。
+每个 `agents/*.md` subagent 定义文件**必须**有符合 v2 标准的 YAML frontmatter。v1.8.5 Stage 6 迁移全部现有 agent。
 
 > **为什么 v2**: v1 agent frontmatter 只有 `name + description + tools + model`（4 字段）。v2 加 6 个结构性字段（借鉴 eou-foundry），让 agent 边界 grep-able、blast radius 显式、failure modes 有文档。按 RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6。
 
@@ -43,12 +43,12 @@ operating_hypothesis: |
 # v2 新增: context_manifest（eou eou-contract.md §context_manifest）
 context_manifest:
   source_of_truth:     # 此 agent 作为权威读的文件
-    - pro/CLAUDE.md
-    - pro/GLOBAL.md
+    - hosts/CLAUDE.md
+    - hosts/GLOBAL.md
   supporting:          # 次要 context
     - references/relevant-spec.md
-  forbidden:           # 不能读 — 按 pro/CLAUDE.md §Information Isolation 信息隔离
-    - pro/agents/other-peer.md
+  forbidden:           # 不能读 — 按 hosts/CLAUDE.md §Information Isolation 信息隔离
+    - agents/other-peer.md
 
 # v2 新增: blast_radius（eou eou-contract.md §blast_radius）
 blast_radius:
@@ -58,7 +58,7 @@ blast_radius:
   forbidden_scope:     # 此 agent 不可修改的文件
     - SOUL.md          # 仅 ARCHIVER Phase 2 写 SOUL candidate
     - foundry/eous/    # 如适用
-    - pro/agents/      # agent 定义不可自修改
+    - agents/      # agent 定义不可自修改
 
 # v2 新增: failure_modes（eou eou-contract.md §failure_modes）
 failure_modes:
@@ -76,7 +76,7 @@ failure_modes:
 
 ## 必需 v2 字段（HARD）
 
-每个 `pro/agents/*.md` frontmatter **必须**有:
+每个 `agents/*.md` frontmatter **必须**有:
 
 1. **所有 v1 字段**: `name`, `description`, `tools`, `model`
 2. **身份**: `id`, `version`
@@ -92,7 +92,7 @@ Stage 6 Day 17 添加新 AUDITOR mode。检查:
 - **A1**: 每个 agent 有所有 v2 必需字段
 - **A2**: `tools` 列表与 agent 实际使用匹配（tools 无 `Read` 但 agent 做 Read 调用 = drift）
 - **A3**: `forbidden_scope` 未被绕过（agent `meta/runtime/<sid>/` 输出 trail 显示无写到 forbidden 路径）
-- **A4**: agent 的 `failure_modes.known` 包含 `pro/compliance/violations.md` 中涉及此 agent 的任何违规类
+- **A4**: agent 的 `failure_modes.known` 包含 `compliance/violations.md` 中涉及此 agent 的任何违规类
 
 发现按 `references/failure-taxonomy.md` 分类。
 
@@ -204,7 +204,7 @@ risk_level 理由: 产出最终输出无 REVIEWER 门的 agent 风险更高（ar
 
 ### 覆盖机制
 
-合法违反 DA-1/DA-2/DA-3 的 agent 必须在其 `pro/agents/<name>.md` frontmatter 声明覆盖：
+合法违反 DA-1/DA-2/DA-3 的 agent 必须在其 `agents/<name>.md` frontmatter 声明覆盖：
 
 ```yaml
 default_anti_patterns_override:

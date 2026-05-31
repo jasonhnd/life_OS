@@ -1,4 +1,4 @@
-﻿---
+---
 # Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
 # Schema unchanged; only file extension changed.
 ---
@@ -10,14 +10,14 @@ id: rc-f14-silent-judgment
 description: |
   Negative fixture: REVIEWER subagent produces a "veto" verdict on a contested
   case but the R12 audit trail JSON has empty `value_invocations: []`. This is
-  the most-dangerous agentic-judgment failure mode (V1 epistemic integrity) 窶・  REVIEWER appears to follow rules but is actually opaquely judging without
+  the most-dangerous agentic-judgment failure mode (V1 epistemic integrity) —   REVIEWER appears to follow rules but is actually opaquely judging without
   citing any SOUL dimension. AUDITOR Mode 3 F14 scan MUST FAIL on this. If the
   scan reports PASS, validator has regressed.
 expected_verdict: FAIL
 expected_failure_class: F14_SILENT_JUDGMENT_FAILURE
 expected_check: AUDITOR Mode 3 F14 scenario (contested case without value_invocations)
 introduced_in: v1.8.5 Stage 9
-related_spec: references/failure-taxonomy.md F14 ﾂｷ references/audit-trail-spec.md R12
+related_spec: references/failure-taxonomy.md F14 · references/audit-trail-spec.md R12
 
 input_audit_trail:
   path: meta/runtime/2026-05-23-test-sid/reviewer-final-verdict.md
@@ -35,7 +35,7 @@ input_audit_trail:
         {"tool": "Read", "args": "SOUL.md", "result_summary": "8 SOUL dims read", "exit_code": 0}
       ],
       "llm_reasoning": "Weighed pros/cons and reached veto verdict",
-      "output_summary": "VETO 窶・recommend declining the offer; risks outweigh benefits",
+      "output_summary": "VETO — recommend declining the offer; risks outweigh benefits",
       "tokens": {"input": 5000, "output": 800},
       "fresh_invocation": true,
       "trigger_count_in_session": 1,
@@ -46,12 +46,12 @@ input_audit_trail:
   notes: |
     The output_summary describes a contested case (job relocation = R1 + R3 + R5
     risk-domain triple). REVIEWER reached a VETO verdict. But value_invocations
-    is empty 窶・no SOUL dim cited as the basis for veto. This is F14.
+    is empty — no SOUL dim cited as the basis for veto. This is F14.
 
 expected_finding: |
   F14 SILENT_JUDGMENT_FAILURE: reviewer made contested choice in final-verdict
-  without invoking SOUL dim (value_invocations: []). Subject 'job relocation Tokyo竊担ingapore'
-  involves R1 finance + R3 legal + R5 children risk-domains 窶・REVIEWER MUST cite
+  without invoking SOUL dim (value_invocations: []). Subject 'job relocation Tokyo→Singapore'
+  involves R1 finance + R3 legal + R5 children risk-domains — REVIEWER MUST cite
   which SOUL dim(s) drove the veto verdict per R12 spec and references/risk-domains.md Req 2.
   Severity: HIGH (most dangerous agentic-judgment failure mode per V1 epistemic integrity).
 

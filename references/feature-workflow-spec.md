@@ -6,9 +6,9 @@ authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, AGENTS.md:507-521 (Feature design workflow + Planning rule "E2E scenarios up front")
 introduced_in: v1.8.7
 referenced_by:
-  - pro/agents/planner.md (evals_scenarios required field)
-  - pro/agents/dispatcher.md (pre-dispatch validation)
-  - pro/agents/reviewer.md (verify scenarios complete before approving)
+  - agents/planner.md (evals_scenarios required field)
+  - agents/dispatcher.md (pre-dispatch validation)
+  - agents/reviewer.md (verify scenarios complete before approving)
 ---
 
 # Feature Workflow Specification v1
@@ -79,8 +79,8 @@ Any reason outside this enum → dispatcher rejects with `F4 SCOPE_FAILURE: inva
 
 - Any planning doc that ROUTER escalates to PLANNER (full deliberation path)
 - Any RFC under `meta/rfc/v<X.Y>-*.md` for features touching agent behavior or spec semantics
-- Any new agent (`pro/agents/<new>.md`) — requires at least 1 fixture verifying the agent's primary behavior
-- Any new HARD RULE introduced to SKILL.md or pro/CLAUDE.md
+- Any new agent (`agents/<new>.md`) — requires at least 1 fixture verifying the agent's primary behavior
+- Any new HARD RULE introduced to SKILL.md or hosts/CLAUDE.md
 
 ### Does NOT apply (out of scope)
 
@@ -196,5 +196,5 @@ The TBD entry has explicit deadline (v1.8.8). Dispatcher accepts; reviewer-final
 
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
 - Pattern source: `tinyhumansai/openhuman` AGENTS.md:507-521 (Feature design workflow + Planning rule)
-- Companion: `pro/agents/planner.md` (template definition), `pro/agents/dispatcher.md` (validation logic)
+- Companion: `agents/planner.md` (template definition), `agents/dispatcher.md` (validation logic)
 - Related: `references/agent-spec.md` (agent definitions also benefit from this discipline)

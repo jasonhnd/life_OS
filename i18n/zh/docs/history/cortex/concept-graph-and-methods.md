@@ -3,7 +3,7 @@ translated_from: docs/history/cortex/concept-graph-and-methods.md
 translator_note: auto-translated 2026-04-22, 待人工校对
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # 概念图谱 + 方法库 · 系统怎么"攒智慧"（Concept Graph & Method Library）
@@ -506,7 +506,7 @@ Spec 层(英文):
 - `references/method-library-spec.md` — 方法 schema、promotion ladder、DISPATCHER 集成
 - `references/cortex-spec.md` §Archiver Candidate Routing — 候选进哪个 layer 的决策树
 - `references/hippocampus-spec.md` §Wave 2/3 — 怎么沿边权扩散
-- `pro/agents/archiver.md` — Phase 2 实际的写入流程
+- `agents/archiver.md` — Phase 2 实际的写入流程
 
 ---
 

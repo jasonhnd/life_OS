@@ -1,6 +1,6 @@
 # DREAM 规范
 
-DREAM 是系统的离线记忆处理机制——灵感来自人类的睡眠周期。它作为 **ARCHIVER（`pro/agents/archiver.md`）的 Phase 3** 在每次散朝时运行，扫描过去 3 天的活动，进行整理、巩固和发现。
+DREAM 是系统的离线记忆处理机制——灵感来自人类的睡眠周期。它作为 **ARCHIVER（`agents/archiver.md`）的 Phase 3** 在每次散朝时运行，扫描过去 3 天的活动，进行整理、巩固和发现。
 
 > **注意**：DREAM 不是独立 agent。它在 v1.4.4 被并入 ARCHIVER。本规范定义三个阶段；ARCHIVER 将其集成到收尾流程中。
 

@@ -1,4 +1,4 @@
-﻿---
+---
 # Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
 # Schema unchanged; only file extension changed.
 ---
@@ -16,7 +16,7 @@ expected_verdict: FAIL
 expected_failure_class: F16_VALUE_DRIFT_FAILURE
 expected_check: AUDITOR Mode 3 F16 scenario (3+ similar contested cases with consistent low-priority bias, no SOUL amendment)
 introduced_in: v1.8.5 Stage 9
-related_spec: references/failure-taxonomy.md F16 ﾂｷ references/soul-spec.md v2 lifecycle
+related_spec: references/failure-taxonomy.md F16 · references/soul-spec.md v2 lifecycle
 
 input_session_aggregate:
   window: "2026-05-15 to 2026-05-23 (9 days)"
@@ -46,7 +46,7 @@ input_session_aggregate:
       priority: 5
 
   soul_amendment_ecp_in_period:
-    found: false                          # 竊・REGRESSION TRIGGER
+    found: false                          # → REGRESSION TRIGGER
     expected: "either revise SOUL priority OR add regression case OR formalize drift"
 
 expected_finding: |

@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.1-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1.1-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -79,224 +79,11 @@ i) 🏢 企業 — 社長室、経営企画部、法務部
 
 ---
 
-## v1.8.7 新特性 — OpenHuman 启发的硬化（md-only 本体论约束）
+## 当前状态
 
-**借鉴 OpenHuman 的模式，不借鉴其技术栈。** v1.8.7 吸收 7 个来自 `tinyhumansai/openhuman` 的设计模式（memory tree cascade、ScheduleWakeup 自驱循环、gotchas 知识库、hotness 驱动概念物化、三语 diff 对齐、"故意保持近空" 反模式文档、evals 必填工作流）—— 但每条都用 md-only 表达，无 SQL / 无 JSON / 无 sh / 无 py。按 DR-10，md-only 现在是 lifeos 的**本体论约束** —— lifeos 之所以是 lifeos 的定义属性。任何未来提议引入禁止扩展名的 RFC 必须重新定义需求，不放宽约束。
+Life OS 现在是 markdown-only、GitHub 单后端的个人决策系统。当前用户路径是自然语言优先：安装后直接说你要做什么，ROUTER 会映射到正确 workflow。Slash command 仍然存在，但主要是安装、维护、诊断管线，不是日常使用入口。
 
-### 产品升级（改变 lifeos 能力的能力）
-
-- **🧠 gotchas + memory-keeper（C6）** —— `pro/gotchas.md` 是项目级技术坑的单文件。新 `memory-keeper` agent 在 archiver wrap-up phase 5 自动提炼。ROUTER 在重大任务前可 short-circuit 已知问题。首次 seed 跑从 v1.8.4-1.8.6 RFC + violations 历史产 ≥10 条。
-- **🔄 ScheduleWakeup 自驱循环（B4）** —— `/verify-release-and-watch` 每 270s 轮询（Anthropic prompt cache 窗口），最多 12 ticks（60 分钟）直到终态。自动修复缺失的 GitHub Release publish。lifeos 从 reactive 工具变成"能盯任务"的工具。
-- **📋 verify-release 扩展为 11 个 check** —— 新 check 9（i18n diff parity，WARN 级）抓反复的"EN spec 更新但 zh/ja 漂移"违规类。新 check 10（diff 范围 forbidden extensions）抓上次 tag 以来引入的禁止扩展名文件。Check 8 扩展为 9 个禁止扩展名（加 `.bash` / `.yml` / `.yaml` / `.json` / `.sql` / `.db` / `.sqlite`）。
-- **🛡️ AUDITOR Mode 7（OpenHuman patterns compliance）** —— 7 个 sub-check 验证 v1.8.7 artifact 保留 + md-only 约束在设计提议级别不被绕过（在到文件扩展闸门前抓漂移）。
-- **📚 Spec 硬化** —— `evals_scenarios:` frontmatter 字段现在在每个规划文档必填（dispatcher 不带就拒绝）。`concept-spec.md` 的 hotness 阈值显式化（≥3 sessions → confirmed，≥10 → canonical）。5 个新 `WHEN-NOT-TO-ADD.md` 为 pro/agents/、references/、meta/、themes/、scripts/ 设清楚边界。
-- **🌳 Memory tree cascade seal —— v2.0 提案** —— `references/memory-tree-spec.md` 定义 sessions/wiki 的 L0 → L1 → L2 → L3 cascade 架构，借鉴自 OpenHuman。Spec 冻结为提案；v1.8.7 archiver 行为不变。实施推迟到 v1.9/v2.0，待 Jason second-brain 真实数据验证。
-
-### 从 v1.8.6 升级（zero-friction）
-
-```
-1. cd <lifeos repo> && git pull origin main
-2. /version-check
-3. /install-agents --refresh
-4. /verify-release v1.8.7
-```
-
-无迁移命令。archiver 首次跑自动创建 `pro/gotchas.md`。既有数据布局不变。
-
-详见 [`_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md`](../../_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md) 完整 RFC、DR-08（cargo-cult 砍掉）、DR-09（决策标准：产品质量不是时间）、DR-10（md-only 本体论约束），及设计决策审计 trail。
-
-> **v1.8.3 之前内容** —— 一道内联出境隐私闸门会在每次 Notion 写入前扫描 secret/PII。**已随 Notion 后端一并移除**（存储现在仅 GitHub）。
-
-> **v1.8.2 之前内容** — 全局 Obsidian 可读 HARD RULE (#11)、4 个专门 wiki 模板（`kind:` 字段）、`/wiki-obsidian-upgrade` 批量迁移、二进制输出转 `~/Downloads/`。详见 CHANGELOG。
-
----
-
-## v1.8.1 新特性 — Zero-Python pivot + Wiki Plan B + 反 confirmation bias 定位
-
-v1.8.1 是 **Life OS 历史上最大的「减法」**。两波 5 月 1-2 日交付，都在同一个 v1.8.1 tag 下：
-
-### Wave 1 · Plan B wiki + auto-bootstrap（5 月 1 日）
-
-- **`/inbox-process`** — 把任意 `.md` 拖到 `meta/queue/to-process/`，然后说"处理 inbox"或 `/inbox-process`。ROUTER 扫描、逐项提议处置（accept→wiki / update→wiki / archive / reject / defer / merge）、等确认、执行、写日志。Wave 2 加了 LLM 驱动重复检测（无 SHA256，无 FTS5）+ `meta/queue/manifest.json` delta 跟踪。
-- **`/research <topic>`** — 并行起 5 个（`--depth deep` 8 个）`general-purpose` subagent 覆盖 academic / practitioner / contrarian / origin / adjacent 角度。综合成 SCHEMA 兼容 wiki 草稿，含强制 `Counterpoints` 段 + 自动反 confirmation bias 检查。Wave 2 加了解耦 CitationAgent（Phase 4，Anthropic 模式）。带 citation verifier 总 wall time ≤ 9 min。
-- **`wiki/log.md` 活动时间线规范** — 每个 wiki Write/Edit/移动 append 一行 + action enum (`created`/`updated`/`promoted`/`deprecated`/`merged`/`renamed`/`rejected`/`bulk`)。`/inbox-process` 和 `/research` 自动写日志。
-- **零命令 vault 自动 bootstrap** — v1.8.1 之后第一次在 vault 内开 Claude Code session 时，SessionStart hook 自动检测缺失的脚手架并静默创建。只看到一行 `✨ Life OS v1.8.1 vault auto-bootstrap: wrote N files`，之后无输出。`.obsidian/graph.json` 自动 patch（先备份）。
-
-### Wave 2 · Zero-Python pivot（5 月 2 日）
-
-驱动 Wave 2 的用户原话："我想把这些东西全砍掉。我不理解为什么需要向量数学，我的系统里也没有 FTS5。" — 整个 Layer 4 Python tools/ 包背着用户从未要求或使用的复杂度（FTS5、向量、mypy/ruff/pytest CI 门、50+ 可选依赖）。Wave 2 删掉仓库每一行 Python：
-
-- **删 11 个 Python 模块**：`tools/{approval,embed,export,reconcile,research,search,seed,sync_notion,skill_manager,stats,__init__}.py` 加 `tools/lib/{__init__,config,llm,notion,second_brain}.py` 和该包的 README。
-- **删 17 个 pytest 测试文件**（对应被删的模块）。
-- **删打包**：`pyproject.toml`、`uv.lock`、`.python-version`、`.github/workflows/integration.yml`、9 个 `evals/scenarios/tool-*.md` eval 场景。
-- **安全 guard 现在 bash 原生**：唯一安全关键的 Python（来自 `tools/approval.py` 的 ~40 危险命令 pattern guard）port 成 `scripts/hooks/pre-bash-approval.sh` 内的 bash 正则数组。100% 纯 bash；jq 做 JSON parse（python3 仅作为 stdin 抽取的回退）。出处保留：fork 自 NousResearch/hermes-agent (MIT) commit `59b56d4...`。17 个 fixture（10 基础 + 7 边界）smoke 测过。
-- **CI workflow 重写**：`.github/workflows/test.yml` 原是 6 个 job（pytest + mypy + ruff × 3 OS × 2 Python）。现在 3 个 job（`bash -n` + tests/hooks/ + spec drift，跨 ubuntu/macOS/windows）。快了 ~3 倍，无需安装 Python 工具链。
-- **删被 bash 包了一层的 Python**：`scripts/wiki/wiki-link-audit.sh`（311 行 bash + awk frontmatter parsing）→ 替换为 `scripts/prompts/wiki-link-audit.md`（LLM 驱动 Glob + Grep + Read）。
-
-### Wave 2 · 9 项 wiki schema/流水线改进（5 月 2 日）
-
-| Wiki 改进 | 改了什么 |
-|---|---|
-| `aliases: []` 字段 | Obsidian 用于 `[[wikilink]]` 解析 |
-| `source` → `sources: []` | 复数数组；列出每个贡献的 URL/citation |
-| `confidence` 改 5 桶 enum | `impossible \| unlikely \| possible \| likely \| certain`（之前是 `0.0–1.0` float）。跑 `/migrate-confidence` 转换遗留条目；`/wiki-decay` 扫的时候自动映射。 |
-| `last_tended` 字段 | ISO 日期 — 上次主动 review（不是 cosmetic 编辑） |
-| `review_by` 字段 | ISO 日期 — `wiki-decay` 何时该重新提醒此条目 |
-| 每条事实的出处标记 | `^[extracted]`（从源转述）、`^[inferred]`（你的综合）、`^[ambiguous]`（源不一致）。`/research` agent 输出强制；`/inbox-process` accept/update 强制。 |
-| `/inbox-process` LLM 去重 | 替代 SHA256 hash — 抓到释义性近似重复，不只字节相同。纯 LLM 用 grep + Read 判断。 |
-| `meta/queue/manifest.json` delta 跟踪 | 每次 `/inbox-process` 在提议表里标 Δ-new vs carried-over。 |
-| `/research` 解耦 CitationAgent | Anthropic 模式 Phase 4：通过 WebFetch 验证每个 `^[extracted]` claim 对得上 `sources[]`。未验证的自动降级。30%+ 失败则 confidence 降一桶。`--no-citations` 可关。 |
-
-### Life OS Wiki 与其他项目的本质区别（反 confirmation bias 定位）
-
-我们 benchmark 过 6 个主流 LLM-Wiki / 多 agent research 项目（Anthropic research-system 博客、LangChain `langgraph` agent supervisor、GPT-Researcher、CrewAI、QX-Labs、OpenAI Deep Research），没有一个把这些都做了：
-
-| 维度 | Life OS Wiki | 大多数项目 |
-|---|---|---|
-| 持久化存储 | 集成 wiki（markdown + frontmatter），跨 session 留存 | 临时聊天输出 |
-| 每条出处标记 | 强制 `^[extracted]`/`^[inferred]`/`^[ambiguous]` | 没有，或只到 run 级别 |
-| Citation 验证 | 解耦 CitationAgent 在合成**之后**跑（保留分析深度） | 交错（推动模型走向浅显易引证的事实） |
-| Confidence 校准 | 5 桶 enum 强制诚实评估 | float（虚假精度）或不说 |
-| 新鲜度模型 | `last_tended` + `review_by` + `/wiki-decay` 重新提醒 | append-only，无 decay 模型 |
-| Inbox 交接 | 用户用完整提议表 triage，写之前先确认 | 自治 append（你后来才知道） |
-| 部署姿态 | 零 Python（仅 bash + markdown） | Pip / npm / requirements.txt |
-
-这不是批评那些项目 — 它们解决不同的问题。但如果你试过 "LLM wiki" 或 "多 agent research" 工具发现 (a) 输出消失 (b) 分不清什么是真源什么是综合 (c) agent 自信地引用根本不说它声称内容的 URL — 那些就是 Life OS Wiki 要堵的洞。
-
-### 关键 bug 修复（Wave 1）
-
-- **macOS 可移植性**：`pre-bash-approval.sh` 5 处裸 `python -c`。macOS 12+ 移除了裸 `python` → hook fail-CLOSED → 阻止所有 Bash。R-1.8.0-020 commit 标题声称修了；直到 Wave 1 才修。
-- **Scanner 误判**：`pre-write-scan.sh` pattern #5 之前会拦截 markdown 合法 inline code。收紧为 backtick 内必须含 shell 元字符。
-- **session-start-inbox UX**：2 个 task 名字写错；NEVER_RUN 桶从 8+ 行压成 1 行。
-
-### 迁移
-
-```bash
-cd ~/.claude/skills/life_OS && git pull
-bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-confidence + /wiki-link-audit
-```
-
-然后在 second-brain vault 内开任意 Claude Code session。Vault 脚手架自动创建。带 float `confidence` 的遗留 wiki 条目继续工作 — `/wiki-decay` 自动映射。永久迁移到 enum：在 vault 内跑 `/migrate-confidence`（幂等，写之前先预览）。
-
-跑过 `python -m tools.<X>` 的用户：那些 Python 入口已不存在。完整替代表见 [CHANGELOG.md](./CHANGELOG.md#181---2026-05-02)。
-
----
-
-## v1.8.0 新特性 — User-Invoked Maintenance（pivot 后）
-
-v1.8.0 起初带着 cron 自治 + always-on Cortex 上线。两天的真实使用之后，cron 架构在每个可靠性维度都失败了（静默数据丢失、LLM-in-cron 权限阻塞、stale 脚本路径、多个 bash 兼容性 bug）。v1.8.0 在**同一个版本号下被原地 pivot**到一个更简的设计：**用户主动触发，ROUTER 直接做事**。
-
-**核心原则**：cron 要求确定性，LLM 是非确定性的 —— 这个矛盾没法 patch。把 cron 替换成显式用户提示。你说"重建索引"或"月度自审"，ROUTER 读 `scripts/prompts/<job>.md` 然后内联执行。没有后台进程，所有事都在你眼前发生。
-
-两种 session 模式：
-
-- **Mode 1 · 业务 session** — 标准的 Claude Code 聊天。长期持续：可跨天/周。**上朝/退朝是可选软触发**。Cortex 现在改 **pull-based**（ROUTER 按消息判断要不要 launch hippocampus / concept-lookup / soul-check / gwt-arbitrator），不再 always-on。
-- **Mode 2 · Monitor session**（`/monitor`）— view-and-invoke 运维控制台。显示维护任务时间戳 + 最近报告 + action items。你说"跑 X" / "都跑"，monitor 读对应 prompt 然后执行。没 cron，没后台。
-
-10 个 user-invoked 维护任务（每个是一个 markdown prompt 在 `scripts/prompts/<job>.md`，ROUTER 读完用 Read/Write/Bash 直接做）：
-
-- `reindex` · `daily-briefing` · `backup` · `spec-compliance` · `wiki-decay`（v1.7.x 的 "python tool" 任务，现在 LLM 做）
-- `archiver-recovery` · `auditor-mode-2` · `advisor-monthly` · `eval-history-monthly` · `strategic-consistency`（v1.8.0 的 "prompt cron" 任务，现在 user-invoked）
-
-Hooks（只有 1 个会自动 fire）：
-
-- `session-start-inbox` — session 启动时扫 10 个维护任务的上次时间戳，显示一行"哪些过期了"。**不执行任何东西**，由你决定要不要触发。
-- `pre-prompt-guard` — memory 关键词自动检测 + 上朝/退朝软触发。**Cortex always-on 强制已删除**。
-- `pre-bash-approval`（保留）— 危险 bash 安全闸门。
-- `post-task-audit-trail`（弱化）— 只对 archiver + knowledge-extractor 强制 R11 audit trail（Cortex 不再要求写 trail）。
-
-Pivot 中删掉的：
-- Cron 基础设施：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、所有 launchd plist。
-- Python 中间层：`tools/memory.py`（现在直接 Write/Read 到 `~/.claude/lifeos-memory/`）、`tools/session_search.py`（现在直接 Grep）、`tools/cli.py`（不需要了）、5 个维护 python 工具（已被上面 user-invoked prompts 取代）。
-- Cortex artifact：`pro/agents/narrator-validator.md`（validator 是绑在 always-on 流程上的）。
-- Spec 文档：`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`（cron 时代的 spec）。
-
-迁移：重新 pull repo，然后重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`（重新注册简化后的 hook 集合）。macOS 上 `launchctl unload ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist && rm ~/Library/LaunchAgents/com.lifeos.hermes-local.*.plist` 删掉死掉的 cron job。无第二大脑数据迁移需求。v1.7.x sessions / wiki / SOUL 完全兼容。
-
----
-
-## v1.7.3 新特性
-
-v1.7.3 让 Cortex 从「声明 always-on」变成「机器强制 always-on」，并给 Hermes 工具真实可见、可触发的入口。
-
-- **Cortex hook 强制注入** — `pre-prompt-guard` 现在在用户消息含决策关键词或超过 80 字时，输出 system-reminder 强制 ROUTER 在回答前并行 launch 5 个 Cortex subagent（hippocampus / concept-lookup / soul-check / gwt-arbitrator / narrator-validator）。修复 v1.7.2 的静默降级（17+ session 0 audit trail）。
-- **narrator-validator audit trail HARD RULE** — frontmatter `tools` 加 Bash + Write，按 pro/CLAUDE.md §0.5 强制写 `meta/runtime/<sid>/narrator-validator.json` audit trail JSON。
-- **4 个 slash command 接入** — `/compress`（inline 上下文压缩，归档到 `meta/compression/`）、`/search`（基于 `tools.session_search` 的 FTS5 跨 session 搜索）、`/memory`（基于 `tools.memory` 的 24-48h 短期记忆）、`/method`（基于 `tools.skill_manager` 的方法论库管理）。`setup-hooks.sh` 安装到 `~/.claude/commands/`。
-- **死代码清理** — `tools/prompt_cache.py`（118 行 0 调用，Claude Code 包月场景无意义）+ `docs/architecture/prompt-cache-strategy.md` 删除。`docs/architecture/hermes-local.md` 中相关引用清理完毕。
-
-迁移：重跑 `bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`，把 4 个新 slash command 安装到 `~/.claude/commands/`。
-
----
-
-## v1.7.2.3 新特性
-
-v1.7.2.3 明确 RETROSPECTIVE 的 Mode 0 职责边界：ROUTER 负责 Bash 预渲染的 briefing skeleton，先生成约 80% 的报告；subagent 只填写 `<!-- LLM_FILL: today_focus_and_pending_decisions -->` 这一处，用约 5-15 行输出 Today's Focus 与 Pending Decisions。随后 ROUTER 把该块拼回 skeleton，让 briefing 更稳定、精简、易审计。
-
----
-
-## v1.7.2.1 新特性
-
-v1.7.2.1 是一次“减法”热修复：恢复主题审美，同时移除多余的报告仪式感。用户可见报告从 17 个 H2 块收敛到 6 个，取消 compressed wrapper 强制要求，并把版本标记固定在稳定位置，便于检查。结果是规则更少、briefing 更干净，同时保留必要的可审计性。
-
----
-
-## v1.7.2 新特性
-
-v1.7.2 把本地执行面整理成更清晰的用户叙事：Hermes Local 现在是 Life OS 在提示词之外执行防护与自动化的公开名称。它覆盖 Layer 3 hooks 与 Layer 4 Python tools，而内部规格仍沿用 `execution layer`、`Layer 3`、`Layer 4` 这些稳定标签。对已启用的工作区，Cortex 现在作为常驻认知路径运行：每条用户消息都可以在路由前获得记忆、概念与 SOUL 信号，并在索引或子代理不可用时确定性降级。version-check hook 现在会用远端 SHA 让日缓存失效，并支持 `--force`，因此同一天发布的新版本不会再被旧缓存遮住。源自 Hermes 的 prompt-cache 与 context-compression 辅助工具提升速度，也让大段粘贴转录更容易控制。压缩只用于本地上下文管理；需要完整保真的子代理报告与审计证据仍保持原样粘贴。
-
----
-
-## v1.7.1 新特性
-
-v1.7.1 是一次面向透明度和证据链的加固版本。系统会更明确地呈现 token 使用情况，让用户看见哪些工作被执行、跳过或升级，以及原因。ROUTER 必须原样粘贴子代理输出，不再压缩报告，从而保留完整的审阅轨迹。AUDITOR 的检查进一步程序化，本次发布把 27 项加固集中在 hook 活动、i18n 漂移、Cortex 输出、GWT 明确性、DREAM 完整输出、force push 处理、标记消歧和 markdown frame 解析等方面。R10 架构转向：18 个 retrospective 步骤中的 11 个已从 LLM 移到 ROUTER Bash。LLM 合规缺口不是靠更多 spec 规则关闭，而是靠程序替代关闭。R11 增加 runtime audit trail 文件，让 AUDITOR 能跨 subagent 直接校验，打破信息隔离带来的验证瓶颈，同时不暴露 agent reasoning。R12：每次“上朝”都是 fresh invocation：LLM 不得复用上一份 briefing；禁用短语、长度坍缩、缺少 fresh marker 都会触发 P0 级 C-fresh-skip。
-
----
-
-## v1.7.0.1 新特性
-
-反虚构加固阻止虚构的失败解释到达用户。
-
-补丁更新：最终 briefing contract 明确化，Mode 0 会自检 Claude Code hooks，Cortex 通过 `meta/config.md` 保持 OFF / opt-in。Hook 自动安装关闭测试机部署闭环。
-面向源头可信度的 briefing 现在包含 PRIMARY-SOURCE 实测计数标记、STATUS.md 陈旧抑制、30d-≥3 Compliance Watch 自动横幅，以及 ROUTER 在展示前用 Bash 核查数字、版本、路径声明。
-
----
-
-## v1.7 新特性
-
-**Cortex 认知层 · 正式发布**
-
-- 5 个新 Cortex 能力：跨会话记忆（hippocampus）、信号仲裁（GWT）、带引用生成（narrator）、概念图谱、SOUL 维度检测
-- 5 个 runtime hook 强制 HARD RULE（防 COURT-START-001 同类违规）
-- 10 个 Python 工具 + 3 个 lib（reindex / reconcile / stats / research / daily_briefing / export / sync_notion / seed / migrate / search / embed）
-- 6 个 Cortex 用户指南 + v1.7-migration 用户体验章节
-- cortex-spec + hippocampus-spec 中日译本
-
-升级（v1.6 → v1.7）：详见 [docs/history/v1.7-migration.md](../../docs/history/v1.7-migration.md)。之前的 `uv run life-os-tool migrate` 命令在 R-1.8.0-011 与 `life-os-tool` dispatcher 一起删除；当前用 LLM 驱动的 `scripts/prompts/migrate-from-v1.6.md`，详见 `pro/CLAUDE.md` §0.5。
-
-完整 v1.7 commit 链和 COURT-START-001 v1.6.3 事件档案见 [CHANGELOG](./CHANGELOG.md)。
-
----
-
-## v1.6.3 新特性
-
-**信任守卫——五层防御 HARD RULE 违规**。测试中，作者本人在 Life OS 开发 repo 说"上朝"，LLM 跳过 retrospective 子代理，在主上下文模拟 18 步流程，并编造不存在的路径作为权威源。文档不会自动强制——每一条 HARD RULE 都是描述性的，零强制机制。v1.6.3 交付五层独立防御，让每个触发词真正启动实际的子代理：
-
-1. **UserPromptSubmit hook**（`scripts/lifeos-pre-prompt-guard.sh`）——检测 上朝 / start / 閣議開始 / 退朝 等 9 个主题的触发词，在模型响应前把 HARD RULE 提醒注入上下文
-2. **Pre-flight Compliance Check** — ROUTER 在任何工具调用前必须输出 `🌅 Trigger: [词] → Theme: [名] → Action: Launch([agent]) [Mode]`，缺此行 = 登记违规
-3. **子代理自检** — retrospective Mode 0 第一行证明子代理真的被启动（而非主上下文模拟）
-4. **AUDITOR 合规巡检（Mode 3）** — 7 类违规分类（A1 跳过子代理、A2 跳过目录检查、A3 跳过 Pre-flight、B 编造事实、C 阶段未完成、D 占位值、E 主上下文执行阶段），每次 Session 启动和归档后运行
-5. **Eval 回归** — `evals/scenarios/start-session-compliance.md` 固化 COURT-START-001 的 6 个失败模式
-
-**双仓库违规日志**（md + git，遵循用户存储约束）：违规持久化到 `pro/compliance/violations.md`（dev repo，公开）和 `meta/compliance/violations.md`（user second-brain，私有）。升级阶梯：30 天内同类 ≥3 → hook 提醒加严；≥5 → briefing 顶部加 `🚨 Compliance Watch`；90 天内 ≥10 → AUDITOR 每次 Session 巡检。
-
-**v1.6.2 依然可用**：退朝流程无法被绕过 · Wiki 自动写入 · SOUL 持续自动写入 · DREAM 10 个自动触发 · SOUL 趋势箭头 · REVIEWER 3 层 SOUL 策略 · 简报顶部 SOUL 健康报告。
-
-> **v1.6.3a 热修补（2026-04-21）** — 关闭第 1 层安装缺口。`scripts/setup-hooks.sh` 现可自动注册 UserPromptSubmit hook（一次运行：`bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh`）。Hook regex 收紧（首行 + 长度检查）以减少粘贴内容假阳性。违规分类新增 F 类（False positive）。
-
-完整列表及原始 COURT-START-001 事件档案见 [CHANGELOG](./CHANGELOG.md)。
-
----
-
+版本历史请看 [`CHANGELOG.md`](../../CHANGELOG.md) 和 [`docs/reference/version-history.md`](../../docs/reference/version-history.md)。v1.6-v1.8 的旧架构说明已经放进 [`docs/history/`](../../docs/history/)；它们保留历史背景，但不是当前操作指南。
 ## 它怎么工作
 
 Life OS 由五根支柱撑起来。**决策引擎**是核心——其余一切从它生长出来。
@@ -306,6 +93,8 @@ Life OS 由五根支柱撑起来。**决策引擎**是核心——其余一切�
 ### 一、决策引擎 — 规划、审查、否决、执行、审计
 
 引擎运行 多个 agent，遵循一个 1400 年前的原则：**任何一个声音都不能不受制衡**。主题给这些 agent 穿上你文化里的名字。逻辑始终一样。
+
+#### 多个 agent
 
 每一个重大决策都要经过三道关。不能跳过。
 
@@ -356,6 +145,8 @@ Life OS 由五根支柱撑起来。**决策引擎**是核心——其余一切�
 
     📋 奏折         → 综合评分：6.2/10 — 有条件通过
 ```
+
+#### 快车道分析
 
 不是所有事都需要上朝。丞相（你的常驻入口）直接处理闲聊、快速提问和情绪支持。对于需要领域专业知识但不是决策的问题——比如"自由职业者适用哪些税务规则？"——**快车道**把问题发给 1-3 个相关部门，不走完整的朝议流程。
 
@@ -608,19 +399,25 @@ Life OS 预配置了人们真正面对的决策：
 
 **主题是按会话独立的**。你可以在一个终端窗口用三省六部，另一个窗口用 C-Suite。
 
-**设置自动更新**（Claude Code）：
-```bash
-bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
+**第一次使用不用记命令**。装好后直接说：
+
 ```
-每天你启动会话时自动检查一次更新。
+我刚装好 Life OS，帮我检查配置并带我开始。
+```
+
+ROUTER 会从自然语言触发 Doctor 自检：当前目录类型、skill root、host readiness、second-brain 是否可达、git sync 是否健康。然后它会告诉你下一句该说什么。配置确认没问题时，直接说"上朝"也可以。
+
+**Claude Code setup plumbing**：
+
+运行 `/install-agents --refresh`（注册/刷新 `lifeos-*` subagent wrappers）。这不是日常使用入口；日常入口是自然语言。v1.8.5 前的 `bash scripts/setup-hooks.sh` 已随 hook layer 退役。
 
 ### 可被 Task 直接调用的 subagent
 
-执行 `bash scripts/setup-hooks.sh` 后，life_OS 会把可被 Task 调用的 agents 自动注册到 `~/.claude/agents/lifeos-*.md`。Claude Code 随后会把 `Task(lifeos-retrospective)`、`Task(lifeos-archiver)` 等调用识别为一等目标，而不是 fallback 到 `general-purpose`。
+执行 `/install-agents --refresh` 后，life_OS 会把可被 Task 调用的 agents 自动注册到 `~/.claude/agents/lifeos-*.md`。Claude Code 随后会把 `Task(lifeos-retrospective)`、`Task(lifeos-archiver)` 等调用识别为一等目标，而不是 fallback 到 `general-purpose`。
 
-`lifeos-` 前缀用于避免和其他 skill 的 agents 撞名。Wrapper 指向 skill 内 `pro/agents/*.md` 的权威定义，所以更新 skill 后重新运行 setup 即可刷新 agent 行为。仓库内共有 多个 agent 定义文件；其中 21 个会注册为 Task-spawnable wrapper，`narrator.md` 保持 ROUTER-internal。
+`lifeos-` 前缀用于避免和其他 skill 的 agents 撞名。Wrapper 指向 skill 内 `agents/*.md` 的权威定义，所以更新 skill 后重新运行 setup 即可刷新 agent 行为。仓库内共有 多个 agent 定义文件；其中 21 个会注册为 Task-spawnable wrapper，`narrator.md` 保持 ROUTER-internal。
 
-卸载：`bash scripts/unregister-claude-agents.sh`。
+卸载：`/uninstall-agents`。
 
 **手动更新**：在任何会话里说一句"更新"就行。
 
@@ -630,7 +427,9 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 ---
 
-## 系统架构
+## 底层结构
+
+### 架构
 
 ```
 👑 你
@@ -742,6 +541,10 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
        ├── wiki/            📚 可复用知识
        └── archive/         🗄️ 已完成归档
 ```
+
+### 六个领域
+
+六部各自下辖 4 个专业方向，共 24 个方向；当职责交叉时，按问题根因归属，必要时由政事堂协调分歧。
 
 ### 主题系统（9 个主题）
 

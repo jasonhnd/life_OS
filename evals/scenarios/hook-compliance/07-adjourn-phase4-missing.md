@@ -34,7 +34,7 @@ archiver Phase 3: DREAM — N1/N2/N3/REM complete
 
 ## Expected violations.md diff
 
-**One new row** in `pro/compliance/violations.md`:
+**One new row** in `compliance/violations.md`:
 ```
 | <ISO-8601-ts> | CLASS_C | high | archiver | missing_phases=4  | stop-session-verify | open |
 ```

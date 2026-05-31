@@ -1,13 +1,13 @@
 ---
 spec_id: i18n-diff-parity-spec.v1
-description: Specification for change-line three-language parity verification. When `references/*.md` changes between releases, the corresponding `i18n/zh/references/<same>.md` and `i18n/ja/references/<same>.md` MUST also change in alignment. Enforced as verify-release check #9 (WARN level in v1.8.7, BLOCK target v1.8.8). Eliminates the recurring "EN spec updated but zh/ja drifted" violations from `pro/compliance/violations.md`.
+description: Specification for change-line three-language parity verification. When `references/*.md` changes between releases, the corresponding `i18n/zh/references/<same>.md` and `i18n/ja/references/<same>.md` MUST also change in alignment. Enforced as verify-release check #9 (WARN level in v1.8.7, BLOCK target v1.8.8). Eliminates the recurring "EN spec updated but zh/ja drifted" violations from `compliance/violations.md`.
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman AGENTS.md:118-120 (coverage gate on changed lines via diff-cover), pattern adapted from "coverage on diff" to "i18n mirror on diff"
 introduced_in: v1.8.7
 referenced_by:
   - .claude/commands/verify-release.md (check 9)
-  - pro/agents/auditor.md (Mode 7 M7-5)
+  - agents/auditor.md (Mode 7 M7-5)
 ---
 
 # i18n Diff Parity Specification v1
@@ -32,9 +32,9 @@ All three-mirrored documents:
 
 - `SKILL.md` — single file (theming handles output language)
 - `references/hard-rules-index.md` — single file (dev-internal index)
-- `pro/gotchas.md` — single file (dev-internal knowledge base)
-- `pro/agents/*.md` — single file per agent (themes/ handles display)
-- `pro/*.md` (CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md) — host-specific orchestration, not user-facing translations
+- `gotchas.md` — single file (dev-internal knowledge base)
+- `agents/*.md` — single file per agent (themes/ handles display)
+- `hosts/*.md` (CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md) — host-specific orchestration, not user-facing translations
 - `meta/**/*` — runtime artifacts and RFCs
 - `themes/*.md` — theme files use native culture language
 
@@ -149,4 +149,4 @@ AUDITOR Mode 7 M7-5 honors these exceptions.
 
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
 - Pattern source: `tinyhumansai/openhuman` AGENTS.md:118-120 (coverage on changed lines via diff-cover) — adapted for i18n mirroring
-- `pro/compliance/violations.md` — historical drift incidents this spec aims to prevent
+- `compliance/violations.md` — historical drift incidents this spec aims to prevent

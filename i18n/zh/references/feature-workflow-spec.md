@@ -6,9 +6,9 @@ authoritative: true
 source_attribution: tinyhumansai/openhuman @ b7b8ba6, AGENTS.md:507-521 (Feature design workflow + 规划规则 "E2E scenarios up front")
 introduced_in: v1.8.7
 referenced_by:
-  - pro/agents/planner.md (evals_scenarios 必填字段)
-  - pro/agents/dispatcher.md (dispatch 前校验)
-  - pro/agents/reviewer.md (批准前验证 scenarios 完整)
+  - agents/planner.md (evals_scenarios 必填字段)
+  - agents/dispatcher.md (dispatch 前校验)
+  - agents/reviewer.md (批准前验证 scenarios 完整)
 ---
 
 # 功能工作流规范 v1
@@ -79,8 +79,8 @@ N/A: cleanup-only        # 移除死代码/无用引用，无行为变化
 
 - ROUTER 升级到 PLANNER 的任何规划文档（full deliberation 路径）
 - 任何 `meta/rfc/v<X.Y>-*.md` 中触及 agent 行为或 spec 语义的 RFC
-- 任何新 agent（`pro/agents/<new>.md`）—— 至少需 1 个 fixture 验证 agent 主要行为
-- 任何引入 SKILL.md 或 pro/CLAUDE.md 的新 HARD RULE
+- 任何新 agent（`agents/<new>.md`）—— 至少需 1 个 fixture 验证 agent 主要行为
+- 任何引入 SKILL.md 或 hosts/CLAUDE.md 的新 HARD RULE
 
 ### 不适用（范围外）
 
@@ -196,5 +196,5 @@ TBD 条目有明确截止（v1.8.8）。Dispatcher 接受；reviewer-final flag 
 
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.5 B5
 - 模式来源：`tinyhumansai/openhuman` AGENTS.md:507-521（Feature design workflow + 规划规则）
-- 配套：`pro/agents/planner.md`（模板定义）、`pro/agents/dispatcher.md`（校验逻辑）
+- 配套：`agents/planner.md`（模板定义）、`agents/dispatcher.md`（校验逻辑）
 - 相关：`references/agent-spec.md`（agent 定义也得益于此纪律）

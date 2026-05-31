@@ -6,12 +6,12 @@
 
 - **英文触发词始终可用**——无论当前主题是什么，"start" / "review" / "adjourn" 等都会触发对应动作
 - **主题特定触发词**——激活某主题后，该主题定义的词（如"上朝"、"閣議開始"、"open session"）也可用
-- **触发词识别发生在 ROUTER**——用户输入先经过 ROUTER，ROUTER 根据触发词决定是否载入 `pro/agents/*.md` 并启动对应 subagent
+- **触发词识别发生在 ROUTER**——用户输入先经过 ROUTER，ROUTER 根据触发词决定是否载入 `agents/*.md` 并启动对应 subagent
 - **HARD RULE**：部分触发词（Start Session、Adjourn、Review）有固定的执行模板，ROUTER 必须严格遵守、不可自己代劳——见 SKILL.md 的 "Trigger Execution Templates (HARD RULE)"
 
 ---
 
-## 7 个核心动作的触发词对照表
+## 8 个核心动作的触发词对照表
 
 ### 1. Start Session（开始会话）
 
@@ -111,7 +111,19 @@
 - Claude Code：`cd ~/.claude/skills/life_OS && git pull`
 - Gemini / Codex：`npx skills add jasonhnd/life_OS`
 
-### 7. Switch Theme（切换主题）
+### 7. Health Check / First-Run Help（健康检查 / 首次启动引导）
+
+Health Check 不是主题专属触发词，也不是 slash command。用户用自然语言问“现在能不能用”“刚装好下一步做什么”“帮我检查配置”时，ROUTER 自动读取 `scripts/prompts/doctor.md`，运行 Doctor workflow。
+
+| 语言 | 触发词例子 |
+|------|-----------|
+| 中文 | `检查 Life OS` / `检查一下 LifeOS` / `我刚装好 Life OS` / `下一步怎么开始` / `上朝之前先自检` / `帮我修一下配置` |
+| English | `check Life OS` / `is Life OS working` / `I just installed Life OS` / `walk me through starting` / `health check` / `diagnose Life OS` |
+| 日本語 | `Life OS を確認` / `正常に使えるか確認` / `インストールしたばかり` / `始め方を案内` / `設定を直して` |
+
+**触发结果**：ROUTER 输出一屏 Doctor 报告：目录类型、skill root、host readiness、second-brain 可达性、git sync 状态，以及用户下一句可以直接说什么。默认只读，不启动 retrospective / archiver，除非用户明确要求继续。
+
+### 8. Switch Theme（切换主题）
 
 | 主题 | 触发词 |
 |------|--------|
@@ -200,7 +212,7 @@ Type a-i
 3. 从 "Session Commands" 部分解析触发词
 4. 对用户输入做字符串/模糊匹配
 5. 若匹配 Start Session / Adjourn / Review → 执行 "Trigger Execution Templates (HARD RULE)" 中的固定模板
-6. 若匹配 Quick Analysis / Debate / Update / Switch Theme → 执行对应简化流程
+6. 若匹配 Quick Analysis / Debate / Update / Health Check / Switch Theme → 执行对应简化流程
 7. 若无匹配 → ROUTER 按普通请求处理（直接回应、Express Analysis 或 Escalate）
 
 ---

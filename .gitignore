@@ -1,4 +1,4 @@
-# Claude Code local installation (generated from pro/ source files)
+# Claude Code local installation (generated from repo source files)
 # v1.8.5: slash commands replace retired bash hooks and MUST travel with repo
 # so user clone gets working /verify-release, /check-spec-drift, etc.
 # Use .claude/* + negation pattern (trailing-slash ignore blocks negation).
@@ -15,14 +15,14 @@ evals/outputs/
 devdocs/
 
 # Compliance incident archives (contain sanitized but sensitive context)
-pro/compliance/*.md
-!pro/compliance/violations.md
-!pro/compliance/violations.example.md
+compliance/*.md
+!compliance/violations.md
+!compliance/violations.example.md
 # Whitelist: spec-violation and court-start incident dossiers (high info-density,
 # long-term value, sanitized-safe — track in git so they travel with the repo).
-!pro/compliance/*-spec-violation.md
-!pro/compliance/*-court-*.md
-!pro/compliance/*-incident-*.md
+!compliance/*-spec-violation.md
+!compliance/*-court-*.md
+!compliance/*-incident-*.md
 
 # Python caches
 __pycache__/

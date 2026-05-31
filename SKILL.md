@@ -1,6 +1,6 @@
 ---
 name: life-os
-version: "1.9.1"
+version: "1.9.1.1"
 commit_sha: "PLACEHOLDER"
 install_date: "PLACEHOLDER"
 description: "A personal decision engine with multiple independent AI agents, checks and balances, and swappable cultural themes. Covers relationships, finance, learning, execution, risk control, health, and infrastructure. Use when facing complex personal decisions (career change, investment, entrepreneurship, relocation, life planning), needing multi-angle analysis, periodic reviews, or systematic life management. Trigger keywords: analyze, plan, multi-angle, review, start session, debate. Even without explicit keywords, suggest this skill whenever multi-dimensional thinking or major decisions are involved. Not for simple Q&A, translation, or single-step tasks."
@@ -153,9 +153,9 @@ All display names, emoji, tone, and output titles come from the active theme fil
 | 📝 ARCHIVER | Session archive, knowledge extraction, DREAM, sync | "adjourn" / auto after flow |
 | 🎋 STRATEGIST | Hall of Human Wisdom — 93 thinkers, 18 domains | Ask user if needed |
 
-Each role is defined in `pro/agents/*.md`. Orchestration protocol: `pro/CLAUDE.md`.
+Each role is defined in `agents/*.md`. Orchestration protocol: `hosts/CLAUDE.md`.
 
-> **v1.7.0+ native registration**: Native registration is now handled by the `/install-agents` slash command (`.claude/commands/install-agents.md`), which writes `lifeos-*` wrappers under `~/.claude/agents/` for Claude Code's native `Task()` discovery. There are 24 `pro/agents/*.md` definition files (v1.8.7 includes memory-keeper); 22 are Task-spawnable wrappers, `router.md` is ROUTER (entry-point, not a subagent), and `narrator.md` remains ROUTER-internal mode. ROUTER should call targets such as `Task(lifeos-retrospective)` so Claude Code launches the real subagent instead of `general-purpose`.
+> **v1.7.0+ native registration**: Native registration is now handled by the `/install-agents` slash command (`.claude/commands/install-agents.md`), which writes `lifeos-*` wrappers under `~/.claude/agents/` for Claude Code's native `Task()` discovery. There are 24 `agents/*.md` definition files (v1.8.7 includes memory-keeper); 22 are Task-spawnable wrappers, `router.md` is ROUTER (entry-point, not a subagent), and `narrator.md` remains ROUTER-internal mode. ROUTER should call targets such as `Task(lifeos-retrospective)` so Claude Code launches the real subagent instead of `general-purpose`.
 >
 > *v1.8.5 cleanup note*: Pre-v1.8.5 used `scripts/register-claude-agents.sh` for this. That .sh was retired in v1.8.5 Stage 2 (hook layer retirement); `/install-agents` md slash command replaces it.
 
@@ -171,12 +171,29 @@ Trigger words are theme-dependent. Each theme file defines its own triggers. Com
 | **Quick Analysis** | "quick" / "quick analysis" | See active theme |
 | **Debate** | "debate" | See active theme |
 | **Update** | "update" | See active theme |
+| **Health Check** | "check Life OS" / "I just installed Life OS" / "is Life OS working?" | Natural-language Doctor workflow |
 | **Manual Compression** | "/compress [focus]" | User-triggered context compression; optional focus topic |
 | **Switch Theme** | "switch theme" | See active theme |
 
 ## Trigger Execution Templates (HARD RULE)
 
 Certain triggers have fixed execution templates. ROUTER must follow these verbatim.
+
+### Natural-Language Health Check (Doctor workflow)
+
+When the user asks whether Life OS is installed, ready, broken, or how to begin,
+ROUTER reads `scripts/prompts/doctor.md` and runs the Doctor workflow inline.
+
+Common triggers:
+- Chinese: "检查一下 LifeOS", "我刚装好 Life OS，下一步怎么开始？", "上朝之前先自检", "帮我修一下当前配置"
+- English: "check Life OS", "is Life OS working?", "I just installed Life OS", "walk me through starting"
+- Japanese: "Life OS を確認", "正常に使えるか確認", "始め方を案内"
+
+Doctor is natural-language first. ROUTER must not tell the user to type
+`/doctor`; the slash-command layer is only an optional developer escape hatch if
+a host provides one. Doctor is read-only by default and must end with the next
+sentence the user can say, such as "上朝" or "我刚装好 Life OS，帮我创建
+second-brain 并开始。"
 
 ### Manual Compression (`/compress`) (v1.7.3)
 
@@ -205,7 +222,7 @@ Examples:
 - `🌅 Trigger: review → Action: Launch(retrospective) Mode 2`
 - `🏛️ Trigger: 朝堂议政 → Action: Launch(council) for 3-round debate`
 
-**Missing this line = Class A3 process violation.** The AUDITOR Compliance Patrol (Mode 3) will detect the absence and append an entry to `pro/compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). Format specification: `references/compliance-spec.md`.
+**Missing this line = Class A3 process violation.** The AUDITOR Compliance Patrol (Mode 3) will detect the absence and append an entry to `compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo). Format specification: `references/compliance-spec.md`.
 
 This one-line check is the orchestrator-level gate in the v1.6.3 five-layer defense against COURT-START-001 (2026-04-19). The other four layers (post-v1.8.5 hook layer retirement, only 4 remain — Layer 1 retired):
 
@@ -220,7 +237,7 @@ This one-line check is the orchestrator-level gate in the v1.6.3 five-layer defe
 **ROUTER ground-truth pre-fetch — REMOVED in v1.8.0 Option A pivot:** Previously v1.7.0.1 R5 required ROUTER to pre-fetch version via `scripts/lifeos-version-check.sh --force` before launching `retrospective`. The .sh script was retired in v1.8.5 Stage 2; the equivalent inline curl + grep procedure now lives in `.claude/commands/version-check.md` slash command spec, and `retrospective` Mode 0 Step 8 runs the inline procedure directly (no ROUTER pre-fetch). R5 anti-confabulation guarantee preserved: subagent pastes literal `curl` stdout into briefing (`[Remote check (forced fresh): <literal>]` marker); ROUTER fact-check (HARD RULE below) verifies the marker is present.
 
 **ROUTER retrospective pre-fetch — REMOVED in v1.8.0 Option A pivot (R-1.8.0-011):**
-Previously v1.7.1 R10 required ROUTER to run `scripts/retrospective-mode-0.sh` before launching retrospective. That script was deleted in the "100% LLM" pivot (R-1.8.0-011). Retrospective subagent now executes all Mode 0 steps directly via inline Read/Glob/Grep — no ROUTER pre-fetch, no `[ROUTER pre-fetched]` markers in step output. See `pro/agents/retrospective.md` for the canonical step-by-step.
+Previously v1.7.1 R10 required ROUTER to run `scripts/retrospective-mode-0.sh` before launching retrospective. That script was deleted in the "100% LLM" pivot (R-1.8.0-011). Retrospective subagent now executes all Mode 0 steps directly via inline Read/Glob/Grep — no ROUTER pre-fetch, no `[ROUTER pre-fetched]` markers in step output. See `agents/retrospective.md` for the canonical step-by-step.
 
 **Briefing skeleton pre-render — REMOVED in v1.8.0 R-1.8.0-011:**
 Previously v1.7.2.3 required ROUTER to run `scripts/retrospective-briefing-skeleton.sh` to pre-render the 6-H2 briefing structure. Both that script and `archiver-briefing-skeleton.sh` were deleted in R-1.8.0-011. Retrospective and archiver now generate briefings inline as part of their normal step/phase execution — no Bash skeleton, no `<!-- LLM_FILL -->` placeholders.
@@ -251,7 +268,7 @@ After retrospective/archiver subagent returns briefing, BEFORE showing to user, 
 
 7. Subagent output visibility: before showing any optional summary, ROUTER checks that each completed subagent has a user-visible result path, either through the host's natural transcript output or an optional clarity wrapper. R11 audit trail links should be shown when available. ROUTER should not insert synthetic heavy-line wrappers or duplicate full subagent text solely to satisfy a wrapper count.
 
-8. **Maintenance overdue claims (v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5 update — hook retired)**: ROUTER MUST grep briefing for `[Maintenance overdue: ` marker. v1.8.4 originally specified verification via `bash scripts/hooks/session-start-inbox.sh`; that hook was retired in v1.8.5 Stage 2. **v1.8.5+ verification procedure**: ROUTER 自己 inline 检查 10 maintenance jobs 的 timestamps（scan `meta/methods/last-runs/` or equivalent — actual scan procedure is owned by `pro/agents/retrospective.md` Mode 0 maintenance overdue step which the subagent runs inline）. byte-equal verification 简化为 "marker exists + day-count values plausible against ROUTER's own inline scan"; 任何明显冲突值 → strike marker 行并替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing 直到 subagent 重跑 Step 0.5。Beyond marker 自身,ROUTER 还要在 briefing 的 "系统状态 / Compliance Watch / Today's Focus" **三个 section 内**扫描 `\d+\s*d(ays)?\s*overdue` 模式邻接 10 个 maintenance 任务名(reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency);任何冲突值视为 confabulation 并 strike。Originating bug: 2026-05-16 briefing 自由发挥 `13d`,hook 实际只有 `3d`。Pre-v1.8.5 wrapper handling note (now obsolete since hook layer is gone): `<system-reminder>...</system-reminder>` 包裹 stdout 的细节随 hook 一起退役;v1.8.5+ subagent 直接产出 marker 文本无 wrapper。
+8. **Maintenance overdue claims (v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5 update — hook retired)**: ROUTER MUST grep briefing for `[Maintenance overdue: ` marker. v1.8.4 originally specified verification via `bash scripts/hooks/session-start-inbox.sh`; that hook was retired in v1.8.5 Stage 2. **v1.8.5+ verification procedure**: ROUTER 自己 inline 检查 10 maintenance jobs 的 timestamps（scan `meta/methods/last-runs/` or equivalent — actual scan procedure is owned by `agents/retrospective.md` Mode 0 maintenance overdue step which the subagent runs inline）. byte-equal verification 简化为 "marker exists + day-count values plausible against ROUTER's own inline scan"; 任何明显冲突值 → strike marker 行并替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing 直到 subagent 重跑 Step 0.5。Beyond marker 自身,ROUTER 还要在 briefing 的 "系统状态 / Compliance Watch / Today's Focus" **三个 section 内**扫描 `\d+\s*d(ays)?\s*overdue` 模式邻接 10 个 maintenance 任务名(reindex / daily-briefing / backup / spec-compliance / wiki-decay / archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency);任何冲突值视为 confabulation 并 strike。Originating bug: 2026-05-16 briefing 自由发挥 `13d`,hook 实际只有 `3d`。Pre-v1.8.5 wrapper handling note (now obsolete since hook layer is gone): `<system-reminder>...</system-reminder>` 包裹 stdout 的细节随 hook 一起退役;v1.8.5+ subagent 直接产出 marker 文本无 wrapper。
 
 Additional display verification: there is no wrapper-count gate; one completed subagent call does not require a heavy-line wrapper pair or a transactional receipt. Audit trail requirements remain governed by R11.
 
@@ -351,7 +368,7 @@ Line 2+: Immediately Launch(retrospective) as subagent in Mode 2
 
 **STRATEGIST**: When user expresses abstract thinking needs (life direction, values, confusion) → ask if they want to activate the STRATEGIST. Only launch when user says yes.
 
-**Start Session / Review**: MUST read `pro/agents/retrospective.md` and launch RETROSPECTIVE as subagent. HARD RULE.
+**Start Session / Review**: MUST read `agents/retrospective.md` and launch RETROSPECTIVE as subagent. HARD RULE.
 
 **Adjourn (HARD RULE, no exceptions)**:
 - ROUTER's ONLY job: immediately Launch(archiver) as subagent. Nothing else.
@@ -384,7 +401,7 @@ Line 2+: Immediately Launch(retrospective) as subagent in Mode 2
 7. **Session project binding** — all reads/writes scoped to bound project. HARD RULE.
 8. **Only the defined roles exist** — do not invent roles not in the table above. HARD RULE.
 
-Full Code of Conduct (including orchestration rules): `pro/CLAUDE.md`. Universal agent rules: `pro/GLOBAL.md`.
+Full Code of Conduct (including orchestration rules): `hosts/CLAUDE.md`. Universal agent rules: `hosts/GLOBAL.md`.
 
 ## Installation (Pro Mode only)
 
@@ -394,7 +411,7 @@ Full Code of Conduct (including orchestration rules): `pro/CLAUDE.md`. Universal
 | **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
 | **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
 
-Platform auto-detects → reads `pro/CLAUDE.md` (Claude) / `pro/GEMINI.md` (Gemini) / `pro/AGENTS.md` (Codex).
+Platform auto-detects → reads `hosts/CLAUDE.md` (Claude) / `hosts/GEMINI.md` (Gemini) / `hosts/AGENTS.md` (Codex).
 
 **Update**: Say "update" (or theme equivalent) when prompted, or at any time to check and apply updates.
 
@@ -453,17 +470,17 @@ MUST return empty. Both checks must PASS for release.
 
 ### HARD RULE · violations.md F-Code required for v1.8.5+ entries (Stage 8)
 
-Every new row in `pro/compliance/violations.md` from v1.8.5 onwards MUST include the `F-Code` column (one of F1-F17 from `references/failure-taxonomy.md`). The legacy A-F process taxonomy (A1/A2/A3/B/C/D/E/F) and the new F1-F17 architecture taxonomy are complementary — both apply per violation.
+Every new row in `compliance/violations.md` from v1.8.5 onwards MUST include the `F-Code` column (one of F1-F17 from `references/failure-taxonomy.md`). The legacy A-F process taxonomy (A1/A2/A3/B/C/D/E/F) and the new F1-F17 architecture taxonomy are complementary — both apply per violation.
 
 **Format**: `| Timestamp | Trigger | Type (A-F) | F-Code | Severity | Details | Resolved |`
 
-**Mapping reference**: see `pro/compliance/violations.md` §"A-F → F-Code Typical Mappings".
+**Mapping reference**: see `compliance/violations.md` §"A-F → F-Code Typical Mappings".
 
 **Violation**: F3 SCHEMA_FAILURE (violation row missing required F-Code column).
 
 ### HARD RULE · Status Line output contract (v1.8.7 E9)
 
-Every `pro/agents/*.md` subagent MUST emit a **status line** as the literal first line of its visible output. Status line format:
+Every `agents/*.md` subagent MUST emit a **status line** as the literal first line of its visible output. Status line format:
 
 ```
 <emoji> <status> · <agent-id> · <one-line description>
@@ -479,7 +496,7 @@ Multiple status transitions during one invocation MUST each emit a new status li
 
 **Migration window**: v1.8.7 accepts both v1.8.6 ad-hoc and v1.8.7 status line (AUDITOR Mode 8 WARN level). Old patterns removed in v1.8.8+ (Mode 8 BLOCK).
 
-**Violation**: `F3 SCHEMA_FAILURE` (malformed status line) or `F4 SCOPE_FAILURE` (invented status keyword) per `references/failure-taxonomy.md`. Per-agent `## Status Output (E9)` section in `pro/agents/<name>.md` declares semantic mapping; AUDITOR Mode 8 verifies declaration completeness.
+**Violation**: `F3 SCHEMA_FAILURE` (malformed status line) or `F4 SCOPE_FAILURE` (invented status keyword) per `references/failure-taxonomy.md`. Per-agent `## Status Output (E9)` section in `agents/<name>.md` declares semantic mapping; AUDITOR Mode 8 verifies declaration completeness.
 
 ### HARD RULE · Conscious Patrol at session start (v1.8.7 E10 · path D)
 
@@ -530,7 +547,7 @@ Every release entry from v1.8.5 onwards MUST conform to `references/changelog-sp
 
 ## References
 
-- Orchestration: `pro/CLAUDE.md` · Agent definitions: `pro/agents/*.md` · Global rules: `pro/GLOBAL.md`
+- Orchestration: `hosts/CLAUDE.md` · Agent definitions: `agents/*.md` · Global rules: `hosts/GLOBAL.md`
 - Themes: `themes/*.md` · Domain details: `references/domains.md` · Scenario configs: `references/scene-configs.md`
 - Data architecture: `references/data-layer.md` · Data model: `references/data-model.md`
 - Strategic Map: `references/strategic-map-spec.md`

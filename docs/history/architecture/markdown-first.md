@@ -9,7 +9,7 @@ related:
   - references/data-layer.md
   - references/data-model.md
 authoritative: false
-superseded_by: pro/CLAUDE.md
+superseded_by: hosts/CLAUDE.md
 ---
 
 # Markdown-First 架构

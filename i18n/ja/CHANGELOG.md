@@ -2,7 +2,33 @@
 
 ## バージョニングルール
 
-このプロジェクトは **Strict SemVer** に従います：MAJOR（破壊的変更）· MINOR（新機能）· PATCH（修正・保守）。同日の変更は単一リリースにまとめ、リリースごとに git tag を打ちます。
+このプロジェクトの release は **Strict SemVer** に従います：MAJOR（破壊的変更）· MINOR（新機能）· PATCH（修正・保守）。ユーザーが明示した maintenance snapshot は、release tag を作らず push する場合に `MAJOR.MINOR.PATCH.MAINT` を使えます。同日の変更は単一リリースにまとめ、release ごとに git tag を打ちます。
+
+---
+
+## [1.9.1.1] - 2026-05-31 - Repository structure cleanup and final audit
+
+```yaml
+---
+version: 1.9.1.1
+date: 2026-05-31
+type: maintenance
+breaking_changes: []
+new_features:
+  - "Natural-language Doctor workflow を `scripts/prompts/doctor.md` に追加。ユーザーはコマンドを覚えず、Life OS に setup check と次の一手を自然言語で依頼できる。"
+fixes:
+  - "legacy Pro source tree を撤去：host files は `hosts/`、shared agents は `agents/`、compliance records は `compliance/` へ移動し、active references を更新。"
+  - "local ignored archives/caches を整理：`devdocs/`、生成済み `.claude/` wrappers/settings、ignored `_meta` historical drafts。"
+  - "3 言語 README をスリム化：v1.6-v1.8 の長い release-note blocks を current-status summary と CHANGELOG / version-history / history links に置換。"
+  - "retired legacy reference specs を `docs/history/specs/` に archive し、旧 `references/*.md` には thin stub を残す。zh/ja mirrors も同じ構造で archive。"
+  - "active Markdown 品質問題を修正：古い hook/runtime wording、Memory KV `.json` drift、mojibake、public broken links、BOM、frontmatter closure、code-fence parity。"
+validation:
+  - "git diff --check passed（既存ファイルの CRLF normalization warnings のみ）。"
+  - "legacy Pro path hits 0、UTF-8 mojibake hits 0、local Markdown link errors 0、odd code fences 0、unclosed frontmatter 0、forbidden diff extensions 0、ignored files left 0。"
+---
+```
+
+> Final full-repo cleanup 後にユーザーが明示要求した maintenance snapshot。この commit では tag / GitHub Release は作成しません。別途明示要求がある場合のみ作成します。
 
 ---
 
@@ -16,10 +42,10 @@ type: patch
 breaking_changes: []
 new_features: []
 fixes:
-  - "v1.8.6 R12→R13 監査トレイル移行が未完了：禁止された `meta/runtime/<sid>/*.json` パスへの参照が約 60 箇所、全 16 エージェントの `allowed_scope`、SKILL.md、pro/CLAUDE.md rule #8 + オプションの wrapper テンプレート、8 個の scripts/prompts メンテナンスジョブ、/notion-sync コマンド、active な eval シナリオ/fixtures に残存——いずれもエージェントに F4 SCOPE_FAILURE ファイルを書かせる。すべて `.md`（markdown + YAML frontmatter）に修正。"
+  - "v1.8.6 R12→R13 監査トレイル移行が未完了：禁止された `meta/runtime/<sid>/*.json` パスへの参照が約 60 箇所、全 16 エージェントの `allowed_scope`、SKILL.md、hosts/CLAUDE.md rule #8 + オプションの wrapper テンプレート、8 個の scripts/prompts メンテナンスジョブ、/notion-sync コマンド、active な eval シナリオ/fixtures に残存——いずれもエージェントに F4 SCOPE_FAILURE ファイルを書かせる。すべて `.md`（markdown + YAML frontmatter）に修正。"
   - "`meta/queue/manifest.json` → `meta/queue/manifest.md`（inbox-process のシステム manifest は禁止された単独 .json データファイルだった；YAML frontmatter に変換、6 箇所の読み書き参照をすべて更新）"
   - "/regression-from-violation コマンドが依然 `rc-*.yml` fixture（禁止 .yml）を生成していた；現在は YAML frontmatter 付きの `rc-*.md` を生成し、出荷済み fixture と一致。run-tool-eval.md の fixture 拡張子参照も修正。"
-  - "v1.8.5 hook 退役の残滓：退役した bash hook（`pre-notion-write.sh`、`session-start-inbox.sh`、`pre-prompt-guard.sh`）への「現在有効」式の参照を inline LLM 手順に書き換え——pro/CLAUDE.md（Step 10a 送信 PII スキャン + monitor/queue キーワードマッチ + session-start スキャン）、ルート AGENTS.md の host 可用性テーブル、references/review-queue-spec.md、archiver Phase 0、11 個のメンテナンス prompt のトリガー行が対象"
+  - "v1.8.5 hook 退役の残滓：退役した bash hook（`pre-notion-write.sh`、`session-start-inbox.sh`、`pre-prompt-guard.sh`）への「現在有効」式の参照を inline LLM 手順に書き換え——hosts/CLAUDE.md（Step 10a 送信 PII スキャン + monitor/queue キーワードマッチ + session-start スキャン）、ルート AGENTS.md の host 可用性テーブル、references/review-queue-spec.md、archiver Phase 0、11 個のメンテナンス prompt のトリガー行が対象"
   - "LEGACY 表記の追加/修正：hooks-spec.md、compliance-spec.md、system-overview.md、roadmap.md の banner；obsidian-spec.md の `superseded_by` ポインタを退役した `setup-secondbrain.sh` から `/setup-secondbrain` slash コマンドへ更新；execution-layer.md 内部の「現在のアーキテクチャ」サブブロックを修正"
   - "evals/README.md（+ zh/ja）：退役した `./evals/run-eval.sh` → `/run-eval` slash コマンド"
 alternatives_considered:
@@ -61,8 +87,8 @@ v1.9.1 タグに統合された公開後の修正。3 つとも v1.9.0 が導入
 - **SOUL スナップショット writer/reader パス分裂** —— knowledge-extractor（v1.7.3 主 writer）が `meta/soul-snapshots/<sid>.md` に書く一方、全 reader + `snapshot-spec.md` は `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md` を使う；誰も読まない場所に着地 → SOUL トレンド矢印が静かに壊れていた。writer + archiver carve-out サマリを修正。
 - **archiver 退朝レポート Phase 5 欠落** —— ランタイム H2 列挙が「6 core H2」で `## Phase 5` を欠落、7-H2 契約と矛盾 → AUDITOR が毎回の退朝をフラグ。列挙 + AUDITOR briefing 完全性チェックを 7 に修正。
 - **AUDITOR ↔ retrospective briefing 見出し不一致** —— AUDITOR 期待見出し（`## 3 18步执行 / ## 4 御史台巡查 / ## 5 待陛下圣裁`）が retrospective 実出力（`## 3 DREAM / ## 4 Today's Focus / ## 5 系统状态`）と不一致 → 全準拠 briefing を誤フラグ。AUDITOR を出力側に整合。
-- **pro/AGENTS.md + pro/GEMINI.md を pro/CLAUDE.md に再同期** —— Step 10a が依然 4-page Notion をハードコード（CLAUDE.md は config-driven 化 R-1.8.0-022）→ 未設定エンティティに「failed」誤報；line 5 が `scripts/hooks/` 登録 + prompt-level enforcement と主張（v1.8.5 退役、現 host-agnostic inline）；stale NARRATOR-VALIDATOR 情報隔離行。3 つすべて移植。
-- **アクティブファイルの退役 token / 旧パス整理** —— archiver が削除済み `tools/lib/cortex/*.py` を呼ぶ；pro/CLAUDE.md + auditor の「Bash checks」→ inline LLM；data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + アクティブ getting-started ドキュメントが削除済み python ツール、退役 bash hook、削除済み narrator-validator、pre-v1.9 パス（`_meta/`、`meta/decisions/*.md`）を現行として参照。修正または歴史的に再フレーム。references↔i18n 整合を維持。
+- **hosts/AGENTS.md + hosts/GEMINI.md を hosts/CLAUDE.md に再同期** —— Step 10a が依然 4-page Notion をハードコード（CLAUDE.md は config-driven 化 R-1.8.0-022）→ 未設定エンティティに「failed」誤報；line 5 が `scripts/hooks/` 登録 + prompt-level enforcement と主張（v1.8.5 退役、現 host-agnostic inline）；stale NARRATOR-VALIDATOR 情報隔離行。3 つすべて移植。
+- **アクティブファイルの退役 token / 旧パス整理** —— archiver が削除済み `tools/lib/cortex/*.py` を呼ぶ；hosts/CLAUDE.md + auditor の「Bash checks」→ inline LLM；data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + アクティブ getting-started ドキュメントが削除済み python ツール、退役 bash hook、削除済み narrator-validator、pre-v1.9 パス（`_meta/`、`meta/decisions/*.md`）を現行として参照。修正または歴史的に再フレーム。references↔i18n 整合を維持。
 
 legacy マークファイル（`status: legacy` / `authoritative: false`）は正しくスキップ。
 
@@ -71,7 +97,7 @@ legacy マークファイル（`status: legacy` / `authoritative: false`）は�
 第 2 ラウンド監査の残り低重要度ドリフトを処理：
 
 - **subagent 数のハードコード解除** —— `agent-spec.md`（「all 23 subagents」「all 22 lifeos subagents」）と `status-line-spec.md`（「22 subagents」）が数で不一致（実際 24）かつ「agent 数をハードコードしない」ルールに違反；すべて非数値表現に置換（3 言語）。`agent-spec.md` の subagent リストは削除済み `narrator-validator` を含み `memory-keeper` を欠落 —— 修正。
-- **壊れた RFC スキャンソースパスの修正** —— `memory-keeper.md`、`gotchas-spec.md`、`pro/gotchas.md`、memory-keeper eval シナリオが `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md`（存在しない）を誤った `meta/` パスで列挙；存在する `_meta/rfc/` RFC（v1.8.5 / v1.8.7 / v1.9）に修正。
+- **壊れた RFC スキャンソースパスの修正** —— `memory-keeper.md`、`gotchas-spec.md`、`gotchas.md`、memory-keeper eval シナリオが `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md`（存在しない）を誤った `meta/` パスで列挙；存在する `_meta/rfc/` RFC（v1.8.5 / v1.8.7 / v1.9）に修正。
 - **その他**：`retrospective.md` の退役 hook ブロック内 mojibake + 古い「audit trail JSON」→ `.md`（DR-10）；`run-tool-eval.md` が未実装の `/run-regression` を現行扱い → planned に；`migrate-wiki-v2.md` の `/audit --mode 5` にインライン fallback 追加。
 
 references↔i18n 整合を維持（zh/ja 同期済）。
@@ -82,7 +108,7 @@ references↔i18n 整合を維持（zh/ja 同期済）。
 
 - **`_meta/rfc/v1.8.7` のシードソース計画**を存在する `_meta/rfc/` RFC に修正（同じく存在しない `v1.8.4` / `v1.8.6` 参照、歴史的 RFC 内）。
 - **`changelog-spec.md`（3 言語）**のワークサンプルからハードコードの「21 agent frontmatter」→「agent frontmatter」（数値なし）。
-- **`/exit-monitor` + `/audit`** を裸の slash コマンド構文（対応コマンドファイルの存在を示唆するが実在しない）から、実際の自然言語 / インライン認識トリガーに再フレーム（`monitor.md` + `pro/CLAUDE.md`）；monitor ダッシュボードに残っていた「cron activity」→「recent maintenance runs」も修正。
+- **`/exit-monitor` + `/audit`** を裸の slash コマンド構文（対応コマンドファイルの存在を示唆するが実在しない）から、実際の自然言語 / インライン認識トリガーに再フレーム（`monitor.md` + `hosts/CLAUDE.md`）；monitor ダッシュボードに残っていた「cron activity」→「recent maintenance runs」も修正。
 
 真に凍結された legacy ファイル（`status: legacy` / `authoritative: false`、例：`cortex-spec.md` の v1.7.2 時代の「16 agents」）は設計通り維持。
 
@@ -91,8 +117,8 @@ references↔i18n 整合を維持（zh/ja 同期済）。
 ユーザー要求によりアクティブツリーを整理：真に凍結された v1.7 時代のドキュメントを `docs/history/`（`i18n/{zh,ja}/docs/history/` ミラー含む）に集約し、ライブ `docs/` ツリーに散在させない。
 
 - **移動**（`git mv`、履歴保持）：`docs/architecture/` → `docs/history/architecture/`（13 の v1.7 アーキテクチャスナップショット）；`docs/user-guide/cortex/` → `docs/history/cortex/`（+ zh/ja ミラー、6 の v1.7 Cortex ユーザーガイド）；`docs/guides/v1.7-migration.md` と `references/v1.7-shipping-report-2026-04-21.md` → `docs/history/`。
-- アクティブ docs/spec 内の全インバウンドリンク（README、docs/index、user-guide/index、faq、MIGRATION、references/*-spec 等）を新 `docs/history/...` パスに**再指定**；docs/index + user-guide/index を書き換え、現行アーキテクチャ権威は `pro/CLAUDE.md` + `pro/agents/`、`docs/history/` はアーカイブと明示。
-- **意図的に保持**：凍結記録（CHANGELOG、`pro/compliance/*`、`_meta/rfc/*`）は移動前の元パス参照を保持（歴史的正確性）；負荷を担う機能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）は `references/` に残留——現行機能を記述しアクティブ agent から参照されるため**アーカイブしない**（`status: legacy` ラベルは別の誤ラベルで、今回は未対応）。
+- アクティブ docs/spec 内の全インバウンドリンク（README、docs/index、user-guide/index、faq、MIGRATION、references/*-spec 等）を新 `docs/history/...` パスに**再指定**；docs/index + user-guide/index を書き換え、現行アーキテクチャ権威は `hosts/CLAUDE.md` + `agents/`、`docs/history/` はアーカイブと明示。
+- **意図的に保持**：凍結記録（CHANGELOG、`compliance/*`、`_meta/rfc/*`）は移動前の元パス参照を保持（歴史的正確性）；負荷を担う機能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）は `references/` に残留——現行機能を記述しアクティブ agent から参照されるため**アーカイブしない**（`status: legacy` ラベルは別の誤ラベルで、今回は未対応）。
 - アーカイブ説明用に `docs/history/README.md` を追加。
 
 ### fix6（2026-05-29）—— fix5 の過剰マッチなパス置換を修正
@@ -110,7 +136,7 @@ fix5 のリンク更新 `sed`（`docs/architecture/` → `docs/history/architect
 tracked な全 `.md`（EN + zh/ja ミラー）を再スキャン：壊れたリポジトリ内リンク、frontmatter 閉じ、コードフェンス均衡、3 言語セクション整合、ハードコードされた agent 数。一括で修正：
 
 - **README の RFC リンク切れ（3 言語）** —— `meta/rfc/...` をリンクしていたが、ファイルは `_meta/rfc/...`（アンダースコア付き）で tracked。リポジトリ自身の `/check-spec-drift` Scanner-1 正規表現は捕捉しない（プレフィックスリストに `meta/` がない）ため、未検出のままだった。
-- **zh/ja README の相対パスリンク** —— `pro/CLAUDE.md`、`references/outbound-pii-patterns.md`、`docs/history/v1.7-migration.md` が裸リンク（`i18n/{zh,ja}/` 内に解決）だった；`../../` でリポジトリルートを指すよう修正。
+- **zh/ja README の相対パスリンク** —— `hosts/CLAUDE.md`、`references/outbound-pii-patterns.md`、`docs/history/v1.7-migration.md` が裸リンク（`i18n/{zh,ja}/` 内に解決）だった；`../../` でリポジトリルートを指すよう修正。
 - **docs/reference の先頭スラッシュリンク** —— `faq.md` + `version-history.md` がルート絶対 `](/...)` リンクを使い、GitHub でもローカルファイルルートでも解決しない；相対パスに変換。
 - **cortex パンくず回帰（fix5 の移動で発生）** —— 18 のアーカイブ cortex ドキュメント（EN + zh + ja）が `../index.md` をリンク、`docs/history/cortex/` への移動後に存在しなくなった；`../README.md` に再ポイント。`i18n/{zh,ja}/docs/history/README.md` アーカイブ索引を作成（EN と整合）、zh/ja の壊れた Quickstart リンクは EN 正本に再ポイント。
 - **agent 数のハードコード解除** —— `WHEN-NOT-TO-ADD.md`（×3 言語）、`install-agents.md`、`auditor.md`（×3）、e9/e10 eval シナリオが古い数（20/21/22/23；実際は約 24）を記載；「複数の agent」ルールに従い非数値表現に置換。ja README のアーキテクチャ図はまだ「16エージェント」だったが EN/zh はすでに「複数の agent」—— 修正。
@@ -122,8 +148,8 @@ tracked な全 `.md`（EN + zh/ja ミラー）を再スキャン：壊れたリ�
 
 ストレージを**単一 git バックエンド**に簡素化——ローカル作業コピー（Obsidian vault でもある）+ GitHub リモート；同期は `git pull`（セッション開始）+ `git push`（ARCHIVER Phase 4）。ユーザーの指示によりリリース内修正（バージョン番号を上げない）としてコミット。
 
-- **削除**（12 ファイル削除）：Google Drive + Notion アダプター（+ zh/ja + docs コピー）、Notion 送信 PII ゲート（`outbound-pii-patterns.md` + `pro/CLAUDE.md` Step 10a）、`/notion-sync` + `/notion-sync-and-watch` コマンド、およびマルチバックエンド同期 / primary-sync / クロスバックエンド競合層。
-- **書き換え**（単一バックエンド git へ）：`data-model` / `data-layer`、`pro/{CLAUDE,AGENTS,GEMINI}`、各 agent（archiver / retrospective / router / advisor / auditor / knowledge-extractor）、`SKILL`、`self-driven-loops-spec`、README ×3、全ユーザードキュメント + i18n ミラー。
+- **削除**（12 ファイル削除）：Google Drive + Notion アダプター（+ zh/ja + docs コピー）、Notion 送信 PII ゲート（`outbound-pii-patterns.md` + `hosts/CLAUDE.md` Step 10a）、`/notion-sync` + `/notion-sync-and-watch` コマンド、およびマルチバックエンド同期 / primary-sync / クロスバックエンド競合層。
+- **書き換え**（単一バックエンド git へ）：`data-model` / `data-layer`、`hosts/{CLAUDE,AGENTS,GEMINI}`、各 agent（archiver / retrospective / router / advisor / auditor / knowledge-extractor）、`SKILL`、`self-driven-loops-spec`、README ×3、全ユーザードキュメント + i18n ミラー。
 - **保持**：受信プライバシースキャン（SOUL / wiki）は影響なし；凍結された `status:legacy` spec は歴史的 Notion 参照を保持；モバイルキャプチャはユーザー自身の git ワークフローで `inbox/` へ。
 
 検証：アクティブファイルの Notion/GDrive 残存 0、リポジトリ内リンク切れ 0（削除済み 12 ファイルへのダングリング 0）、未閉じ frontmatter 0、奇数フェンス 0、3 言語整合。
@@ -183,13 +209,13 @@ date: 2026-05-25
 type: patch
 breaking_changes: []
 new_features:
-  - "C6: pro/gotchas.md（プロジェクトレベル技術 gotcha 知識ベース）+ pro/agents/memory-keeper.md（抽出 agent）+ archiver wrap-up phase 5（6-H2 → 7-H2 adjourn レポート契約）"
+  - "C6: gotchas.md（プロジェクトレベル技術 gotcha 知識ベース）+ agents/memory-keeper.md（抽出 agent）+ archiver wrap-up phase 5（6-H2 → 7-H2 adjourn レポート契約）"
   - "C6: 9 themes に memory-keeper 役割表示名追加（六部=史馆 / 中国政府=政策档案处 / 公司=知识管理部 / 霞が関=記録局 / 明治政府=史官局 / 日本企業=ナレッジマネジメント室 / C-Suite=Chief Memory Officer / Roman=Curator Memoriae / US Gov=Office of Lessons Learned）"
   - "B4: ScheduleWakeup 自己駆動ループ — /verify-release-and-watch + /notion-sync-and-watch（270s tick × 12 ハードキャップ、Claude Code のみ）"
   - "B4: references/self-driven-loops-spec.md（三言語）が 270s 根拠、12-tick キャップ、ホスト互換性を定義"
   - "F11: references/i18n-diff-parity-spec.md（三言語）— セクションレベル EN ↔ zh / EN ↔ ja diff 整合性ルール"
   - "F11: /verify-release check 9（i18n diff parity、v1.8.7 で WARN レベル、v1.8.8 で BLOCK 目標）"
-  - "F12: 5 つの WHEN-NOT-TO-ADD.md × 3 言語 = 15 個のアンチパターン境界ドキュメント（pro/agents/、references/、_meta/、themes/、scripts/）"
+  - "F12: 5 つの WHEN-NOT-TO-ADD.md × 3 言語 = 15 個のアンチパターン境界ドキュメント（agents/、references/、_meta/、themes/、scripts/）"
   - "B5: references/feature-workflow-spec.md（三言語）が evals_scenarios 必須フィールド付き 4 段階ワークフローを定義；planner.md + dispatcher.md 強制更新"
   - "A1: references/memory-tree-spec.md（三言語、status: proposal）— v1.9/v2.0 の L0/L1/L2/L3 cascade seal アーキテクチャ；v1.8.7 archiver 挙動変更なし"
   - "A3: concept-spec.md の hotness 閾値を明示化（≥3 sessions → confirmed、≥10 → canonical）— ドキュメンテーションのみ、挙動変更なし"
@@ -214,7 +240,7 @@ alternatives_considered:
     rejected_because: "ScheduleWakeup は Claude Code 固有。他ホスト（Gemini/Codex）に等価なし。クロスホスト近似を構築するより手動再実行への優雅な劣化を選択。"
 ordering_dependency:
   blocked_by: [v1.8.6]
-  must_coexist_with: [DR-10 SKILL.md HARD RULE 昇格, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, pro/agents/memory-keeper.md, AUDITOR Mode 7, 9 themes 更新]
+  must_coexist_with: [DR-10 SKILL.md HARD RULE 昇格, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, agents/memory-keeper.md, AUDITOR Mode 7, 9 themes 更新]
 regression_cases_added:
   - "evals/scenarios/rc-forbidden-extension-sql.md（Stage 6 計画）"
   - "evals/scenarios/rc-forbidden-extension-json.md（Stage 6 計画）"
@@ -235,7 +261,7 @@ upgrade_mode: zero-friction
 4. /verify-release v1.8.7  # 11 個の check 全 PASS
 ```
 
-マイグレーションコマンド不要。archiver 初回実行で `pro/gotchas.md` を自動作成、memory-keeper が v1.8.4-1.8.6 RFC + violations 履歴をスキャンして ≥10 件のシードを埋める。
+マイグレーションコマンド不要。archiver 初回実行で `gotchas.md` を自動作成、memory-keeper が v1.8.4-1.8.6 RFC + violations 履歴をスキャンして ≥10 件のシードを埋める。
 
 完全な RFC + DR-01 から DR-10 監査 trail は `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` 参照。
 
@@ -294,7 +320,7 @@ type: patch
 breaking_changes:
   - "SOUL.md schema v1 → v2：優先順位 {1..N} 総順、X-over-Y formulation 必須、inclusion test 6Q gate、outlier role slot 必須、3-8 dim 上限"
   - "wiki entry schema v1 → v2：6 facets classification、operating_hypothesis、context_manifest 三層、reference_set 5 role slots、failure_modes、arguments_against"
-  - "23 個 pro/agents/*.md frontmatter v1 → v2"
+  - "23 個 agents/*.md frontmatter v1 → v2"
   - "audit-trail-spec R11 → R12：contested-case 決定に value_invocations[] 必須"
   - "Hook layer 全体引退：11 bash hook 削除、38 .sh ファイル削除；5 層防御 → 4 層（D1 すべての通過率を受容）"
   - "CHANGELOG.md schema：v1.8.5+ エントリは YAML frontmatter 必須"
@@ -354,7 +380,7 @@ regression_cases_added:
 - `/uninstall-agents` + `/install-agents` で agent wrappers をリフレッシュ
 - `/migrate-soul-v2`（対話的、per-dim）—— legacy エントリは 2027-05-23 に自動 deprecate
 - `/migrate-wiki-v2`（対話的、per-entry）—— legacy エントリは 2027-05-23 に自動 deprecate
-- pro/agents/ は自動移行済み
+- agents/ は自動移行済み
 - CHANGELOG / violations.md フォーマットは前向き適用のみ
 
 ### 謝辞
@@ -371,7 +397,7 @@ regression_cases_added:
 
 DREAM レポートは夜間の非同期スナップショット。N-1 の adjourn 時に書かれた HARD トリガーは、N の session 起動までにユーザーが既に手動で閉じている可能性がある——しかし `retrospective` Step 16 はタスクの実状態を確認せず、そのまま今日の P0 に promote していた。2026-05-16 の briefing は `8938 revenue-uplift task closure` を P0 フォローアップに上げていたが、当該タスクは前日に既に `status: closed-superseded` と書かれていた。
 
-修正 · `pro/agents/retrospective.md` Step 16 に **TRIGGER VALIDITY RE-CHECK** HARD RULE を追加。task path / slug を指す各 HARD トリガーに対し、subagent は promote 前に対応 task ファイルの frontmatter を `Read` し、`status:` を検査する必要がある:
+修正 · `agents/retrospective.md` Step 16 に **TRIGGER VALIDITY RE-CHECK** HARD RULE を追加。task path / slug を指す各 HARD トリガーに対し、subagent は promote 前に対応 task ファイルの frontmatter を `Read` し、`status:` を検査する必要がある:
 
 - `closed` / `done` / `failed` / `archived` / `superseded` / `closed-*` → `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>` として描画、promote しない。
 - ファイル不在 → `projects/**/tasks/` 配下で slug の fuzzy match;renamed → status を引き続き検証;真に見つからない → promote しつつ `task slug not found on disk, treating as still-actionable` と注記。
@@ -386,7 +412,7 @@ Step 16 R11 監査記録 JSON に新フィールド `dream_triggers_validated: [
 
 修正 · 2 層防御:
 
-1. **subagent 層** · `pro/agents/retrospective.md` Step 0.5 marker リストに 4 番目のリテラル marker を追加:`[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`。新 HARD RULE は「transcript から古い値を byte-copy する」「日数を再推定する」を明示的に禁止;`session-start-inbox.sh` を**唯一**の情報源と宣告し、subagent はその呼び出し側であると定義する。
+1. **subagent 層** · `agents/retrospective.md` Step 0.5 marker リストに 4 番目のリテラル marker を追加:`[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`。新 HARD RULE は「transcript から古い値を byte-copy する」「日数を再推定する」を明示的に禁止;`session-start-inbox.sh` を**唯一**の情報源と宣告し、subagent はその呼び出し側であると定義する。
 2. **ROUTER 層** · `SKILL.md` ROUTER fact-check に **rule 8** を追加:ROUTER 自身が同じスクリプトを再度実行し、marker 内容と `## Overdue maintenance` ブロックを byte-equal 比較(marker 末尾の `· source=subagent-recompute@...` タイムスタンプは無視)。不一致 → marker を打ち消し `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]` に置換。Marker 欠落 → ROUTER は briefing 表示を拒否。Marker 以外にも、ROUTER は briefing の `系統状態 / Compliance Watch / Today's Focus` **3 つの section 内**(ADVISOR / review queue 等の無関係テキストへの誤検知回避のため全文スキャンしない)で `\d+\s*d(ays)?\s*overdue` パターンが 10 個のメンテタスク名に隣接していないか走査;矛盾値はすべて confabulation として打ち消す。
 
 **Wave 1.5 spec ギャップ修正**:
@@ -395,7 +421,7 @@ Step 16 R11 監査記録 JSON に新フィールド `dream_triggers_validated: [
 
 ### 変更ファイル
 
-- `pro/agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`;Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip;Mode 2 Data Sources step 7(maintenance marker 契約)。
+- `agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`;Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip;Mode 2 Data Sources step 7(maintenance marker 契約)。
 - `SKILL.md` — frontmatter version → 1.8.4;ROUTER fact-check rule 8 + wrapper-strip 注記。
 - `references/dream-spec.md`、`i18n/zh/references/dream-spec.md`、`i18n/ja/references/dream-spec.md` — triggered_actions schema に optional `task_ref` フィールド追加。
 - `README.md`、`i18n/zh/README.md`、`i18n/ja/README.md` — version バッジ → 1.8.4。
@@ -443,7 +469,7 @@ JSON パーサーは 3 層 fallback（jq → python → 生入力）、`pre-writ
 
 スキャン順序契約は §4 参照：`D` と `A8` の順序を入れ替え、電話番号とマイナンバーの衝突を回避。監査スキーマは §5、保守ルールは §6。
 
-### 更新 · `pro/CLAUDE.md` Step 10a · アウトバウンドゲート段
+### 更新 · `hosts/CLAUDE.md` Step 10a · アウトバウンドゲート段
 
 Step 10a に第三 HARD RULE ブロックを追加：
 
@@ -488,9 +514,9 @@ Obsidian 互換 markdown 規約の単一権威ソース。網羅：
 - **CSS class** `cssclasses: [decision, important]` エントリごとのビジュアルスタイリング（高度）。
 - 12 項目の LLM チェックリスト、アンチパターンリスト、マイグレーションツールへのポインタ。
 
-### 追加 · `pro/CLAUDE.md` HARD RULE #11（GEMINI.md / AGENTS.md にもミラー）
+### 追加 · `hosts/CLAUDE.md` HARD RULE #11（GEMINI.md / AGENTS.md にもミラー）
 
-Obsidian 可読性要件をオーケストレーション層で固定化。スコープ外：純粋データファイル（`.json` / `.yaml` / `.csv`）、ソースコード、`pro/agents/*.md` agent 定義。マイグレーションツール：legacy wiki 用 `/wiki-obsidian-upgrade`。
+Obsidian 可読性要件をオーケストレーション層で固定化。スコープ外：純粋データファイル（`.json` / `.yaml` / `.csv`）、ソースコード、`agents/*.md` agent 定義。マイグレーションツール：legacy wiki 用 `/wiki-obsidian-upgrade`。
 
 ### 追加 · 4 つの新規 wiki テンプレート（v1.8.2 `kind:` フィールド）
 
@@ -549,8 +575,8 @@ exit 2 + バイリンガルブロックメッセージ + 推奨リダイレク�
 
 ### 更新 · 2 つの agent ファイルが HARD RULE #11 を言及
 
-- `pro/agents/retrospective.md` —— Mode 0/2 簡報が `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]` を使用
-- `pro/agents/archiver.md` —— Phase 出力（セッションアーカイブ / wiki エントリ / SOUL スナップショット / DREAM / Completion Checklist）すべてスタイルガイドに従う；Phase 2 wiki 抽出は `wiki/.templates/` を必須使用
+- `agents/retrospective.md` —— Mode 0/2 簡報が `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]` を使用
+- `agents/archiver.md` —— Phase 出力（セッションアーカイブ / wiki エントリ / SOUL スナップショット / DREAM / Completion Checklist）すべてスタイルガイドに従う；Phase 2 wiki 抽出は `wiki/.templates/` を必須使用
 
 ### 更新 · `wiki/OBSIDIAN-SETUP.md` テンプレート（自動書き込み）
 
@@ -585,7 +611,7 @@ bash scripts/setup-hooks.sh   # 新 pre-write-output-redirect hook + 新テン�
 ### スコープ外（意図的）
 
 - 非 wiki ファイル（sessions / SOUL スナップショット / DREAM エントリ / eval-history レポート）は v1.8.2 規約に従う **for NEW writes**（per HARD RULE #11）が、**バッチアップグレードしない** —— ユーザーが触れたときに有機的にマイグレート。
-- 純粋データファイル（`.json` / `.yaml` / `.csv`）、ソースコード、agent 定義ファイル（`pro/agents/*.md`）は HARD RULE #11 から除外。
+- 純粋データファイル（`.json` / `.yaml` / `.csv`）、ソースコード、agent 定義ファイル（`agents/*.md`）は HARD RULE #11 から除外。
 
 ---
 
@@ -625,12 +651,12 @@ bash scripts/setup-hooks.sh   # 新 pre-write-output-redirect hook + 新テン�
 
 ### 修正 · session-start-inbox UX（R-1.8.0-021 + R-1.8.0-022 を 1.8.1 にロールアップ）
 
-- **`TASKS_LINE` 配列の 2 つのタスク名間違い**: `auditor-patrol` → `auditor-mode-2`、`monthly-summary` → `eval-history-monthly`（`pro/CLAUDE.md` 権威 10-job テーブルと実 `scripts/prompts/*.md` ファイル名に整合）。
+- **`TASKS_LINE` 配列の 2 つのタスク名間違い**: `auditor-patrol` → `auditor-mode-2`、`monthly-summary` → `eval-history-monthly`（`hosts/CLAUDE.md` 権威 10-job テーブルと実 `scripts/prompts/*.md` ファイル名に整合）。
 - **NEVER_RUN バケットを OVERDUE から分離**: baseline のないタスクは現在 `## Available on-demand (do NOT proactively offer)` セクションに、ユーザーが尋ねない限り言及しないと明示; 以前は LLM が overdue 扱いし、ユーザーが要求していないジョブを能動的に提案。出力を 8+ 行から単一行カンマ区切りに圧縮（トークン予算）。
 
 ### 修正 · Notion sync ハードコード（v1.8.0 メンテナンスラインからロールアップ）
 
-- **`pro/CLAUDE.md` Step 10a が 4 つの Notion entity をハードコード**（Status / Todo Board / Working Memory / Inbox）。実ユーザーの Notion レイアウトは多様; orchestrator が存在しない entity を "Working Memory: failed" と報告。設定駆動に変更: orchestrator は `_meta/config.md` を読み、設定済み entity のみ sync、Notion 未設定なら Step 10a 全体スキップ、checklist に false-fail 行なし。
+- **`hosts/CLAUDE.md` Step 10a が 4 つの Notion entity をハードコード**（Status / Todo Board / Working Memory / Inbox）。実ユーザーの Notion レイアウトは多様; orchestrator が存在しない entity を "Working Memory: failed" と報告。設定駆動に変更: orchestrator は `_meta/config.md` を読み、設定済み entity のみ sync、Notion 未設定なら Step 10a 全体スキップ、checklist に false-fail 行なし。
 
 ### 修正 · pre-bash-approval パターン透明性
 
@@ -799,17 +825,26 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
 - `pre-task-launch` — マシンレベルで v1.7.3 carve-out 強制
 - `post-task-audit-trail` — 即時 R11 audit trail チェック
 
-### 追加 · Python ツール（4）+ Cron プロンプト（5）+ Spec ドキュメント（2）+ 新 subagent
+### 追加 · Python ツール（4）
 
 - 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
-- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+
+### 追加 · Cron-driven Claude Code prompts（5）
+
+`scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+
+### 追加 · Spec docs（2）
+
 - 2 specs: `references/{automation-spec,session-modes-spec}.md`
-- 1 subagent: `pro/agents/monitor.md`
+
+### 追加 · 新 subagent + 手動トリガースクリプト
+
+- 1 subagent: `agents/monitor.md`
 - 1 trigger script: `scripts/run-cron-now.sh`
 
 ### 変更
 
-- **pro/CLAUDE.md** 新規 "Session Modes (v1.8.0)" section
+- **hosts/CLAUDE.md** 新規 "Session Modes (v1.8.0)" section
 - **scripts/setup-cron.sh** 3 → 10 cron jobs + 1 RunAtLoad
 - **scripts/setup-hooks.sh** 3 つの新 hook 登録
 - **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder ソフト化
@@ -831,16 +866,16 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
 
 - **R-1.8.0-010 · アーキテクチャ PIVOT (post-2026-04-29) · cron アーキテクチャを丸ごと廃止**：本番環境テスト 2 日後、R-1.8.0-001~009 修正後の cron アーキテクチャもユーザーの信頼性テストに失敗しました。5 つの prompt ベース cron job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）がサイレントにデータを失う：cron が起動した `claude -p` session が分析完了後に prompt テンプレートの礼儀正しさで「書き込みますか？」とユーザーに尋ねる — cron は誰も見ていない、session タイムアウト、exit 0、`_meta/eval-history/` は空。`--dangerously-skip-permissions` flag（R-1.8.0-006）は OS レベルの Write 権限のみスキップでき、LLM 自身の対話礼儀はバイパスできません。結論：**cron は決定論性を要求、LLM は非決定論的、このミスマッチは patch では解消できない**。
   - **Pivot 決定（ユーザー判断）**：cron を明示的なユーザープロンプトに置き換え。ユーザーが「インデックス再構築」「月次レビュー」と言えば ROUTER が `scripts/prompts/<job>.md` を読んで内部実行。バックグラウンドプロセスなし。
-  - **削除 (17 ファイル)**：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、`tools/reindex.py`、`tools/daily_briefing.py`、`tools/backup.py`、`tools/spec_compliance_report.py`、`tools/wiki_decay.py`、`tools/memory.py`、`tools/session_search.py`、`tools/cli.py`、`pro/agents/narrator-validator.md`、`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`。さらに削除ツール用の eval scenarios 3 件。
+  - **削除 (17 ファイル)**：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、`tools/reindex.py`、`tools/daily_briefing.py`、`tools/backup.py`、`tools/spec_compliance_report.py`、`tools/wiki_decay.py`、`tools/memory.py`、`tools/session_search.py`、`tools/cli.py`、`agents/narrator-validator.md`、`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`。さらに削除ツール用の eval scenarios 3 件。
   - **新規作成 (5 つの user-invoked prompts)**：`scripts/prompts/{reindex,daily-briefing,backup,spec-compliance,wiki-decay}.md` —— 削除された python ツールを置換。それぞれ markdown prompt で、ROUTER が読んで Read/Write/Bash/Glob/Grep で直接実行（ユーザーがキーワードで起動）。
   - **修正 (5 つの既存 prompts)**：`scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md` —— 「autonomous cron-triggered」フレーミングを「user-invoked from session」に変更。UNATTENDED CRON CONTRACT ブロック削除（不要）。
   - **Hooks 再構成 (3 つの hook)**：
     - `scripts/hooks/pre-prompt-guard.sh`：Cortex always-on enforcement ブロック（line 111-167）削除。Memory キーワード検出は Write tool で `~/.claude/lifeos-memory/<key>.json` に直接書き込むように変更（削除された `tools/memory.py` を呼ばない）。上朝/退朝ソフトトリガー保持。
     - `scripts/hooks/session-start-inbox.sh`：完全リライト —— 以前は cron 出力を読んでいた、現在は 10 個のメンテナンスタスクの glob で最新ファイルの mtime をスキャン（`_meta/eval-history/<job>-*.md`）、overdue 一覧を `<system-reminder>` で表示。Hook は表示のみ、実行しない；ユーザーが起動を決定。
     - `scripts/hooks/post-task-audit-trail.sh`：弱化 —— Cortex 4 subagent + narrator-validator の R11 audit trail 強制を削除。archiver + knowledge-extractor のみ trail 書き込み強制（永続状態に触れる）。
-  - **Cortex を pull-based 化**（`pro/CLAUDE.md` §0.5 リライト）：4 つの Cortex subagent はメッセージごとに自動 launch しなくなりました。ROUTER がメッセージごとに「履歴/概念/SOUL を加えると応答が変わるか？」を判断；変わる → launch、変わらない → スキップ。Subagent description ファイルを全て pull-based 反映に更新。
+  - **Cortex を pull-based 化**（`hosts/CLAUDE.md` §0.5 リライト）：4 つの Cortex subagent はメッセージごとに自動 launch しなくなりました。ROUTER がメッセージごとに「履歴/概念/SOUL を加えると応答が変わるか？」を判断；変わる → launch、変わらない → スキップ。Subagent description ファイルを全て pull-based 反映に更新。
   - **Slash command リライト**：`/monitor` は view-and-invoke コンソール（cron 監視ではない）；`/memory` は JSON ファイルを直接書き込み（python ミドルウェアなし）；`/search` は Grep tool で直接検索（SQLite FTS5 不使用）。
-  - **Spec ドキュメント**：`pro/CLAUDE.md` §0.5 + Session Modes section 両方リライト。`references/hard-rules-index.md` で Cortex は always-on ではないと明記。`pro/AGENTS.md`、`pro/GEMINI.md`、`AGENTS.md` の冒頭に pivot 注釈追加（`pro/CLAUDE.md` を権威と指定、完全な内容スイープは保留）。
+  - **Spec ドキュメント**：`hosts/CLAUDE.md` §0.5 + Session Modes section 両方リライト。`references/hard-rules-index.md` で Cortex は always-on ではないと明記。`hosts/AGENTS.md`、`hosts/GEMINI.md`、`AGENTS.md` の冒頭に pivot 注釈追加（`hosts/CLAUDE.md` を権威と指定、完全な内容スイープは保留）。
   - **統計**：~3500 行の cron インフラ + python ミドルウェア削除。~500 行の user-invoked prompt 内容を追加。差分：23 削除、5 新規、~25 修正。
   - **バックアップ**：`git branch backup-pre-v1.8-pivot @ 7b15509` で pivot 前の状態を保存。
 
@@ -855,10 +890,10 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
   - **新規作成 (5 つの user-invoked prompts、削除された python ツールを置換)**：
     - `scripts/prompts/rebuild-session-index.md`、`scripts/prompts/rebuild-concept-index.md`、`scripts/prompts/migrate-from-v1.6.md`、`scripts/prompts/snapshot-cleanup.md`、`scripts/prompts/extract-concepts.md`
   - **Spec 書き直し (5 agent spec)**：
-    - `pro/agents/hippocampus.md` L88-92：FTS5 SQLite helper → Grep tool で INDEX.md を直接スキャン
-    - `pro/agents/retrospective.md` L47-55：Python helper パス削除、inline LLM rebuild のみ；L244 R10 boundary 書き直し
-    - `pro/agents/archiver.md`：snapshot Python helper ブロック → inline Write + 明示的 YAML schema；extraction Python helper → inline tokenize/stopword/slug ステップ；SessionSummary Python helper → 直接 Write + 明示的 byte-level フォーマット契約；v1.7.2.3 rationale ブロック更新
-    - `pro/CLAUDE.md` L268-286：HARD RULE briefing skeleton ブロック（retrospective + archiver）削除
+    - `agents/hippocampus.md` L88-92：FTS5 SQLite helper → Grep tool で INDEX.md を直接スキャン
+    - `agents/retrospective.md` L47-55：Python helper パス削除、inline LLM rebuild のみ；L244 R10 boundary 書き直し
+    - `agents/archiver.md`：snapshot Python helper ブロック → inline Write + 明示的 YAML schema；extraction Python helper → inline tokenize/stopword/slug ステップ；SessionSummary Python helper → 直接 Write + 明示的 byte-level フォーマット契約；v1.7.2.3 rationale ブロック更新
+    - `hosts/CLAUDE.md` L268-286：HARD RULE briefing skeleton ブロック（retrospective + archiver）削除
   - **受け入れたコスト**：retrospective Mode 0 ~30× 遅い；archiver Adjourn 10-12 min → ~25-30 min；hippocampus Wave 1 が FTS5 stemming を失う
   - **受け入れたリスク**：SessionSummary フォーマットドリフト、Concept slug ドリフト（SHA-1 fallback で緩和）、SOUL snapshot 蓄積、6-H2 briefing で H2 欠落の可能性
   - **保持されるコード（不可侵）**：11 hooks + `tools/approval.py` + `seed.py` / `seed_concepts.py` / `skill_manager.py` + `tools/lib/{config,llm,notion,second_brain}.py` + `scripts/lib/{audit-trail.sh,sha-fallback.sh}` + R-1.8.0-010 の 10 個の cron-replacement prompts
@@ -868,33 +903,33 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
 - **R-1.8.0-012 · Monitor mode を自然言語のみで起動（post-2026-04-29 ユーザーフィードバック）**：ユーザー原文「这个不能要任何命令全部都要自然语言」。Monitor mode は自然言語キーワードで起動する必要があり、ユーザーに `/monitor` を入力させてはいけない。Slash コマンドは backup mode として残す（`/memory` `/search` `/method` と同じ扱い）。
   - **`scripts/hooks/pre-prompt-guard.sh`**：`MEMORY_KEYWORD_RE` 検出ブロックの直後に `MONITOR_KEYWORD_RE` 検出ブロックを追加。キーワード：监控模式 / 进监控 / 进 monitor / 开监控 / 监控控制台 / 看系统状态 / 看 cron / 看维护状态 / 维护控制台 / ops console / monitor mode / enter monitor / open monitor / 看 lifeos 状态 / 进运维。マッチした場合 `<system-reminder>`（`trigger=monitor`）を注入し、ROUTER に `Task(subagent_type=monitor)` を直接 launch させる —— ユーザーを `/monitor` に誘導しない。
   - **`scripts/hooks/pre-prompt-guard.sh`**（同 edit で修正 —— R-1.8.0-010 漏れ）：MEMORY ブロックのテキストがまだ ROUTER に `python -m tools.memory emit "..."` を呼ばせていたが、`tools/memory.py` は v1.8.0 pivot で削除済み。ROUTER に Write tool で `~/.claude/lifeos-memory/<sanitized-key>.json` を直接書き込むよう変更（明示的な JSON schema：`value` / `role` / `created` / オプショナル `trigger_time`）。
-  - **`pro/CLAUDE.md` Special Triggers セクション**：上朝 / 退朝 / Quick Mode と並んで Monitor Mode エントリーを追加。自然言語が主経路、`/monitor` は backup と明記。
-  - **`pro/CLAUDE.md` Auto-Trigger Rules セクション**：Memory auto-emit と並んで「Monitor mode auto-launch」サブセクションを追加。中/英キーワード列挙。「4 つの v1.7.3 slash コマンド」記述を 5 つに拡張（`/monitor` 含む）。
+  - **`hosts/CLAUDE.md` Special Triggers セクション**：上朝 / 退朝 / Quick Mode と並んで Monitor Mode エントリーを追加。自然言語が主経路、`/monitor` は backup と明記。
+  - **`hosts/CLAUDE.md` Auto-Trigger Rules セクション**：Memory auto-emit と並んで「Monitor mode auto-launch」サブセクションを追加。中/英キーワード列挙。「4 つの v1.7.3 slash コマンド」記述を 5 つに拡張（`/monitor` 含む）。
   - **`scripts/commands/monitor.md`**：先頭に「Backup mode」注記ブロックを追加。ROUTER がユーザーに slash コマンドを入力させないよう指示 —— 自然言語が主経路。Slash コマンドは：focus パラメータの精密制御（`/monitor wiki`）、auto-trigger fallback（regex ミスマッチ）、テストシナリオ用に残す。
-  - **どのパスも壊さない**：`/monitor` slash コマンドはパワーユーザー向けに引き続き利用可能；`pro/agents/monitor.md` subagent 自体は未変更。エントリーパスを拡張しただけ。
+  - **どのパスも壊さない**：`/monitor` slash コマンドはパワーユーザー向けに引き続き利用可能；`agents/monitor.md` subagent 自体は未変更。エントリーパスを拡張しただけ。
 
 - **R-1.8.0-013 · llm_wiki からの 5 つの借用（post-2026-04-29 ユーザーリサーチ後の決定）**：ユーザー原文「1，单独 2，llm 3，折中 4，全，完整」で 5 つの借用すべてを一括承認。lifeos は「プレーンテキスト + frontmatter id」から「Obsidian-vault 互換の wikilink 知識グラフ + 非同期 review queue + LLM フレンドリーな関連度シグナル + ページ分類の細分化」へ移行。出典：[nashsu/llm_wiki](https://github.com/nashsu/llm_wiki)。
   - **借用 1 · 全文 Obsidian `[[wikilinks]]` 構文**：`wiki/`、`_meta/concepts/`、`_meta/sessions/`、`_meta/methods/`、`_meta/people/`、`_meta/comparisons/`、`SOUL.md`、`_meta/STRATEGIC-MAP.md` 本文中のあらゆる相互参照を `[[id]]` または `[[id|表示名]]` で統一。Frontmatter は YAML 文字列のまま（機械パース可）、唯一の例外は `_meta/concepts/<id>.md` の `provenance.source_sessions: ["[[YYYY-MM-DD]]"]` と `outgoing_edges[].target: "[[concept-<id>]]"`。`references/wiki-spec.md` の「相互参照禁止」ルールは取消線で廃止。
   - **借用 2 · Obsidian vault レイアウト**：`tools/seed.py` が `.obsidian/app.json`（`useMarkdownLinks: false`、`newLinkFormat: shortest`、`userIgnoreFilters` で `_meta/runtime/` 除外）、`.obsidian/core-plugins.json`（graph + backlinks + outgoing-links + tag-pane 有効化）、`.obsidian/.gitignore`（workspace.json などデバイス局所状態の除外）を書き出すように。ユーザーは second-brain を Obsidian で直接開いてグラフビュー + バックリンクパネルを使える。仕様：`references/obsidian-spec.md`。
   - **借用 3 · 非同期 Review Queue（「ユーザー対応が必要なもの」の単一エントリー）**：`_meta/review-queue.md` がそれまで 7 箇所に散らばっていた todo を 1 つの優先順序付きリストに統合（auditor-patrol / advisor-monthly / strategic-consistency / archiver-recovery / eval-history-monthly 各レポートの action item + violations.md + cron notifications.md）。YAML 項目スキーマ：`id`（`r{YYYY-MM-DD}-{NNN}`）/ `created` / `source` / `type` / `priority`（P0/P1/P2）/ `summary` / `detail_path` / `related`（wikilinks）/ `suggested_action` / `status`（open/reviewed/resolved/dismissed）/ `closed_at` / `closed_by`。in-place 状態変更（必ず Edit、Write 禁止）；resolved > 100 項目は `_meta/review-queue/archive/{YYYY-MM}.md` へ自動アーカイブ（折衷策、ユーザー選択 3 に対応）。仕様：`references/review-queue-spec.md`。新ウォーカー prompt `scripts/prompts/review-queue.md`（「处理 queue」/「看 queue」/「review queue」）が項目を 1 件ずつ A（実行）/ R（見たが対応保留）/ D（dismiss）/ S（skip）/ Q（quit）の選択肢で処理。
-  - **借用 4 · 4 シグナル LLM フレンドリー関連度モデル（hippocampus Wave 2 単純加重式を置換）**：`relevance(candidate, current) = 3 × direct_link_count + 4 × source_overlap_count + 2 × common_neighbor_count + 1 × type_affinity`。カウント（Adamic-Adar の `1/log(degree)` ではなく）を採用したのは LLM が log を確実に計算できないため（ユーザー選択 2「LLM 簡略版」に対応）。Type affinity マトリクス：同一タイプ 1.0、関連（concept↔wiki/person/method）0.5、無関係 0.0。変更箇所：`references/hippocampus-spec.md` Wave 2 + `pro/agents/hippocampus.md`。
+  - **借用 4 · 4 シグナル LLM フレンドリー関連度モデル（hippocampus Wave 2 単純加重式を置換）**：`relevance(candidate, current) = 3 × direct_link_count + 4 × source_overlap_count + 2 × common_neighbor_count + 1 × type_affinity`。カウント（Adamic-Adar の `1/log(degree)` ではなく）を採用したのは LLM が log を確実に計算できないため（ユーザー選択 2「LLM 簡略版」に対応）。Type affinity マトリクス：同一タイプ 1.0、関連（concept↔wiki/person/method）0.5、無関係 0.0。変更箇所：`references/hippocampus-spec.md` Wave 2 + `agents/hippocampus.md`。
   - **借用 5 · ページ分類の細分化 —— people と comparisons がそれぞれ独立ディレクトリに**：新規 `_meta/people/<id>.md`（people をファーストクラスエンティティに；canonical_name / aliases / relationship / privacy_tier / mention_count / concepts_linked wikilinks；仕様：`references/people-spec.md`）と `_meta/comparisons/<id>.md`（決定対比をファーストクラスエンティティに；options / criteria / decision / confidence / outcome 追跡；仕様：`references/comparison-spec.md`）、ユーザー選択 1「单独，独立ディレクトリで frontmatter type フィールドのみではない」に対応。Sources/synthesis/queries は分離せず（sessions/wiki と重複）。
   - **新規仕様ファイル（4）**：`references/people-spec.md`、`references/comparison-spec.md`、`references/obsidian-spec.md`、`references/review-queue-spec.md`。
   - **修正仕様ファイル（3）**：`references/wiki-spec.md`（ページ分類 + wikilink convention セクション、「相互参照禁止」を取消線）、`references/concept-spec.md`（wikilink convention に frontmatter 例外フィールド例）、`references/hippocampus-spec.md`（Wave 2 4 シグナル式）。
-  - **修正 subagent（5）**：`pro/agents/hippocampus.md`（Wave 2 spec 同期）、`pro/agents/archiver.md`（Phase 2 ルーティング + wikilink 書き込み HARD RULE + review queue append）、`pro/agents/knowledge-extractor.md`（同じルーティング/wikilink/queue HARD RULE）、`pro/agents/retrospective.md`（Mode 0 ブリーフィング wikilinks + 項目あれば ## Open Review Queue H2 セクション出力）、`pro/agents/monitor.md`（Review Queue Dashboard）。
+  - **修正 subagent（5）**：`agents/hippocampus.md`（Wave 2 spec 同期）、`agents/archiver.md`（Phase 2 ルーティング + wikilink 書き込み HARD RULE + review queue append）、`agents/knowledge-extractor.md`（同じルーティング/wikilink/queue HARD RULE）、`agents/retrospective.md`（Mode 0 ブリーフィング wikilinks + 項目あれば ## Open Review Queue H2 セクション出力）、`agents/monitor.md`（Review Queue Dashboard）。
   - **修正 prompt（5 メンテナンス + 2 新規）**：5 つの v1.8.0 メンテナンス prompt（`auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `archiver-recovery.md` / `eval-history-monthly.md`）すべてに「v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)」セクションとソース固有 YAML テンプレートを追加。新規 `scripts/prompts/review-queue.md`（借用 3 のウォーカー）と `scripts/prompts/migrate-to-wikilinks.md`（既存コンテンツの全量 wikilink 移行、ユーザー選択 4「全，完整」に対応）。
   - **修正ツール（1）**：`tools/seed.py` —— 3 つの新規 `META_GITKEEP_DIRS`（`_meta/people`、`_meta/comparisons`、`_meta/review-queue/archive`）、定数 `_REVIEW_QUEUE` / `_OBSIDIAN_APP_JSON` / `_OBSIDIAN_CORE_PLUGINS` / `_OBSIDIAN_GITIGNORE`、関数 `_write_obsidian_vault(target)` を `_seed_scaffolding()` に接続。スモークテスト合格。
   - **修正 hook（1）**：`scripts/hooks/session-start-inbox.sh` —— `_meta/review-queue.md` の `## Open items` セクションを awk でパースし P0/P1/P2 別カウント；SessionStart system-reminder に `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>. Say "看 queue" to walk through.` を出力。
   - **R-1.8.0-013 セルフ監査修正（同コミット）**：並列 agent 監査で 7 つの実バグを発見、ユーザー原文「全部干完，不要再留任何 bug 了」に従い同リリース内ですべて修正：
     - **HIGH · awk priority 正規表現が未アンカー** —— パターン `/priority: P0/` が `summary: "因为 priority: P0 上周没处理"` のような本文プローズにマッチして二重カウント。`^[[:space:]]*priority:[[:space:]]*P0([^0-9]|$)` にアンカー（GNU awk の `\b` ワード境界に依存しない）。スペース無し（`priority:P0`）、複数スペース（`priority:    P0`）の variant も正しく扱う。
     - **HIGH · CHANGELOG が session-start hook 出力に `Latest: <summary>` を約束していたが hook はカウントのみ出力** —— awk を拡張して最新 open 項目の最初の `summary:` を捕獲、80 文字で切詰、`Latest: ${REVIEW_QUEUE_LATEST}` 行で出力。bash で tab 分離。`[[person-*]]` 項目で `privacy_tier: high` の場合のプライバシーフィルター注記追加。
-    - **HIGH · `source_session(s)` フィールド名の単複不一致** —— `references/comparison-spec.md`（単数、決定の瞬間）と `references/concept-spec.md`（複数、累積する証拠）の命名違い。`references/wiki-spec.md` 例外フィールドリストで意味的区別を明記、`pro/agents/archiver.md` + `pro/agents/knowledge-extractor.md` を両方の名前と各 cardinality の理由を引用するよう同期。
+    - **HIGH · `source_session(s)` フィールド名の単複不一致** —— `references/comparison-spec.md`（単数、決定の瞬間）と `references/concept-spec.md`（複数、累積する証拠）の命名違い。`references/wiki-spec.md` 例外フィールドリストで意味的区別を明記、`agents/archiver.md` + `agents/knowledge-extractor.md` を両方の名前と各 cardinality の理由を引用するよう同期。
     - **HIGH · 4 シグナル `type_affinity` の related 集合が不足** —— CHANGELOG は `concept↔wiki/person/method` を引用したが spec + agent は `concept↔wiki, concept↔person` のみ。すべてを `concept ↔ wiki, concept ↔ person, concept ↔ method, wiki ↔ method, person ↔ comparison` に揃えた。
     - **MEDIUM · advisor-monthly に `outcome-unmeasured` type enum 欠落** —— type リストに追加 + priority 拡張で P2 を含む（comparison-spec の outcome-tracking フローで「90 日経過しても comparison に ## Outcome なし」を検出するため）。
     - **MEDIUM · awk エラーの暗黙呑み込み** —— awk コマンドから `2>/dev/null` を削除、パーサ回帰エラーを SessionStart hook log に浮上させる（暗黙的に空文字列を出力するのではなく）。新規 vault のファイル不在は `|| true` で引き続きカバー。
     - **LOW · pre-prompt-guard の 2 hook ブロックが同時発火** —— REVIEW_QUEUE + MIGRATE_WIKILINKS 両方のキーワードを含むメッセージで 2 つの競合する `<system-reminder>` を注入。両ブロックに `[ "$ACTIVITY_REMINDER" != "yes" ]` first-match-wins ガードを追加。
     - **LOW · `_OBSIDIAN_GITIGNORE` 定数名が repo ルートの `_GITIGNORE` と重複** —— `tools/seed.py` 244 行目に vault 内部のものであることを inline コメントで明記。
-    - **LOW · トリガーキーワードリストが hook + pro/CLAUDE.md + walker prompt の間でドリフト** —— `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE を canonical source に指定、CLAUDE.md と `scripts/prompts/review-queue.md` をそれに合わせる。
+    - **LOW · トリガーキーワードリストが hook + hosts/CLAUDE.md + walker prompt の間でドリフト** —— `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE を canonical source に指定、CLAUDE.md と `scripts/prompts/review-queue.md` をそれに合わせる。
   - **R-1.8.0-013 第 2 ラウンドセルフ監査修正（同コミット）**：6 agent 並列ディープ監査（python-reviewer + silent-failure-hunter + code-reviewer + security-reviewer + comment-analyzer + type-design-analyzer）でさらに **15 個のバグ**を発見、3 つの CRITICAL/HIGH を含み、それらは全ての新規 vault で Obsidian 統合を静かに壊していた。すべて修正：
     - **HIGH · Obsidian core-plugin ID が間違っていた** —— `tools/seed.py` が `.obsidian/core-plugins.json` に `"backlink"`、`"outgoing-link"`、`"starred"` を書き込んでいたが、Obsidian の実際の plugin ID は `"backlinks"`、`"outgoing-links"`、`"bookmarks"`（最後は Obsidian 1.2 / 2023 年 8 月に `starred` から改名）。Obsidian は未認識の plugin ID を黙って無視するため、すべての新規 lifeos vault は Obsidian で開いた時にバックリンクパネル / 出向リンクパネル / ブックマークパネルが静かに無効化されていた。3 つの ID を全て修正 + Obsidian ドキュメント URL の説明コメントを追加。
     - **HIGH · `.obsidian/.gitignore` に `cache`、`plugins/`、`themes/` が欠落** —— ユーザーがインストールしたコミュニティプラグイン / テーマがデバイスごとなのに静かに git にコミットされ、リポジトリを汚染。エントリを追加 + `hot-reload.json`（開発フロー）+ なぜ 2 つの `.gitignore` ファイルが必要か（Obsidian Sync は vault-root `.gitignore` を読まない）の説明コメントを追加。
@@ -971,13 +1006,13 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
 
   **検証 + 修正済み**:
   1. **P0 — `pre-bash-approval.sh` に裸の `python -c` 5 箇所（行 57/133/166/179/187）**。macOS 12+ は裸の `python` バイナリを削除、`python3` のみ存在。Hook が macOS で fail-CLOSED し `python: command not found` で全 Bash コマンドをブロック → Claude Code デッドロック。修正: 先頭に portable な `PYTHON=$(command -v python3 || command -v python)` 検出を追加、5 箇所の裸 `python` を `"$PYTHON"` に置換。`/usr/bin/python` シンボリックリンクのない非 macOS Linux でも恩恵。R-1.8.0-020 が GitHub Release 整列 HARD RULE を導入したが、underlying hook bug は commit タイトル通りには修正されていなかった — 本ラウンドで補完。
-  2. **P1 — `session-start-inbox.sh` NEVER_RUN リストが session ごとに ~10 行の LLM context を浪費**。R-1.8.0-021 で NEVER_RUN を OVERDUE バケットから分離し LLM の誤提案を防いだが、複数行 bullet list は依然 Claude Code session ごとに token を占有。単一行カンマ区切りに圧縮（`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`）。10 個の権威 maintenance ジョブはすべて保持（下流ユーザーのジョブ削除提案は却下 — それらは v1.8.0 user-invoked の発見可能性面、権威リストは `pro/CLAUDE.md`）。
-  3. **P2 — `pro/CLAUDE.md` Step 10a が 4 つの Notion entity（Status / Todo / Working Memory / Inbox）をハードコード**。実ユーザーの Notion レイアウトは多様（下流ユーザーは 4 つのうち 2 つしか設定なし）; orchestrator が存在しない entity を "Working Memory: failed" と報告。設定駆動に書き換え: orchestrator は `_meta/config.md` を読み、設定済み entity のみ sync、Notion 未設定なら Step 10a 全体スキップ、checklist には設定済み entity のみリスト（"failed: not configured" 行なし）。
+  2. **P1 — `session-start-inbox.sh` NEVER_RUN リストが session ごとに ~10 行の LLM context を浪費**。R-1.8.0-021 で NEVER_RUN を OVERDUE バケットから分離し LLM の誤提案を防いだが、複数行 bullet list は依然 Claude Code session ごとに token を占有。単一行カンマ区切りに圧縮（`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`）。10 個の権威 maintenance ジョブはすべて保持（下流ユーザーのジョブ削除提案は却下 — それらは v1.8.0 user-invoked の発見可能性面、権威リストは `hosts/CLAUDE.md`）。
+  3. **P2 — `hosts/CLAUDE.md` Step 10a が 4 つの Notion entity（Status / Todo / Working Memory / Inbox）をハードコード**。実ユーザーの Notion レイアウトは多様（下流ユーザーは 4 つのうち 2 つしか設定なし）; orchestrator が存在しない entity を "Working Memory: failed" と報告。設定駆動に書き換え: orchestrator は `_meta/config.md` を読み、設定済み entity のみ sync、Notion 未設定なら Step 10a 全体スキップ、checklist には設定済み entity のみリスト（"failed: not configured" 行なし）。
   4. **P2 — `pre-bash-approval.sh` ブロックメッセージの "匹配模式: unknown" が頻発**。approval.py decision payload の `pattern_key` フィールドが時々欠落、リテラル `'unknown'` にフォールバック。改善: `key=` + `matched=`（実マッチサブストリング）+ `regex=`（pattern ソース）を抽出 + 連結、4 フィールド全欠落時は明確な "decision payload missing all 4 fields" 診断。同時に文書注記: `export LIFEOS_YOLO_MODE=1` は Claude Code Bash tool 内インラインで動作しない（PreToolUse hook が export より先に env を評価）、永続 bypass は `~/.claude/settings.local.json` env ブロック編集が必要。
 
   **却下 + 理由**:
   - **R-1.8.0-023（主張: 削除済みスクリプトへの spec 参照）** — 不成立。active spec 内の `setup-cron.sh` / `retrospective-mode-0.sh` / `archiver-briefing-skeleton.sh` / `archiver-phase-prefetch.sh` への全参照に明示的な "REMOVED in R-1.8.0-011 / Option A pivot で削除" マーカー + 説明コンテキストあり。Spec は何が削除され何が代替されたかを正しく文書化; scanner は CONTEXT_ALLOW で正しくスキップ。
-  - **R-1.8.0-024（主張: knowledge-extractor が Task agent として未登録）** — 古いインストールが原因の可能性大。`scripts/setup-hooks.sh` L303-308 が `register-claude-agents.sh` を呼び、`pro/agents/*.md` を反復処理して各ファイル（`knowledge-extractor.md` 含む）を `~/.claude/agents/lifeos-<name>.md` wrapper として書き出す。新規インストールは全セットを取得。下流ユーザーの環境に `lifeos-knowledge-extractor` がないのは v1.6.x からアップグレードしたため（当時 knowledge-extractor 未存在）; `bash scripts/setup-hooks.sh` 再実行で全部再登録される。短名エイリアス追加は他の Claude Code skill 共通名（`archiver` / `auditor` 等）と衝突リスク。
+  - **R-1.8.0-024（主張: knowledge-extractor が Task agent として未登録）** — 古いインストールが原因の可能性大。`scripts/setup-hooks.sh` L303-308 が `register-claude-agents.sh` を呼び、`agents/*.md` を反復処理して各ファイル（`knowledge-extractor.md` 含む）を `~/.claude/agents/lifeos-<name>.md` wrapper として書き出す。新規インストールは全セットを取得。下流ユーザーの環境に `lifeos-knowledge-extractor` がないのは v1.6.x からアップグレードしたため（当時 knowledge-extractor 未存在）; `bash scripts/setup-hooks.sh` 再実行で全部再登録される。短名エイリアス追加は他の Claude Code skill 共通名（`archiver` / `auditor` 等）と衝突リスク。
   - **R-1.8.0-026（主張: LIFEOS_YOLO_MODE インライン bypass が動かない）** — 設計通り（セキュリティ）。PreToolUse hook はユーザーの `export` より先に env を読む; インライン bypass を許せば guard を回避することになる。文書修正は上記 #4 参照。
 
   **検証**:
@@ -990,34 +1025,34 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
   - `pytest tests/` → 233 合格 / 3 deselected
   - 31 個の tracked .sh `bash -n` → 全合格
 
-  3 言語 CHANGELOG 同期。v1.8.0 tag は pro/CLAUDE.md ルール #10 に従い force-realign。
+  3 言語 CHANGELOG 同期。v1.8.0 tag は hosts/CLAUDE.md ルール #10 に従い force-realign。
 
-- **R-1.8.0-021 · session-start-inbox hook 修正: 2 つのタスク名間違い + "never run" を overdue 扱い（2026-05-01 ユーザー監査後）**: ユーザーが下流監査員の `scripts/hooks/session-start-inbox.sh` spec drift 指摘を転送 — 監査員の診断は 80% 間違い（6 つの v1.8.0 user-invoked メンテナンスジョブを "cron-only 残骸" と主張し削除を提案、それに従えば v1.8.0 の発見メカニズム自体が壊れる）だが、二次観察は本物の UX バグ。`pro/CLAUDE.md` 権威 10-job テーブルに照らして逐項検証。
-  - **本物のバグ 2 件修正**: `TASKS_LINE` 配列の 2 つのタスク名が `scripts/prompts/*.md` 実ファイル + `pro/CLAUDE.md` 権威テーブルと不一致:
+- **R-1.8.0-021 · session-start-inbox hook 修正: 2 つのタスク名間違い + "never run" を overdue 扱い（2026-05-01 ユーザー監査後）**: ユーザーが下流監査員の `scripts/hooks/session-start-inbox.sh` spec drift 指摘を転送 — 監査員の診断は 80% 間違い（6 つの v1.8.0 user-invoked メンテナンスジョブを "cron-only 残骸" と主張し削除を提案、それに従えば v1.8.0 の発見メカニズム自体が壊れる）だが、二次観察は本物の UX バグ。`hosts/CLAUDE.md` 権威 10-job テーブルに照らして逐項検証。
+  - **本物のバグ 2 件修正**: `TASKS_LINE` 配列の 2 つのタスク名が `scripts/prompts/*.md` 実ファイル + `hosts/CLAUDE.md` 権威テーブルと不一致:
     - `auditor-patrol` → `auditor-mode-2`（実 prompt 名 + 権威リスト名）
     - `monthly-summary` → `eval-history-monthly`（同上）
     修正前: ユーザーが「跑 auditor-patrol」と言っても ROUTER は実 prompt ファイルを解決できなかった。eval-history glob パス（`_meta/eval-history/` 下の旧ファイル名スキャン）は変更なし — 履歴レポートは旧名で書かれているため、タスク名は prompt と整合させ、レポート glob は履歴 artifact 名と整合させる、別物。
   - **"never run" セマンティック分離**: 以前は baseline のないタスクすべてを `<name>: never run` として overdue バケットに投入。LLM はそれを負債扱いし、ユーザーが要求していないジョブを能動的に提案。2 バケットに分離:
     - `OVERDUE` — baseline あり かつ age > target。本物の負債; LLM が言及すべき。
     - `NEVER_RUN` — baseline なし。"Available on-demand (never run yet — NOT overdue, do NOT proactively offer)" セクションに分離、ユーザーが「どんなメンテナンスタスクがあるか」と明示的に尋ねない限り沈黙する明示指示付き。"How to surface" 例も overdue（baseline 持ち）アイテムのみ引用、never-run は引用しないよう更新。
-  - **コメント厳格化**: `TASKS_LINE` 横に契約コメント追加 — タスク名は `scripts/prompts/<name>.md` + `pro/CLAUDE.md` 権威テーブルと整合必須; なぜ `review-queue`（専用パーサ処理）+ `migrate-to-wikilinks`（ワンタイム移行）が意図的に配列から除外されているか説明。
+  - **コメント厳格化**: `TASKS_LINE` 横に契約コメント追加 — タスク名は `scripts/prompts/<name>.md` + `hosts/CLAUDE.md` 権威テーブルと整合必須; なぜ `review-queue`（専用パーサ処理）+ `migrate-to-wikilinks`（ワンタイム移行）が意図的に配列から除外されているか説明。
   - **スモークテスト**: 合成スタブ（5d 前 INDEX.md、12d 前 spec-compliance レポート、他は履歴なし）で、hook は今 `## Overdue maintenance` に `reindex: 5d` のみ、`## Available on-demand` に 8 つの never-run ジョブを do-NOT-offer 指示付きで別出力。修正前は同フィクスチャで 9 つの missing ジョブすべてを overdue として報告していた。
   - **検証**: `bash -n scripts/hooks/session-start-inbox.sh` 合格; STRICT スキャナ変化なし exit 0; mypy / ruff / pytest 影響なし（Python 未触）。
 
 - **R-1.8.0-020 · GitHub Release 整列 HARD RULE + verifier スクリプト（2026-04-30 ユーザー観察後）**: ユーザーが R-1.8.0-019 後に GitHub Releases ページをスクリーンショット: **"Latest" がまだ v1.7.3 を表示、main + v1.8.0 tag は両方 `e51822e` なのに**。根本原因: `git push --tags` は git レイヤのみ更新; GitHub の Releases ページは別 UI で、Latest バッジと release notes は `gh release create` または Web UI で**明示的にパブリッシュ**する必要がある。4-29 の v1.8.0 Draft はパブリッシュされなかったため、v1.7.3 が Latest のまま。ユーザー原文: "今后每次都要检查这个东西"（今後毎回これをチェックすること）。
   - **v1.8.0 Release パブリッシュ**: 古い 4-29 Draft を削除、`e51822e` で tag を再作成、`gh release create v1.8.0 --latest` を R-1.8.0-013..019 をカバーする完全 release notes と共に実行。v1.8.0 が GitHub Latest に。
   - **`scripts/verify-release.sh` 追加**: ポストリリースの整列チェック。(1) ワーキングツリーがクリーン、(2) HEAD == origin/main、(3) ターゲット tag が HEAD を指す、(4) tag が remote に push 済み、(5) GitHub Release が存在、(6) Draft でない、(7) GitHub で Latest としてマーク、を検証。ドリフトは exit 1 + 修正用 `git` / `gh` コマンドを出力。デフォルトは最新 tag をチェック; `bash scripts/verify-release.sh v1.8.0` で指定 tag。
-  - **`pro/CLAUDE.md` Orchestration Code of Conduct にルール #10 追加**: 4 ステップのリリースシーケンス（push main → push tag → `gh release create --latest` → `verify-release.sh` exit 0）を HARD RULE として固定化し、今後の任意のセッション / 任意のバージョン / Gemini & Codex host すべてで強制。ローカル `.claude/CLAUDE.md`（gitignored, 本マシンのみ）にも同ルールを追加し日常作業の可視性を確保。
+  - **`hosts/CLAUDE.md` Orchestration Code of Conduct にルール #10 追加**: 4 ステップのリリースシーケンス（push main → push tag → `gh release create --latest` → `verify-release.sh` exit 0）を HARD RULE として固定化し、今後の任意のセッション / 任意のバージョン / Gemini & Codex host すべてで強制。ローカル `.claude/CLAUDE.md`（gitignored, 本マシンのみ）にも同ルールを追加し日常作業の可視性を確保。
   - **検証**: `bash scripts/verify-release.sh` → exit 0（スクリプト自身コミット後）; `gh release list` で `v1.8.0 Latest` 確認。
 
 - **R-1.8.0-019 · active ドキュメントから legacy `16-agents` パスへのリンクを削除 + scanner がこの種の残留をキャッチ（2026-04-30 ユーザー第 13 ラウンド監査後）**: ラウンド 12 で active ドキュメントの*内容*ドリフトは収束した（"16 subagents" のハードコードがなくなった）。ユーザーラウンド 13 が最後の残留クラスをキャッチ: **active ドキュメント入口がまだ legacy `architecture/16-agents.md` と `reference/all-16-agents/` にユーザーを誘導していた**。Legacy ファイル自体は正しくマークされているが、`docs/index.md` が「必読」/「agent を探すならここ」ナビゲーションでそれらにリンクしていたのは、v1.7 歴史コンテンツを現在のアーキテクチャとして再プロモーションするのと同じ。
   - **Legacy reference ディレクトリをリネーム**: `git mv docs/reference/all-16-agents → docs/reference/all-agents`（16 個の per-agent reference ファイルは全保持; ディレクトリ名から古いカウントを削除）。
   - **`docs/index.md` ナビゲーション書き換え**（以前 3 行が legacy パスにリンク）:
-    - 「agent を探すならここ」を `architecture/16-agents.md` ではなく `pro/agents/*.md`（実際の現行ソース）に向ける。Legacy ファイル存在は記載するが「現在のアーキテクチャ入口ではない」と明示的に de-recommend。
-    - 「クイックリンク」: `[multiple agents](architecture/16-agents.md)` を `[Agent 定義源](../pro/agents/)` に置換。
-    - 「システム変更前の必読順序」を `system-overview` → `pro/agents/` ソース → `orchestration-protocol` に書き換え、architecture/ の旧 agent リスト文書は `status: legacy` v1.7 履歴で、現在のクリティカルパスにないと明記。
+    - 「agent を探すならここ」を `architecture/16-agents.md` ではなく `agents/*.md`（実際の現行ソース）に向ける。Legacy ファイル存在は記載するが「現在のアーキテクチャ入口ではない」と明示的に de-recommend。
+    - 「クイックリンク」: 古い literal link text `multiple agents -> architecture/16-agents.md` を `Agent 定義源 -> ../agents/` に置換。
+    - 「システム変更前の必読順序」を `system-overview` → `agents/` ソース → `orchestration-protocol` に書き換え、architecture/ の旧 agent リスト文書は `status: legacy` v1.7 履歴で、現在のクリティカルパスにないと明記。
   - **スキャナアップグレード（`scripts/check-spec-drift.sh`）**: `16-agents.md`、`all-16-agents`、`all-16-a""gents`（bash 連結）を FORBIDDEN_TOKENS に追加し、今後 active ドキュメントが旧パスにリンクすると STRICT fail させる。Legacy ファイル（`status: legacy` 済み）は通常通り免除。
-  - **runtime log コミット**: `pro/compliance/violations.md` に未コミットの runtime log 行（`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`）があり、本日のテスト中に `stop-session-verify` hook によって追加されたもの —— ラウンド 13 変更と一緒にコミット（ファイルは自動追加の違反ログ; `pro/compliance/` は EXEMPT_PATTERN 内、ドリフト非トリガー）。
+  - **runtime log コミット**: `compliance/violations.md` に未コミットの runtime log 行（`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`）があり、本日のテスト中に `stop-session-verify` hook によって追加されたもの —— ラウンド 13 変更と一緒にコミット（ファイルは自動追加の違反ログ; `compliance/` は EXEMPT_PATTERN 内、ドリフト非トリガー）。
   - **検証**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0; 監査員の `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` フィルタ非 legacy 非 CHANGELOG → active 0 ヒット; `git ls-files | xargs grep -l "16-agents|all-16-agents"` フィルタ非 legacy 非 CHANGELOG → **active 0 ヒット**（前回 1: docs/index.md）; mypy --strict tools/ → 0 エラー / 16 ファイル; ruff → クリーン; pytest → 233 合格 / 3 deselected; 31 個の tracked .sh `bash -n` → すべて合格。
 
 - **R-1.8.0-018 · 段落単位の lookback + NOUN カバレッジ拡張（2026-04-30 ユーザー第 12 ラウンド監査後）**: ラウンド 11 で EXEMPT_PATTERN をファイルレベルに絞ったが、ユーザーラウンド 12 が残り 2 種類の "偽 PASS" をキャッチ:
@@ -1032,13 +1067,13 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
     - `docs/guides/your-first-decision.md`: "中间 16 个岗位具体在做什么" → "中间多个岗位具体在做什么"。
     - `docs/user-guide/themes/themes-overview.md`: "以下 16 个功能完全相同" → "以下核心功能完全相同"。
     - `docs/user-guide/themes/adding-a-theme.md`: "确保 16 个 ID 全部填上" → "确保所有当前 engine ID 全部填上"。
-    - `docs/architecture/system-overview.md`: アーキテクチャ図 "pro/agents/*.md (16 个) · themes/*.md (9 个)" → "pro/agents/*.md · themes/*.md (9 个)"（9 テーマカウントは構造的に安定なので保持; ドリフトしやすい agent カウントを削除）。
-    - `pro/agents/retrospective.md`: TBD 参照 `pro/compliance/2026-04-23-status-cache-drift.md` を "(planned, TBD: ... will be created when the post-mortem is filed)" に書き換え、planned コンテキスト免除を有効化。
+    - `docs/architecture/system-overview.md`: アーキテクチャ図 "agents/*.md (16 个) · themes/*.md (9 个)" → "agents/*.md · themes/*.md (9 个)"（9 テーマカウントは構造的に安定なので保持; ドリフトしやすい agent カウントを削除）。
+    - `agents/retrospective.md`: TBD 参照 `compliance/2026-04-23-status-cache-drift.md` を "(planned, TBD: ... will be created when the post-mortem is filed)" に書き換え、planned コンテキスト免除を有効化。
   - **検証**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0; 監査員の `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` フィルタ非 legacy 非 CHANGELOG → **active 0 ヒット**; mypy --strict tools/ → 0 エラー / 16 ファイル; ruff → クリーン; pytest → 233 合格 / 3 deselected; 31 個の tracked .sh `bash -n` → すべて合格。
 
 - **R-1.8.0-017 · スキャナを真に source of truth にする —— EXEMPT_PATTERN を絞り、本物の残留をキャッチ（2026-04-30 ユーザー第 11 ラウンド監査後）**: ユーザー第 11 ラウンド監査のコア洞察: R-1.8.0-016 のスキャナがパスしていたのは過広な**ディレクトリレベル免除**（`docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/` 全体がスキップ）のせいであって、リポジトリが本当にクリーンだからではなかった。あの免除下ではスキャナ PASS は "active ドキュメントにドリフトなし" の証拠にならない。監査者はスキャナが見落とした 24 件の active カウントドリフト残留（FAQ、テーマ概要、ZH/JA インストールドキュメントなど）を列挙して gap を証明。本ラウンドは (a) ディレクトリ免除を削除してスキャナを信頼可能にし、(b) 新スキャナがキャッチした全てを修正。
   - **スキャナ厳格化（`scripts/check-spec-drift.sh`）**:
-    - **ディレクトリレベル免除を削除**: `docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/`、`references/v1.7-shipping-report-`、`references/cortex-spec.md`、`references/tools-spec.md`、`references/narrator-spec.md`。新 EXEMPT_PATTERN は真に歴史的な artifact のみカバー（CHANGELOG、backup/、MIGRATION、スキャナ自身、*-template、pro/compliance/ 違反ログ）。それ以外のファイルは YAML frontmatter（`status: legacy` / `authoritative: false`）で legacy を宣言、または行ごとに 8 行 CONTEXT_ALLOW lookback で免除を獲得する必要がある。
+    - **ディレクトリレベル免除を削除**: `docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/`、`references/v1.7-shipping-report-`、`references/cortex-spec.md`、`references/tools-spec.md`、`references/narrator-spec.md`。新 EXEMPT_PATTERN は真に歴史的な artifact のみカバー（CHANGELOG、backup/、MIGRATION、スキャナ自身、*-template、compliance/ 違反ログ）。それ以外のファイルは YAML frontmatter（`status: legacy` / `authoritative: false`）で legacy を宣言、または行ごとに 8 行 CONTEXT_ALLOW lookback で免除を獲得する必要がある。
     - **SUBAGENT_COUNT_PATTERNS の拡張**: round-10 修正が見落とした regex バリアントを追加 —— `子 agent`（子 = "sub" の代替表記）、`[N] 个 [修飾語] subagent` で数字と noun の間に最大 12 文字許可（`16 个真正独立的 subagent` をキャッチ）、`[N] engine ID`、`[N] engine agent`、JA `[N]の独立サブエージェント`、`[N]のAI 役職`、`同じ[N]の役職`、`[N] subagent 並列`。閾値を N≥13 に引き上げ、構造的カウント（"1-3 ドメイン agent"、"Express ごとに最低 2 独立 subagent"、"9 テーマ"）を誤検知しない —— システム履歴 14/16/22/23 をカバーする疑わしいマグニチュードのみトリガー。
   - **Active ドキュメント修正（13 ファイル 28 substitutions）**: Python スクリプト + 個別ファイル編集で、新スキャナがキャッチした全ヒットをカウントフリー表現に置換。
     - `docs/getting-started/what-is-life-os.md` + ZH 並行: `16 子 agent 并行 — 同时跑 16 个独立 subagent` → `多个子 agent 并行 — 同时跑多个独立 subagent`。同段落の元 v1.7 narrator-validator 独立 subagent 記述も v1.8.0 inline self-check に変更（EN/ZH/JA 同期）。
@@ -1050,18 +1085,18 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
     - `i18n/ja/docs/installation.md`: 9 箇所（`16の独立したAI役職`、`16のサブエージェント`、`16の独立サブエージェント`、`同じ16の役職`）→ `複数の …`。
     - `i18n/ja/README.md`: ネイティブ subagent 登録段落の具体的カウント（22 / 21）→ `複数の agent 定義ファイル / ほぼすべて`。
     - `docs/user-guide/themes/adding-a-theme.md` PR コントリビューションチェックリスト: `16 个 engine ID 完整映射` → `全部 engine ID 完整映射`。
-  - **v1.7 narrator-spec 翻訳を legacy にマーク**: `i18n/{zh,ja}/references/narrator-spec.md` は `status: draft`（`authoritative: false` なし）だったが、`status: legacy` + `authoritative: false` + `superseded_by: pro/agents/narrator.md` を追加し、スキャナが正しく歴史アーカイブと認識するように（EN 母版は既にそうマーク済み）。
+  - **v1.7 narrator-spec 翻訳を legacy にマーク**: `i18n/{zh,ja}/references/narrator-spec.md` は `status: draft`（`authoritative: false` なし）だったが、`status: legacy` + `authoritative: false` + `superseded_by: agents/narrator.md` を追加し、スキャナが正しく歴史アーカイブと認識するように（EN 母版は既にそうマーク済み）。
   - **Cortex compliance gate 廃止（`scripts/lifeos-compliance-check.sh`）**: `check_cortex_gate()` は以前 legacy `cortex_enabled: true` config flag に依存していた。v1.8.0 R-1.8.0-011 で Cortex は pull-based に変わり、その flag は dead。Gate は現在、transcript で ROUTER が明示的に Cortex subagent を起動した場合のみトリガー（`Task(hippocampus)` / `Launch(concept-lookup)` など）。ROUTER が Cortex をスキップした場合（pivot 後の常態）、gate は "not applicable" を返し、CX1/CX2/CX3 はトリガーしない。`tests/test_compliance_check.py::TestCortex` を同期更新: v1.7 の `test_cortex_enabled_no_agents_fails` を `test_cortex_enabled_no_agents_passes_post_pivot` に置換（legacy flag が今は無視されることを検証）+ `test_cortex_partial_launch_fails` を新規追加（部分的 Cortex 証拠が CX2/CX3 をトリガーすることを検証）。
   - **検証**: `STRICT=1 bash scripts/check-spec-drift.sh` → exit 0（broken paths: 0; active ファイルの subagent-count drift ヒット: 0）; ユーザー側 `git ls-files | xargs grep -l "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` 非 legacy 非 CHANGELOG フィルタ → **active 0 ヒット**; mypy --strict tools/ → 0 エラー / 16 ファイル; ruff → クリーン; pytest → **233 合格** / 3 deselected（前回 232 + cortex gate 変更による 1 failure）; 31 個の tracked .sh `bash -n` → すべて合格。
 
 - **R-1.8.0-016 · count-drift の恒久対策——active ドキュメントから subagent カウントのハードコードを完全撤去（2026-04-30 ユーザー第 10 ラウンド監査 + ユーザー明示指示後）**: ユーザー原文: "不要说多少个 agent 了，多少个 agent 不重要，就说'多个 agent'就行。改了十几遍了，还没有改好。"（agent 数を言わなくていい、何個かは重要じゃない、'複数 agent' で済ませろ。何度も直してるのにまだ収束しない。）数字が変わるたびに 16→23 を置換する追いかけっこを止めて、このラウンドで**ハードコードされたカウントを恒久的に廃止**: "23 (sub)agents / 23 个 subagent / 23 個の独立した agent / 16 个独立 AI 角色 / etc." を**カウントフリー表現**（"multiple subagents" / "多个 subagent" / "複数の subagent"）に置換、全 active ドキュメント横断。今後 agent が増えても（v1.9 で追加可能性）ドキュメント編集は不要。
-  - **一括カウント削除スイープ**: Python スクリプトで 17 個の active（非 legacy 非 CHANGELOG）ドキュメントに 2 パス、計 79 substring/regex 置換、EN/ZH/JA カバー。カバーパターン: `N independent (AI )?(agents|roles|subagents)`、`N (sub)?agents?`、`N AI roles`、`All N subagents`、`the N defined roles`、`N functional IDs`、`## N Roles`、`#### The N agents`、ZH `N 个 (subagent|agent|独立 agent|AI 角色|角色|功能 ID)`、JA `Nの(独立した|エージェント|機能 ID|声|個の)`、加えて `N agent (制衡|编排|definitions|files|calls|相互牽制|意思決定エンジン)`。対象ファイル: `SKILL.md`、`README.md`、`i18n/{zh,ja}/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{what-is-life-os,first-session,choose-your-platform}.md`（適用される EN/ZH/JA）、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/user-guide/making-decisions/reading-the-summary-report.md`、`docs/user-guide/themes/{adding-a-theme,themes-overview}.md`、`docs/reference/version-history.md`、`pro/AGENTS.md`、`pro/GEMINI.md`、ルート `AGENTS.md`。歴史的記録（`version-history.md` の v1.6.0 エントリで "v1.6.0 当時 16 個、v1.8.0 で 23 個に増加" と書いてある部分）は保持——それは意図的に残した事実、ドリフトではない。
+  - **一括カウント削除スイープ**: Python スクリプトで 17 個の active（非 legacy 非 CHANGELOG）ドキュメントに 2 パス、計 79 substring/regex 置換、EN/ZH/JA カバー。カバーパターン: `N independent (AI )?(agents|roles|subagents)`、`N (sub)?agents?`、`N AI roles`、`All N subagents`、`the N defined roles`、`N functional IDs`、`## N Roles`、`#### The N agents`、ZH `N 个 (subagent|agent|独立 agent|AI 角色|角色|功能 ID)`、JA `Nの(独立した|エージェント|機能 ID|声|個の)`、加えて `N agent (制衡|编排|definitions|files|calls|相互牽制|意思決定エンジン)`。対象ファイル: `SKILL.md`、`README.md`、`i18n/{zh,ja}/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{what-is-life-os,first-session,choose-your-platform}.md`（適用される EN/ZH/JA）、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/user-guide/making-decisions/reading-the-summary-report.md`、`docs/user-guide/themes/{adding-a-theme,themes-overview}.md`、`docs/reference/version-history.md`、`hosts/AGENTS.md`、`hosts/GEMINI.md`、ルート `AGENTS.md`。歴史的記録（`version-history.md` の v1.6.0 エントリで "v1.6.0 当時 16 個、v1.8.0 で 23 個に増加" と書いてある部分）は保持——それは意図的に残した事実、ドリフトではない。
   - **スキャナアップグレード——regex ベースのカウントドリフト検出（`scripts/check-spec-drift.sh`）**: ラウンド 9 の固定 token リスト（`"16 sub""agents"` など）を `SUBAGENT_COUNT_PATTERNS` に置換——**任意の**ハードコードカウントにマッチする regex リスト。パターンは bash 隣接文字列連結で、スキャナソース自体は 0 ヒット。ERE パターン: `[0-9]+ (sub|independent )?(agents?|subagents?|roles?|individuals?)`、`[0-9]+ ?个 ?(subagent|agent|角色|功能 ID)`、`[0-9]+ agent (制衡|编排|定义|calls)`、`[0-9]+ 個の独立した (subagent|agent|エージェント)`、`[0-9]+の(機能 ID|声|エージェント)`。同じ 8 行 CONTEXT_ALLOW lookback + legacy frontmatter 免除。今後 agent が増えても（v1.9 +N 個）ドリフトをトリガーしない、もう誰もハードコードカウントを書かないから。スキャナが初回バルクスイープが見落とした 3 つの残留をキャッチ（`docs/user-guide/themes/{adding-a-theme,themes-overview}.md` の `4 个角色`、`16 个角色`、`16 个功能 ID`）——全て書き換え。
   - **検証**: `STRICT=1 bash scripts/check-spec-drift.sh` exit 0（broken paths: 0; active ファイルの subagent-count hits: 0）; ユーザー側 `git ls-files | xargs grep -lE "\b\d{1,2} (sub)?agents?\b|..."` フィルタ非 legacy 非 CHANGELOG: **active 0 ヒット**; mypy --strict tools/ → 0 エラー / 16 ファイル; ruff → クリーン; pytest → 232 合格 / 3 deselected; 31 個の tracked .sh `bash -n` → すべて合格。
   - **`v1.8.0` tag 再整列** このラウンドの恒久修正を含むコミットへ。
 
-- **R-1.8.0-015 · Subagent 数ドリフトクリーンアップ + tag 再整列（2026-04-30 ユーザー第 9 ラウンド監査後）**: ユーザー第 9 ラウンド監査が R-1.8.0-014 STRICT 通過後にさらに 2 つの残存問題をキャッチ: (a) subagent 数ドリフト —— ルート `AGENTS.md` は既に 23 だが、`pro/AGENTS.md`、`pro/GEMINI.md`、`docs/index.md`、`docs/installation.md`、`SKILL.md`、3 言語 README および約 14 のユーザー向けドキュメントが依然として 16 と記載; (b) `v1.8.0` git tag が依然として `02aea0d`（R-1.8.0-013 commit）を指しており、最新 Spec-GC HEAD `6cb3d79` ではない。意味的なカウントドリフトは R-1.8.0-014 のスキャナがキャッチできない種類の問題 —— STRICT は削除済みパス / 禁止 token のみを検証し、ユーザー可視のセマンティック数字は検証しない。
-  - **一括カウント更新（16 → 23）**: 全 active（非 legacy 非 CHANGELOG）ドキュメントで機械的置換を実行。対象ファイル: `SKILL.md`、`pro/AGENTS.md`、`pro/GEMINI.md`、`README.md`（EN）、`i18n/zh/README.md`、`i18n/ja/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{first-session,choose-your-platform,what-is-life-os}.md`、`i18n/zh/docs/getting-started/what-is-life-os.md`、`i18n/ja/docs/getting-started/what-is-life-os.md`、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/reference/version-history.md`。カバーパターン: `16 subagents`、`16 个 subagent`、`16 个 agent`、`16 个独立 agent`、`All 16 subagents`、`16 independent agents`、`16 個の独立した agent`、`16 functional IDs`。`version-history.md` の v1.6.0 履歴移行エントリは `v1.6.0 当時の agent ファイル名変更（v1.6.0 当時 16 個、v1.8.0 で 23 個に増加）` に書き換え、歴史的引用を依然として正確に保つ。
+- **R-1.8.0-015 · Subagent 数ドリフトクリーンアップ + tag 再整列（2026-04-30 ユーザー第 9 ラウンド監査後）**: ユーザー第 9 ラウンド監査が R-1.8.0-014 STRICT 通過後にさらに 2 つの残存問題をキャッチ: (a) subagent 数ドリフト —— ルート `AGENTS.md` は既に 23 だが、`hosts/AGENTS.md`、`hosts/GEMINI.md`、`docs/index.md`、`docs/installation.md`、`SKILL.md`、3 言語 README および約 14 のユーザー向けドキュメントが依然として 16 と記載; (b) `v1.8.0` git tag が依然として `02aea0d`（R-1.8.0-013 commit）を指しており、最新 Spec-GC HEAD `6cb3d79` ではない。意味的なカウントドリフトは R-1.8.0-014 のスキャナがキャッチできない種類の問題 —— STRICT は削除済みパス / 禁止 token のみを検証し、ユーザー可視のセマンティック数字は検証しない。
+  - **一括カウント更新（16 → 23）**: 全 active（非 legacy 非 CHANGELOG）ドキュメントで機械的置換を実行。対象ファイル: `SKILL.md`、`hosts/AGENTS.md`、`hosts/GEMINI.md`、`README.md`（EN）、`i18n/zh/README.md`、`i18n/ja/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{first-session,choose-your-platform,what-is-life-os}.md`、`i18n/zh/docs/getting-started/what-is-life-os.md`、`i18n/ja/docs/getting-started/what-is-life-os.md`、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/reference/version-history.md`。カバーパターン: `16 subagents`、`16 个 subagent`、`16 个 agent`、`16 个独立 agent`、`All 16 subagents`、`16 independent agents`、`16 個の独立した agent`、`16 functional IDs`。`version-history.md` の v1.6.0 履歴移行エントリは `v1.6.0 当時の agent ファイル名変更（v1.6.0 当時 16 個、v1.8.0 で 23 個に増加）` に書き換え、歴史的引用を依然として正確に保つ。
   - **`docs/architecture/system-overview.md` subagent リスト更新**: 以前は "23 個 subagent" 見出し下に 16 個の名前のみ。全 23 ID を補完（新規追加: `hippocampus`、`concept-lookup`、`soul-check`、`gwt-arbitrator`、`narrator`、`knowledge-extractor`、`monitor`）。
   - **スキャナ拡張（`scripts/check-spec-drift.sh`）**: `FORBIDDEN_TOKENS` に 7 つの subagent 数ドリフト token を追加。token は bash 隣接文字列連結（`"16 sub""agents"`）で記述し、スキャナソース自体は文字通りのサブストリングを持たない —— これによりユーザー側が `rg "16 subagents"` でリポジトリを監査するとき、スキャナ自体が 0 ヒット、本物のドリフト候補のみ残る。Legacy frontmatter（`status: legacy` または `authoritative: false`）免除はいつも通り適用; v1.7 時代の spec / アーカイブファイルは依然として歴史的に "16" に言及するが、正しくスキップされる。
   - **`v1.8.0` tag 強制再整列**: ローカル + リモート tag を削除、HEAD `6cb3d79` で annotated tag を再作成、`v1.8.0` を fetch する消費者が完全な Spec-GC + subagent 数クリーンアップ（R-1.8.0-014 + R-1.8.0-015）を取得し、古い R-1.8.0-013 snapshot ではなくなる。（`git tag -d v1.8.0 && git push origin :refs/tags/v1.8.0 && git tag -a v1.8.0 <head> && git push origin v1.8.0`。）
@@ -1077,7 +1112,7 @@ bash scripts/setup-hooks.sh   # 新 /inbox-process + /research + /migrate-confid
   - **Active ファイル書き換え**（削除済みスクリプト参照は明示的な「v1.8.0 pivot で削除」注釈または現行 pull-based 等価物に置換）:
     - `docs/getting-started/what-is-life-os.md` Layer 4 セクション（× EN/ZH/JA）: cron 時代の `scripts/{decay-audit,dream-trigger-check,monthly-review,session-index,wiki-conflict-check}.py` リストを R-1.8.0-011 後に実際に出荷されている `python -m tools.<name>` モジュールに置換。
     - `tools/README.md`: Status + Authoritative Spec セクションを書き換え、「Planned Modules」テーブルを「Currently Shipped Modules」（実際に存在する 10 ツールを列挙）に置換、削除済み dispatcher / cron スクリプト / cortex helper を歴史的コンテキストとしてマーク。
-    - `pro/agents/monitor.md` Related Specs: `references/automation-spec.md` と `references/session-modes-spec.md` を v1.8.0 pivot で削除としてマーク（`pro/CLAUDE.md` Session Modes に置換）。
+    - `agents/monitor.md` Related Specs: `references/automation-spec.md` と `references/session-modes-spec.md` を v1.8.0 pivot で削除としてマーク（`hosts/CLAUDE.md` Session Modes に置換）。
     - `evals/scenarios/tool-seed.md`: `references/SOUL-template.md` と `references/tools-spec.md §6.10` を legacy/削除としてマーク; `tools/seed.py` がスケルトンをインライン生成。
     - `docs/user-guide/themes/adding-a-theme.md`: 存在しない `themes/zh-classical-tw.md` への参照を削除し、繁体中国語版はユーザー作成ファイルとして説明。
   - **legacy frontmatter バッチ処理（ラウンド 8 累積 · 2 バッチで 71 ファイルマーク）**: `docs/architecture/`、`docs/guides/v1.7-migration.md`、`docs/user-guide/cortex/*`（× EN/ZH/JA）、`references/{cortex-spec, cortex-architecture, narrator-spec, tools-spec, v1.7-shipping-report, templates/concept-template, concept-spec, data-layer, eval-history-spec, hippocampus-spec, method-library-spec, session-index-spec, snapshot-spec, compliance-spec}.md`（× EN/ZH/JA）、`evals/scenarios/*` のスペック / レガシードキュメントファイルが `status: legacy`（または `authoritative: false`）を持ち、スキャナがアクティブ spec ではなく歴史コンテンツとして認識。
@@ -1131,16 +1166,16 @@ v1.7.3 audit が発見した「spec で約束したが自動化されていな�
   - `/method create|update|list` — `tools.skill_manager` CLI によるメソッドライブラリ管理。
 - **Approval guard 接続 (PreToolUse Bash hook)**：新規 `scripts/hooks/pre-bash-approval.sh` が全 Bash コマンドを `tools/approval.py` にブリッジ。v1.7.2 のギャップを修正：47 個の危険コマンドパターン + hardline + tirith guards が 0 caller だった状態を解消。Hook が stdin JSON を読み、`check_dangerous_command()` を実行、exit 0（サイレント承認）または exit 2 + stderr（理由付きでブロック）。バイパス：`export LIFEOS_YOLO_MODE=1`。`life-os-pre-bash-approval` として登録（PreToolUse · matcher Bash · timeout 5s）。
 - **Memory 自動 emit 検出（自動トリガーパッチ · 2026-04-27）**：`pre-prompt-guard.sh` も中/英/日 memory キーワード（記一下 / remind me / 覚えて / TODO 等）を検出し、`<system-reminder>`（trigger=memory）を注入して ROUTER に `python -m tools.memory emit` を自動実行させ、`/memory` へのリダイレクトを防ぎます。Hook activity log に `trigger=memory` 値を追加。
-- **pro/CLAUDE.md → Auto-Trigger Rules セクション（自動トリガーパッチ · 2026-04-27）**：memory 自動 emit、compress 自動提案、search 自動トリガー（Cortex hippocampus 経由）、method 自動 create（archiver Phase 2 → knowledge-extractor 経由）を明文化。原則：「ROUTER がユーザーに slash コマンドへの切り替えを求めるのは UX バグ — 直接アクションを実行する」。
-- **knowledge-extractor subagent (Phase 2 切り出し · 2026-04-27)**：新規 `pro/agents/knowledge-extractor.md`（Opus tier、[Read, Grep, Glob, Bash, Write] tools）。7 つの Phase 2 sub-step（wiki 六基準ゲート / SOUL 変化 / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map）を実行し、7 つの永続ファイルを書きます。同時に 7 つの extraction reports を `_meta/runtime/<sid>/extraction/*.md` に書いて archiver が読み戻せるようにします。R11 audit trail を `_meta/runtime/<sid>/knowledge-extractor.json` に。理由：以前の monolithic archiver は 80%+ の placeholder 違反（最近 10+ 回の adjourn 実行が `pro/compliance/violations.md` 2026-04-25 〜 2026-04-27 に記録）があり、一回の invocation で全てを処理する必要があったため。ROUTER は archiver の前に必ず knowledge-extractor を launch する必要があります。
+- **hosts/CLAUDE.md → Auto-Trigger Rules セクション（自動トリガーパッチ · 2026-04-27）**：memory 自動 emit、compress 自動提案、search 自動トリガー（Cortex hippocampus 経由）、method 自動 create（archiver Phase 2 → knowledge-extractor 経由）を明文化。原則：「ROUTER がユーザーに slash コマンドへの切り替えを求めるのは UX バグ — 直接アクションを実行する」。
+- **knowledge-extractor subagent (Phase 2 切り出し · 2026-04-27)**：新規 `agents/knowledge-extractor.md`（Opus tier、[Read, Grep, Glob, Bash, Write] tools）。7 つの Phase 2 sub-step（wiki 六基準ゲート / SOUL 変化 / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map）を実行し、7 つの永続ファイルを書きます。同時に 7 つの extraction reports を `_meta/runtime/<sid>/extraction/*.md` に書いて archiver が読み戻せるようにします。R11 audit trail を `_meta/runtime/<sid>/knowledge-extractor.json` に。理由：以前の monolithic archiver は 80%+ の placeholder 違反（最近 10+ 回の adjourn 実行が `compliance/violations.md` 2026-04-25 〜 2026-04-27 に記録）があり、一回の invocation で全てを処理する必要があったため。ROUTER は archiver の前に必ず knowledge-extractor を launch する必要があります。
 
 ### 変更
 
-- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` の frontmatter `tools` を `[Read]` から `[Read, Bash, Write]` に拡張；新規 "Audit Trail (R11, HARD RULE)" セクション追加、YAML 返却前に `_meta/runtime/<sid>/narrator-validator.json` の書き込みを必須化。
+- **narrator-validator audit trail HARD RULE**：`agents/narrator-validator.md` の frontmatter `tools` を `[Read]` から `[Read, Bash, Write]` に拡張；新規 "Audit Trail (R11, HARD RULE)" セクション追加、YAML 返却前に `_meta/runtime/<sid>/narrator-validator.json` の書き込みを必須化。
 - **バージョンマーカー**：`SKILL.md` frontmatter と 3 つの README badge を `1.7.3` に更新。
 - **spec ドキュメントを inline 圧縮へ更新**：`SKILL.md` Trigger Execution Templates の `/compress` セクション、`references/hard-rules-index.md` manual compression bullet、`evals/scenarios/cortex-retrieval.md` CX11 positive case を、削除された `tools/context_compressor.py` を ROUTER inline 圧縮へ置き換える形に書き換え。
-- **4 つの slash コマンドファイルをバックアップモードに降格（自動トリガーパッチ · 2026-04-27）**：各 `scripts/commands/{compress,search,memory,method}.md` の先頭に "⚠️ Backup mode" header を追加、対応する pro/CLAUDE.md Auto-Trigger Rules サブセクションへリンク。Slash コマンドは以下の用途で機能保持：(1) ユーザー精密制御、(2) 開発者スモークテスト、(3) 自動トリガー fallback。
-- **archiver.md Phase 2 切り出し + spec 一貫性修正（切り出し · 2026-04-27）**：`pro/agents/archiver.md` line 77 修正（以前の "12-section Adjourn Report Completeness Contract" は v1.7.2 旧表記、v1.7.2.3 の "6-H2" に整合）。Phase 2 spec 全面書き換え：主要パスは `knowledge-extractor` subagent へ委譲；legacy 7-sub-step inline spec は fallback として保持。`pro/CLAUDE.md` Step 10 更新：ROUTER は必ず先に `knowledge-extractor` を launch、その後 `archiver`。新 launch 順序テンプレート。
+- **4 つの slash コマンドファイルをバックアップモードに降格（自動トリガーパッチ · 2026-04-27）**：各 `scripts/commands/{compress,search,memory,method}.md` の先頭に "⚠️ Backup mode" header を追加、対応する hosts/CLAUDE.md Auto-Trigger Rules サブセクションへリンク。Slash コマンドは以下の用途で機能保持：(1) ユーザー精密制御、(2) 開発者スモークテスト、(3) 自動トリガー fallback。
+- **archiver.md Phase 2 切り出し + spec 一貫性修正（切り出し · 2026-04-27）**：`agents/archiver.md` line 77 修正（以前の "12-section Adjourn Report Completeness Contract" は v1.7.2 旧表記、v1.7.2.3 の "6-H2" に整合）。Phase 2 spec 全面書き換え：主要パスは `knowledge-extractor` subagent へ委譲；legacy 7-sub-step inline spec は fallback として保持。`hosts/CLAUDE.md` Step 10 更新：ROUTER は必ず先に `knowledge-extractor` を launch、その後 `archiver`。新 launch 順序テンプレート。
 - **stop-session-verify hook LLM_FILL 検出（切り出し · 2026-04-27）**：`scripts/hooks/stop-session-verify.sh check_phase()` 強化。以前は phase header 行の TBD / `{...}` / "placeholder" のみ検出。現在は各 phase header 後 30 行内の未充填 `<!-- LLM_FILL: ... -->` パターンと `LLM_FILL:` 文字列もスキャンし、`placeholder_phases` としてマーク。最近の archiver 違反の真の根本原因（LLM が Bash skeleton をそのまま出力して placeholder を埋めない）を捕捉。
 
 ### 削除（4 つのデッドコードモジュール · 1830 行）
@@ -1186,18 +1221,18 @@ v1.7.2 の全ての dead-weight 発見 + v1.7.3 archiver 違反の根本原因�
 
 ## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE skeleton ownership
 
-> Subagent D ownership patch。対象は `pro/agents/retrospective.md`、`SKILL.md`、3つの README、3つの CHANGELOG のみです。
+> Subagent D ownership patch。対象は `agents/retrospective.md`、`SKILL.md`、3つの README、3つの CHANGELOG のみです。
 
 ### 変更
 
-- **RETROSPECTIVE の責務を縮小**: `pro/agents/retrospective.md` は、ROUTER が Bash skeleton で Mode 0 の約80%を事前レンダリングすることを明記しました。
+- **RETROSPECTIVE の責務を縮小**: `agents/retrospective.md` は、ROUTER が Bash skeleton で Mode 0 の約80%を事前レンダリングすることを明記しました。
 - **単一の LLM fill slot**: subagent は `<!-- LLM_FILL: today_focus_and_pending_decisions -->` だけを約5-15行で埋め、Today's Focus と Pending Decisions を書きます。ROUTER がそのブロックを skeleton に差し込みます。
 - **バージョン表記**: `SKILL.md` と README badges を `1.7.2.3` に更新しました。
 - **install_sha フィールドによる SHA gap 修正**: `SKILL.md` frontmatter に `commit_sha` と `install_date` フィールドを追加しました。`setup-hooks.sh` は git clone deployment 時にこれらを自動書き込みします。新しい `scripts/lib/sha-fallback.sh` は 3 段階の解決を提供します: `SKILL.md` frontmatter → `.install-meta` JSON → `git rev-parse HEAD` → `unknown`。install-skill deployment で発生する `Local commit SHA: unknown` bug を解消します。
-- **SOUL/DREAM 表示復活(v1.6.x 体験へ回帰)**: `scripts/retrospective-briefing-skeleton.sh` が `SOUL.md` 全文と最新 `_meta/journal/*-dream.md` 全文を Bash で fenced markdown block に逐字 paste するようになりました。LLM はその上に delta 解釈(confidence trend / today implications)のみを追加し、SOUL/DREAM の構造的内容を圧縮できません。`pro/agents/retrospective.md` ## 2 / ## 3 spec を「Bash paste 全文 + LLM 趨勢解釈」モデルへ更新。v1.7.2.1 の過剰減算(SOUL Health を「変化次元のみ」、DREAM を「1-2 文 digest」へ圧縮)の副作用を撤回。
-- **退朝 12 H2 → 6 H2 + LLM token budget(速度修正)**: `pro/agents/archiver.md` Adjourn Report Completeness Contract を 12 H2 から 6 コア H2(Phase 0/1/2/3/4 + Completion Checklist)へ縮小。AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost を Completion Checklist 配下の H3 サブ項目へ折り畳みました。新規「Phase 2/3 LLM Token Budget」HARD RULE: Phase 2 narrative ≤ 1500 tokens(wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity 合算)、Phase 3 narrative ≤ 800 tokens。verbatim DREAM journal は budget に含まない(Bash paste)。速度目標: archiver Adjourn 25 分 → 10-12 分。
-- **archiver-briefing-skeleton.sh 新規(archiver の Bash 骨格)**: 新 `scripts/archiver-briefing-skeleton.sh` は `retrospective-briefing-skeleton.sh` の設計を模倣 — 6 H2 Adjourn Report 骨格を出力し、Phase 0/1/4 + 計測事実(outbox path / decision-task-journal counts / wiki-SOUL-DREAM stat / git status / Stop hook health)を Bash paste します。LLM は `<!-- LLM_FILL -->` placeholder(Phase 2/3 narrative + Completion Checklist 値)のみを埋めます。`pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Step 10 Adjourn Session に配線済み。既存 `archiver-phase-prefetch.sh`(R11 audit trail)と相補的。
-- **Session Binding HARD RULE 書き直し(プロダクト方向修正)**: `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` の Session Binding HARD RULE を明確化: **discussion scope ≠ data write scope**。Session binding は**データ永続化**(decisions/wiki/SOUL がどのプロジェクトに書かれるか)を制約し、**議論話題**は制約しない。ROUTER はユーザーが提起したあらゆる議題(財務 / 戦略 / 対人 / クロスプロジェクト / 抽象)に直接対応する。ROUTER は明示的なユーザー要請がない限り「本窗口角色只做 X」/「请转到其他窗口」/「translate to planner trigger paste for another window」/「召唤翰林院 panel」の deflect 表現を禁止。13 ラウンドの hardening が累積させた「LLM が session binding を業務話題禁止区域と誤読する」副作用を撤回。Life OS を意思決定思考アシスタントの初心へ復元。
+- **SOUL/DREAM 表示復活(v1.6.x 体験へ回帰)**: `scripts/retrospective-briefing-skeleton.sh` が `SOUL.md` 全文と最新 `_meta/journal/*-dream.md` 全文を Bash で fenced markdown block に逐字 paste するようになりました。LLM はその上に delta 解釈(confidence trend / today implications)のみを追加し、SOUL/DREAM の構造的内容を圧縮できません。`agents/retrospective.md` ## 2 / ## 3 spec を「Bash paste 全文 + LLM 趨勢解釈」モデルへ更新。v1.7.2.1 の過剰減算(SOUL Health を「変化次元のみ」、DREAM を「1-2 文 digest」へ圧縮)の副作用を撤回。
+- **退朝 12 H2 → 6 H2 + LLM token budget(速度修正)**: `agents/archiver.md` Adjourn Report Completeness Contract を 12 H2 から 6 コア H2(Phase 0/1/2/3/4 + Completion Checklist)へ縮小。AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost を Completion Checklist 配下の H3 サブ項目へ折り畳みました。新規「Phase 2/3 LLM Token Budget」HARD RULE: Phase 2 narrative ≤ 1500 tokens(wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity 合算)、Phase 3 narrative ≤ 800 tokens。verbatim DREAM journal は budget に含まない(Bash paste)。速度目標: archiver Adjourn 25 分 → 10-12 分。
+- **archiver-briefing-skeleton.sh 新規(archiver の Bash 骨格)**: 新 `scripts/archiver-briefing-skeleton.sh` は `retrospective-briefing-skeleton.sh` の設計を模倣 — 6 H2 Adjourn Report 骨格を出力し、Phase 0/1/4 + 計測事実(outbox path / decision-task-journal counts / wiki-SOUL-DREAM stat / git status / Stop hook health)を Bash paste します。LLM は `<!-- LLM_FILL -->` placeholder(Phase 2/3 narrative + Completion Checklist 値)のみを埋めます。`hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` Step 10 Adjourn Session に配線済み。既存 `archiver-phase-prefetch.sh`(R11 audit trail)と相補的。
+- **Session Binding HARD RULE 書き直し(プロダクト方向修正)**: `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` の Session Binding HARD RULE を明確化: **discussion scope ≠ data write scope**。Session binding は**データ永続化**(decisions/wiki/SOUL がどのプロジェクトに書かれるか)を制約し、**議論話題**は制約しない。ROUTER はユーザーが提起したあらゆる議題(財務 / 戦略 / 対人 / クロスプロジェクト / 抽象)に直接対応する。ROUTER は明示的なユーザー要請がない限り「本窗口角色只做 X」/「请转到其他窗口」/「translate to planner trigger paste for another window」/「召唤翰林院 panel」の deflect 表現を禁止。13 ラウンドの hardening が累積させた「LLM が session binding を業務話題禁止区域と誤読する」副作用を撤回。Life OS を意思決定思考アシスタントの初心へ復元。
 
 ### 移行
 
@@ -1353,8 +1388,8 @@ second-brain データ移行は不要です。任意で、ローカル予定ジ�
 - **10 個の Python ツールを `life-os-tool` に統合** — reindex / reconcile / stats / research / daily-briefing / backup / migrate / search / export / seed(+ embed プレースホルダー + sync-notion)
 - **3 個の Python ライブラリ** — `tools/lib/{config, llm, notion}` がすべてのツールの共通基盤
 - **三言語ユーザーガイド出荷** — 6 つの新 Cortex ガイド (EN) + cortex-spec / hippocampus-spec の中日翻訳
-- **ホスト非依存オーケストレーション契約** — Step 0.5 (プリルーター認知) + Step 7.5 (Narrator 検証) が CLAUDE.md / GEMINI.md / AGENTS.md (root + `pro/`) で規範化
-- **Life OS agents を Claude Code ネイティブ subagents として登録** — install 時に 22 個の `pro/agents/*.md` 定義から Task-spawnable な 21 個の `~/.claude/agents/lifeos-*.md` wrapper を生成し、ROUTER-internal の narrator template は除外するため、`Task(lifeos-retrospective)` が `general-purpose` に fallback しなくなる
+- **ホスト非依存オーケストレーション契約** — Step 0.5 (プリルーター認知) + Step 7.5 (Narrator 検証) が `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` で規範化
+- **Life OS agents を Claude Code ネイティブ subagents として登録** — install 時に 22 個の `agents/*.md` 定義から Task-spawnable な 21 個の `~/.claude/agents/lifeos-*.md` wrapper を生成し、ROUTER-internal の narrator template は除外するため、`Task(lifeos-retrospective)` が `general-purpose` に fallback しなくなる
 
 ### 機能
 
@@ -1380,7 +1415,7 @@ second-brain データ移行は不要です。任意で、ローカル予定ジ�
   - `embed` — プレースホルダー (明示的 no-op、v1.7 決定「ベクタ DB 不採用」に準拠)
   - `sync_notion` — Notion 双方向ミラー (`tools/lib/notion.py` 経由)
 - **Python ライブラリ** — `tools/lib/config.py` (env + pyproject 解決) · `tools/lib/llm.py` (リトライ + トークン会計付き LLM 呼び出しラッパー) · `tools/lib/notion.py` (Notion API クライアント)
-- **オーケストレーション** — Step 0.5 (プリルーター認知層) と Step 7.5 (Narrator 検証) を CLAUDE.md、GEMINI.md、AGENTS.md (root + `pro/` の両階層) に同期;契約はホスト非依存に
+- **オーケストレーション** — Step 0.5 (プリルーター認知層) と Step 7.5 (Narrator 検証) を `hosts/CLAUDE.md`、`hosts/GEMINI.md`、`hosts/AGENTS.md` に同期;契約はホスト非依存に
 - **ブートストラップツール** — `tools/seed_concepts.py` + second-brain ブートストラップ用のユーザー向け 3 テンプレート;11 テスト
 
 ### ドキュメント
@@ -1421,7 +1456,7 @@ second-brain データ移行は不要です。任意で、ローカル予定ジ�
 ### コンプライアンス
 
 - Cortex GA 運用中に **2 件の事案ドシエ** を記録
-  - `backup/pro/compliance/2026-04-19-court-start-violation.md` — アーカイブ済 (解決済、学びを L1/L2 hook に吸収)
+  - `backup/compliance/2026-04-19-court-start-violation.md` — アーカイブ済 (解決済、学びを L1/L2 hook に吸収)
   - Narrator-spec 違反 — **2026-04-22 解決済み** (Step 7.5 narrator-validator 契約へ反映)
 
 ### 変更ファイル (抜粋,alpha.2 以降の commits)
@@ -1447,7 +1482,7 @@ f8a26c6 feat(tools): embed.py placeholder + search.py (S5+S4 parallel-sprint mer
 5ff0d32 feat(hooks+lib): stop-session-verify.sh + Notion lib + pyproject (S1+S2 parallel-sprint merge)
 4a2590f docs(orchestration): update root AGENTS.md with host-agnostic Step 0.5/7.5 contract
 4ae2a65 feat(hooks): add pre-write-scan.sh
-bf7f87e docs(orchestration): sync Step 0.5/7.5 to pro/AGENTS.md
+bf7f87e docs(orchestration): sync Step 0.5/7.5 to hosts/AGENTS.md
 877c629 feat(lib): add tools/lib/llm.py + tests
 efa339d feat(lib): add tools/lib/config.py + tests
 1414677 feat(hooks): add post-response-verify.sh
@@ -1461,7 +1496,7 @@ a503301 feat(hooks): add pre-prompt-guard.sh
 
 ## [1.7.0-alpha.2] - 2026-04-21 · v1.7.0-alpha 後続フォローアップバンドル
 
-> 📚 **包括的概要**: [`references/v1.7-shipping-report-2026-04-21.md`](../../references/v1.7-shipping-report-2026-04-21.md) を参照 — v1.6.3 COURT-START-001 修正と v1.7 Cortex の両ラインをカバーする単一ページのナラティブ。「今日何が出荷されたか？」の出発点として推奨。
+> 📚 **包括的概要**: [`docs/history/v1.7-shipping-report-2026-04-21.md`](../../docs/history/v1.7-shipping-report-2026-04-21.md) を参照 — v1.6.3 COURT-START-001 修正と v1.7 Cortex の両ラインをカバーする単一ページのナラティブ。「今日何が出荷されたか？」の出発点として推奨。
 
 > v1.7.0-alpha タグ後の 13 commits — alpha CHANGELOG の TBD クローズ + ツール/テストインフラ追加。v1.7.0 安定版にロール予定。
 
@@ -1496,8 +1531,8 @@ a503301 feat(hooks): add pre-prompt-guard.sh
 
 ### 🔌 配線磨き
 
-- `pro/CLAUDE.md` Information Isolation テーブルを v1.7 サブエージェント 6 つすべてに拡張
-- `pro/agents/archiver.md` に "Phase 2 Mid-Step — SOUL Snapshot" を追加
+- `hosts/CLAUDE.md` Information Isolation テーブルを v1.7 サブエージェント 6 つすべてに拡張
+- `agents/archiver.md` に "Phase 2 Mid-Step — SOUL Snapshot" を追加
 
 ### 🐛 バグ修正
 
@@ -1549,12 +1584,12 @@ REVIEWER 最終審査後、オプションの `narrator` が Summary Report の�
 
 | エージェント | ファイル | spec |
 |-------------|---------|------|
-| hippocampus | `pro/agents/hippocampus.md` | `references/hippocampus-spec.md` |
-| concept-lookup | `pro/agents/concept-lookup.md` | `references/concept-spec.md` |
-| soul-check | `pro/agents/soul-check.md` | soul-spec + gwt-spec §6 から派生 |
-| gwt-arbitrator | `pro/agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
-| narrator | `pro/agents/narrator.md` | `references/narrator-spec.md` |
-| narrator-validator | `pro/agents/narrator-validator.md` | narrator-spec validator セクション |
+| hippocampus | `agents/hippocampus.md` | `references/hippocampus-spec.md` |
+| concept-lookup | `agents/concept-lookup.md` | `references/concept-spec.md` |
+| soul-check | `agents/soul-check.md` | soul-spec + gwt-spec §6 から派生 |
+| gwt-arbitrator | `agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
+| narrator | `agents/narrator.md` | `references/narrator-spec.md` |
+| narrator-validator | `agents/narrator-validator.md` | narrator-spec validator セクション |
 
 6 エージェントすべて情報隔離を強制：同層 Pre-Router エージェントの出力を拒否。すべて読み取り専用 — 変更は archiver Phase 2 でのみ発生。
 
@@ -1590,6 +1625,10 @@ bash scripts/setup-hooks.sh   # SessionStart + UserPromptSubmit hooks を自動�
 python3 -m pytest tests/ -v        # 77 passed in 0.23s
 ```
 
+### 🔌 接続更新
+
+Cortex pre-router 機能を関連する orchestration と hook layer に同期。
+
 ### 🚦 デフォルト OFF (オプトイン)
 
 Cortex は v1.7.0-alpha でデフォルト無効。ユーザーは：
@@ -1617,8 +1656,8 @@ second-brain に ≥30 セッションが蓄積されてから有効化推奨。
 ### 📁 変更ファイル (19 commits)
 
 Specs: `references/{cortex,hippocampus,gwt,concept,snapshot,session-index,narrator,hooks,tools,eval-history,method-library}-spec.md` + 既存 references 8 件修正。
-サブエージェント: `pro/agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`。
-配線: `pro/CLAUDE.md`、`pro/agents/{archiver,retrospective,auditor}.md`。
+サブエージェント: `agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`。
+配線: `hosts/CLAUDE.md`、`agents/{archiver,retrospective,auditor}.md`。
 ツール: `tools/lib/{second_brain.py,cortex/*}`、`tools/{stats,rebuild_session_index,rebuild_concept_index}.py`。
 プロジェクト: `pyproject.toml`、`.python-version`、`tools/README.md`。
 テスト: `tests/{__init__,test_second_brain,test_session_index,test_concept_and_snapshot,test_stats}.py`。
@@ -1647,18 +1686,18 @@ Hooks: `scripts/lifeos-compliance-check.sh` (v1.6.3 チェーンの L5 クロー
 
 ## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 自動トリガー結線完了
 
-> v1.6.3 は Mode 3（Compliance Patrol）仕様を `pro/agents/auditor.md` に出荷したが、**実際には誰も呼び出していなかった**。ユーザー second-brain での初稼働がギャップを確認：retrospective Mode 0 完了・ブリーフィング表示後に AUDITOR Compliance Patrol レポートが現れず。5 層防御の Layer 4 が不活性状態。
+> v1.6.3 は Mode 3（Compliance Patrol）仕様を `agents/auditor.md` に出荷したが、**実際には誰も呼び出していなかった**。ユーザー second-brain での初稼働がギャップを確認：retrospective Mode 0 完了・ブリーフィング表示後に AUDITOR Compliance Patrol レポートが現れず。5 層防御の Layer 4 が不活性状態。
 
 ### 🔧 修正
 
-`pro/CLAUDE.md` Orchestration Code of Conduct にルール #7 を追加：
+`hosts/CLAUDE.md` Orchestration Code of Conduct にルール #7 を追加：
 
 > **AUDITOR Compliance Patrol 自動トリガー** — 各 `retrospective` Mode 0（Start Session）完了後または `archiver` 戻り後、オーケストレーターは `auditor` を Mode 3（Compliance Patrol）で起動しなければならない。スキップ不可。HARD RULE。
 
 契約を明示化する 3 つの補助ドキュメント更新：
 
-- `pro/agents/retrospective.md` — "Auto-Follow: AUDITOR Compliance Patrol" セクション追加。オーケストレーターが Mode 0 戻り後に Mode 3 を連結することを記述。サブエージェント自身は AUDITOR を起動しない。
-- `pro/agents/auditor.md` — Mode 3 "When to run" セクションに明示的トリガー契約を追加：オーケストレーター起動、自己起動ではない、`pro/CLAUDE.md` ルール #7 へのクロスリファレンス。
+- `agents/retrospective.md` — "Auto-Follow: AUDITOR Compliance Patrol" セクション追加。オーケストレーターが Mode 0 戻り後に Mode 3 を連結することを記述。サブエージェント自身は AUDITOR を起動しない。
+- `agents/auditor.md` — Mode 3 "When to run" セクションに明示的トリガー契約を追加：オーケストレーター起動、自己起動ではない、`hosts/CLAUDE.md` ルール #7 へのクロスリファレンス。
 - `SKILL.md` — バージョン 1.6.3a → 1.6.3b。
 
 ### 📊 5 層防御ステータス（v1.6.3b 以降）
@@ -1674,9 +1713,9 @@ Hooks: `scripts/lifeos-compliance-check.sh` (v1.6.3 チェーンの L5 クロー
 ### 修正ファイル
 
 - `SKILL.md`（バージョン 1.6.3a → 1.6.3b）
-- `pro/CLAUDE.md`（+ Orchestration ルール #7）
-- `pro/agents/retrospective.md`（+ Auto-Follow セクション）
-- `pro/agents/auditor.md`（Mode 3 "When to run" トリガー契約明確化）
+- `hosts/CLAUDE.md`（+ Orchestration ルール #7）
+- `agents/retrospective.md`（+ Auto-Follow セクション）
+- `agents/auditor.md`（Mode 3 "When to run" トリガー契約明確化）
 - `README.md` + 三言語（バッジ）
 - `CHANGELOG.md` + 三言語
 
@@ -1721,7 +1760,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 ### 🆕 Class F · 偽陽性
 
-`references/compliance-spec.md` Type Taxonomy と `pro/compliance/violations.md` Type Legend に追加：
+`references/compliance-spec.md` Type Taxonomy と `compliance/violations.md` Type Legend に追加：
 
 | コード | 名称 | デフォルト重大度 |
 |-------|------|--------------|
@@ -1731,7 +1770,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 ### 📋 COURT-START-001 ステータス更新
 
-`pro/compliance/violations.md` の 4 件の incident エントリに本番検証証拠を追記：
+`compliance/violations.md` の 4 件の incident エントリに本番検証証拠を追記：
 - L2（Pre-flight Compliance Check）— 2026-04-21 ユーザー second-brain で動作検証
 - L3（Subagent Self-Check）— 2026-04-21 ユーザー second-brain で動作検証
 - L4（AUDITOR Compliance Patrol）+ L5（eval 回帰）— 観察ウィンドウ待ち
@@ -1744,8 +1783,8 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 - `scripts/setup-hooks.sh`（リファクタ + register_hook ヘルパー + UserPromptSubmit 登録）
 - `scripts/lifeos-pre-prompt-guard.sh`（+ 長さチェック + 最初の行抽出）
 - `references/compliance-spec.md`（+ Class F を Type Taxonomy に追加）
-- `pro/compliance/violations.md`（+ Class F を legend に、+ 1 件の F エントリ、+ 4 件の COURT-START-001 に L2/L3 検証注釈）
-- `pro/compliance/violations.example.md`（+ Example 11 Class F）
+- `compliance/violations.md`（+ Class F を legend に、+ 1 件の F エントリ、+ 4 件の COURT-START-001 に L2/L3 検証注釈）
+- `compliance/violations.example.md`（+ Example 11 Class F）
 - `README.md` + 三言語（バージョンバッジ + v1.6.3a ホットパッチ注記）
 - `CHANGELOG.md` + 三言語
 
@@ -1771,8 +1810,8 @@ COURT-START-001 根本原因：ドキュメントは完全、だが**すべて�
 
 1. **Hook レイヤー** — `scripts/lifeos-pre-prompt-guard.sh` が `UserPromptSubmit` で発火、トリガーワード（上朝 / start / 閣議開始 / 退朝 / など、9 テーマすべてをカバー）を検出し、HARD RULE テキスト + 違反分類を `<system-reminder>` としてアシスタントの応答前にコンテキストへ注入。
 2. **Pre-flight Compliance Check** — `SKILL.md` が ROUTER にツール呼び出し前の 1 行確認を強制：`🌅 Trigger: [語] → Theme: [名] → Action: Launch([agent]) [Mode]`。欠如 = クラス A3 違反として記録。
-3. **サブエージェント自己チェック** — `pro/agents/retrospective.md` Mode 0 の第一文は必須：`✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.`。サブエージェントが実際に起動したことを証明。
-4. **AUDITOR Compliance Patrol（Mode 3）** — `pro/agents/auditor.md` に Mode 3 を追加、7 クラス分類（A1/A2/A3/B/C/D/E）と Start Session / Adjourn パスの 6 項目検出。各 retrospective Mode 0 と archiver 完了後に自動実行。
+3. **サブエージェント自己チェック** — `agents/retrospective.md` Mode 0 の第一文は必須：`✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading agents/retrospective.md. Starting Step 1: THEME RESOLUTION.`。サブエージェントが実際に起動したことを証明。
+4. **AUDITOR Compliance Patrol（Mode 3）** — `agents/auditor.md` に Mode 3 を追加、7 クラス分類（A1/A2/A3/B/C/D/E）と Start Session / Adjourn パスの 6 項目検出。各 retrospective Mode 0 と archiver 完了後に自動実行。
 5. **Eval 回帰** — `evals/scenarios/start-session-compliance.md` が COURT-START-001 の 6 つの失敗モードを Quality Checkpoints として固定化、grep ベースの失敗検出コマンド付き。
 
 ### 📋 違反分類（7 クラス）
@@ -1791,7 +1830,7 @@ COURT-START-001 根本原因：ドキュメントは完全、だが**すべて�
 
 ユーザー明示要求：「ローカル sh コマンド実行は受け入れられるが、データベースは md ファイルと GitHub ストレージでなければならない。」違反は以下に永続化：
 
-- `pro/compliance/violations.md` — dev repo（公開、Life OS と共に配布）
+- `compliance/violations.md` — dev repo（公開、Life OS と共に配布）
 - `_meta/compliance/violations.md` — ユーザー second-brain（プライベート、ユーザーごとに独立）
 
 同じフォーマット：`| Timestamp | Trigger | Type | Severity | Details | Resolved |`。
@@ -1806,17 +1845,17 @@ COURT-START-001 根本原因：ドキュメントは完全、だが**すべて�
 - `scripts/lifeos-pre-prompt-guard.sh` — UserPromptSubmit hook（bash、chmod +x 済）
 - `.claude/settings.json` — dev repo 用 hook 登録
 - `references/compliance-spec.md` — 完全仕様：分類、デュアルリポ戦略、書き込み / 読み取りパス、エスカレーションラダー、アーカイブ、解決プロトコル、プライバシー
-- `pro/compliance/violations.md` — dev-repo ライブログ（COURT-START-001 からの 5 件のシードエントリ付き）
-- `pro/compliance/violations.example.md` — クラスごとに 10 件の例 + grep レシピ
-- `pro/compliance/2026-04-19-court-start-violation.md` — 完全 incident アーカイブ（473 行、12 セクション）
+- `compliance/violations.md` — dev-repo ライブログ（COURT-START-001 からの 5 件のシードエントリ付き）
+- `compliance/violations.example.md` — クラスごとに 10 件の例 + grep レシピ
+- `compliance/2026-04-19-court-start-violation.md` — 完全 incident アーカイブ（473 行、12 セクション）
 - `evals/scenarios/start-session-compliance.md` — COURT-START-001 の 6 つの失敗モードの回帰テスト
 
 ### ✏️ 修正ファイル
 
 - `.claude/CLAUDE.md` — Start Session トリガー用 HARD RULE セクションを追加
 - `SKILL.md` — バージョン 1.6.2a → 1.6.3、Start Session ルーティング前に Pre-flight Compliance Check セクション追加
-- `pro/agents/retrospective.md` — 実行ステップ前にサブエージェント自己チェックブロック
-- `pro/agents/auditor.md` — Mode 3（Compliance Patrol）、7 クラス分類 + 検出ロジック
+- `agents/retrospective.md` — 実行ステップ前にサブエージェント自己チェックブロック
+- `agents/auditor.md` — Mode 3（Compliance Patrol）、7 クラス分類 + 検出ロジック
 
 ### 🔄 解決プロトコル
 
@@ -1861,7 +1900,7 @@ COURT-START-001 の 4 件の incident エントリは本リリースで `partial
 
 3 つの独立した防御：
 - **SKILL.md + archiver.md の文言強化** — ROUTER がメインコンテキストで Phase 内容を実行することを HARD RULE で禁止；archiver.md に「Subagent-Only Execution」ブロックを明示
-- **退朝ステートマシン（pro/CLAUDE.md）** — 合法/違法な状態遷移を列挙；AUDITOR が違反を user-patterns.md に記録
+- **退朝ステートマシン（hosts/CLAUDE.md）** — 合法/違法な状態遷移を列挙；AUDITOR が違反を user-patterns.md に記録
 - **強制起動テンプレート** — SKILL.md に「Trigger Execution Templates (HARD RULE)」セクションを追加し、Start Session / Adjourn / Review の正確な出力形式を固定
 
 ### 📚 Wiki 自動書き込み（ユーザー確認なし）
@@ -1939,12 +1978,12 @@ REM は 10 個の具体的なパターンを評価し、一致すれば自動実
 ### 修正ファイル
 
 - `SKILL.md`（バージョン + トリガーテンプレート）
-- `pro/CLAUDE.md`（ステートマシン + wiki/SOUL 自動書き込み記述）
-- `pro/GEMINI.md` / `pro/AGENTS.md`（クロスプラットフォーム Gemini CLI + Codex CLI 一致性）
-- `pro/agents/archiver.md`（Phase 2 自動書き込み + スナップショットダンプ + Phase 3 10 トリガー検出ロジック）
-- `pro/agents/advisor.md`（統合 SOUL Runtime：5 ステップ、決定ごと）
-- `pro/agents/reviewer.md`（3 層 SOUL 参照戦略）
-- `pro/agents/retrospective.md`（Step 11 を 11.1-11.6 に拡張：スナップショット読み込み + トレンド計算）
+- `hosts/CLAUDE.md`（ステートマシン + wiki/SOUL 自動書き込み記述）
+- `hosts/GEMINI.md` / `hosts/AGENTS.md`（クロスプラットフォーム Gemini CLI + Codex CLI 一致性）
+- `agents/archiver.md`（Phase 2 自動書き込み + スナップショットダンプ + Phase 3 10 トリガー検出ロジック）
+- `agents/advisor.md`（統合 SOUL Runtime：5 ステップ、決定ごと）
+- `agents/reviewer.md`（3 層 SOUL 参照戦略）
+- `agents/retrospective.md`（Step 11 を 11.1-11.6 に拡張：スナップショット読み込み + トレンド計算）
 - `references/wiki-spec.md` + 三言語（6 基準 + プライバシーフィルター + ユーザーナッジ）
 - `references/soul-spec.md` + 三言語（自動書き込み + スナップショットメカニズム + 階層参照）
 - `references/dream-spec.md` + 三言語（10 トリガーのサブセクション化、ハード／ソフト検出）
@@ -2126,7 +2165,7 @@ a、b、c のいずれかを入力
 
 ### 強制メカニズムの変更
 
-- **SKILL.md**：上朝/退朝のルーティングを「Xにルーティング」→「`pro/agents/X.md` を必ず読み subagent として起動すること。HARD RULE。」に変更
+- **SKILL.md**：上朝/退朝のルーティングを「Xにルーティング」→「`agents/X.md` を必ず読み subagent として起動すること。HARD RULE。」に変更
 - **qiju.md**：必須完了チェックリスト追加——各フェーズに実際の値（commit hash、Notion同期状態など）の記入が必要。未記入項目 = 退朝未完了。
 - **オーケストレーション行動規範**：第6条追加——「トリガーワードは必ずエージェントファイルをロード。定義ファイルを読まずに記憶で役割を実行してはならない。HARD RULE。」
 
@@ -2173,12 +2212,12 @@ a、b、c のいずれかを入力
 ### Token 節約
 - **SKILL.md**：384 → 93 行（−291 行 ≈ −4,700 tokens/session）
 - 削除：御史台/諫官/政事堂/早朝官の詳細説明、上奏文フォーマット、ストレージ設定、Lite Mode フロー、二種の審議比較表、Pro Mode インストール詳細
-- 削除されたすべてのコンテンツは agent ファイル（`pro/agents/*.md`）またはリファレンスファイル（`references/*.md`）に既存
+- 削除されたすべてのコンテンツは agent ファイル（`agents/*.md`）またはリファレンスファイル（`references/*.md`）に既存
 
 ### 行動規範の再配置
 - 丞相関連ルール（8 条）は SKILL.md に残留
-- オーケストレーションルール（#2 封駁、#7 自動トリガー、#11 完全出力、#14 真の subagent、#9 デグレード）を `pro/CLAUDE.md` 新設「オーケストレーション行動規範」セクションに移動
-- ユニバーサルエージェントルールは `pro/GLOBAL.md` でカバー済み
+- オーケストレーションルール（#2 封駁、#7 自動トリガー、#11 完全出力、#14 真の subagent、#9 デグレード）を `hosts/CLAUDE.md` 新設「オーケストレーション行動規範」セクションに移動
+- ユニバーサルエージェントルールは `hosts/GLOBAL.md` でカバー済み
 
 ### 六部オンデマンド選択
 - `zhongshu.md`：新設「六部選択（HARD RULE）」——関連する部のみを理由付きで割り当て
@@ -2303,7 +2342,7 @@ Wiki はセカンドブレインに設計されていたが、どのワークフ
 
 ### 修正ファイル
 
-- `pro/agents/zaochao.md` — Mode 0/1 に outbox マージ追加、Mode 3/4 を outbox 書込みに変更
+- `agents/zaochao.md` — Mode 0/1 に outbox マージ追加、Mode 3/4 を outbox 書込みに変更
 - `references/data-model.md` — session lock 削除、outbox ルール + manifest/delta 形式追加
 - `references/data-layer.md` — ディレクトリ構造 + Housekeeping/Wrap-Up フロー更新
 - `references/adapter-github.md` — commit convention を outbox パターンに変更
@@ -2333,7 +2372,7 @@ Wiki はセカンドブレインに設計されていたが、どのワークフ
 - **N3（固化）** — 繰り返すテーマを wiki に抽出、行動パターン更新、SOUL 候補提案
 - **REM（接続）** — 領域横断のつながり発見、価値-行動整合性チェック、予想外の洞察生成
 - **スコープ**：直近3日間のみ。ドリームレポートは `_meta/journal/` に保存、次の上朝で提示
-- **新エージェント**：`pro/agents/dream.md`
+- **新エージェント**：`agents/dream.md`
 
 ### 📐 新リファレンスファイル
 
@@ -2439,7 +2478,7 @@ Wiki はセカンドブレインに設計されていたが、どのワークフ
 
 ### アーキテクチャの統合
 
-- **pro/GLOBAL.md** — 14 agent の共通ルールを単一の権威ある情報源として切り出し、各 agent ファイルを30%スリム化
+- **hosts/GLOBAL.md** — 14 agent の共通ルールを単一の権威ある情報源として切り出し、各 agent ファイルを30%スリム化
 - **認知パイプライン** — 五段階の情報フロー：感知 → 捕捉 → 関連付け → 判断 → 定着 → 創発
 - **御史台の巡察モード** — 意思決定レビュー以外の第二の動作モード。六部それぞれが second-brain 内の管轄区域を自ら巡察
 - **知識抽出の四ステップ訓練** — ユーザーが決定 → サンプルを蓄積 → LLM がルールを帰納 → 定期的に補正

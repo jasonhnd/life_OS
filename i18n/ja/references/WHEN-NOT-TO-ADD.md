@@ -7,7 +7,7 @@
 1. **セッションごとのレポート、ランタイム成果物、audit trails** —— 例 "2026-05-25 archiver 出力"。→ 行き先：`meta/runtime/<sid>/` または `meta/sessions/<sid>.md`。
 2. **ユーザ向けチュートリアル / クイックスタート** —— 例 "lifeos インストール方法"。→ 行き先：`README.md` / `docs/` / `gitbooks/`。
 3. **内部設計メモ / ブレインストーミング / ドラフト** —— 例 "v2.0 cascade seal のアイデア"。→ 行き先：`meta/rfc/v<X.Y>-*.md`（RFC）または `meta/workpad/`（導入されれば）。
-4. **Agent 定義または theme ファイル** —— それぞれ `pro/agents/` と `themes/` の専属領域。
+4. **Agent 定義または theme ファイル** —— それぞれ `agents/` と `themes/` の専属領域。
 5. **規範性のない純粋なナラティブ** —— 例 "lifeos 各バージョンの歴史"。→ 行き先：`CHANGELOG.md` / RFC 参考。
 6. **三言語ミラーなしの spec** —— 各 `references/*-spec.md` はマージ前に `i18n/zh/references/<同名>.md` と `i18n/ja/references/<同名>.md` を準備必須。不完全な spec は不可。
 7. **`spec_id` / `status` / `authoritative` frontmatter なしの spec** —— 既存 spec を参考に必須 schema を確認。
@@ -23,14 +23,14 @@
 
 ## 新 spec 追加前 — Minimality Rule チェック
 
-`pro/CLAUDE.md` Minimality Rule（v1.8.5 Stage 7）に従い、まず 6 つの質問：
+`hosts/CLAUDE.md` Minimality Rule（v1.8.5 Stage 7）に従い、まず 6 つの質問：
 
-1. **ルール**（`pro/CLAUDE.md` または SKILL.md 内）で達成できるか？
+1. **ルール**（`hosts/CLAUDE.md` または SKILL.md 内）で達成できるか？
 2. 既存 spec に **schema フィールド追加**で達成できるか？
 3. 既存 spec に**セクション追加**で達成できるか？
 4. **回帰ケース**（`evals/scenarios/*.md`）で達成できるか？
 5. **AUDITOR audit rule** で達成できるか？
-6. `pro/CLAUDE.md` に**人手チェックリスト追加**で達成できるか？
+6. `hosts/CLAUDE.md` に**人手チェックリスト追加**で達成できるか？
 
 どれか一つでも yes なら、低コスト選択肢を優先。新 spec = 3 ファイル（EN + zh + ja）+ 永久 referenced_by グラフ保守 + i18n diff parity チェック義務。
 

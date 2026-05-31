@@ -9,7 +9,7 @@
 - **有**（权衡、选项二选一、不可逆、大额）→ 全朝议（⚖️ 全套）
 - **没有**（分析、研究、规划、总结、审查）→ 快车道（🏃 Express）
 
-这是 `pro/agents/router.md` 写的唯一分诊线：
+这是 `agents/router.md` 写的唯一分诊线：
 
 > The key test: is there a decision to make? If yes → full court. If no → express.
 
@@ -42,7 +42,7 @@ ROUTER 跳过 PLANNER / REVIEWER / DISPATCHER / AUDITOR / ADVISOR，**直接启�
 
 ## 什么情况走快车道
 
-ROUTER 的判断框架（来自 `pro/agents/router.md`）：
+ROUTER 的判断框架（来自 `agents/router.md`）：
 
 > Express analysis (🏃 快车道): When the request needs domain-level expertise but does NOT involve a decision — no trade-offs, no choosing between options, no irreversibility, no strong emotional weight.
 

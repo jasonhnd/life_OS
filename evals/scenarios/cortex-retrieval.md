@@ -1,8 +1,8 @@
 ---
 status: legacy
 authoritative: false
-superseded_by: pro/CLAUDE.md
-note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in pro/CLAUDE.md."
+superseded_by: hosts/CLAUDE.md
+note: "v1.7-era / pre-R-1.8.0-011 pivot. Read for historical context only; current behavior in hosts/CLAUDE.md."
 ---
 
 # Scenario: Cortex Retrieval Compliance (CX1-CX7)
@@ -361,9 +361,9 @@ moves beyond the scenario files.
 
 ## Linked Contracts
 
-- `pro/AGENTS.md` Step 0.5
-- `pro/agents/auditor.md` Mode 3 Programmatic Verification
-- `pro/agents/hippocampus.md` Method Co-Activation and Wave 1 search
+- `hosts/AGENTS.md` Step 0.5
+- `agents/auditor.md` Mode 3 Programmatic Verification
+- `agents/hippocampus.md` Method Co-Activation and Wave 1 search
 - `scripts/lib/cortex/hippocampus_wave1_search.py`
 - `tools/session_search.py`
 - `tools/context_compressor.py`

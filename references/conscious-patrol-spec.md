@@ -7,8 +7,8 @@ source_attribution: "tinyhumansai/openhuman @ b7b8ba6, gitbooks/features/subcons
 introduced_in: v1.8.7 (added 2026-05-26 per DR-11)
 referenced_by:
   - SKILL.md (E10 HARD RULE)
-  - pro/agents/retrospective.md (Mode 0 systematizes Conscious Patrol)
-  - pro/agents/auditor.md (Mode 8 patrol compliance)
+  - agents/retrospective.md (Mode 0 systematizes Conscious Patrol)
+  - agents/auditor.md (Mode 8 patrol compliance)
   - references/status-line-spec.md (every patrol task outputs status line)
 ---
 
@@ -98,7 +98,7 @@ retrospective Mode 0 includes these as default patrol items every session:
 
 ### lifeos-007 · Gotchas review (v1.8.7 new)
 
-- **Source**: lifeos v1.8.7 C6 — `pro/gotchas.md`
+- **Source**: lifeos v1.8.7 C6 — `gotchas.md`
 - **What it checks**: any gotcha referencing files/code touched in last 7 days (relevance signal); any gotcha resolved (codebase fixed but gotcha still listed)
 - **Output**: status line + N relevant gotchas surfaced
 - **User decision**: ROUTER scans relevant gotchas for current task; user confirms / dismisses
@@ -218,6 +218,6 @@ These are deferred — v1.8.7 path D explicitly scopes to user-in-loop only.
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.9 E10 path D + DR-11
 - Pattern source: `tinyhumansai/openhuman` `gitbooks/features/subconscious.md` (idle autonomous Subconscious Loop, daemon-based)
 - Companion: `references/status-line-spec.md` (each patrol task uses 8 enum status)
-- Companion: `pro/agents/retrospective.md` Mode 0 (where Conscious Patrol runs)
-- Companion: `pro/agents/auditor.md` Mode 8 (validation)
-- Related to but DIFFERENT from: lifeos v1.8.0 cron retirement (`pro/CLAUDE.md` §"Mode 1 · Business session" — explains why daemon-style autonomy was rejected)
+- Companion: `agents/retrospective.md` Mode 0 (where Conscious Patrol runs)
+- Companion: `agents/auditor.md` Mode 8 (validation)
+- Related to but DIFFERENT from: lifeos v1.8.0 cron retirement (`hosts/CLAUDE.md` §"Mode 1 · Business session" — explains why daemon-style autonomy was rejected)

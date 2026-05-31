@@ -4,7 +4,7 @@
 
 ## 什么 **不** 属于这里
 
-1. **引擎逻辑** —— 如"archiver phase 2 做什么"。→ 去：`pro/agents/archiver.md`。
+1. **引擎逻辑** —— 如"archiver phase 2 做什么"。→ 去：`agents/archiver.md`。
 2. **Spec 内容** —— 如"session frontmatter 定义"。→ 去：`references/session-index-spec.md`。
 3. **Agent 行为的翻译** —— theme 只翻**显示名**，**不翻**行为。行为跨 theme 完全一致。
 4. **"反正闲着没事就加"的新文化设定** —— 见下方"加新 theme 前"。

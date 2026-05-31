@@ -51,7 +51,7 @@ For each `_meta/journal/{YYYY-MM-DD}-*.md`:
     `theme: zh-classical`, `workflow: full`, `veto_count: 0`, `council_triggered: false`,
     `compliance_violations: 0`
 - Write to `_meta/sessions/{session_id}.md` matching the v1.7 schema in
-  `pro/agents/archiver.md` (SessionSummary block)
+  `agents/archiver.md` (SessionSummary block)
 
 ### 3. Initialize empty cortex graph
 

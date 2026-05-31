@@ -2,7 +2,33 @@
 
 ## 版本规则
 
-本项目遵循 **Strict SemVer**：MAJOR（破坏性变更）· MINOR（新功能）· PATCH（修复与维护）。同一天的变更合并为单次发布，每次发布打 git tag。
+本项目发布版遵循 **Strict SemVer**：MAJOR（破坏性变更）· MINOR（新功能）· PATCH（修复与维护）。用户明确要求的维护快照可以使用 `MAJOR.MINOR.PATCH.MAINT`，并在不创建 release tag 的情况下 push。同一天的变更合并为单次发布，每次发布打 git tag。
+
+---
+
+## [1.9.1.1] - 2026-05-31 - 仓库结构清理与最终审计
+
+```yaml
+---
+version: 1.9.1.1
+date: 2026-05-31
+type: maintenance
+breaking_changes: []
+new_features:
+  - "新增自然语言 Doctor workflow：`scripts/prompts/doctor.md`，用户可以直接让 Life OS 检查安装状态并说明下一步，不需要记命令。"
+fixes:
+  - "移除旧 Pro 源结构：host 文件移到 `hosts/`，共享 agent 移到 `agents/`，compliance 记录移到 `compliance/`，并更新活跃引用。"
+  - "清理本地 ignored 归档/缓存：`devdocs/`、生成的 `.claude/` wrappers/settings、ignored `_meta` 历史草稿。"
+  - "瘦身三语 README：把 v1.6-v1.8 长篇 release notes 换成当前状态摘要，并链接到 CHANGELOG / version-history / history。"
+  - "把退役 legacy reference specs 归档到 `docs/history/specs/`，旧 `references/*.md` 位置保留薄 stub；zh/ja 镜像同步归档。"
+  - "修复 active Markdown 质量问题：旧 hook/runtime 口径、Memory KV `.json` 漂移、乱码、公开断链、BOM、frontmatter 闭合、代码围栏配平。"
+validation:
+  - "git diff --check 通过（仅剩既有文件的 CRLF normalization warnings）。"
+  - "旧 Pro 路径命中 0、UTF-8 乱码命中 0、本地 Markdown 断链 0、奇数代码围栏 0、未闭合 frontmatter 0、diff 禁用扩展 0、ignored 文件剩余 0。"
+---
+```
+
+> 用户在最终全库清理后明确要求的维护快照。本 commit 不创建 tag 或 GitHub Release，除非后续另行明确要求。
 
 ---
 
@@ -16,10 +42,10 @@ type: patch
 breaking_changes: []
 new_features: []
 fixes:
-  - "v1.8.6 R12→R13 审计轨迹迁移未做完：约 60 处违禁 `meta/runtime/<sid>/*.json` 路径残留在全部 16 个 agent 的 `allowed_scope`、SKILL.md、pro/CLAUDE.md rule #8 + 可选 wrapper 模板、8 个 scripts/prompts 维护任务、/notion-sync 命令、以及 active eval 场景/fixtures 中——每一处都会让 agent 写出 F4 SCOPE_FAILURE 文件。全部改为 `.md`（markdown + YAML frontmatter）。"
+  - "v1.8.6 R12→R13 审计轨迹迁移未做完：约 60 处违禁 `meta/runtime/<sid>/*.json` 路径残留在全部 16 个 agent 的 `allowed_scope`、SKILL.md、hosts/CLAUDE.md rule #8 + 可选 wrapper 模板、8 个 scripts/prompts 维护任务、/notion-sync 命令、以及 active eval 场景/fixtures 中——每一处都会让 agent 写出 F4 SCOPE_FAILURE 文件。全部改为 `.md`（markdown + YAML frontmatter）。"
   - "`meta/queue/manifest.json` → `meta/queue/manifest.md`（inbox-process 的系统 manifest 是违禁的独立 .json 数据文件；改为 YAML frontmatter，6 处读写引用全部更新）"
   - "/regression-from-violation 命令仍在生成 `rc-*.yml` fixture（违禁 .yml）；现改为生成带 YAML frontmatter 的 `rc-*.md`，与已发布的 fixture 一致。run-tool-eval.md 的 fixture 扩展名引用也已修正。"
-  - "v1.8.5 hook 退役残留：把对已退役 bash hook（`pre-notion-write.sh`、`session-start-inbox.sh`、`pre-prompt-guard.sh`）的'当前生效'式引用，改写为 inline LLM 流程——涉及 pro/CLAUDE.md（Step 10a 出站 PII 扫描 + 监控/队列关键词匹配 + session-start 扫描）、根 AGENTS.md host 可用性表、references/review-queue-spec.md、archiver Phase 0、以及 11 个维护 prompt 的触发行"
+  - "v1.8.5 hook 退役残留：把对已退役 bash hook（`pre-notion-write.sh`、`session-start-inbox.sh`、`pre-prompt-guard.sh`）的'当前生效'式引用，改写为 inline LLM 流程——涉及 hosts/CLAUDE.md（Step 10a 出站 PII 扫描 + 监控/队列关键词匹配 + session-start 扫描）、根 AGENTS.md host 可用性表、references/review-queue-spec.md、archiver Phase 0、以及 11 个维护 prompt 的触发行"
   - "LEGACY 标注补齐/修正：hooks-spec.md、compliance-spec.md、system-overview.md、roadmap.md 的 banner；obsidian-spec.md 的 `superseded_by` 指针从已退役的 `setup-secondbrain.sh` 更新为 `/setup-secondbrain` slash 命令；execution-layer.md 内部'当前架构'子块修正"
   - "evals/README.md（+ zh/ja）：已退役的 `./evals/run-eval.sh` → `/run-eval` slash 命令"
 alternatives_considered:
@@ -61,8 +87,8 @@ regression_cases_added: []
 - **SOUL 快照 writer/reader 路径分裂** —— knowledge-extractor（v1.7.3 主写入方）写到 `meta/soul-snapshots/<sid>.md`，但所有读取方 + `snapshot-spec.md` 用 `meta/snapshots/soul/{YYYY-MM-DD-HHMM}.md`；快照写到没人读的地方 → SOUL 趋势箭头静默失效。已修 writer + archiver carve-out 摘要。
 - **archiver 退朝报告漏 Phase 5** —— 运行时 H2 枚举写「6 个核心 H2」漏了 `## Phase 5`，与 7-H2 契约矛盾 → AUDITOR 会判每次退朝不完整。已把枚举 + AUDITOR briefing 完整性检查修为 7。
 - **AUDITOR ↔ retrospective briefing 标题不匹配** —— AUDITOR 期望标题（`## 3 18步执行 / ## 4 御史台巡查 / ## 5 待陛下圣裁`）与 retrospective 实际产出（`## 3 DREAM / ## 4 Today's Focus / ## 5 系统状态`）不符 → 每个合规简报被误判。AUDITOR 已对齐产出方。
-- **pro/AGENTS.md + pro/GEMINI.md 重新同步到 pro/CLAUDE.md** —— Step 10a 仍硬编码 4-page Notion（CLAUDE.md 已改 config-driven R-1.8.0-022）→ 对未配置实体误报「failed」；line 5 还说 `scripts/hooks/` 可注册 + prompt-level enforcement（已退役 v1.8.5，现 host-agnostic inline）；stale NARRATOR-VALIDATOR 信息隔离行。三处全部移植。
-- **活跃文件的退役 token / 旧路径清理** —— archiver 调用已删 `tools/lib/cortex/*.py`；pro/CLAUDE.md + auditor 的「Bash checks」→ inline LLM；data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + 活跃 getting-started 文档引用了已删 python 工具、已退役 bash hook、已删 narrator-validator 或 pre-v1.9 路径（`_meta/`、`meta/decisions/*.md`）当现行。已修正或标为历史。references↔i18n 对齐保持（中日已同步）。
+- **hosts/AGENTS.md + hosts/GEMINI.md 重新同步到 hosts/CLAUDE.md** —— Step 10a 仍硬编码 4-page Notion（CLAUDE.md 已改 config-driven R-1.8.0-022）→ 对未配置实体误报「failed」；line 5 还说 `scripts/hooks/` 可注册 + prompt-level enforcement（已退役 v1.8.5，现 host-agnostic inline）；stale NARRATOR-VALIDATOR 信息隔离行。三处全部移植。
+- **活跃文件的退役 token / 旧路径清理** —— archiver 调用已删 `tools/lib/cortex/*.py`；hosts/CLAUDE.md + auditor 的「Bash checks」→ inline LLM；data-model / dream-spec / lifecycle-gates / changelog-spec / auditor / monitor / install-agents / migrate-to-wikilinks + 活跃 getting-started 文档引用了已删 python 工具、已退役 bash hook、已删 narrator-validator 或 pre-v1.9 路径（`_meta/`、`meta/decisions/*.md`）当现行。已修正或标为历史。references↔i18n 对齐保持（中日已同步）。
 
 legacy 标记文件（`status: legacy` / `authoritative: false`）正确跳过 —— 仓库的 legacy 框注纪律经受住了检验。
 
@@ -71,7 +97,7 @@ legacy 标记文件（`status: legacy` / `authoritative: false`）正确跳过 �
 收尾第二轮审计的剩余低优先级漂移：
 
 - **去硬编码 subagent 计数** —— `agent-spec.md`（「all 23 subagents」「all 22 lifeos subagents」）与 `status-line-spec.md`（「22 subagents」）计数不一致（实际 24）且违反「不硬编码 agent 数量」规则；全部改为非数字表述（三语）。`agent-spec.md` 的 subagent 列表还含已删的 `narrator-validator`、漏了 `memory-keeper` —— 已修正。
-- **修复断裂的 RFC 扫描源路径** —— `memory-keeper.md`、`gotchas-spec.md`、`pro/gotchas.md` 及 memory-keeper eval 场景列了 `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md`（从未存在）且路径 `meta/` 错误；改为存在的 `_meta/rfc/` RFC（v1.8.5 / v1.8.7 / v1.9）。
+- **修复断裂的 RFC 扫描源路径** —— `memory-keeper.md`、`gotchas-spec.md`、`gotchas.md` 及 memory-keeper eval 场景列了 `meta/rfc/v1.8.4-*.md` / `v1.8.6-*.md`（从未存在）且路径 `meta/` 错误；改为存在的 `_meta/rfc/` RFC（v1.8.5 / v1.8.7 / v1.9）。
 - **杂项**：`retrospective.md` 退役 hook 块里的 mojibake + 过时的「audit trail JSON」→ `.md`（DR-10）；`run-tool-eval.md` 把未实现的 `/run-regression` 当现行 → 标为 planned；`migrate-wiki-v2.md` 的 `/audit --mode 5` 加内联 fallback。
 
 references↔i18n 对齐保持（中日已同步）。
@@ -82,7 +108,7 @@ references↔i18n 对齐保持（中日已同步）。
 
 - **`_meta/rfc/v1.8.7` 种子源计划**改为存在的 `_meta/rfc/` RFC（原同样引用不存在的 `v1.8.4` / `v1.8.6`，位于历史 RFC 内）。
 - **`changelog-spec.md`（三语）**示例条目去掉硬编码的「21 agent frontmatter」→「agent frontmatter」（无数字）。
-- **`/exit-monitor` + `/audit`** 从裸 slash 命令语法（暗示存在对应命令文件，实则没有）改为它们实际的自然语言 / 内联识别触发（`monitor.md` + `pro/CLAUDE.md`）；并修 monitor 仪表盘里残留的「cron activity」→「recent maintenance runs」。
+- **`/exit-monitor` + `/audit`** 从裸 slash 命令语法（暗示存在对应命令文件，实则没有）改为它们实际的自然语言 / 内联识别触发（`monitor.md` + `hosts/CLAUDE.md`）；并修 monitor 仪表盘里残留的「cron activity」→「recent maintenance runs」。
 
 真正冻结的 legacy 文件（`status: legacy` / `authoritative: false`，如 `cortex-spec.md` v1.7.2 时代的「16 agents」）按设计保留原样。
 
@@ -91,8 +117,8 @@ references↔i18n 对齐保持（中日已同步）。
 按用户要求清爽活跃树：真正冻结的 v1.7 时代文档现集中到 `docs/history/`（含 `i18n/{zh,ja}/docs/history/` 镜像），不再散落在活跃 `docs/` 树里。
 
 - **搬迁**（`git mv`，保留历史）：`docs/architecture/` → `docs/history/architecture/`（13 个 v1.7 架构快照）；`docs/user-guide/cortex/` → `docs/history/cortex/`（+ 中日镜像，6 个 v1.7 Cortex 用户指南）；`docs/guides/v1.7-migration.md` 和 `references/v1.7-shipping-report-2026-04-21.md` → `docs/history/`。
-- **重指向**活跃 docs/spec 里的所有入站链接（README、docs/index、user-guide/index、faq、MIGRATION、references/*-spec 等）到新 `docs/history/...` 路径；改写 docs/index + user-guide/index，说明当前架构权威是 `pro/CLAUDE.md` + `pro/agents/`、`docs/history/` 是档案。
-- **有意保留**：冻结记录（CHANGELOG、`pro/compliance/*`、`_meta/rfc/*`）保留搬迁前的原路径引用（历史准确性）；载荷型功能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）留在 `references/`——它们描述现行功能、被活跃 agent 引用，**不归档**（其 `status: legacy` 标签是另一处误标，本次未动）。
+- **重指向**活跃 docs/spec 里的所有入站链接（README、docs/index、user-guide/index、faq、MIGRATION、references/*-spec 等）到新 `docs/history/...` 路径；改写 docs/index + user-guide/index，说明当前架构权威是 `hosts/CLAUDE.md` + `agents/`、`docs/history/` 是档案。
+- **有意保留**：冻结记录（CHANGELOG、`compliance/*`、`_meta/rfc/*`）保留搬迁前的原路径引用（历史准确性）；载荷型功能 spec（`snapshot-spec`、`concept-spec`、`hippocampus-spec` 等）留在 `references/`——它们描述现行功能、被活跃 agent 引用，**不归档**（其 `status: legacy` 标签是另一处误标，本次未动）。
 - 新增 `docs/history/README.md` 说明档案。
 
 ### fix6（2026-05-29）—— 修正 fix5 过度匹配的路径替换
@@ -110,7 +136,7 @@ fix5 的链接更新 `sed`（`docs/architecture/` → `docs/history/architecture
 对每个 tracked `.md`（EN + zh/ja 镜像）做了一次全量重扫：断裂的库内链接、frontmatter 闭合、代码围栏配平、三语章节对齐、硬编码 agent 计数。一次性修复：
 
 - **README RFC 链接断裂（3 语言）** —— 都链到 `meta/rfc/...`，但文件 tracked 在 `_meta/rfc/...`（带下划线）。仓库自带的 `/check-spec-drift` Scanner-1 正则抓不到（前缀列表不含 `meta/`），所以一直没被发现。
-- **zh/ja README 相对路径链接** —— `pro/CLAUDE.md`、`references/outbound-pii-patterns.md`、`docs/history/v1.7-migration.md` 之前是裸链（解析到 `i18n/{zh,ja}/` 内），应为 `../../` 指向仓库根。
+- **zh/ja README 相对路径链接** —— `hosts/CLAUDE.md`、`references/outbound-pii-patterns.md`、`docs/history/v1.7-migration.md` 之前是裸链（解析到 `i18n/{zh,ja}/` 内），应为 `../../` 指向仓库根。
 - **docs/reference 前导斜杠链接** —— `faq.md` + `version-history.md` 用了根绝对 `](/...)` 链接，在 GitHub 和本地文件根都不解析；改为相对路径。
 - **cortex 面包屑回归（fix5 移动引入）** —— 18 个归档 cortex 文档（EN + zh + ja）链 `../index.md`，移到 `docs/history/cortex/` 后该文件不存在；改指 `../README.md`。新建 `i18n/{zh,ja}/docs/history/README.md` 存档索引（与 EN 对齐），zh/ja 断裂的 Quickstart 链接改指 EN 正本。
 - **去硬编码 agent 计数** —— `WHEN-NOT-TO-ADD.md`（×3 语言）、`install-agents.md`、`auditor.md`（×3）、e9/e10 eval 场景写了过期计数（20/21/22/23；实际约 24）；按「多个 agent」规则改为非数字表述。ja README 架构图还写着「16エージェント」而 EN/zh 已是「多个 agent」—— 已修。
@@ -122,8 +148,8 @@ fix5 的链接更新 `sed`（`docs/architecture/` → `docs/history/architecture
 
 存储简化为**单一 git 后端**——本地工作副本（也是 Obsidian vault）+ GitHub 远端；同步就是 `git pull`（会话开始）+ `git push`（ARCHIVER Phase 4）。按用户要求作为发布内修复（不升版本号）提交。
 
-- **移除**（删除 12 个文件）：Google Drive + Notion 适配器（+ zh/ja + docs 副本）、Notion 出站 PII 闸门（`outbound-pii-patterns.md` + `pro/CLAUDE.md` Step 10a）、`/notion-sync` + `/notion-sync-and-watch` 命令，以及多后端同步 / primary-sync / 跨后端冲突层。
-- **重写**为单后端 git：`data-model` / `data-layer`、`pro/{CLAUDE,AGENTS,GEMINI}`、各 agent（archiver / retrospective / router / advisor / auditor / knowledge-extractor）、`SKILL`、`self-driven-loops-spec`、README ×3，以及全部用户文档 + i18n 镜像。
+- **移除**（删除 12 个文件）：Google Drive + Notion 适配器（+ zh/ja + docs 副本）、Notion 出站 PII 闸门（`outbound-pii-patterns.md` + `hosts/CLAUDE.md` Step 10a）、`/notion-sync` + `/notion-sync-and-watch` 命令，以及多后端同步 / primary-sync / 跨后端冲突层。
+- **重写**为单后端 git：`data-model` / `data-layer`、`hosts/{CLAUDE,AGENTS,GEMINI}`、各 agent（archiver / retrospective / router / advisor / auditor / knowledge-extractor）、`SKILL`、`self-driven-loops-spec`、README ×3，以及全部用户文档 + i18n 镜像。
 - **保留**：入站隐私扫描（SOUL / wiki）不受影响；冻结的 `status:legacy` 规范保留其历史 Notion 引用；手机端记录改为通过用户自己的 git 工作流写入 `inbox/`。
 
 验证：活跃文件 Notion/GDrive 残留 0、库内断链 0（指向 12 个已删文件的悬空链接 0）、未闭合 frontmatter 0、奇数围栏 0、三语对齐。
@@ -183,13 +209,13 @@ date: 2026-05-25
 type: patch
 breaking_changes: []
 new_features:
-  - "C6: pro/gotchas.md（项目级技术坑知识库）+ pro/agents/memory-keeper.md（提取 agent）+ archiver wrap-up phase 5（6-H2 → 7-H2 adjourn 报告契约）"
+  - "C6: gotchas.md（项目级技术坑知识库）+ agents/memory-keeper.md（提取 agent）+ archiver wrap-up phase 5（6-H2 → 7-H2 adjourn 报告契约）"
   - "C6: 9 个 themes 加 memory-keeper 角色显示名（六部=史馆 / 中国政府=政策档案处 / 公司=知识管理部 / 霞が関=記録局 / 明治政府=史官局 / 日本企業=ナレッジマネジメント室 / C-Suite=Chief Memory Officer / Roman=Curator Memoriae / US Gov=Office of Lessons Learned）"
   - "B4: ScheduleWakeup 自驱循环 — /verify-release-and-watch + /notion-sync-and-watch（270s tick × 12 硬上限，仅 Claude Code）"
   - "B4: references/self-driven-loops-spec.md（三语）定义 270s 理由、12-tick 上限、host 兼容性"
   - "F11: references/i18n-diff-parity-spec.md（三语）— 章节级 EN ↔ zh / EN ↔ ja diff 对齐规则"
   - "F11: /verify-release check 9（i18n diff parity，v1.8.7 WARN 级，v1.8.8 目标 BLOCK）"
-  - "F12: 5 个 WHEN-NOT-TO-ADD.md × 3 语 = 15 个反模式边界文档（pro/agents/、references/、_meta/、themes/、scripts/）"
+  - "F12: 5 个 WHEN-NOT-TO-ADD.md × 3 语 = 15 个反模式边界文档（agents/、references/、_meta/、themes/、scripts/）"
   - "B5: references/feature-workflow-spec.md（三语）定义 4 阶段工作流含 evals_scenarios 必填字段；planner.md + dispatcher.md 更新强制"
   - "A1: references/memory-tree-spec.md（三语，status: proposal）— v1.9/v2.0 的 L0/L1/L2/L3 cascade seal 架构；v1.8.7 archiver 行为不变"
   - "A3: concept-spec.md hotness 阈值显式化（≥3 sessions → confirmed，≥10 → canonical）— 仅文档化，行为不变"
@@ -214,7 +240,7 @@ alternatives_considered:
     rejected_because: "ScheduleWakeup 是 Claude Code 特定。其他 host（Gemini/Codex）无等价。优雅降级到手动重跑而非建跨 host 近似。"
 ordering_dependency:
   blocked_by: [v1.8.6]
-  must_coexist_with: [DR-10 SKILL.md HARD RULE 升级, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, pro/agents/memory-keeper.md, AUDITOR Mode 7, 9 themes 更新]
+  must_coexist_with: [DR-10 SKILL.md HARD RULE 升级, references/gotchas-spec.md, references/self-driven-loops-spec.md, references/i18n-diff-parity-spec.md, references/feature-workflow-spec.md, references/memory-tree-spec.md, agents/memory-keeper.md, AUDITOR Mode 7, 9 themes 更新]
 regression_cases_added:
   - "evals/scenarios/rc-forbidden-extension-sql.md（Stage 6 计划）"
   - "evals/scenarios/rc-forbidden-extension-json.md（Stage 6 计划）"
@@ -235,7 +261,7 @@ upgrade_mode: zero-friction
 4. /verify-release v1.8.7  # 11 个 check 全 PASS
 ```
 
-无迁移命令。archiver 首次跑自动创建 `pro/gotchas.md`，memory-keeper 扫 v1.8.4-1.8.6 RFC + violations 历史填 ≥10 条种子。
+无迁移命令。archiver 首次跑自动创建 `gotchas.md`，memory-keeper 扫 v1.8.4-1.8.6 RFC + violations 历史填 ≥10 条种子。
 
 详见 `_meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` 完整 RFC + DR-01 到 DR-10 审计 trail。
 
@@ -294,7 +320,7 @@ type: patch
 breaking_changes:
   - "SOUL.md schema v1 → v2：优先级 {1..N} 总序、X-over-Y formulation 必填、inclusion test 6Q gate、outlier role slot 必填、3-8 dim 上限"
   - "wiki entry schema v1 → v2：6 facets classification、operating_hypothesis、context_manifest 三层、reference_set 5 role slots、failure_modes、arguments_against"
-  - "23 个 pro/agents/*.md frontmatter v1 → v2：id + version + classification + operating_hypothesis + context_manifest + blast_radius + failure_modes"
+  - "23 个 agents/*.md frontmatter v1 → v2：id + version + classification + operating_hypothesis + context_manifest + blast_radius + failure_modes"
   - "audit-trail-spec R11 → R12：contested-case 决策必填 value_invocations[]"
   - "Hook layer 整体退役：11 个 bash hook 删、38 个 .sh 文件删；5 层防御 → 4 层（D1 接受任何通过率）"
   - "CHANGELOG.md schema：v1.8.5+ entry 必需 YAML frontmatter（references/changelog-spec.md v1）"
@@ -354,7 +380,7 @@ regression_cases_added:
 - `/uninstall-agents` + `/install-agents` 刷新 agent wrappers
 - `/migrate-soul-v2`（交互式，per-dim）—— legacy entry 2027-05-23 自动 deprecate
 - `/migrate-wiki-v2`（交互式，per-entry）—— legacy entry 2027-05-23 自动 deprecate
-- pro/agents/ 已自动迁移
+- agents/ 已自动迁移
 - CHANGELOG / violations.md 格式仅向前适用
 
 ### 致谢
@@ -371,7 +397,7 @@ regression_cases_added:
 
 DREAM 报告是隔夜异步快照。N-1 晚上写的 HARD trigger,在 N 这次 session 启动前可能已经被用户手动关掉了——但 `retrospective` Step 16 不查任务实际状态,闷头把它 promote 到今天 P0。2026-05-16 的 briefing 把 `8938 revenue-uplift task closure` 列为 P0 跟进项,而那个任务前一天就已经写了 `status: closed-superseded`。
 
-修复 · `pro/agents/retrospective.md` Step 16 加 **TRIGGER VALIDITY RE-CHECK** HARD RULE。对每一个指向具体 task path / slug 的 HARD trigger,subagent 在 promote 之前 MUST `Read` 对应 task 文件的 frontmatter,看 `status:` 字段:
+修复 · `agents/retrospective.md` Step 16 加 **TRIGGER VALIDITY RE-CHECK** HARD RULE。对每一个指向具体 task path / slug 的 HARD trigger,subagent 在 promote 之前 MUST `Read` 对应 task 文件的 frontmatter,看 `status:` 字段:
 
 - `closed` / `done` / `failed` / `archived` / `superseded` / `closed-*` → 渲染为 `✅ Trigger #N (auto-resolved): task <name> already closed on <closed_date>`,不再 promote。
 - 文件不存在 → 按 slug 在 `projects/**/tasks/` 下 fuzzy match;renamed → 仍校验 status;真找不到 → promote 并注明 `task slug not found on disk, treating as still-actionable`。
@@ -386,7 +412,7 @@ Step 16 R11 audit trail JSON 新增字段 `dream_triggers_validated: [{trigger_i
 
 修复 · 两层防御:
 
-1. **subagent 层** · `pro/agents/retrospective.md` Step 0.5 marker 列表加第 4 个 literal marker:`[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`。新 HARD RULE 明文禁止"从 transcript byte-copy 旧值"和"重新估天数";`session-start-inbox.sh` 被宣告为**唯一** source of truth,subagent 是它的 caller。
+1. **subagent 层** · `agents/retrospective.md` Step 0.5 marker 列表加第 4 个 literal marker:`[Maintenance overdue: <verbatim copy of '## Overdue maintenance' block from session-start-inbox.sh · source=subagent-recompute@<ISO8601>>]`。新 HARD RULE 明文禁止"从 transcript byte-copy 旧值"和"重新估天数";`session-start-inbox.sh` 被宣告为**唯一** source of truth,subagent 是它的 caller。
 2. **ROUTER 层** · `SKILL.md` ROUTER fact-check 加 **rule 8**:ROUTER 自己再跑一次同样的脚本,byte-equal 比对 `## Overdue maintenance` 块跟 marker 内容(忽略 marker 末尾的 `· source=subagent-recompute@...` 时间戳)。不匹配 → strike marker,替换为 `[⚠️ Maintenance overdue mismatch: router-recompute=<X> / briefing=<Y> — using router value]`。Marker 缺失 → ROUTER 拒绝展示 briefing。Marker 之外,ROUTER 还在 briefing 的 `系统状态 / Compliance Watch / Today's Focus` **三个 section 内**(不扫全文,避免误伤 ADVISOR / review queue 等无关文本)扫描 `\d+\s*d(ays)?\s*overdue` 邻接 10 个维护任务名;任何冲突值视为 confabulation 并 strike。
 
 **Wave 1.5 spec 漏洞补丁**:
@@ -395,7 +421,7 @@ Step 16 R11 audit trail JSON 新增字段 `dream_triggers_validated: [{trigger_i
 
 ### 改动文件
 
-- `pro/agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`;Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip;Mode 2 Data Sources step 7(maintenance marker 契约)。
+- `agents/retrospective.md` — Step 16 TRIGGER VALIDITY RE-CHECK + R11 `dream_triggers_validated`;Step 0.5 `[Maintenance overdue: ...]` marker + HARD RULE + wrapper-strip;Mode 2 Data Sources step 7(maintenance marker 契约)。
 - `SKILL.md` — frontmatter version → 1.8.4;ROUTER fact-check rule 8 + wrapper-strip 说明。
 - `references/dream-spec.md`、`i18n/zh/references/dream-spec.md`、`i18n/ja/references/dream-spec.md` — triggered_actions schema 加 optional `task_ref` 字段。
 - `README.md`、`i18n/zh/README.md`、`i18n/ja/README.md` — version badge → 1.8.4。
@@ -443,7 +469,7 @@ JSON 解析三层 fallback（jq → python → raw），与 `pre-write-scan.sh` 
 
 模式扫描顺序契约见 §4：`D` 和 `A8` 顺序对调，避免电话与マイナンバー碰撞。审计 schema 见 §5，维护规则见 §6。
 
-### 更新 · `pro/CLAUDE.md` Step 10a · 出境闸门段
+### 更新 · `hosts/CLAUDE.md` Step 10a · 出境闸门段
 
 Step 10a 加入第三块 HARD RULE：
 
@@ -488,9 +514,9 @@ Obsidian 友好 markdown 规约的单一权威源。覆盖：
 - **CSS class** `cssclasses: [decision, important]` 给条目加视觉样式（高级）。
 - 12 项 LLM 检查清单、反模式列表、迁移工具指针。
 
-### 新增 · `pro/CLAUDE.md` HARD RULE #11（同步到 GEMINI.md / AGENTS.md）
+### 新增 · `hosts/CLAUDE.md` HARD RULE #11（同步到 GEMINI.md / AGENTS.md）
 
-在编排层固化 Obsidian 可读性要求。范围外：纯数据文件（`.json` / `.yaml` / `.csv`）、源代码、`pro/agents/*.md` agent 定义。迁移工具：legacy wiki 用 `/wiki-obsidian-upgrade`。
+在编排层固化 Obsidian 可读性要求。范围外：纯数据文件（`.json` / `.yaml` / `.csv`）、源代码、`agents/*.md` agent 定义。迁移工具：legacy wiki 用 `/wiki-obsidian-upgrade`。
 
 ### 新增 · 4 个新 wiki 模板（v1.8.2 `kind:` 字段）
 
@@ -549,8 +575,8 @@ exit 2 + 双语拦截信息 + 建议重定向路径。AI 看到建议会重新�
 
 ### 更新 · 2 个 agent 文件提到 HARD RULE #11
 
-- `pro/agents/retrospective.md` —— Mode 0/2 简报用 `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]`
-- `pro/agents/archiver.md` —— Phase 输出（会话归档 / wiki 条目 / SOUL 快照 / DREAM / Completion Checklist）全跟随风格指南；Phase 2 wiki 提取必须用 `wiki/.templates/`
+- `agents/retrospective.md` —— Mode 0/2 简报用 `> [!info]` / `> [!warning]` / `> [!important]` / `> [!tip]`
+- `agents/archiver.md` —— Phase 输出（会话归档 / wiki 条目 / SOUL 快照 / DREAM / Completion Checklist）全跟随风格指南；Phase 2 wiki 提取必须用 `wiki/.templates/`
 
 ### 更新 · `wiki/OBSIDIAN-SETUP.md` 模板（自动写）
 
@@ -585,7 +611,7 @@ bash scripts/setup-hooks.sh   # 注册新 pre-write-output-redirect hook + 新�
 ### 范围外（有意为之）
 
 - 非 wiki 文件（sessions / SOUL 快照 / DREAM 条目 / eval-history 报告）跟随 v1.8.2 约定 **for NEW writes**（per HARD RULE #11），但**不批量升级** —— 用户接触时有机迁移。
-- 纯数据文件（`.json` / `.yaml` / `.csv`）、源代码、agent 定义文件（`pro/agents/*.md`）豁免 HARD RULE #11。
+- 纯数据文件（`.json` / `.yaml` / `.csv`）、源代码、agent 定义文件（`agents/*.md`）豁免 HARD RULE #11。
 
 ---
 
@@ -625,12 +651,12 @@ bash scripts/setup-hooks.sh   # 注册新 pre-write-output-redirect hook + 新�
 
 ### 修复 · session-start-inbox UX（把 R-1.8.0-021 + R-1.8.0-022 滚到 1.8.1）
 
-- **`TASKS_LINE` 数组 2 个 task 名字写错**：`auditor-patrol` → `auditor-mode-2`，`monthly-summary` → `eval-history-monthly`（对齐 `pro/CLAUDE.md` 权威 10-job 表 + 实际 `scripts/prompts/*.md` 文件名）。
+- **`TASKS_LINE` 数组 2 个 task 名字写错**：`auditor-patrol` → `auditor-mode-2`，`monthly-summary` → `eval-history-monthly`（对齐 `hosts/CLAUDE.md` 权威 10-job 表 + 实际 `scripts/prompts/*.md` 文件名）。
 - **NEVER_RUN 桶从 OVERDUE 拆出**：没 baseline 的 task 现在归到 `## Available on-demand (do NOT proactively offer)` 段，明示除非用户问否则不提；之前 LLM 当作 overdue 主动建议用户从未要求过的 job。输出从 8+ 行压成 1 行逗号分隔（token 预算）。
 
 ### 修复 · Notion sync 硬编码（v1.8.0 维护线滚入）
 
-- **`pro/CLAUDE.md` Step 10a 硬编码 4 个 Notion entity**（Status / Todo Board / Working Memory / Inbox）。真实用户 Notion 布局多种多样；orchestrator 把不存在的 entity 报"Working Memory: failed"。改为 config-driven：orchestrator 读 `_meta/config.md`，只 sync 配过的 entity，没配 Notion 时跳过整个 Step 10a，checklist 不再列 false-fail。
+- **`hosts/CLAUDE.md` Step 10a 硬编码 4 个 Notion entity**（Status / Todo Board / Working Memory / Inbox）。真实用户 Notion 布局多种多样；orchestrator 把不存在的 entity 报"Working Memory: failed"。改为 config-driven：orchestrator 读 `_meta/config.md`，只 sync 配过的 entity，没配 Notion 时跳过整个 Step 10a，checklist 不再列 false-fail。
 
 ### 修复 · pre-bash-approval pattern 透明度
 
@@ -799,17 +825,26 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
 - `pre-task-launch` — 机器强制 v1.7.3 carve-out
 - `post-task-audit-trail` — 即时 R11 audit trail 检查
 
-### 新增 · Python tools（4 个）+ Cron prompts（5 个）+ Spec docs（2 个）+ 新 subagent
+### 新增 · Python tools（4 个）
 
 - 4 python: `spec_compliance_report` / `wiki_decay` / `cron_health_report` / `missed_cron_check`
-- 5 prompts: `scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+
+### 新增 · Cron-driven Claude Code prompts（5 个）
+
+`scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md`
+
+### 新增 · Spec docs（2 个）
+
 - 2 specs: `references/{automation-spec,session-modes-spec}.md`
-- 1 subagent: `pro/agents/monitor.md`
+
+### 新增 · 新 subagent + 手动触发脚本
+
+- 1 subagent: `agents/monitor.md`
 - 1 trigger script: `scripts/run-cron-now.sh`
 
 ### 变更
 
-- **pro/CLAUDE.md** 新增 "Session Modes (v1.8.0)" section
+- **hosts/CLAUDE.md** 新增 "Session Modes (v1.8.0)" section
 - **scripts/setup-cron.sh** 从 3 → 10 cron jobs + 1 RunAtLoad
 - **scripts/setup-hooks.sh** 注册 3 个新 hook
 - **scripts/hooks/pre-prompt-guard.sh** 上朝/退朝 reminder 软化
@@ -831,16 +866,16 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
 
 - **R-1.8.0-010 · 架构 PIVOT (post-2026-04-29) · cron 架构整体砍掉**：经过两天真实环境测试，R-1.8.0-001~009 修完之后的 cron 架构仍然在用户可靠性测试中失败。5 个 prompt-based cron job（archiver-recovery / auditor-mode-2 / advisor-monthly / eval-history-monthly / strategic-consistency）静默丢数据：cron 拉起的 `claude -p` session 完成分析后用 prompt 模板的礼貌语气问用户「需要我写吗？」—— cron 没人盯着，session timeout，exit 0，`_meta/eval-history/` 是空的。`--dangerously-skip-permissions` flag（R-1.8.0-006）只跳过 OS 级 Write 权限，不能跳过 LLM 自身的对话礼貌。结论：**cron 要求确定性，LLM 是非确定性，这个矛盾没法 patch**。
   - **Pivot 决定（用户拍板）**：把 cron 替换成显式用户提示。用户说「重建索引」/「月度自审」，ROUTER 读 `scripts/prompts/<job>.md` 然后内联执行。无后台进程。
-  - **删除 (17 文件)**：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、`tools/reindex.py`、`tools/daily_briefing.py`、`tools/backup.py`、`tools/spec_compliance_report.py`、`tools/wiki_decay.py`、`tools/memory.py`、`tools/session_search.py`、`tools/cli.py`、`pro/agents/narrator-validator.md`、`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`。还有 3 个删除工具的 eval scenarios。
+  - **删除 (17 文件)**：`scripts/setup-cron.sh`、`scripts/run-cron-now.sh`、`scripts/commands/run-cron.md`、`tools/missed_cron_check.py`、`tools/cron_health_report.py`、`tools/reindex.py`、`tools/daily_briefing.py`、`tools/backup.py`、`tools/spec_compliance_report.py`、`tools/wiki_decay.py`、`tools/memory.py`、`tools/session_search.py`、`tools/cli.py`、`agents/narrator-validator.md`、`references/automation-spec.md`、`references/session-modes-spec.md`、`docs/architecture/hermes-local.md`。还有 3 个删除工具的 eval scenarios。
   - **新建 (5 个 user-invoked prompts)**：`scripts/prompts/{reindex,daily-briefing,backup,spec-compliance,wiki-decay}.md` —— 替代被删的 python 工具。每个是一个 markdown prompt，ROUTER 读完用 Read/Write/Bash/Glob/Grep 直接做（用户用关键词触发）。
   - **修改 (5 个现有 prompts)**：`scripts/prompts/{archiver-recovery,auditor-mode-2,advisor-monthly,eval-history-monthly,strategic-consistency}.md` —— 把"autonomous cron-triggered"框架换成"user-invoked from session"框架。删了 UNATTENDED CRON CONTRACT 块（不再需要）。
   - **Hooks 重构 (3 个 hook)**：
     - `scripts/hooks/pre-prompt-guard.sh`：删 Cortex always-on enforcement 块（line 111-167）。Memory 关键词检测现在用 Write tool 直接写 `~/.claude/lifeos-memory/<key>.json`，不再调被删的 `tools/memory.py`。上朝/退朝软触发保留。
     - `scripts/hooks/session-start-inbox.sh`：完全重写 —— 之前读 cron 输出，现在扫 10 个维护任务的 glob 找最新文件 mtime（`_meta/eval-history/<job>-*.md`），把 overdue 的总结成 `<system-reminder>`。Hook 只显示，不执行；用户决定要不要触发。
     - `scripts/hooks/post-task-audit-trail.sh`：弱化 —— 删了 Cortex 4 个 subagent + narrator-validator 的 R11 audit trail 强制。只剩 archiver + knowledge-extractor 强制写 trail（它们触碰持久状态）。
-  - **Cortex 改 pull-based**（`pro/CLAUDE.md` §0.5 重写）：4 个 Cortex subagent 不再每条消息都 launch。ROUTER 按消息判断回答是否会因为加上历史/概念/SOUL 而变好；会 → launch，不会 → 不 launch。Subagent description 文件全部更新反映 pull-based。
+  - **Cortex 改 pull-based**（`hosts/CLAUDE.md` §0.5 重写）：4 个 Cortex subagent 不再每条消息都 launch。ROUTER 按消息判断回答是否会因为加上历史/概念/SOUL 而变好；会 → launch，不会 → 不 launch。Subagent description 文件全部更新反映 pull-based。
   - **Slash command 重写**：`/monitor` 现在是 view-and-invoke 控制台（不是 cron 监控）；`/memory` 现在直接写 JSON 文件（不调 python 中间层）；`/search` 现在用 Grep tool 直接搜（不走 SQLite FTS5）。
-  - **Spec 文档**：`pro/CLAUDE.md` §0.5 + Session Modes section 重写。`references/hard-rules-index.md` 更新 Cortex 不再 always-on。`pro/AGENTS.md`、`pro/GEMINI.md`、`AGENTS.md` 顶部加 pivot 提示指向 `pro/CLAUDE.md` 为权威（完整内容扫描待办）。
+  - **Spec 文档**：`hosts/CLAUDE.md` §0.5 + Session Modes section 重写。`references/hard-rules-index.md` 更新 Cortex 不再 always-on。`hosts/AGENTS.md`、`hosts/GEMINI.md`、`AGENTS.md` 顶部加 pivot 提示指向 `hosts/CLAUDE.md` 为权威（完整内容扫描待办）。
   - **统计**：~3500 行 cron 基础设施 + python 中间层删除。~500 行 user-invoked prompt 内容新增。净：23 删、5 创、~25 改。
   - **备份**：`git branch backup-pre-v1.8-pivot @ 7b15509` 保留 pivot 前状态。
 
@@ -855,10 +890,10 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
   - **新建 (5 个 user-invoked prompts，替代被删的 python 工具)**：
     - `scripts/prompts/rebuild-session-index.md`、`scripts/prompts/rebuild-concept-index.md`、`scripts/prompts/migrate-from-v1.6.md`、`scripts/prompts/snapshot-cleanup.md`、`scripts/prompts/extract-concepts.md`
   - **Spec 重写 (5 个 agent spec)**：
-    - `pro/agents/hippocampus.md` L88-92：FTS5 SQLite helper → 用 Grep tool 直接扫 INDEX.md
-    - `pro/agents/retrospective.md` L47-55：删 Python helper 路径，只剩 inline LLM rebuild；L244 R10 boundary 重写
-    - `pro/agents/archiver.md`：snapshot Python helper 块 → inline Write + 显式 YAML schema；extraction Python helper → inline tokenize/stopword/slug 步骤；SessionSummary Python helper → 直接 Write + 显式 byte-level 格式合同；v1.7.2.3 rationale 块更新
-    - `pro/CLAUDE.md` L268-286：HARD RULE briefing skeleton 块（retrospective + archiver）删除
+    - `agents/hippocampus.md` L88-92：FTS5 SQLite helper → 用 Grep tool 直接扫 INDEX.md
+    - `agents/retrospective.md` L47-55：删 Python helper 路径，只剩 inline LLM rebuild；L244 R10 boundary 重写
+    - `agents/archiver.md`：snapshot Python helper 块 → inline Write + 显式 YAML schema；extraction Python helper → inline tokenize/stopword/slug 步骤；SessionSummary Python helper → 直接 Write + 显式 byte-level 格式合同；v1.7.2.3 rationale 块更新
+    - `hosts/CLAUDE.md` L268-286：HARD RULE briefing skeleton 块（retrospective + archiver）删除
   - **接受的代价**：retrospective Mode 0 ~30× 慢；archiver Adjourn 10-12 min → ~25-30 min；hippocampus Wave 1 失去 FTS5 stemming
   - **接受的风险**：SessionSummary 格式漂移、Concept slug 漂移（SHA-1 兜底缓解）、SOUL snapshot 累积、6-H2 briefing 可能漏 H2
   - **保留的代码（不可侵犯）**：11 hooks + `tools/approval.py` + `seed.py` / `seed_concepts.py` / `skill_manager.py` + `tools/lib/{config,llm,notion,second_brain}.py` + `scripts/lib/{audit-trail.sh,sha-fallback.sh}` + R-1.8.0-010 的 10 个 cron-replacement prompts
@@ -868,33 +903,33 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
 - **R-1.8.0-012 · Monitor mode 改为纯自然语言触发（post-2026-04-29 用户反馈）**：用户原话「这个不能要任何命令全部都要自然语言」。Monitor mode 必须通过自然语言关键词触发，不能要求用户打 `/monitor`。Slash 命令保留为 backup mode（与 `/memory` `/search` `/method` 一致）。
   - **`scripts/hooks/pre-prompt-guard.sh`**：在 `MEMORY_KEYWORD_RE` 检测块后新增 `MONITOR_KEYWORD_RE` 检测块。关键词：监控模式 / 进监控 / 进 monitor / 开监控 / 监控控制台 / 看系统状态 / 看 cron / 看维护状态 / 维护控制台 / ops console / monitor mode / enter monitor / open monitor / 看 lifeos 状态 / 进运维。匹配时注入 `<system-reminder>`（`trigger=monitor`）让 ROUTER 直接 `Task(subagent_type=monitor)` —— 不要引导用户去打 `/monitor`。
   - **`scripts/hooks/pre-prompt-guard.sh`**（同次 edit 中修复 —— R-1.8.0-010 漏修）：MEMORY 块文本还在叫 ROUTER 跑 `python -m tools.memory emit "..."`，但 `tools/memory.py` 已经在 v1.8.0 pivot 中删了。改成让 ROUTER 用 Write tool 直接写 `~/.claude/lifeos-memory/<sanitized-key>.json`，附明确 JSON schema（`value` / `role` / `created` / optional `trigger_time`）。
-  - **`pro/CLAUDE.md` Special Triggers 段**：在 上朝 / 退朝 / Quick Mode 旁边加 Monitor Mode 条目。说明自然语言是主路径，`/monitor` 是 backup。
-  - **`pro/CLAUDE.md` Auto-Trigger Rules 段**：在 Memory auto-emit 旁边加 "Monitor mode auto-launch" 子段。列出中/英关键词。"4 个 v1.7.3 slash commands"说明扩展为 5 个（包含 `/monitor`）。
+  - **`hosts/CLAUDE.md` Special Triggers 段**：在 上朝 / 退朝 / Quick Mode 旁边加 Monitor Mode 条目。说明自然语言是主路径，`/monitor` 是 backup。
+  - **`hosts/CLAUDE.md` Auto-Trigger Rules 段**：在 Memory auto-emit 旁边加 "Monitor mode auto-launch" 子段。列出中/英关键词。"4 个 v1.7.3 slash commands"说明扩展为 5 个（包含 `/monitor`）。
   - **`scripts/commands/monitor.md`**：顶部加 "Backup mode" 提示块。告诉 ROUTER 不要引导用户输入 slash 命令 —— 自然语言是主路径。Slash 命令保留给：精确控制 focus 参数（`/monitor wiki`）、auto-trigger fallback（regex 漏匹配）、测试场景。
-  - **不破坏任何路径**：`/monitor` slash 命令 power user 还能用；`pro/agents/monitor.md` subagent 本身未改。只是入口扩展。
+  - **不破坏任何路径**：`/monitor` slash 命令 power user 还能用；`agents/monitor.md` subagent 本身未改。只是入口扩展。
 
 - **R-1.8.0-013 · 借鉴 llm_wiki 的 5 项改造（post-2026-04-29 用户调研后决定）**：用户原话「1，单独 2，llm 3，折中 4，全，完整」一次性批准全部 5 项借鉴。lifeos 从「纯文本 + frontmatter id」转为「Obsidian-vault 兼容的 wikilink 知识图 + 异步 review queue + LLM 友好的关联度信号 + 页面分类细化」。源参考：[nashsu/llm_wiki](https://github.com/nashsu/llm_wiki)。
   - **借鉴 1 · 全文 Obsidian `[[wikilinks]]` 语法**：`wiki/`、`_meta/concepts/`、`_meta/sessions/`、`_meta/methods/`、`_meta/people/`、`_meta/comparisons/`、`SOUL.md`、`_meta/STRATEGIC-MAP.md` 正文中所有交叉引用统一用 `[[id]]` 或 `[[id|显示名]]`。Frontmatter 保持纯 YAML 字符串（机器可解析），唯一例外：`_meta/concepts/<id>.md` 的 `provenance.source_sessions: ["[[YYYY-MM-DD]]"]` 和 `outgoing_edges[].target: "[[concept-<id>]]"`。`references/wiki-spec.md` 中"禁止交叉引用"规则被划线作废。
   - **借鉴 2 · Obsidian vault 布局**：`tools/seed.py` 现在写入 `.obsidian/app.json`（`useMarkdownLinks: false`、`newLinkFormat: shortest`、`userIgnoreFilters` 排除 `_meta/runtime/`）、`.obsidian/core-plugins.json`（启用 graph + backlinks + outgoing-links + tag-pane）、`.obsidian/.gitignore`（排除 workspace.json 等设备本地状态）。用户可以直接用 Obsidian 打开 second-brain 看图谱 + 反向链接面板。规范：`references/obsidian-spec.md`。
   - **借鉴 3 · 异步 Review Queue（"需要用户处理"的统一入口）**：`_meta/review-queue.md` 把之前散在 7 处的待办整合成一个有序列表（auditor-patrol / advisor-monthly / strategic-consistency / archiver-recovery / eval-history-monthly 各报告的 action items + violations.md + cron notifications.md）。YAML 项 schema：`id`（`r{YYYY-MM-DD}-{NNN}`）/ `created` / `source` / `type` / `priority`（P0/P1/P2）/ `summary` / `detail_path` / `related`（wikilinks）/ `suggested_action` / `status`（open/reviewed/resolved/dismissed）/ `closed_at` / `closed_by`。原地状态变更（必须用 Edit，禁止 Write）；resolved > 100 项自动归档到 `_meta/review-queue/archive/{YYYY-MM}.md`（折中策略，对应用户选 3）。规范：`references/review-queue-spec.md`。新走读 prompt `scripts/prompts/review-queue.md`（"处理 queue" / "看 queue" / "review queue"）逐项处理，提供 A（执行）/ R（看过暂不处理）/ D（dismiss）/ S（skip）/ Q（quit）选择。
-  - **借鉴 4 · 4 信号 LLM 友好关联度模型（替换 hippocampus Wave 2 的简单加权公式）**：`relevance(candidate, current) = 3 × direct_link_count + 4 × source_overlap_count + 2 × common_neighbor_count + 1 × type_affinity`。用计数（不用 Adamic-Adar 的 `1/log(degree)`）是因为 LLM 不能可靠算 log（对应用户选 2 "LLM 简化版"）。Type affinity 矩阵：同类 1.0、相关（concept↔wiki/person/method）0.5、不相关 0.0。改在 `references/hippocampus-spec.md` Wave 2 + `pro/agents/hippocampus.md`。
+  - **借鉴 4 · 4 信号 LLM 友好关联度模型（替换 hippocampus Wave 2 的简单加权公式）**：`relevance(candidate, current) = 3 × direct_link_count + 4 × source_overlap_count + 2 × common_neighbor_count + 1 × type_affinity`。用计数（不用 Adamic-Adar 的 `1/log(degree)`）是因为 LLM 不能可靠算 log（对应用户选 2 "LLM 简化版"）。Type affinity 矩阵：同类 1.0、相关（concept↔wiki/person/method）0.5、不相关 0.0。改在 `references/hippocampus-spec.md` Wave 2 + `agents/hippocampus.md`。
   - **借鉴 5 · 页面分类细化 —— people 和 comparisons 各自独立目录**：新增 `_meta/people/<id>.md`（people 作为一等公民；canonical_name / aliases / relationship / privacy_tier / mention_count / concepts_linked wikilinks；规范：`references/people-spec.md`）和 `_meta/comparisons/<id>.md`（决策对比作为一等公民；options / criteria / decision / confidence / outcome 跟踪；规范：`references/comparison-spec.md`），对应用户选 1 "单独，独立目录而不是只加 frontmatter type 字段"。Sources/synthesis/queries 不拆（与 sessions/wiki 重叠）。
   - **新增规范文件（4）**：`references/people-spec.md`、`references/comparison-spec.md`、`references/obsidian-spec.md`、`references/review-queue-spec.md`。
   - **修改规范文件（3）**：`references/wiki-spec.md`（页面分类 + wikilink convention 段，"禁止交叉引用"被划线）、`references/concept-spec.md`（wikilink convention 含 frontmatter 例外字段示例）、`references/hippocampus-spec.md`（Wave 2 4 信号公式）。
-  - **修改 subagent（5）**：`pro/agents/hippocampus.md`（Wave 2 spec 同步）、`pro/agents/archiver.md`（Phase 2 路由 + wikilink 写入 HARD RULE + review queue append）、`pro/agents/knowledge-extractor.md`（同样的路由/wikilink/queue HARD RULE）、`pro/agents/retrospective.md`（Mode 0 简报含 wikilinks + 有项时输出 ## Open Review Queue H2 段）、`pro/agents/monitor.md`（Review Queue Dashboard）。
+  - **修改 subagent（5）**：`agents/hippocampus.md`（Wave 2 spec 同步）、`agents/archiver.md`（Phase 2 路由 + wikilink 写入 HARD RULE + review queue append）、`agents/knowledge-extractor.md`（同样的路由/wikilink/queue HARD RULE）、`agents/retrospective.md`（Mode 0 简报含 wikilinks + 有项时输出 ## Open Review Queue H2 段）、`agents/monitor.md`（Review Queue Dashboard）。
   - **修改 prompt（5 维护 + 2 新）**：5 个 v1.8.0 维护 prompt（`auditor-mode-2.md` / `advisor-monthly.md` / `strategic-consistency.md` / `archiver-recovery.md` / `eval-history-monthly.md`）都加了 "v1.8.0 R-1.8.0-013 · Review Queue Append (HARD RULE)" 段和源特定 YAML 模板。新增 `scripts/prompts/review-queue.md`（借鉴 3 的走读器）和 `scripts/prompts/migrate-to-wikilinks.md`（全量迁移老内容到 wikilink，对应用户选 4 "全，完整"）。
   - **修改工具（1）**：`tools/seed.py` —— 新增 3 个 `META_GITKEEP_DIRS`（`_meta/people`、`_meta/comparisons`、`_meta/review-queue/archive`）、常量 `_REVIEW_QUEUE` / `_OBSIDIAN_APP_JSON` / `_OBSIDIAN_CORE_PLUGINS` / `_OBSIDIAN_GITIGNORE`、函数 `_write_obsidian_vault(target)` 接入 `_seed_scaffolding()`。冒烟测试通过。
   - **修改 hook（1）**：`scripts/hooks/session-start-inbox.sh` —— 新增 awk 解析 `_meta/review-queue.md` `## Open items` 段，按 P0/P1/P2 分级计数；SessionStart system-reminder 输出 `📋 Review queue: N P0 / M P1 / K P2 open. Latest: <summary>. Say "看 queue" to walk through.`。
   - **R-1.8.0-013 自审修复（同次提交）**：并行 agent 审查发现 7 个真实 bug，全部修复在同一发版（用户原话「全部干完，不要再留任何 bug 了」）：
     - **HIGH · awk priority 正则未锚定** —— 模式 `/priority: P0/` 会匹配正文中如 `summary: "因为 priority: P0 上周没处理"` 的字串导致重复计数。锚定为 `^[[:space:]]*priority:[[:space:]]*P0([^0-9]|$)`（不依赖 GNU awk 的 `\b` 词边界）。同时正确处理无空格（`priority:P0`）和多空格（`priority:    P0`）变体。
     - **HIGH · CHANGELOG 承诺 session-start hook 输出 `Latest: <summary>` 但 hook 只输出计数** —— awk 扩展为捕获最新 open 项的第一个 `summary:` 字段，截断到 80 字符，通过 `Latest: ${REVIEW_QUEUE_LATEST}` 行输出。bash 用 tab 分隔符切分。新增 `[[person-*]]` 项 `privacy_tier: high` 的隐私过滤提示。
-    - **HIGH · `source_session(s)` 字段单复数不一致** —— `references/comparison-spec.md`（单数，一个决策时刻）和 `references/concept-spec.md`（复数，累积证据）字段命名不同。在 `references/wiki-spec.md` 例外字段列表中明确语义差异，同步 `pro/agents/archiver.md` + `pro/agents/knowledge-extractor.md` 同时引用两个字段名并说明各自的 cardinality 理由。
+    - **HIGH · `source_session(s)` 字段单复数不一致** —— `references/comparison-spec.md`（单数，一个决策时刻）和 `references/concept-spec.md`（复数，累积证据）字段命名不同。在 `references/wiki-spec.md` 例外字段列表中明确语义差异，同步 `agents/archiver.md` + `agents/knowledge-extractor.md` 同时引用两个字段名并说明各自的 cardinality 理由。
     - **HIGH · 4 信号 `type_affinity` related 集合不全** —— CHANGELOG 提到 `concept↔wiki/person/method` 但 spec + agent 只写 `concept↔wiki, concept↔person`。统一到：`concept ↔ wiki, concept ↔ person, concept ↔ method, wiki ↔ method, person ↔ comparison`。
     - **MEDIUM · advisor-monthly 缺 `outcome-unmeasured` 类型枚举** —— 加入 type 列表 + 扩展 priority 包含 P2（用于 comparison-spec 的 outcome-tracking 流程检测「过 90 天 comparison 仍无 ## Outcome」）。
     - **MEDIUM · awk 错误静默吞掉** —— 去掉 awk 命令的 `2>/dev/null`，让解析器回归错误浮到 SessionStart hook log，而不是静默输出空字符串。新建 vault 文件不存在时仍由 `|| true` 保留。
     - **LOW · pre-prompt-guard 两个 hook 块同时触发** —— 同时含 REVIEW_QUEUE + MIGRATE_WIKILINKS 关键词的消息会注入两个相互竞争的 `<system-reminder>`。两个块都加 `[ "$ACTIVITY_REMINDER" != "yes" ]` first-match-wins 守卫。
     - **LOW · `_OBSIDIAN_GITIGNORE` 常量命名与 repo 根的 `_GITIGNORE` 重叠** —— `tools/seed.py` line 244 加 inline 注释说明它是 vault 内部那个。
-    - **LOW · 触发关键词列表在 hook + pro/CLAUDE.md + walker prompt 之间漂移** —— 指定 `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE 为权威源，更新 CLAUDE.md 和 `scripts/prompts/review-queue.md` 对齐。
+    - **LOW · 触发关键词列表在 hook + hosts/CLAUDE.md + walker prompt 之间漂移** —— 指定 `scripts/hooks/pre-prompt-guard.sh` REVIEW_QUEUE_RE 为权威源，更新 CLAUDE.md 和 `scripts/prompts/review-queue.md` 对齐。
   - **R-1.8.0-013 第二轮自审修复（同次提交）**：6 个 agent 并行深度审查（python-reviewer + silent-failure-hunter + code-reviewer + security-reviewer + comment-analyzer + type-design-analyzer）发现**还有 15 个 bug**，含 3 个 CRITICAL/HIGH 会让每个新装的 vault Obsidian 集成静默失败。全部修复：
     - **HIGH · Obsidian core-plugin ID 错的** —— `tools/seed.py` 写入 `.obsidian/core-plugins.json` 用了 `"backlink"`、`"outgoing-link"`、`"starred"`，但 Obsidian 实际的 plugin ID 是 `"backlinks"`、`"outgoing-links"`、`"bookmarks"`（最后这个在 Obsidian 1.2 / 2023 年 8 月从 `starred` 改名）。Obsidian 对未识别的 plugin ID 是静默忽略——意味着每个新装的 lifeos vault 在 Obsidian 里打开时，反向链接面板、出向链接面板、书签面板全部静默关闭。三个 ID 全改对 + 加 Obsidian 文档 URL 的注释块。
     - **HIGH · `.obsidian/.gitignore` 缺 `cache`、`plugins/`、`themes/`** —— 用户装的 community plugin / theme 会被静默 commit 到 git，污染 repo。补全 + 加 `hot-reload.json`（开发流程）+ 加注释解释为什么需要两个 `.gitignore` 文件（Obsidian Sync 不读 vault-root `.gitignore`）。
@@ -971,13 +1006,13 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
 
   **验证 + 修了**：
   1. **P0 — `pre-bash-approval.sh` 有 5 处裸 `python -c`（行 57/133/166/179/187）**。macOS 12+ 移除了裸 `python` 二进制；只有 `python3`。Hook 在 macOS 上 fail-CLOSED 报 `python: command not found`，阻止所有 Bash → Claude Code 死锁。修复：顶部加 portable `PYTHON=$(command -v python3 || command -v python)` 检测，5 处裸 `python` 全换 `"$PYTHON"`。任何没有 `/usr/bin/python` symlink 的非 macOS Linux 也受益。R-1.8.0-020 引入了 GitHub Release 对齐 HARD RULE 但底层 hook bug 标题写改了实际没改 — 这一轮补上。
-  2. **P1 — `session-start-inbox.sh` NEVER_RUN 列表每个 session 浪费 ~10 行 LLM context**。R-1.8.0-021 把 NEVER_RUN 从 OVERDUE 桶里拆出来防止 LLM 误报，但多行 bullet list 仍在每个 Claude Code session 占 token。压缩成单行逗号分隔（`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`）。10 个权威 maintenance job 全保留（下游用户提议删 job 被否 — 那是 v1.8.0 user-invoked 的可发现性面，权威清单在 `pro/CLAUDE.md`）。
-  3. **P2 — `pro/CLAUDE.md` Step 10a 硬编码 4 个 Notion entity（Status / Todo / Working Memory / Inbox）**。真实用户 Notion 布局多种多样（下游用户 4 个里只配了 2 个）；orchestrator 把不存在的 entity 报"Working Memory: failed"。改为 config-driven：orchestrator 读 `_meta/config.md`，只 sync 配过的 entity，没配 Notion 时整个 Step 10a 跳过，checklist 只列配过的 entity（不再列"failed: not configured"）。
+  2. **P1 — `session-start-inbox.sh` NEVER_RUN 列表每个 session 浪费 ~10 行 LLM context**。R-1.8.0-021 把 NEVER_RUN 从 OVERDUE 桶里拆出来防止 LLM 误报，但多行 bullet list 仍在每个 Claude Code session 占 token。压缩成单行逗号分隔（`## Available on-demand (do NOT proactively offer): daily-briefing, backup, ...`）。10 个权威 maintenance job 全保留（下游用户提议删 job 被否 — 那是 v1.8.0 user-invoked 的可发现性面，权威清单在 `hosts/CLAUDE.md`）。
+  3. **P2 — `hosts/CLAUDE.md` Step 10a 硬编码 4 个 Notion entity（Status / Todo / Working Memory / Inbox）**。真实用户 Notion 布局多种多样（下游用户 4 个里只配了 2 个）；orchestrator 把不存在的 entity 报"Working Memory: failed"。改为 config-driven：orchestrator 读 `_meta/config.md`，只 sync 配过的 entity，没配 Notion 时整个 Step 10a 跳过，checklist 只列配过的 entity（不再列"failed: not configured"）。
   4. **P2 — `pre-bash-approval.sh` 拦截消息 "匹配模式: unknown" 太频繁**。approval.py decision payload 的 `pattern_key` 字段有时缺失，落到字面 `'unknown'`。改为提取 + 拼接 `key=` + `matched=`（实际匹配子串）+ `regex=`（pattern 源），4 字段全缺时给清晰的"decision payload missing all 4 fields"诊断。同时加文档说明 `export LIFEOS_YOLO_MODE=1` 在 Claude Code Bash tool 里 inline 无效（PreToolUse hook 在 export 之前求值 env），持久 bypass 要改 `~/.claude/settings.local.json` env 块。
 
   **拒绝 + 理由**：
   - **R-1.8.0-023（声称：spec 引用已删脚本）** — 不成立。active spec 里 `setup-cron.sh` / `retrospective-mode-0.sh` / `archiver-briefing-skeleton.sh` / `archiver-phase-prefetch.sh` 全部引用都带显式"REMOVED in R-1.8.0-011 / Option A pivot 删除"标记 + 解释上下文。Spec 正确文档化了删什么 + 替代方案；scanner 通过 CONTEXT_ALLOW 正确跳过。
-  - **R-1.8.0-024（声称：knowledge-extractor 没注册成 Task agent）** — 大概率是用户旧装。`scripts/setup-hooks.sh` L303-308 调用 `register-claude-agents.sh` 遍历 `pro/agents/*.md` 把每个文件（含 `knowledge-extractor.md`）写为 `~/.claude/agents/lifeos-<name>.md` wrapper。新装拿到全套。下游用户环境少 `lifeos-knowledge-extractor` 是因为他们从 v1.6.x 升级，那时 knowledge-extractor 还不存在；重跑 `bash scripts/setup-hooks.sh` 会重新注册。加短名别名风险撞名（`archiver` / `auditor` 等是 Claude Code skill 公共命名）。
+  - **R-1.8.0-024（声称：knowledge-extractor 没注册成 Task agent）** — 大概率是用户旧装。`scripts/setup-hooks.sh` L303-308 调用 `register-claude-agents.sh` 遍历 `agents/*.md` 把每个文件（含 `knowledge-extractor.md`）写为 `~/.claude/agents/lifeos-<name>.md` wrapper。新装拿到全套。下游用户环境少 `lifeos-knowledge-extractor` 是因为他们从 v1.6.x 升级，那时 knowledge-extractor 还不存在；重跑 `bash scripts/setup-hooks.sh` 会重新注册。加短名别名风险撞名（`archiver` / `auditor` 等是 Claude Code skill 公共命名）。
   - **R-1.8.0-026（声称：LIFEOS_YOLO_MODE inline bypass 不工作）** — 设计如此（安全）。PreToolUse hook 读 env 早于用户的 `export`；允许 inline bypass 等于绕过 guard。文档修复见上面 #4。
 
   **验证**：
@@ -990,34 +1025,34 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
   - `pytest tests/` → 233 通过 / 3 deselected
   - 31 个 tracked .sh `bash -n` → 全过
 
-  三语 CHANGELOG 同步。v1.8.0 tag 按 pro/CLAUDE.md 规则 #10 force-realign。
+  三语 CHANGELOG 同步。v1.8.0 tag 按 hosts/CLAUDE.md 规则 #10 force-realign。
 
-- **R-1.8.0-021 · 修 session-start-inbox hook：2 个 task 名字写错 + "never run" 被当作 overdue（2026-05-01 用户审计后）**：用户转发了一个下游审计员对 `scripts/hooks/session-start-inbox.sh` 的 spec drift 投诉——审计员的诊断 80% 是错的（说 6 个 v1.8.0 user-invoked maintenance job 是 "cron-only 残留"，建议删掉，按那个改会破坏 v1.8.0 的整个发现机制），但二次观察是真 UX bug。对照 `pro/CLAUDE.md` 权威 10-job 表逐项核对。
-  - **2 个真 bug 修了**：`TASKS_LINE` 数组里 2 个 task 名字和 `scripts/prompts/*.md` 实际文件 + `pro/CLAUDE.md` 权威表对不上：
+- **R-1.8.0-021 · 修 session-start-inbox hook：2 个 task 名字写错 + "never run" 被当作 overdue（2026-05-01 用户审计后）**：用户转发了一个下游审计员对 `scripts/hooks/session-start-inbox.sh` 的 spec drift 投诉——审计员的诊断 80% 是错的（说 6 个 v1.8.0 user-invoked maintenance job 是 "cron-only 残留"，建议删掉，按那个改会破坏 v1.8.0 的整个发现机制），但二次观察是真 UX bug。对照 `hosts/CLAUDE.md` 权威 10-job 表逐项核对。
+  - **2 个真 bug 修了**：`TASKS_LINE` 数组里 2 个 task 名字和 `scripts/prompts/*.md` 实际文件 + `hosts/CLAUDE.md` 权威表对不上：
     - `auditor-patrol` → `auditor-mode-2`（实际 prompt 名 + 权威清单名）
     - `monthly-summary` → `eval-history-monthly`（同上）
     没修之前，用户说"跑 auditor-patrol" ROUTER 找不到真实 prompt。eval-history glob 路径（扫 `_meta/eval-history/` 下旧文件名）没动——历史报告是按旧名写入的，task 名要和 prompt 对齐，report glob 要和历史 artifact 名对齐，两件事。
   - **"never run" 语义拆分**：之前任何没有 baseline 的 task 都和 overdue 一起报 `<name>: never run`。LLM 把它当债务，主动建议用户跑从未要求过的 job。拆成两个桶：
     - `OVERDUE` — 有 baseline 且 age > target。真债务；LLM 该提。
     - `NEVER_RUN` — 没 baseline。归到"Available on-demand（never run yet — NOT overdue, do NOT proactively offer）"段，明示除非用户问"有哪些维护任务"否则不要提。同步更新"How to surface"示例，只举 overdue（有 baseline）项，不举 never-run。
-  - **注释收紧**：`TASKS_LINE` 旁加 contract 注释——task 名必须对齐 `scripts/prompts/<name>.md` + `pro/CLAUDE.md` 权威表；解释为什么 `review-queue`（专门 parser 处理）+ `migrate-to-wikilinks`（一次性迁移）故意不在数组里。
+  - **注释收紧**：`TASKS_LINE` 旁加 contract 注释——task 名必须对齐 `scripts/prompts/<name>.md` + `hosts/CLAUDE.md` 权威表；解释为什么 `review-queue`（专门 parser 处理）+ `migrate-to-wikilinks`（一次性迁移）故意不在数组里。
   - **Smoke test**：用合成 stub（5d 前的 INDEX.md、12d 前的 spec-compliance 报告，其他无历史），现在 hook 输出 `## Overdue maintenance` 只列 `reindex: 5d`，`## Available on-demand` 单独列 8 个 never-run job 并附 do-NOT-offer 指令。同样 fixture 修复前会把 9 个 missing job 都报 overdue。
   - **验证**：`bash -n scripts/hooks/session-start-inbox.sh` 通过；STRICT 扫描器无变化 exit 0；mypy / ruff / pytest 不受影响（没动 Python）。
 
 - **R-1.8.0-020 · GitHub Release 对齐 HARD RULE + verifier 脚本（2026-04-30 用户观察后）**：用户在 R-1.8.0-019 后截图 GitHub Releases 页面：**"Latest" 仍然显示 v1.7.3,即使 main + v1.8.0 tag 都在 `e51822e`**。根因：`git push --tags` 只更新 git 层；GitHub Releases 页面是另一个独立 UI，Latest 标志和 release notes 必须通过 `gh release create` 或 web UI **显式发布**。4-29 那个 v1.8.0 Draft 从来没 publish，所以 v1.7.3 一直是 Latest。用户原话："今后每次都要检查这个东西"。
   - **发布 v1.8.0 Release**：删掉过时的 4-29 Draft，在 `e51822e` 重新打 tag，跑 `gh release create v1.8.0 --latest` 附完整 release notes 涵盖 R-1.8.0-013..019。v1.8.0 现在是 GitHub Latest。
   - **新增 `scripts/verify-release.sh`**：发布后对齐检查。验证 (1) 工作树干净、(2) HEAD == origin/main、(3) 目标 tag 指向 HEAD、(4) tag 已推到 remote、(5) GitHub Release 存在、(6) 不是 Draft、(7) 在 GitHub 上被标为 Latest。任何漂移 exit 1 + 输出修复用的 `git` / `gh` 命令。默认检查最新 tag；`bash scripts/verify-release.sh v1.8.0` 检查指定 tag。
-  - **`pro/CLAUDE.md` Orchestration Code of Conduct 加规则 #10**：把 4 步发布序列（push main → push tag → `gh release create --latest` → `verify-release.sh` exit 0）固化为 HARD RULE，让未来任何 session / 任何版本 / Gemini & Codex host 都强制执行。本地 `.claude/CLAUDE.md`（gitignored，仅本机）同步加同条规则方便日常使用。
+  - **`hosts/CLAUDE.md` Orchestration Code of Conduct 加规则 #10**：把 4 步发布序列（push main → push tag → `gh release create --latest` → `verify-release.sh` exit 0）固化为 HARD RULE，让未来任何 session / 任何版本 / Gemini & Codex host 都强制执行。本地 `.claude/CLAUDE.md`（gitignored，仅本机）同步加同条规则方便日常使用。
   - **验证**：`bash scripts/verify-release.sh` → exit 0（脚本自身提交后）；`gh release list` 确认 `v1.8.0 Latest`。
 
 - **R-1.8.0-019 · 删掉 active 文档对 legacy `16-agents` 路径的链接 + scanner 抓住此类残留（2026-04-30 用户第十三轮审计后）**：第十二轮把 active 文档的*内容*漂移收掉了（不再硬编码"16 subagents"）。用户第十三轮抓到最后一类残留：**active 文档入口仍把用户导向 legacy `architecture/16-agents.md` 和 `reference/all-16-agents/`**。Legacy 文件本身已正确 marked，但 `docs/index.md` 在"必读"/"找 agent 看哪里"导航里链向它们，等于把 v1.7 历史内容当作当前架构再次推荐给用户。
   - **重命名 legacy reference 目录**：`git mv docs/reference/all-16-agents → docs/reference/all-agents`（16 个 per-agent reference 文件全保留；只是目录名去掉过时数字）。
   - **重写 `docs/index.md` 导航**（之前 3 行链向 legacy 路径）：
-    - "找 agent 看哪里" 改为指向 `pro/agents/*.md`（真正的当前权威源）而不是 `architecture/16-agents.md`。Legacy 文件仍存在，但显式 de-recommend，说明它不是"当前架构入口"。
-    - "快速链接" 段：把 `[multiple agents](architecture/16-agents.md)` 换成 `[Agent 定义源](../pro/agents/)`。
-    - "改系统前必读顺序" 改为 `system-overview` → `pro/agents/` 源 → `orchestration-protocol`，并显式注明 architecture/ 下的旧 agent 清单文档是 `status: legacy` v1.7 历史，不在当前关键路径。
+    - "找 agent 看哪里" 改为指向 `agents/*.md`（真正的当前权威源）而不是 `architecture/16-agents.md`。Legacy 文件仍存在，但显式 de-recommend，说明它不是"当前架构入口"。
+    - "快速链接" 段：把旧的字面链接文本 `multiple agents -> architecture/16-agents.md` 换成 `Agent 定义源 -> ../agents/`。
+    - "改系统前必读顺序" 改为 `system-overview` → `agents/` 源 → `orchestration-protocol`，并显式注明 architecture/ 下的旧 agent 清单文档是 `status: legacy` v1.7 历史，不在当前关键路径。
   - **扫描器升级（`scripts/check-spec-drift.sh`）**：把 `16-agents.md`、`all-16-agents`、`all-16-a""gents`（bash 拼接）加入 FORBIDDEN_TOKENS，让以后任何 active 文档链向旧路径都会 STRICT fail。Legacy 文件（已 marked `status: legacy`）依旧豁免。
-  - **提交 runtime log**：`pro/compliance/violations.md` 有未提交的 runtime log 行（`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`），是今天测试时被 `stop-session-verify` hook 追加的——和 round-13 改动一起提交（文件是自动追加的违规日志；`pro/compliance/` 在 EXEMPT_PATTERN 内，不触发 drift）。
+  - **提交 runtime log**：`compliance/violations.md` 有未提交的 runtime log 行（`2026-04-30T12:43:39+09:00 CLASS_C high archiver placeholder_phases=1 2 3 4`），是今天测试时被 `stop-session-verify` hook 追加的——和 round-13 改动一起提交（文件是自动追加的违规日志；`compliance/` 在 EXEMPT_PATTERN 内，不触发 drift）。
   - **验证**：`STRICT=1 bash scripts/check-spec-drift.sh` → exit 0；审计员的 `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` 过滤非 legacy 非 CHANGELOG → active 0 命中；`git ls-files | xargs grep -l "16-agents|all-16-agents"` 过滤非 legacy 非 CHANGELOG → **active 0 命中**（之前是 1：docs/index.md）；mypy --strict tools/ → 0 错误 / 16 文件；ruff → 干净；pytest → 233 通过 / 3 deselected；31 个 tracked .sh `bash -n` → 全过。
 
 - **R-1.8.0-018 · 段落感知 lookback + 扩宽 NOUN 覆盖（2026-04-30 用户第十二轮审计后）**：第十一轮收紧 EXEMPT_PATTERN 到文件级，但用户第十二轮抓到两类剩余的"假绿"：
@@ -1032,13 +1067,13 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
     - `docs/guides/your-first-decision.md`："中间 16 个岗位具体在做什么" → "中间多个岗位具体在做什么"。
     - `docs/user-guide/themes/themes-overview.md`："以下 16 个功能完全相同" → "以下核心功能完全相同"。
     - `docs/user-guide/themes/adding-a-theme.md`："确保 16 个 ID 全部填上" → "确保所有当前 engine ID 全部填上"。
-    - `docs/architecture/system-overview.md`：架构图 "pro/agents/*.md (16 个) · themes/*.md (9 个)" → "pro/agents/*.md · themes/*.md (9 个)"（保留 9 个主题这个结构性稳定数字；删掉易漂移的 agent 数）。
-    - `pro/agents/retrospective.md`：TBD 引用 `pro/compliance/2026-04-23-status-cache-drift.md` 改写为 "(planned, TBD: ... will be created when the post-mortem is filed)" 让 planned 上下文豁免生效。
+    - `docs/architecture/system-overview.md`：架构图 "agents/*.md (16 个) · themes/*.md (9 个)" → "agents/*.md · themes/*.md (9 个)"（保留 9 个主题这个结构性稳定数字；删掉易漂移的 agent 数）。
+    - `agents/retrospective.md`：TBD 引用 `compliance/2026-04-23-status-cache-drift.md` 改写为 "(planned, TBD: ... will be created when the post-mortem is filed)" 让 planned 上下文豁免生效。
   - **验证**：`STRICT=1 bash scripts/check-spec-drift.sh` → exit 0；审计员原 `rg "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` 过滤非 legacy 非 CHANGELOG → **active 0 命中**；mypy --strict tools/ → 0 错误 / 16 文件；ruff → 干净；pytest → 233 通过 / 3 deselected；31 个 tracked .sh `bash -n` → 全过。
 
 - **R-1.8.0-017 · 让扫描器真的成为 source of truth——收紧 EXEMPT_PATTERN + 抓出真正的残留（2026-04-30 用户第十一轮审计后）**：用户第十一轮审计的核心洞察：R-1.8.0-016 的扫描器之所以通过，是因为它有过宽的**目录级豁免**（整个 `docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/` 被跳过），不是因为仓库真的干净。在那种豁免下，扫描器 PASS 不能作为 "active 文档没漂移" 的证明。审计员通过列出扫描器漏掉的 24 处 active 数量漂移残留（FAQ、主题概览、ZH/JA 安装文档等）证明了这个 gap。这一轮 (a) 通过删除目录豁免让扫描器变得可信，(b) 修掉新扫描器抓到的所有问题。
   - **扫描器收紧（`scripts/check-spec-drift.sh`）**：
-    - **删除目录级豁免**：`docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/`、`references/v1.7-shipping-report-`、`references/cortex-spec.md`、`references/tools-spec.md`、`references/narrator-spec.md`。新的 EXEMPT_PATTERN 只覆盖真正历史性的 artifact（CHANGELOG、backup/、MIGRATION、扫描器自己、*-template、pro/compliance/ 违规日志）。其他文件必须用 YAML frontmatter（`status: legacy` / `authoritative: false`）声明自己是 legacy，或按行靠 8 行 CONTEXT_ALLOW lookback 豁免。
+    - **删除目录级豁免**：`docs/architecture/`、`docs/guides/`、`i18n/.*/docs/`、`i18n/.*/references/`、`references/v1.7-shipping-report-`、`references/cortex-spec.md`、`references/tools-spec.md`、`references/narrator-spec.md`。新的 EXEMPT_PATTERN 只覆盖真正历史性的 artifact（CHANGELOG、backup/、MIGRATION、扫描器自己、*-template、compliance/ 违规日志）。其他文件必须用 YAML frontmatter（`status: legacy` / `authoritative: false`）声明自己是 legacy，或按行靠 8 行 CONTEXT_ALLOW lookback 豁免。
     - **扩宽 SUBAGENT_COUNT_PATTERNS**：增加 round-10 修复漏掉的 regex 变体——`子 agent`（子 = "sub" 替代说法）、`[N] 个 [修饰词] subagent` 允许数字和 noun 之间最多 12 字符（捕捉 `16 个真正独立的 subagent`）、`[N] engine ID`、`[N] engine agent`、JA `[N]の独立サブエージェント`、`[N]のAI 役職`、`同じ[N]の役職`、`[N] subagent 並列`。阈值升到 N≥13，让结构性数量（如"1-3 领域 agent"、"每次 Express 至少 2 个独立 subagent"、"9 个主题"）不被误报——只有可疑数量级（覆盖系统历史 14/16/22/23）才触发。
   - **Active 文档修复（13 文件 28 处替换）**：Python 脚本 + 单文件编辑，把新扫描器抓到的全部命中替换为 count-free 措辞。
     - `docs/getting-started/what-is-life-os.md` + ZH 平行：`16 子 agent 并行 — 同时跑 16 个独立 subagent` → `多个子 agent 并行 — 同时跑多个独立 subagent`。同段落原 v1.7 narrator-validator 独立 subagent 描述也改成 v1.8.0 inline self-check（EN/ZH/JA 同步）。
@@ -1050,18 +1085,18 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
     - `i18n/ja/docs/installation.md`：9 处（`16の独立したAI役職`、`16のサブエージェント`、`16の独立サブエージェント`、`同じ16の役職`）→ `複数の …`。
     - `i18n/ja/README.md`：原生 subagent 注册段的具体数字（22 / 21）→ `複数の agent 定義ファイル / ほぼすべて`。
     - `docs/user-guide/themes/adding-a-theme.md` PR 贡献清单：`16 个 engine ID 完整映射` → `全部 engine ID 完整映射`。
-  - **将 v1.7 narrator-spec 译文标为 legacy**：`i18n/{zh,ja}/references/narrator-spec.md` 之前是 `status: draft`（没有 `authoritative: false`）；现在加上 `status: legacy` + `authoritative: false` + `superseded_by: pro/agents/narrator.md`，让扫描器正确识别它们是历史档案（EN 母版已经如此标记）。
+  - **将 v1.7 narrator-spec 译文标为 legacy**：`i18n/{zh,ja}/references/narrator-spec.md` 之前是 `status: draft`（没有 `authoritative: false`）；现在加上 `status: legacy` + `authoritative: false` + `superseded_by: agents/narrator.md`，让扫描器正确识别它们是历史档案（EN 母版已经如此标记）。
   - **Cortex compliance gate 退役（`scripts/lifeos-compliance-check.sh`）**：`check_cortex_gate()` 之前依赖 legacy `cortex_enabled: true` config flag。v1.8.0 R-1.8.0-011 让 Cortex 改为 pull-based，那个 flag 已死。Gate 现在只在 transcript 已经显示 ROUTER 显式启动了 Cortex subagent 时才触发（`Task(hippocampus)` / `Launch(concept-lookup)` 等）。如果 ROUTER 跳过 Cortex（pivot 后的常态），gate 返回 "not applicable"，CX1/CX2/CX3 不触发。同步更新 `tests/test_compliance_check.py::TestCortex`：把 v1.7 的 `test_cortex_enabled_no_agents_fails` 替换为 `test_cortex_enabled_no_agents_passes_post_pivot`（验证 legacy flag 现在被忽略）+ 新增 `test_cortex_partial_launch_fails`（验证部分 Cortex 证据仍然会触发 CX2/CX3）。
   - **验证**：`STRICT=1 bash scripts/check-spec-drift.sh` → exit 0（broken paths：0；active 文件 subagent-count drift 命中：0）；用户端 `git ls-files | xargs grep -l "16 subagents|16 个 subagent|16 个 agent|All 16 subagents"` 过滤非 legacy 非 CHANGELOG → **active 0 命中**；mypy --strict tools/ → 0 错误 / 16 文件；ruff → 干净；pytest → **233 通过** / 3 deselected（之前 232 + 1 个 cortex gate 改动失败）；31 个 tracked .sh `bash -n` → 全过。
 
 - **R-1.8.0-016 · 永久解决 count-drift——active 文档不再硬编码 subagent 数量（2026-04-30 用户第十轮审计 + 用户明确指示后）**：用户原话："不要说多少个 agent 了，多少个 agent 不重要，就说'多个 agent'就行。改了十几遍了，还没有改好。" 不再每次数量变就跑 16→23 的替换，这一轮**彻底退役固定数字**：把 "23 (sub)agents / 23 个 subagent / 23 個の独立した agent / 16 个独立 AI 角色 / 等等" 改成**count-free 措辞**（"multiple subagents" / "多个 subagent" / "複数の subagent"）覆盖所有 active 文档。以后再增 agent（v1.9 可能再加几个）不需要改任何文档。
-  - **批量数量删除扫描**：Python 脚本两次 pass 跨 17 个 active（非 legacy 非 CHANGELOG）文档共做了 79 处 substring/regex 替换，覆盖 EN/ZH/JA。覆盖模式：`N independent (AI )?(agents|roles|subagents)`、`N (sub)?agents?`、`N AI roles`、`All N subagents`、`the N defined roles`、`N functional IDs`、`## N Roles`、`#### The N agents`、ZH `N 个 (subagent|agent|独立 agent|AI 角色|角色|功能 ID)`、JA `Nの(独立した|エージェント|機能 ID|声|個の)`、外加 `N agent (制衡|编排|definitions|files|calls|相互牽制|意思決定エンジン)`。涉及文件：`SKILL.md`、`README.md`、`i18n/{zh,ja}/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{what-is-life-os,first-session,choose-your-platform}.md`（× EN/ZH/JA 适用之处）、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/user-guide/making-decisions/reading-the-summary-report.md`、`docs/user-guide/themes/{adding-a-theme,themes-overview}.md`、`docs/reference/version-history.md`、`pro/AGENTS.md`、`pro/GEMINI.md`、根 `AGENTS.md`。历史性记录（`version-history.md` 里 v1.6.0 条目说 "v1.6.0 当时为 16 个，至 v1.8.0 增至 23 个"）保留——那是有意保留的事实，不是漂移。
+  - **批量数量删除扫描**：Python 脚本两次 pass 跨 17 个 active（非 legacy 非 CHANGELOG）文档共做了 79 处 substring/regex 替换，覆盖 EN/ZH/JA。覆盖模式：`N independent (AI )?(agents|roles|subagents)`、`N (sub)?agents?`、`N AI roles`、`All N subagents`、`the N defined roles`、`N functional IDs`、`## N Roles`、`#### The N agents`、ZH `N 个 (subagent|agent|独立 agent|AI 角色|角色|功能 ID)`、JA `Nの(独立した|エージェント|機能 ID|声|個の)`、外加 `N agent (制衡|编排|definitions|files|calls|相互牽制|意思決定エンジン)`。涉及文件：`SKILL.md`、`README.md`、`i18n/{zh,ja}/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{what-is-life-os,first-session,choose-your-platform}.md`（× EN/ZH/JA 适用之处）、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/user-guide/making-decisions/reading-the-summary-report.md`、`docs/user-guide/themes/{adding-a-theme,themes-overview}.md`、`docs/reference/version-history.md`、`hosts/AGENTS.md`、`hosts/GEMINI.md`、根 `AGENTS.md`。历史性记录（`version-history.md` 里 v1.6.0 条目说 "v1.6.0 当时为 16 个，至 v1.8.0 增至 23 个"）保留——那是有意保留的事实，不是漂移。
   - **扫描器升级——基于 regex 的数量漂移检测（`scripts/check-spec-drift.sh`）**：把 round-9 那个固定 token list（`"16 sub""agents"` 之类）替换成 `SUBAGENT_COUNT_PATTERNS`——一组能匹配**任意**硬编码数字的 regex。Pattern 用 bash 相邻字符串拼接，扫描器源码自身 0 命中。ERE 模式：`[0-9]+ (sub|independent )?(agents?|subagents?|roles?|individuals?)`、`[0-9]+ ?个 ?(subagent|agent|角色|功能 ID)`、`[0-9]+ agent (制衡|编排|定义|calls)`、`[0-9]+ 個の独立した (subagent|agent|エージェント)`、`[0-9]+の(機能 ID|声|エージェント)`。同样的 8 行 CONTEXT_ALLOW lookback + legacy frontmatter 豁免。以后再加 agent（v1.9 +N 个）不会触发漂移，因为不会有人再写硬编码数字了。扫描器抓到 3 个我初步批量没扫到的残留（`docs/user-guide/themes/{adding-a-theme,themes-overview}.md` 里有 `4 个角色`、`16 个角色`、`16 个功能 ID`）——全部改写。
   - **验证**：`STRICT=1 bash scripts/check-spec-drift.sh` exit 0（broken paths：0；active 文件 subagent-count hits：0）；用户端 `git ls-files | xargs grep -lE "\b\d{1,2} (sub)?agents?\b|..."` 过滤非 legacy 非 CHANGELOG：**active 0 命中**；mypy --strict tools/ → 0 错误 / 16 文件；ruff → 干净；pytest → 232 通过 / 3 deselected；31 个 tracked .sh `bash -n` → 全过。
   - **`v1.8.0` tag 再次对齐**到包含本轮永久修复的 commit。
 
-- **R-1.8.0-015 · Subagent 数量漂移清理 + tag 对齐（2026-04-30 用户第九轮审计后）**：用户第九轮审计在 R-1.8.0-014 STRICT 通过后又抓到两个残留：(a) subagent 数量漂移——根 `AGENTS.md` 已是 23，但 `pro/AGENTS.md`、`pro/GEMINI.md`、`docs/index.md`、`docs/installation.md`、`SKILL.md`、三语 README 以及约 14 个用户向文档仍说 16；(b) `v1.8.0` git tag 仍指向 `02aea0d`（R-1.8.0-013 commit）而不是最新的 Spec-GC HEAD `6cb3d79`。语义计数漂移正是 R-1.8.0-014 扫描器抓不到的那种问题——STRICT 只验已删除路径 / 禁用 token，不验用户可见的语义数字。
-  - **批量数量更新（16 → 23）**：跨所有 active（非 legacy 非 CHANGELOG）文档机械替换。涉及文件：`SKILL.md`、`pro/AGENTS.md`、`pro/GEMINI.md`、`README.md`（EN）、`i18n/zh/README.md`、`i18n/ja/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{first-session,choose-your-platform,what-is-life-os}.md`、`i18n/zh/docs/getting-started/what-is-life-os.md`、`i18n/ja/docs/getting-started/what-is-life-os.md`、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/reference/version-history.md`。覆盖模式：`16 subagents`、`16 个 subagent`、`16 个 agent`、`16 个独立 agent`、`All 16 subagents`、`16 independent agents`、`16 個の独立した agent`、`16 functional IDs`。`version-history.md` 里 v1.6.0 历史迁移条目改写为 `v1.6.0 当时的 agent 文件重命名（v1.6.0 时为 16 个，至 v1.8.0 增至 23 个）`，让历史引用仍然准确。
+- **R-1.8.0-015 · Subagent 数量漂移清理 + tag 对齐（2026-04-30 用户第九轮审计后）**：用户第九轮审计在 R-1.8.0-014 STRICT 通过后又抓到两个残留：(a) subagent 数量漂移——根 `AGENTS.md` 已是 23，但 `hosts/AGENTS.md`、`hosts/GEMINI.md`、`docs/index.md`、`docs/installation.md`、`SKILL.md`、三语 README 以及约 14 个用户向文档仍说 16；(b) `v1.8.0` git tag 仍指向 `02aea0d`（R-1.8.0-013 commit）而不是最新的 Spec-GC HEAD `6cb3d79`。语义计数漂移正是 R-1.8.0-014 扫描器抓不到的那种问题——STRICT 只验已删除路径 / 禁用 token，不验用户可见的语义数字。
+  - **批量数量更新（16 → 23）**：跨所有 active（非 legacy 非 CHANGELOG）文档机械替换。涉及文件：`SKILL.md`、`hosts/AGENTS.md`、`hosts/GEMINI.md`、`README.md`（EN）、`i18n/zh/README.md`、`i18n/ja/README.md`、`docs/index.md`、`docs/installation.md`、`i18n/zh/docs/installation.md`、`docs/getting-started/{first-session,choose-your-platform,what-is-life-os}.md`、`i18n/zh/docs/getting-started/what-is-life-os.md`、`i18n/ja/docs/getting-started/what-is-life-os.md`、`docs/architecture/{system-overview,roadmap}.md`、`docs/evals/{overview,writing-new-scenarios}.md`、`docs/guides/multi-platform-setup.md`、`docs/user-guide/second-brain/{second-brain-overview,obsidian-integration}.md`、`docs/reference/version-history.md`。覆盖模式：`16 subagents`、`16 个 subagent`、`16 个 agent`、`16 个独立 agent`、`All 16 subagents`、`16 independent agents`、`16 個の独立した agent`、`16 functional IDs`。`version-history.md` 里 v1.6.0 历史迁移条目改写为 `v1.6.0 当时的 agent 文件重命名（v1.6.0 时为 16 个，至 v1.8.0 增至 23 个）`，让历史引用仍然准确。
   - **`docs/architecture/system-overview.md` subagent 列表更新**：之前 "23 个 subagent" 标题下列的还是 16 个名字。补全为全部 23 个 ID（新增：`hippocampus`、`concept-lookup`、`soul-check`、`gwt-arbitrator`、`narrator`、`knowledge-extractor`、`monitor`）。
   - **扫描器扩展（`scripts/check-spec-drift.sh`）**：`FORBIDDEN_TOKENS` 新增 7 条 subagent 数量漂移 token。tokens 用 bash 相邻字符串拼接（`"16 sub""agents"`）写出，扫描器源码本身不携带字面子串——这样用户端跑 `rg "16 subagents"` 审计仓库时，扫描器自己 0 命中，只剩真正的漂移候选。legacy frontmatter（`status: legacy` 或 `authoritative: false`）豁免依旧生效；v1.7 时代 spec / 档案文件仍历史性提到 "16"，被正确跳过。
   - **`v1.8.0` tag 强制对齐**：删除本地 + 远程 tag，在 HEAD `6cb3d79` 重新打 annotated tag，让拉 `v1.8.0` 的消费者拿到完整的 Spec-GC + subagent 数量清理（R-1.8.0-014 + R-1.8.0-015），不再是旧的 R-1.8.0-013 snapshot。（`git tag -d v1.8.0 && git push origin :refs/tags/v1.8.0 && git tag -a v1.8.0 <head> && git push origin v1.8.0`。）
@@ -1077,7 +1112,7 @@ bash scripts/setup-hooks.sh   # 装新 /inbox-process + /research + /migrate-con
   - **Active 文件改写**（已删除脚本引用全部加上"v1.8.0 pivot 删除"的明示注释，或迁移到 pull-based 等价物）：
     - `docs/getting-started/what-is-life-os.md` Layer 4 段落（× EN/ZH/JA）：把 cron 时代的 `scripts/{decay-audit,dream-trigger-check,monthly-review,session-index,wiki-conflict-check}.py` 列表换成 R-1.8.0-011 后实际发布的 `python -m tools.<name>` 模块。
     - `tools/README.md`：重写 Status + Authoritative Spec 段落，把"Planned Modules"表格换成"Currently Shipped Modules"，列出实际存在的 10 个工具，已删除的 dispatcher / cron 脚本 / cortex helper 标为历史背景。
-    - `pro/agents/monitor.md` Related Specs：`references/automation-spec.md` 和 `references/session-modes-spec.md` 标为 v1.8.0 pivot 删除（被 `pro/CLAUDE.md` Session Modes 替代）。
+    - `agents/monitor.md` Related Specs：`references/automation-spec.md` 和 `references/session-modes-spec.md` 标为 v1.8.0 pivot 删除（被 `hosts/CLAUDE.md` Session Modes 替代）。
     - `evals/scenarios/tool-seed.md`：`references/SOUL-template.md` 与 `references/tools-spec.md §6.10` 标为 legacy/已删除；`tools/seed.py` 现在内联生成 skeleton。
     - `docs/user-guide/themes/adding-a-theme.md`：删除对不存在的 `themes/zh-classical-tw.md` 的引用，改为描述繁体中文需用户自行创建。
   - **legacy frontmatter 批处理（第 8 轮累计 · 71 文件分两批标注）**：`docs/architecture/`、`docs/guides/v1.7-migration.md`、`docs/user-guide/cortex/*`（× EN/ZH/JA）、`references/{cortex-spec, cortex-architecture, narrator-spec, tools-spec, v1.7-shipping-report, templates/concept-template, concept-spec, data-layer, eval-history-spec, hippocampus-spec, method-library-spec, session-index-spec, snapshot-spec, compliance-spec}.md`（× EN/ZH/JA）、`evals/scenarios/*` 全部带 `status: legacy`（或 `authoritative: false`），扫描器把它们识别为历史档案而非 active spec。
@@ -1131,16 +1166,16 @@ v1.7.3 audit 发现的「spec 承诺但从未自动化」缺口现已 close。AU
   - `/method create|update|list` — 基于 `tools.skill_manager` CLI 的方法论库管理。
 - **Approval guard 接入 (PreToolUse Bash hook)**：新增 `scripts/hooks/pre-bash-approval.sh`，把每次 Bash 命令桥接到 `tools/approval.py`。修复 v1.7.2 缺口：47 个危险命令 pattern + hardline + tirith guards 之前 0 调用。Hook 读 stdin JSON，跑 `check_dangerous_command()`，exit 0（静默放行）或 exit 2 + stderr（拦截并显示原因）。绕开方式：`export LIFEOS_YOLO_MODE=1`。注册为 `life-os-pre-bash-approval`（PreToolUse · matcher Bash · timeout 5s）。
 - **Memory 自动 emit 检测（自动触发补丁 · 2026-04-27）**：`pre-prompt-guard.sh` 也检测中/英/日 memory 关键词（记一下 / remind me / 覚えて / TODO 等），注入 `<system-reminder>`（trigger=memory）强制 ROUTER 自动跑 `python -m tools.memory emit`，而不是把用户引导到 `/memory`。新增 `trigger=memory` 值到 hook activity log。
-- **pro/CLAUDE.md → Auto-Trigger Rules section（自动触发补丁 · 2026-04-27）**：明文定义 memory 自动 emit、compress 自动建议、search 自动触发（通过 Cortex hippocampus）、method 自动 create（通过 archiver Phase 2 → knowledge-extractor）。原则："如果 ROUTER 让用户切换到 slash command，那是 UX bug——直接做动作"。
-- **knowledge-extractor subagent (Phase 2 拆分 · 2026-04-27)**：新增 `pro/agents/knowledge-extractor.md`（Opus tier，[Read, Grep, Glob, Bash, Write] tools）。执行 7 个 Phase 2 sub-step（wiki 六准则审查 / SOUL 维度变化 / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map）并写 7 个持久文件。同时写 7 个 extraction reports 到 `_meta/runtime/<sid>/extraction/*.md` 供 archiver 读回。R11 audit trail 写到 `_meta/runtime/<sid>/knowledge-extractor.json`。原因：之前 monolithic archiver 有 80%+ placeholder 违规（最近 10+ 次 adjourn 在 `pro/compliance/violations.md` 2026-04-25 至 2026-04-27），因为它一次要做太多事。ROUTER 必须在 launch archiver 之前先 launch knowledge-extractor。
+- **hosts/CLAUDE.md → Auto-Trigger Rules section（自动触发补丁 · 2026-04-27）**：明文定义 memory 自动 emit、compress 自动建议、search 自动触发（通过 Cortex hippocampus）、method 自动 create（通过 archiver Phase 2 → knowledge-extractor）。原则："如果 ROUTER 让用户切换到 slash command，那是 UX bug——直接做动作"。
+- **knowledge-extractor subagent (Phase 2 拆分 · 2026-04-27)**：新增 `agents/knowledge-extractor.md`（Opus tier，[Read, Grep, Glob, Bash, Write] tools）。执行 7 个 Phase 2 sub-step（wiki 六准则审查 / SOUL 维度变化 / methods / concepts + Hebbian / SessionSummary / snapshot / strategic-map）并写 7 个持久文件。同时写 7 个 extraction reports 到 `_meta/runtime/<sid>/extraction/*.md` 供 archiver 读回。R11 audit trail 写到 `_meta/runtime/<sid>/knowledge-extractor.json`。原因：之前 monolithic archiver 有 80%+ placeholder 违规（最近 10+ 次 adjourn 在 `compliance/violations.md` 2026-04-25 至 2026-04-27），因为它一次要做太多事。ROUTER 必须在 launch archiver 之前先 launch knowledge-extractor。
 
 ### 变更
 
-- **narrator-validator audit trail HARD RULE**：`pro/agents/narrator-validator.md` frontmatter `tools` 从 `[Read]` 扩展到 `[Read, Bash, Write]`；新增 "Audit Trail (R11, HARD RULE)" section，要求返回 YAML 前必须写 `_meta/runtime/<sid>/narrator-validator.json`。
+- **narrator-validator audit trail HARD RULE**：`agents/narrator-validator.md` frontmatter `tools` 从 `[Read]` 扩展到 `[Read, Bash, Write]`；新增 "Audit Trail (R11, HARD RULE)" section，要求返回 YAML 前必须写 `_meta/runtime/<sid>/narrator-validator.json`。
 - **版本标记**：`SKILL.md` frontmatter 和 3 份 README badge 更新到 `1.7.3`。
 - **spec 文档更新为 inline 压缩**：`SKILL.md` Trigger Execution Templates `/compress` section、`references/hard-rules-index.md` manual compression bullet、`evals/scenarios/cortex-retrieval.md` CX11 positive case 全部重写为说 ROUTER inline 压缩，替代已删的 `tools/context_compressor.py`。
-- **4 个 slash command 文件降级为 backup mode（自动触发补丁 · 2026-04-27）**：每个 `scripts/commands/{compress,search,memory,method}.md` 开头加 "⚠️ Backup mode" header，指向对应的 pro/CLAUDE.md Auto-Trigger Rules 子段。Slash command 保留功能，用于：(1) 用户精确控制，(2) 开发者冒烟测试，(3) 自动触发 fallback。
-- **archiver.md Phase 2 拆分 + spec 一致性修复（拆分 · 2026-04-27）**：`pro/agents/archiver.md` line 77 修正（之前 "12-section Adjourn Report Completeness Contract" 是 v1.7.2 旧措辞，现在改为 v1.7.2.3 的 "6-H2"）。Phase 2 spec 完整重写：主路径委托给 `knowledge-extractor` subagent；legacy 7-sub-step inline spec 保留作 fallback。`pro/CLAUDE.md` Step 10 更新：ROUTER 必须先 launch `knowledge-extractor`，再 launch `archiver`。新 launch 顺序模板。
+- **4 个 slash command 文件降级为 backup mode（自动触发补丁 · 2026-04-27）**：每个 `scripts/commands/{compress,search,memory,method}.md` 开头加 "⚠️ Backup mode" header，指向对应的 hosts/CLAUDE.md Auto-Trigger Rules 子段。Slash command 保留功能，用于：(1) 用户精确控制，(2) 开发者冒烟测试，(3) 自动触发 fallback。
+- **archiver.md Phase 2 拆分 + spec 一致性修复（拆分 · 2026-04-27）**：`agents/archiver.md` line 77 修正（之前 "12-section Adjourn Report Completeness Contract" 是 v1.7.2 旧措辞，现在改为 v1.7.2.3 的 "6-H2"）。Phase 2 spec 完整重写：主路径委托给 `knowledge-extractor` subagent；legacy 7-sub-step inline spec 保留作 fallback。`hosts/CLAUDE.md` Step 10 更新：ROUTER 必须先 launch `knowledge-extractor`，再 launch `archiver`。新 launch 顺序模板。
 - **stop-session-verify hook LLM_FILL 检测（拆分 · 2026-04-27）**：`scripts/hooks/stop-session-verify.sh check_phase()` 增强。之前只检测 phase header 行的 TBD / `{...}` / "placeholder"。现在也扫描每个 phase header 之后 30 行内的未填 `<!-- LLM_FILL: ... -->` pattern 和 `LLM_FILL:` 字符串，标记为 `placeholder_phases`。捕获最近 archiver 违规的真实根因（LLM 把 Bash skeleton 原样输出而没填占位符）。
 
 ### 删除（4 个死代码模块 · 1830 行）
@@ -1186,18 +1221,18 @@ v1.7.2 所有 dead-weight 发现 + v1.7.3 archiver 违规根因都已 close：
 
 ## [1.7.2.3] - 2026-04-26 - RETROSPECTIVE 骨架所有权
 
-> Subagent D ownership patch。范围仅限 `pro/agents/retrospective.md`、`SKILL.md`、三份 README 和三份 CHANGELOG。
+> Subagent D ownership patch。范围仅限 `agents/retrospective.md`、`SKILL.md`、三份 README 和三份 CHANGELOG。
 
 ### 变更
 
-- **收窄 RETROSPECTIVE 职责**：`pro/agents/retrospective.md` 现在说明 ROUTER 通过 Bash skeleton 预渲染 Mode 0 约 80% 内容。
+- **收窄 RETROSPECTIVE 职责**：`agents/retrospective.md` 现在说明 ROUTER 通过 Bash skeleton 预渲染 Mode 0 约 80% 内容。
 - **单一 LLM 填充槽**：subagent 只填 `<!-- LLM_FILL: today_focus_and_pending_decisions -->`，用约 5-15 行生成 Today's Focus + Pending Decisions；ROUTER 再把该块拼回 skeleton。
 - **版本标记**：`SKILL.md` 与 README badges 更新为 `1.7.2.3`。
 - **install_sha 字段补齐 SHA 缺口**：`SKILL.md` frontmatter 现在携带 `commit_sha` 和 `install_date` 字段。`setup-hooks.sh` 会在 git clone 部署时自动写入它们。新增的 `scripts/lib/sha-fallback.sh` 提供 3 层解析：`SKILL.md` frontmatter → `.install-meta` JSON → `git rev-parse HEAD` → `unknown`。关闭 install-skill 部署中的 `Local commit SHA: unknown` bug。
-- **SOUL/DREAM 显示恢复(回归 v1.6.x 体验)**：`scripts/retrospective-briefing-skeleton.sh` 现在用 Bash 完整 paste `SOUL.md` 全文 + 最新 `_meta/journal/*-dream.md` 全文到 fenced markdown block。LLM 只在上面加 delta 解读(confidence trend / today implications),不能压缩 SOUL/DREAM 结构内容。`pro/agents/retrospective.md` ## 2 / ## 3 spec 改为"Bash paste 全文 + LLM 趋势解读"模型。撤销 v1.7.2.1 过度减法把 SOUL Health 压缩到"仅变化维度" + DREAM 压缩到"1-2 句 digest"的副作用。
-- **退朝 12 H2 → 6 H2 + LLM token budget(速度修)**:`pro/agents/archiver.md` Adjourn Report Completeness Contract 从 12 H2 减到 6 核心 H2(Phase 0/1/2/3/4 + Completion Checklist)。AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost 折叠为 Completion Checklist 下的 H3 子项。新增"Phase 2/3 LLM Token Budget" HARD RULE:Phase 2 narrative ≤ 1500 tokens(合并 wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity),Phase 3 narrative ≤ 800 tokens。verbatim DREAM journal 不计入 budget(Bash paste)。速度目标:archiver Adjourn 25 分钟 → 10-12 分钟。
-- **archiver-briefing-skeleton.sh 新建(archiver 的 Bash 骨架)**:新 `scripts/archiver-briefing-skeleton.sh` 镜像 `retrospective-briefing-skeleton.sh` 设计 — 输出 6 H2 Adjourn Report 框架,Bash paste Phase 0/1/4 + 实测数据(outbox 路径 / decision-task-journal 计数 / wiki-SOUL-DREAM stat / git status / Stop hook 健康)。LLM 只填 `<!-- LLM_FILL -->` placeholder(Phase 2/3 narrative + Completion Checklist 值)。已 wire 进 `pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Step 10 Adjourn Session 段。与现有 `archiver-phase-prefetch.sh`(R11 audit trail)互补。
-- **Session Binding HARD RULE 重写(产品方向修正)**:`pro/CLAUDE.md` / `pro/GEMINI.md` / `pro/AGENTS.md` Session Binding HARD RULE 澄清:**discussion scope ≠ data write scope**。Session binding 约束**数据持久化**(decisions/wiki/SOUL 写哪个项目),不约束**讨论话题**。ROUTER 直接处理用户提出的任何议题(财务 / 战略 / 人际 / 跨项目 / 抽象)。ROUTER 禁止 deflect 措辞 "本窗口角色只做 X" / "请转到其他窗口" / "translate to planner trigger paste for another window" / "召唤翰林院 panel" 除非用户明确要求。撤销 13 轮 hardening 累积的"LLM 把 session binding 误读为业务议题禁区"副作用。恢复 Life OS 决策思考助手的初心。
+- **SOUL/DREAM 显示恢复(回归 v1.6.x 体验)**：`scripts/retrospective-briefing-skeleton.sh` 现在用 Bash 完整 paste `SOUL.md` 全文 + 最新 `_meta/journal/*-dream.md` 全文到 fenced markdown block。LLM 只在上面加 delta 解读(confidence trend / today implications),不能压缩 SOUL/DREAM 结构内容。`agents/retrospective.md` ## 2 / ## 3 spec 改为"Bash paste 全文 + LLM 趋势解读"模型。撤销 v1.7.2.1 过度减法把 SOUL Health 压缩到"仅变化维度" + DREAM 压缩到"1-2 句 digest"的副作用。
+- **退朝 12 H2 → 6 H2 + LLM token budget(速度修)**:`agents/archiver.md` Adjourn Report Completeness Contract 从 12 H2 减到 6 核心 H2(Phase 0/1/2/3/4 + Completion Checklist)。AUDITOR Mode 3 / Subagent self-check / 子代理调用清单 / Hook fired / total tokens-cost 折叠为 Completion Checklist 下的 H3 子项。新增"Phase 2/3 LLM Token Budget" HARD RULE:Phase 2 narrative ≤ 1500 tokens(合并 wiki/SOUL/method/concept/strategic/SessionSummary/snapshot/last_activity),Phase 3 narrative ≤ 800 tokens。verbatim DREAM journal 不计入 budget(Bash paste)。速度目标:archiver Adjourn 25 分钟 → 10-12 分钟。
+- **archiver-briefing-skeleton.sh 新建(archiver 的 Bash 骨架)**:新 `scripts/archiver-briefing-skeleton.sh` 镜像 `retrospective-briefing-skeleton.sh` 设计 — 输出 6 H2 Adjourn Report 框架,Bash paste Phase 0/1/4 + 实测数据(outbox 路径 / decision-task-journal 计数 / wiki-SOUL-DREAM stat / git status / Stop hook 健康)。LLM 只填 `<!-- LLM_FILL -->` placeholder(Phase 2/3 narrative + Completion Checklist 值)。已 wire 进 `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` Step 10 Adjourn Session 段。与现有 `archiver-phase-prefetch.sh`(R11 audit trail)互补。
+- **Session Binding HARD RULE 重写(产品方向修正)**:`hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` Session Binding HARD RULE 澄清:**discussion scope ≠ data write scope**。Session binding 约束**数据持久化**(decisions/wiki/SOUL 写哪个项目),不约束**讨论话题**。ROUTER 直接处理用户提出的任何议题(财务 / 战略 / 人际 / 跨项目 / 抽象)。ROUTER 禁止 deflect 措辞 "本窗口角色只做 X" / "请转到其他窗口" / "translate to planner trigger paste for another window" / "召唤翰林院 panel" 除非用户明确要求。撤销 13 轮 hardening 累积的"LLM 把 session binding 误读为业务议题禁区"副作用。恢复 Life OS 决策思考助手的初心。
 
 ### 迁移
 
@@ -1353,8 +1388,8 @@ v1.7.2 所有 dead-weight 发现 + v1.7.3 archiver 违规根因都已 close：
 - **10 个 Python 工具统一收敛到 `life-os-tool`** — reindex / reconcile / stats / research / daily-briefing / backup / migrate / search / export / seed(+ embed 占位 + sync-notion)
 - **3 个 Python 库** — `tools/lib/{config, llm, notion}` 作为所有工具的共享底座
 - **三语用户指南落地** — 6 个新 Cortex 指南(EN)+ cortex-spec / hippocampus-spec 的中日翻译
-- **host 无关 orchestration 契约** — Step 0.5(路由前认知)+ Step 7.5(Narrator 校验)已在 CLAUDE.md / GEMINI.md / AGENTS.md(root + `pro/`)成为规范
-- **Life OS agents 注册为 Claude Code 原生 subagents** — install 会从 22 个 `pro/agents/*.md` 定义生成 21 个可被 Task 调用的 `~/.claude/agents/lifeos-*.md` wrapper，跳过 ROUTER-internal 的 narrator 模板，确保 `Task(lifeos-retrospective)` 不再 fallback 到 `general-purpose`
+- **host 无关 orchestration 契约** — Step 0.5(路由前认知)+ Step 7.5(Narrator 校验)已在 `hosts/CLAUDE.md` / `hosts/GEMINI.md` / `hosts/AGENTS.md` 成为规范
+- **Life OS agents 注册为 Claude Code 原生 subagents** — install 会从 22 个 `agents/*.md` 定义生成 21 个可被 Task 调用的 `~/.claude/agents/lifeos-*.md` wrapper，跳过 ROUTER-internal 的 narrator 模板，确保 `Task(lifeos-retrospective)` 不再 fallback 到 `general-purpose`
 
 ### 功能
 
@@ -1380,7 +1415,7 @@ v1.7.2 所有 dead-weight 发现 + v1.7.3 archiver 违规根因都已 close：
   - `embed` — 占位(显式 no-op,符合 v1.7 决策 "不做向量 DB")
   - `sync_notion` — Notion 双向镜像(走 `tools/lib/notion.py`)
 - **Python 库** — `tools/lib/config.py`(env + pyproject 解析)· `tools/lib/llm.py`(带重试 + token 记账的 LLM 调用封装)· `tools/lib/notion.py`(Notion API 客户端)
-- **编排** — Step 0.5(路由前认知层)和 Step 7.5(Narrator 校验)同步入 CLAUDE.md、GEMINI.md、AGENTS.md(root 和 `pro/` 两级);契约从此 host 无关
+- **编排** — Step 0.5(路由前认知层)和 Step 7.5(Narrator 校验)同步入 `hosts/CLAUDE.md`、`hosts/GEMINI.md`、`hosts/AGENTS.md`;契约从此 host 无关
 - **引导工具** — `tools/seed_concepts.py` + 3 个面向用户的 second-brain bootstrap 模板;11 个测试
 
 ### 文档
@@ -1421,7 +1456,7 @@ v1.7.2 所有 dead-weight 发现 + v1.7.3 archiver 违规根因都已 close：
 ### 合规
 
 - Cortex GA 运行过程抓到 **2 个事件档案**
-  - `backup/pro/compliance/2026-04-19-court-start-violation.md` — 已归档(已解决,经验吸收进 L1/L2 hook)
+  - `backup/compliance/2026-04-19-court-start-violation.md` — 已归档(已解决,经验吸收进 L1/L2 hook)
   - Narrator-spec 违规 — **已于 2026-04-22 解决**(已吸收到 Step 7.5 narrator-validator 契约)
 
 ### 涉及文件(节选,alpha.2 之后的 commits)
@@ -1447,7 +1482,7 @@ f8a26c6 feat(tools): embed.py placeholder + search.py (S5+S4 parallel-sprint mer
 5ff0d32 feat(hooks+lib): stop-session-verify.sh + Notion lib + pyproject (S1+S2 parallel-sprint merge)
 4a2590f docs(orchestration): update root AGENTS.md with host-agnostic Step 0.5/7.5 contract
 4ae2a65 feat(hooks): add pre-write-scan.sh
-bf7f87e docs(orchestration): sync Step 0.5/7.5 to pro/AGENTS.md
+bf7f87e docs(orchestration): sync Step 0.5/7.5 to hosts/AGENTS.md
 877c629 feat(lib): add tools/lib/llm.py + tests
 efa339d feat(lib): add tools/lib/config.py + tests
 1414677 feat(hooks): add post-response-verify.sh
@@ -1461,7 +1496,7 @@ a503301 feat(hooks): add pre-prompt-guard.sh
 
 ## [1.7.0-alpha.2] - 2026-04-21 · v1.7.0-alpha 后续跟进打包
 
-> 📚 **完整概览**：参见 [`references/v1.7-shipping-report-2026-04-21.md`](../../references/v1.7-shipping-report-2026-04-21.md) — 单页叙事文档，涵盖 v1.6.3 COURT-START-001 修复 + v1.7 Cortex 两条线。推荐作为"今天发了什么？"的起点。
+> 📚 **完整概览**：参见 [`docs/history/v1.7-shipping-report-2026-04-21.md`](../../docs/history/v1.7-shipping-report-2026-04-21.md) — 单页叙事文档，涵盖 v1.6.3 COURT-START-001 修复 + v1.7 Cortex 两条线。推荐作为"今天发了什么？"的起点。
 
 > v1.7.0-alpha tag 之后 13 个 commit，关闭 alpha CHANGELOG 的 TBD + 加工具/测试基础设施。将合入 v1.7.0 稳定版。
 
@@ -1496,8 +1531,8 @@ a503301 feat(hooks): add pre-prompt-guard.sh
 
 ### 🔌 接线打磨
 
-- `pro/CLAUDE.md` Information Isolation 表扩展全 6 个 v1.7 子代理
-- `pro/agents/archiver.md` 加 "Phase 2 Mid-Step — SOUL Snapshot"
+- `hosts/CLAUDE.md` Information Isolation 表扩展全 6 个 v1.7 子代理
+- `agents/archiver.md` 加 "Phase 2 Mid-Step — SOUL Snapshot"
 
 ### 🐛 Bug 修复
 
@@ -1549,12 +1584,12 @@ REVIEWER 终审后，可选的 `narrator` 用 `[source:signal_id]` 引用包装 
 
 | 代理 | 文件 | spec |
 |------|------|------|
-| hippocampus | `pro/agents/hippocampus.md` | `references/hippocampus-spec.md` |
-| concept-lookup | `pro/agents/concept-lookup.md` | `references/concept-spec.md` |
-| soul-check | `pro/agents/soul-check.md` | 派生自 soul-spec + gwt-spec §6 |
-| gwt-arbitrator | `pro/agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
-| narrator | `pro/agents/narrator.md` | `references/narrator-spec.md` |
-| narrator-validator | `pro/agents/narrator-validator.md` | narrator-spec validator 部分 |
+| hippocampus | `agents/hippocampus.md` | `references/hippocampus-spec.md` |
+| concept-lookup | `agents/concept-lookup.md` | `references/concept-spec.md` |
+| soul-check | `agents/soul-check.md` | 派生自 soul-spec + gwt-spec §6 |
+| gwt-arbitrator | `agents/gwt-arbitrator.md` | `references/gwt-spec.md` |
+| narrator | `agents/narrator.md` | `references/narrator-spec.md` |
+| narrator-validator | `agents/narrator-validator.md` | narrator-spec validator 部分 |
 
 6 个代理全部强制信息隔离：拒绝同层 Pre-Router 代理的输出。全部只读——只在 archiver Phase 2 发生写入。
 
@@ -1590,6 +1625,10 @@ bash scripts/setup-hooks.sh   # 自动注册 SessionStart + UserPromptSubmit hoo
 python3 -m pytest tests/ -v        # 77 passed in 0.23s
 ```
 
+### 🔌 接线更新
+
+Cortex 预路由能力已同步接入相关编排与 hook 层。
+
 ### 🚦 默认 OFF（按需启用）
 
 Cortex 在 v1.7.0-alpha 默认禁用。用户启用：
@@ -1617,8 +1656,8 @@ echo "cortex_enabled: true" >> _meta/config.md
 ### 📁 涉及文件（19 个 commits）
 
 Specs：`references/{cortex,hippocampus,gwt,concept,snapshot,session-index,narrator,hooks,tools,eval-history,method-library}-spec.md` + 8 个既有 references 修改。
-子代理：`pro/agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`。
-接线：`pro/CLAUDE.md`、`pro/agents/{archiver,retrospective,auditor}.md`。
+子代理：`agents/{hippocampus,gwt-arbitrator,concept-lookup,soul-check,narrator,narrator-validator}.md`。
+接线：`hosts/CLAUDE.md`、`agents/{archiver,retrospective,auditor}.md`。
 工具：`tools/lib/{second_brain.py,cortex/*}`、`tools/{stats,rebuild_session_index,rebuild_concept_index}.py`。
 项目：`pyproject.toml`、`.python-version`、`tools/README.md`。
 测试：`tests/{__init__,test_second_brain,test_session_index,test_concept_and_snapshot,test_stats}.py`。
@@ -1647,18 +1686,18 @@ Hooks：`scripts/lifeos-compliance-check.sh`（v1.6.3 链的 L5 闭环）。
 
 ## [1.6.3b] - 2026-04-21 · AUDITOR Mode 3 自动触发已接线
 
-> v1.6.3 把 Mode 3（Compliance Patrol）规格交付到 `pro/agents/auditor.md`，但**没人实际调用它**。在用户 second-brain 的首次生产运行确认了这个缺口：retrospective Mode 0 完成、简报显示，但没有 AUDITOR Compliance Patrol 报告。五层防御的第 4 层处于失活状态。
+> v1.6.3 把 Mode 3（Compliance Patrol）规格交付到 `agents/auditor.md`，但**没人实际调用它**。在用户 second-brain 的首次生产运行确认了这个缺口：retrospective Mode 0 完成、简报显示，但没有 AUDITOR Compliance Patrol 报告。五层防御的第 4 层处于失活状态。
 
 ### 🔧 修复
 
-`pro/CLAUDE.md` Orchestration Code of Conduct 新增规则 #7：
+`hosts/CLAUDE.md` Orchestration Code of Conduct 新增规则 #7：
 
 > **AUDITOR Compliance Patrol 自动触发** — 每次 `retrospective` Mode 0（Start Session）完成或 `archiver` 返回后，orchestrator 必须启动 `auditor` 的 Mode 3（Compliance Patrol）。不可跳过。HARD RULE。
 
 3 个配套文档更新使契约显式：
 
-- `pro/agents/retrospective.md` — 加 "Auto-Follow: AUDITOR Compliance Patrol" 段，注明 orchestrator 在 Mode 0 返回后链接 Mode 3。子代理本身不启动 AUDITOR。
-- `pro/agents/auditor.md` — Mode 3 "When to run" 段加明确触发契约：orchestrator 启动，非自启动，交叉引用 `pro/CLAUDE.md` 规则 #7。
+- `agents/retrospective.md` — 加 "Auto-Follow: AUDITOR Compliance Patrol" 段，注明 orchestrator 在 Mode 0 返回后链接 Mode 3。子代理本身不启动 AUDITOR。
+- `agents/auditor.md` — Mode 3 "When to run" 段加明确触发契约：orchestrator 启动，非自启动，交叉引用 `hosts/CLAUDE.md` 规则 #7。
 - `SKILL.md` — 版本 1.6.3a → 1.6.3b。
 
 ### 📊 五层防御状态（v1.6.3b 后）
@@ -1674,9 +1713,9 @@ Hooks：`scripts/lifeos-compliance-check.sh`（v1.6.3 链的 L5 闭环）。
 ### 涉及文件
 
 - `SKILL.md`（版本 1.6.3a → 1.6.3b）
-- `pro/CLAUDE.md`（+ Orchestration 规则 #7）
-- `pro/agents/retrospective.md`（+ Auto-Follow 段）
-- `pro/agents/auditor.md`（Mode 3 "When to run" 触发契约明确化）
+- `hosts/CLAUDE.md`（+ Orchestration 规则 #7）
+- `agents/retrospective.md`（+ Auto-Follow 段）
+- `agents/auditor.md`（Mode 3 "When to run" 触发契约明确化）
 - `README.md` + 三语（徽章）
 - `CHANGELOG.md` + 三语
 
@@ -1721,7 +1760,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 ### 🆕 F 类 · 假阳性
 
-加入 `references/compliance-spec.md` Type Taxonomy 和 `pro/compliance/violations.md` Type Legend：
+加入 `references/compliance-spec.md` Type Taxonomy 和 `compliance/violations.md` Type Legend：
 
 | 代码 | 名称 | 默认严重度 |
 |-----|------|-----------|
@@ -1731,7 +1770,7 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 
 ### 📋 COURT-START-001 状态推进
 
-`pro/compliance/violations.md` 中 4 条 incident 条目加注生产验证证据：
+`compliance/violations.md` 中 4 条 incident 条目加注生产验证证据：
 - L2（Pre-flight Compliance Check）— 2026-04-21 user second-brain 验证 work
 - L3（Subagent Self-Check）— 2026-04-21 user second-brain 验证 work
 - L4（AUDITOR Compliance Patrol）+ L5（eval 回归）— 等观察窗
@@ -1744,8 +1783,8 @@ bash ~/.claude/skills/life_OS/scripts/setup-hooks.sh
 - `scripts/setup-hooks.sh`（重构 + register_hook 辅助函数 + UserPromptSubmit 注册）
 - `scripts/lifeos-pre-prompt-guard.sh`（+ 长度检查 + 首行提取）
 - `references/compliance-spec.md`（+ F 类入 Type Taxonomy）
-- `pro/compliance/violations.md`（+ F 类入 legend，+ 1 条 F 记录，+ 4 条 COURT-START-001 加 L2/L3 验证注解）
-- `pro/compliance/violations.example.md`（+ Example 11 F 类）
+- `compliance/violations.md`（+ F 类入 legend，+ 1 条 F 记录，+ 4 条 COURT-START-001 加 L2/L3 验证注解）
+- `compliance/violations.example.md`（+ Example 11 F 类）
 - `README.md` + 三语（版本徽章 + v1.6.3a 热修补提示）
 - `CHANGELOG.md` + 三语
 
@@ -1771,8 +1810,8 @@ COURT-START-001 根因：文档完整，但**每一条 HARD RULE 都是描述性
 
 1. **Hook 层** — `scripts/lifeos-pre-prompt-guard.sh` 在 `UserPromptSubmit` 时触发，检测触发词（上朝 / start / 閣議開始 / 退朝 / 等，覆盖 9 个主题），在助手响应前把 HARD RULE 文本 + 违规分类作为 `<system-reminder>` 注入上下文。
 2. **Pre-flight Compliance Check** — `SKILL.md` 要求 ROUTER 在任何工具调用前先输出 1 行确认：`🌅 Trigger: [词] → Theme: [名] → Action: Launch([agent]) [Mode]`。缺此行 = A3 类违规，登记。
-3. **子代理自检** — `pro/agents/retrospective.md` Mode 0 第一句必须是：`✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading pro/agents/retrospective.md. Starting Step 1: THEME RESOLUTION.`。证明子代理真的被启动。
-4. **AUDITOR 合规巡检（Mode 3）** — `pro/agents/auditor.md` 新增 Mode 3，含 7 类违规分类（A1/A2/A3/B/C/D/E）和 Start Session / Adjourn 路径的 6 项检测。每次 retrospective Mode 0 和 archiver 完成后自动运行。
+3. **子代理自检** — `agents/retrospective.md` Mode 0 第一句必须是：`✅ I am the RETROSPECTIVE subagent (Mode 0, not main context simulation). Reading agents/retrospective.md. Starting Step 1: THEME RESOLUTION.`。证明子代理真的被启动。
+4. **AUDITOR 合规巡检（Mode 3）** — `agents/auditor.md` 新增 Mode 3，含 7 类违规分类（A1/A2/A3/B/C/D/E）和 Start Session / Adjourn 路径的 6 项检测。每次 retrospective Mode 0 和 archiver 完成后自动运行。
 5. **Eval 回归** — `evals/scenarios/start-session-compliance.md` 把 COURT-START-001 的 6 个失败模式固化为质量检查点，含 grep 失败检测命令。
 
 ### 📋 违规分类（7 类）
@@ -1791,7 +1830,7 @@ COURT-START-001 根因：文档完整，但**每一条 HARD RULE 都是描述性
 
 用户明确要求："我可以接受本地的 sh 命令执行，但是数据库还是要 md 文件和 github 去储存。"违规持久化到：
 
-- `pro/compliance/violations.md` — dev repo（公开，随 Life OS 发布）
+- `compliance/violations.md` — dev repo（公开，随 Life OS 发布）
 - `_meta/compliance/violations.md` — user second-brain（私有，每用户独立）
 
 同一格式：`| Timestamp | Trigger | Type | Severity | Details | Resolved |`。
@@ -1806,17 +1845,17 @@ COURT-START-001 根因：文档完整，但**每一条 HARD RULE 都是描述性
 - `scripts/lifeos-pre-prompt-guard.sh` — UserPromptSubmit hook（bash，已 chmod +x）
 - `.claude/settings.json` — dev repo 的 hook 注册
 - `references/compliance-spec.md` — 完整规格：分类、双仓库策略、写入/读取路径、升级阶梯、归档、解决协议、隐私
-- `pro/compliance/violations.md` — dev-repo 实时日志（含 COURT-START-001 的 5 条种子条目）
-- `pro/compliance/violations.example.md` — 每类 10 个示例条目 + grep 配方
-- `pro/compliance/2026-04-19-court-start-violation.md` — 完整 incident 档案（473 行，12 节）
+- `compliance/violations.md` — dev-repo 实时日志（含 COURT-START-001 的 5 条种子条目）
+- `compliance/violations.example.md` — 每类 10 个示例条目 + grep 配方
+- `compliance/2026-04-19-court-start-violation.md` — 完整 incident 档案（473 行，12 节）
 - `evals/scenarios/start-session-compliance.md` — COURT-START-001 的 6 个失败模式回归测试
 
 ### ✏️ 修改文件
 
 - `.claude/CLAUDE.md` — 新增 Start Session 触发约束的 HARD RULE 段
 - `SKILL.md` — 版本 1.6.2a → 1.6.3，Start Session 路由前新增 Pre-flight Compliance Check 段
-- `pro/agents/retrospective.md` — 执行步骤前新增子代理自检块
-- `pro/agents/auditor.md` — Mode 3（合规巡检），含 7 类违规分类 + 检测逻辑
+- `agents/retrospective.md` — 执行步骤前新增子代理自检块
+- `agents/auditor.md` — Mode 3（合规巡检），含 7 类违规分类 + 检测逻辑
 
 ### 🔄 解决协议
 
@@ -1861,7 +1900,7 @@ COURT-START-001 的 4 条 incident 条目在本次发布转为 `partial`。转 `
 
 三重独立防御：
 - **SKILL.md + archiver.md 措辞加固** — HARD RULE 禁止 ROUTER 在主上下文中执行任何 Phase 内容；archiver.md 新增明确的"Subagent-Only Execution"条款
-- **退朝状态机（pro/CLAUDE.md）** — 列出合法/非法状态转换；AUDITOR 将每次违规记入 user-patterns.md
+- **退朝状态机（hosts/CLAUDE.md）** — 列出合法/非法状态转换；AUDITOR 将每次违规记入 user-patterns.md
 - **强制启动模板** — SKILL.md 新增"Trigger Execution Templates (HARD RULE)"章节，钉死 Start Session / Adjourn / Review 的精确输出格式
 
 ### 📚 Wiki 自动写入（无需用户确认）
@@ -1939,12 +1978,12 @@ REM 现在评估 10 个具体模式，匹配即自动执行：
 ### 涉及文件
 
 - `SKILL.md`（版本 + 触发模板）
-- `pro/CLAUDE.md`（状态机 + wiki/SOUL 自动写入描述）
-- `pro/GEMINI.md` / `pro/AGENTS.md`（跨平台 Gemini CLI + Codex CLI 一致性）
-- `pro/agents/archiver.md`（Phase 2 自动写入 + 快照导出 + Phase 3 10 触发器检测逻辑）
-- `pro/agents/advisor.md`（统一 SOUL Runtime：5 步，每次决策）
-- `pro/agents/reviewer.md`（3 层 SOUL 引用策略）
-- `pro/agents/retrospective.md`（Step 11 扩展为 11.1-11.6：快照读取 + 趋势计算）
+- `hosts/CLAUDE.md`（状态机 + wiki/SOUL 自动写入描述）
+- `hosts/GEMINI.md` / `hosts/AGENTS.md`（跨平台 Gemini CLI + Codex CLI 一致性）
+- `agents/archiver.md`（Phase 2 自动写入 + 快照导出 + Phase 3 10 触发器检测逻辑）
+- `agents/advisor.md`（统一 SOUL Runtime：5 步，每次决策）
+- `agents/reviewer.md`（3 层 SOUL 引用策略）
+- `agents/retrospective.md`（Step 11 扩展为 11.1-11.6：快照读取 + 趋势计算）
 - `references/wiki-spec.md` + 三语（6 标准 + 隐私过滤器 + 用户调整）
 - `references/soul-spec.md` + 三语（自动写入 + 快照机制 + 分层引用）
 - `references/dream-spec.md` + 三语（10 触发器逐节含硬/软检测）
@@ -2126,7 +2165,7 @@ Life OS 现在是一个**通用决策引擎**，搭配**可切换的文化主题
 
 ### 强制机制变更
 
-- **SKILL.md**：上朝/退朝路由从"路由给 X"改为"必须读取 `pro/agents/X.md` 并以 subagent 方式启动。硬规则。"
+- **SKILL.md**：上朝/退朝路由从"路由给 X"改为"必须读取 `agents/X.md` 并以 subagent 方式启动。硬规则。"
 - **qiju.md**：新增必填完成清单——每个 Phase 必须填入实际值（commit hash、Notion 同步状态等）。缺项 = 退朝未完成。
 - **编排行为准则**：新增第 6 条——"触发词必须加载 agent 文件。禁止凭记忆执行角色而不读定义文件。硬规则。"
 
@@ -2173,12 +2212,12 @@ Life OS 现在是一个**通用决策引擎**，搭配**可切换的文化主题
 ### Token 节省
 - **SKILL.md**：384 → 93 行（−291 行 ≈ −4,700 tokens/session）
 - 移除：御史台/谏官/政事堂/早朝官详细描述、奏折格式、存储配置、Lite Mode 流程、两种审议辨析表、Pro Mode 安装详情
-- 所有移除内容已存在于 agent 文件（`pro/agents/*.md`）或 reference 文件（`references/*.md`）
+- 所有移除内容已存在于 agent 文件（`agents/*.md`）或 reference 文件（`references/*.md`）
 
 ### 行为准则重新分配
 - 丞相相关规则（8 条）留在 SKILL.md
-- 编排规则（#2 封驳、#7 自动触发、#11 完整输出、#14 真 subagent、#9 降级）移至 `pro/CLAUDE.md` 新增"编排行为准则"段
-- 通用 agent 规则已由 `pro/GLOBAL.md` 覆盖
+- 编排规则（#2 封驳、#7 自动触发、#11 完整输出、#14 真 subagent、#9 降级）移至 `hosts/CLAUDE.md` 新增"编排行为准则"段
+- 通用 agent 规则已由 `hosts/GLOBAL.md` 覆盖
 
 ### 六部按需启动
 - `zhongshu.md`：新增"六部选择（硬规则）"——仅分配相关部门并注明理由
@@ -2303,7 +2342,7 @@ Wiki 本来就设计在第二大脑里，但从来没有接入任何工作流—
 
 ### 改动文件
 
-- `pro/agents/zaochao.md` — Mode 0/1 加 outbox 合并，Mode 3/4 改写 outbox
+- `agents/zaochao.md` — Mode 0/1 加 outbox 合并，Mode 3/4 改写 outbox
 - `references/data-model.md` — 删除 session lock，新增 outbox 规则 + manifest/delta 格式
 - `references/data-layer.md` — 目录结构 + Housekeeping/Wrap-Up 流程更新
 - `references/adapter-github.md` — commit convention 改为 outbox 模式
@@ -2333,7 +2372,7 @@ Wiki 本来就设计在第二大脑里，但从来没有接入任何工作流—
 - **N3（固化）** — 提炼反复主题为 wiki、更新行为模式、提出 SOUL 候选
 - **REM（连接）** — 发现跨领域关联、检查价值行为一致性、生成意想不到的洞察
 - **范围**：仅最近 3 天。梦境报告存储在 `_meta/journal/`，下次上朝呈现
-- **新 agent**：`pro/agents/dream.md`
+- **新 agent**：`agents/dream.md`
 
 ### 📐 新参考文件
 
@@ -2439,7 +2478,7 @@ Wiki 本来就设计在第二大脑里，但从来没有接入任何工作流—
 
 ### 架构整合
 
-- **pro/GLOBAL.md** — 14 个 agent 的通用规则提取为单一权威源，每个 agent 文件精简 30%
+- **hosts/GLOBAL.md** — 14 个 agent 的通用规则提取为单一权威源，每个 agent 文件精简 30%
 - **认知管线** — 五阶段信息流：感知 → 捕获 → 关联 → 判断 → 沉淀 → 涌现
 - **御史台巡检模式** — 决策审查之外的第二种运行模式，六部各自巡查自己在 second-brain 中的辖区
 - **知识提取四步训练** — 用户决定 → 积累样本 → LLM 归纳规则 → 定期纠偏

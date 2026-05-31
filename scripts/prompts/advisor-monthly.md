@@ -40,7 +40,7 @@ The advisor subagent will:
    - Group by SOUL dimension affected
 
 3. **Regret accumulation analysis**:
-   - Read `pro/compliance/violations.md` for last 30 days
+   - Read `compliance/violations.md` for last 30 days
    - Read archiver-marked "regret" decisions
    - Identify recurring regret types (financial / time / relationship)
    - Tie back to which SOUL dimensions were violated

@@ -6,7 +6,7 @@
 
 这就是 `/save` 命令的用途。
 
-权威源：`pro/CLAUDE.md`（`/save Command` 部分）、`docs/second-brain.md`（Multi-Repo Workflow）。
+权威源：`hosts/CLAUDE.md`（`/save Command` 部分）、`docs/second-brain.md`（Multi-Repo Workflow）。
 
 ---
 

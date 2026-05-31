@@ -1,4 +1,4 @@
-﻿---
+---
 # Original v1.8.5 .yml content preserved as YAML frontmatter (v1.8.6 'md-only' rule)
 # Schema unchanged; only file extension changed.
 ---
@@ -16,7 +16,7 @@ expected_verdict: FAIL
 expected_failure_class: F11_LIFECYCLE_FAILURE
 expected_check: W2 (outlier non-empty for active+ entries)
 introduced_in: v1.8.5 Stage 5
-related_spec: references/wiki-spec.md v2 ﾂｧ"v2 HARD Schema Constraints ﾂｧ2"
+related_spec: references/wiki-spec.md v2 §"v2 HARD Schema Constraints §2"
 
 input_wiki_entry:
   path: wiki/wn-example-no-outlier.md
@@ -31,12 +31,12 @@ input_wiki_entry:
       automation_mode: human_executed
       authority_level: suggest_only
       risk_level: medium
-      lifecycle_stage: active        # active but outlier empty 窶・regression bait
+      lifecycle_stage: active        # active but outlier empty — regression bait
     operating_hypothesis: |
       Given a Japanese NPO considering a lending product, this entry warns
-      that 雋ｸ驥第･ｭ豕・has no NPO exemption, within risk of regulatory penalty.
+      that the Money Lending Business Act has no NPO exemption, within risk of regulatory penalty.
     context_manifest:
-      source_of_truth: ["e-gov 雋ｸ驥第･ｭ豕・article 2"]
+      source_of_truth: ["e-gov Money Lending Business Act article 2"]
       supporting: []
       forbidden: []
     reference_set:
@@ -44,13 +44,13 @@ input_wiki_entry:
       anti_reference: []
       boundary_case: []
       mainstream_baseline: []
-      outlier: []                    # EMPTY for active entry 窶・regression bait
+      outlier: []                    # EMPTY for active entry — regression bait
     failure_modes:
       known: []
       warning_signs: []
       repair_actions: []
     arguments_against: |
-      This entry might be wrong if 雋ｸ驥第･ｭ豕・article 2 is amended to add NPO
+      This entry might be wrong if Money Lending Business Act article 2 is amended to add NPO
       exemption. Counter-evidence: any post-amendment ruling citing NPO carve-out.
     confidence: 0.7
     evidence_count: 4
@@ -60,7 +60,7 @@ input_wiki_entry:
     source: archiver
     ---
 
-    # Japanese NPO lending has no 雋ｸ驥第･ｭ豕・exemption
+    # Japanese NPO lending has no Money Lending Business Act exemption
 
     Body content here ...
 

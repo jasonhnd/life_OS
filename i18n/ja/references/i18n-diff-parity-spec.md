@@ -1,13 +1,13 @@
 ---
 spec_id: i18n-diff-parity-spec.v1
-description: 変更行の三言語整合性検証仕様。`references/*.md` が 2 つの tag 間（または HEAD vs 前回 tag）で変化した時、対応する `i18n/zh/references/<同名>.md` と `i18n/ja/references/<同名>.md` も整合する範囲で変化必須。verify-release check #9 として強制（v1.8.7 で WARN レベル、v1.8.8 で BLOCK 目標）。`pro/compliance/violations.md` で反復する "EN spec 更新したが zh/ja ドリフト" 違反を排除。
+description: 変更行の三言語整合性検証仕様。`references/*.md` が 2 つの tag 間（または HEAD vs 前回 tag）で変化した時、対応する `i18n/zh/references/<同名>.md` と `i18n/ja/references/<同名>.md` も整合する範囲で変化必須。verify-release check #9 として強制（v1.8.7 で WARN レベル、v1.8.8 で BLOCK 目標）。`compliance/violations.md` で反復する "EN spec 更新したが zh/ja ドリフト" 違反を排除。
 status: active
 authoritative: true
 source_attribution: tinyhumansai/openhuman AGENTS.md:118-120 (変更行カバレッジ gate 経由 diff-cover)、"diff カバレッジ" から "diff i18n ミラー" にパターン適応
 introduced_in: v1.8.7
 referenced_by:
   - .claude/commands/verify-release.md (check 9)
-  - pro/agents/auditor.md (Mode 7 M7-5)
+  - agents/auditor.md (Mode 7 M7-5)
 ---
 
 # i18n Diff 整合性仕様 v1
@@ -32,9 +32,9 @@ referenced_by:
 
 - `SKILL.md` —— 単一ファイル（テーマが出力言語処理）
 - `references/hard-rules-index.md` —— 単一ファイル（dev 内部インデックス）
-- `pro/gotchas.md` —— 単一ファイル（dev 内部知識ベース）
-- `pro/agents/*.md` —— 各 agent 単一ファイル（themes/ が表示処理）
-- `pro/*.md`（CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md）—— ホスト固有オーケストレーション、ユーザ向け翻訳ではない
+- `gotchas.md` —— 単一ファイル（dev 内部知識ベース）
+- `agents/*.md` —— 各 agent 単一ファイル（themes/ が表示処理）
+- `hosts/*.md`（CLAUDE.md / GEMINI.md / AGENTS.md / GLOBAL.md）—— ホスト固有オーケストレーション、ユーザ向け翻訳ではない
 - `meta/**/*` —— ランタイム成果物と RFC
 - `themes/*.md` —— theme ファイルはネイティブ文化言語使用
 
@@ -149,4 +149,4 @@ AUDITOR Mode 7 M7-5 がこれら例外を尊重。
 
 - `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.3 F11
 - パターン源：`tinyhumansai/openhuman` AGENTS.md:118-120（変更行カバレッジ diff-cover 経由）—— i18n ミラーに適応
-- `pro/compliance/violations.md` —— 本仕様が防止を目指す歴史的ドリフト事件
+- `compliance/violations.md` —— 本仕様が防止を目指す歴史的ドリフト事件

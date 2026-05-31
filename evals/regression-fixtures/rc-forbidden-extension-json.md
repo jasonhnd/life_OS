@@ -27,7 +27,7 @@ related_spec: SKILL.md HARD RULE "md-only is lifeos's ontological constraint" (D
 
 input_filesystem_state:
   files_in_repo:
-    - path: pro/compress-rules/skip-files-modified.json
+    - path: agents/compress-rules/skip-files-modified.json
       contents_excerpt: |
         {
           "rule_name": "skip files modified",
@@ -37,8 +37,8 @@ input_filesystem_state:
       provenance: synthetic — represents D8 reintroduction attempt (cut from v1.8.7 per DR-08)
 
 expected_check_output_excerpt: |
-  ❌ check 8 (forbidden extensions): pro/compress-rules/skip-files-modified.json found
-  ❌ check 10 (diff-scoped forbidden extensions): pro/compress-rules/skip-files-modified.json introduced since v<prev-tag>
+  ❌ check 8 (forbidden extensions): agents/compress-rules/skip-files-modified.json found
+  ❌ check 10 (diff-scoped forbidden extensions): agents/compress-rules/skip-files-modified.json introduced since v<prev-tag>
 
 negative_case_for: |
   D8 (three-layer compression rules) was cut from v1.8.7 per DR-08. If someone
