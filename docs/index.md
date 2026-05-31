@@ -72,7 +72,7 @@ v1.7 时代的架构快照（system-overview / orchestration-protocol / workflow
 - `reference/all-9-themes/` — 9 个主题每个角色叫什么、什么 tone
 - `reference/all-agents/` — engine ID 到角色定义的索引
 - `reference/trigger-words.md` — 所有触发词一览
-- `reference/adapters/` — GitHub 存储后端的适配器规格
+- `reference/adapter-github.md` — GitHub 存储后端的适配器规格
 - `reference/specifications/` — SOUL / DREAM / Wiki / Strategic Map 的数据结构
 
 ---
