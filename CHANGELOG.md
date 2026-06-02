@@ -6,6 +6,45 @@ This project follows **Strict SemVer** for releases: MAJOR (Breaking Change) · 
 
 ---
 
+## [1.9.2] - 2026-06-02 - Spec-drift cleanup: agent-spec / hippocampus / v1.9 RFC → md-only + GitHub-only
+
+```yaml
+---
+version: 1.9.2
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "`references/agent-spec.md` (EN/zh/ja): the per-agent authority table listed the **deleted** `narrator-validator` as 'retained as legacy template' — a false claim (the file does not exist, and hosts/AGENTS.md already says 'narrator-validator retired'), and omitted the live `memory-keeper` agent its own frontmatter declares. Dropped the narrator-validator row, reframed the lifecycle note to 'deleted in the same pivot — no file remains', and added the missing `memory-keeper` row (function=refactor / write_inactive / low) so body == frontmatter == on-disk reality."
+  - "Cortex `hippocampus` (agent + `references/hippocampus-spec.md` + i18n zh/ja): Wave-1 retrieval still documented a SQLite **FTS5** helper and the deleted `tools/migrate.py` / `tools/reindex.py` bootstrap. Rewrote to a plain **Grep** pass over `meta/sessions/INDEX.md` + the `/rebuild-session-index` maintenance prompt; residual FTS5/SQLite mentions are now 'forbidden — do not reintroduce' lineage notes."
+  - "`_meta/rfc/v1.9-second-brain-structure-optimization.md` (ready-for-stage-1) was partially superseded by v1.9.1 fix8: it still assumed multi-backend (Google Drive / Notion adapters, multi-backend sync risk R-1.9-009) and carried a whole **Stage-2 hooks-audit** feature (frontmatter, §4.5, DR-1.9.27, R-1.9-015, Q-undecided-14) that greps `scripts/hooks/*.sh` — but the bash hook layer was retired in v1.8.5 and the repo has 0 `.sh` files. Converged to a single GitHub backend and voided the hooks-audit feature end-to-end (dead premise: no hook files to audit). Kept the correct md-only `forbidden_extensions` + DR-1.9.6 (migration tool is an md prompt, not `.sh`)."
+  - "`.claude/commands/run-eval.md` described scenarios as YAML-frontmatter (`input` / `expected_subagent`), but scenario files use markdown sections (`## User Message` / `## Expected Behavior`); rewrote the read/verify steps to match. `docs/reference/adapter-github.md` duplicated the authoritative GitHub-adapter spec → consolidated to a navigation stub."
+  - "Smaller alignments bundled: AUDITOR 6→8 modes; RETROSPECTIVE drops deleted Bash-skeleton / ROUTER pre-render refs; knowledge-extractor blast_radius scope; /install-agents +slash-command install & `--refresh`; /migrate-wiki-v2 +mandatory pre-edit backup; /verify-release-and-watch 10→11 checks; /regression-from-violation & /version-check count/wording; hosts/GEMINI.md 'sync from all backends' → 'git pull'. Plus 3 hardcoded agent-count drifts removed (2 RFCs), restoring the '0 active count drift' invariant."
+alternatives_considered:
+  - option: "Ship as a within-release '1.9.1.2 fix1' re-tag (the usual post-publish doc-fix pattern)"
+    rejected_because: "User explicitly requested a discrete 1.9.2 patch release; the substantive v1.9 RFC rewrite + agent-spec table correction exceed a typo fix and deserve a discoverable tag."
+  - option: "Mark the v1.9 RFC `status: superseded` instead of rewriting its stale multi-backend / hooks assumptions"
+    rejected_because: "User chose the full GitHub-only + hooks cleanup rewrite so the RFC stays usable as a forward proposal rather than a frozen-but-wrong record."
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "Repo-wide: 0 active broken paths (495-file scan), 0 active count drift, 0 false retired-file claims, 0 `.py`/`.sh` files."
+  - "v1.9 RFC: 0 remaining active-framed 'audit scripts/hooks' imperative; all Notion/GDrive references reframed as removed; risk-table structure intact."
+  - "Trilingual parity preserved (agent-spec + hippocampus-spec EN/zh/ja)."
+---
+```
+
+> Promotes the post-1.9.1.2 spec-drift cleanup (committed prior to this release bump) to a tagged maintenance release at user request. Pure spec/docs correctness — no vault-data migration, no behavioral runtime change.
+
+### Migration
+
+- **No user action required.** Documentation + spec correctness only. No schema change, no vault migration.
+
+---
+
 ## [1.9.1.2] - 2026-06-02 - Eval-docs migration to /run-eval + dead Makefile removal
 
 ```yaml

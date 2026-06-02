@@ -6,6 +6,45 @@
 
 ---
 
+## [1.9.2] - 2026-06-02 - Spec-drift 清理：agent-spec / hippocampus / v1.9 RFC → md-only + GitHub 单后端
+
+```yaml
+---
+version: 1.9.2
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "`references/agent-spec.md`（EN/zh/ja）：per-agent 权限表把**已删除**的 `narrator-validator` 列为「retained as legacy template」——虚假声明（文件不存在，且 hosts/AGENTS.md 已写「narrator-validator retired」），同时漏了它自己 frontmatter 已声明的现存 agent `memory-keeper`。删掉 narrator-validator 行，lifecycle 注记改为「同一 pivot 删除——无文件」，补上缺失的 `memory-keeper` 行（function=refactor / write_inactive / low），使 body == frontmatter == 磁盘现实。"
+  - "Cortex `hippocampus`（agent + `references/hippocampus-spec.md` + i18n zh/ja）：Wave-1 检索仍在写 SQLite **FTS5** helper 和已删除的 `tools/migrate.py` / `tools/reindex.py` 引导。改写为对 `meta/sessions/INDEX.md` 的纯 **Grep** + `/rebuild-session-index` 维护提示；残留的 FTS5/SQLite 提及现在都是「forbidden——不要重新引入」血统注记。"
+  - "`_meta/rfc/v1.9-second-brain-structure-optimization.md`（ready-for-stage-1）被 v1.9.1 fix8 部分 superseded：仍假设多后端（Google Drive / Notion 适配器、多后端 sync 风险 R-1.9-009），还带着一整个 **Stage-2 hooks 审计**特性（frontmatter、§4.5、DR-1.9.27、R-1.9-015、Q-undecided-14）去 grep `scripts/hooks/*.sh`——但 bash hook 层在 v1.8.5 已退役，仓库 0 个 `.sh`。收敛为单一 GitHub 后端，并把 hooks-audit 特性整体作废（死前提：无 hook 文件可审计）。保留正确的 md-only `forbidden_extensions` + DR-1.9.6（迁移工具是 md prompt，不是 `.sh`）。"
+  - "`.claude/commands/run-eval.md` 把 scenario 描述成 YAML-frontmatter（`input` / `expected_subagent`），但 scenario 文件用 markdown 段（`## User Message` / `## Expected Behavior`）；改写 read/verify 步骤对齐。`docs/reference/adapter-github.md` 重复了权威 GitHub-adapter 规范 → 收敛为导航桩。"
+  - "捆绑的小对齐：AUDITOR 6→8 模式；RETROSPECTIVE 删掉已删除的 Bash-skeleton / ROUTER 预渲染引用；knowledge-extractor blast_radius 范围；/install-agents 加 slash-command 安装 & `--refresh`；/migrate-wiki-v2 加强制改前备份；/verify-release-and-watch 10→11 检查；/regression-from-violation & /version-check 计数/措辞；hosts/GEMINI.md「从所有后端同步」→「git pull」。外加 2 个 RFC 里 3 处硬编码 agent 计数 drift 清零，恢复「0 active 计数 drift」不变量。"
+alternatives_considered:
+  - option: "作为版本内『1.9.1.2 fix1』重打 tag 发布（一贯的发布后文档修复模式）"
+    rejected_because: "用户明确要求独立的 1.9.2 补丁发布；实质性的 v1.9 RFC 重写 + agent-spec 表修正超出错别字范畴，值得一个可发现的 tag。"
+  - option: "把 v1.9 RFC 标记 `status: superseded`，而不重写其陈旧的多后端 / hooks 假设"
+    rejected_because: "用户选择了完整的 GitHub-only + hooks 清理重写，让 RFC 作为前瞻提案仍可用，而非冻结但错误的记录。"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "全仓：0 active 断链（495 文件扫描）、0 active 计数 drift、0 虚假退役文件声明、0 个 `.py`/`.sh` 文件。"
+  - "v1.9 RFC：0 处残留 active「审计 scripts/hooks」祈使指令；所有 Notion/GDrive 引用改述为已移除；风险表结构完好。"
+  - "三语对等保持（agent-spec + hippocampus-spec EN/zh/ja）。"
+---
+```
+
+> 应用户要求，把 1.9.1.2 之后的 spec-drift 清理（在本次版本号 bump 前已提交）提升为打 tag 的维护发布。纯 spec/docs 正确性——无 vault 数据迁移，无运行时行为变化。
+
+### 迁移
+
+- **无需用户操作。** 仅文档 + spec 正确性。无 schema 变更，无 vault 迁移。
+
+---
+
 ## [1.9.1.2] - 2026-06-02 - Eval 文档迁移到 /run-eval + 移除死 Makefile
 
 ```yaml

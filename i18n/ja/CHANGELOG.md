@@ -6,6 +6,45 @@
 
 ---
 
+## [1.9.2] - 2026-06-02 - Spec-drift cleanup: agent-spec / hippocampus / v1.9 RFC → md-only + GitHub-only
+
+```yaml
+---
+version: 1.9.2
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "`references/agent-spec.md`（EN/zh/ja）：per-agent 権限テーブルが**削除済み**の `narrator-validator` を「retained as legacy template」として記載——虚偽の主張（ファイルは存在せず、hosts/AGENTS.md は既に「narrator-validator retired」と記述）、かつ自身の frontmatter が宣言する現存 agent `memory-keeper` を欠落。narrator-validator 行を削除し、lifecycle note を「同じ pivot で削除——ファイルなし」に再整理、欠落していた `memory-keeper` 行（function=refactor / write_inactive / low）を追加して body == frontmatter == ディスク上の現実に一致させた。"
+  - "Cortex `hippocampus`（agent + `references/hippocampus-spec.md` + i18n zh/ja）：Wave-1 検索が SQLite **FTS5** helper と削除済みの `tools/migrate.py` / `tools/reindex.py` ブートストラップを記述し続けていた。`meta/sessions/INDEX.md` への単純な **Grep** + `/rebuild-session-index` メンテナンスプロンプトに書き換え；残る FTS5/SQLite 言及はすべて「forbidden——再導入禁止」の lineage note。"
+  - "`_meta/rfc/v1.9-second-brain-structure-optimization.md`（ready-for-stage-1）は v1.9.1 fix8 で部分的に superseded：依然マルチバックエンド（Google Drive / Notion アダプタ、マルチバックエンド sync リスク R-1.9-009）を前提とし、`scripts/hooks/*.sh` を grep する **Stage-2 hooks 監査**機能一式（frontmatter、§4.5、DR-1.9.27、R-1.9-015、Q-undecided-14）を抱えていた——しかし bash hook 層は v1.8.5 で退役、リポジトリに `.sh` は 0 件。単一 GitHub バックエンドに収束させ、hooks-audit 機能を全面的に無効化（死んだ前提：監査対象の hook ファイルなし）。正しい md-only `forbidden_extensions` + DR-1.9.6（移行ツールは md prompt であり `.sh` ではない）は保持。"
+  - "`.claude/commands/run-eval.md` は scenario を YAML-frontmatter（`input` / `expected_subagent`）として記述していたが、scenario ファイルは markdown セクション（`## User Message` / `## Expected Behavior`）を使う；read/verify 手順を実態に合わせて書き換え。`docs/reference/adapter-github.md` は権威ある GitHub-adapter 仕様を重複 → ナビゲーションスタブに集約。"
+  - "バンドルした小規模な整合：AUDITOR 6→8 モード；RETROSPECTIVE が削除済み Bash-skeleton / ROUTER pre-render 参照を除去；knowledge-extractor blast_radius スコープ；/install-agents に slash-command インストール & `--refresh` 追加；/migrate-wiki-v2 に編集前バックアップ必須化を追加；/verify-release-and-watch 10→11 チェック；/regression-from-violation & /version-check の件数/文言；hosts/GEMINI.md「全バックエンドから同期」→「git pull」。加えて 2 つの RFC のハードコード agent 件数 drift 3 箇所を解消し、「0 active 件数 drift」不変条件を回復。"
+alternatives_considered:
+  - option: "リリース内『1.9.1.2 fix1』の re-tag として出荷（通常の公開後ドキュメント修正パターン）"
+    rejected_because: "ユーザーが独立した 1.9.2 パッチリリースを明示要求；実質的な v1.9 RFC 書き換え + agent-spec テーブル修正は typo 修正を超え、発見可能な tag に値する。"
+  - option: "v1.9 RFC を `status: superseded` とマークし、陳腐化したマルチバックエンド / hooks 前提を書き換えない"
+    rejected_because: "ユーザーが完全な GitHub-only + hooks クリーンアップ書き換えを選択したため、RFC は凍結された誤った記録ではなく前向きな提案として使用可能なまま残る。"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "リポジトリ全体：active な broken path 0（495 ファイル走査）、active 件数 drift 0、虚偽の退役ファイル主張 0、`.py`/`.sh` ファイル 0。"
+  - "v1.9 RFC：残る active な「scripts/hooks を監査せよ」という命令文 0；すべての Notion/GDrive 参照を削除済みとして再整理；リスクテーブル構造は無傷。"
+  - "三言語 parity を維持（agent-spec + hippocampus-spec EN/zh/ja）。"
+---
+```
+
+> ユーザー要求により、1.9.1.2 以降の spec-drift クリーンアップ（本リリースの version bump 前にコミット済み）を tag 付き maintenance release に昇格。純粋な spec/docs の正しさ——vault データ移行なし、ランタイム挙動の変化なし。
+
+### マイグレーション
+
+- **ユーザー操作不要。** ドキュメント + spec の正しさのみ。schema 変更なし、vault 移行なし。
+
+---
+
 ## [1.9.1.2] - 2026-06-02 - Eval-docs migration to /run-eval + dead Makefile removal
 
 ```yaml

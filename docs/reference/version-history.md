@@ -27,6 +27,14 @@ MAJOR.MINOR.PATCH[.维护快照]
 
 ## 主要版本汇总
 
+### v1.9.2 · Spec-drift 清理：agent-spec / hippocampus / v1.9 RFC → md-only + GitHub 单后端（2026-06-02）
+
+- `references/agent-spec.md`（三语）：删掉已删除的 `narrator-validator`「保留为模板」虚假行 + 补回缺失的 `memory-keeper` 行（body 与 frontmatter/磁盘对齐）
+- Cortex `hippocampus`（三语）：Wave-1 的 SQLite FTS5 + 已删 `tools/migrate.py` → 纯 Grep over INDEX.md + `/rebuild-session-index`
+- `_meta/rfc/v1.9-*.md`：收敛为单一 GitHub 后端（Drive/Notion 已 v1.9.1 移除）+ 整体作废基于死前提的 Stage-2 hooks 审计（hooks 已 v1.8.5 退役、0 个 .sh）
+- run-eval 对齐 markdown scenario 格式；adapter-github 收敛为导航桩；AUDITOR 6→8 模式等小对齐 + 2 个 RFC 计数 drift 清零
+- 验证：0 断链、0 active 计数 drift、0 虚假退役文件声明、三语对等
+
 ### v1.9.1.2 · Eval 文档迁移到 /run-eval + 移除死 Makefile（2026-06-02）
 
 - `docs/evals` 三件套从已退役的 `evals/run-eval.sh` 改写为 `/run-eval` slash 命令（对齐 evals/README.md）
@@ -214,7 +222,7 @@ GitHub second-brain 成为主数据库：
 ```yaml
 ---
 name: life-os
-version: "1.9.1.2"       ← 当前版本
+version: "1.9.2"         ← 当前版本
 ---
 ```
 
