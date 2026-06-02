@@ -177,12 +177,16 @@ Briefing requirement: The briefing's H2 "## 0. ${RETRO_NAME} · 上朝准备 (ru
 N_wiki=$(find wiki -name "*.md" 2>/dev/null | wc -l)
 N_wiki_by_domain=$(find wiki -mindepth 2 -name "*.md" 2>/dev/null | awk -F/ '{print $2}' | sort | uniq -c)
 
+# portable day-diff helper (no python3; awk-only — works on git-bash/macOS/Linux)
+days_between(){ awk -v a="$1" -v b="$2" 'function jd(s, x,Y,M,D){split(s,x,"-");Y=x[1];M=x[2];D=x[3];if(M<=2){Y--;M+=12};return D+int((153*(M-3)+2)/5)+365*Y+int(Y/4)-int(Y/100)+int(Y/400)} BEGIN{p="^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$";if(a!~p||b!~p){print"?"}else{print jd(b)-jd(a)}}'; }
+
 # Active projects + areas
+TODAY=$(date +%Y-%m-%d)
 for p in $(ls -d projects/*/ 2>/dev/null; ls -d areas/*/ 2>/dev/null); do
   name=$(basename "$p")
   tasks_count=$(find "$p/tasks" -name "*.md" 2>/dev/null | wc -l)
-  last_activity=$(git log -1 --format=%ai -- "$p" 2>/dev/null)
-  days_since=$(python3 -c "from datetime import datetime; d=datetime.fromisoformat('$last_activity'.split()[0]); print((datetime.now()-d).days)" 2>/dev/null || echo "?")
+  last_activity=$(git log -1 --format=%cs -- "$p" 2>/dev/null)   # %cs = YYYY-MM-DD (no time/tz)
+  days_since=$(days_between "$last_activity" "$TODAY")
 done
 ```
 
@@ -205,11 +209,13 @@ Rules:
 
 ```bash
 # STATUS.md staleness check (HARD RULE · v1.7.0.1)
+# portable day-diff helper (no python3; awk-only — works on git-bash/macOS/Linux)
+days_between(){ awk -v a="$1" -v b="$2" 'function jd(s, x,Y,M,D){split(s,x,"-");Y=x[1];M=x[2];D=x[3];if(M<=2){Y--;M+=12};return D+int((153*(M-3)+2)/5)+365*Y+int(Y/4)-int(Y/100)+int(Y/400)} BEGIN{p="^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$";if(a!~p||b!~p){print"?"}else{print jd(b)-jd(a)}}'; }
 if [ -f "meta/STATUS.md" ]; then
   STATUS_UPDATED=$(grep -m1 'last_updated:' meta/STATUS.md | awk '{print $2}' || echo "")
   REPO_LATEST=$(git log -1 --format=%cs 2>/dev/null || echo "")
   if [ -n "$STATUS_UPDATED" ] && [ -n "$REPO_LATEST" ]; then
-    STATUS_DAYS=$(python3 -c "from datetime import date; a=date.fromisoformat('$STATUS_UPDATED'); b=date.fromisoformat('$REPO_LATEST'); print((b-a).days)" 2>/dev/null || echo "?")
+    STATUS_DAYS=$(days_between "$STATUS_UPDATED" "$REPO_LATEST")
     if [ "$STATUS_DAYS" != "?" ] && [ "$STATUS_DAYS" -ge 7 ]; then
       echo "[STATUS staleness: HEAD-distance $STATUS_DAYS days — SUPPRESSED]"
     else
