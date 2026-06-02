@@ -36,6 +36,14 @@ Exclude `INDEX.md`, `log.md`, `.templates/`, files starting with `.`.
 ### 3. Inventory each entry
 For each file, check if v2 frontmatter present (look for `id: wn-*` AND `classification:` AND `operating_hypothesis:`). If yes → skip (idempotent).
 
+### 4. Backup (mandatory — HARD RULE, before any edit)
+Copy the entire wiki dir before touching a single entry:
+```bash
+TS=$(date +%Y%m%d-%H%M%S)
+cp -r "$WIKI_DIR" "${WIKI_DIR}.v1-backup-${TS}"
+```
+If the copy fails, abort with `❌ backup failed — refusing to migrate in place` and do NOT edit any entry. The success summary's `Backup:` line reports `${WIKI_DIR}.v1-backup-${TS}`.
+
 ## Per-entry migration loop
 
 For each v1 entry needing v2 frontmatter:

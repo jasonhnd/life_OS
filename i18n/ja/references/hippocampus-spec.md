@@ -270,7 +270,7 @@ Hippocampus は gracefully に degrade しなければなりません — 失敗
 
 | Failure | Behavior |
 |---------|----------|
-| `meta/sessions/INDEX.md` が存在しない | 利用可能なら Bash 経由で `tools/reindex.py` を実行;それ以外なら `degraded: true, degradation_reason: "INDEX_MISSING"` で空の出力を返す |
+| `meta/sessions/INDEX.md` が存在しない | Orchestrator が `/rebuild-session-index` メンテナンスプロンプト（`scripts/prompts/rebuild-session-index.md`）を実行してブートストラップ;それでも欠落していれば `degraded: true, degradation_reason: "INDEX_MISSING"` で空の出力を返す |
 | INDEX.md は存在するが空(新規 second-brain) | 空の `retrieved_sessions` を返し、「first session — no cross-session memory yet」を記す |
 | LLM judgment コールが失敗(API エラー、レート制限) | INDEX.md 上の純粋なキーワードマッチにフォールバック(semantic scoring なし)、`degraded: true` を設定 |
 | Wave 2 ターゲット用の concept ファイルが missing | その特定のブランチをスキップ、残りのブランチで Wave 2 を継続 |

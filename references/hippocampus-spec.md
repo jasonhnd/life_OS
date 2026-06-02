@@ -278,7 +278,7 @@ Hippocampus must degrade gracefully — a failed retrieval should never block th
 
 | Failure | Behavior |
 |---------|----------|
-| `meta/sessions/INDEX.md` does not exist | Orchestrator runs `tools/migrate.py` to auto-bootstrap before Step 0.5. If hippocampus still sees a missing index, return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` and let GWT surface it through `degradation_summary`. |
+| `meta/sessions/INDEX.md` does not exist | Orchestrator runs the `/rebuild-session-index` maintenance prompt (`scripts/prompts/rebuild-session-index.md`) to auto-bootstrap before Step 0.5. If hippocampus still sees a missing index, return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` and let GWT surface it through `degradation_summary`. |
 | INDEX.md exists but is empty (new second-brain) | Return empty `retrieved_sessions`, note "first session — no cross-session memory yet" |
 | LLM judgment call fails (API error, rate limit) | Fallback to pure keyword match on INDEX.md (no semantic scoring), set `degraded: true` |
 | Concept files missing for Wave 2 target | Skip that specific branch, continue Wave 2 with remaining branches |

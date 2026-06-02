@@ -38,7 +38,7 @@ Authoritative spec: `references/hippocampus-spec.md`. Read it if you need detail
 
 ```
 🧠 hippocampus subagent · v1.7 Phase 1 · read-only retrieval
-Reading meta/sessions/INDEX.md. Beginning Wave 1 FTS5 direct match.
+Reading meta/sessions/INDEX.md. Beginning Wave 1 Grep direct match.
 ```
 
 If you cannot read the INDEX.md file, immediately emit:
@@ -67,7 +67,7 @@ and return. Do not stall.
 - Synthesize claims not in retrieved content. Each `reason` field must paraphrase the actual session markdown, not infer beyond it.
 - Read SOUL.md full body. You see only concept tags via session frontmatter, not identity narrative.
 - Inject content into the system prompt. Output flows into the user message via GWT arbitrator with `[COGNITIVE CONTEXT]` delimiters.
-- Use embeddings or vector databases. SQLite FTS5 is permitted only as a lexical candidate index over `meta/sessions/INDEX.md`; Wave 2/3 LLM judgment and concept spreading remain unchanged.
+- Use embeddings, vector databases, or a SQLite/FTS5 index — a `.db`/`.sqlite` file violates the md-only ontological constraint. Wave 1 candidate retrieval is a plain Grep pass over `meta/sessions/INDEX.md`; Wave 2/3 LLM judgment and concept spreading are unaffected.
 - Exceed 7 total retrieved sessions across all waves.
 
 ---
@@ -109,7 +109,7 @@ If you see ANY of the following in your input, abort with `degradation_reason: "
    Grep(pattern="(keyword1|keyword2|keyword3)", path="meta/sessions/INDEX.md", output_mode="content", -n=true, -C=1, head_limit=50)
    ```
    Each matched INDEX.md line follows format `{date} | {project} | {subject} | {score}/10 | [{keywords}] | {session_id}`. Returns ≤50 candidate sessions. At <1000 sessions, Grep is sub-second. Loses FTS5 stemming — Wave 2/3 will compensate.
-3. **LLM judgment**: from the FTS5 candidate set, select 3-5 sessions whose subject is semantically related to the current one. Score each on `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`, both 0-1.
+3. **LLM judgment**: from the Grep candidate set, select 3-5 sessions whose subject is semantically related to the current one. Score each on `score_wave1 = 0.6 * subject_similarity + 0.4 * keyword_overlap`, both 0-1.
 4. **Read** full content of top 3-5 from `meta/sessions/{session_id}.md`. Parse YAML frontmatter for `concepts_activated`, `concepts_discovered`, `methods_used`, `methods_discovered`, and `keywords`.
 5. Output: `[{session_id, score, matched_concepts}]` — seed set for Wave 2.
 
@@ -214,7 +214,7 @@ Degrade gracefully — never block the workflow.
 |---------|----------|
 | INDEX.md does not exist | Return empty output with `degraded: true, degradation_reason: "INDEX_MISSING"` |
 | INDEX.md empty (new second-brain) | Return empty `retrieved_sessions`, note "first session — no cross-session memory yet" |
-| SQLite FTS5 unavailable or helper fails | Fallback to direct INDEX keyword match, set `degraded: true, degradation_reason: "FTS5_UNAVAILABLE"` |
+| Grep returns no candidates, or the Grep tool errors | Fallback to reading `meta/sessions/INDEX.md` directly + LLM keyword match, set `degraded: true, degradation_reason: "WAVE1_DEGRADED"` |
 | LLM judgment call fails | Fallback to pure keyword match on INDEX, set `degraded: true` |
 | Concept files missing for Wave 2 target | Skip that branch, continue with others |
 | Entire concept graph missing | Skip Waves 2-3, return Wave 1 with `waves_completed: [1]` |
@@ -233,13 +233,13 @@ Total target: **<7 seconds** (well under 15s hard timeout).
 | Step | Target |
 |------|--------|
 | Read INDEX.md | <100ms |
-| SQLite FTS5 candidate retrieval | 100-300ms |
-| LLM judgment on FTS5 candidates | 2-3s |
+| Grep candidate retrieval | <300ms |
+| LLM judgment on Grep candidates | 2-3s |
 | Read 3-5 session files | <300ms |
 | Wave 2 concept lookup | 1-2s |
 | Wave 3 extension | 1s |
 
-Expected speedup: Wave 1 candidate retrieval moves from the prior 1-2s grep/large-index path to 100-300ms via SQLite FTS5, while Wave 2/3 LLM judgment and concept spreading remain unchanged.
+Wave 1 candidate retrieval is a single Grep pass over INDEX.md (sub-second at <1000 sessions); Wave 2/3 LLM judgment and concept spreading dominate the budget.
 
 Token budget per invocation: under 8000 tokens (Opus).
 
@@ -251,7 +251,7 @@ Token budget per invocation: under 8000 tokens (Opus).
 - Modifying session or concept files (read-only contract; `meta/runtime/<sid>/hippocampus.md` audit trail is the only exception)
 - Injecting retrieved content into system prompt (volatile, breaks prompt cache)
 - Using embeddings or vector databases (user decision #3)
-- Reintroducing grep as the Wave 1 pre-filter instead of the FTS5 helper
+- Reintroducing a SQLite/FTS5 (or any `.db`) index as the Wave 1 pre-filter — Grep over INDEX.md is the mandated md-only mechanism
 - Reading peer Pre-Router agent outputs (information isolation)
 - Synthesizing claims not in retrieved content (you retrieve, you don't reason beyond)
 - Exceeding 7 total retrieved sessions

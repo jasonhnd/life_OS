@@ -270,7 +270,7 @@ Hippocampus 必须优雅降级 —— 失败的检索不应阻塞决策工作流
 
 | 失败 | 行为 |
 |---------|----------|
-| `meta/sessions/INDEX.md` 不存在 | 若可用则通过 Bash 运行 `tools/reindex.py`；否则返回空输出并 `degraded: true, degradation_reason: "INDEX_MISSING"` |
+| `meta/sessions/INDEX.md` 不存在 | Orchestrator 运行 `/rebuild-session-index` 维护提示（`scripts/prompts/rebuild-session-index.md`）自举；若仍缺失则返回空输出并 `degraded: true, degradation_reason: "INDEX_MISSING"` |
 | INDEX.md 存在但为空（新 second-brain） | 返回空 `retrieved_sessions`，注明 "first session — no cross-session memory yet" |
 | LLM 判断调用失败（API 错误、限流） | 回退到对 INDEX.md 的纯关键词匹配（无语义评分），置 `degraded: true` |
 | Wave 2 目标概念文件缺失 | 跳过该特定分支，用剩余分支继续 Wave 2 |

@@ -133,8 +133,8 @@ eval scenarios を実行:
 | concept-lookup | propose | suggest_only | low |
 | soul-check | audit | suggest_only | low |
 | narrator | specify | suggest_only（ROUTER-internal、テンプレートのみ）| low |
-| narrator-validator | validate | suggest_only（v1.8.0 削除、legacy テンプレートとして保持）| low |
 | knowledge-extractor | propose | write_candidate（`meta/runtime/<sid>/extraction/` に書く）| medium |
+| memory-keeper | refactor | write_inactive（`gotchas.md` に追記）| low |
 | 6 domain agents（people/finance/growth/execution/governance/infra）| diagnose | write_candidate（domain report を書く）| medium |
 
 risk_level の根拠: REVIEWER ゲートなしで最終出力を生成する agent はリスクが高い（archiver publish、reviewer veto）。提案/読み取りのみの agent はリスクが低い。
@@ -142,7 +142,7 @@ risk_level の根拠: REVIEWER ゲートなしで最終出力を生成する age
 ## 各 agent の `lifecycle_stage`（v1.8.5 初期）
 
 すべての agent は v1.8.5 リリースでデフォルト `active`。例外:
-- `narrator.md` と `narrator-validator.md` は v1.8.0 R-1.8.0-011 ピボットに従い `deprecated`（citation discipline は ROUTER にインライン化済）；テンプレートとして保持
+- `narrator.md` は v1.8.0 R-1.8.0-011 ピボットに従い `deprecated`（citation discipline は ROUTER にインライン化済）；ROUTER-internal テンプレートとしてのみ保持（`narrator-validator.md` は同じピボットで削除済み——ファイルなし）
 
 ## 移行
 

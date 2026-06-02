@@ -28,26 +28,25 @@ If `$ARGUMENTS` non-empty, filter by glob pattern.
 
 ## For each scenario
 
-### 1. Read scenario frontmatter
-The scenario file has YAML frontmatter with fields:
-- `input`: prompt to send to claude
-- `expected_subagent`: which Task() subagent must be called
-- `expected_pattern_in_output`: regex/substring that must appear in claude's output
-- `compliance_check`: optional name of a check to run via `/check-spec-drift` or AUDITOR Mode 3
+### 1. Read the scenario body
+Scenario files use markdown sections, **not** YAML frontmatter:
+- `## User Message` (also `## 用户消息` / `## ユーザーメッセージ`, and the multi-message `## User Messages` variant) — the prompt(s) to send, inside fenced code blocks.
+- `## Expected Behavior` and `## Quality Checkpoints` — what a correct run must do (which subagent launches, which routing path is taken, substrings that must / must-not appear).
+
+Extract the input from the `## User Message` fenced code block. If that section or its code fence is missing, mark the scenario `FAIL (schema error)`.
 
 ### 2. Invoke claude
 ```bash
-claude -p "<input>" > evals/outputs/<scenario>-<timestamp>.md
+claude -p "<user message>" > evals/outputs/<scenario>-<timestamp>.md
 ```
-Capture exit code.
+Capture the exit code. For multi-message scenarios, run each message and save numbered outputs.
 
-### 3. Verify expectations
-- Check the output file contains the expected subagent launch line (e.g. `Task(subagent_type=retrospective)`)
-- Check `expected_pattern_in_output` matches via grep
-- If `compliance_check` set, invoke `/check-spec-drift` or relevant scenario-specific check
+### 3. Verify against Expected Behavior
+- Check the output satisfies the scenario's `## Expected Behavior` / `## Quality Checkpoints` (e.g. the right subagent launch line like `Task(subagent_type=retrospective)`, the expected routing path, required substrings present and forbidden ones absent).
+- Quality-of-output judgments that can't be grep-verified (score distribution, REVIEWER substance, etc.) are noted for manual rubric scoring, not auto-failed.
 
 ### 4. Record pass/fail
-- `PASS` if exit 0 + all expectations met
+- `PASS` if exit 0 + the grep-verifiable Expected Behavior / Quality Checkpoints are met
 - `FAIL <reason>` otherwise
 
 ## Final report

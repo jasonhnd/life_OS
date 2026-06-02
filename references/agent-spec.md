@@ -133,8 +133,8 @@ Pass rate criteria (D4):
 | concept-lookup | propose | suggest_only | low |
 | soul-check | audit | suggest_only | low |
 | narrator | specify | suggest_only (ROUTER-internal, template-only) | low |
-| narrator-validator | validate | suggest_only (deleted v1.8.0, retained as legacy template) | low |
 | knowledge-extractor | propose | write_candidate (writes to `meta/runtime/<sid>/extraction/`) | medium |
+| memory-keeper | refactor | write_inactive (appends to `gotchas.md`) | low |
 | 6 domain agents (people/finance/growth/execution/governance/infra) | diagnose | write_candidate (writes domain report) | medium |
 
 risk_level rationale: agents that produce final outputs without REVIEWER gate are higher risk (archiver publish, reviewer veto). Agents that only propose / read are lower risk.
@@ -142,7 +142,7 @@ risk_level rationale: agents that produce final outputs without REVIEWER gate ar
 ## Per-agent `lifecycle_stage` (v1.8.5 initial)
 
 All agents default to `active` for v1.8.5 release. Exception:
-- `narrator.md` and `narrator-validator.md` are `deprecated` per v1.8.0 R-1.8.0-011 pivot (citation discipline inlined to ROUTER); retained as templates only
+- `narrator.md` is `deprecated` per v1.8.0 R-1.8.0-011 pivot (citation discipline inlined to ROUTER); retained as a ROUTER-internal template only (`narrator-validator.md` was deleted in the same pivot — no file remains)
 
 ## Migration
 

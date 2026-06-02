@@ -133,8 +133,8 @@ Stage 6 Day 17 添加新 AUDITOR mode。检查:
 | concept-lookup | propose | suggest_only | low |
 | soul-check | audit | suggest_only | low |
 | narrator | specify | suggest_only（ROUTER-internal，仅模板）| low |
-| narrator-validator | validate | suggest_only（v1.8.0 删除，作为 legacy 模板保留）| low |
 | knowledge-extractor | propose | write_candidate（写 `meta/runtime/<sid>/extraction/`）| medium |
+| memory-keeper | refactor | write_inactive（追加到 `gotchas.md`）| low |
 | 6 domain agents（people/finance/growth/execution/governance/infra）| diagnose | write_candidate（写 domain report）| medium |
 
 risk_level 理由: 产出最终输出无 REVIEWER 门的 agent 风险更高（archiver publish、reviewer veto）。仅提议/读取的 agent 风险更低。
@@ -142,7 +142,7 @@ risk_level 理由: 产出最终输出无 REVIEWER 门的 agent 风险更高（ar
 ## 每个 agent 的 `lifecycle_stage`（v1.8.5 初始）
 
 所有 agent 在 v1.8.5 release 默认为 `active`。例外:
-- `narrator.md` 和 `narrator-validator.md` 按 v1.8.0 R-1.8.0-011 pivot 是 `deprecated`（citation discipline 已内联到 ROUTER）；保留为模板
+- `narrator.md` 按 v1.8.0 R-1.8.0-011 pivot 是 `deprecated`（citation discipline 已内联到 ROUTER）；仅作为 ROUTER-internal 模板保留（`narrator-validator.md` 在同一 pivot 已删除——文件不存在）
 
 ## 迁移
 

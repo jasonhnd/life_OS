@@ -41,7 +41,7 @@ After the match/mismatch line, if local version is older than remote AND specifi
 
 | Local | Remote | Hint |
 |-------|--------|------|
-| `1.8.6` | `≥1.8.7` | `✅ v1.8.7 upgrade is zero-friction: git pull + /install-agents --refresh installs 2 new watch commands. archiver first wrap-up auto-creates gotchas.md with ≥10 seed entries. No migration command needed. Details: meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` |
+| `1.8.6` | `≥1.8.7` | `✅ v1.8.7 upgrade is zero-friction: git pull + /install-agents --refresh installs the new watch command (verify-release-and-watch). archiver first wrap-up auto-creates gotchas.md with ≥10 seed entries. No migration command needed. Details: meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` |
 | `1.8.5` | `≥1.8.7` | `⚠️ You're 2 versions behind. v1.8.6 added md-only ban on .yml/.json (no action needed if you didn't add those files). v1.8.7 then added .sql/.db/.sqlite ban + 7 new features. Same upgrade flow: git pull + /install-agents --refresh.` |
 | `1.8.4` or earlier | `≥1.8.7` | `⚠️ You're ≥3 versions behind. See MIGRATION.md for the cumulative changes. Each minor patch was non-breaking but added HARD RULES. Recommended: read v1.8.5 RFC (hook retirement) + v1.8.6 + v1.8.7 release notes before upgrading.` |
 | `1.7.x` | `≥1.8.0` | `⚠️ Major architectural change: v1.8.0 "100% LLM-native" pivot removed Python tools entirely. v1.8.5+ removed remaining bash hooks. See MIGRATION.md and RFCs for cumulative changes.` |

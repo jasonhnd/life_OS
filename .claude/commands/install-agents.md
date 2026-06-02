@@ -1,5 +1,6 @@
 ---
-description: Generate Claude Code native Task() agent wrappers in ~/.claude/agents/ from agents/*.md source files. Replaces v1.8.4 scripts/register-claude-agents.sh as part of v1.8.5 hook layer retirement.
+description: Generate Claude Code native Task() agent wrappers in ~/.claude/agents/ from agents/*.md source files, and install slash command specs to ~/.claude/commands/. Replaces v1.8.4 scripts/register-claude-agents.sh as part of v1.8.5 hook layer retirement.
+argument-hint: "[--refresh]  (re-install agents + slash commands; idempotent, run after git pull)"
 allowed-tools:
   - Bash
   - Read
@@ -56,9 +57,20 @@ description: <copy 'description:' from source file frontmatter, or use base name
 
 The `@` import lets Claude Code load the full source content at Task() launch time.
 
-### 4. Report
+### 4. Install slash command specs (to `~/.claude/commands/`)
+
+So `/run-eval`, `/check-spec-drift`, `/verify-release`, `/verify-release-and-watch`, `/version-check`, etc. are discoverable:
+```bash
+mkdir -p "$HOME/.claude/commands"
+```
+For each `*.md` under `.claude/commands/` AND `scripts/commands/` (e.g. `compress.md`, `monitor.md`) in the skill root, copy it to `$HOME/.claude/commands/<base>.md` (overwrite — install is idempotent).
+
+**`--refresh`**: if `$ARGUMENTS` contains `--refresh`, this is a re-install — regenerate ALL agent wrappers (step 3) and re-copy ALL slash command specs (this step), overwriting existing ones. Run it after `git pull` to pick up new or changed agents and commands.
+
+### 5. Report
 ```
 ✅ Registered N lifeos-* wrappers in ~/.claude/agents/
+   installed K slash commands in ~/.claude/commands/
    skipped M ROUTER-internal templates
    source: <skill root path>
 ```

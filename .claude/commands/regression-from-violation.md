@@ -10,7 +10,7 @@ allowed-tools:
 
 # /regression-from-violation
 
-Convert a specific row in `compliance/violations.md` into a markdown regression fixture (YAML frontmatter + body) under `evals/regression-fixtures/rc-<descriptor>.md`. The 7 critical fixtures (4 F-class + 1 forbidden-extension + 2 most-cited historic) shipped in Stage 9; remaining ~70 historical rows use this slash command for lazy conversion as patterns recur. (Fixtures were `.yml` until v1.8.5 Stage 9 / v1.8.6; the md-only ontological constraint / DR-10 forbids `.yml`, so fixtures are now `.md`.)
+Convert a specific row in `compliance/violations.md` into a markdown regression fixture (YAML frontmatter + body) under `evals/regression-fixtures/rc-<descriptor>.md`. 17 regression fixtures currently ship (4 F-class + 4 forbidden-extension + 9 schema/process); remaining historical rows use this slash command for lazy conversion as patterns recur. (Fixtures were `.yml` until v1.8.5 Stage 9 / v1.8.6; the md-only ontological constraint / DR-10 forbids `.yml`, so fixtures are now `.md`.)
 
 ## Procedure
 
@@ -89,4 +89,4 @@ Run `/run-regression rc-<new-fixture-name>` (when implemented) to confirm the ne
 
 ## Source attribution
 
-Inspired by eou-foundry `self-evolution/regression/cases/` pattern (rc-f14-* / rc-f15-* / rc-f16-* / rc-f17-* — fixtures generated from F14-F17 incident taxonomy). Adapted for life_OS lazy-conversion model (D7 — 28 fixtures critical-only at ship; remaining via slash command as patterns emerge).
+Inspired by eou-foundry `self-evolution/regression/cases/` pattern (rc-f14-* / rc-f15-* / rc-f16-* / rc-f17-* — fixtures generated from F14-F17 incident taxonomy). Adapted for life_OS lazy-conversion model (D7 — 17 fixtures critical-only at ship; remaining via slash command as patterns emerge).
