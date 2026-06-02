@@ -6,6 +6,43 @@
 
 ---
 
+## [1.9.1.2] - 2026-06-02 - Eval 文档迁移到 /run-eval + 移除死 Makefile
+
+```yaml
+---
+version: 1.9.1.2
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "`docs/evals` 三件套（running-evals.md、overview.md、writing-new-scenarios.md）仍把已退役的 `evals/run-eval.sh` 当作现行 eval runner 来教（`chmod +x`、`./evals/run-eval.sh`、调用它的 GitHub Actions YAML）——与 evals/README.md 自相矛盾（后者在 v1.9.1 已迁到 `/run-eval` slash 命令）。三件套全部改写为 `/run-eval`；.sh 现在只作为「取代已退役的……」血统注记出现。"
+  - "两个 eval scenario 文件（adjourn-compliance.md、start-session-compliance.md）带有 `## Notes for run-eval.sh` 段；adjourn-compliance.md 还把已退役的 bash hook `lifeos-compliance-check.sh` 当作「待实现」TODO。标题改指 `/run-eval`；死 hook TODO 重述为已退役（合规检查现走 `/check-spec-drift` + AUDITOR Mode 3）。"
+  - "移除死 `Makefile`：每个 target 引用的都是 md-only 化时删掉的资源——`tools/` 和 `tests/`（v1.8.1 起不存在）、`tools/cli.py`、ruff/pytest，以及已退役的 `evals/run-eval.sh` / `run-tool-eval.sh`——外加一个不存在的 `.github/workflows/test.yml`。`make ci` 立即失败，且 `/check-spec-drift` 抓不到它（只扫 .md/.yml/.json）。验证一律走 slash 命令（`/check-spec-drift`、`/run-eval`、`/verify-release`），make 无法调用。"
+alternatives_considered:
+  - option: "作为版本内『1.9.1.1 fix9』重打 tag 发布（一贯的发布后文档修复模式）"
+    rejected_because: "用户明确要求独立的 1.9.1.2 版本，配自己的 commit、tag 和 GitHub Release；移除 Makefile + eval 文档迁移比改错别字更实质，值得一个可发现的 tag"
+  - option: "保留一个极简 Makefile 作为 `make help` 可发现性桩，指向 slash 命令"
+    rejected_because: "make 在 shell 里跑，无法调用 Claude 内部的 slash 命令；一个全是 echo 的 Makefile 在 md-only 仓库里是 cargo-cult，且会重新引入本体论排斥的非 md 工具链文件"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "0 处可执行的 `run-eval.sh` 调用残留（无 `./evals/run-eval.sh`、`chmod +x`、`bash run-eval`、`## Notes for run-eval.sh`）；所有剩余提及都是 run-eval.md / run-tool-eval.md / evals/README.md（EN/zh/ja）+ 已迁移的 docs/evals 里的「取代/已退役」血统注记。"
+  - "删除后活跃面 0 处 Makefile/make 孤儿引用（MIGRATION / CHANGELOG / docs-history 的提及属豁免历史）；新引入的 `.claude/commands/run-eval.md` + `/check-spec-drift` 引用均解析。"
+  - "i18n zh/ja eval README 早已是 `/run-eval`——三语对等保持。"
+---
+```
+
+> 应用户要求，把 1.9.1.1 之后工作区里的修复（eval 文档 `/run-eval` 迁移 + 移除死 Makefile）提升为打 tag 的维护发布。纯 spec/docs + 死设施修正——无 vault 数据迁移，无运行时行为变化。
+
+### 迁移
+
+- **无需用户操作。** 仅文档 + 仓库工具清理。如果你之前依赖 `make` target：Makefile 已删除——md-only 仓库没有构建/测试工具链。改在 Claude Code 里跑 `/check-spec-drift`、`/run-eval`、`/verify-release`。
+
+---
+
 ## [1.9.1.1] - 2026-05-31 - 仓库结构清理与最终审计
 
 ```yaml

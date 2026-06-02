@@ -127,7 +127,7 @@ grep -F "## 5. 待陛下圣裁" <final-briefing>
 
 Expected H2 count: `6`.
 
-## Notes for run-eval.sh
+## Notes for /run-eval
 
 1. Invoke the Start Session trigger (`上朝`) in a clean transcript.
 2. Capture ROUTER output plus retrospective subagent output.

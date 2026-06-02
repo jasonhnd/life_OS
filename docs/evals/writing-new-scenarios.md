@@ -39,7 +39,7 @@
 - [ ] ...
 ```
 
-这是硬性格式。`run-eval.sh` 靠 `## User Message` 下的 fenced code block 提取输入——少了这个 section 或忘了 code fence，脚本直接 FAIL。
+这是硬性格式。`/run-eval` 靠 `## User Message` 下的 fenced code block 提取输入——少了这个 section 或忘了 code fence，直接 FAIL。
 
 ---
 
@@ -49,7 +49,7 @@
 
 必需的三件事：
 
-1. **文件名 = scenario 标识**：`resign-startup.md` → 运行时用 `./run-eval.sh resign-startup`。
+1. **文件名 = scenario 标识**：`resign-startup.md` → 运行时用 `/run-eval resign-startup`。
 2. **H1 标题**：`# Scenario: <描述性名字>`。描述性名字只给人看，脚本不用。
 3. **Path 标签**：`**Path**: Full Court` / `**Path**: Express Analysis` / `**Path**: Direct Handle`。明确声明这场景预期走哪条路径。
 
@@ -207,7 +207,7 @@ checkpoint 是最重要的 section——这是**跑完之后用来逐条验证**
 ## 加完之后怎么验证
 
 1. **手动跑一次**：把 User Message 粘进 Claude Code，观察是否触发 Design Intent 预期的行为。不预期就改 User Message 加触发信号。
-2. **用脚本跑**：`./evals/run-eval.sh <your-scenario-name>`。确认 exit 0 + 输出文件生成。
+2. **用 `/run-eval` 跑**：`/run-eval <your-scenario-name>`。确认 exit 0 + 输出文件生成。
 3. **按 Quality Checkpoints 逐条对照**输出文件，每条能打 ✅ 或 ❌。打不了 → checkpoint 太含糊，改 checkpoint。
 4. **commit 时注明**：commit message 写清这个场景是为了测什么（例如：「test: 新增 council-debate scenario，验证 domain 分数冲突触发 3 轮辩论」）。
 

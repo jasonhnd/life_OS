@@ -27,6 +27,13 @@ MAJOR.MINOR.PATCH[.维护快照]
 
 ## 主要版本汇总
 
+### v1.9.1.2 · Eval 文档迁移到 /run-eval + 移除死 Makefile（2026-06-02）
+
+- `docs/evals` 三件套从已退役的 `evals/run-eval.sh` 改写为 `/run-eval` slash 命令（对齐 evals/README.md）
+- 两个 eval scenario 的 `## Notes for run-eval.sh` 段改指 `/run-eval`；死 hook TODO 重述为已退役
+- 移除死 `Makefile`（target 全部引用 md-only 化时删掉的 `tools/`、`tests/`、退役 eval 脚本和不存在的 CI）
+- 验证：0 处可执行 run-eval.sh 调用残留、0 处 Makefile 孤儿引用、三语对等保持
+
 ### v1.9.1.1 · 仓库结构清理与最终审计（2026-05-31）
 
 - 移除旧 Pro 源结构，改为 `hosts/`、`agents/`、`compliance/`
@@ -207,7 +214,7 @@ GitHub second-brain 成为主数据库：
 ```yaml
 ---
 name: life-os
-version: "1.9.1.1"       ← 当前版本
+version: "1.9.1.2"       ← 当前版本
 ---
 ```
 

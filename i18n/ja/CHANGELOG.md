@@ -6,6 +6,43 @@
 
 ---
 
+## [1.9.1.2] - 2026-06-02 - Eval-docs migration to /run-eval + dead Makefile removal
+
+```yaml
+---
+version: 1.9.1.2
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "`docs/evals` の 3 ファイル（running-evals.md、overview.md、writing-new-scenarios.md）が、退役した `evals/run-eval.sh` を現行の eval runner として記述し続けていた（`chmod +x`、`./evals/run-eval.sh`、それを呼ぶ GitHub Actions YAML）——v1.9.1 で既に `/run-eval` slash コマンドへ移行済みの evals/README.md と矛盾。3 ファイルすべてを `/run-eval` に書き換え。.sh は「退役した……を置き換え」という lineage note としてのみ残る。"
+  - "2 つの eval scenario ファイル（adjourn-compliance.md、start-session-compliance.md）に `## Notes for run-eval.sh` セクションがあり、adjourn-compliance.md はさらに退役した bash hook `lifeos-compliance-check.sh` を to-implement TODO として提示していた。見出しを `/run-eval` に変更し、dead-hook TODO を退役済みとして再整理（compliance は `/check-spec-drift` + AUDITOR Mode 3 経由）。"
+  - "死んだ `Makefile` を削除：すべての target が md-only 化で削除済みのリソースを参照していた——`tools/` と `tests/`（v1.8.1 以降不在）、`tools/cli.py`、ruff/pytest、退役した `evals/run-eval.sh` / `run-tool-eval.sh`——加えて存在しない `.github/workflows/test.yml`。`make ci` は即失敗し、`/check-spec-drift` も検出不可（.md/.yml/.json のみ走査）。検証は slash コマンド（`/check-spec-drift`、`/run-eval`、`/verify-release`）経由で、make からは呼べない。"
+alternatives_considered:
+  - option: "リリース内『1.9.1.1 fix9』の re-tag として出荷（通常の公開後ドキュメント修正パターン）"
+    rejected_because: "ユーザーが独立した 1.9.1.2 バージョン（専用の commit・tag・GitHub Release 付き）を明示要求；Makefile 削除 + eval ドキュメント移行は typo 修正より実質的で、発見可能な tag に値する"
+  - option: "最小限の Makefile を `make help` 発見性スタブとして残し、slash コマンドへ誘導"
+    rejected_because: "make は shell で動き、Claude 内部の slash コマンドを呼べない；echo だけの Makefile は md-only リポジトリでは cargo-cult であり、存在論が拒否する非 md ツールチェーンファイルを再導入してしまう"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "実行形式の `run-eval.sh` 呼び出しは 0 件（`./evals/run-eval.sh`、`chmod +x`、`bash run-eval`、`## Notes for run-eval.sh` なし）；残る言及はすべて run-eval.md / run-tool-eval.md / evals/README.md（EN/zh/ja）+ 移行済み docs/evals の「置き換え/退役」lineage note。"
+  - "削除後、active surface に Makefile/make の orphan 参照 0 件（MIGRATION / CHANGELOG / docs-history の言及は exempt な歴史記録）；新規導入の `.claude/commands/run-eval.md` + `/check-spec-drift` 参照は解決する。"
+  - "i18n zh/ja の eval README は既に `/run-eval`——三言語 parity を維持。"
+---
+```
+
+> ユーザー要求により、1.9.1.1 以降の working-tree 修正（eval ドキュメントの `/run-eval` 移行 + 死んだ Makefile 削除）を tag 付き maintenance release に昇格。純粋な spec/docs + dead-infra の正しさ——vault データ移行なし、ランタイム挙動の変化なし。
+
+### マイグレーション
+
+- **ユーザー操作不要。** ドキュメント + リポジトリツールの整理のみ。`make` target に依存していた場合：Makefile は削除済み——md-only リポジトリにビルド/テストのツールチェーンはない。Claude Code 内で `/check-spec-drift`、`/run-eval`、`/verify-release` を実行のこと。
+
+---
+
 ## [1.9.1.1] - 2026-05-31 - Repository structure cleanup and final audit
 
 ```yaml

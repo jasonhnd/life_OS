@@ -142,19 +142,15 @@ grep -qE '📝 Trigger: 退朝 → .* → Action: Launch\(archiver\)' <ROUTER-fi
 
 Any `🚫` output = failure. Expected outcome: all checks silent (zero 🚫).
 
-## Notes for run-eval.sh
+## Notes for /run-eval
 
-This scenario is similar in shape to start-session-compliance.md.
-`scripts/lifeos-compliance-check.sh` does not yet implement Adjourn-path
-detection — placeholder. To implement:
-
-1. Extend `lifeos-compliance-check.sh` with `check_adjourn()` function
-2. Add the 4 detection checks (C/D/E + A3)
-3. Wire into the dispatch case for `adjourn-compliance`
-
-Until then, this scenario runs via `evals/run-eval.sh adjourn-compliance`
-captures output but compliance check silently passes (placeholder).
-Manual inspection needed.
+This scenario is similar in shape to start-session-compliance.md. `/run-eval`
+does not implement Adjourn-path compliance detection itself — it's a
+placeholder: `/run-eval adjourn-compliance` captures output, but the
+compliance judgement passes silently and manual inspection is needed. (The
+bash hook that once did this, `lifeos-compliance-check.sh`, was retired in
+v1.8.5 under the md-only constraint; compliance now runs via
+`/check-spec-drift` + AUDITOR Mode 3.)
 
 ## Linked Documents
 

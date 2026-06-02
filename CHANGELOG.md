@@ -6,6 +6,43 @@ This project follows **Strict SemVer** for releases: MAJOR (Breaking Change) · 
 
 ---
 
+## [1.9.1.2] - 2026-06-02 - Eval-docs migration to /run-eval + dead Makefile removal
+
+```yaml
+---
+version: 1.9.1.2
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "The `docs/evals` trio (running-evals.md, overview.md, writing-new-scenarios.md) still documented the retired `evals/run-eval.sh` as the live eval runner (`chmod +x`, `./evals/run-eval.sh`, a GitHub-Actions YAML invoking it) — contradicting evals/README.md, which had already migrated to the `/run-eval` slash command in v1.9.1. Rewrote all three to `/run-eval`; the .sh now appears only as a 'replaces the retired …' lineage note."
+  - "Two eval scenario files (adjourn-compliance.md, start-session-compliance.md) carried `## Notes for run-eval.sh` sections; adjourn-compliance.md additionally presented the retired bash hook `lifeos-compliance-check.sh` as a to-implement TODO. Headers retargeted to `/run-eval`; the dead-hook TODO reframed as retired (compliance now via `/check-spec-drift` + AUDITOR Mode 3)."
+  - "Removed the dead `Makefile`: every target referenced resources deleted in the md-only pivot — `tools/` and `tests/` (gone since v1.8.1), `tools/cli.py`, ruff/pytest, and the retired `evals/run-eval.sh` / `run-tool-eval.sh` — plus a `.github/workflows/test.yml` that does not exist. `make ci` failed immediately and `/check-spec-drift` could not catch it (it scans only .md/.yml/.json). Verification is via slash commands (`/check-spec-drift`, `/run-eval`, `/verify-release`), which make cannot invoke."
+alternatives_considered:
+  - option: "Ship as a within-release '1.9.1.1 fix9' re-tag (the usual post-publish doc-fix pattern)"
+    rejected_because: "User explicitly requested a discrete 1.9.1.2 version with its own commit, tag, and GitHub Release; the Makefile removal + eval-docs migration is more substantive than a typo fix and deserves a discoverable tag"
+  - option: "Keep a minimal Makefile as a `make help` discoverability stub pointing to the slash commands"
+    rejected_because: "make runs in the shell and cannot invoke Claude-internal slash commands; an all-echo Makefile would be cargo-cult in an md-only repo and re-introduce a non-md toolchain file the ontology rejects"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "0 executable `run-eval.sh` invocations remain (no `./evals/run-eval.sh`, `chmod +x`, `bash run-eval`, or `## Notes for run-eval.sh`); every residual mention is a 'replaces/retired' lineage note in run-eval.md / run-tool-eval.md / evals/README.md (EN/zh/ja) + the migrated docs/evals."
+  - "0 orphaned Makefile/make references on the active surface after deletion (MIGRATION / CHANGELOG / docs-history mentions are exempt historical); newly-introduced `.claude/commands/run-eval.md` + `/check-spec-drift` references resolve."
+  - "i18n zh/ja eval READMEs already on `/run-eval` — trilingual parity preserved."
+---
+```
+
+> Promotes the post-1.9.1.1 working-tree fixes (eval-docs `/run-eval` migration + dead-Makefile removal) to a tagged maintenance release, at user request. Pure spec/docs + dead-infra correctness — no vault-data migration and no behavioral runtime change.
+
+### Migration
+
+- **No user action required.** Documentation + repo-tooling cleanup only. If you relied on `make` targets: the Makefile is gone — an md-only repo has no build/test toolchain. Run `/check-spec-drift`, `/run-eval`, and `/verify-release` inside Claude Code instead.
+
+---
+
 ## [1.9.1.1] - 2026-05-31 - Repository structure cleanup and final audit
 
 ```yaml

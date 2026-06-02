@@ -1,6 +1,6 @@
 # 运行 Eval 套件
 
-怎么跑、怎么读输出、怎么接 CI。针对 `evals/run-eval.sh` 的操作手册。
+怎么跑、怎么读输出、怎么接 CI。针对 `/run-eval` slash 命令的操作手册（取代已退役的 `evals/run-eval.sh`——v1.8.5 hook 层退役、md-only 本体约束；完整规范见 `.claude/commands/run-eval.md`）。
 
 ---
 
@@ -16,30 +16,29 @@
 
 2. **当前 session 能找到 life-os skill**。在 Claude Code 里确认 `/skills` 列表能看到 `life_OS` 或 `anthropic-skills:life-os`。
 
-3. **脚本有执行权限**：`chmod +x evals/run-eval.sh`（通常 clone 下来就有）。
+3. **`/run-eval` 命令已安装**。在 Claude Code 里输入 `/` 能看到 `run-eval`（`/install-agents --refresh` 会把 `.claude/commands/run-eval.md` 装到 `~/.claude/commands/`）。
 
 ---
 
 ## 跑所有场景
 
-```bash
-./evals/run-eval.sh
+```
+/run-eval
 ```
 
 这会按字典序把 `evals/scenarios/*.md` 里所有场景都跑一遍。输出示例：
 
 ```
-=== Life OS Eval Runner ===
-时间: 20260419_231245
+── /run-eval · 20260419_231245 ──
 场景数: 6
 
-🏃 运行场景: council-debate
-   输出: /path/to/evals/outputs/council-debate_20260419_231245.md
-   ✅ 通过 (exit 0)
+🏃 council-debate
+   输出: evals/outputs/council-debate-20260419_231245.md
+   ✅ PASS (exit 0)
 
-🏃 运行场景: fengbo-loop
-   输出: /path/to/evals/outputs/fengbo-loop_20260419_231245.md
-   ✅ 通过 (exit 0)
+🏃 fengbo-loop
+   输出: evals/outputs/fengbo-loop-20260419_231245.md
+   ✅ PASS (exit 0)
 
 ...
 
@@ -52,49 +51,42 @@
   PASS router-triage
 
 通过: 6 / 失败: 0 / 总计: 6
-输出目录: /path/to/evals/outputs
+输出目录: evals/outputs
 ```
 
 ---
 
 ## 跑单个场景
 
-```bash
-./evals/run-eval.sh resign-startup
+```
+/run-eval resign-startup
 ```
 
-场景名就是 `evals/scenarios/` 下的文件名去掉 `.md`。路径安全：脚本用 `basename` 取，防止 `../../etc/passwd` 这种 traversal。
-
-如果场景名不存在，脚本会列出所有可用场景并退出。
+参数是 glob 过滤，匹配 `evals/scenarios/` 下的文件名（去掉 `.md`）。如果没有任何场景匹配，`/run-eval` 会列出所有可用场景并停下。
 
 ---
 
-## 脚本内部是怎么工作的
+## `/run-eval` 内部是怎么工作的
 
-`evals/run-eval.sh` 的关键逻辑（约 100 行）：
+`/run-eval` 不是 bash 脚本，而是 `.claude/commands/run-eval.md` 里的 slash 命令规范，由 Claude 在 Claude Code 里逐个场景执行。核心逻辑：
 
-1. **提取 user message**：用 `sed` 从 scenario 文件里 `## 用户消息` / `## User Message` / `## ユーザーメッセージ` 下的 fenced code block 抽出内容。三语标题都支持。
+1. **前置检查**：`command -v claude` 确认 CLI 在。找不到（或设了 `LIFEOS_EVAL_SKIP_CLAUDE=1`）就打印 `⏭ skipping all eval scenarios (claude CLI unavailable)` 并 exit 0——跳过不算失败。
 
-   ```bash
-   user_message=$(sed -n '/^## \(用户消息\|User Message\|ユーザーメッセージ\)/,/^## /{/```/,/```/{/```/d;p;}}' "$scenario_file")
-   ```
+2. **列场景**：`ls evals/scenarios/*.md`，有参数就按 glob 过滤。
 
-   如果抽不出来（场景文件格式坏了），标记为 schema error 并 FAIL。
+3. **提取 user message**：从 scenario 文件 `## User Message` / `## 用户消息` / `## ユーザーメッセージ` 下的 fenced code block 取输入（三语标题都认）。抽不出来（场景文件格式坏了）→ 标记 schema error 并 FAIL。
 
-2. **管道给 claude -p**：
+4. **管道给 `claude -p`**：
 
    ```bash
-   echo "$user_message" | claude -p --output-format text > "$output_file" 2>"${output_file}.stderr"
+   claude -p --output-format text > evals/outputs/<scenario>-<timestamp>.md
    ```
 
    `--output-format text` 是关键——输出纯文本，不带 JSON wrapping，方便后续人工阅读和 diff。
 
-3. **处理退出码**：
+5. **核对预期 + 退出码**：检查输出里该出现的 subagent launch 行、scenario `Expected Behavior` 里点名的关键模式。Exit 0 且预期满足 → PASS；否则 FAIL，把 stderr 追加到输出文件末尾便于排查。
 
-   - Exit 0 → PASS
-   - Exit ≠ 0 → FAIL，把 stderr 追加到输出文件末尾便于排查
-
-4. **最后汇总**：打印每个场景的 PASS/FAIL，脚本整体有任一失败则 exit 1，CI 能感知到。
+6. **最后汇总**：打印每个场景的 PASS/FAIL，任一失败则整体 exit 1，CI 能感知到。
 
 ---
 
@@ -103,7 +95,7 @@
 每次运行产生：
 
 ```
-evals/outputs/{scenario_name}_{YYYYMMDD_HHMMSS}.md
+evals/outputs/{scenario_name}-{YYYYMMDD_HHMMSS}.md
 ```
 
 文件内容就是 `claude -p` 返回的完整 agent 输出——Summary Report、六部分析、REVIEWER 审议、AUDITOR 反馈等全部按主题语言写在里面。
@@ -117,16 +109,16 @@ evals/outputs/{scenario_name}_{YYYYMMDD_HHMMSS}.md
 
 ## 解读 PASS / FAIL
 
-**重要警告**：PASS 只意味着 `claude -p` 进程退出码是 0——**不代表输出质量过关**。
+**重要警告**：PASS 只意味着 `claude -p` 进程退出码是 0 且声明的预期模式命中——**不代表输出质量过关**。
 
-脚本检测不了：
+`/run-eval` 检测不了：
 
 - REVIEWER 该否决却批准了
 - 六部分数都给 7-8 的 face-saving
 - 信息隔离被破坏（PLANNER 引用了 ROUTER 的推理）
 - Wiki 萃取到了不该有的隐私信息
 
-这些要**人工按 rubrics 打分**。PASS 只是「系统没崩」；质量好不好是另一个问题。
+这些要**人工按 rubrics 打分**。PASS 只是「系统没崩 + 基本结构对」；质量好不好是另一个问题。
 
 FAIL 则是明确信号：
 
@@ -139,64 +131,25 @@ FAIL 则是明确信号：
 
 ```
 evals/outputs/
-├── council-debate_20260419_231245.md
-├── council-debate_20260420_091502.md       # 同场景多次运行 → 比对一致性
-├── fengbo-loop_20260419_231245.md
+├── council-debate-20260419_231245.md
+├── council-debate-20260420_091502.md       # 同场景多次运行 → 比对一致性
+├── fengbo-loop-20260419_231245.md
 ├── ...
 ```
 
 - **已 gitignore**：不进版本库。每个人本地跑的结果互不污染。
-- **不自动清理**：脚本不会删历史 output。要回溯历史比较时很有用，但要自己定期清理（`rm evals/outputs/*_2026*.md`）。
-- **按时间戳分文件**：同一场景多次运行不会互相覆盖，可以 `diff evals/outputs/council-debate_*.md` 看不同版本的输出差异。
+- **不自动清理**：`/run-eval` 不会删历史 output。要回溯历史比较时很有用，但要自己定期清理（`rm evals/outputs/*-2026*.md`）。
+- **按时间戳分文件**：同一场景多次运行不会互相覆盖，可以 `diff evals/outputs/council-debate-*.md` 看不同版本的输出差异。
 
 ---
 
 ## CI 集成
 
-`run-eval.sh` 在任一场景失败时 `exit 1`，可以直接用在 GitHub Actions：
+**现状**：仓库未配置 CI（没有 `.github/`）。eval 通过 `/run-eval` slash 命令在 Claude Code 里本地跑——slash 命令是 Claude 内部流程，不是能直接塞进 GitHub Actions 的 bash step。
 
-```yaml
-# .github/workflows/eval.yml（示例，目前未配置）
-name: Eval regression
-on:
-  pull_request:
-    paths:
-      - 'SKILL.md'
-      - 'hosts/**'
-      - 'agents/**'
-      - 'compliance/**'
-      - 'gotchas.md'
-      - 'themes/**'
-      - 'references/**'
+如果以后要脚本化进 CI，思路是绕过 slash 命令、直接用 `claude -p` 包一层（`/run-eval` 内部就是这么调的）：逐个 scenario 抽 `## User Message` → `claude -p --output-format text` → 检查退出码与预期模式 → 任一失败 `exit 1`。
 
-jobs:
-  eval:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install claude CLI
-        run: |
-          # 按 Anthropic 官方安装路径装
-          npm install -g @anthropic-ai/claude
-      - name: Authenticate
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: claude auth
-      - name: Run eval suite
-        run: ./evals/run-eval.sh
-      - name: Upload outputs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: eval-outputs
-          path: evals/outputs/
-```
-
-**路径触发很重要**：只有改了 SKILL.md / hosts/ / agents/ / compliance/ / gotchas.md / themes/ / references/ 才跑 eval。改 docs/ 或改 CHANGELOG 不用跑——会烧 API 额度。
-
-**Failure artifact**：失败时把 outputs/ 上传成 artifact，可以下载下来本地看，不用开 CI 的 log 挨条翻。
-
-**目前现状**：CI 还没接入。本地手动跑。下一个 minor version 考虑加。
+**路径触发很重要**（给未来 CI 的建议）：只有改了 `SKILL.md` / `hosts/` / `agents/` / `compliance/` / `gotchas.md` / `themes/` / `references/` 才值得跑 eval。改 `docs/` 或 `CHANGELOG` 不用跑——会烧 API 额度。
 
 ---
 
@@ -208,7 +161,7 @@ PATH 里没有 `claude`。确认装了 Claude Code CLI，确认可以在 shell �
 
 ### 跑起来了但每个场景都 exit 1
 
-打开 `evals/outputs/{name}_*.md` 看末尾的 STDERR 段。常见原因：
+打开 `evals/outputs/{name}-*.md` 看末尾的 STDERR 段。常见原因：
 
 - 模型 rate limit → 等一下再跑或换一个 account
 - skill 没被加载 → 在 Claude Code 里 `/skills` 确认 `life_OS` 在列表里
@@ -216,7 +169,7 @@ PATH 里没有 `claude`。确认装了 Claude Code CLI，确认可以在 shell �
 
 ### 场景跑过了但输出看起来不对
 
-这就是 eval 系统的核心功能——用 `rubrics/` 人工打分。脚本只管「进程没崩」。输出质量要自己看。
+这就是 eval 系统的核心功能——用 `rubrics/` 人工打分。`/run-eval` 只管「进程没崩 + 结构命中」。输出质量要自己看。
 
 ### 想加新场景怎么办
 

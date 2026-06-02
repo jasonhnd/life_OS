@@ -25,7 +25,6 @@ eval 系统就是解决这三个。
 ```
 evals/
 ├── README.md                       # 英文入口（公开版）
-├── run-eval.sh                     # 自动测试脚本
 ├── scenarios/                      # 固定测试场景
 │   ├── resign-startup.md           # 辞职创业（全六部）
 │   ├── large-purchase.md           # 大额消费（FINANCE + EXECUTION + GOVERNANCE）
@@ -33,12 +32,15 @@ evals/
 │   ├── council-debate.md           # 配偶随迁（触发 COUNCIL 辩论）
 │   ├── fengbo-loop.md              # 封驳循环（Reviewer 必须否决）
 │   └── router-triage.md            # Router 分流边界（3 条消息）
+├── regression-fixtures/            # 回归 fixture（*.md，rc-* 违规复现用例）
 ├── rubrics/                        # 评分准则
 │   ├── agent-output-quality.md     # agent 输出质量（0-2 分维度）
 │   └── orchestrator-compliance.md  # 流程合规性（14 项 checklist）
 └── outputs/                        # 测试输出（gitignored）
-    └── {scenario}_{YYYYMMDD_HHMMSS}.md
+    └── {scenario}-{YYYYMMDD_HHMMSS}.md
 ```
+
+自动跑用 `/run-eval` slash 命令（规范在 `.claude/commands/run-eval.md`——取代已退役的 `evals/run-eval.sh`）。
 
 `scenarios/` 和 `rubrics/` 是两个正交的轴：**scenarios 定义输入**，**rubrics 定义用什么标准打分**。一个场景跑完可以用多份 rubrics 评——同一份输出，可以既看 agent 输出质量又看流程合规性。
 
@@ -60,12 +62,12 @@ evals/
 
 ### 自动测试
 
-```bash
-./evals/run-eval.sh          # 跑所有场景
-./evals/run-eval.sh resign-startup   # 只跑一个
+```
+/run-eval                 # 跑所有场景
+/run-eval resign-startup  # 只跑一个
 ```
 
-脚本用 `claude -p`（headless mode）逐个跑场景，输出写到 `evals/outputs/{name}_{timestamp}.md`。
+`/run-eval` 用 `claude -p`（headless mode）逐个跑场景，输出写到 `evals/outputs/{name}-{timestamp}.md`。
 
 **用途**：
 
