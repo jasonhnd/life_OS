@@ -6,6 +6,45 @@
 
 ---
 
+## [1.9.3] - 2026-06-02 - Start Session speed-up (write-time INDEX, focus-first) + briefing structure fix
+
+```yaml
+---
+version: 1.9.3
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "**Start Session（上朝）高速化 — write-time Session INDEX**：`meta/sessions/INDEX.md` は毎 boot ゼロから再構築されていた（`retrospective` Auto-Compile：Glob + Read + *全* session ファイルを解析 → O(N-sessions)）——成熟した vault では Start Session の最大コスト。**write-time** 維持に移行：`knowledge-extractor` Sub-Step 5 が adjourn 時に `meta/sessions/<sid>.md` を書く際、その 1 行を INDEX に追記する（blast_radius を `meta/sessions/INDEX.md` に拡張）。Start Session は既存 INDEX を**読む** + 安価な O(1) ドリフトチェック（Glob 数 vs INDEX データ行数；`Δ=0` → 読む、`Δ≠0` → 修復再構築）。旧フル再構築は稀な修復パスとしてのみ残る。"
+  - "**Focus-first リード行（体感）**：briefing は `## 0` の前に 1 行 `⚡ 今日焦点速览:`（最重要項目 + `· N 待圣裁`）で始まり、full SOUL + DREAM を読み飛ばして `## 4` に辿り着く必要なく即座に方向づけされる。SOUL/DREAM の**フル表示は維持**（v1.6.2/v1.7.2.3 原則——速度は INDEX/構造の変更から得る、参照内容の削減ではない）。"
+  - "**AUDITOR パトロールを明示的に非ブロッキング化**：`retrospective` + 3 host（`CLAUDE.md` / `GEMINI.md` / `AGENTS.md`）が、briefing のレンダリング = ユーザー解放点であり、AUDITOR Mode 3 Compliance Patrol はその**後**に走り遅延/ゲートしてはならない、発見は `meta/review-queue.md` / 次の briefing で非同期に浮上、と明記。"
+  - "**Briefing 二重表現バグ**：`retrospective.md` が Mode 0 briefing を構造矛盾したまま 2 回記述——Output Format テンプレートは `━━━` banner 見出し（🔮/💤/🗺️/⚡、`## N` なし）を使う一方、§Briefing Completeness Contract + AUDITOR Mode 3 は `## 0`-`## 5` H2 を要求（AUDITOR は `## 0/1/2/3/4/5` を grep し pass 行を `## 5` に書く）。banner テンプレートに従う LLM は `## N` を出さず → 毎回 Start Session が Class `C` 判定、`## 5` も無し。`## N` 契約を権威とする**構造権威ノート** + 明示的 banner→`## N` マッピングを追加；banner-only 出力を禁止。"
+  - "**INDEX ドリフト許容を厳格化**：`|Δ| ≤ 1` → `Δ = 0`（write-time 維持で files:lines は厳密に 1:1；≤1 の余裕は欠落した INDEX 行を静かに隠しうる）。修復は自己回復；連続修復は write-time append 失敗のサインとして調査を促す。"
+alternatives_considered:
+  - option: "SOUL/DREAM フル paste を要約 + オンデマンド `看 SOUL` / `看 dream` に削減（最大の「文字の壁」削減）"
+    rejected_because: "ユーザーが K を選択——フル表示を維持。フル SOUL/DREAM paste は意図的で 2 度確認された製品原則（v1.6.2 + v1.7.2.3 が明示的に *restored*、圧縮は「目的に反する」と明言）。速度は write-time INDEX + 構造から回復する。"
+  - option: "banner 式 Output Format テンプレートを `## 0`-`## 5` 見出しに再構築"
+    rejected_because: "より大きな再構築でコンテンツマッピングの曖昧さ（Strategic Overview の行き先）；権威ノート + 明示的マッピングが AUDITOR-vs-テンプレート衝突をはるかに低リスクで解決。"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "INDEX 変更：悬空 `Auto-Compile` / `MUST recompile` 参照 0；参照先 `scripts/prompts/rebuild-session-index.md` は存在；`18 steps` 参照は不変。"
+  - "Briefing 修正：banner→`## N` マッピングを Completeness Contract（`## 0`-`## 5` + `## Conscious Patrol`）および AUDITOR Mode 3/8 とクロスチェック一致。"
+  - "リポジトリ全体：active 件数 drift 0、broken path 0、フェンス均衡、`.py`/`.sh` 未導入、`git diff --check` クリーン。"
+---
+```
+
+> ユーザー要求により、Start Session 高速化（write-time INDEX + focus-first リード + 非ブロッキングパトロール）と briefing 構造の一貫性修正を tag 付き maintenance release に昇格。純粋な spec/agent 挙動——vault データ移行なし。SOUL/DREAM フル表示は不変。
+
+### マイグレーション
+
+- **ユーザー操作不要。** write-time INDEX 維持は次の adjourn から有効；アップグレード後の最初の Start Session が必要なら一度 INDEX を自己修復し、以降は読むだけ。
+
+---
+
 ## [1.9.2] - 2026-06-02 - Spec-drift cleanup: agent-spec / hippocampus / v1.9 RFC → md-only + GitHub-only
 
 ```yaml

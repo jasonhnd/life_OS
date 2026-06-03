@@ -6,6 +6,45 @@ This project follows **Strict SemVer** for releases: MAJOR (Breaking Change) · 
 
 ---
 
+## [1.9.3] - 2026-06-02 - Start Session speed-up (write-time INDEX, focus-first) + briefing structure fix
+
+```yaml
+---
+version: 1.9.3
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "**Start Session (上朝) speed-up — write-time Session INDEX**: `meta/sessions/INDEX.md` was rebuilt from scratch every boot (`retrospective` Auto-Compile: Glob + Read + parse *every* session file → O(N-sessions)), the dominant Start Session cost on mature vaults. Moved maintenance to **write-time**: `knowledge-extractor` Sub-Step 5 now appends the one new session's line to INDEX when it writes `meta/sessions/<sid>.md` at adjourn (blast_radius extended to `meta/sessions/INDEX.md`). Start Session now **reads** the existing INDEX + a cheap O(1) drift check (Glob count vs. INDEX data-line count; `Δ=0` → read, `Δ≠0` → repair-rebuild). The old full recompile survives only as the rare repair path."
+  - "**Focus-first lead line (体感)**: the briefing now opens with a one-line `⚡ 今日焦点速览:` (highest-leverage item + `· N 待圣裁`) BEFORE `## 0`, so the user is oriented immediately instead of scrolling past the full SOUL + DREAM sections to reach `## 4`. SOUL/DREAM **full display is retained** (v1.6.2/v1.7.2.3 principle — speed comes from the INDEX/structure changes, NOT from trimming reference content)."
+  - "**AUDITOR patrol made explicitly non-blocking**: `retrospective` + all three hosts (`CLAUDE.md` / `GEMINI.md` / `AGENTS.md`) now state the briefing render is the user-unblock point — AUDITOR Mode 3 Compliance Patrol runs *after* and must not delay/gate it; findings surface async via `meta/review-queue.md` / the next briefing."
+  - "**Briefing dual-representation bug**: `retrospective.md` described the Mode 0 briefing twice with conflicting structure — the Output Format template used `━━━` banner headers (🔮/💤/🗺️/⚡, no `## N`) while the §Briefing Completeness Contract + AUDITOR Mode 3 require `## 0`–`## 5` H2 (AUDITOR greps `## 0/1/2/3/4/5` and writes its pass line into `## 5`). An LLM following the banner template would emit no `## N` → every Start Session flagged Class `C`, with no `## 5` for the patrol line. Added a **structure-authority note** declaring the `## N` contract authoritative + an explicit banner→`## N` mapping; forbids banner-only output."
+  - "**INDEX drift tolerance tightened**: `|Δ| ≤ 1` → `Δ = 0` (write-time maintenance keeps files:lines strictly 1:1; the ≤1 slack could silently mask a dropped INDEX line). Repair self-heals; consecutive repairs now flag a write-time append failure to investigate rather than widening the tolerance."
+alternatives_considered:
+  - option: "Trim SOUL/DREAM full paste to a summary + on-demand `看 SOUL` / `看 dream` (the biggest 'wall of text' reduction)"
+    rejected_because: "User chose option K — keep full display. The full SOUL/DREAM paste is a deliberate, twice-affirmed product principle (v1.6.2 + v1.7.2.3 explicitly *restored* it, calling compression 'defeats the purpose'). Speed is recovered from write-time INDEX + structure instead."
+  - option: "Rebuild the banner-style Output Format template into `## 0`–`## 5` headings"
+    rejected_because: "Larger restructure with content-mapping ambiguity (where Strategic Overview lands); an authoritative note + explicit mapping resolves the AUDITOR-vs-template conflict at far lower risk."
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "INDEX change: 0 dangling `Auto-Compile` / `MUST recompile` references; referenced `scripts/prompts/rebuild-session-index.md` exists; `18 steps` references unchanged."
+  - "Briefing fix: banner→`## N` mapping cross-checked against the Completeness Contract (`## 0`–`## 5` + `## Conscious Patrol`) and AUDITOR Mode 3/8."
+  - "Repo-wide: 0 active count drift, 0 broken paths, fences balanced, no `.py`/`.sh` introduced, `git diff --check` clean."
+---
+```
+
+> Promotes the Start Session speed-up (write-time INDEX + focus-first lead + non-blocking patrol) and the briefing-structure consistency fix to a tagged maintenance release. Pure spec/agent behavior — no vault-data migration. SOUL/DREAM full display unchanged.
+
+### Migration
+
+- **No user action required.** Write-time INDEX maintenance kicks in at the next adjourn; the first Start Session after upgrade self-repairs the INDEX once if needed, then reads thereafter.
+
+---
+
 ## [1.9.2] - 2026-06-02 - Spec-drift cleanup: agent-spec / hippocampus / v1.9 RFC → md-only + GitHub-only
 
 ```yaml

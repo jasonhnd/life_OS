@@ -16,7 +16,7 @@ context_manifest:
   supporting: [SOUL.md, wiki/INDEX.md, meta/concepts/INDEX.md, meta/methods/]
   forbidden: [agents/archiver.md internals (carve-out boundary), agents/reviewer.md]
 blast_radius:
-  allowed_scope: [meta/runtime/<sid>/knowledge-extractor.md, meta/runtime/<sid>/extraction/*.md, wiki/, SOUL.md, meta/methods/, meta/concepts/, meta/sessions/<sid>.md, meta/snapshots/soul/, meta/STRATEGIC-MAP.md]
+  allowed_scope: [meta/runtime/<sid>/knowledge-extractor.md, meta/runtime/<sid>/extraction/*.md, wiki/, SOUL.md, meta/methods/, meta/concepts/, meta/sessions/<sid>.md, meta/sessions/INDEX.md, meta/snapshots/soul/, meta/STRATEGIC-MAP.md]
   forbidden_scope: [decisions/, projects/, agents/, meta/config.md (archiver/orchestrator territory, not extractor)]
 failure_modes:
   known: ["Proposes wiki candidate failing 10-criteria gate (v2)", "Proposes SOUL dim failing X-over-Y form (v2)", "Writes directly to wiki/ or SOUL.md (overstep blast_radius)"]
@@ -111,6 +111,12 @@ Per `references/concept-spec.md` + Cortex Phase 1.5. Extract concepts mentioned/
 ### Sub-Step 5 · SessionSummary
 
 Per `references/cortex-spec.md` §3. Write `meta/sessions/<sid>.md` with frontmatter (`subject`, `decisions`, `outcome_score`, `methods_used`, `methods_discovered`, `concept_tags`) + 4-section body (Subject / Key Decisions / Outcome / Notable Signals). NO raw quotes, NO PII. Summary → `meta/runtime/<sid>/extraction/session-summary.md`.
+
+**Write-time INDEX maintenance (v1.9.2+ · speeds up the next Start Session)**: immediately after writing `meta/sessions/<sid>.md`, append this one session's line to `meta/sessions/INDEX.md` — you already hold every field. This is now the **primary** INDEX maintenance path; Start Session only reads + repairs it (no O(N) rebuild every boot — see `agents/retrospective.md` "Session INDEX.md — read + repair").
+- Line format: `{date} | {project} | {subject:80} | {outcome_score}/10 | [{concept_tags top 3}] | {session_id}`.
+- Placement: prepend under the current `## YYYY-MM` heading (newest session first). If that month heading does not exist yet, insert a new `## YYYY-MM` block at the very top (most-recent-month-first ordering).
+- Idempotent: if a line for this `{session_id}` already exists (re-adjourn), replace it in place — do not duplicate.
+- If `meta/sessions/INDEX.md` is missing, create it with this month's heading + line (Start Session's repair path backfills older sessions).
 
 ### Sub-Step 6 · SOUL Snapshot
 

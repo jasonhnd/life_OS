@@ -6,6 +6,45 @@
 
 ---
 
+## [1.9.3] - 2026-06-02 - 上朝提速（写时 INDEX + 焦点先行）+ 简报结构修复
+
+```yaml
+---
+version: 1.9.3
+date: 2026-06-02
+type: maintenance
+breaking_changes: []
+new_features: []
+fixes:
+  - "**上朝提速 — 写时 Session INDEX**：`meta/sessions/INDEX.md` 原来**每次上朝全量重建**（`retrospective` Auto-Compile：Glob + Read + 解析*每一个* session 文件 → O(N 个 session)），是成熟库上朝的头号成本。改为**写时维护**：`knowledge-extractor` Sub-Step 5 在退朝写 `meta/sessions/<sid>.md` 时顺手 append 那一行到 INDEX（blast_radius 扩到 `meta/sessions/INDEX.md`）。上朝现在**读**现成 INDEX + 一个廉价 O(1) 漂移检查（Glob 计数 vs INDEX 数据行数；`Δ=0` 读、`Δ≠0` 修复重建）。原全量重建只作罕见修复路径。"
+  - "**焦点先行（体感）**：简报顶部加一行 `⚡ 今日焦点速览:`（最高杠杆项 + `· N 待圣裁`），在 `## 0` 之前，让你即时被定向,而不用滚过整份 SOUL + DREAM 才到 `## 4`。SOUL/DREAM **全文保留**（v1.6.2/v1.7.2.3 原则——速度来自 INDEX/结构改动，**不**靠砍参考内容）。"
+  - "**巡查显式非阻塞**：`retrospective` + 三个 host（`CLAUDE.md` / `GEMINI.md` / `AGENTS.md`）写明简报渲染 = 用户解锁点——AUDITOR Mode 3 合规巡查在其**后**跑、不得拖延/阻塞；发现项经 `meta/review-queue.md` / 下次简报异步浮出。"
+  - "**简报双表示 bug**：`retrospective.md` 把 Mode 0 简报描述了两遍且结构打架——Output Format 模板用 `━━━` banner 标题（🔮/💤/🗺️/⚡，无 `## N`），而 §Briefing Completeness Contract + AUDITOR Mode 3 要求 `## 0`-`## 5` H2（AUDITOR grep `## 0/1/2/3/4/5` 并把结果写进 `## 5`）。LLM 若跟 banner 模板就不出 `## N` → 每次上朝被判 Class `C`、且无 `## 5` 可写巡查行。加了**结构权威说明**(声明 `## N` 合约权威) + 明确的 banner→`## N` 映射;禁止 banner-only 输出。"
+  - "**INDEX 漂移容差收紧**：`|Δ| ≤ 1` → `Δ = 0`（写时维护下文件:行严格 1:1；≤1 的余量会静默掩盖丢失的 INDEX 行）。修复自愈；连续修复现在提示去查写时 append 失败，而非放宽容差。"
+alternatives_considered:
+  - option: "把 SOUL/DREAM 全文 paste 收成摘要 + 按需 `看 SOUL` / `看 dream`（最大的'文字墙'削减）"
+    rejected_because: "用户选 K——保持全文。SOUL/DREAM 全文是刻意的、两次确认的产品原则（v1.6.2 + v1.7.2.3 专门 *restored* 它,称压缩'违背目的'）。速度改从写时 INDEX + 结构去拿。"
+  - option: "把 banner 式 Output Format 模板重排成 `## 0`-`## 5` 标题"
+    rejected_because: "更大的重构、且有内容映射歧义（Strategic Overview 归哪）；用权威说明 + 明确映射解决 AUDITOR-vs-模板冲突，风险低得多。"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: []
+regression_cases_added: []
+validation:
+  - "INDEX 改动：0 处悬空 `Auto-Compile` / `MUST recompile`；新引用 `scripts/prompts/rebuild-session-index.md` 存在；`18 steps` 引用未变。"
+  - "简报修复：banner→`## N` 映射与 Completeness Contract（`## 0`-`## 5` + `## Conscious Patrol`）及 AUDITOR Mode 3/8 交叉核对一致。"
+  - "全仓：0 active 计数 drift、0 断链、围栏闭合、未引入 `.py`/`.sh`、`git diff --check` 干净。"
+---
+```
+
+> 应用户要求，把上朝提速（写时 INDEX + 焦点先行 + 巡查非阻塞）和简报结构一致性修复提升为打 tag 的维护发布。纯 spec/agent 行为——无 vault 数据迁移。SOUL/DREAM 全文显示不变。
+
+### 迁移
+
+- **无需用户操作。** 写时 INDEX 维护在下次退朝生效；升级后第一次上朝若需要会自愈修复一次 INDEX，之后只读。
+
+---
+
 ## [1.9.2] - 2026-06-02 - Spec-drift 清理：agent-spec / hippocampus / v1.9 RFC → md-only + GitHub 单后端
 
 ```yaml

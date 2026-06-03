@@ -85,37 +85,32 @@ In Mode 0, RETROSPECTIVE generates the **entire** briefing inline via Read/Glob/
 
 After Mode 0 completes (final briefing emitted), the orchestrator MUST launch `auditor` in Mode 3 (Compliance Patrol). Enforced by `hosts/CLAUDE.md` Orchestration Code of Conduct rule #7. Mode 3 audits the just-completed Mode 0 flow against the 7-class violation taxonomy (A1/A2/A3/B/C/D/E) and writes detected violations to `compliance/violations.md` (dev repo) or `meta/compliance/violations.md` (user repo).
 
+**Non-blocking (v1.9.2+ · 体感)**: the briefing is the user-unblock point — the user may start working the moment it renders. AUDITOR Mode 3 runs *after* and MUST NOT delay or gate the briefing; its findings surface asynchronously via `meta/review-queue.md` and the next session's briefing, never by holding up this one. Launch it fire-and-forget after retrospective returns.
+
 **The retrospective subagent does NOT launch AUDITOR itself** — orchestrator chains it. retrospective just emits its briefing and returns. The orchestrator launches AUDITOR Mode 3 as a separate subagent immediately after retrospective returns.
 
-### Auto-Compile: Session INDEX.md (v1.7, Cortex Phase 1)
+### Session INDEX.md — read + repair (v1.9.2+: maintained write-time at adjourn)
 
-After outbox merge (Mode 0 step 7) but before final briefing, retrospective MUST recompile `meta/sessions/INDEX.md` from the session summary files written by archiver Phase 2.
+`meta/sessions/INDEX.md` is maintained **incrementally at adjourn** by `knowledge-extractor` Sub-Step 5 — it appends each new session's line when it writes `meta/sessions/<sid>.md`. So Start Session **reads the existing INDEX; it does NOT rebuild from scratch every boot.** This removes the old O(N-sessions) per-boot recompile (the dominant Start Session cost on mature vaults — every boot used to Read + parse every session file).
 
-**Why**: hippocampus subagent reads INDEX.md as its first scan surface. Without recompilation, newly-archived sessions are invisible to cross-session retrieval until next manual rebuild.
+**Why**: hippocampus reads INDEX.md as its first scan surface. Write-time maintenance keeps it current after every adjourn, so the boot path only needs a cheap freshness check.
 
-**Source**: per `references/session-index-spec.md` §5, scan `meta/sessions/*.md` (exclude INDEX.md itself), parse YAML frontmatter, sort by date desc + started_at desc tie-break, group by YYYY-MM (## heading), most recent month first. Output one line per session in spec §4 format: `{date} | {project} | {subject-truncated-80} | {score}/10 | [{kw-top3}] | {session_id}`.
+**Boot procedure (cheap — O(1), not O(N))**:
+1. If `meta/sessions/INDEX.md` is missing → **repair-rebuild** (full scan below); briefing note `📚 Session Index: rebuilt (was missing)`.
+2. Else cheap drift check: `Glob meta/sessions/*.md` count (exclude INDEX.md) vs. the count of session **data lines** in INDEX.md (the `|`-delimited lines, NOT the `## YYYY-MM` headings). Write-time maintenance keeps these strictly 1:1, so after outbox merge they should match exactly.
+   - `Δ = 0` → **read INDEX as-is**, no rebuild (the normal, fast path).
+   - `Δ ≠ 0` (drift — e.g. an adjourn interrupted after writing the session file but before its INDEX line; a cross-device merge that dropped a line; or manual edits) → **repair-rebuild** + note `(repaired · Δ was +N / -M)`. The repair self-heals; if repairs fire on consecutive boots, that signals `knowledge-extractor` Sub-Step 5 write-time append is failing — investigate rather than widen the tolerance.
+3. Report `📚 Session Index: N sessions indexed (read · write-time maintained)` or the repair note above.
 
-**Inline compilation** (Option A pivot — python helper `tools/rebuild_session_index.py` deleted):
-
-Use Glob to enumerate `meta/sessions/*.md` (exclude INDEX.md), Read each, parse frontmatter manually, format per spec §4, then Write to `meta/sessions/INDEX.md`. Idempotent — safe if Mode 0 runs multiple times.
-
-Detail steps:
-1. `Glob meta/sessions/*.md`
-2. For each path (skip INDEX.md):
-   - Read frontmatter YAML
-   - Extract: `session_id`, `date`, `project`, `subject`, `outcome_score`, `keywords`
+**Repair-rebuild procedure** (only on missing/drift — the former every-boot recompile, now a rare repair path; also `scripts/prompts/rebuild-session-index.md` for manual invocation):
+1. `Glob meta/sessions/*.md` (exclude INDEX.md)
+2. For each path: Read frontmatter YAML → extract `session_id`, `date`, `project`, `subject`, `outcome_score`, `keywords`
 3. Sort by `date` desc, `started_at` desc tie-break
 4. Group by `YYYY-MM` (## headings, most recent month first)
 5. Format each line: `{date} | {project} | {subject:80} | {score}/10 | [{keywords-top3}] | {session_id}`
 6. Write `meta/sessions/INDEX.md`
 
-For user-invoked manual rebuild (outside Mode 0), see `scripts/prompts/rebuild-session-index.md`.
-
-**Failure modes** (per spec §5): if individual session file has malformed YAML, annotate the filename in the briefing and skip — corrupt session is omitted from INDEX but file preserved for inspection. Do not block briefing.
-
-**Reporting**: include `📚 Session Index: N sessions indexed` in Mode 0 briefing. If recompile diff size differs from previous run by >10 sessions, also note `(Δ +N / -M from previous index)`.
-
-**Idempotence guarantee**: identical input session files produce byte-identical INDEX.md. Reflects spec §5 invariant.
+**Failure modes**: malformed YAML in an individual session file during a repair → annotate the filename in the briefing and skip (corrupt session omitted from INDEX, file preserved). Do not block the briefing. Idempotent: identical session files produce byte-identical INDEX.md.
 
 ### Subagent Self-Check (v1.6.3, HARD RULE)
 
@@ -519,6 +514,16 @@ Eval-history closed-loop pre-read (v1.7.2, Mode 0 only)
 
 Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and DREAM Auto-Triggers appear at the TOP of the briefing in FIXED POSITIONS — not as optional footnotes. They are always shown (or explicitly marked empty), immediately after the Pre-Session Preparation block and before the Strategic Overview.
 
+**Structure authority (v1.9.2+ · resolves Output-Format ↔ Contract drift)**: the AUTHORITATIVE top-level structure is the `## 0`–`## 5` H2 contract in **§Briefing Completeness Contract** below — AUDITOR Mode 3 `briefing-completeness` greps for `## 0/1/2/3/4/5` and writes its pass line into `## 5`. The banner blocks in the template below (🔮 / 💤 / 🗺️ / ⚡, drawn with `━━━` rules) are **content layout that goes INSIDE those H2 sections, NOT competing top-level headings.** Emit each under its matching `## N`:
+- `📋 Pre-Session Preparation` → `## 0. 上朝准备` (runtime / version / Cortex) + `## 1. 第二大脑同步状态` (sync · Inbox · Projects)
+- `🔮 SOUL Health Report` → `## 2. SOUL Health 报告`
+- `💤 DREAM Auto-Triggers` → `## 3. DREAM / 隔夜更新`
+- `🗺️ Strategic Overview` → context lead of `## 4` (it feeds Today's Focus)
+- `⚡ Today's Focus` → `## 4. Today's Focus + 待陛下圣裁`
+- system-status line → `## 5. 系统状态(默认静默)`, then the `## Conscious Patrol` H2 (AUDITOR Mode 8 M8-7)
+
+Never emit a briefing with only `━━━` banner headers and no `## N` — that fails AUDITOR `briefing-completeness` (logs Class `C`) and leaves no `## 5` for the patrol line. The `⚡ 今日焦点速览` lead line (below) is the one exception that sits OUTSIDE the `## N` contract.
+
 ```
 📋 Pre-Session Preparation:
 - 📂 Session Scope: [projects/xxx or areas/xxx]
@@ -533,6 +538,9 @@ Per v1.6.2's "make SOUL and DREAM visible" principle, the SOUL Health Report and
 - Behavior Profile: [loaded / not established]
 
 🌅 Session Briefing
+
+⚡ 今日焦点速览: [highest-leverage item from ⚡ Today's Focus below · append "· N 待圣裁" when decisions pend] — 详见下方 ⚡ Today's Focus
+  (v1.9.2+ 体感 lead line — orients the user immediately; SOUL/DREAM full display below is retained per v1.7.2.3)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔮 SOUL Health Report  ← FIXED, always shown
@@ -785,6 +793,8 @@ Mode 0 systematizes housekeeping into explicit Conscious Patrol per `references/
 Mode 0 briefing output MUST preserve these 6 core top-level markdown H2 headings, in this order, unless the session is stopped before briefing generation. `${RETRO_NAME}` is the active theme's display name for `retrospective`. Missing, renamed, reordered, or materially empty required core sections normalize to core compliance class `C`.
 
 Product note: the briefing should be approximately 80% user second-brain content and 20% system/status content. Keep system mechanics compressed unless they block or materially affect the user's day.
+
+**Focus-first lead (v1.9.2+ · 体感)**: the briefing opens with a single `⚡ 今日焦点速览:` line BEFORE `## 0` — the one highest-leverage item from `## 4` (append `· N 待圣裁` when decisions pend). It is a teaser/pointer, NOT a replacement for `## 4`; the 6 core H2 below remain present, unchanged, and in order. Rationale: SOUL/DREAM full display is retained (v1.7.2.3 principle), so `## 4` Today's Focus sits below the full SOUL + DREAM sections — this lead line surfaces the day's headline immediately so the user is oriented without scrolling. The lead line is OUTSIDE the 6-H2 contract and does not affect class-`C` evaluation.
 
 ## 0. ${RETRO_NAME} · 上朝准备 (runtime readiness + version markers + Cortex status, 3-5 lines max 10)
 

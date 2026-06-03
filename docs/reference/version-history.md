@@ -27,6 +27,14 @@ MAJOR.MINOR.PATCH[.维护快照]
 
 ## 主要版本汇总
 
+### v1.9.3 · 上朝提速（写时 INDEX + 焦点先行）+ 简报结构修复（2026-06-02）
+
+- **写时 Session INDEX**：INDEX 从"每次上朝全量重建（O(N 个 session）"改为退朝时 `knowledge-extractor` 增量 append；上朝只读 + 廉价漂移检查（`Δ=0` 读、`≠0` 修复）。删掉大库每次上朝的逐文件读取——上朝不再随 session 数线性变慢。
+- **焦点先行**：简报顶部加一行 `⚡今日焦点速览`，即时定向。SOUL/DREAM 全文**保留**（v1.6.2/v1.7.2.3 原则不变——速度来自 INDEX/结构,不靠砍参考内容）。
+- **巡查非阻塞**：`retrospective` + 三 host 写明"简报渲染 = 用户解锁点"，AUDITOR Mode 3 简报后异步跑、不挡。
+- **简报双表示 bug**：Output Format（banner 式 🔮/💤/🗺️/⚡）与 `## 0`-`## 5` 合约/AUDITOR 冲突 → 加结构权威说明 + banner→`## N` 映射，防 AUDITOR 误判每次上朝为 Class C。
+- **INDEX 漂移容差** `|Δ|≤1` → `Δ=0`（写时维护下文件:行 1:1，避免静默掩盖丢行）。
+
 ### v1.9.2 · Spec-drift 清理：agent-spec / hippocampus / v1.9 RFC → md-only + GitHub 单后端（2026-06-02）
 
 - `references/agent-spec.md`（三语）：删掉已删除的 `narrator-validator`「保留为模板」虚假行 + 补回缺失的 `memory-keeper` 行（body 与 frontmatter/磁盘对齐）
@@ -222,7 +230,7 @@ GitHub second-brain 成为主数据库：
 ```yaml
 ---
 name: life-os
-version: "1.9.2"         ← 当前版本
+version: "1.9.3"         ← 当前版本
 ---
 ```
 
