@@ -230,3 +230,12 @@ If user reports issue post-migration:
 
 Backup retention: keep `meta/migration-backup/` for 30 days, then delete
 (only via explicit user instruction — never auto-delete).
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| migrate-to-wikilinks | once | <today YYYY-MM-DD, from a real date command — no fabrication> |`

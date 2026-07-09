@@ -111,6 +111,18 @@ Before producing the Dispatch Order, dispatcher MUST validate the planning docum
 
 Per RFC §2.5 B5: lifeos's eval-first philosophy has been "should" for years; v1.8.7 makes it "must" via this field. Skipping the gate = silently shipping untested behavior = the failure mode this enforcement is designed to prevent. Do NOT relax this gate without a v-bump RFC.
 
+## Weak-Model Dispatch Mode (HARD RULE · v1.10.0, per references/model-dispatch-policy.md)
+
+When a dispatch target runs at a below-frontier tier (`execution` or `batch` per the policy's tier tables), the dispatch order MUST be narrowed to **lookup-table form**:
+
+1. **Explicit file list** — enumerate every file to read/write by path. No "scan the relevant files".
+2. **Mechanical numbered steps** — each step is a concrete tool action with its expected output shape.
+3. **Zero open judgment** — "use your judgment" / "as appropriate" / "if it seems" / "decide whether" MUST NOT appear in a below-frontier order. Every decision point is pre-decided in the order or listed as "STOP and report".
+4. **Hard mechanical acceptance checks** — completion criteria are grep-verifiable / countable ("0 lines match P", "row count == manifest count"), never "looks complete".
+5. **Escalation clause** — when a step's precondition fails, the worker stops and reports; it never improvises.
+
+**No silent fall-through**: judgment-tier work (per the policy's agent/job tables) MUST NOT be dispatched to a below-frontier model. If the required tier is unavailable, emit `⚠️ this requires a frontier session — deferring <task>` and halt that branch; do not "approximately" run it on a weaker model. Plausible-but-wrong output is worse than no output. Violation = F12 DRIFT_FAILURE.
+
 ## Dispatch Only Assigned Domains (HARD RULE)
 
 Only dispatch domain agents listed in the planner's planning document. If a domain was marked "Not assigned", do NOT create a dispatch order for it. Do NOT add domains the planner did not assign.

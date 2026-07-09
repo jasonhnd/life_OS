@@ -91,3 +91,12 @@ For each `_meta/journal/{YYYY-MM-DD}-*.md`:
   doing in batches of 20 with verification between batches.
 - If any step fails midway, the partial state is in the migration branch —
   user can `git reset --hard main` to abandon.
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| migrate-from-v1.6 | once | <today YYYY-MM-DD, from a real date command — no fabrication> |`

@@ -638,3 +638,12 @@ The progress file enables (limited) idempotent recovery: re-running won't re-do 
 **Spec authority**: This prompt implements `_meta/rfc/v1.9-second-brain-structure-optimization.md` §4.1. Any discrepancy → RFC wins.
 
 (Note: the RFC file itself lives at `_meta/rfc/...` because the lifeos dev repo has its own `_meta/` directory. User vaults migrate to `meta/`; the dev repo is a separate refactor decision.)
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| migrate-v1.9 | once | <today YYYY-MM-DD, from a real date command — no fabrication> |`

@@ -2,7 +2,7 @@
 
 All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.
 
-All roles use the opus model. See `references/data-layer.md` for data layer architecture details.
+Model selection follows `references/model-dispatch-policy.md` (v1.10.0): agents declare a minimum capability tier (judgment / execution / batch); the tier→model mapping table in that spec is the ONLY place model bindings live (judgment→`opus`, execution→`sonnet`, batch→`haiku` aliases — never versioned model IDs). **Fallback when the required tier is unavailable**: judgment-tier work MUST NOT silently fall through to a weaker model — say `⚠️ this requires a frontier session` and stop; execution/batch work proceeds on any tier at or above its declared floor. See `references/data-layer.md` for data layer architecture details.
 
 ## Theme System
 
@@ -383,7 +383,7 @@ When in monitor mode, treat any business question as out-of-scope and politely r
 
 ### Maintenance jobs — user-invoked, all LLM (since v1.8.0 pivot)
 
-10 maintenance jobs are available. Each has a prompt at `scripts/prompts/<name>.md` that ROUTER reads and executes when the user asks. **No cron, no python tools** — ROUTER does the work directly using Read/Write/Bash/Glob/Grep/Task.
+10 maintenance jobs are available. Each has a prompt at `scripts/prompts/<name>.md` that ROUTER reads and executes when the user asks. **No cron, no python tools** — ROUTER does the work directly using Read/Write/Bash/Glob/Grep/Task. **Every job ends by stamping `meta/maintenance-ledger.md`** (`job / cadence / last_run`, per `references/maintenance-ledger-spec.md`, v1.10.0) so the session-start scan below needs only one Read.
 
 | Job | Prompt | When user invokes |
 |-----|--------|-------------------|
@@ -402,7 +402,7 @@ When in monitor mode, treat any business question as out-of-scope and politely r
 
 ### session-start status scan (retrospective Mode 0, Conscious Patrol lifeos-001)
 
-At every session start, the retrospective Mode 0 subagent computes the status scan inline as Conscious Patrol task `lifeos-001`: it scans the 10 maintenance jobs' last-run timestamps, finds overdue ones, and surfaces a summary of what's overdue in its briefing. ROUTER mentions this in one short sentence in the first response. **No automatic execution** — user decides what to invoke. (Pre-v1.8.5 this was the auto-fired `session-start-inbox.sh` hook; the entire bash hook layer was retired in v1.8.5 Stage 2 and the scan is now part of retrospective's session-start briefing — see `agents/retrospective.md` §"Conscious Patrol".)
+At every session start, the retrospective Mode 0 subagent computes the status scan inline as Conscious Patrol task `lifeos-001`: it reads `meta/maintenance-ledger.md` (v1.10.0 · per `references/maintenance-ledger-spec.md` — every maintenance job stamps `job / cadence / last_run` on completion), compares stamps against declared cadences, and surfaces **at most 3 overdue lines** in its briefing. ROUTER mentions this in one short sentence in the first response. **No automatic execution** — overdue is a nudge only; the user decides what to invoke. (Pre-v1.8.5 this was the auto-fired `session-start-inbox.sh` hook; pre-v1.10 it scanned per-job last-run timestamps — both replaced by the single write-time-maintained ledger.)
 
 ### Daily cycle (上朝/退朝) — soft triggers, not enforced
 

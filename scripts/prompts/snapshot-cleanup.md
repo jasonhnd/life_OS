@@ -50,3 +50,12 @@ Apply 30/90 day retention policy to `meta/snapshots/soul/`:
 - Never touch files matching `latest.md` symlink target
 - Dry-run mode: if user says "dry run" / "preview only", just list the
   buckets without moving/deleting
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| snapshot-cleanup | 30d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

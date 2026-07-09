@@ -109,3 +109,12 @@ Write `meta/eval-history/spec-compliance-{YYYY-MM-DD}.md`:
   v1.8.0 pivot to baseline what's still promised vs what got removed.
 - Don't auto-fix gaps. Surface them, let user decide (remove promise, or
   implement).
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| spec-compliance | 30d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

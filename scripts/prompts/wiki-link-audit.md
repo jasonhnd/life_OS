@@ -188,3 +188,12 @@ this report and propose deprecate / merge / refresh actions per
   confidence metrics. Use `/wiki-decay` for the full freshness review
   (with action recommendations); use `/wiki-link-audit` when you only
   want the link integrity report.
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| wiki-link-audit | 7d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

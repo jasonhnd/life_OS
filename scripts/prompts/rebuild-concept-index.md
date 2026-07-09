@@ -52,3 +52,12 @@ markdown files.
    meta/concepts/INDEX.md
    meta/concepts/SYNAPSES-INDEX.md
 ```
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| rebuild-concept-index | 30d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

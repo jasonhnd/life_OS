@@ -233,3 +233,12 @@ snapshots, DREAM entries, eval-history reports, compliance logs, method
 library entries) follow Obsidian style for new writes (per HARD RULE
 #11) but are not batch-upgraded — they migrate organically as the
 user touches them.
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| wiki-obsidian-upgrade | once | <today YYYY-MM-DD, from a real date command — no fabrication> |`

@@ -399,3 +399,12 @@ Exit code: 0 if all 8 PASS, 1 if any FAIL (WARN does not fail).
 ---
 
 **Spec authority**: This prompt implements `_meta/rfc/v1.9-second-brain-structure-optimization.md` §4.2. Any discrepancy → RFC wins.
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| verify-v1.9 | once | <today YYYY-MM-DD, from a real date command — no fabrication> |`

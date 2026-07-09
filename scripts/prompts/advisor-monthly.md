@@ -93,3 +93,12 @@ Use Edit tool (NOT Write). Append rules per finding type:
 ```
 
 Then in final report: "Added N items to review queue (P0=X / P1=Y). Say '处理 queue' to walk through."
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| advisor-monthly | 30d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

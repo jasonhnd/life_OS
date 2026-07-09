@@ -21,7 +21,7 @@ Every `agents/*.md` subagent definition file MUST have YAML frontmatter conformi
 name: <agent-id>                       # lowercase, hyphen-separated, e.g. retrospective
 description: "<one-paragraph role description>"
 tools: Read, Grep, Glob, Bash, Write, Edit, Task   # tool allowlist
-model: opus|sonnet|haiku|haiku-4-5
+model: opus|sonnet|haiku            # tier alias per references/model-dispatch-policy.md (judgment|execution|batch); versioned model IDs forbidden
 
 # v2 NEW: identity & versioning
 id: agent-<name>                       # canonical, e.g. agent-retrospective

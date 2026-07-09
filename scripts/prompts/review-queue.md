@@ -165,3 +165,12 @@ If user says "add to queue" / "track this":
 - DON'T silently archive without telling user the count
 - DON'T act on item without showing detail_path content first (user must see why)
 - DON'T mark resolved if user only said "looked at it" — that's R, not A
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| review-queue | 7d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

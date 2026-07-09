@@ -422,3 +422,12 @@ If user runs `/research` 10x/day, that's $4-10/day. Budget accordingly.
 To skip the verifier and stay closer to v1.7-era cost: pass
 `--no-citations`. Counter-bias remains on by default; opt out separately
 with `--no-bias-check`.
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| research | on-demand | <today YYYY-MM-DD, from a real date command — no fabrication> |`

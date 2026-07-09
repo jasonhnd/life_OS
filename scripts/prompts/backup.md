@@ -81,3 +81,12 @@ Write `$LOG` (Write tool):
   (might mean they need to prune).
 - Old backups are NOT auto-pruned. User decides when to delete.
 - No git push (snapshots are gitignored).
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| backup | 7d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

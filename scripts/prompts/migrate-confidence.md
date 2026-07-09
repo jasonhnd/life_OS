@@ -138,3 +138,12 @@ git -C ~/path/to/second-brain commit -am "pre-migrate-confidence snapshot"
 
 If the migration produces unexpected mappings, `git checkout -- wiki/`
 restores all entries.
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| migrate-confidence | once | <today YYYY-MM-DD, from a real date command — no fabrication> |`

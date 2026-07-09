@@ -77,3 +77,12 @@ Show a one-line summary:
   same INDEX. No git push (user commits when they want to).
 - For very large repos (>500 sessions), suggest user run `/compress` first
   or run reindex in chunks.
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| reindex | 7d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

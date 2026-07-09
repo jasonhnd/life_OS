@@ -190,3 +190,12 @@ prompt that does only this audit).
 - Legacy entries with `confidence: <float>` instead of enum still work —
   this scan auto-maps. For permanent migration, run
   `/migrate-confidence` (see `scripts/prompts/migrate-confidence.md`).
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| wiki-decay | 30d | <today YYYY-MM-DD, from a real date command — no fabrication> |`

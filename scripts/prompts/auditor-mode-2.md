@@ -128,3 +128,12 @@ Use Edit tool (NOT Write — would overwrite). Pattern:
 ```
 
 Then in your final report to user, mention: "Added N items to review queue (P0=X / P1=Y / P2=Z). Say '处理 queue' to walk through."
+
+## Final step · Maintenance ledger stamp (v1.10.0)
+
+Per `references/maintenance-ledger-spec.md`: upsert this job's row in
+`meta/maintenance-ledger.md` — create the file with its standard header if
+missing; if a row for this job exists, replace it in place, otherwise insert
+keeping alphabetical order. Never duplicate a row.
+
+`| auditor-mode-2 | 7d | <today YYYY-MM-DD, from a real date command — no fabrication> |`
