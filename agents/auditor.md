@@ -67,6 +67,7 @@ Detailed role definition: see `meta/roles/censor.md` in the second-brain repo. I
 | infra | wiki/ + meta/ | Orphan files, broken links, rule validity, format issues |
 | people | areas/career/ | Career direction aligned with actual actions |
 | governance | Cross-domain | Strategy contradictions between projects, decisions missing risk assessment |
+| governance | meta/user-patterns.md (v1.10.0 · issue #4 D1; path per `meta/config.md` `user_patterns_path`, default vault-resident) | Behavioral-rules hygiene: (a) **staleness** — patterns with no Source/Evidence activity in 90+ days → suggest re-validate or retire; (b) **near-duplicates** — two patterns describing the same behavior in different words → suggest merge; (c) **mutual contradictions** — patterns that prescribe opposite behavior for the same situation → surface both to the user (suggest, never auto-delete). If `user_patterns_path` points outside the vault (`~/.claude/` opt-out), report `user-patterns: machine-local (opt-out) — not patrol-visible, not versioned` instead of silently skipping |
 
 ### Issue Classification
 

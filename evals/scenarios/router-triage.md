@@ -1,3 +1,7 @@
+---
+min_model_tier: judgment
+---
+
 # Scenario: Router Triage Boundary
 
 ## User Messages (3 Independent Tests)

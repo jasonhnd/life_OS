@@ -1,6 +1,6 @@
 ---
-description: Run all evals/scenarios/*.md routing scenarios via claude CLI, save outputs to evals/outputs/, report pass/fail. Replaces v1.8.4 evals/run-eval.sh as part of v1.8.5 hook layer retirement.
-argument-hint: "[scenario-name-glob]  (default: all scenarios)"
+description: Run all evals/scenarios/*.md routing scenarios via claude CLI, save outputs to evals/outputs/, report pass/fail. Supports --tier <judgment|execution|batch> for degradation-safety runs (v1.10.0). Replaces v1.8.4 evals/run-eval.sh as part of v1.8.5 hook layer retirement.
+argument-hint: "[scenario-name-glob] [--tier judgment|execution|batch]  (default: all scenarios, default tier)"
 allowed-tools:
   - Bash
   - Read
@@ -25,6 +25,21 @@ If not found OR `LIFEOS_EVAL_SKIP_CLAUDE=1` is set → emit `⏭ skipping all ev
 ls evals/scenarios/*.md
 ```
 If `$ARGUMENTS` non-empty, filter by glob pattern.
+
+### 3. Tier selection (v1.10.0 · degradation-safety axis, issue #4 D2)
+
+If `$ARGUMENTS` contains `--tier <judgment|execution|batch>`:
+
+- Map the tier to its model via the ONE mapping table in `references/model-dispatch-policy.md` (judgment→`opus`, execution→`sonnet`, batch→`haiku`) and pass it to every invocation: `claude --model <mapped-model> -p "..."`.
+- Scenarios MAY declare `min_model_tier: judgment|execution|batch` in YAML frontmatter (tiers per the same policy). Semantics: the weakest tier at which this scenario must still pass.
+  - Requested tier is **below** a scenario's `min_model_tier` → run it anyway and record the result, but mark it `below-floor (informational)` — failure expected, not counted against the verdict.
+  - Requested tier is **at or above** `min_model_tier` → result counts normally.
+  - Scenario has no `min_model_tier` → treat as `judgment` (most conservative floor) and note `untiered` in the report.
+- **Overall pass semantics**: a scenario passes overall ONLY if it passes at its declared minimum tier. Passing on frontier while failing at the declared tier is itself a spec bug — either the tier claim in the scenario is too optimistic (raise it) or the prompt needs simplification.
+- Save outputs to `evals/outputs/<scenario>-tier-<tier>-<timestamp>.md`.
+- After the run, **regenerate `docs/evals/tier-matrix.md`** from actual recorded results (see that file's header for the row format). The matrix is a generated artifact — never hand-edit rows; regenerate whenever scenarios or the tier→model mapping change.
+
+Without `--tier`: run at the session default (frontier) as before.
 
 ## For each scenario
 
@@ -52,10 +67,11 @@ Capture the exit code. For multi-message scenarios, run each message and save nu
 ## Final report
 
 ```
-── /run-eval · TIMESTAMP ──
+── /run-eval · TIMESTAMP [· tier: <tier> → model <mapped>] ──
 Total scenarios: N
 PASS: X
 FAIL: Y
+Below-floor informational: B (tier runs only)
 Compliance fails: Z (separate metric)
 
 [per-scenario one-liner if FAIL]
@@ -63,7 +79,7 @@ Compliance fails: Z (separate metric)
 VERDICT: <pass-rate>%
 ```
 
-If any FAIL with non-zero exit → exit 1.
+If any FAIL with non-zero exit → exit 1. For tier runs, a scenario failing AT its declared `min_model_tier` is a FAIL (spec bug — tier claim too optimistic or prompt needs simplification); `below-floor` failures are informational only.
 
 ## v1.8.5 changes vs v1.8.4 evals/run-eval.sh
 

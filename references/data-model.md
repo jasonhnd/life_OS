@@ -411,7 +411,21 @@ The git remote lives in the repo's own `.git/config` — Life OS does not duplic
 # meta/config.md (storage section)
 storage:
   remote: github          # single backend; "none" = local-only working copy
+
+# optional (v1.10.0 · issue #4 D1) — where the behavioral-patterns file lives
+user_patterns_path: meta/user-patterns.md   # default: vault-resident
 ```
+
+### `user_patterns_path` override (v1.10.0)
+
+`meta/user-patterns.md` accumulates the system's most expensive asset — learned behavioral rules, each paid for with a real mistake. Since v1.9 (Opt #7) the **default is vault-resident**: versioned by git, synced across machines, visible to patrols. The override exists for privacy-cautious users who prefer the file outside the vault:
+
+- `user_patterns_path: meta/user-patterns.md` (default) — versioned + backed up + patrol-visible; travels with vault backups/shares.
+- `user_patterns_path: ~/.claude/user-patterns.md` (opt-out) — machine-local; NOT versioned, NOT synced, invisible to patrols. A laptop migration or disk failure silently loses it. Choose this only when the vault is shared and the patterns must not travel with it.
+
+All readers/writers (ADVISOR guidance writeback, retrospective context loading, outbox `patterns-delta.md` merge, AUDITOR Mode 2 patrol) resolve the path from this field; when the field is absent, use the default.
+
+**Migration note (pre-v1.9 installs)**: if a legacy `~/.claude/user-patterns.md` exists and `user_patterns_path` is unset/default, move it into the vault — `mv ~/.claude/user-patterns.md <vault>/meta/user-patterns.md` (or run `/migrate-v1.9` Stage 6, which does this for a vault-root copy) — then commit. Keeping months of behavioral tuning in an unversioned machine-local file is the failure mode this override closes.
 
 No second-brain → ROUTER operates session-local (no persistence).
 

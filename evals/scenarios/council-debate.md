@@ -1,3 +1,7 @@
+---
+min_model_tier: judgment
+---
+
 # Scenario: Council Debate
 
 ## User Message
