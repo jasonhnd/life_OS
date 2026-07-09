@@ -21,7 +21,7 @@ introduced_in: v1.8.5
 name: <agent-id>                       # 小写，连字符分隔，如 retrospective
 description: "<一段角色描述>"
 tools: Read, Grep, Glob, Bash, Write, Edit, Task   # 工具允许列表
-model: opus|sonnet|haiku|haiku-4-5
+model: opus|sonnet|haiku            # 档位别名，见 references/model-dispatch-policy.md（judgment|execution|batch）；禁止版本化模型 ID
 
 # v2 新增: 身份 & 版本
 id: agent-<name>                       # canonical，如 agent-retrospective

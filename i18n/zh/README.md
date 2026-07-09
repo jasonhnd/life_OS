@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.10.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30 秒安装](#安装) · [它怎么工作](#它怎么工作) · [看看效果](#看看效果) · [系统架构](#系统架构)
 
@@ -22,6 +22,8 @@
 > **v1.9.0 架构**：Life OS 是 100% markdown —— agent prompts、slash commands、eval scenarios、RFC 文档。无 Python（`tools/` 在 v1.8.1 Wave 2 移除），无 bash hooks（`scripts/hooks/*.sh` 在 v1.8.5 退役），无 .yml schema 文件（v1.8.7 md-only 本体论提交 DR-10）。运行时 enforcement 通过 inline LLM 流程（spec.md 阅读 + grep 匹配）。**Hermes Local** 是 v1.6-v1.8.0 时代 bash hook + Python tools 层的旧名；该层已不存在。Pattern 出处保留：fork 自 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）。
 >
 > 下方历史章节（v1.8.3 / v1.8.0 / v1.6.3a "What's New"）可能引用 `bash scripts/setup-hooks.sh` 等 —— 这些步骤 **v1.8.5 起已 no-op**（hook 层退役）。当前 setup 跑 `/install-agents`（Claude Code slash 命令，替代所有历史 bash setup 脚本）。
+>
+> **Hook 层归属（v1.10.0 定论）**：bash hook 层是**真正**退役了 —— 它不是可选的加固模块，也不归任何外部工具拥有或维护。从 ≤v1.8.4 升级上来的机器可能仍带着存活的残留：`~/.claude/scripts/hooks/` 下的 hook 文件、`lifeos-pre-prompt-guard.sh`，以及 `settings.json` 里的注册项（可能在旧路径和当前路径下各有一份）。`/install-agents --refresh` 现在会检测并移除这些残留 —— 一次确认、打印每条被移除项的报告 —— 且 `/version-check` 会在仍存在遗留 lifeos hook 注册时告警。命令安全门禁（拦截 `rm -rf /` 之类）是宿主平台权限系统的职责，不是 lifeos bash 守门员的。
 
 ## 一套引擎，三种文化，你来选
 

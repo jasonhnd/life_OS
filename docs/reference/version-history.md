@@ -27,6 +27,19 @@ MAJOR.MINOR.PATCH[.维护快照]
 
 ## 主要版本汇总
 
+### v1.10.0 · 生产反馈加固：模型分级调度 + 维护台账 + hook 层真退役 + 批量/多窗口治理（2026-07-10）
+
+对应 GitHub issues #1-#4（约 4 个月日常生产使用反馈）：
+
+- **模型分级调度（#1 A1）**：新增 `references/model-dispatch-policy.md` —— judgment / execution / batch 三档能力下限，24 个 agent + 全部维护任务的完整分档表；弱模型派单必须是查表式指令（明确文件清单、机械步骤、零开放判断、可 grep 验收）；judgment 档工作禁止静默降级 —— 前沿模型不可用时明确说"需要前沿会话"并停止。模型绑定集中在唯一映射表（opus/sonnet/haiku 为档位别名，全仓禁止版本化模型 ID）。
+- **维护台账（#1 A2）**：新增 `meta/maintenance-ledger.md`（job / cadence / last_run），每个维护任务完成时盖章；上朝只读这一个文件，最多提示 3 行过期任务 —— 只提醒、绝不自动执行。
+- **hook 层真退役（#2）**：README 明确归属（真退役，非可选模块）；`/install-agents --refresh` 自动枚举并（确认后）移除 settings.json 里的 lifeos hook 残留注册 + 脚本文件，逐条列出、幂等；`/version-check` 对残留/重复注册告警。误报拦截（绝对路径 rm、python -c 一刀切、"verify" 子串）随移除消失。
+- **批量导入治理（#3 C1）**：>20 文件的批量导入必须走 `bulk-ingest`：`sources/<batch-id>/` 隔离暂存 → 先写 manifest 再路由 → 30 文件/波 + 逐波索引注册 → 机械化零未路由完成判定。
+- **多窗口协议（#3 C2）**：outbox 无主项 >4h 必须"认领或归档"，禁止连续两次上朝无决定；session 声明写入范围，共享 vault 禁止 `git add -A`；会前显示跨窗口感知行。
+- **扁平扇出（#3 C3）**：批量扇出仅限深度 1（孙代理完成通知只送主循环，中间父代理会永久卡死）；串行小波（3-4 worker）优先。
+- **user-patterns 持久化（#4 D1）**：`user_patterns_path:` 配置覆盖项；默认 vault 内 `meta/user-patterns.md`（有版本、可同步、巡检可见）；AUDITOR Mode 2 新增行为规则卫生检查（过期/近重复/互相矛盾）。
+- **降级安全评测轴（#4 D2）**：`/run-eval --tier` + 场景 `min_model_tier` 声明 + 实测生成的 `docs/evals/tier-matrix.md`；`/verify-release` 新增第 12 项检查（声明档位不过 = 阻断发版）。
+
 ### v1.9.3 · 上朝提速（写时 INDEX + 焦点先行）+ 简报结构修复（2026-06-02）
 
 - **写时 Session INDEX**：INDEX 从"每次上朝全量重建（O(N 个 session）"改为退朝时 `knowledge-extractor` 增量 append；上朝只读 + 廉价漂移检查（`Δ=0` 读、`≠0` 修复）。删掉大库每次上朝的逐文件读取——上朝不再随 session 数线性变慢。
@@ -230,7 +243,7 @@ GitHub second-brain 成为主数据库：
 ```yaml
 ---
 name: life-os
-version: "1.9.3"         ← 当前版本
+version: "1.10.0"        ← 当前版本
 ---
 ```
 

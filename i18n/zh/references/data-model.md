@@ -411,7 +411,21 @@ git 远端存在仓库自己的 `.git/config` 里 —— Life OS 不重复存储
 # meta/config.md（storage 段）
 storage:
   remote: github          # 单一后端；"none" = 仅本地工作副本
+
+# 可选（v1.10.0 · issue #4 D1）—— 行为模式文件的存放位置
+user_patterns_path: meta/user-patterns.md   # 默认：驻留在 vault 内
 ```
+
+### `user_patterns_path` 覆盖（v1.10.0）
+
+`meta/user-patterns.md` 累积着系统最昂贵的资产——习得的行为规则，每一条都用一次真实错误换来。自 v1.9（Opt #7）起，**默认驻留在 vault 内**：由 git 版本管理、跨机器同步、对巡查可见。该覆盖项为倾向把此文件放在 vault 之外的隐私谨慎用户而存在：
+
+- `user_patterns_path: meta/user-patterns.md`（默认）——有版本 + 有备份 + 巡查可见；随 vault 的备份/共享一起流转。
+- `user_patterns_path: ~/.claude/user-patterns.md`（opt-out）——本机私有；**不**入版本、**不**同步、对巡查不可见。换笔记本或磁盘故障会静默丢失它。仅当 vault 需要共享、而这些模式不能随之流转时才选此项。
+
+所有读写方（ADVISOR 指导回写、retrospective 上下文加载、outbox `patterns-delta.md` 合并、AUDITOR Mode 2 巡查）都从此字段解析路径；字段缺失时使用默认值。
+
+**迁移说明（v1.9 之前的安装）**：若存在遗留的 `~/.claude/user-patterns.md` 且 `user_patterns_path` 未设置/为默认值，把它移入 vault——`mv ~/.claude/user-patterns.md <vault>/meta/user-patterns.md`（或运行 `/migrate-v1.9` Stage 6，它会处理 vault 根目录副本）——然后 commit。把数月的行为调优留在一个无版本管理的本机文件里，正是这个覆盖项要关闭的失败模式。
 
 无 second-brain → ROUTER 在 session 本地操作（不持久化）。
 
@@ -419,7 +433,7 @@ storage:
 
 ## 约束条件
 
-- **多个 session 可同时操作 second-brain**，使用 outbox 模式。每个 session 写入各自的 outbox 目录（`meta/outbox/{session-id}/`）。下一个上朝的 session 将所有 outbox 合并到主结构中。直接写入共享文件（STATUS.md、meta/user-patterns.md、index.md）只在上朝时的 Outbox 合并步骤中发生。
+- **多个 session 可同时操作 second-brain**，使用 outbox 模式。每个 session 写入各自的 outbox 目录（`meta/outbox/{session-id}/`）。下一个上朝的 session 将所有 outbox 合并到主结构中。直接写入共享文件（STATUS.md、meta/user-patterns.md、index.md）只在上朝时的 Outbox 合并步骤中发生。**v1.10.0**：叠加在 outbox 模式之上的并发窗口纪律——无人认领条目决策、提交范围声明（禁止仓库级 `git add -A`）、跨窗口感知——在 `references/multi-window-protocol.md` 中规范。
 - **session-id 格式**：`{platform}-{YYYYMMDD}-{HHMM}`，在退朝时生成（非 session 开始时）。时间戳必须通过 date 命令从系统时钟获取，禁止编造。示例：`claude-20260412-1700`、`gemini-20260412-1900`。
 - **Outbox merge lock**：合并期间写入 `meta/.merge-lock`。若该文件存在且时间 < 5 分钟，跳过合并正常进行。合并完成后删除。
 - **空 session**：若 session 无任何产出（无决策、任务或日志），不创建 outbox。

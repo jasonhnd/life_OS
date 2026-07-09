@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.9.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.10.0-brightgreen.svg)](./CHANGELOG.md)
 
 [30秒でインストール](#インストール) · [仕組み](#仕組み) · [使ってみる](#使ってみる) · [アーキテクチャ](#アーキテクチャ)
 
@@ -22,6 +22,8 @@
 > **v1.9.0 アーキテクチャ**：Life OS は 100% markdown —— エージェントプロンプト、slash コマンド、eval シナリオ、RFC ドキュメント。Python なし（`tools/` は v1.8.1 Wave 2 で削除）、bash hook なし（`scripts/hooks/*.sh` は v1.8.5 で退役）、.yml スキーマファイルなし（v1.8.7 md-only 本体論的コミット DR-10）。ランタイム enforcement は inline LLM 手順（spec.md 読み取り + grep マッチング）。**Hermes Local** は v1.6-v1.8.0 時代の bash hook + Python tools 層の旧称；その層は存在しない。Pattern 出処は保持：[NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)（MIT License）から fork。
 >
 > 下記の歴史的セクション（v1.8.3 / v1.8.0 / v1.6.3a "What's New"）は `bash scripts/setup-hooks.sh` 等を参照する場合あり —— これらは **v1.8.5 以降 no-op**（hook layer 退役）。現在のセットアップは `/install-agents`（Claude Code slash コマンド、すべての歴史的 bash setup スクリプトを置き換え）を実行。
+>
+> **Hook 層の所有権（v1.10.0 で解決）**：bash hook 層は**本当に**退役した —— オプションの hardening モジュールではなく、いかなる外部ツールにも所有・保守されていない。≤v1.8.4 からアップグレードしたマシンには、生きた残骸がまだ残っている可能性がある：`~/.claude/scripts/hooks/` 配下の hook ファイル、`lifeos-pre-prompt-guard.sh`、および `settings.json` の登録（レガシーパスと現行パスに重複している場合あり）。`/install-agents --refresh` はこれらの残骸を検出・除去するようになった —— 1 回の確認と、除去したすべてのエントリの出力レポート付き —— そして `/version-check` はレガシーな lifeos hook 登録が残存している限り警告する。コマンド安全性のゲーティング（`rm -rf /` などのブロック）はホストプラットフォームの permission システムの仕事であり、lifeos の bash 門番の仕事ではない。
 
 ## ひとつのエンジン。九つの世界。選ぶのはあなた。
 

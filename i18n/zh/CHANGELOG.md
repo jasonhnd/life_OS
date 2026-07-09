@@ -6,6 +6,55 @@
 
 ---
 
+## [1.10.0] - 2026-07-10 - 生产反馈加固：模型档位派发、维护台账、hook 层真退役、批量/多窗口治理
+
+```yaml
+---
+version: 1.10.0
+date: 2026-07-10
+type: minor
+breaking_changes: []
+new_features:
+  - "**模型档位派发策略（#1 A1）**：新增权威 spec `references/model-dispatch-policy.md` —— 三个能力档位（judgment / execution / batch）、完整的 24-agent + 全维护任务最低档位表、弱模型派发指令格式（查表形式：显式文件清单、机械化步骤、零开放判断、可 grep 验证的验收），以及 HARD RULE：judgment 档位工作绝不静默降级到更弱模型（改为以 'requires a frontier session' 推迟）。档位→模型绑定集中在唯一一张映射表（opus/sonnet/haiku 是档位别名；全仓禁止版本化模型 ID —— 清理了 2 处）。dispatcher 新增 §Weak-Model Dispatch Mode；三个 host 全部写明回退行为（此前是'所有角色都用 opus 模型'）。"
+  - "**维护台账（#1 A2）**：新增 `references/maintenance-ledger-spec.md` —— 单一 vault 文件 `meta/maintenance-ledger.md`（job / cadence / last_run），由每个 scripts/prompts 任务在完成时盖戳（全部 25 个 prompt + 新增的 bulk-ingest 都获得了最后的盖戳步骤）。session 启动只读一个文件而非逐任务扫时间戳，按过期比浮出 ≤3 行过期提示，仅提醒 —— 绝不自动运行（尊重 v1.8.0 的无自驾维护立场）。关闭的生产证据：'>4h' 规则下 7 天以上的巡查空窗、月巡查晚约 13 天、wiki INDEX 漂移 +60 才被发现。"
+  - "**降级安全 eval 轴（#4 D2）**：`/run-eval --tier <judgment|execution|batch>` 用该档位映射的模型运行场景；场景声明 `min_model_tier:` frontmatter（5 个既有 + 3 个新增已标注）；整体通过要求在声明的下限档位通过（前沿通过 + 下限失败 = spec bug）。新增生成产物 `docs/evals/tier-matrix.md`（来自真实运行）。`/verify-release` 检查 12 在'声明下限失败'时阻断发布（尚无 tier 运行记录时为 WARN 宽限）；verify-release-and-watch → 12 项检查。"
+  - "**批量导入治理（#3 C1）**：新增 `scripts/prompts/bulk-ingest.md`；>20 个文件的批次必须走此流程（hosts/CLAUDE.md 路由规则）：隔离的 `sources/<batch-id>/` 暂存区、路由前先建批次 manifest、30 文件一波 + 每波索引登记（未登记漂移永远不会超过一波）、机械化的零未路由完成判定。关闭了约 400 个导入文件落在治理链之外的生产事故。"
+  - "**多窗口协议（#3 C2）**：新增权威 spec `references/multi-window-protocol.md` —— outbox 认领纪律（>4h 的无人认领条目以 'adopt or archive?' 浮出；HARD RULE：任何条目不得在连续两次 session 启动后仍无决定）、提交范围声明（`meta/runtime/<sid>/scope.md`；共享 vault 上禁止 `git add -A` —— retrospective 合并 commit + archiver Phase 4 均收窄到逐一列举的路径）、朝前显示中的跨窗口感知行。"
+  - "**平铺 fan-out 规则（#3 C3）**：`agents/dispatcher.md` §Flat Fan-Out for Bulk Work 新增 HARD RULE，并由 hosts/CLAUDE.md 引用 —— 批量 fan-out 只允许深度 1（在 Claude Code 上，孙代完成通知只路由到主循环；中间父节点会在已完成的子任务上永久卡死 —— 生产险些崩盘）；串行 3-4 worker 波次；原本会嵌套的结构改为顺序平铺波次。archiver + knowledge-extractor 批量阶段已更新；回归夹具 rc-nested-fanout-stall 记录该卡死模式。"
+  - "**持久化 user-patterns 存储（#4 D1）**：`user_patterns_path:` 配置覆盖项在 `references/data-model.md` §Configuration 中成文 —— 默认是 v1.9 的 vault 内 `meta/user-patterns.md`（有版本 + 同步 + 巡查可见），`~/.claude/` opt-out 连同取舍 + 迁移说明一并写明。修正 `user-patterns.example.md`（此前仍声称 v1.9 之前的本机路径）。AUDITOR Mode 2 新增 user-patterns 卫生行（90d+ 陈旧 / 近重复 / 相互矛盾，仅建议）。"
+fixes:
+  - "**Hook 层真退役（#2 B1/B2/B3）**：README 明确归属（选项 c —— 已退役，不是可选模块，不归外部所有；命令安全门禁是宿主平台权限系统的职责）。`/install-agents` 新增 step 4.5：枚举 settings.json 中的 lifeos hook 注册项，一次确认全部移除，删除孤儿脚本文件，报告每条移除（绝不静默），幂等。`/version-check` §3.6 对残留/重复注册项告警。守门员误报（绝对路径 rm → 'rm in root path'、一刀切拦截 `python3 -c`、'verify' 子串误触 no-verify 拦截）及自我瓦解的环境变量绕过均随移除而解决；MIGRATION.md '残留不影响/可保留' 指引已修正。回归夹具 rc-legacy-hook-registration 锁定零注册的终态。"
+alternatives_considered:
+  - option: "Hook 层选项 (a)：作为带版本的可选加固模块重新收编"
+    rejected_because: "重新引入 bash 违反 v1.8.7 DR-10 md-only 本体论约束（无逃生舱、永久）；守门员的活儿属于宿主平台权限系统的领地。"
+  - option: "为维护节奏引入 cron 式调度器"
+    rejected_because: "v1.8.0 pivot 刻意移除了 cron（不可靠、不可见、静默丢数据）。台账改为在 session 启动时让陈旧度可见 —— 仅提醒，由人决定。"
+  - option: "本次发布就把 execution/batch 档位 agent 的 frontmatter 改绑 sonnet/haiku"
+    rejected_because: "档位表声明的是能力下限（FLOOR）；默认绑定保持保守（opus），直到 D2 tier-matrix 按场景产出实证证据 —— 档位声明由运行验证，不靠直觉。"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: ["model-dispatch-policy 的档位被 run-eval --tier 和 maintenance-ledger 的 cadence 列引用（提交顺序遵循 #1 先于 #4/#3）"]
+regression_cases_added:
+  - evals/regression-fixtures/rc-legacy-hook-registration.md
+  - evals/regression-fixtures/rc-nested-fanout-stall.md
+validation:
+  - "4 个 GitHub issue 的验收标准全部实现（issues #1-#4）；按 issue 的提交引用了 issue 编号。"
+  - "新 eval 场景：v1.10-maintenance-ledger、v1.10-bulk-ingest、v1.10-multi-window；5 个既有场景标注 min_model_tier。"
+  - "SKILL.md + hosts 的 HARD RULE 标记计数不变（新标记是角色内 agents/*.md + spec 内 references/*.md，按 hard-rules-index 方法不计入）。"
+  - "档位→模型映射表之外 0 个版本化模型 ID；未引入 .py/.sh；新增/变更的 references + README + CHANGELOG 的 i18n 镜像已更新。"
+---
+```
+
+> 一次 minor 发布修完四个生产反馈元问题（约 4 个月日常 vault 使用）：系统现在优雅降级而不是前沿模型或全无、维护陈旧度每次 session 启动可见、退役的 hook 层在已安装机器上真正退役、批量/多窗口使用纳入治理范围。纯 spec + agent 行为 —— 无 vault 数据迁移。
+
+### 迁移
+
+- **已安装机器**：跑 `git pull` + `/install-agents --refresh` —— step 4.5 会列出并（经你确认后）移除遗留 lifeos hook 注册项 + 脚本文件。之后重启 session。
+- **维护台账**：自然生长初始化 —— 各任务在下次运行时盖戳 `meta/maintenance-ledger.md`；有行之后过期提醒才会出现。无需手工回填。
+- **user-patterns**：若你仍带着遗留的本机 `~/.claude/user-patterns.md`，按 `references/data-model.md` §Configuration 迁移说明把它移入 vault（`meta/user-patterns.md`），或显式设置 `user_patterns_path:` 保留 opt-out。
+
+---
+
 ## [1.9.3] - 2026-06-02 - 上朝提速（写时 INDEX + 焦点先行）+ 简报结构修复
 
 ```yaml

@@ -21,7 +21,7 @@ introduced_in: v1.8.5
 name: <agent-id>                       # 小文字、ハイフン区切り、例 retrospective
 description: "<1 段落の役割説明>"
 tools: Read, Grep, Glob, Bash, Write, Edit, Task   # ツール許可リスト
-model: opus|sonnet|haiku|haiku-4-5
+model: opus|sonnet|haiku            # 階層エイリアス、references/model-dispatch-policy.md 参照（judgment|execution|batch）；バージョン付きモデル ID は禁止
 
 # v2 新規: アイデンティティ & バージョン
 id: agent-<name>                       # canonical、例 agent-retrospective

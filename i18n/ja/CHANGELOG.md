@@ -6,6 +6,55 @@
 
 ---
 
+## [1.10.0] - 2026-07-10 - 本番フィードバックによる強靭化：モデル階層ディスパッチ、maintenance ledger、hook 層の真の退役、バルク/マルチウィンドウガバナンス
+
+```yaml
+---
+version: 1.10.0
+date: 2026-07-10
+type: minor
+breaking_changes: []
+new_features:
+  - "**モデル階層ディスパッチポリシー（#1 A1）**：新しい権威的 spec `references/model-dispatch-policy.md` —— 3 つの能力階層（judgment / execution / batch）、完全な 24 エージェント + 全メンテナンスジョブの最低階層テーブル、weak-model ディスパッチ命令フォーマット（ルックアップテーブル形式：明示的ファイルリスト、機械的ステップ、開かれた判断ゼロ、grep 検証可能な受け入れ）、そして judgment 階層の作業が弱いモデルに無言でフォールスルーしないという HARD RULE（代わりに 'requires a frontier session' で延期）。階層→モデルのバインディングは唯一のマッピングテーブルに集約（opus/sonnet/haiku は階層エイリアス；バージョン付きモデル ID はリポジトリ全域で禁止 —— 2 箇所をクリーンアップ）。dispatcher に §Weak-Model Dispatch Mode を追加；3 ホストすべてがフォールバック挙動を明記（従来は「全ロールが opus モデルを使用」）。"
+  - "**Maintenance ledger（#1 A2）**：新 spec `references/maintenance-ledger-spec.md` —— vault 内の単一ファイル `meta/maintenance-ledger.md`（job / cadence / last_run）を、すべての scripts/prompts ジョブが完了時にスタンプする（全 25 プロンプト + 新規 bulk-ingest に最終スタンプステップを追加）。session 開始時はジョブごとのタイムスタンプをスキャンする代わりに 1 ファイルを読み、overdue 比率順で ≤3 行の overdue 行を提示、nudge のみ —— 決して自動実行しない（v1.8.0 の自走メンテナンス禁止スタンスを尊重）。閉じられた本番の証拠：「>4h」ルール下での 7 日以上のパトロールギャップ、月次パトロールの約 13 日遅延、検出前の wiki INDEX ドリフト +60。"
+  - "**劣化安全性 eval 軸（#4 D2）**：`/run-eval --tier <judgment|execution|batch>` はその階層にマップされたモデルでシナリオを実行；シナリオは `min_model_tier:` frontmatter を宣言（既存 5 + 新規 3 に注記）；総合合格には宣言されたフロアでの合格が必要（フロンティア合格 + フロア不合格 = spec のバグ）。実行結果から生成される成果物として `docs/evals/tier-matrix.md` を追加。`/verify-release` チェック 12 は宣言フロアでの失敗時にリリースをブロック（tier 実行記録がない間は WARN 猶予）；verify-release-and-watch → 12 チェック。"
+  - "**バルク取り込みガバナンス（#3 C1）**：新規 `scripts/prompts/bulk-ingest.md`；20 ファイル超のバッチはここを経由しなければならない（hosts/CLAUDE.md ルーティングルール）：隔離された `sources/<batch-id>/` ステージング、ルーティング前のバッチ manifest、wave ごとのインデックス登録付き 30 ファイル wave（未登録ドリフトは決して 1 wave を超えない）、機械的な未ルーティングゼロ完了。約 400 の取り込みファイルがガバナンスチェーンの外に着地した本番インシデントを閉じる。"
+  - "**マルチウィンドウプロトコル（#3 C2）**：新しい権威的 spec `references/multi-window-protocol.md` —— outbox クレーム規律（4h 超の未クレーム項目は 'adopt or archive?' で提示；HARD RULE：未決のまま 2 回連続の session 開始を生き延びる項目はない）、コミットスコープ宣言（`meta/runtime/<sid>/scope.md`；共有 vault での `git add -A` 禁止 —— retrospective マージコミット + archiver Phase 4 は列挙されたパスにスコープ）、pre-session 表示のクロスウィンドウ認識行。"
+  - "**フラットファンアウトルール（#3 C3）**：`agents/dispatcher.md` §Flat Fan-Out for Bulk Work の HARD RULE、hosts/CLAUDE.md から参照 —— バルクファンアウトは深さ 1 のみ（Claude Code では孫の完了通知はメインループにしかルーティングされない；中間の親は完了済みの子を待って永遠にストールする —— 本番でのニアメルトダウン）；直列 3-4 ワーカー wave；ネストになりそうな構造は逐次フラット wave に再構成。archiver + knowledge-extractor のバルクフェーズを更新；regression fixture rc-nested-fanout-stall がストールモードを記録。"
+  - "**永続的な user-patterns 保存（#4 D1）**：`user_patterns_path:` 設定オーバーライドを `references/data-model.md` §Configuration で spec 化 —— デフォルトは v1.9 の vault 常駐 `meta/user-patterns.md`（バージョン管理 + 同期 + パトロール可視）、`~/.claude/` オプトアウトはトレードオフ + 移行メモ付きで文書化。`user-patterns.example.md` を修正（v1.9 以前のマシンローカルパスを主張したままだった）。AUDITOR Mode 2 に user-patterns 衛生行を追加（陳腐化 90d+ / 準重複 / 相互矛盾、提案のみ）。"
+fixes:
+  - "**Hook 層の真の退役（#2 B1/B2/B3）**：README が所有権を明示（オプション c —— 退役、オプションモジュールでも外部所有でもない；コマンド安全性のゲーティングはホストプラットフォームの permission システムの仕事）。`/install-agents` に step 4.5 を追加：settings.json 内の lifeos hook 登録を列挙、1 回の確認ですべて除去、孤児スクリプトファイルを削除、すべての除去を報告（決して無言にしない）、冪等。`/version-check` §3.6 が残存/重複登録を警告。門番の誤検知（絶対パス rm →「ルートパスの rm」、`python3 -c` の一律ブロック、'verify' 部分文字列が no-verify ブロッカーを誤作動）と自己矛盾的な環境変数バイパスは除去によって解決；MIGRATION.md の「残留不影响/可保留」ガイダンスを修正。regression fixture rc-legacy-hook-registration が登録ゼロの最終状態を固定。"
+alternatives_considered:
+  - option: "Hook 層オプション (a)：バージョン管理されたオプション hardening モジュールとして再採用"
+    rejected_because: "bash の再導入は v1.8.7 DR-10 の md-only 本体論的制約（逃げ道なし、恒久）に違反する；門番の仕事はホストプラットフォームの permission の領分である。"
+  - option: "メンテナンス cadence のための cron 型スケジューラ"
+    rejected_because: "v1.8.0 pivot は意図的に cron を除去した（信頼できず、不可視で、無言のデータ損失）。ledger は代わりに session 開始時に陳腐化を可視化する —— nudge のみ、決めるのは人間。"
+  - option: "本リリースで execution/batch 階層エージェントの frontmatter を sonnet/haiku に再バインド"
+    rejected_because: "階層テーブルが宣言するのは能力のフロアである；D2 tier-matrix がシナリオごとの経験的証拠を出すまで、デフォルトバインディングは保守的（opus）のまま —— 階層クレームは直感ではなく実行で検証される。"
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: ["model-dispatch-policy の階層は run-eval --tier と maintenance-ledger の cadence 列から参照される（#1 が #4/#3 より先という順序はコミットで遵守）"]
+regression_cases_added:
+  - evals/regression-fixtures/rc-legacy-hook-registration.md
+  - evals/regression-fixtures/rc-nested-fanout-stall.md
+validation:
+  - "4 つの GitHub issue すべての受け入れ基準を実装（issues #1-#4）；issue ごとのコミットが issue 番号を参照。"
+  - "新規 eval シナリオ：v1.10-maintenance-ledger、v1.10-bulk-ingest、v1.10-multi-window；既存 5 シナリオに min_model_tier を注記。"
+  - "SKILL.md + hosts の HARD RULE マーカー数は不変（新規マーカーはロールローカルの agents/*.md + spec ローカルの references/*.md であり、hard-rules-index の方式ではカウント対象外）。"
+  - "階層→モデルマッピングテーブル外のバージョン付きモデル ID は 0；.py/.sh の新規導入なし；新規/変更された references + README + CHANGELOG の i18n ミラーを更新。"
+---
+```
+
+> 4 つの本番フィードバック meta-issue（日常の vault 利用 約 4 か月分）を 1 つの minor リリースで修正：システムはフロンティアか無かの二択ではなく緩やかに劣化するようになり、メンテナンスの陳腐化は毎 session 開始時に可視化され、退役済みの hook 層はインストール済みマシン上でも実際に退役し、バルク/マルチウィンドウ利用はガバナンスの傘の中に入った。spec + エージェント挙動のみ —— vault データの移行はなし。
+
+### 移行
+
+- **インストール済みマシン**：`git pull` + `/install-agents --refresh` を実行 —— step 4.5 がレガシーな lifeos hook 登録 + スクリプトファイルを列挙し（あなたの確認のうえで）除去する。その後 session を再起動すること。
+- **Maintenance ledger**：有機的に初期化される —— 各ジョブが次回実行時に `meta/maintenance-ledger.md` をスタンプする；行が存在するようになれば overdue nudge が現れる。手動のバックフィルは不要。
+- **user-patterns**：レガシーなマシンローカル `~/.claude/user-patterns.md` をまだ持っている場合、`references/data-model.md` §Configuration の移行メモに従って vault 内（`meta/user-patterns.md`）へ移動するか、オプトアウトを明示的に維持するために `user_patterns_path:` を設定すること。
+
+---
+
 ## [1.9.3] - 2026-06-02 - Start Session speed-up (write-time INDEX, focus-first) + briefing structure fix
 
 ```yaml

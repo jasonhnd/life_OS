@@ -411,7 +411,21 @@ git リモートはリポジトリ自身の `.git/config` に存在する ——
 # meta/config.md（storage セクション）
 storage:
   remote: github          # 単一バックエンド；"none" = ローカルのみの作業コピー
+
+# 任意（v1.10.0 · issue #4 D1）—— 行動パターンファイルの置き場所
+user_patterns_path: meta/user-patterns.md   # デフォルト：vault 常駐
 ```
+
+### `user_patterns_path` オーバーライド（v1.10.0）
+
+`meta/user-patterns.md` はシステムの最も高価な資産 —— 学習された行動ルール、それぞれが実際の失敗の代償として得られたもの —— を蓄積する。v1.9（Opt #7）以降、**デフォルトは vault 常駐**である：git でバージョン管理され、マシン間で同期され、パトロールから可視。このオーバーライドは、ファイルを vault の外に置きたいプライバシー慎重派のユーザーのために存在する：
+
+- `user_patterns_path: meta/user-patterns.md`（デフォルト）—— バージョン管理 + バックアップ + パトロール可視；vault のバックアップ/共有と共に移動する。
+- `user_patterns_path: ~/.claude/user-patterns.md`（オプトアウト）—— マシンローカル；バージョン管理**されず**、同期**されず**、パトロールから不可視。ラップトップの移行やディスク障害で静かに失われる。vault を共有していて、パターンをそれと一緒に持ち出したくない場合にのみ選ぶこと。
+
+すべての読み手/書き手（ADVISOR ガイダンス書き戻し、retrospective コンテキスト読み込み、outbox `patterns-delta.md` マージ、AUDITOR Mode 2 パトロール）はこのフィールドからパスを解決する；フィールドが存在しない場合はデフォルトを使う。
+
+**移行メモ（v1.9 以前のインストール）**：レガシーの `~/.claude/user-patterns.md` が存在し `user_patterns_path` が未設定/デフォルトの場合、vault 内へ移動する —— `mv ~/.claude/user-patterns.md <vault>/meta/user-patterns.md`（または vault ルートのコピーに対してこれを行う `/migrate-v1.9` Stage 6 を実行）—— その後コミットする。数か月分の行動チューニングをバージョン管理されないマシンローカルのファイルに置き続けることこそ、このオーバーライドが閉じる障害モードである。
 
 セカンドブレインがない場合 → ROUTER は session ローカルで操作する（永続化なし）。
 
@@ -419,7 +433,7 @@ storage:
 
 ## 制約事項
 
-- **複数の session が同時にセカンドブレインを操作できる** outbox パターンを使用。各 session は自身の outbox ディレクトリ（`meta/outbox/{session-id}/`）に書き込む。次に上朝する session が全 outbox をメイン構造にマージする。共有ファイル（STATUS.md、meta/user-patterns.md、index.md）への直接書き込みは、上朝時の Outbox マージステップでのみ行われる。
+- **複数の session が同時にセカンドブレインを操作できる** outbox パターンを使用。各 session は自身の outbox ディレクトリ（`meta/outbox/{session-id}/`）に書き込む。次に上朝する session が全 outbox をメイン構造にマージする。共有ファイル（STATUS.md、meta/user-patterns.md、index.md）への直接書き込みは、上朝時の Outbox マージステップでのみ行われる。**v1.10.0**：outbox パターンの上に重ねる並行ウィンドウ規律 —— 未クレーム項目の決定、コミットスコープ宣言（リポジトリ全体の `git add -A` 禁止）、クロスウィンドウ認識 —— は `references/multi-window-protocol.md` で規定される。
 - **session-id フォーマット**：`{platform}-{YYYYMMDD}-{HHMM}`、退朝時に生成（session 開始時ではない）。タイムスタンプは date コマンドでシステムクロックから取得すること、捏造禁止。例：`claude-20260412-1700`、`gemini-20260412-1900`。
 - **Outbox マージロック**：マージ中は `meta/.merge-lock` を書き込む。存在し5分未満の場合はマージをスキップして通常通り続行する。マージ完了後に削除する。
 - **空の session**：session に出力がない場合（意思決定、タスク、ジャーナルエントリがない）、outbox を作成しない。

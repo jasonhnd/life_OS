@@ -6,6 +6,55 @@ This project follows **Strict SemVer** for releases: MAJOR (Breaking Change) · 
 
 ---
 
+## [1.10.0] - 2026-07-10 - Production-feedback hardening: model-tier dispatch, maintenance ledger, hook-layer true retirement, bulk/multi-window governance
+
+```yaml
+---
+version: 1.10.0
+date: 2026-07-10
+type: minor
+breaking_changes: []
+new_features:
+  - "**Model-tier dispatch policy (#1 A1)**: new authoritative `references/model-dispatch-policy.md` — three capability tiers (judgment / execution / batch), complete 24-agent + all-maintenance-job minimum-tier tables, weak-model dispatch order format (lookup-table form: explicit file list, mechanical steps, zero open judgment, grep-verifiable acceptance), and HARD RULE that judgment-tier work never silently falls through to a weaker model (defer with 'requires a frontier session' instead). Tier→model binding centralized in ONE mapping table (opus/sonnet/haiku are tier aliases; versioned model IDs forbidden repo-wide — 2 occurrences cleaned). dispatcher gains §Weak-Model Dispatch Mode; all three hosts state fallback behavior (previously 'all roles use the opus model')."
+  - "**Maintenance ledger (#1 A2)**: new `references/maintenance-ledger-spec.md` — single vault file `meta/maintenance-ledger.md` (job / cadence / last_run) stamped by every scripts/prompts job on completion (all 25 prompts + new bulk-ingest gained the final stamp step). Session start reads ONE file instead of scanning per-job timestamps, surfaces ≤3 overdue lines by overdue ratio, nudge-only — never auto-runs (respecting the v1.8.0 no-self-driving-maintenance stance). Production evidence closed: 7+ day patrol gaps under a '>4h' rule, monthly patrol ~13 days late, wiki INDEX drift +60 before detection."
+  - "**Degradation-safety eval axis (#4 D2)**: `/run-eval --tier <judgment|execution|batch>` runs scenarios at the tier's mapped model; scenarios declare `min_model_tier:` frontmatter (5 existing + 3 new annotated); overall pass requires passing at the declared floor (frontier-pass + floor-fail = spec bug). `docs/evals/tier-matrix.md` added as generated artifact from real runs. `/verify-release` check 12 blocks release on fail-at-declared-floor (WARN grace while no tier runs recorded); verify-release-and-watch → 12 checks."
+  - "**Bulk-ingest governance (#3 C1)**: new `scripts/prompts/bulk-ingest.md`; batches >20 files MUST route here (hosts/CLAUDE.md routing rule): quarantined `sources/<batch-id>/` staging, batch manifest BEFORE routing, 30-file waves with per-wave index registration (unregistered drift can never exceed one wave), mechanical zero-unrouted completion. Closes the production incident where ~400 imported files landed outside the governance chain."
+  - "**Multi-window protocol (#3 C2)**: new authoritative `references/multi-window-protocol.md` — outbox claim discipline (unclaimed items >4h surfaced 'adopt or archive?'; HARD RULE: no item survives two consecutive session starts undecided), commit scope declaration (`meta/runtime/<sid>/scope.md`; `git add -A` forbidden on a shared vault — retrospective merge commit + archiver Phase 4 scoped to enumerated paths), cross-window awareness line in the pre-session display."
+  - "**Flat fan-out rule (#3 C3)**: HARD RULE in `agents/dispatcher.md` §Flat Fan-Out for Bulk Work, referenced from hosts/CLAUDE.md — bulk fan-out is depth-1 only (on Claude Code, grandchild completion notifications route only to the main loop; an intermediate parent stalls forever on finished children — production near-meltdown); serial 3-4-worker waves; would-be nesting restructured into sequential flat waves. archiver + knowledge-extractor bulk phases updated; regression fixture rc-nested-fanout-stall documents the stall mode."
+  - "**Durable user-patterns storage (#4 D1)**: `user_patterns_path:` config override spec'd in `references/data-model.md` §Configuration — default is the v1.9 vault-resident `meta/user-patterns.md` (versioned + synced + patrol-visible), `~/.claude/` opt-out documented with trade-off + migration note. `user-patterns.example.md` corrected (still claimed the pre-v1.9 machine-local path). AUDITOR Mode 2 gains a user-patterns hygiene row (staleness 90d+ / near-duplicates / mutual contradictions, suggest-only)."
+fixes:
+  - "**Hook layer retired for real (#2 B1/B2/B3)**: README states ownership explicitly (option c — retired, not an optional module, not externally owned; command-safety gating is the host platform permission system's job). `/install-agents` gains step 4.5: enumerate lifeos hook registrations in settings.json, remove ALL with one confirmation, delete orphaned script files, report every removal (never silent), idempotent. `/version-check` §3.6 warns on residual/duplicate registrations. Gatekeeper false positives (absolute-path rm → 'rm in root path', blanket `python3 -c` block, 'verify' substring tripping the no-verify blocker) and the self-defeating env-var bypass are resolved by removal; MIGRATION.md '残留不影响/可保留' guidance corrected. Regression fixture rc-legacy-hook-registration locks the zero-registration end state."
+alternatives_considered:
+  - option: "Hook layer option (a) re-adopt as versioned optional hardening module"
+    rejected_because: "Re-introducing bash violates the v1.8.7 DR-10 md-only ontological constraint (no escape hatch, permanent); the gatekeeper's job is host-platform permission territory."
+  - option: "Cron-style scheduler for maintenance cadences"
+    rejected_because: "v1.8.0 pivot removed cron deliberately (unreliable, invisible, silent data loss). The ledger makes staleness visible at session start instead — nudge-only, human decides."
+  - option: "Per-agent frontmatter rebind to sonnet/haiku for execution/batch-tier agents in this release"
+    rejected_because: "The tier tables declare capability FLOORS; default bindings stay conservative (opus) until the D2 tier-matrix produces empirical evidence per scenario — tier claims are validated by runs, not intuition."
+ordering_dependency:
+  blocked_by: []
+  must_coexist_with: ["model-dispatch-policy tiers are referenced by run-eval --tier and maintenance-ledger cadence column (#1 before #4/#3 ordering honored in commits)"]
+regression_cases_added:
+  - evals/regression-fixtures/rc-legacy-hook-registration.md
+  - evals/regression-fixtures/rc-nested-fanout-stall.md
+validation:
+  - "All 4 GitHub issues' acceptance criteria implemented (issues #1-#4); per-issue commits reference the issue numbers."
+  - "New eval scenarios: v1.10-maintenance-ledger, v1.10-bulk-ingest, v1.10-multi-window; 5 existing scenarios annotated with min_model_tier."
+  - "HARD RULE marker counts unchanged in SKILL.md + hosts (new markers are role-local agents/*.md + spec-local references/*.md, not counted per hard-rules-index method)."
+  - "0 versioned model IDs outside the tier→model mapping table; no .py/.sh introduced; i18n mirrors updated for new/changed references + README + CHANGELOG."
+---
+```
+
+> Four production-feedback meta-issues (~4 months of daily vault use) fixed in one minor release: the system now degrades gracefully instead of frontier-or-nothing, maintenance staleness is visible every session start, the retired hook layer is actually retired on installed machines, and bulk/multi-window usage is inside the governance envelope. Spec + agent behavior only — no vault-data migration.
+
+### Migration
+
+- **Installed machines**: run `git pull` + `/install-agents --refresh` — step 4.5 will list and (on your confirmation) remove legacy lifeos hook registrations + script files. Restart the session afterward.
+- **Maintenance ledger**: initializes organically — each job stamps `meta/maintenance-ledger.md` on its next run; the overdue nudge appears once rows exist. No manual backfill required.
+- **user-patterns**: if you still carry a legacy machine-local `~/.claude/user-patterns.md`, move it into the vault (`meta/user-patterns.md`) per `references/data-model.md` §Configuration migration note, or set `user_patterns_path:` to keep the opt-out explicitly.
+
+---
+
 ## [1.9.3] - 2026-06-02 - Start Session speed-up (write-time INDEX, focus-first) + briefing structure fix
 
 ```yaml
