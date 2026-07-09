@@ -433,7 +433,7 @@ No second-brain → ROUTER operates session-local (no persistence).
 
 ## Constraints
 
-- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`meta/outbox/{session_id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, meta/user-patterns.md, index.md) only happen during the outbox merge step at Start Court.
+- **Multiple sessions can operate the second-brain simultaneously** using the outbox pattern. Each session writes to its own outbox directory (`meta/outbox/{session_id}/`). The next session to start court merges all outboxes into the main structure. Direct writes to shared files (STATUS.md, meta/user-patterns.md, index.md) only happen during the outbox merge step at Start Court. **v1.10.0**: concurrent-window discipline on top of the outbox pattern — unclaimed-item decisions, commit scope declaration (no repo-wide `git add -A`), cross-window awareness — is specified in `references/multi-window-protocol.md`.
 - **Session-id format**: `{platform}-{YYYYMMDD}-{HHMM}`, generated at adjourn time (not session start). Example: `claude-20260412-1700`, `gemini-20260412-1900`.
 - **Outbox merge lock**: During merge, write `meta/.merge-lock`. If it exists and is < 5 minutes old, skip merge and proceed normally. Delete after merge completes.
 - **Empty sessions**: If a session has no output (no decisions, tasks, or journal entries), do not create an outbox.

@@ -754,6 +754,8 @@ R11 audit trail: before Phase 4 starts, write `meta/runtime/<sid>/archiver-phase
 3. R11 audit trail: before Phase 5 starts, write `meta/runtime/<sid>/archiver-phase-4.md` via inline md write with YAML frontmatter (v1.8.6 R13; per DR-10 audit trails are .md not .json). `output_summary` MUST cover git status and whether Phase 5 is ready to launch.
 ```
 
+**Commit scoping (HARD RULE · v1.10.0 · per `references/multi-window-protocol.md` Rule 2)**: stage ONLY the enumerated paths above (own outbox + Phase 2 method files + own `meta/runtime/<sid>/`). `git add -A` / `git add .` is FORBIDDEN — other windows may have in-progress files in the shared vault, and sweeping them into this session's commit is the cross-window contamination failure this rule closes. If `git status --porcelain` shows dirty paths outside this session's declared scope (`meta/runtime/<sid>/scope.md`), leave them unstaged and note in the Adjourn Confirmation: `🪟 left unstaged (other windows): <top-level dirs>`.
+
 The archiver performs the `git push` itself via Bash — there is no separate orchestrator sync step. Google Drive + Notion were removed; storage is GitHub-only (single git backend).
 
 ### Adjourn Confirmation
@@ -818,6 +820,7 @@ After Phase 4 git sync completes and before emitting the Completion Checklist, a
 
 ## Anti-patterns
 
+- Do not spawn worker subagents for bulk work in Phase 1 (outbox file moves) or Phase 3 (DREAM scanning) — run inline in serial waves (v1.10.0 · flat fan-out per `agents/dispatcher.md` §Flat Fan-Out for Bulk Work). You are already a subagent; your workers would be grandchildren whose completion notifications go only to the main loop — you would stall waiting on finished work. Phase 5's single memory-keeper child is the sole sanctioned nested launch (with the documented skip-with-warning fallback when the host lacks nested Task).
 - Do not skip Phase 2 (Knowledge Extraction) — it is your core mission
 - Do not fabricate insights in Phase 3 (DREAM) — "nothing found" is valid
 - Do not modify SOUL.md or wiki/ directly — only propose candidates

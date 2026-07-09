@@ -123,6 +123,21 @@ When a dispatch target runs at a below-frontier tier (`execution` or `batch` per
 
 **No silent fall-through**: judgment-tier work (per the policy's agent/job tables) MUST NOT be dispatched to a below-frontier model. If the required tier is unavailable, emit `⚠️ this requires a frontier session — deferring <task>` and halt that branch; do not "approximately" run it on a weaker model. Plausible-but-wrong output is worse than no output. Violation = F12 DRIFT_FAILURE.
 
+## Flat Fan-Out for Bulk Work (HARD RULE · v1.10.0, issue #3 C3)
+
+**Bulk fan-out MUST be flat: the orchestrating main loop spawns workers directly; workers are FORBIDDEN from spawning further subagents.**
+
+Host-platform property this rule guards against: on Claude Code, a grandchild subagent's completion notification is delivered only to the main loop — NOT to the intermediate parent. A parent that spawned its own children waits indefinitely on work that already finished; production evidence: a large batch job stalled until manual operator intervention (near-meltdown).
+
+Rules:
+
+1. **Depth 1 only** — main loop → workers. Never main loop → coordinator → workers.
+2. **Serial small waves over wide/deep trees** — prefer 3-4 workers per wave; wave N+1 starts only after wave N's results are collected by the main loop.
+3. **Restructure, don't nest** — if a task appears to need nesting ("coordinator per category, workers per file"), the dispatcher restructures it into sequential flat waves: the main loop plays the coordinator role between waves.
+4. Every below-frontier or bulk dispatch order MUST carry the literal constraint line: `You MUST NOT spawn subagents. If a sub-task seems to need one, STOP and report.`
+
+Applies to all bulk phases: archiver Phase 1-5, knowledge-extractor sub-steps, `scripts/prompts/bulk-ingest.md` waves, and any maintenance job that parallelizes. Regression fixture: `evals/regression-fixtures/rc-nested-fanout-stall.md`.
+
 ## Dispatch Only Assigned Domains (HARD RULE)
 
 Only dispatch domain agents listed in the planner's planning document. If a domain was marked "Not assigned", do NOT create a dispatch order for it. Do NOT add domains the planner did not assign.

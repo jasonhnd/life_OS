@@ -363,10 +363,12 @@ R10 execution boundary (Option A pivot — pre-fetch script `retrospective-mode-
         - For each new journal entry: ensure `referenced_decisions: [...]` and `referenced_methods: [...]` reflect the decisions/methods written this session
         - For methods (if Phase 2 created new): ensure `born_from_decisions: [...]` is set; DO NOT write `applied_in_decisions` field (DR-1.9.24 — that field is REMOVED in v1.9; use Dataview reverse query)
      i. Delete outbox directory after successful merge
-   - After all merged: compile meta/STATUS.md (filter `lifecycle_stage: archived` per DR-1.9.4), git commit + push
+   - After all merged: compile meta/STATUS.md (filter `lifecycle_stage: archived` per DR-1.9.4), git commit + push — staging the ENUMERATED files this merge moved, never `git add -A` (per `references/multi-window-protocol.md` Rule 2)
    - Delete meta/.merge-lock
    - Report: "📮 Merged N offline session(s): [details]"
    - No outboxes → skip silently
+   - **Outbox claim discipline (v1.10.0 · per `references/multi-window-protocol.md` Rule 1)**: any outbox directory NOT merged this boot (lock held by another window / manifest incomplete / merge error) is an unclaimed item. Items older than 4h → surface in briefing: `📮 Unclaimed outbox: <sid> (age Nh) — adopt or archive? [awaiting your decision]`; append `seen_by: <today>` to its manifest. **HARD RULE: no item survives two consecutive session starts undecided** — on the second sighting, escalate to `## 4 Today's Focus / decisions needed`. adopt = merge now; archive = move to `meta/outbox/.archived/<sid>/` (never delete).
+   - **Session write-scope declaration + cross-window awareness (v1.10.0 · Rules 2-3)**: write `meta/runtime/<sid>/scope.md` with `write_scope: [meta/outbox/<sid>/, projects/<bound-project>/, meta/runtime/<sid>/]`. Then `git status --porcelain` → strip own-scope paths → if any remainder, add one briefing line: `🪟 Other work areas: N uncommitted path groups not in this session's scope (<top-level dirs>) — not yours, do not stage.` Zero remainder → no line.
 
 --- Phase C: Version + Project ---
 

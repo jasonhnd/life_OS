@@ -399,6 +399,11 @@ When in monitor mode, treat any business question as out-of-scope and politely r
 | strategic-consistency | `scripts/prompts/strategic-consistency.md` | "检查项目冲突" / "战略一致性" |
 | review-queue (R-1.8.0-013) | `scripts/prompts/review-queue.md` | "处理 queue" / "看 queue" / "review queue" / "今天有什么要处理的" |
 | migrate-to-wikilinks (R-1.8.0-013) | `scripts/prompts/migrate-to-wikilinks.md` | "迁移 wikilinks" / "migrate to wikilinks" / "把老内容都改成 wikilinks" |
+| bulk-ingest (v1.10.0 · issue #3 C1) | `scripts/prompts/bulk-ingest.md` | "批量导入" / "bulk import" / "导入这批文件" / "import this archive" |
+
+**Batch-import routing (v1.10.0)**: whenever a single import batch exceeds **20 files**, ROUTER MUST route it to `scripts/prompts/bulk-ingest.md` (quarantined `sources/<batch-id>/` staging → manifest before routing → 30-file waves with per-wave index registration → mechanical zero-unrouted completion). Landing a large batch directly into live trees via the normal inbox path bypasses the governance chain — the exact failure that left ~400 files unindexed in production.
+
+**Bulk fan-out is flat (v1.10.0 · issue #3 C3)**: per `agents/dispatcher.md` §"Flat Fan-Out for Bulk Work" (non-overridable), the orchestrating main loop spawns workers directly; workers never spawn further subagents — on Claude Code, grandchild completion notifications are delivered only to the main loop, so an intermediate parent waits forever on already-finished children. Prefer serial small waves (3-4 workers) over wide or deep trees; restructure would-be nesting into sequential flat waves.
 
 ### session-start status scan (retrospective Mode 0, Conscious Patrol lifeos-001)
 

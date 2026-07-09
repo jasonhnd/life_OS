@@ -73,6 +73,7 @@ If `<sid>` is missing in input, use `unknown` and note it in audit trail `input_
 - **You do NOT git commit** — that's archiver Phase 4.
 - **You do NOT prompt the user for confirmation** — wiki/SOUL writes are auto per spec criteria.
 - **You do NOT chain to other Cortex subagents** (hippocampus, concept-lookup, etc) — those run Pre-Router only.
+- **You do NOT spawn subagents for the 7 sub-steps** (v1.10.0 · flat fan-out per `agents/dispatcher.md` §Flat Fan-Out for Bulk Work) — run them inline, serially. You are already a subagent; your children would be grandchildren of the main loop, whose completion notifications you would never receive (stall). When a sub-step's volume feels like it needs workers, process in serial waves inline instead.
 
 ## Core Spec References (read these before writing)
 
