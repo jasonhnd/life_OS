@@ -35,6 +35,19 @@
 > **no-op since v1.8.5** (hook layer retired). For current setup, run
 > `/install-agents` in Claude Code (one slash command, replaces all
 > historical bash setup scripts).
+>
+> **Hook layer ownership (resolved in v1.10.0)**: the bash hook layer is
+> retired **for real** — it is not an optional hardening module, and it is
+> not owned or maintained by any external tool. Machines that upgraded from
+> ≤v1.8.4 may still carry live leftovers: hook files under
+> `~/.claude/scripts/hooks/`, `lifeos-pre-prompt-guard.sh`, and
+> `settings.json` registrations (possibly duplicated across a legacy and a
+> current path). `/install-agents --refresh` now detects and removes these
+> leftovers — with one confirmation and a printed report of every removed
+> entry — and `/version-check` warns whenever legacy lifeos hook
+> registrations are still present. Command-safety gating (blocking `rm -rf /`
+> and similar) is the host platform's permission system's job, not a lifeos
+> bash gatekeeper's.
 
 ## One engine. Nine worlds. Your call.
 

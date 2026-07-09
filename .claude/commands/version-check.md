@@ -48,6 +48,19 @@ After the match/mismatch line, if local version is older than remote AND specifi
 
 The hint is generated at command runtime (LLM compares versions and emits the appropriate row). Do NOT hardcode all versions — only the current set in this table is supported.
 
+### 3.6 Legacy hook drift check (v1.10.0 · issue #2)
+
+The bash hook layer was retired in v1.8.5; the correct installed state is **zero** lifeos hook registrations in `settings.json`. Detect leftovers (including the duplicate-registration drift where the same guard is registered at both a legacy and a current path):
+
+```bash
+grep -cE 'lifeos-|scripts/hooks/|setup-hooks\.sh' "$HOME/.claude/settings.json" 2>/dev/null || echo 0
+```
+
+- **0 matches** → silent (healthy state, no output).
+- **≥1 match** → append warning:
+  `⚠️ N legacy lifeos hook registration(s) detected in ~/.claude/settings.json — hook layer retired in v1.8.5. Run /install-agents --refresh to clean up (removals are listed, never silent).`
+- If the same hook script basename appears at 2+ different paths, additionally note: `⚠️ duplicate registration: <basename> at N paths (double execution / divergent guard versions)`.
+
 ### 4. (Optional) Cache result for daily reuse
 
 Write the result to `$HOME/.cache/lifeos/version-check-$(date +%Y%m%d)` so re-invocation within the same day uses cache. Cache invalidates if the GitHub `main` branch SHA changed (compare via `curl -sf https://api.github.com/repos/jasonhnd/life_OS/branches/main`).

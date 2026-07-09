@@ -79,7 +79,7 @@ v1.8.6 加了 md-only 强制（禁 `.yml` / `.json`），v1.8.7 又加 `.sql` / 
 3. 读 meta/rfc/v1.8.7-openhuman-borrowed-patterns.md（v1.8.7 决策审计）
 4. 然后跟 v1.8.5 升级流程一样：git pull + /install-agents --refresh + /verify-release v1.8.7
 5. 第一次 session start 前检查 v1.8.5 hook 退役相关：
-   - 你的 ~/.claude/settings.json 里如果还有 life-os-* hook 注册，可保留也可清理（v1.8.5+ 不依赖 hook 但旧 hook 残留不影响）
+   - 你的 ~/.claude/settings.json 里如果还有 life-os-* hook 注册，**应当清理**（v1.10.0 起 /install-agents --refresh 自动检测并移除，移除项逐条列出）。残留 hook 会造成双重执行、误报拦截（如任意绝对路径 rm 被当成删根目录）、以及新旧两份 guard 规则不一致 — 见 issue #2
 ```
 
 ### 0.4 从 v1.7.x 升级（major architectural change，最贵路径）
@@ -95,7 +95,7 @@ v1.8.6 加了 md-only 强制（禁 `.yml` / `.json`），v1.8.7 又加 `.sql` / 
 4. 解除旧 cron / launchd（如有）：
    launchctl unload ~/Library/LaunchAgents/com.lifeos.*.plist 2>/dev/null
    crontab -l | grep -v lifeos | crontab -
-5. 检查 .claude/settings.json 中 lifeos hook 残留（v1.8.5 退役后无需保留但不删也不报错）
+5. 检查 .claude/settings.json 中 lifeos hook 残留（v1.8.5 已退役；v1.10.0 起 /install-agents --refresh 自动清理残留注册 + 脚本文件，/version-check 会对残留告警）
 6. /install-agents --refresh
 7. /verify-release v1.8.7
 ```

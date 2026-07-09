@@ -67,11 +67,32 @@ For each `*.md` under `.claude/commands/` AND `scripts/commands/` (e.g. `compres
 
 **`--refresh`**: if `$ARGUMENTS` contains `--refresh`, this is a re-install — regenerate ALL agent wrappers (step 3) and re-copy ALL slash command specs (this step), overwriting existing ones. Run it after `git pull` to pick up new or changed agents and commands.
 
+### 4.5 Legacy hook cleanup (v1.10.0 · retire-for-real, issue #2)
+
+The bash hook layer was retired in v1.8.5, but machines that upgraded from ≤v1.8.4 may still carry live hook files and `settings.json` registrations — sometimes the SAME hook registered at two paths (legacy + current), causing double execution or divergent guard versions. This step makes the retirement real on installed machines. It runs on EVERY invocation (with or without `--refresh`) and is idempotent.
+
+1. **Enumerate**: Read `$HOME/.claude/settings.json`. Collect every hook registration (under `hooks.PreToolUse` / `hooks.PostToolUse` / `hooks.UserPromptSubmit` / `hooks.SessionStart` / `hooks.Stop`) whose command string matches any of:
+   - `lifeos-` (e.g. `lifeos-pre-prompt-guard.sh`, `lifeos-version-check.sh`)
+   - `scripts/hooks/` under `.claude/` or `skills/life_OS/` (e.g. `pre-bash-approval.sh`, `session-start-inbox.sh`, `post-task-audit-trail.sh`)
+   - `setup-hooks.sh`
+2. **Correct end state is ZERO lifeos hook registrations** — the layer is retired, not relocated. There is no "keep one canonical copy" path.
+3. If any registrations found:
+   - Print the full list (event, matcher, command path) — never remove silently.
+   - Ask ONE confirmation: "Remove these N legacy lifeos hook registrations + their script files? (y/n)"
+   - On yes: rewrite `settings.json` without those entries (preserve all non-lifeos hooks byte-for-byte), then delete the orphaned script files: `$HOME/.claude/scripts/hooks/*` lifeos-originated scripts, `$HOME/.claude/scripts/lifeos-*.sh`, `$HOME/.claude/skills/life_OS/scripts/hooks/` leftovers. Only delete files that are actually referenced by the removed registrations or match `lifeos-*.sh` — do NOT touch user-authored hooks.
+   - On no: report `⚠️ legacy hooks left in place (user choice) — /version-check will keep warning` and continue with installation.
+4. **Report removals explicitly** in the step 5 report (see below): one line per removed registration + one line per deleted file. Silent removal is a violation of this spec.
+5. Remind the user: settings.json changes take effect on the next Claude Code session restart.
+6. Idempotency check: re-running this command immediately after cleanup MUST report `0 legacy hook registrations found`.
+
 ### 5. Report
 ```
 ✅ Registered N lifeos-* wrappers in ~/.claude/agents/
    installed K slash commands in ~/.claude/commands/
    skipped M ROUTER-internal templates
+   legacy hooks: removed R registrations + F script files (listed below) / 0 found ✅ / left in place (user choice) ⚠️
+   [one line per removed registration: <event> · <command path>]
+   [one line per deleted file: <path>]
    source: <skill root path>
 ```
 
