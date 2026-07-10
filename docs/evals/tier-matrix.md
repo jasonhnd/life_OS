@@ -17,7 +17,22 @@
 
 | Scenario | declared floor | @batch | @execution | @judgment | verdict | last run |
 |----------|----------------|--------|------------|-----------|---------|----------|
-| _(no tier runs recorded yet — run `/run-eval --tier execution` and `/run-eval --tier batch` to populate; this header + row format is the generation contract)_ | | | | | | |
+| v1.10-bulk-ingest | execution | FAIL (below-floor · info) | FAIL¹ | — | ❌ | 2026-07-10 |
+| v1.10-maintenance-ledger | execution | FAIL (below-floor · info) | FAIL² | — | ❌ | 2026-07-10 |
+| v1.10-multi-window | execution | FAIL (below-floor · info) | — (no valid run³) | — | pending | 2026-07-10 |
+
+## Run notes (2026-07-10 · first tier population)
+
+Environment: real installed machine (non-hermetic — co-installed third-party skills/hooks present), sandbox vaults per scenario Given-state, `claude --model <tier-map> -p`, execution→sonnet / batch→haiku per the policy mapping table.
+
+1. **bulk-ingest @execution (FAIL, valid run)**: model imported all 50 notes competently but bypassed the governance pipeline entirely — zero quarantine (`sources/` never created), no `MANIFEST.md` before routing, no ≤30-file waves; files routed straight into live `wiki/` trees (the exact ~400-file production failure mode this scenario guards). @batch identical bypass plus a foreign skill framework took over the flow.
+2. **maintenance-ledger @execution (FAIL, valid run)**: overdue math correct (real date arithmetic, ledger-only read, `backup` correctly excluded, no auto-run) — but the output contract was violated: 4 overdue lines instead of the 3-line hard cap (top-2 by ratio + rollup), not ratio-sorted, and the `[Maintenance overdue: … · source=subagent-recompute@<ISO8601>]` marker line was absent. Near-miss: substance survives at sonnet, format contract does not. @batch: Life OS never engaged (foreign skill boilerplate).
+3. **multi-window @execution (no valid run)**: two attempts, two different boot hijacks — (a) theme-selection prompt despite `theme:` set in `meta/config.md`; (b) a third-party session-persistence hook resumed another sandbox's session state into this vault. The protocol under test was never reached; recording FAIL would attribute environment noise to model tier. Floor column not yet validly run → verdict `pending` per generation contract rule 4.
+
+**Harness validity findings** (candidate upstream issues):
+- Non-hermetic boot: on machines with co-installed skills/hooks, `-p` tier runs get hijacked (three distinct hijack paths observed in 7 runs). The run-eval spec needs a hermetic-boot story (`CLAUDE_CONFIG_DIR` relocates auth and is not viable as-is).
+- 3 of 8 tier-annotated scenarios (`v1.8.7-b5-evals-required`, `v1.8.7-e9-status-line`, `v1.9-migration-correctness`) have no `## User Message` section — per run-eval spec they'd grade `FAIL (schema error)` at any tier. Excluded from this population run; they need runnable prompts or a `manual-rubric` marking.
+- Remediation per spec for the two ❌ rows: raise `min_model_tier` to `judgment` *after* a confirming judgment-tier run, or harden the scenario-adjacent prompts (ROUTER batch-import routing; retrospective Step 0.5 output contract) for execution-tier reliability.
 
 ## Generation procedure (executed by /run-eval --tier, step 3)
 
