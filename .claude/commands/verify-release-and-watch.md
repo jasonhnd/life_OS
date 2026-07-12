@@ -11,7 +11,7 @@ allowed-tools:
 
 # /verify-release-and-watch
 
-Self-driven loop wrapping `/verify-release`. Re-checks every 270s until all 12 release checks PASS, or hits the 12-tick (60 min) hard cap. Use after `git push --tags` to verify the release is fully shipped (not just tagged) without manually rerunning checks.
+Self-driven loop wrapping `/verify-release`. Re-checks every 270s until all 11 release checks PASS, or hits the 12-tick (60 min) hard cap. Use after `git push --tags` to verify the release is fully shipped (not just tagged) without manually rerunning checks.
 
 **Pattern source**: tinyhumansai/openhuman `.claude/commands/ship-and-babysit.md`. **Spec**: `references/self-driven-loops-spec.md`.
 
@@ -40,7 +40,7 @@ If this is the first invocation (no prior tick marker), set `tickCount = 1`.
 
 ### Step 2 · Run /verify-release checks
 
-Inline-execute the same procedure as `.claude/commands/verify-release.md`. Run all 12 checks:
+Inline-execute the same procedure as `.claude/commands/verify-release.md`. Run all 11 checks:
 
 1. Working tree clean (`git status --short`)
 2. HEAD == origin/main
@@ -53,7 +53,6 @@ Inline-execute the same procedure as `.claude/commands/verify-release.md`. Run a
 9. **NEW v1.8.7**: i18n diff parity (changed references/*.md sections mirrored in i18n/zh + i18n/ja)
 10. **NEW v1.8.7**: diff-scoped forbidden extensions (no `.sql / .json / .sh / .bash / .py / .yml / .yaml / .db / .sqlite` in commit diff since last tag)
 11. All regression fixtures FAIL (each `evals/regression-fixtures/rc-*.md` encodes forbidden behavior and must NOT pass)
-12. **NEW v1.10.0**: degradation-safety tier gate (`docs/evals/tier-matrix.md` has no ❌-at-declared-floor rows; WARN while no tier runs recorded)
 
 Collect results: which checks PASS, which FAIL, which WARN.
 
@@ -75,7 +74,7 @@ For other FAIL types (working tree dirty, HEAD != origin/main, missing tag, forb
 
 | Condition | Action |
 |-----------|--------|
-| All 12 checks PASS (after any auto-fixes) | **EXIT** — output final summary with Release URL, STOP (do NOT call ScheduleWakeup) |
+| All 11 checks PASS (after any auto-fixes) | **EXIT** — output final summary with Release URL, STOP (do NOT call ScheduleWakeup) |
 | tickCount ≥ 12 | **EXIT with status snapshot** — list all current FAIL/WARN, ask user how to proceed, STOP |
 | Any FAIL that auto-fix couldn't resolve | Continue to next tick (maybe CI is mid-run, maybe Release is propagating CDN) |
 | Only WARN-level findings, no FAIL | Same as PASS → EXIT (WARN doesn't block) |
@@ -123,7 +122,7 @@ If EXIT (all PASS or hard cap):
 ```
 ✅ Release v<X.Y.Z> fully shipped after N ticks.
    URL: <release-url>
-   All 12 checks PASS.
+   All 11 checks PASS.
 ```
 
 Or for hard-cap exit:
@@ -148,7 +147,7 @@ If CONTINUE:
 
 ## Exit conditions (enumerated)
 
-1. **All 12 checks PASS** → exit with success summary + Release URL
+1. **All 11 checks PASS** → exit with success summary + Release URL
 2. **All FAIL resolved by auto-fix, only WARN left** → exit (WARN is informational not blocking in v1.8.7)
 3. **tickCount ≥ 12** → exit with status snapshot, ask user
 4. **Critical error** (e.g. tag doesn't exist, repo not git, gh CLI not auth'd) → exit with error
@@ -162,7 +161,7 @@ If CONTINUE:
 
 ## Reference
 
-- Base command: `.claude/commands/verify-release.md` (the 10 individual checks)
+- Base command: `.claude/commands/verify-release.md` (the 11 individual checks)
 - Spec: `references/self-driven-loops-spec.md`
 - RFC: `meta/rfc/v1.8.7-openhuman-borrowed-patterns.md` §2.2 B4
 - Pattern: `tinyhumansai/openhuman` `.claude/commands/ship-and-babysit.md`

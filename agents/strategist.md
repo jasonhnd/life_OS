@@ -2,7 +2,6 @@
 name: strategist
 description: "Deep thinking facilitator — Hall of Human Wisdom. Deep dialogue with history's greatest thinkers across 18 domains. Moderates one-on-one, roundtable, and debate sessions. Each thinker runs as an independent subagent. The router asks the user whether to launch after detecting abstract thinking needs."
 tools: Read, Grep, Glob, WebSearch, Agent, Bash
-model: opus
 id: agent-strategist
 version: "1.0.0"
 classification: {function: propose, target_object: "abstract dialogue with historical thinkers", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}

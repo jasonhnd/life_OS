@@ -22,6 +22,8 @@ You are scanning the repository for spec drift — references to files/tokens th
 Scan all `.md`, `.yml`, `.yaml`, `.json` under repo root, **excluding**:
 - `CHANGELOG.md` and `i18n/*/CHANGELOG.md`
 - `docs/reference/version-history.md` (version log — historical agent counts + illustrative example paths, same rationale as CHANGELOG)
+- `_meta/release-notes/` (historical release records)
+- `docs/design/model-tier-retirement.md` (design record for the v1.10.0 model-tier retirement)
 - `backup/` (gitignored clone)
 - `compliance/` (violation logs are historical)
 - `MIGRATION.md`
@@ -36,7 +38,7 @@ Example grep:
 ```bash
 grep -rEhn '(scripts|agents|tools|references|themes|evals/scenarios|evals/rubrics|i18n/[a-z]+/references)/[a-zA-Z0-9_/.-]+\.(sh|py|md|yml|yaml)' \
   --include='*.md' --include='*.yml' --include='*.yaml' --include='*.json' \
-  | grep -vE '^(CHANGELOG|MIGRATION|backup/|compliance/)'
+  | grep -vE '^(CHANGELOG.md|i18n/[^/]+/CHANGELOG.md|docs/reference/version-history.md|MIGRATION.md|backup/|compliance/|_meta/release-notes/|docs/design/model-tier-retirement.md)'
 ```
 
 For each match: check if the referenced file exists. Missing → flag as broken-path.
@@ -81,6 +83,18 @@ Search active files for these retired architectural tokens. Any hit in an active
 - `pre-task-launch.sh`
 - `post-task-audit-trail.sh`
 - `pre-write-output-redirect.sh`
+
+**v1.10.0 retired token patterns (model-tier machinery retired):**
+- `model[-]dispatch[-]policy`
+- `min[_]model[_]tier`
+- `tier[-]matrix`
+
+Exemptions for these v1.10.0 retired token patterns:
+- `CHANGELOG.md`
+- `i18n/*/CHANGELOG.md`
+- `docs/reference/version-history.md`
+- `_meta/release-notes/`
+- `docs/design/model-tier-retirement.md`
 
 **Regex for agent count drift** (per user "多个 agent 就行"):
 ```regex

@@ -2,7 +2,6 @@
 name: finance
 description: "FINANCE domain analyst. Income structure, budget management, investment analysis, asset allocation, taxes, insurance."
 tools: Read, Grep, Glob, Bash
-model: opus
 id: agent-finance
 version: "1.0.0"
 classification: {function: diagnose, target_object: "income / budget / investment / tax / insurance decisions", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: high, lifecycle_stage: active}
