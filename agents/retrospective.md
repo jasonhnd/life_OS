@@ -192,7 +192,7 @@ The briefing MUST include these literal primary-source count markers, using valu
 - `[Wiki count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
 - `[Sessions count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
 - `[Concepts count: measured X · status-snapshot Y1 · INDEX-md Y2 · drift Δ=X-Y2]`
-- `[Maintenance overdue: <verbatim multi-line copy of '## Overdue maintenance' block computed inline by subagent · OR 'none' when no overdue items · source=subagent-recompute@<ISO8601>]` (v1.8.5+ subagent computes inline; pre-v1.8.5 used retired `scripts/hooks/session-start-inbox.sh`)
+- `[Maintenance overdue: <n> job(s) · source=subagent-recompute@<ISO8601>]` when one or more maintenance jobs are overdue; use the exact marker format from the maintenance template below. (v1.8.5+ subagent computes inline; pre-v1.8.5 used retired `scripts/hooks/session-start-inbox.sh`)
 
 Rules:
 - R8 marker disambiguation supersedes older R5 wording: `Y1` is the `meta/STATUS.md` snapshot claim, `Y2` is the `INDEX.md` claim, and `Δ` is always computed as `X - Y2`.
@@ -200,7 +200,39 @@ Rules:
 - If `|Δ| >= 3`, append `⚠️ DRIFT` to that marker line.
 - Do not paste only `X` without `Y`.
 - Do not say `measured consistent` / `实测一致` without concrete numbers.
-- **Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5+ update)**: pre-v1.8.5 specified `bash scripts/hooks/session-start-inbox.sh`. The hook was retired in v1.8.5 Stage 2. **v1.10.0 procedure (per `references/maintenance-ledger-spec.md`)**: subagent computes `## Overdue maintenance` block inline from the SINGLE source `meta/maintenance-ledger.md` — one Read, no per-job glob hunting. For each row with day-valued cadence `<N>d`: `days_overdue = (today - last_run) - N`; `on-demand` / `once` rows are never overdue. Output **at most 3 lines** (HARD CAP), sorted by overdue ratio descending; when >3 jobs are overdue, the 3rd line is the `(+N more — see meta/maintenance-ledger.md)` rollup. Nothing overdue → no block (silence on the healthy path). Ledger missing → `Maintenance ledger: not yet initialized (jobs stamp it on completion)`; do NOT create it at read time. **Overdue = nudge only; NEVER auto-run a maintenance job from this check.** (Pre-v1.10 procedure read the 10 maintenance job last-run timestamps from their per-job stored locations; the write-time ledger replaces that scan — same write-time-over-scan-time move as the v1.9.2 session INDEX.) Paste verbatim into marker. **不要** byte-copy transcript 里旧值(Mode 2 / 长 session 跨午夜会 stale)。**不要**重新估算、增量、改写 day count after computing — paste exactly what your inline scan produced. Subagent's inline computation is the source of truth in v1.8.5+; previous reliance on hook stdout (with `<system-reminder>...</system-reminder>` wrapper handling) is obsolete. Originating bug: 2026-05-16 briefing reported `archiver-recovery 13d` while same session hook had emitted `3d` — subagent free-form-estimated rather than computed from source-of-truth timestamps.
+- **Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.8.5+ update)**: pre-v1.8.5 specified `bash scripts/hooks/session-start-inbox.sh`. The hook was retired in v1.8.5 Stage 2. **v1.10.0 procedure (per `references/maintenance-ledger-spec.md`)**: subagent computes the overdue result inline from the SINGLE source `meta/maintenance-ledger.md` — one Read, no per-job glob hunting. For each row with day-valued cadence `<N>d`: `days_overdue = (today - last_run) - N`; `on-demand` / `once` rows are never overdue. Sort overdue rows by overdue ratio `elapsed_days / cadence_days` descending before filling the template. Nothing overdue → no block (silence on the healthy path). Ledger missing → `Maintenance ledger: not yet initialized (jobs stamp it on completion)`; do NOT create it at read time. **Overdue = nudge only; NEVER auto-run a maintenance job from this check.** (Pre-v1.10 procedure read the 10 maintenance job last-run timestamps from their per-job stored locations; the write-time ledger replaces that scan — same write-time-over-scan-time move as the v1.9.2 session INDEX.)
+
+  When `n > 0` (`n` = total overdue jobs), emit the marker line exactly as shown here, then emit the `## Overdue maintenance` block using the matching template. Sort by `overdue ratio = elapsed/cadence`, descending, before selecting rows. The overdue payload has a **max 3 lines total**: first the top two jobs by overdue ratio, then exactly one rollup line for all remaining overdue jobs when any remain.
+
+  ```text
+  [Maintenance overdue: <n> job(s) · source=subagent-recompute@<ISO8601>]
+  ```
+
+  If `n = 1`:
+
+  ```text
+  ## Overdue maintenance
+  ⚠️ overdue: <job-1> (<elapsed-1>d since last run, cadence <cadence-1>d)
+  ```
+
+  If `n = 2`:
+
+  ```text
+  ## Overdue maintenance
+  ⚠️ overdue: <job-1> (<elapsed-1>d since last run, cadence <cadence-1>d)
+  ⚠️ overdue: <job-2> (<elapsed-2>d since last run, cadence <cadence-2>d)
+  ```
+
+  If `n >= 3`:
+
+  ```text
+  ## Overdue maintenance
+  ⚠️ overdue: <job-1> (<elapsed-1>d since last run, cadence <cadence-1>d)
+  ⚠️ overdue: <job-2> (<elapsed-2>d since last run, cadence <cadence-2>d)
+  (+<n-2> more — see meta/maintenance-ledger.md)
+  ```
+
+  **不要** byte-copy transcript 里旧值(Mode 2 / 长 session 跨午夜会 stale)。**不要**重新估算、增量、改写 day count after computing — paste exactly what your inline scan produced. Subagent's inline computation is the source of truth in v1.8.5+; previous reliance on hook stdout (with `<system-reminder>...</system-reminder>` wrapper handling) is obsolete. Originating bug: 2026-05-16 briefing reported `archiver-recovery 13d` while same session hook had emitted `3d` — subagent free-form-estimated rather than computed from source-of-truth timestamps.
 
 ```bash
 # STATUS.md staleness check (HARD RULE · v1.7.0.1)
@@ -696,7 +728,7 @@ Prepare with whatever data you can access. Note what you cannot:
 3. Read ~/second-brain/areas/*/goals.md for goal progress
 4. Read ~/second-brain/meta/journal/*.md for recent logs (v1.9 time-axis canonical; filter frontmatter `projects:` for project-specific logs — no more projects/*/journal/)
 5. Read meta/STRATEGIC-MAP.md for strategic line health trends (if exists)
-7. Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.10.0 ledger procedure): compute the `## Overdue maintenance` block inline per Step 0.5 procedure — one Read of `meta/maintenance-ledger.md` per `references/maintenance-ledger-spec.md` (max 3 lines, nudge-only, never auto-run). Include in Review briefing as `[Maintenance overdue: <verbatim block> · source=subagent-recompute@<ISO8601>]`. Same source-of-truth contract as Mode 0 Step 0.5: do NOT byte-copy transcript stale values, do NOT re-estimate day count. Mode 2 reviews tend to span longer time windows than Mode 0 and are more vulnerable to drift, so the marker contract is mandatory here too. (Pre-v1.8.5 used `bash scripts/hooks/session-start-inbox.sh`; pre-v1.10 read per-job stored timestamps — both replaced by the ledger.)
+7. Maintenance overdue marker (HARD RULE · v1.8.4 · Bug R-MAINT-OVERDUE-HALLUCINATION fix; v1.10.0 ledger procedure): compute the `## Overdue maintenance` block inline per Step 0.5 procedure — one Read of `meta/maintenance-ledger.md` per `references/maintenance-ledger-spec.md` (max 3 lines, ratio-sorted, nudge-only, never auto-run). Include the exact Step 0.5 marker line `[Maintenance overdue: <n> job(s) · source=subagent-recompute@<ISO8601>]` whenever any job is overdue. Same source-of-truth contract as Mode 0 Step 0.5: do NOT byte-copy transcript stale values, do NOT re-estimate day count. Mode 2 reviews tend to span longer time windows than Mode 0 and are more vulnerable to drift, so the marker contract is mandatory here too. (Pre-v1.8.5 used `bash scripts/hooks/session-start-inbox.sh`; pre-v1.10 read per-job stored timestamps — both replaced by the ledger.)
 ```
 
 ### Decision Tracking
