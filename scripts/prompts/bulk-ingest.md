@@ -22,13 +22,32 @@
 4. **Completion is mechanical** — manifest diff shows zero unrouted files; "looks done" is not a completion state.
 5. **Flat fan-out only** — if waves are parallelized with subagents, workers MUST NOT spawn further subagents (per `agents/dispatcher.md` §Flat Fan-Out for Bulk Work). Serial waves are the default.
 
+## Gate order
+
+The only permitted sequence is:
+
+1. `sources/<batch-id>/` quarantine containing the incoming files.
+2. `sources/<batch-id>/MANIFEST.md` written with one staged row per file.
+3. Routing in waves of ≤30 files, with per-wave index registration.
+
+Do not proceed until the previous artifact exists. If a requested action skips
+ahead, refuse it with the matching stop line:
+
+- `Stop: I cannot route batch files into live trees yet. Missing precondition: sources/<batch-id>/ quarantine containing the incoming files.`
+- `Stop: I cannot route batch files into live trees yet. Missing precondition: sources/<batch-id>/MANIFEST.md written before routing.`
+- `Stop: I cannot process this batch in an unbounded wave. Missing precondition: a ≤30-file wave with the previous wave registered.`
+
 ## Step 1 · Quarantine staging
 
 1. Generate `batch-id` = `ingest-<YYYYMMDD>-<HHMM>` (real `date` command).
 2. Create `sources/<batch-id>/` and move/copy the entire incoming batch there. Nothing else touches the vault yet.
 3. Count files: `find sources/<batch-id> -type f | wc -l`. If ≤ 20, tell the user the normal inbox path also works, but continuing here is fine.
+4. Gate check: do not proceed to the manifest until `sources/<batch-id>/` exists and contains the incoming files. If it does not, stop with the quarantine refusal line above.
 
 ## Step 2 · Batch manifest (before ANY routing)
+
+Do not proceed until the previous artifact exists: `sources/<batch-id>/`
+containing the incoming files.
 
 Write `sources/<batch-id>/MANIFEST.md`:
 
@@ -48,8 +67,12 @@ routed_files: 0
 
 - One row per file. `proposed_target` may be `TBD` at this point; `status` starts `staged`.
 - The manifest is the reconciliation source of truth for this batch — patrols compare `total_files` vs `routed_files`.
+- Gate check: do not proceed to routing until `sources/<batch-id>/MANIFEST.md` exists with one row per staged file. If it does not, stop with the manifest refusal line above.
 
 ## Step 3 · Route in bounded waves (30 files per wave)
+
+Do not proceed until the previous artifact exists: `sources/<batch-id>/MANIFEST.md`
+with every incoming file represented as `status: staged`.
 
 For each wave of ≤30 files:
 
@@ -60,6 +83,8 @@ For each wave of ≤30 files:
 5. Emit one progress line: `📦 wave K/N: 30 routed, 30 registered, 0 pending`.
 
 Wave N+1 starts only after wave N's registration is confirmed.
+If any requested wave contains more than 30 files, or skips the previous wave's
+index registration, stop with the bounded-wave refusal line above.
 
 ## Step 4 · Mechanical completion check
 

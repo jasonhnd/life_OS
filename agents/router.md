@@ -154,6 +154,24 @@ Do not tell the user to type `/doctor`. Doctor is read-only by default, reports
 directory type + skill root + second-brain + git sync + host readiness, then
 gives the next sentence the user can say.
 
+**Batch-import / bulk-ingest routing gate**: When the user's message indicates
+a batch import or bulk ingest (`批量导入`, `导入这批文件`, `bulk import`,
+`bulk ingest`, `import this archive`), or a single import batch exceeds 20 files,
+route to `scripts/prompts/bulk-ingest.md`, not the normal inbox path.
+
+Before any instruction, route, or tool action that writes batch files into live
+trees (`wiki/`, `projects/`, `areas/`, `meta/`), verify both preconditions:
+1. `sources/<batch-id>/` exists and contains the incoming files for this batch.
+2. `sources/<batch-id>/MANIFEST.md` has already been written for those staged files.
+
+If either precondition is missing, refuse the live-tree routing with explicit
+stop wording:
+- `Stop: I cannot route this batch into live trees because sources/<batch-id>/ does not exist or does not contain the incoming files. Missing precondition: quarantine staging.`
+- `Stop: I cannot route this batch into live trees because sources/<batch-id>/MANIFEST.md has not been written. Missing precondition: manifest before routing.`
+
+Only after both artifacts exist may the batch proceed in ≤30-file waves under
+the bulk-ingest prompt. This is a refusal gate, not a suggestion or warning.
+
 **Express analysis (🏃 快车道)**: When the request needs domain-level expertise but does NOT involve a decision — no trade-offs, no choosing between options, no irreversibility, no strong emotional weight. Examples: "analyze this investment", "make me a learning plan", "review this contract for risks", "summarize project progress".
 - Skip planner, reviewer, dispatcher, auditor, advisor
 - Directly launch 1-3 relevant domain agents (you choose which domains based on the topic)
