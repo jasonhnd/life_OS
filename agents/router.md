@@ -2,7 +2,6 @@
 name: router
 description: "Entry router. Handles intent clarification, triage, and routing to appropriate agents. Manages simple requests directly, escalates complex tasks to the planning/review/dispatch pipeline, asks the user whether to launch the strategist for abstract thinking. Entry point for all messages."
 tools: Read, Grep, Glob, WebSearch, Write, Bash
-model: opus
 id: agent-router
 version: "1.0.0"
 classification:

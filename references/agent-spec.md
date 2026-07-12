@@ -11,7 +11,7 @@ introduced_in: v1.8.5
 
 Every `agents/*.md` subagent definition file MUST have YAML frontmatter conforming to the v2 standard. v1.8.5 Stage 6 migrates all existing agents.
 
-> **Why v2**: v1 agent frontmatter only had `name + description + tools + model` (4 fields). v2 adds 6 structural fields borrowed from eou-foundry that make agent boundaries grep-able, blast radius explicit, and failure modes documented. Per RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6.
+> **Why v2**: v1 agent frontmatter only had `name + description + tools` (3 fields). v2 adds 6 structural fields borrowed from eou-foundry that make agent boundaries grep-able, blast radius explicit, and failure modes documented. Per RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6.
 
 ## v2 Standard Frontmatter
 
@@ -21,7 +21,6 @@ Every `agents/*.md` subagent definition file MUST have YAML frontmatter conformi
 name: <agent-id>                       # lowercase, hyphen-separated, e.g. retrospective
 description: "<one-paragraph role description>"
 tools: Read, Grep, Glob, Bash, Write, Edit, Task   # tool allowlist
-model: opus|sonnet|haiku            # tier alias per references/model-dispatch-policy.md (judgment|execution|batch); versioned model IDs forbidden
 
 # v2 NEW: identity & versioning
 id: agent-<name>                       # canonical, e.g. agent-retrospective
@@ -78,7 +77,7 @@ failure_modes:
 
 For every `agents/*.md`, the frontmatter MUST have:
 
-1. **All v1 fields**: `name`, `description`, `tools`, `model`
+1. **All v1 fields**: `name`, `description`, `tools`
 2. **identity**: `id`, `version`
 3. **classification**: all 6 facets populated; `target_object` non-empty string
 4. **operating_hypothesis**: non-empty, ≥30 chars, Given/can/within form

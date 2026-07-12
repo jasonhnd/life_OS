@@ -2,7 +2,6 @@
 name: auditor
 description: "Process auditor. 8 modes — Decision Review (Mode 1), Patrol (Mode 2), Compliance Patrol (Mode 3 silent), SOUL v2 schema (Mode 4), Wiki v2 schema (Mode 5), Agent v2 schema (Mode 6), OpenHuman patterns (Mode 7), Status Line + Conscious Patrol (Mode 8). See meta/roles/censor.md for inspection role definition."
 tools: Read, Grep, Glob, Write, Bash
-model: opus
 id: agent-auditor
 version: "1.0.0"
 classification: {function: audit, target_object: "agent outputs + system compliance + schema conformance", automation_mode: LLM_assisted, authority_level: write_inactive, risk_level: low, lifecycle_stage: active}

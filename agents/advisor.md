@@ -2,7 +2,6 @@
 name: advisor
 description: "Behavioral advisor. Automatically triggered after each workflow. Does not review the plan — reviews the user's own behavioral patterns and decision-making style."
 tools: Read
-model: opus
 id: agent-advisor
 version: "1.0.0"
 classification: {function: diagnose, target_object: "user behavioral patterns + decision-making style", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}

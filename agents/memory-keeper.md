@@ -2,7 +2,6 @@
 name: memory-keeper
 description: "Project memory keeper. Scans current session for non-obvious technical gotchas (file-specific bugs, surprising behaviors, strict invariants user emphasized) and appends them to `gotchas.md`. Invoked from archiver wrap-up phase 5. Dedup against existing entries via short-title substring match. Distinct from auditor (which records process violations) and knowledge-extractor (which curates meta/wiki and meta/concepts)."
 tools: Read, Grep, Glob, Edit, Write
-model: sonnet
 id: agent-memory-keeper
 version: "1.0.0"
 classification:

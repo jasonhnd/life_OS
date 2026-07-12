@@ -33,13 +33,12 @@ This index is the public pointer for non-overridable Life OS behavior. README fi
 
 ## v1.10.0 Release Deltas
 
-- **Per-host marker counts UNCHANGED** (Claude Code 41 / Gemini 37 / Codex 37). All v1.10.0 HARD RULEs live in role-local `agents/*.md` or spec-local `references/*.md`, which the count method deliberately excludes:
-  - `references/model-dispatch-policy.md` — "No silent fall-through" (judgment-tier work never silently degrades to a weaker model)
-  - `agents/dispatcher.md` — §Weak-Model Dispatch Mode + §Flat Fan-Out for Bulk Work (workers never spawn subagents; depth-1 only)
+- **Per-host marker counts UNCHANGED** (Claude Code 41 / Gemini 37 / Codex 37). All remaining v1.10.0 HARD RULEs live in role-local `agents/*.md` or spec-local `references/*.md`, which the count method deliberately excludes:
+  - `agents/dispatcher.md` — §Flat Fan-Out for Bulk Work (workers never spawn subagents; depth-1 only)
   - `references/multi-window-protocol.md` / `agents/retrospective.md` step 7 — outbox claim discipline (no item survives two consecutive session starts undecided)
   - `agents/archiver.md` — Phase 4 commit scoping (`git add -A` forbidden on a shared vault)
   - `references/maintenance-ledger-spec.md` — overdue = nudge only, never auto-run (3-line hard cap)
-- Host files reference these rules without adding literal `HARD RULE` marker lines (hosts/CLAUDE.md model statement, batch-import routing, flat-fan-out reference; hosts/GEMINI.md + hosts/AGENTS.md fallback statements).
+- Host files reference these rules without adding literal `HARD RULE` marker lines (hosts/CLAUDE.md batch-import routing and flat-fan-out reference).
 
 ## Current Count
 

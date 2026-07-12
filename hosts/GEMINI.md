@@ -8,7 +8,7 @@ All agents read their display names from the active theme file (themes/*.md). Th
 
 This file is the Gemini CLI / Antigravity equivalent of CLAUDE.md. It defines how to orchestrate the multiple subagents on the Gemini platform.
 
-Model selection follows `references/model-dispatch-policy.md` (v1.10.0): agents declare a minimum capability tier (judgment / execution / batch). **Fallback when the required tier is unavailable**: judgment-tier work MUST NOT silently fall through to a weaker model — say `⚠️ this requires a frontier session` and stop; execution/batch work proceeds on any tier at or above its declared floor. See `references/data-layer.md` for data layer architecture details.
+Subagents inherit the user's active session model. See `references/data-layer.md` for data layer architecture details.
 
 ## Platform Mapping
 
@@ -16,9 +16,6 @@ When reading agent files from `agents/*.md`, apply these mappings:
 
 | Agent Frontmatter Field | Original (Claude) | Gemini Equivalent |
 |------------------------|-------------------|-------------------|
-| `model: opus` (judgment tier) | Claude's strongest model | Gemini's strongest available model (auto-select) |
-| `model: sonnet` (execution tier) | Claude's mid tier | Gemini's mid tier |
-| `model: haiku` (batch tier) | Claude's cheapest/fastest tier | Gemini's cheapest/fastest tier |
 | Tool: `Read` | Read file | `read_file` |
 | Tool: `Write` | Write file | `write_file` |
 | Tool: `Edit` | Edit file | `edit_file` |

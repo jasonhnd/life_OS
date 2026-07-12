@@ -11,7 +11,7 @@ introduced_in: v1.8.5
 
 すべての `agents/*.md` subagent 定義ファイルは v2 標準に準拠する YAML frontmatter を**必ず持たなければならない**。v1.8.5 Stage 6 は既存の agent すべてを移行する。
 
-> **なぜ v2**: v1 agent frontmatter には `name + description + tools + model`（4 フィールド）のみ。v2 は eou-foundry から借用した 6 つの構造化フィールドを追加 —— agent 境界が grep 可能、blast radius が明示的、failure modes が文書化される。RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6 に従う。
+> **なぜ v2**: v1 agent frontmatter には `name + description + tools`（3 フィールド）のみ。v2 は eou-foundry から借用した 6 つの構造化フィールドを追加 —— agent 境界が grep 可能、blast radius が明示的、failure modes が文書化される。RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6 に従う。
 
 ## v2 標準 Frontmatter
 
@@ -21,7 +21,6 @@ introduced_in: v1.8.5
 name: <agent-id>                       # 小文字、ハイフン区切り、例 retrospective
 description: "<1 段落の役割説明>"
 tools: Read, Grep, Glob, Bash, Write, Edit, Task   # ツール許可リスト
-model: opus|sonnet|haiku            # 階層エイリアス、references/model-dispatch-policy.md 参照（judgment|execution|batch）；バージョン付きモデル ID は禁止
 
 # v2 新規: アイデンティティ & バージョン
 id: agent-<name>                       # canonical、例 agent-retrospective
@@ -78,7 +77,7 @@ failure_modes:
 
 各 `agents/*.md` の frontmatter は以下を**必ず持たなければならない**:
 
-1. **すべての v1 フィールド**: `name`, `description`, `tools`, `model`
+1. **すべての v1 フィールド**: `name`, `description`, `tools`
 2. **アイデンティティ**: `id`, `version`
 3. **classification**: 6 facets すべて入力；`target_object` 非空文字列
 4. **operating_hypothesis**: 非空、≥30 文字、Given/can/within 形式

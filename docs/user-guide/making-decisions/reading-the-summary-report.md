@@ -181,7 +181,7 @@ Audit Log:
 
 ```
 - Total Time: 6 分 22 秒
-- Model: <当前会话模型名>（judgment tier · 见 references/model-dispatch-policy.md）
+- Model: <当前会话模型名>
 - Agent Calls: 14 total
 - Vetoes: 1
 - COUNCIL: Triggered

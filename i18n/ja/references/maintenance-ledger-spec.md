@@ -8,7 +8,6 @@ referenced_by:
   - agents/retrospective.md (Step 0.5 maintenance-overdue marker + Mode 2 item 7)
   - hosts/CLAUDE.md (§session-start status scan)
   - scripts/prompts/*.md (final "ledger stamp" step in every job)
-  - references/model-dispatch-policy.md (cadence column source)
 ---
 
 # Maintenance Ledger Specification v1
@@ -35,7 +34,7 @@ Stamped by each `scripts/prompts/<job>.md` on completion. Read by session start
 フィールドルール：
 
 - **job** —— プロンプトの basename から `.md` を除いたもの（例 `wiki-link-audit`）。
-- **cadence** —— `<N>d`（日数値）、`on-demand`、`once` のいずれか。ジョブごとの権威的な cadence は `references/model-dispatch-policy.md` §"Maintenance job → minimum tier table" のテーブルである；ledger の行はそれをコピーし、overdue の計算がこの 1 ファイルだけで済むようにする。
+- **cadence** —— `<N>d`（日数値）、`on-demand`、`once` のいずれか。各ジョブのプロンプトがスタンプする cadence を宣言する；ledger の行はそれをコピーし、overdue の計算がこの 1 ファイルだけで済むようにする。
 - **last_run** —— 実際の `date` コマンドによる `YYYY-MM-DD`（捏造禁止 —— SOUL スナップショットと同じ契約）。
 
 ## スタンププロトコル（すべてのジョブ、最終ステップ）

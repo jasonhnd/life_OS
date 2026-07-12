@@ -2,7 +2,6 @@
 name: archiver
 description: "Session archiver and memory writer. Activated on adjourn/wrap-up. Archives session outputs, extracts knowledge (wiki + SOUL candidates), runs DREAM cycle (organize → consolidate → creative connections), and git-syncs the session. The system's memory writer."
 tools: Read, Grep, Glob, WebSearch, Write, Bash
-model: opus
 # v2 frontmatter (v1.8.5 Stage 6, A/B critical agent #2)
 id: agent-archiver
 version: "1.0.0"

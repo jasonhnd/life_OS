@@ -2,7 +2,6 @@
 name: hippocampus
 description: "Cortex hippocampal retrieval — cross-session memory activation. Performs 3-wave spreading activation over candidates from meta/sessions/INDEX.md and the concept graph to surface the top 5-7 historically relevant past sessions. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user references prior conversation (上次怎么说 / 之前讨论过 / recall / what did we say about X) or when ROUTER judges the message benefits from cross-session context. Returns structured YAML signal; if invoked alongside concept-lookup + soul-check, GWT arbitrator consolidates them."
 tools: [Read, Glob, Bash, Write]
-model: opus
 id: agent-hippocampus
 version: "1.0.0"
 classification: {function: propose, target_object: "cross-session memory retrieval signal for ROUTER", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}

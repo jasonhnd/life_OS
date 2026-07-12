@@ -2,7 +2,6 @@
 name: infra
 description: "INFRA domain analyst. Health management, living environment, digital infrastructure, life routines. The body is the most important infrastructure."
 tools: Read, Grep, Glob, Bash
-model: opus
 id: agent-infra
 version: "1.0.0"
 classification: {function: diagnose, target_object: "health + living environment + digital infrastructure + life routines", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: high, lifecycle_stage: active}

@@ -2,7 +2,6 @@
 name: monitor
 description: "Life OS Monitor mode (v1.8.0 pivot). Activated when user runs /monitor slash command. Operations console: shows maintenance task timestamps, recent reports, action items. Helps the user **invoke** maintenance (reindex / backup / auditor-patrol / advisor-monthly / etc) by reading the matching scripts/prompts/<job>.md and executing inline. Does NOT engage in business deliberation, does NOT pull-launch Cortex subagents, does NOT run 上朝/退朝. Cron is gone (v1.8.0 pivot) — monitor mode is purely view-and-invoke."
 tools: Read, Bash, Glob, Grep, Write, Edit
-model: opus
 id: agent-monitor
 version: "1.0.0"
 classification: {function: audit, target_object: "maintenance task state + manual invocation of jobs", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}

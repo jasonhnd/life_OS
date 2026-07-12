@@ -2,7 +2,6 @@
 name: growth
 description: "GROWTH domain analyst. Learning plans, personal branding, content creation, social etiquette, external communication."
 tools: Read, Grep, Glob, WebSearch
-model: opus
 id: agent-growth
 version: "1.0.0"
 classification: {function: diagnose, target_object: "learning / personal branding / content / external communication decisions", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: medium, lifecycle_stage: active}

@@ -8,7 +8,6 @@ referenced_by:
   - agents/retrospective.md (Step 0.5 maintenance-overdue marker + Mode 2 item 7)
   - hosts/CLAUDE.md (§session-start status scan)
   - scripts/prompts/*.md (final "ledger stamp" step in every job)
-  - references/model-dispatch-policy.md (cadence column source)
 ---
 
 # Maintenance Ledger Specification v1
@@ -35,7 +34,7 @@ Stamped by each `scripts/prompts/<job>.md` on completion. Read by session start
 Field rules:
 
 - **job** — the prompt's basename without `.md` (e.g. `wiki-link-audit`).
-- **cadence** — one of `<N>d` (day-valued), `on-demand`, or `once`. The authoritative cadence per job is the table in `references/model-dispatch-policy.md` §"Maintenance job → minimum tier table"; the ledger row copies it so overdue math needs only this one file.
+- **cadence** — one of `<N>d` (day-valued), `on-demand`, or `once`. Each job's prompt declares the cadence it stamps; the ledger row copies it so overdue math needs only this one file.
 - **last_run** — `YYYY-MM-DD` from a real `date` command (no fabrication — same contract as SOUL snapshots).
 
 ## Stamping protocol (every job, final step)

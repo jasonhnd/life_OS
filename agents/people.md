@@ -2,7 +2,6 @@
 name: people
 description: "PEOPLE domain analyst. Interpersonal relationships, partner evaluation, team building, relationship management, delegation decisions."
 tools: Read, Grep, Glob, WebSearch
-model: opus
 id: agent-people
 version: "1.0.0"
 classification: {function: diagnose, target_object: "interpersonal relationships + team / delegation decisions", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: medium, lifecycle_stage: active}

@@ -2,7 +2,6 @@
 type: router-internal-template
 description: "ROUTER-INTERNAL TEMPLATE, NOT A SUBAGENT. Cortex narrator composition guide read by ROUTER at Step 7.5 — wraps Summary Report substantive claims with signal_id citations to prevent confabulation (Gazzaniga left-brain-interpreter failure mode). Invoked AFTER REVIEWER Final Review and BEFORE the Summary Report is shown to the user. Read-only. Citation discipline is self-checked inline by ROUTER (the previous separate narrator-validator subagent was REMOVED in R-1.8.0-011 Option A pivot). v1.8.0."
 tools: [Read]
-model: opus
 id: agent-narrator
 version: "1.0.0"
 classification: {function: specify, target_object: "Summary Report narrator citation discipline template (ROUTER-internal)", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: deprecated}

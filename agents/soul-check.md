@@ -2,7 +2,6 @@
 name: soul-check
 description: "Cortex SOUL dimension check — companion in Cortex layer. Reads SOUL.md and the most recent SOUL snapshot, returns top relevant dimensions to the current user message classified by alignment / conflict / relevance / reactivation. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when the user is making a value-laden decision (career change, financial choice, relationship, identity question) and ROUTER wants to surface relevant SOUL dimensions before responding. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + concept-lookup."
 tools: [Read, Grep, Glob, Write]
-model: opus
 id: agent-soul-check
 version: "1.0.0"
 classification: {function: audit, target_object: "SOUL dimension relevance match to current user message", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}

@@ -11,7 +11,7 @@ introduced_in: v1.8.5
 
 每个 `agents/*.md` subagent 定义文件**必须**有符合 v2 标准的 YAML frontmatter。v1.8.5 Stage 6 迁移全部现有 agent。
 
-> **为什么 v2**: v1 agent frontmatter 只有 `name + description + tools + model`（4 字段）。v2 加 6 个结构性字段（借鉴 eou-foundry），让 agent 边界 grep-able、blast radius 显式、failure modes 有文档。按 RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6。
+> **为什么 v2**: v1 agent frontmatter 只有 `name + description + tools`（3 字段）。v2 加 6 个结构性字段（借鉴 eou-foundry），让 agent 边界 grep-able、blast radius 显式、failure modes 有文档。按 RFC `meta/rfc/v1.8.5-cleanup-and-hardening.md` Stage 6。
 
 ## v2 标准 Frontmatter
 
@@ -21,7 +21,6 @@ introduced_in: v1.8.5
 name: <agent-id>                       # 小写，连字符分隔，如 retrospective
 description: "<一段角色描述>"
 tools: Read, Grep, Glob, Bash, Write, Edit, Task   # 工具允许列表
-model: opus|sonnet|haiku            # 档位别名，见 references/model-dispatch-policy.md（judgment|execution|batch）；禁止版本化模型 ID
 
 # v2 新增: 身份 & 版本
 id: agent-<name>                       # canonical，如 agent-retrospective
@@ -78,7 +77,7 @@ failure_modes:
 
 每个 `agents/*.md` frontmatter **必须**有:
 
-1. **所有 v1 字段**: `name`, `description`, `tools`, `model`
+1. **所有 v1 字段**: `name`, `description`, `tools`
 2. **身份**: `id`, `version`
 3. **classification**: 6 facets 全部填；`target_object` 非空字符串
 4. **operating_hypothesis**: 非空，≥30 字符，Given/can/within 形式

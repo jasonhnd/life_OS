@@ -2,7 +2,6 @@
 name: knowledge-extractor
 description: "Adjourn Phase 2 dedicated subagent. Extracts knowledge from current session into wiki / SOUL / methods / concepts / SessionSummary / snapshot / strategic, writes per-sub-step extraction reports to meta/runtime/<sid>/extraction/ for archiver to read back. Carved out of archiver.md in v1.7.3 to reduce archiver subagent overload (was the root cause of 80%+ archiver placeholder violations)."
 tools: Read, Grep, Glob, Bash, Write
-model: opus
 id: agent-knowledge-extractor
 version: "1.0.0"
 classification: {function: propose, target_object: "session knowledge extraction (wiki/SOUL/methods/concepts/strategic candidates)", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: medium, lifecycle_stage: active}

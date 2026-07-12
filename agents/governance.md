@@ -2,7 +2,6 @@
 name: governance
 description: "GOVERNANCE domain analyst. Risk assessment, legal compliance, decision review, time audit, bad habit correction, security protection."
 tools: Read, Grep, Glob, WebSearch
-model: opus
 id: agent-governance
 version: "1.0.0"
 classification: {function: diagnose, target_object: "risk assessment + legal compliance + security + habit correction", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: high, lifecycle_stage: active}
