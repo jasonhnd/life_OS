@@ -2,7 +2,6 @@
 name: concept-lookup
 description: "Cortex concept-graph direct match — companion to hippocampus. Reads meta/concepts/INDEX.md and returns top 5-10 canonical/emerging concepts directly mentioned or implied by the current user message. Read-only over user/domain data. **Pull-based since v1.8.0 pivot** — ROUTER launches when user mentions a domain term that may have a defined concept (e.g., 'how does our 强规则意识 dimension affect this?'), or when ROUTER wants to ground reasoning in canonical vocabulary. Information-isolated. Returns structured YAML signal; GWT arbitrator consolidates if invoked alongside hippocampus + soul-check."
 tools: [Read, Grep, Glob, Write]
-model: opus
 id: agent-concept-lookup
 version: "1.0.0"
 classification: {function: propose, target_object: "concept graph direct match against user message", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}

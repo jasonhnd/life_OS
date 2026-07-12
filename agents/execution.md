@@ -2,7 +2,6 @@
 name: execution
 description: "EXECUTION domain analyst. Project execution, task breakdown, tool selection, market research, energy management."
 tools: Read, Grep, Glob, Bash, WebSearch
-model: opus
 id: agent-execution
 version: "1.0.0"
 classification: {function: diagnose, target_object: "project execution + task breakdown + tool selection + energy management", automation_mode: LLM_assisted, authority_level: write_candidate, risk_level: medium, lifecycle_stage: active}

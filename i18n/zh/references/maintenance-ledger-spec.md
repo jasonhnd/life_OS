@@ -8,7 +8,6 @@ referenced_by:
   - agents/retrospective.md (Step 0.5 maintenance-overdue marker + Mode 2 item 7)
   - hosts/CLAUDE.md (§session-start status scan)
   - scripts/prompts/*.md (final "ledger stamp" step in every job)
-  - references/model-dispatch-policy.md (cadence column source)
 ---
 
 # 维护台账规范 v1（Maintenance Ledger Specification v1）
@@ -35,7 +34,7 @@ Stamped by each `scripts/prompts/<job>.md` on completion. Read by session start
 字段规则：
 
 - **job**——prompt 的 basename 去掉 `.md`（如 `wiki-link-audit`）。
-- **cadence**——`<N>d`（按天计）、`on-demand` 或 `once` 三者之一。每个任务的权威节奏来自 `references/model-dispatch-policy.md` §"Maintenance job → minimum tier table"；ledger 行复制它，使过期计算只需这一个文件。
+- **cadence**——`<N>d`（按天计）、`on-demand` 或 `once` 三者之一。每个任务的 prompt 声明其盖戳节奏；ledger 行复制它，使过期计算只需这一个文件。
 - **last_run**——来自真实 `date` 命令的 `YYYY-MM-DD`（禁止编造——与 SOUL 快照同一合约）。
 
 ## 盖戳协议（每个任务的最后一步）

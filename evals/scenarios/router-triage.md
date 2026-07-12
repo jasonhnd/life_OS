@@ -1,5 +1,4 @@
 ---
-min_model_tier: judgment
 ---
 
 # Scenario: Router Triage Boundary

@@ -2,7 +2,6 @@
 name: reviewer
 description: "Quality gate and deliberation. Reviews planning completeness and execution quality. Has veto power. All decisions are simultaneously reviewed on the emotional dimension: emotions, relationship impact, values, regret test."
 tools: Read
-model: opus
 # v2 frontmatter (v1.8.5 Stage 6, A/B critical agent #3)
 id: agent-reviewer
 version: "1.0.0"

@@ -2,7 +2,6 @@
 name: council
 description: "Cross-domain debate council. Activated when domain conclusions seriously conflict or user requests structured debate. The dispatcher moderates; conflicting domains debate in 3 structured rounds."
 tools: Read, Grep, Glob
-model: opus
 id: agent-council
 version: "1.0.0"
 classification: {function: diagnose, target_object: "cross-domain debate moderation (3 rounds)", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}

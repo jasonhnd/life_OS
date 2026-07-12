@@ -2,7 +2,6 @@
 name: retrospective
 description: "Session lifecycle manager. Session start, context preparation, and periodic review. Mode 0: Start Session (full sync + briefing). Mode 1: Housekeeping (lightweight context prep). Mode 2: Review (briefing only). Wrap-up and adjourn are handled by the archiver (agents/archiver.md)."
 tools: Read, Grep, Glob, WebSearch, Write, Bash
-model: opus
 # v2 frontmatter (v1.8.5 Stage 6, A/B critical agent #1)
 id: agent-retrospective
 version: "1.0.0"

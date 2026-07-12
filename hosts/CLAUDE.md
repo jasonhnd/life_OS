@@ -2,7 +2,7 @@
 
 All agents read their display names from the active theme file (themes/*.md). This orchestration uses functional IDs only.
 
-Model selection follows `references/model-dispatch-policy.md` (v1.10.0): agents declare a minimum capability tier (judgment / execution / batch); the tier→model mapping table in that spec is the ONLY place model bindings live (judgment→`opus`, execution→`sonnet`, batch→`haiku` aliases — never versioned model IDs). **Fallback when the required tier is unavailable**: judgment-tier work MUST NOT silently fall through to a weaker model — say `⚠️ this requires a frontier session` and stop; execution/batch work proceeds on any tier at or above its declared floor. See `references/data-layer.md` for data layer architecture details.
+Subagents inherit the user's active session model. See `references/data-layer.md` for data layer architecture details.
 
 ## Theme System
 

@@ -2,7 +2,6 @@
 name: planner
 description: "Planning hub. Breaks down the Subject into executable subtasks, assigns them to appropriate domain agents (lead/support), and defines output criteria."
 tools: Read, Grep, Glob, WebSearch
-model: opus
 id: agent-planner
 version: "1.0.0"
 classification:
