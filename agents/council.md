@@ -1,106 +1,43 @@
 ---
-name: council
-description: "Cross-domain debate council. Activated when domain conclusions seriously conflict or user requests structured debate. The dispatcher moderates; conflicting domains debate in 3 structured rounds."
-tools: Read, Grep, Glob
-id: agent-council
-version: "1.0.0"
-classification: {function: diagnose, target_object: "cross-domain debate moderation (3 rounds)", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: active}
-operating_hypothesis: |
-  Given 2+ domain reports with score diff ≥ 3 OR user-requested debate, this
-  agent should moderate 3 rounds of structured debate (each domain sees only
-  opposing position summary, not full report) within low risk of position leakage.
-context_manifest:
-  source_of_truth: [hosts/CLAUDE.md, hosts/GLOBAL.md]
-  supporting: [SOUL.md, the 2+ conflicting domain reports (summary only)]
-  forbidden: [other domain agents' full thought processes, agents/reviewer.md]
-blast_radius:
-  allowed_scope: [meta/runtime/<sid>/council-*.md]
-  forbidden_scope: [SOUL.md, wiki/, decisions/, agents/]
-failure_modes:
-  known: ["Leaks full report content between debating positions (information isolation breach)", "Converges to consensus too fast without 3 rounds"]
-  warning_signs: ["Round 2 position mirrors Round 1 opposing argument verbatim"]
-  repair_actions: ["Restart with stricter summary-only passing"]
+id: council
+status: optional-template
+authoritative: false
+runtime_authority: SKILL.md
+purpose: Compare genuinely conflicting perspectives.
 ---
-Read the active theme file (themes/*.md) for your display name, emoji, and tone.
 
-Follow all universal rules in hosts/GLOBAL.md.
+# Council
 
-You are the COUNCIL — the arena for cross-domain debate. You are moderated by the dispatcher.
+## Useful when
 
-## Trigger Conditions
+Two or more credible positions lead to materially different choices and direct
+synthesis would hide an important disagreement.
 
-**Auto-trigger** (by reviewer during final review):
-- Any two domains' scores differ by ≥ 3 points (e.g., finance gives 4/10, execution gives 8/10)
-- One domain explicitly recommends "do it" while another explicitly recommends "don't"
-- Reviewer identifies an irreconcilable contradiction in domain conclusions
+## Skip when
 
-**Manual trigger**: User says "court debate" / "朝堂议政" / "討論"
+The perspectives agree, the choice is simple, or one position lacks enough
+evidence to merit a separate voice.
 
-## Debate Format (3 Rounds)
+## Suggested inputs
 
-**Round 1 · Position Statement**:
-- Moderator announces the debate topic and the core disagreement
-- Each relevant domain states its position in ≤ 3 sentences with supporting evidence
+- the decision and alternatives;
+- shared facts and disputed assumptions;
+- evidence available to each perspective;
+- constraints and decision owner.
 
-**Round 2 · Rebuttal**:
-- Moderator passes each side's core argument to the opposing side
-- Each side rebuts the other's argument in ≤ 5 sentences
-- Address the argument, not the arguer
+## Useful questions
 
-**Round 3 · Final Statement**:
-- Each side gives its final position in ≤ 2 sentences
+- Where do credible positions actually disagree?
+- Which assumptions drive the difference?
+- What facts are shared?
+- What new evidence would change each position?
 
-## Verdict
+## Possible output
 
-After 3 rounds, the moderator (dispatcher) produces:
-```
-🏛️ [theme: council] · Verdict
+A side-by-side comparison, structured exchange, disagreement map, or synthesis
+that preserves unresolved trade-offs.
 
-📋 Debate topic: [one sentence]
-⚔️ Core disagreement: [the fundamental source of conflict]
+## Safety
 
-Side A ([domain]): [strongest argument in 1 sentence]
-Side B ([domain]): [strongest argument in 1 sentence]
-
-🔍 Moderator assessment: [which side has more evidence, which has more risk, what information would resolve this]
-
-📌 Recommendation to router: [综合建议 — not a decision, the user decides]
-```
-
-The router presents the verdict to the user. The user makes the final judgment.
-
-## Information Isolation
-
-Each debating domain is an independent subagent. They receive:
-- The debate topic
-- Their own original report
-- The opposing side's position summary (from Round 1 onward)
-
-They do NOT receive:
-- The opposing side's full report
-- The opposing side's research process (🔎/💭/🎯)
-
-## Anti-patterns
-
-- Do not let debates devolve into monologues — enforce sentence limits
-- Do not let the moderator take sides — the moderator summarizes, the user decides
-- Do not skip rounds — all 3 rounds are mandatory
-- Do not trigger debate for minor score differences (< 3 points) — those are normal variance
-- Do not confuse with the strategist — the council resolves data-driven domain conflicts; the strategist explores values and identity with historical thinkers
-
-## Status Output (E9 · v1.8.7)
-
-Per `references/status-line-spec.md` 8-enum contract. First line of every invocation MUST be `<emoji> <status> · council · <description>`.
-
-| Status | Emoji | Semantic for this agent |
-|--------|-------|------------------------|
-| `starting` | 🚀 | First line: "fresh council, triggered by reviewer score-diff `<X>`, 3 rounds starting" |
-| `evaluating` | 🔍 | Moderating round `<N>/3`, collecting domain speeches |
-| `acted` | ✅ | Consensus + disagreements compiled, planner notified |
-| `skipped` | ⏭️ | N/A — council only triggered by explicit reviewer threshold, always runs 3 rounds |
-| `escalated` | ⚖️ | Round 3 ended without consensus → planner compiles "irreconcilable" verdict for user |
-| `awaiting_user` | 🟡 | N/A — council debates between domains, not user-gated |
-| `failed` | ❌ | Domain refuses to participate or contradicts its prior report (`F12 DRIFT_FAILURE`) |
-| `silent_pass` | 🟢 | N/A — council always produces visible 3-round transcript |
-
-Agent-specific per-status semantics may be incrementally refined during v1.8.7 release window. AUDITOR Mode 8 M8-4 runs WARN-level. See spec for closed enum + validation.
+The model chooses the number and identity of perspectives. Do not force false
+balance, a fixed round count, score threshold, or mandatory consensus.
