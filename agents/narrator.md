@@ -1,213 +1,42 @@
 ---
-type: router-internal-template
-description: "ROUTER-INTERNAL TEMPLATE, NOT A SUBAGENT. Cortex narrator composition guide read by ROUTER at Step 7.5 — wraps Summary Report substantive claims with signal_id citations to prevent confabulation (Gazzaniga left-brain-interpreter failure mode). Invoked AFTER REVIEWER Final Review and BEFORE the Summary Report is shown to the user. Read-only. Citation discipline is self-checked inline by ROUTER (the previous separate narrator-validator subagent was REMOVED in R-1.8.0-011 Option A pivot). v1.8.0."
-tools: [Read]
-id: agent-narrator
-version: "1.0.0"
-classification: {function: specify, target_object: "Summary Report narrator citation discipline template (ROUTER-internal)", automation_mode: LLM_assisted, authority_level: suggest_only, risk_level: low, lifecycle_stage: deprecated}
-operating_hypothesis: |
-  Given a Draft Summary Report + [COGNITIVE CONTEXT], ROUTER reads this template
-  at Step 7.5 to wrap substantive claims with [source:signal_id] citations within
-  low risk of confabulating signals not in input (v1.8.0 carved out the separate
-  narrator-validator subagent — citation discipline now self-checked inline).
-context_manifest:
-  source_of_truth: [Draft Summary Report, cognitive_context block]
-  supporting: [hosts/CLAUDE.md §narrator-mode]
-  forbidden: [Other agents' thought processes, raw SOUL.md body, raw wiki/ files]
-blast_radius:
-  allowed_scope: [Summary Report citations injected by ROUTER]
-  forbidden_scope: [agents/, decisions/, SOUL.md, wiki/]
-failure_modes:
-  known: ["Cites signal_id not in cognitive_context (hallucination per Gazzaniga left-brain-interpreter)", "Skips citation for substantive claim"]
-  warning_signs: ["Summary Report has substantive sentence with no [source:*] citation"]
-  repair_actions: ["ROUTER self-check: grep every [source:*] against cognitive_context; reject Summary if any unresolved"]
+id: narrator
+status: optional-template
+authoritative: false
+runtime_authority: SKILL.md
+purpose: Compose a clear, grounded account from verified material.
 ---
 
-> ⚠️ **ROUTER-INTERNAL TEMPLATE — NOT A STANDALONE SUBAGENT**
->
-> This file is a composition guide read by ROUTER at Step 7.5 (narrator mode). It is NOT a Task-launchable / spawn-able subagent. Per `references/narrator-spec.md §6`, narrator behavior lives inside ROUTER; this file exists under `agents/` only for locality with related cognitive-layer agents.
->
-> The previous spec-compliant validator counterpart `agents/narrator-validator.md` (standalone Sonnet subagent per former `narrator-spec.md §7`) was REMOVED in R-1.8.0-011 (Option A pivot). Narrator now self-checks citation discipline via inline rules in this file's "Citation rules" section. Citation failures fall back to unwrapped Summary Report rather than triggering a validator-rewrite cycle.
->
-> See `compliance/2026-04-21-narrator-spec-violation.md` for the historical resolution (Option C, applied 2026-04-22; superseded by R-1.8.0-011 validator removal).
+# Narrator
 
-# Narrator · Grounded Generation Layer (ROUTER Step 7.5 template)
+## Useful when
 
-**ROUTER at Step 7.5 (narrator mode) uses this template** to take the draft Summary Report from REVIEWER + the cognitive context (hippocampus + concept + SOUL signals) and rewrite the report so every substantive claim carries a `signal_id` citation tracing back to its evidence.
+Several verified findings need to become a coherent report, briefing,
+retrospective, or decision narrative.
 
-Authoritative spec: `references/narrator-spec.md §6`. This file is the operational summary — it is NOT a spawnable subagent definition.
+## Skip when
 
----
+A direct answer or compact list already communicates the result clearly.
 
-## Identity Declaration (HARD RULE — ROUTER when in narrator mode)
+## Suggested inputs
 
-When ROUTER enters Step 7.5 (narrator mode) using this template, its **first output for that step** — before any tool call — must be verbatim:
+- verified findings and their sources;
+- unresolved uncertainty and dissent;
+- audience, language, and desired level of detail;
+- requested output form.
 
-```
-✍️ ROUTER @ Step 7.5 (narrator mode) · v1.7 Phase 2 · grounded generation
-Wrapping Summary Report claims with signal_id citations.
-```
+## Useful questions
 
----
+- What does the reader need first?
+- Which claims require attribution or uncertainty?
+- Which disagreement must remain visible?
+- What detail can be removed without changing meaning?
 
-## What You Do NOT Do
+## Possible output
 
-- Generate new claims not in the draft Summary Report. You wrap citations; you do not author content.
-- Cite signals that don't exist in the cognitive context (validator will catch this and force rewrite).
-- Treat connective tissue as substantive (over-annotation reads like a legal brief).
-- Modify scoring, action items, or audit log structure. Only the prose narration changes.
-- Skip citations to make the output flow better (the whole point is anti-confabulation).
-- Read SOUL.md or wiki/ files directly — only signal payloads provided in input.
+A structured report, executive brief, chronological account, or concise
+narrative with evidence close to its claims.
 
----
+## Safety
 
-## Input Contract
-
-```yaml
-narrator_input:
-  draft_summary_report: string             # REVIEWER's draft, full text
-  cognitive_context:
-    hippocampus_signals:                   # passed through from GWT
-      - signal_id: string
-        session_id: string
-        date: ISO 8601
-        summary: string
-    concept_signals:
-      - signal_id: string
-        concept_id: string
-        canonical_name: string
-        reason: string
-    soul_signals:
-      - signal_id: string
-        dimension: string
-        tier: string
-        status: alignment | conflict | relevant | reactivation
-  meta:
-    invocation_id: string
-    timestamp: ISO 8601
-    soft_timeout_ms: 5000
-    hard_timeout_ms: 8000                   # per-cycle cap from narrator-spec §11 (cumulative cap 21s handled by orchestrator)
-```
-
----
-
-## Two Categories of Output
-
-Per spec §Narrator philosophy:
-
-### 1. Substantive claim → MUST carry citation
-
-Examples:
-- "Historically you have been conservative in similar decisions [hippo:s2]"
-- "This challenges your `core` autonomy dimension [soul:d1]"
-- "Concept `company-a-holding` (canonical, fact-tier) is directly relevant [concept:c3]"
-- "Past sessions on this subject scored 6.5-8.2 [hippo:s1, s4]"
-
-### 2. Connective tissue → NO citation required
-
-Examples:
-- "Let us look at this together"
-- "Considering the above"
-- "Three points emerge from the analysis"
-- "Here is the recommended path"
-
-The split is **pragmatic, not theoretical**. Citation discipline is about load-bearing claims — assertions a user could challenge. Conversational glue stays clean.
-
----
-
-## Citation Format
-
-Inline brackets at end of claim:
-
-```
-[{source}:{signal_id}, {source}:{signal_id}, ...]
-```
-
-Where source ∈ `hippo` | `concept` | `soul` and signal_id matches the input's signal_id field.
-
-Multiple citations allowed when one claim aggregates evidence from multiple signals.
-
----
-
-## Inline Self-Check (Round-5 audit fix · v1.8.0 R-1.8.0-011)
-
-> Previous v1.7.0 design ran a separate `narrator-validator` Sonnet subagent
-> after narrator returned, with up to 2 rewrite cycles. That subagent was
-> REMOVED in R-1.8.0-011 (file `agents/narrator-validator.md` deleted).
-> Citation discipline is now self-checked inline by the same ROUTER
-> invocation that runs narrator composition.
-
-Before emitting the final wrapped Summary Report, narrator MUST verify:
-
-1. Every `[{source}:{signal_id}]` references a real signal_id in the cognitive context input
-2. No substantive claim in the output is missing a citation (heuristic: sentences with comparative language, evidence claims, or causal statements)
-3. No citation cites a signal that isn't actually relevant to the claim
-
-**Failure mode**: if any of the 3 self-check rules fails, fall back to
-unwrapped Summary Report (no rewrite cycle) and log the citation issue to
-`meta/eval-history/narrator-{date}.md`. No separate validator subagent
-is launched. No 2-rewrite budget. No 21s/8s wall-clock fallback timer.
-
----
-
-## Output Contract
-
-Return the rewritten Summary Report as a single string. Preserve REVIEWER's structure (Subject, Decisions, Outcome sections) but rewrite the prose to add citations per the rules above.
-
-Do NOT return YAML. The output IS the new Summary Report — it goes directly to the user.
-
----
-
-## Performance Budget
-
-Aligned with `references/narrator-spec.md §11` (R3.1, commit `04e3498`).
-
-Total target for a **single narrator pass**: **<5 seconds** (first-pass budget 2–5s per spec §11).
-
-Hard per-cycle cap: **8 seconds** per narrator + validator regenerate-and-revalidate cycle. Cumulative budget across up to 3 retries: **21 seconds (max) / 18 seconds (typical)** — orchestrator tracks cumulative wall-clock and triggers fallback when **either** threshold fires.
-
-| Step | Target |
-|------|--------|
-| Parse draft + cognitive context | <500ms |
-| LLM rewrite with citation injection | 3-4s |
-| Self-check citations | <1s |
-
-Token budget per invocation: ~6000-10000 tokens (Opus, depends on report length).
-
----
-
-## Failure Modes
-
-Degrade gracefully.
-
-| Failure | Behavior |
-|---------|----------|
-| No cognitive context provided (Cortex disabled) | Return draft unchanged with note "no cognitive context — narrator pass skipped" |
-| All cognitive signals invalid/empty | Return draft unchanged |
-| LLM rewrite fails | Return draft unchanged, log to eval-history |
-| Self-check finds invalid citations | One rewrite attempt; if fails, return draft unchanged + log |
-| Per-cycle timeout (>8s) or cumulative timeout (>21s) | Return draft unchanged (per narrator-spec §11 dual-trigger fallback) |
-
-The narrator is **additive** — failure does not block the Summary Report from reaching the user. v1.6.3 behaviour (unwrapped report) is the always-safe fallback.
-
----
-
-## Anti-patterns (AUDITOR flags these)
-
-- Generating substantive claims not in the draft (you wrap, you don't author)
-- Citing signal_ids that don't exist in input (validator catches, but log it)
-- Citing wrong signals (e.g., `[hippo:s1]` when the claim is actually from concept signal — this is an integrity violation)
-- Over-annotating connective tissue (output reads as machine-stamped)
-- Under-citing substantive claims (anti-confabulation guarantee weakens)
-- Modifying action items, scores, or audit log structure (out of scope)
-- Reading any file outside the input (you operate on what's passed)
-
----
-
-## Related Specs
-
-- `references/narrator-spec.md` — full contract (this file is operational summary)
-- `references/cortex-spec.md` — overall architecture, where narrator fits (post-REVIEWER, pre-user-display)
-- `references/hippocampus-spec.md` — source of hippocampus signals
-- `references/concept-spec.md` — source of concept signals
-- `references/soul-spec.md` — source of SOUL signals
+Do not manufacture connective facts, hide uncertainty, or require a special
+citation ritual when ordinary source attribution is sufficient.
