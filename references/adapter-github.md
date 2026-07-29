@@ -1,158 +1,112 @@
-# Adapter: GitHub (second-brain repo)
-
-Translates standard data model operations into .md files with YAML front matter stored in a Git repository.
-
-## File Format
-
-Every data record is a `.md` file:
-- **Front matter** (YAML between `---` markers): structured fields
-- **Body**: content/text fields
-
-```yaml
 ---
-id: dec-2026-04-08-001
-title: "Career change feasibility"
-type: change
-projects: [career-transition]
-domains: [governance]
-reviewed_by: REVIEWER
-reviewed_at: 2026-04-08
-decision: "<one-line decision>"
-rationale: "<why>"
-applied_methods: []
-journal_date: 2026-04-08
+title: Optional Git Adapter
+status: reference
+authoritative: false
+runtime_authority: SKILL.md
+introduced_in: v1.11.0
 ---
 
-[Memorial full text here]
-```
+# Optional Git Adapter
 
-## Directory Path Mapping
+> [!info] Optional capability
+> A local Markdown second-brain is complete without Git. This reference applies
+> only when the user has explicitly bound a local directory and Git is relevant
+> to the authorized task.
 
-| Data Type | Path | Filename Pattern |
-|-----------|------|-----------------|
-| Decision (all — v1.9 consolidated) | `meta/decisions/{YYYY-MM}/` | `dec-{YYYY-MM-DD}-{NNN}.md` |
-| Task (project) | `projects/{project}/tasks/` | `{slug}.md` |
-| Task (area) | `areas/{area}/tasks/` | `{slug}.md` |
-| JournalEntry (v1.9 time-axis) | `meta/journal/` | `{YYYY-MM-DD}.md` (one daily file; multiple entries appended) |
-| WikiNote | `wiki/{domain}/` | `{slug}.md` |
-| Project | `projects/{project}/index.md` | Fixed name (含 lifecycle_stage frontmatter; archived projects stay here) |
-| Area | `areas/{area}/index.md` | Fixed name |
-| SessionSummary (v1.7) | `meta/sessions/` | `{session_id}.md` |
-| Concept (v1.7) | `meta/concepts/{domain}/` | `{concept_id}.md` |
-| SoulSnapshot (v1.7) | `meta/snapshots/soul/` | `{YYYY-MM-DD-HHMM}.md` |
-| EvalEntry (v1.7) | `meta/eval-history/` | `{YYYY-MM-DD}-{project}.md` |
-| Method (v1.7) | `meta/methods/{domain}/` | `{method_id}.md` |
-| UserPatterns (v1.9) | `meta/user-patterns.md` | Fixed name (moved from root in v1.9 Opt #7) |
+## Purpose
 
-> **v1.9 changes** (per RFC §3.3/§3.5/§3.4/§3.7): Decisions consolidated to `meta/decisions/{YYYY-MM}/` (no more `projects/*/decisions/` split). Journal is time-axis canonical at `meta/journal/{YYYY-MM-DD}.md` (no more `projects/*/journal/`). Projects with `lifecycle_stage: archived` stay in `projects/` (no `archive/` dir). `user-patterns.md` moved to `meta/`.
+Git may provide:
 
-## Operations
+- version history;
+- human-readable diffs;
+- rollback evidence;
+- synchronization through a user-selected remote;
+- conflict detection across devices or work sessions.
 
-### Save(type, data)
-1. Generate filename from date + slugified title
-2. Write .md file with front matter + body
-3. `git add` the file
+Git is not:
 
-### Update(type, id, data)
-1. Read existing file
-2. Merge changed fields into front matter
-3. Update `last_modified` timestamp
-4. Write back
-5. `git add` the file
+- the identity of a second-brain;
+- a Full Mode prerequisite;
+- an automatic session-start or session-end action;
+- proof that a local write succeeded;
+- permission to send local data to a remote.
 
-### Archive(type, id)
+## Activation
 
-**v1.9 semantics split** (per DR-1.9.4):
-- **Project**: do NOT move. Set `lifecycle_stage: archived` + `archived_at` + `archived_at_source` in `projects/{id}/index.md` frontmatter. Project stays in `projects/` to preserve wikilinks. `git add projects/{id}/index.md`.
-- **Other types** (sessions, eval entries, etc.): legacy sub-archive within their own tree (e.g. `meta/eval-history/_archive/`, `meta/concepts/_archive/`) — these are NOT the project archive and remain valid.
+Use this adapter only when at least one is true:
 
-### Read(type, id)
-1. Read the .md file
-2. Parse front matter into structured data
-3. Return body as content
+- the user explicitly requests a Git action;
+- the current development task clearly includes normal repository operations;
+- the user has previously approved Git-based synchronization for the bound
+  second-brain and the current request includes synchronization.
 
-### List(type, filters)
-1. Glob for files in the type's directory
-2. For each file, parse front matter
-3. Filter by specified field values
-4. Return matching records
+Do not infer remote-sync authorization from `start`, `save`, `done`, `end`, or
+`adjourn`.
 
-### Search(keyword)
-1. `grep -r "{keyword}" ~/second-brain/` across all directories
-2. Parse matching files' front matter
-3. Return results with source paths
+## Local Operations
 
-### ReadProjectContext(project_id)
-1. Read `projects/{project}/index.md`
-2. Glob `projects/{project}/tasks/*.md`
-3. (v1.9) Decisions: Glob `meta/decisions/*/*.md`, filter `contains(projects, "{project}")` (decisions consolidated out of projects/ in v1.9)
-4. (v1.9) Journal: Glob `meta/journal/*.md`, filter frontmatter `contains(projects, "{project}")` (journal time-axis canonical in v1.9)
-5. Return all parsed
+The model may inspect or use Git with available host tools. It chooses the
+specific commands based on repository state and the requested outcome.
 
-## Change Detection
+Useful evidence may include:
 
-For sync: `git pull` merges remote changes; list them with `git log ORIG_HEAD..HEAD --name-only --format=""`
+- current branch and worktree state;
+- scoped diff;
+- exact files changed;
+- commit identity;
+- ahead/behind state;
+- remote operation result.
 
-Returns list of files changed since last sync. Parse each to get type + id + last_modified.
+No fixed command sequence is required.
 
-## Deletion
+## Scoped Changes
 
-Delete the file and `git rm` it, then commit; the deletion propagates on the next push/pull like any other change. Single backend — no soft-delete `_deleted: true` tombstones and no cross-backend confirmation.
+- Keep Git actions inside the authorized repository.
+- Resolve exact targets before destructive operations.
+- Do not stage unrelated user files.
+- Do not use a broad staging operation when it could include unrelated or
+  sensitive content.
+- Preserve pre-existing worktree changes.
+- Do not rewrite history, force-push, delete branches, or discard changes
+  unless that exact action is authorized.
 
-## Commit Convention
+## Commits
 
-### On Adjourn (write to outbox)
+A local commit is a distinct action from a local file write.
 
-```bash
-git add meta/outbox/{session_id}/
-git commit -m "[life-os] session {session_id} output"
-git push
-```
+- Create a commit when the request includes committing or when it is clearly
+  part of the authorized development workflow.
+- Describe the actual change.
+- Include only reviewed, in-scope files.
+- Do not treat a commit as remote publication.
 
-Only stage the outbox directory. Never touch main files (projects/, STATUS.md, meta/user-patterns.md) during adjourn.
+## Remotes
 
-### On Start Court (merge outboxes)
+A remote operation can transmit local content outside the machine.
 
-```bash
-# After merging outbox contents into main directories (v1.9 paths):
-git add projects/ areas/ meta/decisions/ meta/journal/ meta/methods/ meta/STATUS.md meta/user-patterns.md SOUL.md
-git rm -r meta/outbox/{merged-session-ids}/
-git commit -m "[life-os] merge {N} outbox sessions"
-git push
-```
+- Push, publish, fork, release, and remote creation require matching user
+  intent.
+- Use the exact approved repository and branch.
+- Report whether the remote mutation actually succeeded.
+- A failed or unavailable remote does not invalidate local Markdown
+  persistence.
 
-### General Rules
+## Conflicts
 
-**Never use `git add -A` or `git add .`** — these can accidentally commit sensitive files (.env, .claude/, credentials, temporary files). Only stage files that Life OS explicitly wrote.
+When Git exposes a conflict:
 
-## Worktree Maintenance
+- inspect the conflicting content;
+- preserve both sides until the intended result is understood;
+- resolve directly when evidence is sufficient and the resolution is in scope;
+- ask the user when the semantic choice is material or ambiguous;
+- verify the repository no longer contains unresolved conflict markers before
+  claiming completion.
 
-Claude Code creates temporary worktrees under `.claude/worktrees/`. These can cause problems:
+## Non-Git Fallback
 
-1. **Cross-platform interference**: Gemini / Antigravity may choke on large worktree directories flooding its context
-2. **Path breakage after repo migration**: If the repo moves (e.g., Dropbox → iCloud), worktree `.git` files point to the old path, breaking all git operations
+When Git is absent or irrelevant:
 
-### Prevention
-
-- Add `.claude/worktrees/` to `.gitignore`
-- After finishing a Claude Code worktree session, choose **remove** (not keep)
-- Before migrating a repo to a different location, clean up first (run these manually in your terminal):
-
-```text
-# USER MANUAL RECOVERY — do NOT execute automatically; requires human confirmation
-git worktree prune
-rm -rf .claude/worktrees/
-git config --unset core.hooksPath   # if set to the old path
-```
-
-### Recovery
-
-If git reports `fatal: not a git repository: /old/path/.git/worktrees/...`, run these commands **manually in your terminal** (agents must not execute these without explicit user confirmation — see GLOBAL.md Security Boundary #1):
-
-```text
-# USER MANUAL RECOVERY — do NOT execute automatically; requires human confirmation
-git worktree prune                  # clean git-level references
-rm -rf .claude/worktrees/           # remove stale worktree directories
-git config --unset core.hooksPath   # remove broken hooks path
-git config --unset extensions.worktreeConfig  # remove worktree extension flag
-```
+- continue using the bound local Markdown directory;
+- use proportionate filesystem evidence for writes and migrations;
+- report that Git history or remote synchronization was not used;
+- do not label Life OS as degraded solely for that reason.
