@@ -2,688 +2,136 @@
 
 # Life OS
 
-### Your decisions deserve more than one voice. Now in your language, your culture.
-
----
+### A model-sovereign personal operating system with user-owned Markdown memory
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-green.svg)](https://code.claude.com/docs/en/skills)
-[![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-yellow.svg)](https://skills.sh)
-[![Version](https://img.shields.io/badge/version-1.10.0-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.11.0-brightgreen.svg)](CHANGELOG.md)
 
-[Install in 30 seconds](#installation) · [How it works](#how-it-works) · [See it in action](#see-it-in-action) · [Architecture](#under-the-hood)
-
-🌍 [English](README.md) · [中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
+[English](README.md) · [中文](i18n/zh/README.md) · [日本語](i18n/ja/README.md)
 
 </div>
 
----
+Life OS helps with decisions, planning, reflection, research, knowledge, and
+long-term personal context. It gives a capable runtime model freedom to choose
+the method while the user keeps control of the objective, workspace, data, and
+consequential actions.
 
-> **Architecture as of v1.9.0**: Life OS is 100% markdown — agent prompts,
-> slash commands, eval scenarios, RFC documents. No Python (`tools/` removed
-> in v1.8.1 Wave 2), no bash hooks (`scripts/hooks/*.sh` retired in v1.8.5),
-> no .yml schema files (v1.8.7 md-only ontological commit per DR-10).
-> Runtime enforcement happens via inline LLM procedures driven by spec.md
-> reading + grep matching. **Hermes Local** was the original name for the
-> v1.6-v1.8.0 bash hook + Python tools layer; that layer no longer exists.
-> Pattern provenance preserved: forked from
-> [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
-> under the MIT License.
->
-> Historical sections below (v1.8.3 / v1.8.0 / v1.6.3a "What's New") may
-> reference `bash scripts/setup-hooks.sh` and similar — those steps are
-> **no-op since v1.8.5** (hook layer retired). For current setup, run
-> `/install-agents` in Claude Code (one slash command, replaces all
-> historical bash setup scripts).
->
-> **Hook layer ownership (resolved in v1.10.0)**: the bash hook layer is
-> retired **for real** — it is not an optional hardening module, and it is
-> not owned or maintained by any external tool. Machines that upgraded from
-> ≤v1.8.4 may still carry live leftovers: hook files under
-> `~/.claude/scripts/hooks/`, `lifeos-pre-prompt-guard.sh`, and
-> `settings.json` registrations (possibly duplicated across a legacy and a
-> current path). `/install-agents --refresh` now detects and removes these
-> leftovers — with one confirmation and a printed report of every removed
-> entry — and `/version-check` warns whenever legacy lifeos hook
-> registrations are still present. Command-safety gating (blocking `rm -rf /`
-> and similar) is the host platform's permission system's job, not a lifeos
-> bash gatekeeper's.
-
-## One engine. Nine worlds. Your call.
-
-Life OS installs into your AI terminal (Claude Code, Gemini CLI, or Codex CLI) and transforms it into a **personal cabinet** — multiple independent AI agents that analyze your decisions from every angle, argue with each other, and hold both the plan *and you* accountable.
+`SKILL.md` is the sole universal runtime authority.
 
-The decision engine is the same for everyone: plan, review, veto, execute, audit. What changes is the world it speaks.
+## What model sovereignty means
 
-When you first start a session, you pick a theme:
+For each request, the model may decide:
 
-```
-🎨 Choose your theme:
-
-English:
-a) 🏛️ Roman Republic — Consul, Tribune, Senate
-b) 🇺🇸 US Government — Chief of Staff, Attorney General, GAO
-c) 🏢 C-Suite — CEO, General Counsel, CFO
+- whether to answer directly or inspect more context;
+- whether tools, Shell, CLI, applications, or connectors are useful;
+- whether no agent, an existing agent template, or an ad hoc specialist is
+  useful;
+- how to divide work and how deeply to verify it;
+- how much structure and explanation the result needs.
 
-中文:
-d) 🏛️ 三省六部 — 丞相、中书省、门下省
-e) 🇨🇳 中国政府 — 国务院总理、发改委、人大常委会
-f) 🏢 公司部门 — 总经理、战略规划部、法务合规部
+Life OS does not require a fixed ROUTER → PLANNER → REVIEWER pipeline, a slash
+command, a status line, an audit file, or one validation runner.
 
-日本語:
-g) 🏛️ 明治政府 — 内閣総理大臣、参議、枢密院
-h) 🏛️ 霞が関 — 内閣官房長官、内閣法制局、財務省
-i) 🏢 企業 — 社長室、経営企画部、法務部
+This freedom applies to method, not scope. The model may not invent permission
+to inspect another workspace, expose private data, publish, push, send, delete,
+purchase, or perform another consequential action the user did not request.
 
-Type a-i
-```
+## Persistent and conversation-only use
 
-Here is the same decision — "Should I leave my job?" — through all three:
+Full Life OS uses one explicitly bound local directory containing the user's
+Markdown second-brain.
 
-```
-  三省六部                  霞が関                    C-Suite
-  ─────────                ─────────                ─────────
-  📜 中书省 起草方案         📜 内閣府 起案             📜 VP Strategy drafts plan
-  🔍 门下省 封驳：           🔍 内閣法制局 差し戻し：     🔍 General Counsel vetoes:
-     "财务跑道未解决"          "財務的余裕が不明"          "Runway not addressed"
-
-  💰 户部  5/10            💰 財務省  5/10            💰 CFO  5/10
-  ⚔️ 兵部  6/10            ⚔️ 防衛省  6/10            ⚔️ VP Ops  6/10
-  ⚖️ 刑部  4/10            ⚖️ 法務省  4/10            ⚖️ CCO  4/10
-
-  🔱 御史台 审核             🔱 会計検査院 監査           🔱 Internal Audit audits
-  💬 谏官 追问你             💬 内閣参与が問い返す      💬 Exec Coach challenges you
-
-  📋 奏折: 5.8/10          📋 閣議決定書: 5.8/10       📋 Executive Brief: 5.8/10
-```
-
-Nine different worlds. Identical rigor underneath. Each language offers three governance styles — historical, modern government, and corporate — so every user finds a voice that fits. A Japanese user picks between Meiji-era ministers, Kasumigaseki bureaucrats, or corporate departments. An English user chooses Roman senators, US federal officials, or C-Suite executives. A Chinese user selects Tang Dynasty mandarins, modern State Council roles, or corporate divisions.
-
-**Theme determines language.** After you pick a theme, every word of output — every agent, every report, every response — is in that theme's language. Chinese for 三省六部. Japanese for 霞が関. English for C-Suite. No mixing, no exceptions.
+The directory does not need Git, a remote, a clean worktree, network access, or
+a prescribed folder tree. Git is an optional versioning and synchronization
+adapter.
 
-**Theme is per-session.** Each terminal window can use a different theme independently. You can switch mid-session at any time by saying "switch theme" (or "切换主题" or "テーマ切り替え"). The engine never changes — only the voice.
+Without a binding, Life OS can still analyze, plan, research, and answer in the
+current conversation. It must describe that state honestly as
+conversation-only and must not claim durable memory.
 
-**Auto-inference from trigger words.** Say "上朝" and the 三省六部 theme loads automatically (唐朝-specific). Say "閣議開始" and the 霞が関 theme loads (modern government-specific). Generic triggers like "开始", "はじめる", or "start" show that language's three sub-choices — because the word alone does not distinguish historical, government, or corporate.
+The Life OS development repository is not a second-brain. Neither is an
+ordinary project repository merely because it uses Git.
 
-> **Not role-playing.** Each agent runs as a real, isolated subagent. They cannot see each other's reasoning. They score independently. They disagree.
+## Start in natural language
 
----
+1. Make this repository and its root `SKILL.md` available to your AI host.
+2. If you want persistent work, select a local Markdown directory and state
+   clearly that Life OS may bind it, including whether access is read-only or
+   read/write.
+3. Say what you want to accomplish.
 
-## Current Status
+Example:
 
-Life OS is now a markdown-only, GitHub-backed decision system. The current user path is natural language first: after installation, say what you want to do, and ROUTER maps it to the right workflow. Slash commands remain as setup and maintenance plumbing, not the daily interface.
+> Use Life OS to help me compare these two options. Work only with the material
+> I provide in this conversation.
 
-For release history, use [`CHANGELOG.md`](CHANGELOG.md) and [`docs/reference/version-history.md`](docs/reference/version-history.md). Old v1.6-v1.8 architecture notes live under [`docs/history/`](docs/history/); they are preserved for context but are not the current operating guide.
-## How it works
+Persistent example:
 
-Life OS rests on five pillars. The **decision engine** is the core — everything else grows from it.
+> Bind the local Markdown directory I selected as my read/write second-brain
+> for this session. Review the project note I name and save the decision there.
 
----
+The second example authorizes that scoped local persistence. It does not
+authorize Git synchronization or publication.
 
-### I. The Decision Engine — Plan, Review, Veto, Execute, Audit
+## Agents and themes
 
-The engine runs multiple agents organized around a principle that is 1,400 years old: **no single voice goes unchecked**. The theme gives those agents names from your culture. The logic is always the same.
+Files under `agents/` are optional analytical templates. A model may use,
+combine, adapt, or omit them, and may create a task-specific role. A simple
+request should stay simple.
 
-#### The multiple agents
+Files under `themes/` are optional presentation adapters. They can change
+display names, tone, language, and headings. They do not change authority,
+workflow, privacy, persistence, or safety.
 
-| Agent | Function |
-|-------|----------|
-| ROUTER | Your primary entry point — handles casual chat, routes complex matters to the engine |
-| PLANNER | Breaks your situation into 3-6 dimensions and builds a structured plan |
-| REVIEWER | Independent review with emotional audit, 10/10/10 regret test, SOUL consistency check, red-team challenge, and **veto power** (max 2 rounds) |
-| DISPATCHER | Detects dependencies between domains, dispatches parallel or sequential execution |
-| PEOPLE | Relationships, stakeholders, team dynamics |
-| FINANCE | Money, assets, risk exposure |
-| GROWTH | Learning, personal brand, communication |
-| EXECUTION | Action plans, logistics, timelines |
-| GOVERNANCE | Rules, risk, compliance, self-discipline |
-| INFRA | Health, energy, living environment, digital infrastructure |
-| AUDITOR | Audits the agents' work quality after every flow |
-| ADVISOR | Audits *you* — surfaces behavioral patterns across your decisions |
-| COUNCIL | Cross-domain debate — auto-triggers when domain scores differ by 3+ points |
-| RETROSPECTIVE | Session start: sync, briefing, strategic overview |
-| ARCHIVER | Session close: archive, knowledge extraction, DREAM, sync |
-| STRATEGIST | Hall of Wisdom — 93 thinkers across 18 domains, 3 dialogue modes |
+## Evidence and completion
 
-Every major decision passes through three stages. No shortcuts.
+Verification is proportional to risk and to the claim being made. A small local
+documentation edit may need a focused diff review. A migration, external
+mutation, high-stakes recommendation, or release needs stronger evidence.
 
-**Draft** — The PLANNER breaks your situation into dimensions and builds a plan.
+When material, a completion report distinguishes:
 
-**Review** — The REVIEWER examines the plan independently. It runs an emotional audit: *Is fear driving this? Will your family support it? Will you regret this in 10 minutes, 10 months, 10 years?* It checks alignment with your SOUL (values archive), your wiki (established knowledge), and your strategic map (cross-project impact). It red-teams the weakest assumption. If it finds a blind spot, it sends a veto — the plan goes back for revision. Maximum two veto rounds; the third pass must be approved.
+- what was observed;
+- what changed;
+- what was verified;
+- what was not verified;
+- what remains blocked or outside scope.
 
-**Execute** — Six domain analysts each score the plan 1-10 from their domain, independently:
+Generated prose, intention, or a status label is not proof of completion.
 
-| Domain | What it covers | The question it asks |
-|--------|---------------|---------------------|
-| People | Relationships, stakeholders | "Are the right people involved?" |
-| Finance | Money, assets, resources | "Can you afford this — including the worst case?" |
-| Growth | Learning, expression, culture | "What do you need to learn first?" |
-| Execution | Action, logistics, timelines | "What's the concrete plan, week by week?" |
-| Governance | Rules, risk, compliance | "What happens if everything goes wrong?" |
-| Infrastructure | Health, energy, environment | "Can your body and environment sustain this?" |
+## Host support
 
-Each domain has **four specialized divisions**. Finance, for example, has Income (salary, side income), Spending (budgets, habits), Assets (investments, real estate), and Reserves (emergency fund, insurance, retirement). The DISPATCHER routes to the right divisions automatically.
+Life OS is host-agnostic. Host adapters under `hosts/` describe available
+capabilities and fallbacks; they do not change product semantics.
 
-After all six report, the REVIEWER does a final review — and if scores conflict by 3+ points, the COUNCIL convenes a structured three-round debate. Then the composite Summary Report is produced. The AUDITOR checks the agents' work ("The execution plan has no milestones past month 3 — flag it"). The ADVISOR turns to *you*: "You've avoided addressing finances in your last four decisions. Why?"
+| Host capability | Behavior |
+|---|---|
+| Filesystem available | Use it for authorized local Markdown work |
+| Shell or CLI available | The model may use it when useful |
+| Subagents available | The model may delegate when it adds real value |
+| Capability unavailable | Use another method or report the material limit |
+| Host approval required | Respect the host approval without adding a second Life OS ritual |
 
-Here is what the full flow looks like:
-
-```
-You: "I'm thinking about leaving my job to start something new."
-
-    Draft
-    📜 Planner          → Breaks it into 6 dimensions, builds the plan
-
-    Review
-    🔍 Reviewer         → Emotional audit: running away or running toward?
-                          10/10/10 test: will you regret this in 10 years?
-                          SOUL check: aligned with your stated values?
-                          Veto: "Financial runway not addressed. Revise."
-
-    Execute  (after revision passes review)
-    👥 People     7/10   "Co-founder chemistry is untested"
-    💰 Finance    5/10   "18 months runway, but only if nothing goes wrong"
-    📖 Growth     8/10   "Strong domain expertise, credibility is real"
-    ⚔️ Execution  6/10   "No milestone plan past month 3"
-    ⚖️ Governance 4/10   "Non-compete clause needs legal review"
-    🏗️ Infra      7/10   "Health is good, but stress plan is vague"
-
-    Audit
-    🔱 Auditor          → "Execution plan is vague past month 3 — request revision"
-    💬 Advisor          → "You've been consuming startup content for weeks.
-                           Confirmation bias is likely. When did you last
-                           seriously consider staying?"
-
-    📋 Final Report     → Composite: 6.2/10 — Proceed with conditions
-```
-
-#### Express analysis
-
-Not every request needs a full court process. The ROUTER handles casual chat, quick questions, and emotional support directly. For questions that need domain expertise but are not decisions — say, "what tax rules apply to freelancers?" — an **express path** sends it to 1-3 relevant domain analysts directly, skipping the PLANNER, REVIEWER, AUDITOR, and ADVISOR. Quick answer, then: "This was an express analysis. Want the full deliberation?"
-
----
-
-### II. The Hall of Wisdom — 93 Thinkers Across 18 Domains
-
-Some questions do not have a "correct answer." They need perspective.
-
-The STRATEGIST gives you access to **93 of history's greatest thinkers across 18 domains** — from Socrates to Buffett, Laozi to Mandela, Dostoevsky to Feynman. Each one runs as a real subagent with their own voice, their own examples, their own way of pushing you.
-
-**Three modes:**
-
-- **One-on-one** — Deep dialogue with a single thinker. Socrates will not let you off easy.
-- **Roundtable** (2-4 thinkers) — Multiple thinkers discuss your question, each from their worldview. Watch Seneca and Wang Yangming find unexpected common ground.
-- **Debate** (2 thinkers) — Two thinkers with opposing views argue directly over three structured rounds. You judge.
-
-```
-You: "I keep starting things and never finishing them."
-
-Strategist: Recommended — Seneca (on time) + Wang Yangming (on action)
-
-Seneca: "You do not lack time. You waste it on things you have not
-         examined. Which of your current pursuits would you begin again,
-         knowing what you know now?"
-
-Wang Yangming: "Knowledge and action are one. If you truly knew what you
-                wanted, you would already be doing it. The gap between
-                knowing and doing is the gap between wanting and truly
-                wanting."
-
-→ Parting words from each thinker
-→ Summary of your thinking journey saved to your knowledge base
-```
-
-**18 domains**: Philosophy, Eastern Thought, Science, Strategy, Business, Psychology, Systems, Human Nature, Civilization, Adversity, Aesthetics, Politics, Economics, Mathematics, Medicine, Exploration, Communication, Law.
-
-You can name **anyone** not on the built-in list — any historical figure — and the STRATEGIST will honor the request with equal depth. If your SOUL archive exists, the STRATEGIST uses it to recommend thinkers who address your specific tensions and contradictions.
-
----
-
-### III. Second Brain — Nothing Disappears When the Session Ends
-
-Every decision, insight, pattern, and action item is written to a **persistent knowledge base** — structured markdown files that you own, in a storage system you choose.
-
-```
-second-brain/
-├── SOUL.md                 # Who you are — values, identity, aspirations
-├── user-patterns.md        # How you behave — the advisor's observations
-├── inbox/                  # Quick captures from your phone
-├── meta/
-│   ├── STATUS.md           # Global status dashboard
-│   ├── STRATEGIC-MAP.md    # Relationships between projects
-│   ├── strategic-lines.md  # Strategic line definitions
-│   ├── journal/            # Session reports, DREAM reports
-│   └── outbox/             # Session staging area (one subdirectory per session)
-├── projects/{name}/        # Active projects with tasks + decisions
-├── areas/{name}/           # Ongoing life areas with goals
-├── wiki/                   # Reusable knowledge — grows from DREAM
-└── archive/                # Completed work
-```
-
-**GitHub-backed storage** — a single git repository:
-
-| Layer | What it is |
-|-------|------------|
-| **Local working copy** | The files on disk — also your Obsidian vault. Where you read and write. |
-| **GitHub remote** | Backup + cross-device sync. `git push` at session close, `git pull` at session start. |
-
-It's just git. Versioning, backup, and multi-device sync come for free — there's no separate sync engine, no primary/mirror split, no conflict-resolution layer. (Google Drive + Notion were removed; storage is GitHub-only.)
-
-**Cross-device sync**: Edit on your laptop, `git push`. Sit down at your desktop, start a session, and the system `git pull`s the changes in. Conflicts are ordinary git merge conflicts — rare for a single-user vault.
-
-**Parallel sessions**: Work on project-alpha in one terminal window, project-beta in another. Each session writes to its own outbox directory. The next time you start a session, everything merges cleanly — no conflicts, no locks.
-
-**First-run setup**: On your very first session, the system detects that no second-brain exists and walks you through creating one — it initializes the git repo (local working copy + optional GitHub remote) and the full directory structure automatically.
-
----
-
-### IV. Strategic Map — See the Whole Board
-
-You are good at thinking about individual projects. You are probably bad at seeing how they connect — which ones feed into each other, which ones compete for your time, and what happens to the rest when one stalls.
-
-Strategic Map adds the relationship layer.
-
-**Strategic Lines** — Group projects by the purpose they serve. Each line has a stated purpose *and* a driving force (what actually motivates you — these can differ, and that tension is worth examining). Health signals define what to watch. Multiple projects can serve one line with different roles: critical-path (if this stalls, the line stalls), enabler (must complete first), accelerator (makes it faster), insurance (plan B).
-
-**Flow Graph** — Define what flows between projects: knowledge, deliverables, decisions, relationship capital. When a decision in one project invalidates another project's assumptions, the system flags it immediately. When knowledge flows are defined but no wiki entries actually carry the knowledge, that is a broken flow.
-
-**Health Archetypes** — No abstract numerical scores. The system matches each project to a pattern — steady progress, controlled wait, momentum decay, uncontrolled stall, direction drift, or dormant — and writes a narrative: what is happening, what it means, what to do.
-
-**Blind Spot Detection** — Actively looks for what is *missing*: unaffiliated projects (not assigned to any strategic line), broken flows (defined but not flowing), driving force neglect (behavior misaligned with what you say matters), dimension gaps (entire life areas absent from all strategic lines), and approaching deadlines with no preparation.
-
-Your morning briefing becomes strategic:
-
-```
-🗺️ Strategic Overview
-
-💰 market-expansion                       🟡 Controlled wait
-   project-alpha    critical-path    ⏸ on-hold (legal review)
-   project-beta     enabler          🟢 active
-
-   The legal review creates a natural window.
-   → Push project-beta prep work (2-3h) — high leverage, low risk.
-
-⚡ Today
-🥇 Push project-beta prep — exploit the waiting period
-🟢 Safe to ignore: project-gamma (on track), side-project (non-critical)
-❓ Decide: project-delta is unaffiliated — which strategic line does it serve?
-```
-
-Strategic Map integrates with SOUL (are your driving forces aligned with your values?), Wiki (do the knowledge flows actually carry real knowledge?), and DREAM (the sleep cycle uses the flow graph to discover cross-layer insights).
-
-Strategic Map grows from zero. If you have not defined any strategic relationships, the system operates normally with a flat project list. After a few sessions with multiple projects, DREAM may propose: "You have N active projects but no strategic relationships defined. Would you like to map how they relate?"
-
----
-
-### V. SOUL + DREAM + Wiki — The System Learns Who You Are (v1.6.2: now fully automatic)
-
-**SOUL** records who you are — not what you do, but what you value, what you believe, and who you aspire to be. Each entry has two sides: what IS (observed from your decisions) and what SHOULD BE (your stated aspiration). The gap between them is where growth happens.
-
-**Auto-writes, with you in control** (v1.6.2). The system no longer asks you to confirm every entry. ADVISOR runs after every decision and increments evidence or challenges on existing SOUL dimensions. When a new value pattern accumulates 2+ pieces of evidence, SOUL auto-writes a new dimension at low confidence (0.3) — with the "What SHOULD BE" field deliberately left empty for you to fill in when you're ready. You stay in charge: edit freely, delete dimensions that don't fit, or say "undo recent SOUL" to roll back.
-
-**Every session starts with a SOUL Health Report** — fixed position at the top of the briefing. Current profile with trend arrows, newly auto-detected dimensions awaiting your input, conflict warnings (dimensions your last 3 decisions all challenged), and dormant dimensions (30+ days without activation). You see the system's model of you every single time.
-
-REVIEWER references SOUL in every decision. If a decision challenges a stated value, it surfaces the contradiction instead of rubber-stamping.
-
-**DREAM** is the AI sleep cycle. After every session ends, the system "sleeps" — inspired by human sleep architecture:
-
-- **Light sleep (N1-N2)** — Organize loose ends: classify unprocessed inbox items, flag expired tasks, detect orphan files
-- **Deep sleep (N3)** — Consolidate: extract Wiki knowledge and update SOUL dimensions from the last 3 days of activity
-- **REM (creative connections + 10 auto-triggers)** — Discovers cross-domain links you have not noticed, and automatically acts on 10 specific patterns: new project relationships, behavior diverging from stated values, wiki contradictions, dormant SOUL dimensions, unused cross-project cognition, decision fatigue, value drift, stale commitments (*"30 days ago you said you would do X — what happened?"*), emotional-state decision clusters, and repeated identical decisions (*"You're deciding X for the 4th time — are you avoiding commitment?"*)
-
-All triggered actions flow into the next session's briefing in a fixed "DREAM Auto-Triggers" block. Next morning: *"Last session I noticed you're deciding the contract question again — this is the 3rd time. What's actually blocking you?"*
-
-**Wiki** captures reusable knowledge about the world — not about you. After every session, the ARCHIVER auto-writes wiki entries that pass all 6 strict criteria: cross-project reusable, about the world (not you), **zero personal privacy** (no names, amounts, IDs, or traceable details — if stripping privacy makes the conclusion meaningless, it's discarded), factual/methodological, ≥2 independent evidence points, no contradiction with existing entries. Personal material belongs in SOUL; reusable knowledge belongs in Wiki. The two never mix.
-
-All three systems grow from zero. On day one, the system knows nothing about you. It learns only from your decisions and observations — and it now learns continuously, not just when you ask.
-
----
-
-## See it in action
-
-### Start your day
-
-```
-You: Start session.
-
-🌅 Session Start:
-   Pick your theme: a-i (3 per language — historical / government / corporate)
-
-You: b
-
-🌅 定例閣議:
-   Syncing second-brain... git pull: 3 changes.
-   📥 "Look into certification programs" — captured yesterday on phone
-   📥 "project-alpha: supplier replied" — forwarded from email
-   📥 Quick note: "revisit budget assumptions"
-
-   🗺️ Strategic overview: [see Strategic Map above]
-
-   💤 DREAM report: Last session noticed your wiki entry on negotiation
-      tactics could apply to the supplier conversation in project-alpha.
-
-   📋 Recommended: Process supplier reply first (time-sensitive).
-```
-
-Behind the scenes, the session boot sequence ran 18 steps: theme resolution, directory detection, data layer check, git health check, full sync pull, outbox merge, platform and version check, project binding, context loading (user-patterns, SOUL, STATUS, lint state, project context, global overview), Strategic Map compilation, DREAM report presentation, wiki health check, and the final briefing.
-
-### Make a decision
-
-```
-You: I'm considering switching from full-time to freelance.
-→ 2-3 rounds of intent clarification (cannot be skipped — HARD RULE)
-→ Full engine flow: draft → review (with possible veto) → execute (6 domains
-  in parallel, each displayed as it completes) → final review → Summary Report
-  → audit → advisor
-→ Report: 5.8/10 — "Viable but timing is premature. Revenue runway
-   is 11 months, not the 18 you assumed. Recommendation: build 3 more
-   months of savings and one anchor client before transitioning."
-```
-
-### Think deeply
-
-```
-You: I keep saying yes to things I don't care about.
-→ ROUTER detects abstract thinking need, asks: "Would you like to activate
-  the Strategist?"
-→ One-on-one with Marcus Aurelius on priorities and refusal
-→ Parting words, journey summary, insights saved to second-brain
-```
-
-### End your day
-
-```
-You: End session.
-
-📝 Archiver:
-   Phase 1 — Archive: decisions, tasks, journal → outbox
-   Phase 2 — Knowledge extraction (auto-write under strict criteria):
-     🔮 SOUL auto-written: "Values autonomy over stability" — confidence 0.3
-        (evidence: 2 decisions this session; "What SHOULD BE" left empty for you)
-     📚 Wiki auto-written: "Freelance runway formula" → wiki/career/
-        (passes 6 criteria + privacy filter: zero personal details)
-     ❌ 1 wiki candidate discarded — contained personal amount, couldn't strip
-   Phase 3 — DREAM:
-     💤 N1-N2: 2 inbox items need classification
-     💤 N3: new evidence for "deliberate decision-maker" dimension (+1)
-     💤 REM: 🚨 Stale commitment detected — 32 days ago you said you would
-            draft the freelance plan. Triggered for next session's briefing.
-   Phase 4 — Sync: git add + commit + push... done.
-   ✅ Completion checklist verified. Session archived.
-   ↩️ To undo any auto-write: delete the file, or say "undo recent wiki/SOUL"
-      next session.
-```
-
----
-
-## 12 Standard Scenarios
-
-Life OS comes pre-configured for the decisions people actually face:
-
-| # | Scenario | Domains involved | What the reviewer asks |
-|---|----------|-----------------|----------------------|
-| 1 | Career transition | All Six | "Running away or pursuing something?" |
-| 2 | Investment decisions | Finance, Execution, Governance, People | "FOMO or rational? Can you survive total loss?" |
-| 3 | Relocation | All Six | "Do you really know the destination?" |
-| 4 | Annual planning | All Six | "Too many goals? Measurable? Aligned with values?" |
-| 5 | Startup decisions | All Six | "Solving a real pain point? Are you the right person?" |
-| 6 | Major purchases | Finance, Execution, Governance | "Need or want? Would you still want it in a month?" |
-| 7 | Relationships | People, Infra, Governance, Growth | "Are you evaluating the other person with bias?" |
-| 8 | Periodic reviews | Retrospective | Daily, weekly, monthly, quarterly, yearly |
-| 9 | Health management | Infra, Execution, Finance, Governance | "Sustainable, or another short burst?" |
-| 10 | Learning plans | Growth, Execution, Finance, People | "Learning for growth, or avoiding real work?" |
-| 11 | Time management | Execution, Finance, Governance, Infra | "Really no time, or avoiding something?" |
-| 12 | Major family decisions | All Six | "Whose voice hasn't been heard?" |
-
----
-
-## Installation
-
-Life OS installs in one command. It requires a **Pro Mode** terminal — that means real subagents running in parallel with information isolation, not a chatbot.
-
-| Platform | Command |
-|----------|---------|
-| **Claude Code** | `/install-skill https://github.com/jasonhnd/life_OS` |
-| **Gemini CLI / Antigravity** | `npx skills add jasonhnd/life_OS` |
-| **OpenAI Codex CLI** | `npx skills add jasonhnd/life_OS` |
-
-On first start, you pick your theme. The system auto-detects your language and recommends a match, but the choice is always yours. You can switch at any time by saying "switch theme."
-
-**First run**: The system detects that no second-brain exists and walks you through setup — it initializes the git repo (local working copy + optional GitHub remote) and the full directory structure automatically. On subsequent sessions, the system detects what kind of directory you are in: Life OS system repo (development), second-brain (normal use), or a project repo (connects to configured second-brain path).
-
-**No command memorization required**: After installing, just say:
-
-```
-I just installed Life OS. Check my setup and walk me through starting.
-```
-
-The ROUTER runs the Doctor health-check workflow from natural language: directory type, skill root, host readiness, second-brain reachability, and git sync. It then tells you the next sentence to say. If you already know your setup is ready, say "Start session" or the theme-specific start word such as "上朝".
-
-**Set up auto-updates** (Claude Code):
-
-Run `/install-agents --refresh` in Claude Code (setup plumbing — registers life_OS agents + refreshes wrappers). This is not the daily user path; normal use is natural language. Note: pre-v1.8.5 used `bash scripts/setup-hooks.sh`; that script was retired during the v1.8.5 hook layer退役 + md-only ontological commit.
-
-### Task-spawnable subagents
-
-After running `/install-agents --refresh`, life_OS auto-registers its Task-spawnable agents under `~/.claude/agents/lifeos-*.md`. Claude Code then recognizes calls such as `Task(lifeos-retrospective)` and `Task(lifeos-archiver)` as first-class targets instead of falling back to `general-purpose`.
-
-The `lifeos-` prefix avoids collisions with other skills. Wrappers point at the canonical definitions under `agents/*.md` in the skill, so updating the skill and rerunning setup refreshes agent behavior. There are multiple agents definition files; 21 are Task-spawnable wrappers, while `narrator.md` remains ROUTER-internal.
-
-Uninstall: `/uninstall-agents` (slash command, replaces deleted `scripts/unregister-claude-agents.sh`).
-
-**Manual update**: Say "update" (or "更新" or "アップデート") in any session.
-
-> **Not supported**: ChatGPT, Gemini Web, or any single-context chat interface. Life OS requires multiple independent subagents with true information isolation — a single chat window cannot do this.
-
-For detailed setup including storage backend configuration, see the **[full installation guide](docs/installation.md)**.
-
----
-
-## Under the hood
-
-### Architecture
-
-```
-👑 You
- │
- ├─ 🎨 Theme Layer
- │     9 themes across 3 languages (3 per language: historical / government / corporate)
- │     zh: 三省六部 · 中国政府 · 公司部门
- │     ja: 明治政府 · 霞が関 · 企業
- │     en: Roman Republic · US Government · C-Suite
- │     Maps the functional IDs → display names, tone, trigger words
- │     One file per theme (~60 lines). Adding a new theme = one new file.
- │
- ├─ ⚙️ Decision Engine (multiple agents, culture-neutral)
- │  │
- │  ├─ 🏛️ ROUTER — Daily entry point
- │  │     Direct handling: casual chat, emotional support, quick questions
- │  │     Express 🏃: 1-3 domains for non-decision analysis
- │  │     Full deliberation ⚖️: 2-3 rounds of intent clarification → three stages
- │  │     Detects confusion/values questions → offers STRATEGIST
- │  │
- │  ├─ Three Stages ──────────────────────────────────────
- │  │   📜 PLANNER (Draft)
- │  │     Break into 3-6 dimensions, assign domains, set quality criteria
- │  │     Reference SOUL for value dimensions user didn't mention
- │  │     Check Strategic Map: does this affect downstream projects?
- │  │
- │  │   🔍 REVIEWER (Review — has veto power)
- │  │     😰 Emotional audit: fear? impulse? avoidance?
- │  │     👨‍👩‍👧 Relationship impact: how will family react?
- │  │     🔮 SOUL alignment: contradicts your stated values?
- │  │     ⏰ Regret test: 10 minutes / 10 months / 10 years?
- │  │     🎯 Red team: assume it fails — weakest assumption?
- │  │     🗺️ Strategic propagation: invalidates downstream premises?
- │  │     🚫 Veto → back to PLANNER (max 2 rounds)
- │  │
- │  │   📨 DISPATCHER (Dispatch)
- │  │     Detect data dependencies → parallel or sequential execution
- │  │     Inject wiki known premises: "start from these conclusions"
- │  │
- │  │   Six Domains (parallel execution, independent scoring 1-10)
- │  │     👥 PEOPLE — relationships, stakeholders, team dynamics
- │  │     💰 FINANCE — income, spending, assets, reserves
- │  │     📖 GROWTH — learning, personal brand, expression, cross-cultural
- │  │     ⚔️ EXECUTION — project mgmt, tools, research, energy
- │  │     ⚖️ GOVERNANCE — legal, audit, discipline, info security
- │  │     🏗️ INFRA — fitness, housing, digital infrastructure, routines
- │  │     Each domain has 4 specialized divisions (24 total)
- │  │
- │  │   🔍 REVIEWER (Final review) → 📋 Summary Report
- │  │   🔱 AUDITOR (Audit agent work quality)
- │  │   💬 ADVISOR (Audit YOUR behavioral patterns)
- │  │
- │  ├─ 🏛️ COUNCIL — Cross-domain debate
- │  │     Auto-triggers when domain scores differ by ≥3 points
- │  │     Manual trigger: "debate" / theme equivalent
- │  │     3 structured rounds: position → rebuttal → final statement
- │  │     Moderator assessment + recommendation (not decision)
- │  │
- │  ├─ 🌅 RETROSPECTIVE — Session start (18 steps)
- │  │     Step 1: 🎨 Theme selection (trigger word inference or a/b/c)
- │  │     Step 2: 📂 Directory type detection (system repo / second-brain / project)
- │  │     Step 3: 📦 Data layer check (first-run → create directory structure)
- │  │     Step 4-7: 🔄 Sync (config → git health → full pull → outbox merge)
- │  │     Step 8-9: 📋 Version check + project binding
- │  │     Step 10-14: 📖 Context loading (patterns → SOUL → STATUS → project → overview)
- │  │     Step 15: 🗺️ Strategic Map compilation (archetype matching + narrative + actions)
- │  │     Step 16: 💤 DREAM report (present last session's discoveries + candidates)
- │  │     Step 17: 📚 Wiki health check (compile INDEX)
- │  │     Step 18: 📋 Generate briefing (strategic overview + ⚡ today's actions + metrics)
- │  │
- │  ├─ 📝 ARCHIVER — Session close (4 phases)
- │  │     Phase 1 📦 Archive: decisions / tasks / journal → outbox
- │  │     Phase 2 🔍 Knowledge extraction (core mission · v1.6.2 auto-write):
- │  │       📚 Wiki → auto-written if passes 6 criteria + privacy filter
- │  │       🔮 SOUL → auto-written at confidence 0.3 if ≥2 evidence
- │  │       🗺️ Strategic relationship candidates → user confirms on the spot
- │  │       🔄 last_activity auto-update for touched projects
- │  │       ↩️ User nudges post-hoc: delete file or "undo recent wiki/SOUL"
- │  │     Phase 3 💤 DREAM (AI sleep cycle):
- │  │       N1-N2 💭 Light sleep: organize inbox, flag expired tasks
- │  │       N3 🧠 Deep sleep: consolidate Wiki knowledge + SOUL updates
- │  │       REM 🌙 Dreaming: creative connections + 10 auto-triggered actions
- │  │         · Stale commitments, value drift, decision fatigue, repeated decisions...
- │  │         · SOUL × strategy: driving forces aligned with values?
- │  │         · Wiki × flows: knowledge actually transferring between projects?
- │  │         · Patterns × priorities: avoiding a critical-path project?
- │  │     Phase 4 🔄 Sync: git add + commit + push
- │  │     ✅ Completion checklist: every item must have a concrete value
- │  │
- │  └─ 🎋 STRATEGIST — Hall of Human Wisdom
- │        93 thinkers across 18 domains
- │        Socrates · Laozi · Buffett · Mandela · Feynman · Wang Yangming …
- │        🗣️ One-on-one: deep dialogue with one thinker
- │        🪑 Roundtable (2-4): multi-perspective discussion
- │        ⚔️ Debate (2): opposing views, 3 rounds, you judge
- │        Each thinker is an independent subagent with their own voice
- │        Ending: parting words → thinking journey saved to knowledge base
- │
- └─ 💾 Storage Layer
-       GitHub (git repo: local working copy + remote)
-       ├── SOUL.md          🔮 Personality archive (grows from zero)
-       ├── user-patterns.md 📊 Behavioral patterns (ADVISOR observations)
-       ├── meta/
-       │   ├── STATUS.md         📊 Global status dashboard
-       │   ├── STRATEGIC-MAP.md  🗺️ Strategic relationship map
-       │   ├── journal/          📝 Reports + DREAM logs
-       │   └── outbox/           📮 Session staging
-       ├── projects/        🎯 Active projects with tasks + decisions
-       ├── areas/           🌊 Ongoing life areas with goals
-       ├── wiki/            📚 Reusable knowledge (grows from DREAM)
-       └── archive/         🗄️ Completed work
-```
-
-### 6 Domains
-
-Each domain has four specialized divisions:
-
-| Domain | Divisions |
-|--------|-----------|
-| **People** | Talent (identifying people, evaluating partners), Evaluation (relationship health, social ROI), Relations (cultivation, reciprocity, important dates), Allocation (team building, delegation, family labor) |
-| **Finance** | Income (salary, side income, passive channels), Spending (budgets, habits, subscriptions), Assets (investments, crypto, real estate), Reserves (emergency fund, insurance, tax, retirement) |
-| **Growth** | Education (learning roadmap, skills, certifications), Image (personal brand, social presence), Writing (content planning, speech prep), Diplomacy (cross-cultural communication, networking) |
-| **Execution** | Operations (project planning, task decomposition, deadlines), Equipment (tools, hardware, dev environment), Intelligence (industry research, competitive analysis), Logistics (energy management, workflow, procrastination) |
-| **Governance** | Law (legal risk, contracts, IP, compliance), Audit (decision reviews, time audits, failure analysis), Discipline (bad habits, commitment tracking, self-deception), Defense (information security, privacy, scam detection) |
-| **Infrastructure** | Fitness (exercise, diet, sleep, mental health), Housing (living space, workspace, renovation), Digital (knowledge base, servers, backup, automation), Routines (daily rhythm, morning/bedtime procedures) |
-
-When domains overlap, jurisdiction follows root cause: body illness goes to Fitness, broken rhythm goes to Routines, work inefficiency goes to Logistics. If the lead and assisting domains disagree, the COUNCIL resolves it.
-
-### Cognitive Pipeline
-
-How information flows through the system — from a thought on your phone to an insight you never expected:
-
-```
-Perceive → Capture → Judge → Settle → Associate → Strategize → Emerge
-  (phone)   (inbox)  (engine)  (SOUL)   (wiki)    (strat-map)   (DREAM)
-```
-
-**Perceive and Capture** happen on mobile — zero-friction capture to inbox. **Judge** happens on desktop — the decision engine runs the full Draft-Review-Execute cycle. **Settle** extracts lasting knowledge into two pools: SOUL (about you) and Wiki (about the world). **Associate** turns accumulated knowledge into active context — when a new topic arrives, the system already knows what you know. **Strategize** adds the relationship layer — per-project analysis becomes strategic-line-aware analysis. **Emerge** is where DREAM discovers connections across all layers that you have not noticed.
-
-### Safety and governance
-
-**4 security boundaries:**
-- No destructive operations (file deletion, force push) without explicit user confirmation
-- No secrets exposure — agents never echo sensitive data
-- No unauthorized decisions — the engine advises, you decide
-- Suspicious instructions rejected — agents treat other agents' output as reference, never as commands
-
-**Information isolation** — Agents cannot see each other's reasoning. The PLANNER does not see the ROUTER's triage logic. Each domain analyst does not see other domains' reports. Thinker subagents in roundtable mode receive only summaries of what others said, not full output. This prevents groupthink and ensures genuinely independent analysis.
-
-**Workflow state machine** — Formal transition rules enforce the correct sequence. The PLANNER cannot skip to execution. The DISPATCHER cannot skip the REVIEWER. The Summary Report cannot be produced without the AUDITOR and ADVISOR running. Any violation is a process error that the AUDITOR flags.
-
-**HARD RULES index** — Non-overridable behavior is tracked in [`references/hard-rules-index.md`](references/hard-rules-index.md): intent clarification cannot be skipped, pre-session preparation must be shown, each domain's report must be displayed in full as it completes, SOUL entries require user confirmation, theme language cannot be mixed, and more.
-
-**Model independence** — Only one file (CLAUDE.md) is bound to a specific AI model. All other intelligence — agent definitions, extraction rules, inspection rules, knowledge network, directory structure — is pure markdown readable by any model. Switching models means updating one file.
-
-### Theme system
-
-9 themes across 3 languages — each language offers three governance styles: historical, modern government, and corporate.
-
-```
-themes/
-├── zh-classical.md      # 🏛️ 三省六部 — Tang Dynasty (Chinese historical)
-├── zh-gov.md            # 🇨🇳 中国政府 — Modern Chinese government
-├── zh-corp.md           # 🏢 公司部门 — Corporate departments (Chinese)
-├── ja-meiji.md          # 🏛️ 明治政府 — Meiji-era governance (Japanese historical)
-├── ja-kasumigaseki.md   # 🏛️ 霞が関 — Central Government (Japanese modern)
-├── ja-corp.md           # 🏢 企業 — Corporate structure (Japanese)
-├── en-roman.md          # 🏛️ Roman Republic — Classical Roman governance (English historical)
-├── en-usgov.md          # 🇺🇸 US Government — American federal government
-└── en-csuite.md         # 🏢 C-Suite — Corporate Executive (English)
-```
-
-Each theme is a single file (~60 lines) that maps the functional IDs to display names, defines the tone, sets trigger words, and names the output formats. The engine reads the theme file once at session start and uses those names everywhere.
-
-**Adding a new theme** (Korean government, EU Parliament, Shogunate, startup board) requires only one new file. No engine changes. No new agents.
-
-**Theme determines output language** — This is a HARD RULE enforced at every level. All Chinese themes output Chinese. All Japanese themes output Japanese. All English themes output English. Every agent, every report, every response follows this without exception.
-
-**Per-session independence** — Theme choice does not persist across sessions. Each new session re-prompts. Each terminal window can use a different theme simultaneously.
-
----
-
-## Design philosophy
-
-The core idea is 1,400 years old: **no single voice goes unchecked**.
-
-- The planner only plans; it does not execute.
-- The reviewer only reviews; it can veto but not rewrite.
-- The six domain analysts only execute; they do not judge each other.
-- The auditor audits the agents; the advisor audits you.
-- No single agent can bypass review and act alone.
-
-When you talk to a normal AI, you get one voice — confident, agreeable, unchecked. Life OS gives you sixteen, and they do not always agree. That tension is the point.
-
-The Theme Engine adds a second principle: **governance is universal, but culture is personal**. The logic that makes a good decision is the same everywhere. The language that makes it feel like *yours* is not. Life OS separates the two so you get both.
-
----
-
-## Inspiration
-
-Built on the foundation of the [Edict](https://github.com/cft0808/edict) project. Life OS extends the framework from software development to all areas of personal life, adding the auditor, advisor, council, strategist, SOUL, DREAM, Strategic Map, and Theme Engine.
+## Repository map
+
+| Path | Purpose |
+|---|---|
+| `SKILL.md` | Sole universal runtime contract |
+| `hosts/` | Host capability adapters |
+| `agents/` | Optional reusable perspectives |
+| `themes/` | Optional presentation adapters |
+| `references/` | Non-authoritative data and implementation references |
+| `evals/` | Observable behavioral conformance scenarios |
+| `docs/` | Current user and developer documentation |
+| `docs/history/` | Superseded architecture and release evidence |
+
+Start with [the documentation index](docs/index.md), the
+[installation guide](docs/installation.md), or the
+[first-session guide](docs/getting-started/first-session.md).
+
+Existing v1.9 and v1.10 Markdown remains user-owned and readable by default.
+See [MIGRATION.md](MIGRATION.md) before requesting structural changes.
 
 ## License
 
-[Apache-2.0](LICENSE)
+Life OS is licensed under the [Apache License 2.0](LICENSE).

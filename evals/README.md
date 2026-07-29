@@ -1,45 +1,40 @@
-# Life OS Eval System
+---
+title: Life OS Behavioral Conformance
+status: developer-doc
+authoritative: false
+runtime_authority: SKILL.md
+version: 1.11.0
+---
 
-Test the output quality of the Draft-Review-Execute and Six Domains workflow using fixed scenarios, quantifying consistency and compliance.
+# Behavioral Conformance
 
-## Usage
+These evaluations check observable Life OS behavior. They do not prescribe the
+model's private reasoning, tool sequence, agent names, step count, status line,
+or orchestration shape.
 
-### Manual Testing
+## How to Review
 
-After installing the life-os skill in Claude Code, directly input the user messages from each scenario and observe the full workflow output.
+A reviewer may run a scenario manually or with any available host capability:
 
-### Automated Testing
+1. use only the synthetic setup described by the scenario;
+2. observe the answer, writes, tool effects, and external effects that are
+   material to the scenario;
+3. compare them with the observable requirements and rubric;
+4. record concrete evidence, including limitations;
+5. mark missing evidence as `not verified`, never as a pass.
 
-Run the `/run-eval` slash command in Claude Code (replaces the retired `evals/run-eval.sh` — part of the v1.8.5 hook-layer retirement under the md-only ontological constraint):
+No CLI, runner, CI system, external evaluator, or specific model is required.
+Different internal paths may pass when their observable outcomes satisfy the
+same contract.
 
-```
-/run-eval                 # run all scenarios
-/run-eval resign-startup  # run a single scenario by name glob
-```
+## Layout
 
-`/run-eval` invokes the `claude` CLI in batch mode (`claude -p`) to run scenarios one by one, saving outputs to `evals/outputs/`. See `.claude/commands/run-eval.md` for the full procedure.
+- `scenarios/` — MS-01 through MS-18 behavioral cases;
+- `regression-fixtures/` — synthetic failure prompts and workspace descriptions;
+- `rubrics/model-sovereignty.md` — shared judgment criteria;
+- `evidence/` — dated candidate review records.
 
-## Directory Structure
+Historical process-prescriptive evaluations are preserved under
+`docs/history/v1.10-evals/`.
 
-```
-evals/
-├── README.md              # This file
-├── scenarios/             # Fixed test scenarios (*.md — routing, compliance, version-specific)
-├── regression-fixtures/   # Regression case fixtures (*.md)
-├── rubrics/               # Scoring criteria
-│   ├── agent-output-quality.md    # Agent output quality
-│   └── orchestrator-compliance.md # Workflow compliance
-└── outputs/               # Test outputs (gitignored)
-```
-
-## Evaluation Dimensions
-
-1. **Format compliance**: Whether each agent follows its specified output format
-2. **Score distribution**: Whether all scores are 7-8 (face-saving score detection)
-3. **Reviewer substantiveness**: Whether it always approves (rubber-stamp detection)
-4. **Information isolation**: Whether agent outputs reference content they shouldn't have access to
-5. **Actionability**: Whether action recommendations are specific enough to execute
-6. **Consistency**: Whether core conclusions remain consistent across multiple runs of the same scenario
-7. **Express path routing**: Whether non-decision requests correctly trigger the Express path instead of full court
-8. **Domain selection accuracy**: Whether the Router / Planner selects the right domains for the scenario
-9. **Wiki extraction quality**: Whether the Archiver extracts reusable conclusions into wiki at End Session
+Never run these scenarios against a real second-brain.

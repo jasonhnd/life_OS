@@ -1,11 +1,7 @@
-# Claude Code local installation (generated from repo source files)
-# v1.8.5: slash commands replace retired bash hooks and MUST travel with repo
-# so user clone gets working /verify-release, /check-spec-drift, etc.
-# Use .claude/* + negation pattern (trailing-slash ignore blocks negation).
+# Host-local Claude settings are not part of the portable Life OS package.
 .claude/*
-!.claude/commands/
 
-# Eval outputs (generated, not tracked)
+# Local evaluation output, when a reviewer chooses to create it.
 evals/outputs/
 .DS_Store
 
@@ -13,16 +9,6 @@ evals/outputs/
 # docs/ is public by default (tracked); devdocs/ holds brainstorms,
 # research reports, deprecated architecture docs, and internal rules.
 devdocs/
-
-# Compliance incident archives (contain sanitized but sensitive context)
-compliance/*.md
-!compliance/violations.md
-!compliance/violations.example.md
-# Whitelist: spec-violation and court-start incident dossiers (high info-density,
-# long-term value, sanitized-safe — track in git so they travel with the repo).
-!compliance/*-spec-violation.md
-!compliance/*-court-*.md
-!compliance/*-incident-*.md
 
 # Python caches
 __pycache__/
