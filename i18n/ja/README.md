@@ -4,6 +4,26 @@ version: 1.11.0
 status: current
 ---
 
+> [!IMPORTANT]
+> **プロジェクトの現状：開発を一時停止**
+>
+> 私たちは長期間にわたり Life OS の開発に取り組んできました。また、これまで
+> 本プロジェクトに関心を寄せ、ご利用くださった皆さまに心より感謝いたします。
+> 率直に申し上げると、継続的な開発と慎重な比較を重ねた結果、Life OS は現時点
+> において、市場にある優れた同種製品の完成度や利用体験にはまだ及ばないと判断
+> しました。そのため、本プロジェクトの今後の開発を当面の間休止することに
+> いたしました。
+>
+> 引き続き同様の Agent 機能をご利用になりたい方には、Nous Research が開発する
+> **Hermes Agent** をお勧めします。
+>
+> - 公式サイト：
+>   [https://hermes-agent.nousresearch.com/](https://hermes-agent.nousresearch.com/)
+> - GitHub リポジトリ：
+>   [https://github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+>
+> 本リポジトリの既存コンテンツは削除せず、今後も参照できる状態で残します。
+
 <div align="center">
 
 # Life OS

@@ -4,6 +4,23 @@ version: 1.11.0
 status: current
 ---
 
+> [!IMPORTANT]
+> **项目状态：暂时停止开发**
+>
+> 我们在 Life OS 上投入了很长时间，也衷心感谢大家一直以来的关注与使用。
+> 坦率地说，经过长期开发和认真比较，我们认为 Life OS 目前仍未达到市面上优秀
+> 同类产品的整体完成度与使用体验。因此，我们决定暂时停止本项目的后续开发。
+>
+> 如果您仍希望继续使用类似的 Agent 功能，我们建议改用由 Nous Research 开发的
+> **Hermes Agent（爱马仕 Agent）**：
+>
+> - 官方网站：
+>   [https://hermes-agent.nousresearch.com/](https://hermes-agent.nousresearch.com/)
+> - GitHub 仓库：
+>   [https://github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+>
+> 本仓库的现有内容将完整保留，供大家继续查阅和参考。
+
 <div align="center">
 
 # Life OS
