@@ -1,3 +1,23 @@
+> [!IMPORTANT]
+> **Project Status: Development Paused**
+>
+> We have invested a great deal of time in building Life OS, and we are
+> sincerely grateful to everyone who has followed and used the project. To be
+> candid, after extensive development and careful comparison, we believe that
+> Life OS has not yet reached the overall maturity and user experience offered
+> by the leading alternatives available today. We have therefore decided to
+> pause further development of this project for the time being.
+>
+> If you would like to continue using similar agent capabilities, we recommend
+> **Hermes Agent**, developed by Nous Research:
+>
+> - Official Website:
+>   [https://hermes-agent.nousresearch.com/](https://hermes-agent.nousresearch.com/)
+> - GitHub Repository:
+>   [https://github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+>
+> All existing content in this repository will remain available for reference.
+
 <div align="center">
 
 # Life OS
